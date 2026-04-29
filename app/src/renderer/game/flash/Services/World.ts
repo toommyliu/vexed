@@ -40,6 +40,7 @@ export interface WorldPlayersShape {
   add(data: AvatarData): Effect.Effect<void>;
   remove(username: string): Effect.Effect<void>;
   setSelf(username: string): Effect.Effect<void>;
+  getAll(): Effect.Effect<Collection<string, Avatar>>;
   getSelf(): Effect.Effect<Option.Option<Avatar>>;
   withSelf<A>(f: (self: Avatar) => A): Effect.Effect<Option.Option<A>>;
   get(username: string): Effect.Effect<Option.Option<Avatar>>;
@@ -47,6 +48,7 @@ export interface WorldPlayersShape {
   addAura(entId: number, aura: Aura): Effect.Effect<void>;
   updateAura(entId: number, aura: Aura): Effect.Effect<void>;
   removeAura(entId: number, auraName: string): Effect.Effect<void>;
+  getAura(entId: number, auraName: string): Effect.Effect<Option.Option<Aura>>;
   clearAuras(entId: number): Effect.Effect<void>;
 }
 
@@ -61,6 +63,10 @@ export interface WorldMonstersShape {
   addAura(monMapId: number, aura: Aura): Effect.Effect<void>;
   updateAura(monMapId: number, aura: Aura): Effect.Effect<void>;
   removeAura(monMapId: number, auraName: string): Effect.Effect<void>;
+  getAura(
+    monMapId: number,
+    auraName: string,
+  ): Effect.Effect<Option.Option<Aura>>;
   clearAuras(monMapId: number): Effect.Effect<void>;
 }
 

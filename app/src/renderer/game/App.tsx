@@ -1,6 +1,7 @@
 import { Effect, Fiber } from "effect";
 import { Monster } from "@vexed/game";
 import { createSignal, onCleanup, onMount } from "solid-js";
+import type { JSX } from "solid-js";
 import { runtime } from "./flash/Runtime";
 import { Combat } from "./flash/Services/Combat";
 import { AutoZone } from "./flash/Services/AutoZone";
@@ -9,7 +10,123 @@ import { Packet } from "./flash/Services/Packet";
 import { Settings } from "./flash/Services/Settings";
 import { Auth } from "./flash/Services/Auth";
 import { World } from "./flash/Services/World";
-import type { PacketListenerDisposer } from "./flash/Services/Packet";
+import { Bank } from "./flash/Services/Bank";
+import { Drops } from "./flash/Services/Drops";
+import { House } from "./flash/Services/House";
+import { Inventory } from "./flash/Services/Inventory";
+import { Jobs } from "./flash/Services/Jobs";
+import { Player } from "./flash/Services/Player";
+import { Shops } from "./flash/Services/Shops";
+import { TempInventory } from "./flash/Services/TempInventory";
+import { demoScriptName, demoScriptSource } from "./scripting/demoScript";
+
+const flashServiceDebugExamples = [
+  {
+    label: "settings",
+    source: `const state = yield* Settings.getState();
+console.log(state);
+return state;`,
+  },
+  {
+    label: "position",
+    source: `const position = yield* Player.getPosition();
+console.log(position);
+return position;`,
+  },
+  {
+    label: "target",
+    source: `const target = yield* Combat.getTarget();
+console.log(target);
+return target;`,
+  },
+  {
+    label: "monsters",
+    source: `const monsters = yield* World.map.getCellMonsters();
+console.log(monsters);
+return monsters;`,
+  },
+  {
+    label: "inventory",
+    source: `const items = yield* Inventory.getItems();
+console.log(items);
+return items;`,
+  },
+  {
+    label: "contains item",
+    source: `const contains = yield* Inventory.contains("Health Potion");
+console.log(contains);
+return contains;`,
+  },
+  {
+    label: "multi read",
+    source: `const position = yield* Player.getPosition();
+const cell = yield* Player.getCell();
+const monsters = yield* World.map.getCellMonsters();
+
+return { position, cell, monsters };`,
+  },
+];
+
+const formatDebugValue = (value: unknown): string => {
+  if (value === undefined) {
+    return "undefined";
+  }
+
+  if (typeof value === "bigint") {
+    return `${value}n`;
+  }
+
+  if (typeof value === "function") {
+    return `[Function ${value.name || "anonymous"}]`;
+  }
+
+  if (typeof value === "string") {
+    try {
+      return JSON.stringify(JSON.parse(value), null, 2);
+    } catch {
+      return value;
+    }
+  }
+
+  const seen = new WeakSet<object>();
+
+  return JSON.stringify(
+    value,
+    (_key, nestedValue) => {
+      if (typeof nestedValue === "bigint") {
+        return `${nestedValue}n`;
+      }
+
+      if (typeof nestedValue === "function") {
+        return `[Function ${nestedValue.name || "anonymous"}]`;
+      }
+
+      if (typeof nestedValue === "object" && nestedValue !== null) {
+        if (seen.has(nestedValue)) {
+          return "[Circular]";
+        }
+
+        seen.add(nestedValue);
+      }
+
+      return nestedValue;
+    },
+    2,
+  ) ?? String(value);
+};
+
+interface Point {
+  readonly x: number;
+  readonly y: number;
+}
+
+const clamp = (value: number, min: number, max: number) =>
+  Math.min(Math.max(value, min), max);
+
+const getInitialScriptOverlayPosition = (): Point => ({
+  x: Math.max(20, window.innerWidth - 612),
+  y: 20,
+});
 
 export default function App() {
   const [count, setCount] = createSignal(0);
@@ -30,6 +147,11 @@ export default function App() {
   const [effectsEnabled, setEffectsEnabled] = createSignal(true);
   const [playersVisible, setPlayersVisible] = createSignal(true);
   const [lagKillerEnabled, setLagKillerEnabled] = createSignal(false);
+  const [renderPreset, setRenderPreset] =
+    createSignal<RenderPreset>("normal");
+  const [otherPlayerCosmeticsEnabled, setOtherPlayerCosmeticsEnabled] =
+    createSignal(true);
+  const [mapAnimationsEnabled, setMapAnimationsEnabled] = createSignal(true);
   const [enemyMagnetEnabled, setEnemyMagnetEnabled] = createSignal(false);
   const [infiniteRangeEnabled, setInfiniteRangeEnabled] = createSignal(false);
   const [provokeCellEnabled, setProvokeCellEnabled] = createSignal(false);
@@ -43,16 +165,85 @@ export default function App() {
     "String" | "Json"
   >("String");
   const [demoUsername, setDemoUsername] = createSignal("");
+  const [flashEvalCode, setFlashEvalCode] = createSignal(
+    flashServiceDebugExamples[0]!.source,
+  );
+  const [flashEvalResult, setFlashEvalResult] = createSignal("No result yet");
+  const [flashEvalRunning, setFlashEvalRunning] = createSignal(false);
   let activeCombatFiber: Fiber.Fiber<void, unknown> | undefined;
-  let packetLogDisposer: PacketListenerDisposer | undefined;
+  let packetLogDisposer: (() => void) | undefined;
   let settingsStateDisposer: (() => void) | undefined;
+
+  const [scriptOverlayVisible, setScriptOverlayVisible] = createSignal(false);
+  const [scriptOverlayPosition, setScriptOverlayPosition] = createSignal(
+    getInitialScriptOverlayPosition(),
+  );
+  const [scriptName, setScriptName] = createSignal(demoScriptName);
+  const [scriptPath, setScriptPath] = createSignal<string | undefined>(undefined);
+  const [scriptSource, setScriptSource] = createSignal(demoScriptSource);
+  const [status, setStatus] = createSignal("Ready");
+  const [commandCount, setCommandCount] = createSignal(0);
+  const [running, setRunning] = createSignal(false);
+  const [currentCommand, setCurrentCommand] =
+    createSignal<RunningScriptCommand | null>(null);
+  let scriptOverlayElement: HTMLDivElement | undefined;
+  let scriptOverlayDragOffset: Point | undefined;
+
+  const moveScriptOverlay = (clientX: number, clientY: number) => {
+    const overlayWidth = scriptOverlayElement?.offsetWidth ?? 612;
+    const overlayHeight = scriptOverlayElement?.offsetHeight ?? 520;
+    const maxX = Math.max(0, window.innerWidth - overlayWidth);
+    const maxY = Math.max(0, window.innerHeight - overlayHeight);
+    const dragOffset = scriptOverlayDragOffset ?? { x: 0, y: 0 };
+
+    setScriptOverlayPosition({
+      x: clamp(clientX - dragOffset.x, 0, maxX),
+      y: clamp(clientY - dragOffset.y, 0, maxY),
+    });
+  };
+
+  const startScriptOverlayDrag: JSX.EventHandler<HTMLDivElement, PointerEvent> = (
+    event,
+  ) => {
+    if (event.button !== 0 || !scriptOverlayElement) {
+      return;
+    }
+
+    const rect = scriptOverlayElement.getBoundingClientRect();
+    scriptOverlayDragOffset = {
+      x: event.clientX - rect.left,
+      y: event.clientY - rect.top,
+    };
+    event.currentTarget.setPointerCapture(event.pointerId);
+    event.preventDefault();
+  };
+
+  const dragScriptOverlay: JSX.EventHandler<HTMLDivElement, PointerEvent> = (
+    event,
+  ) => {
+    if (!scriptOverlayDragOffset) {
+      return;
+    }
+
+    moveScriptOverlay(event.clientX, event.clientY);
+  };
+
+  const stopScriptOverlayDrag: JSX.EventHandler<HTMLDivElement, PointerEvent> = (
+    event,
+  ) => {
+    scriptOverlayDragOffset = undefined;
+
+    if (event.currentTarget.hasPointerCapture(event.pointerId)) {
+      event.currentTarget.releasePointerCapture(event.pointerId);
+    }
+  };
 
   const testBridge = () => {
     void runtime
       .runPromise(
         Effect.gen(function* () {
           const quests = yield* Quests;
-          console.log(yield* quests.getTree()); 
+          console.log(yield* quests.getTree());
         }),
       )
       .catch((error) => {
@@ -60,13 +251,152 @@ export default function App() {
       });
   };
 
+  const makeFlashServiceDebugApi = Effect.gen(function* () {
+    const auth = yield* Auth;
+    const autoZone = yield* AutoZone;
+    const bank = yield* Bank;
+    const combat = yield* Combat;
+    const drops = yield* Drops;
+    const house = yield* House;
+    const inventory = yield* Inventory;
+    const jobs = yield* Jobs;
+    const packet = yield* Packet;
+    const player = yield* Player;
+    const quests = yield* Quests;
+    const settings = yield* Settings;
+    const shops = yield* Shops;
+    const tempInventory = yield* TempInventory;
+    const world = yield* World;
+
+    return {
+      Auth: auth,
+      AutoZone: autoZone,
+      Bank: bank,
+      Combat: combat,
+      Drops: drops,
+      House: house,
+      Inventory: inventory,
+      Jobs: jobs,
+      Packet: packet,
+      Player: player,
+      Quests: quests,
+      Settings: settings,
+      Shops: shops,
+      TempInventory: tempInventory,
+      World: world,
+      api: {
+        auth,
+        autoZone,
+        bank,
+        combat,
+        drops,
+        house,
+        inventory,
+        jobs,
+        packet,
+        player,
+        quests,
+        settings,
+        shops,
+        tempInventory,
+        world,
+      },
+      auth,
+      autoZone,
+      bank,
+      combat,
+      drops,
+      house,
+      inventory,
+      jobs,
+      packet,
+      player,
+      quests,
+      settings,
+      shops,
+      tempInventory,
+      world,
+    } satisfies Record<string, unknown>;
+  });
+
+  const runFlashEval = () => {
+    const source = flashEvalCode();
+    setFlashEvalRunning(true);
+    setFlashEvalResult("Running...");
+
+    void runtime
+      .runPromise(
+        Effect.gen(function* () {
+          const services = yield* makeFlashServiceDebugApi;
+          const program = yield* Effect.try({
+            try: () => {
+              const evaluate = new Function(
+                "services",
+                "Effect",
+                `"use strict";
+const {
+  Auth,
+  AutoZone,
+  Bank,
+  Combat,
+  Drops,
+  House,
+  Inventory,
+  Jobs,
+  Packet,
+  Player,
+  Quests,
+  Settings,
+  Shops,
+  TempInventory,
+  World,
+  api,
+} = services;
+
+return Effect.gen(function* () {
+${source}
+});`,
+              ) as (
+                services: Record<string, unknown>,
+                effect: typeof Effect,
+              ) => unknown;
+
+              return evaluate(services, Effect);
+            },
+            catch: (cause) => cause,
+          });
+
+          if (Effect.isEffect(program)) {
+            return yield* (program as Effect.Effect<unknown, unknown, never>);
+          }
+
+          return program;
+        }),
+      )
+      .then((result) => {
+        const formatted = formatDebugValue(result);
+        setFlashEvalResult(formatted);
+        console.log("[Flash Service Eval]", result);
+      })
+      .catch((error) => {
+        console.error("[Flash Service Eval] error:", error);
+        setFlashEvalResult(formatDebugValue(error));
+      })
+      .finally(() => {
+        setFlashEvalRunning(false);
+      });
+  };
+
+  const loadFlashEvalExample = (source: string) => {
+    setFlashEvalCode(source);
+  };
+
   const inspectWorld = () => {
     void runtime
       .runPromise(
         Effect.gen(function* () {
           const quests = yield* Quests;
-          const result = yield* quests.accept(11, false);
-          console.log("Accept result:", result);
+          console.log(yield* quests.getTree());
         }),
       )
       .catch((error) => {
@@ -162,11 +492,23 @@ export default function App() {
         .runPromise(
           Effect.gen(function* () {
             const packet = yield* Packet;
-            packetLogDisposer = yield* packet.packetFromServer((rawPacket) =>
+            packetLogDisposer?.();
+
+            const disposeClient = yield* packet.packetFromClient((rawPacket) =>
+              Effect.sync(() => {
+                console.log("[Client Packet]", rawPacket);
+              }),
+            );
+            const disposeServer = yield* packet.packetFromServer((rawPacket) =>
               Effect.sync(() => {
                 console.log("[Server Packet]", rawPacket);
               }),
             );
+
+            packetLogDisposer = () => {
+              disposeClient();
+              disposeServer();
+            };
             console.log("Packet logging enabled");
           }),
         )
@@ -638,7 +980,100 @@ export default function App() {
     settingsStateDisposer?.();
   });
 
+
+  const refreshMeta = async () => {
+    if (!window.cmd) {
+      setStatus("cmd global is not ready yet");
+      return;
+    }
+
+    try {
+      const [commands, isRunning, command] = await Promise.all([
+        window.cmd.listCommands(),
+        window.cmd.isRunning(),
+        window.cmd.currentCommand(),
+      ]);
+
+      setCommandCount(commands.length);
+      setRunning(isRunning);
+      setCurrentCommand(command);
+    } catch (error) {
+      console.error("Failed to refresh scripting metadata", error);
+    }
+  };
+
+  const loadDemo = () => {
+    setScriptName(demoScriptName);
+    setScriptPath(undefined);
+    setScriptSource(demoScriptSource);
+    setStatus("Loaded demo script");
+  };
+
+  const openScript = async () => {
+    if (!window.cmd) {
+      setStatus("cmd global is not ready yet");
+      return;
+    }
+
+    try {
+      const payload = await window.cmd.open();
+      if (!payload) {
+        setStatus("Open script cancelled");
+        return;
+      }
+
+      setScriptName(payload.name ?? "external-script");
+      setScriptPath(payload.path);
+      setScriptSource(payload.source);
+      setStatus(`Loaded ${payload.name ?? payload.path ?? "script"}`);
+    } catch (error) {
+      console.error("Failed to open script", error);
+      setStatus("Failed to open script");
+    }
+  };
+
+  const runScript = () => {
+    if (!window.cmd) {
+      setStatus("cmd global is not ready yet");
+      return;
+    }
+
+    const source = scriptSource();
+    if (source.trim() === "") {
+      setStatus("Script is empty");
+      return;
+    }
+
+    window.cmd.run(source, scriptName());
+    setStatus(`Running ${scriptName()}`);
+    void refreshMeta();
+  };
+
+  const stopScript = () => {
+    if (!window.cmd) {
+      setStatus("cmd global is not ready yet");
+      return;
+    }
+
+    window.cmd.stop();
+    setStatus("Stop requested");
+    void refreshMeta();
+  };
+
+  onMount(() => {
+    void refreshMeta();
+
+    const interval = setInterval(() => {
+      void refreshMeta();
+    }, 1200);
+
+    onCleanup(() => {
+      clearInterval(interval);
+    });
+  });
+
   return (
+    <>
     <div
       style={{
         position: "absolute",
@@ -661,10 +1096,29 @@ export default function App() {
             background: "#374151",
             border: "none",
             color: "white",
-            "border-radius": "4px",
+            "border-radius": "8px",
+            "z-index": 100,
+            "pointer-events": "auto",
+            "font-family": "sans-serif",
           }}
         >
-          {overlayVisible() ? "-" : "+"}
+          Flash Debug {overlayVisible() ? "-" : "+"}
+        </button>
+        <button
+          onClick={() => setScriptOverlayVisible(!scriptOverlayVisible())}
+          style={{
+            padding: "5px 10px",
+            cursor: "pointer",
+            background: "#4f46e5",
+            border: "none",
+            color: "white",
+            "border-radius": "8px",
+            "z-index": 100,
+            "pointer-events": "auto",
+            "font-family": "sans-serif",
+          }}
+        >
+          Script {scriptOverlayVisible() ? "-" : "+"}
         </button>
         {overlayVisible() && (
           <>
@@ -1256,8 +1710,184 @@ export default function App() {
               Send Server
             </button>
           </div>
+          <div
+            style={{
+              display: "grid",
+              gap: "8px",
+              "margin-top": "10px",
+              width: "min(760px, calc(100vw - 40px))",
+            }}
+          >
+            <div
+              style={{
+                display: "flex",
+                "align-items": "center",
+                gap: "8px",
+                "flex-wrap": "wrap",
+              }}
+            >
+              <span style={{ "font-size": "12px", opacity: 0.85 }}>
+                Effect service code
+              </span>
+              <button
+                onClick={runFlashEval}
+                disabled={flashEvalRunning()}
+                style={{
+                  padding: "5px 10px",
+                  cursor: flashEvalRunning() ? "default" : "pointer",
+                  background: flashEvalRunning() ? "#6b7280" : "#0f766e",
+                  border: "none",
+                  color: "white",
+                  "border-radius": "4px",
+                }}
+              >
+                {flashEvalRunning() ? "Running" : "Run"}
+              </button>
+              <span style={{ "font-size": "11px", opacity: 0.7 }}>
+                Use yield* with Inventory, Player, World, Combat, Settings, api
+              </span>
+            </div>
+            <textarea
+              value={flashEvalCode()}
+              onInput={(e) => setFlashEvalCode(e.currentTarget.value)}
+              rows={10}
+              spellcheck={false}
+              style={{
+                width: "100%",
+                resize: "vertical",
+                padding: "8px",
+                "border-radius": "4px",
+                border: "1px solid #555",
+                background: "#111827",
+                color: "white",
+                "font-family": "ui-monospace, Menlo, monospace",
+                "font-size": "12px",
+              }}
+            />
+            <div
+              style={{
+                display: "flex",
+                gap: "6px",
+                "flex-wrap": "wrap",
+              }}
+            >
+              {flashServiceDebugExamples.map((example) => (
+                <button onClick={() => loadFlashEvalExample(example.source)}>
+                  {example.label}
+                </button>
+              ))}
+            </div>
+            <pre
+              style={{
+                margin: 0,
+                padding: "8px",
+                "max-height": "220px",
+                overflow: "auto",
+                "border-radius": "4px",
+                background: "#030712",
+                color: "#d1d5db",
+                "font-family": "ui-monospace, Menlo, monospace",
+                "font-size": "12px",
+                "white-space": "pre-wrap",
+              }}
+            >
+              {flashEvalResult()}
+            </pre>
+          </div>
         </>
       )}
     </div>
+    {scriptOverlayVisible() && (
+      <div
+        ref={scriptOverlayElement}
+        style={{
+          position: "absolute",
+          top: `${scriptOverlayPosition().y}px`,
+          left: `${scriptOverlayPosition().x}px`,
+          width: "560px",
+          padding: "1rem",
+          background: "rgba(0, 0, 0, 0.85)",
+          color: "white",
+          "border-radius": "8px",
+          "z-index": 101,
+          "pointer-events": "auto",
+          "font-family": "sans-serif",
+          display: "flex",
+          "flex-direction": "column",
+          gap: "0.5rem",
+        }}
+      >
+        <div
+          onPointerDown={startScriptOverlayDrag}
+          onPointerMove={dragScriptOverlay}
+          onPointerUp={stopScriptOverlayDrag}
+          onPointerCancel={stopScriptOverlayDrag}
+          style={{
+            "font-weight": "bold",
+            cursor: "move",
+            "user-select": "none",
+            "touch-action": "none",
+          }}
+        >
+          Scripting Demo
+        </div>
+        <div style={{ "font-size": "12px", opacity: 0.85 }}>
+          Commands: {commandCount()} · Running: {running() ? "yes" : "no"}
+        </div>
+        <div style={{ "font-size": "12px", opacity: 0.8 }}>
+          Current command: {" "}
+          {currentCommand()
+            ? `#${currentCommand()!.index} ${currentCommand()!.name}`
+            : "idle"}
+        </div>
+        <div style={{ "font-size": "12px", opacity: 0.75 }}>
+          {scriptPath() ? `Path: ${scriptPath()}` : "Using in-memory script"}
+        </div>
+
+        <input
+          value={scriptName()}
+          onInput={(event) => setScriptName(event.currentTarget.value)}
+          placeholder="script name"
+          style={{
+            padding: "6px 8px",
+            border: "1px solid #555",
+            "border-radius": "4px",
+            background: "#111",
+            color: "white",
+          }}
+        />
+
+        <textarea
+          value={scriptSource()}
+          onInput={(event) => setScriptSource(event.currentTarget.value)}
+          rows={14}
+          style={{
+            width: "100%",
+            resize: "vertical",
+            padding: "8px",
+            border: "1px solid #555",
+            "border-radius": "4px",
+            background: "#111",
+            color: "white",
+            "font-family": "ui-monospace, Menlo, monospace",
+            "font-size": "12px",
+          }}
+        />
+
+        <div style={{ display: "flex", gap: "8px", "flex-wrap": "wrap" }}>
+          <button onClick={loadDemo}>Load demo</button>
+          <button onClick={() => void openScript()}>Open file...</button>
+          <button onClick={runScript}>Run</button>
+          <button onClick={stopScript}>Stop</button>
+          <button onClick={() => void refreshMeta()}>Refresh</button>
+        </div>
+
+        <div style={{ "font-size": "12px", opacity: 0.85 }}>Status: {status()}</div>
+        <div style={{ "font-size": "11px", opacity: 0.65 }}>
+          Tip: Ctrl/Cmd+O opens a script file. Ctrl/Cmd+Shift+X stops active script.
+        </div>
+      </div>
+    )}
+    </>
   );
 }

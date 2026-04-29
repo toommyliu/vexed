@@ -50,7 +50,7 @@ export class Item {
    * Whether the item is member-only.
    */
   public isUpgrade(): boolean {
-    return this.data.bUpg === 1;
+    return Number(this.data.bUpg) === 1;
   }
 
   /**
@@ -97,6 +97,13 @@ export class Item {
    */
   public isArmor(): boolean {
     return this.itemGroup === "co";
+  }
+
+  /**
+   * Whether the item is type Class.
+   */
+  public isClass(): boolean {
+    return this.category === "Class";
   }
 
   /**

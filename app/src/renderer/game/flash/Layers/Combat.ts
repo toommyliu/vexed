@@ -9,6 +9,7 @@ import { PacketDomain } from "../Services/PacketDomain";
 import { Player } from "../Services/Player";
 import { World } from "../Services/World";
 import type { MonsterTargetInfo, PlayerTargetInfo } from "../Types";
+import { expiresAtMs as counterAttackExpiresAtMs } from "../counterAttack";
 
 const DEFAULT_SKILL_ROTATION: readonly Skill[] = [1, 2, 3, 4];
 const DEFAULT_SKILL_DELAY_MS = 150;
@@ -40,6 +41,13 @@ type ResolvedAttackSelection =
       readonly kind: "blocked";
       readonly monMapId: number;
     };
+
+type TrackedCounterAttack = {
+  readonly triggerId: string;
+  readonly triggerText: string;
+  readonly source: "message" | "aura";
+  readonly expiresAtMs: number;
+};
 
 const INTEGER_TOKEN_PATTERN = /^\d+$/;
 
@@ -258,7 +266,7 @@ const make = Effect.gen(function* () {
     yield* cancelTarget().pipe(Effect.catch(() => Effect.void));
   });
 
-  const counterAttackMonsters = new Set<number>();
+  const counterAttackMonsters = new Map<number, TrackedCounterAttack>();
 
   const maybePacketDomain = yield* Effect.serviceOption(PacketDomain);
   const packetDomain = Option.isSome(maybePacketDomain)
@@ -288,7 +296,15 @@ const make = Effect.gen(function* () {
       "counterAttackStart",
       (event) =>
         Effect.gen(function* () {
-          counterAttackMonsters.add(event.monMapId);
+          counterAttackMonsters.set(event.monMapId, {
+            triggerId: event.triggerId,
+            triggerText: event.triggerText,
+            source: event.source,
+            expiresAtMs: counterAttackExpiresAtMs(
+              { triggerId: event.triggerId },
+              event.durationMs,
+            ),
+          });
 
           const currentTargetMonMapId = yield* getCurrentTargetMonMapId();
           if (currentTargetMonMapId === event.monMapId) {
@@ -302,7 +318,10 @@ const make = Effect.gen(function* () {
       "counterAttackEnd",
       (event) =>
         Effect.sync(() => {
-          counterAttackMonsters.delete(event.monMapId);
+          const tracked = counterAttackMonsters.get(event.monMapId);
+          if (tracked === undefined || tracked.triggerId === event.triggerId) {
+            counterAttackMonsters.delete(event.monMapId);
+          }
         }),
     );
     disposers.push(disposeCounterEnd);
@@ -334,8 +353,45 @@ const make = Effect.gen(function* () {
     );
   }
 
-  const isCounterAttackActive = (monMapId: number): boolean =>
-    counterAttackMonsters.has(monMapId);
+  const pruneExpiredCounterAttacks = Effect.sync(() => {
+    const now = Date.now();
+    for (const [monMapId, tracked] of counterAttackMonsters) {
+      if (tracked.expiresAtMs <= now) {
+        counterAttackMonsters.delete(monMapId);
+      }
+    }
+  });
+
+  const hasTrackedCounterAttacks = () =>
+    pruneExpiredCounterAttacks.pipe(
+      Effect.map(() => counterAttackMonsters.size > 0),
+    );
+
+  const isCounterAttackActive = (monMapId: number) =>
+    Effect.gen(function* () {
+      yield* pruneExpiredCounterAttacks;
+
+      const tracked = counterAttackMonsters.get(monMapId);
+      if (tracked === undefined) {
+        return false;
+      }
+
+      if (tracked.source === "aura") {
+        const maybeWorld = yield* Effect.serviceOption(World);
+        if (Option.isSome(maybeWorld)) {
+          const aura = yield* maybeWorld.value.monsters.getAura(
+            monMapId,
+            tracked.triggerText,
+          );
+          if (Option.isNone(aura)) {
+            counterAttackMonsters.delete(monMapId);
+            return false;
+          }
+        }
+      }
+
+      return true;
+    });
 
   const attackMonster: CombatShape["attackMonster"] = (monster) =>
     Effect.gen(function* () {
@@ -472,7 +528,7 @@ const make = Effect.gen(function* () {
       const targetBeforeWait = yield* getCurrentTargetMonMapId();
       if (
         targetBeforeWait !== undefined &&
-        isCounterAttackActive(targetBeforeWait)
+        (yield* isCounterAttackActive(targetBeforeWait))
       ) {
         yield* stopCombat;
         return;
@@ -489,7 +545,7 @@ const make = Effect.gen(function* () {
       const targetBeforeCast = yield* getCurrentTargetMonMapId();
       if (
         targetBeforeCast !== undefined &&
-        isCounterAttackActive(targetBeforeCast)
+        (yield* isCounterAttackActive(targetBeforeCast))
       ) {
         yield* stopCombat;
         return;
@@ -624,7 +680,7 @@ const make = Effect.gen(function* () {
 
             if (
               skipCounterAttack &&
-              isCounterAttackActive(candidate.monMapId)
+              (yield* isCounterAttackActive(candidate.monMapId))
             ) {
               return undefined;
             }
@@ -652,7 +708,10 @@ const make = Effect.gen(function* () {
               continue;
             }
 
-            if (skipCounterAttack && isCounterAttackActive(monster.monMapId)) {
+            if (
+              skipCounterAttack &&
+              (yield* isCounterAttackActive(monster.monMapId))
+            ) {
               continue;
             }
 
@@ -665,7 +724,7 @@ const make = Effect.gen(function* () {
       const resolveNextAttack = () =>
         Effect.gen(function* () {
           let blockedMonMapId: number | undefined;
-          const shouldCheckBlockedFallback = counterAttackMonsters.size > 0;
+          const shouldCheckBlockedFallback = yield* hasTrackedCounterAttacks();
 
           for (const candidate of attackOrder) {
             const attackableMonMapId = yield* resolveAliveMonMapId(
@@ -689,7 +748,7 @@ const make = Effect.gen(function* () {
             );
             if (
               maybeBlockedMonMapId !== undefined &&
-              isCounterAttackActive(maybeBlockedMonMapId)
+              (yield* isCounterAttackActive(maybeBlockedMonMapId))
             ) {
               blockedMonMapId = maybeBlockedMonMapId;
               break;
@@ -772,22 +831,8 @@ const make = Effect.gen(function* () {
           }
         } else if (nextAttack?.kind === "blocked") {
           yield* stopCombat;
-        } else if (
-          resolvedTarget.kind === "name" &&
-          counterAttackMonsters.size === 0
-        ) {
-          yield* attackMonster(resolvedTarget.name);
-          attackedThisLoop = true;
-
-          const skill =
-            normalizedKillOptions.skillSet[
-              skillIndex % normalizedKillOptions.skillSet.length
-            ];
-          skillIndex += 1;
-
-          if (skill !== undefined) {
-            yield* useSkill(skill, false, normalizedKillOptions.skillWait);
-          }
+        } else if (nextAttack === undefined) {
+          return;
         }
 
         if (targetMonMapId !== undefined) {

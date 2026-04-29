@@ -9,6 +9,7 @@ export interface ShopsShape {
   getInfo(): BridgeEffect<ShopInfo | null>;
   getItem(key: ItemIdentifierToken): BridgeEffect<ShopItem | null>;
   getItems(): BridgeEffect<readonly ShopItem[]>;
+  getMaxBuyQuantity(key: ItemIdentifierToken): BridgeEffect<number>;
   isMergeShop(): BridgeEffect<boolean>;
   load(shopId: number): BridgeEffect<void>;
   loadArmorCustomize(): BridgeEffect<void>;

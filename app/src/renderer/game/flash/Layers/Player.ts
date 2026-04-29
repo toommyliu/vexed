@@ -1,5 +1,6 @@
 import { Collection } from "@vexed/collection";
 import { Faction, type Avatar, type FactionData } from "@vexed/game";
+import { equalsIgnoreCase } from "@vexed/shared/string";
 import { Effect, Layer, Option, Random, Ref } from "effect";
 import { isRecord } from "../PacketPayload";
 import { Auth } from "../Services/Auth";
@@ -24,6 +25,32 @@ const isFactionData = (value: unknown): value is FactionData => {
     typeof value["iSpillRep"] === "number" &&
     typeof value["sName"] === "string"
   );
+};
+
+const MAX_FIXED_ROOM_NUMBER = 99_999;
+
+const parseMapTarget = (
+  map: string,
+): { name: string; roomNumber?: number; requireExactRoom: boolean } => {
+  const trimmed = map.trim();
+  const separatorIndex = trimmed.indexOf("-");
+  if (separatorIndex === -1) {
+    return { name: trimmed, requireExactRoom: false };
+  }
+
+  const name = trimmed.slice(0, separatorIndex);
+  const roomToken = trimmed.slice(separatorIndex + 1);
+
+  if (!/^\d+$/.test(roomToken)) {
+    return { name, requireExactRoom: false };
+  }
+
+  const roomNumber = Number(roomToken);
+  if (!Number.isSafeInteger(roomNumber) || roomNumber > MAX_FIXED_ROOM_NUMBER) {
+    return { name, requireExactRoom: false };
+  }
+
+  return { name, roomNumber, requireExactRoom: true };
 };
 
 const make = Effect.gen(function* () {
@@ -141,17 +168,61 @@ const make = Effect.gen(function* () {
 
   const joinMap: PlayerShape["joinMap"] = (map, cell, pad) =>
     Effect.gen(function* () {
+      const targetMap = parseMapTarget(map);
+      const targetCell = cell ?? (pad !== undefined ? "Enter" : undefined);
+
       yield* world.map.waitForGameAction("tfer");
 
       if (cell === undefined && pad === undefined) {
-        return yield* bridge.call("player.joinMap", [map]);
+        yield* bridge.call("player.joinMap", [map]);
+      } else if (cell !== undefined && pad === undefined) {
+        yield* bridge.call("player.joinMap", [map, cell]);
+      } else {
+        yield* bridge.call("player.joinMap", [map, cell ?? "Enter", pad]);
       }
 
-      if (cell !== undefined && pad === undefined) {
-        return yield* bridge.call("player.joinMap", [map, cell]);
-      }
+      yield* waitFor(
+        Effect.gen(function* () {
+          const isLoaded = yield* world.map.isLoaded();
+          if (!isLoaded) {
+            return false;
+          }
 
-      return yield* bridge.call("player.joinMap", [map, cell ?? "Enter", pad]);
+          const currentMapName = yield* world.map.getName();
+          if (!equalsIgnoreCase(currentMapName, targetMap.name)) {
+            return false;
+          }
+
+          if (
+            targetMap.requireExactRoom &&
+            targetMap.roomNumber !== undefined
+          ) {
+            const currentRoomNumber = yield* world.map.getRoomNumber();
+            if (currentRoomNumber !== targetMap.roomNumber) {
+              return false;
+            }
+          }
+
+          if (targetCell !== undefined) {
+            const currentCell = yield* getCell();
+            if (!equalsIgnoreCase(currentCell, targetCell)) {
+              return false;
+            }
+          }
+
+          if (pad !== undefined) {
+            const currentPad = yield* getPad();
+            if (!equalsIgnoreCase(currentPad, pad)) {
+              return false;
+            }
+          }
+
+          return true;
+        }),
+        { timeout: "5 seconds" },
+      );
+
+      yield* Effect.void;
     });
 
   const goToPlayer: PlayerShape["goToPlayer"] = (name) =>
@@ -208,15 +279,29 @@ const make = Effect.gen(function* () {
     Effect.map(getHp(), (hp) => hp > 0);
 
   const walkTo: PlayerShape["walkTo"] = (x, y, walkSpeed) =>
-    Effect.flatMap(isAlive(), (alive) => {
+    Effect.gen(function* () {
+      const alive = yield* isAlive();
       if (!alive) {
-        return Effect.succeed(false);
+        return false;
       }
 
-      return walkSpeed === undefined
-        ? bridge.call("player.walkTo", [x, y])
-        : bridge.call("player.walkTo", [x, y, walkSpeed]);
-    });
+      const started =
+        walkSpeed === undefined
+          ? yield* bridge.call("player.walkTo", [x, y])
+          : yield* bridge.call("player.walkTo", [x, y, walkSpeed]);
+
+      if (!started) {
+        return false;
+      }
+
+      return yield* waitFor(
+        Effect.gen(function* () {
+          const [currentX, currentY] = yield* getPosition();
+          return currentX === x && currentY === y;
+        }),
+        { timeout: "3 seconds" },
+      );
+    }).pipe(Effect.catch(() => Effect.succeed(false)));
 
   return {
     getCell,

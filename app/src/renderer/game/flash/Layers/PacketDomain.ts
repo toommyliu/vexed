@@ -24,11 +24,14 @@ import { PacketDomain } from "../Services/PacketDomain";
 import { Packet, type PacketListenerDisposer } from "../Services/Packet";
 import { Auth } from "../Services/Auth";
 import { World } from "../Services/World";
+import {
+  durationMsFromAura,
+  matchCounterAttackAura,
+  matchCounterAttackMessage,
+} from "../counterAttack";
 
 const AURA_ADD_COMMANDS = new Set(["aura+", "aura++"]);
 const AURA_REMOVE_COMMANDS = new Set(["aura-", "aura--"]);
-const COUNTER_ATTACK_AURA_NAME = "Counter Attack";
-const COUNTER_ATTACK_PREPARE_MESSAGE = "prepares a counter attack";
 
 const parseMonsterMapIdFromEntityInfo = (
   entityInfo: unknown,
@@ -61,6 +64,34 @@ const normalizeAnimationMessage = (value: unknown): string | undefined => {
   }
 
   return parts.join("...  ");
+};
+
+const getCounterAttackCastDurationMs = (
+  payload: Record<string, unknown>,
+  monMapId: number,
+): number | undefined => {
+  let durationMs: number | undefined;
+
+  for (const rawAction of asArray(payload["sara"])) {
+    const action = asRecord(rawAction);
+    const result = action ? asRecord(action["actionResult"]) : undefined;
+    if (!result) {
+      continue;
+    }
+
+    if (parseMonsterMapIdFromEntityInfo(result["cInf"]) !== monMapId) {
+      continue;
+    }
+
+    const ct = asNumber(result["ct"]);
+    if (ct === undefined || !Number.isFinite(ct) || ct <= 0) {
+      continue;
+    }
+
+    durationMs = Math.max(durationMs ?? 0, ct);
+  }
+
+  return durationMs;
 };
 
 const toAvatarData = (
@@ -732,7 +763,8 @@ const make = Effect.gen(function* () {
           continue;
         }
 
-        if (!message.toLowerCase().includes(COUNTER_ATTACK_PREPARE_MESSAGE)) {
+        const counterAttackMatch = matchCounterAttackMessage(message);
+        if (!counterAttackMatch) {
           continue;
         }
 
@@ -741,9 +773,13 @@ const make = Effect.gen(function* () {
           continue;
         }
 
+        const durationMs = getCounterAttackCastDurationMs(payload, monMapId);
         yield* dispatchDomainEvent(domainHandlerStore, "counterAttackStart", {
           monMapId,
-          message,
+          source: "message",
+          triggerId: counterAttackMatch.triggerId,
+          triggerText: counterAttackMatch.triggerText,
+          ...(durationMs === undefined ? {} : { durationMs }),
           packet,
         });
       }
@@ -843,13 +879,18 @@ const make = Effect.gen(function* () {
               if (isNew) {
                 yield* world.monsters.addAura(targetId, aura);
 
-                if (equalsIgnoreCase(aura.name, COUNTER_ATTACK_AURA_NAME)) {
+                const counterAttackMatch = matchCounterAttackAura(aura.name);
+                if (counterAttackMatch) {
+                  const durationMs = durationMsFromAura(aura.duration);
                   yield* dispatchDomainEvent(
                     domainHandlerStore,
                     "counterAttackStart",
                     {
                       monMapId: targetId,
-                      message: aura.name,
+                      source: "aura",
+                      triggerId: counterAttackMatch.triggerId,
+                      triggerText: counterAttackMatch.triggerText,
+                      ...(durationMs === undefined ? {} : { durationMs }),
                       packet,
                     },
                   );
@@ -874,13 +915,16 @@ const make = Effect.gen(function* () {
           } else {
             yield* world.monsters.removeAura(targetId, auraName);
 
-            if (equalsIgnoreCase(auraName, COUNTER_ATTACK_AURA_NAME)) {
+            const counterAttackMatch = matchCounterAttackAura(auraName);
+            if (counterAttackMatch) {
               yield* dispatchDomainEvent(
                 domainHandlerStore,
                 "counterAttackEnd",
                 {
                   monMapId: targetId,
-                  message: auraName,
+                  source: "aura",
+                  triggerId: counterAttackMatch.triggerId,
+                  triggerText: counterAttackMatch.triggerText,
                   packet,
                 },
               );

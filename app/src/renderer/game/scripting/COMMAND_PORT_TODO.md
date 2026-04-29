@@ -1,0 +1,164 @@
+# Command Port Todo
+
+## Army
+- [ ] army_init - Not ported: no current Army service/runtime API exists.
+- [ ] army_set_config - Not ported: no current Army service/runtime API exists.
+- [ ] army_join - Not ported: no current Army service/runtime API exists.
+- [ ] army_kill - Not ported: no current Army service/runtime API exists.
+- [ ] army_kill_for - Not ported: no current Army service/runtime API exists.
+- [ ] army_kill_for_item - Not ported: no current Army service/runtime API exists.
+- [ ] army_kill_for_tempitem - Not ported: no current Army service/runtime API exists.
+- [ ] execute_with_army - Not ported: no current Army service/runtime API exists.
+- [ ] army_equip_set - Not ported: no current Army service/runtime API exists.
+
+## Combat
+- [x] attack
+- [x] cancel_target
+- [x] exit_combat
+- [x] kill
+- [x] kill_for_item
+- [x] kill_for_tempitem
+- [x] rest
+- [x] use_skill
+- [x] force_use_skill
+- [x] hunt
+
+## Conditions
+- [ ] and - Not ported as a standalone legacy skip-next command: use the existing block command `if_all` or the condition expression helper `cmd.and(...)` with `cmd.if(...)`.
+- [ ] or - Not ported as a standalone legacy skip-next command: use the existing block command `if_any` or the condition expression helper `cmd.or(...)` with `cmd.if(...)`.
+- [x] in_cell
+- [x] not_in_cell
+- [x] equipped
+- [x] not_equipped
+- [x] has_target
+- [x] has_no_target
+- [x] in_inventory
+- [x] not_in_inventory
+- [x] in_tempinventory
+- [x] not_in_tempinventory
+- [x] in_bank
+- [x] not_in_bank
+- [x] in_combat
+- [x] not_in_combat
+- [x] in_house
+- [x] not_in_house
+- [x] is_member
+- [x] is_not_member
+- [x] player_in_map
+- [x] player_in_cell
+- [x] player_not_in_map
+- [x] player_not_in_cell
+- [x] player_name_equals
+- [x] can_complete_quest
+- [x] cannot_complete_quest
+- [x] quest_in_progress
+- [x] quest_not_in_progress
+- [x] quest_is_available
+- [x] quest_not_available
+- [x] is_maxed
+- [x] is_not_maxed
+- [x] item_has_dropped
+- [x] item_has_not_dropped
+- [x] in_map
+- [x] not_in_map
+- [x] monster_in_room
+- [x] monster_not_in_room
+- [ ] is_army_member - Not ported: no current Army service/runtime API exists.
+- [ ] is_army_leader - Not ported: no current Army service/runtime API exists.
+- [ ] is_player_number - Not ported: no current Army service/runtime API exists.
+- [x] can_buy_item
+
+## Item
+- [x] buy_item
+- [x] deposit
+- [x] get_map_item
+- [x] pickup
+- [x] reject
+- [x] sell_item
+- [x] swap
+- [x] withdraw
+- [ ] register_drop - Not ported: environment-backed registration API is intentionally skipped.
+- [ ] unregister_drop - Not ported: environment-backed registration API is intentionally skipped.
+- [ ] register_boost - Not ported: environment-backed registration API is intentionally skipped.
+- [ ] unregister_boost - Not ported: environment-backed registration API is intentionally skipped.
+- [x] equip_item
+- [x] equip_item_by_enhancement
+- [x] load_shop
+- [x] enhance_item
+
+## Map
+- [x] join
+- [x] join_map
+- [x] move_to_cell
+- [x] jump_to_cell
+- [x] set_spawn
+- [x] set_spawnpoint
+- [x] walk_to
+
+## Misc
+- [x] delay
+- [x] goto_label
+- [x] label
+- [x] log
+- [x] logout
+- [x] set_delay
+- [x] enable_collisions
+- [x] disable_collisions
+- [x] enable_fx
+- [x] disable_fx
+- [x] show_death_ads
+- [x] hide_death_ads
+- [x] enable_enemymagnet
+- [x] disable_enemymagnet
+- [x] enable_infiniterange
+- [x] disable_infiniterange
+- [x] enable_lagkiller
+- [x] disable_lagkiller
+- [x] enable_provokecell
+- [x] disable_provokecell
+- [x] enable_skipcutscenes
+- [x] disable_skipcutscenes
+- [x] enable_hideplayers
+- [x] disable_hideplayers
+- [x] set_walk_speed
+- [x] stop_bot
+- [x] wait_for_player_count
+- [ ] enable_anticounter - Not ported: no current anti-counter setting/runtime API exists.
+- [ ] disable_anticounter - Not ported: no current anti-counter setting/runtime API exists.
+- [x] goto_house
+- [x] set_name
+- [x] set_guild
+- [x] buff
+- [x] buy_lifesteal
+- [x] register_command
+- [x] unregister_command
+- [x] register_handler
+- [x] unregister_handler
+- [x] goto_player
+- [x] set_fps
+- [x] buy_scroll_of_enrage
+- [x] use_autozone_ledgermayne
+- [x] use_autozone_moreskulls
+- [x] use_autozone_darkcarnax
+- [x] use_autozone_ultradage
+- [x] use_autozone_astralshrine
+- [x] use_autozone_queeniona
+- [x] close_window
+- [x] beep
+- [ ] use_autorelogin - Not ported: no current AutoRelogin service/runtime API exists.
+- [ ] disable_autorelogin - Not ported: no current AutoRelogin service/runtime API exists.
+- [x] register_task
+- [x] unregister_task
+- [ ] do_looptaunt - Not ported: loop-taunt strategy runtime/event API is not backported.
+- [x] drink_consumables
+- [ ] set_reject_else - Not ported: environment-backed drop registration/rejection API is intentionally skipped.
+- [ ] set_auto_register_requirements - Not ported: legacy Environment flag has no current runtime consumer.
+- [ ] set_auto_register_rewards - Not ported: legacy Environment flag has no current runtime consumer.
+- [x] do_wheelofdoom
+
+## Quest
+- [x] accept_quest
+- [x] complete_quest
+- [x] abandon_quest
+- [ ] register_quest - Not ported: environment-backed registration API is intentionally skipped.
+- [ ] unregister_quest - Not ported: environment-backed registration API is intentionally skipped.

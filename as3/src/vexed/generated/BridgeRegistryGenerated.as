@@ -111,6 +111,7 @@ package vexed.generated
       external.externalize("quests.complete", Quests.complete);
       external.externalize("quests.get", Quests.get);
       external.externalize("quests.getAccepted", Quests.getAccepted);
+      external.externalize("quests.getMaxTurnIns", Quests.getMaxTurnIns);
       external.externalize("quests.getMultiple", Quests.getMultiple);
       external.externalize("quests.getQuestValidationString", Quests.getQuestValidationString);
       external.externalize("quests.getTree", Quests.getTree);
@@ -136,6 +137,7 @@ package vexed.generated
       external.externalize("shops.buyByName", Shops.buyByName);
       external.externalize("shops.canBuyItem", Shops.canBuyItem);
       external.externalize("shops.getItem", Shops.getItem);
+      external.externalize("shops.getMaxBuyQuantity", Shops.getMaxBuyQuantity);
       external.externalize("shops.isMergeShop", Shops.isMergeShop);
       external.externalize("shops.load", Shops.load);
       external.externalize("shops.loadArmorCustomize", Shops.loadArmorCustomize);

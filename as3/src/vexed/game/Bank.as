@@ -64,7 +64,7 @@ package vexed.game
         return;
       }
 
-      game.sfc.sendXtMessage("zm", "loadBank", ["All"], "str", game.world.curRoom);
+      game.getBank();
       loaded = true;
     }
 
@@ -127,8 +127,7 @@ package vexed.game
     {
       if (!loaded)
       {
-        game.getBank();
-        loaded = true;
+        loadItems();
       }
       if (!game.world.uiLock)
       {

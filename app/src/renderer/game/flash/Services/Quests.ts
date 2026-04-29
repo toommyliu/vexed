@@ -14,6 +14,7 @@ export interface QuestsShape {
     itemId?: number,
     special?: boolean,
   ): BridgeEffect<void>;
+  getMaxTurnIns(questId: number): BridgeEffect<number>;
   load(questId: number, silent?: boolean): BridgeEffect<void>;
   loadMany(questIds: number[], silent?: boolean): BridgeEffect<void>;
   getTree(): Effect.Effect<Collection<number, Quest>>;

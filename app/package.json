@@ -1,6 +1,6 @@
 {
   "name": "@vexed/electron",
-  "productName": "vexed",
+  "productName": "Vexed",
   "version": "0.7.1",
   "main": "dist/main/index.js",
   "repository": {
@@ -8,27 +8,20 @@
     "url": "https://github.com/toommyliu/vexed.git"
   },
   "scripts": {
-    "clean": "del-cli dist build --dot",
+    "clean": "pnpm --dir .. clean",
+    "prepare": "cd .. && effect-language-service patch",
     "typecheck": "tsc --noEmit",
+    "test": "vitest run",
+    "test:watch": "vitest",
     "compile": "tsx esbuild.config.js",
     "compile:watch": "tsx esbuild.config.js --watch",
     "compile:prod": "cross-env NODE_ENV=production tsx esbuild.config.js",
-    "electron": "electron .",
-    "electronmon": "electronmon .",
-    "game": "electron . --game",
-    "manager": "electron . --manager",
-    "dev": "cross-env NODE_ENV=development npm-run-all --sequential compile --parallel electron",
-    "dev:game": "cross-env NODE_ENV=development npm-run-all --sequential compile --parallel game",
-    "dev:manager": "cross-env NODE_ENV=development npm-run-all --sequential compile --parallel manager",
-    "dev:watch": "cross-env NODE_ENV=development npm-run-all --sequential compile --parallel compile:watch electronmon",
-    "dev:game:watch": "cross-env NODE_ENV=development npm-run-all --sequential compile --parallel compile:watch \"electronmon . -- --game\"",
-    "dev:manager:watch": "cross-env NODE_ENV=development npm-run-all --sequential compile --parallel compile:watch \"electronmon . -- --manager\"",
+    "electron": "node scripts/start-electron.mjs",
+    "electron:raw": "electron .",
     "build": "npm-run-all --sequential clean typecheck compile:prod \"electron-builder build\"",
     "build:fast": "npm-run-all --sequential compile:prod \"electron-builder build\"",
     "build:all": "npm-run-all --sequential clean typecheck compile:prod \"electron-builder -mwl\"",
-    "electron-builder": "electron-builder",
-    "docgen": "tsx scripts/docgen.ts",
-    "changelog": "cd .. && git-cliff --config cliff.toml --output CHANGELOG.md"
+    "electron-builder": "electron-builder"
   },
   "dependencies": {
     "@vexed/collection": "workspace:*",
@@ -36,7 +29,6 @@
     "@vexed/shared": "workspace:*",
     "core-js": "^3.49.0",
     "effect": "4.0.0-beta.43",
-    "lodash.merge": "^4.6.2",
     "nw-flash-trust": "^0.3.0",
     "solid-js": "^1.9.12",
     "tailwind-merge": "^3.3.0",
@@ -48,32 +40,20 @@
     "@types/node-fetch": "^2.6.13",
     "autoprefixer": "^10.4.21",
     "cross-env": "^10.0.0",
-    "del-cli": "^6.0.0",
     "electron": "workspace:*",
     "electron-builder": "^24.13.3",
-    "electronmon": "^2.0.3",
     "esbuild": "^0.25.5",
     "esbuild-plugin-alias": "^0.2.1",
     "esbuild-plugin-alias-path": "^2.0.2",
     "esbuild-plugin-solid": "^0.6.0",
     "esbuild-postcss": "^0.0.4",
-    "git-cliff": "^2.9.1",
     "jsonc-parser": "^3.3.1",
     "npm-run-all": "^4.1.5",
     "postcss": "^8.5.4",
-    "svelte": "^5.43.12",
-    "svelte-check": "^4.3.1",
     "tailwindcss": "^3.4.17",
     "tailwindcss-animate": "^1.0.7",
     "tsx": "^4.19.4",
     "typedoc": "^0.28.4",
     "typescript": "^5.9.3"
-  },
-  "electronmon": {
-    "patterns": [
-      "!dist/**/*",
-      "!scripts/**/*",
-      "!src/renderer/**/*"
-    ]
   }
 }

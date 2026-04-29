@@ -1,0 +1,16 @@
+{
+  "production": {
+    "displayName": "Vexed",
+    "bundleId": "com.app.vexed",
+    "iconPng": "icon.png",
+    "userDataDirName": "vexed",
+    "legacyUserDataDirNames": ["vexed"]
+  },
+  "dev": {
+    "displayName": "Vexed (Dev)",
+    "bundleId": "com.app.vexed.dev",
+    "iconPng": "icon-dev.png",
+    "userDataDirName": "vexed-dev",
+    "legacyUserDataDirNames": []
+  }
+}
