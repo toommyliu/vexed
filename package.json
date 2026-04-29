@@ -16,6 +16,8 @@
     "format": "oxfmt --check",
     "format:write": "oxfmt",
     "release": "tsx scripts/release.ts",
+    "test": "pnpm -r --if-present test",
+    "test:watch": "pnpm -r --if-present test:watch",
     "typecheck": "tsc -p tsconfig.json --noEmit && pnpm -r typecheck"
   },
   "dependencies": {
@@ -29,7 +31,8 @@
     "oxfmt": "^0.13.0",
     "oxlint": "^0.13.0",
     "tsx": "^4.21.0",
-    "typescript": "^5.9.3"
+    "typescript": "^5.9.3",
+    "vitest": "^3.2.4"
   },
   "pnpm": {
     "overrides": {

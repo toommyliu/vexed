@@ -176,12 +176,12 @@ const make = Effect.gen(function* () {
     parsedDispatch: (packet: A) => Effect.Effect<void>,
   ) =>
     Effect.gen(function* () {
-      yield* runHandlers(`raw:${channel}`, "*", raw, rawHandlers);
-
       const parsed = parser(raw);
       if (Option.isSome(parsed)) {
         yield* parsedDispatch(parsed.value);
       }
+
+      yield* runHandlers(`raw:${channel}`, "*", raw, rawHandlers);
     });
 
   const setWindowPacketHandler = (
