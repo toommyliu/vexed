@@ -26,6 +26,7 @@ import {
   evaluateScriptCondition,
   readScriptComparison,
   requireScriptArgumentNumber,
+  requireScriptArgumentIdentifier,
   requireScriptArgumentPositiveInteger,
   requireScriptArgumentString,
   type ScriptCommandDsl,
@@ -33,8 +34,10 @@ import {
   type ScriptCondition,
   type ScriptInstructionRecorder,
 } from "./commandDsl";
+import { normalizeItemIdentifier } from "./itemOperations";
 
 type ConditionInput = ScriptCondition | boolean;
+type ScriptItemIdentifier = string | number;
 
 type ConditionScriptCommandArguments = {
   if: [condition: ConditionInput];
@@ -60,8 +63,8 @@ type ConditionScriptCommandArguments = {
   not_in_inventory: [item: string, quantity?: number];
   in_tempinventory: [item: string, quantity?: number];
   not_in_tempinventory: [item: string, quantity?: number];
-  in_bank: [item: string, quantity?: number];
-  not_in_bank: [item: string, quantity?: number];
+  in_bank: [item: ScriptItemIdentifier, quantity?: number];
+  not_in_bank: [item: ScriptItemIdentifier, quantity?: number];
   in_combat: [];
   not_in_combat: [];
   in_house: [item: string, quantity?: number];
@@ -1009,7 +1012,7 @@ export const createConditionScriptDsl = (
   const inventoryCondition = (
     command: keyof ConditionScriptCommandArguments & string,
     location: "bank" | "house" | "inventory" | "temp",
-    item: string,
+    item: ScriptItemIdentifier,
     quantity: number | undefined,
     expected: boolean,
   ) =>
@@ -1017,7 +1020,9 @@ export const createConditionScriptDsl = (
       command,
       createInventoryContainsCondition(
         location,
-        requireScriptArgumentString(command, "item", item),
+        normalizeItemIdentifier(
+          requireScriptArgumentIdentifier(command, "item", item),
+        ),
         defaultQuantity(command, quantity),
         expected,
       ),
@@ -1555,7 +1560,7 @@ export const createConditionScriptDsl = (
     /**
      * Checks whether the bank contains an item.
      *
-     * @param item - Item name.
+     * @param item - Item name or item id.
      * @param quantity - Quantity required. Defaults to `1`.
      */
     in_bank(item, quantity) {
@@ -1565,7 +1570,7 @@ export const createConditionScriptDsl = (
     /**
      * Checks whether the bank does not contain an item.
      *
-     * @param item - Item name.
+     * @param item - Item name or item id.
      * @param quantity - Quantity threshold. Defaults to `1`.
      */
     not_in_bank(item, quantity) {

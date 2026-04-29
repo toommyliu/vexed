@@ -137,7 +137,7 @@ export type ScriptCondition =
   | {
       readonly _tag: "InventoryContains";
       readonly location: ScriptInventoryLocation;
-      readonly item: string;
+      readonly item: ItemIdentifierToken;
       readonly quantity: number;
       readonly expected: boolean;
     }
@@ -815,7 +815,7 @@ export const createMonsterPresenceCondition = (
 
 export const createInventoryContainsCondition = (
   location: ScriptInventoryLocation,
-  item: string,
+  item: ItemIdentifierToken,
   quantity: number,
   expected: boolean,
 ): ScriptCondition => ({

@@ -1,6 +1,7 @@
 import { Effect, Fiber } from "effect";
 import { Monster } from "@vexed/game";
 import { createSignal, onCleanup, onMount } from "solid-js";
+import type { JSX } from "solid-js";
 import { runtime } from "./flash/Runtime";
 import { Combat } from "./flash/Services/Combat";
 import { AutoZone } from "./flash/Services/AutoZone";
@@ -114,6 +115,19 @@ const formatDebugValue = (value: unknown): string => {
   ) ?? String(value);
 };
 
+interface Point {
+  readonly x: number;
+  readonly y: number;
+}
+
+const clamp = (value: number, min: number, max: number) =>
+  Math.min(Math.max(value, min), max);
+
+const getInitialScriptOverlayPosition = (): Point => ({
+  x: Math.max(20, window.innerWidth - 612),
+  y: 20,
+});
+
 export default function App() {
   const [count, setCount] = createSignal(0);
   const [targetName, setTargetName] = createSignal("");
@@ -133,6 +147,11 @@ export default function App() {
   const [effectsEnabled, setEffectsEnabled] = createSignal(true);
   const [playersVisible, setPlayersVisible] = createSignal(true);
   const [lagKillerEnabled, setLagKillerEnabled] = createSignal(false);
+  const [renderPreset, setRenderPreset] =
+    createSignal<RenderPreset>("normal");
+  const [otherPlayerCosmeticsEnabled, setOtherPlayerCosmeticsEnabled] =
+    createSignal(true);
+  const [mapAnimationsEnabled, setMapAnimationsEnabled] = createSignal(true);
   const [enemyMagnetEnabled, setEnemyMagnetEnabled] = createSignal(false);
   const [infiniteRangeEnabled, setInfiniteRangeEnabled] = createSignal(false);
   const [provokeCellEnabled, setProvokeCellEnabled] = createSignal(false);
@@ -156,6 +175,9 @@ export default function App() {
   let settingsStateDisposer: (() => void) | undefined;
 
   const [scriptOverlayVisible, setScriptOverlayVisible] = createSignal(false);
+  const [scriptOverlayPosition, setScriptOverlayPosition] = createSignal(
+    getInitialScriptOverlayPosition(),
+  );
   const [scriptName, setScriptName] = createSignal(demoScriptName);
   const [scriptPath, setScriptPath] = createSignal<string | undefined>(undefined);
   const [scriptSource, setScriptSource] = createSignal(demoScriptSource);
@@ -164,6 +186,57 @@ export default function App() {
   const [running, setRunning] = createSignal(false);
   const [currentCommand, setCurrentCommand] =
     createSignal<RunningScriptCommand | null>(null);
+  let scriptOverlayElement: HTMLDivElement | undefined;
+  let scriptOverlayDragOffset: Point | undefined;
+
+  const moveScriptOverlay = (clientX: number, clientY: number) => {
+    const overlayWidth = scriptOverlayElement?.offsetWidth ?? 612;
+    const overlayHeight = scriptOverlayElement?.offsetHeight ?? 520;
+    const maxX = Math.max(0, window.innerWidth - overlayWidth);
+    const maxY = Math.max(0, window.innerHeight - overlayHeight);
+    const dragOffset = scriptOverlayDragOffset ?? { x: 0, y: 0 };
+
+    setScriptOverlayPosition({
+      x: clamp(clientX - dragOffset.x, 0, maxX),
+      y: clamp(clientY - dragOffset.y, 0, maxY),
+    });
+  };
+
+  const startScriptOverlayDrag: JSX.EventHandler<HTMLDivElement, PointerEvent> = (
+    event,
+  ) => {
+    if (event.button !== 0 || !scriptOverlayElement) {
+      return;
+    }
+
+    const rect = scriptOverlayElement.getBoundingClientRect();
+    scriptOverlayDragOffset = {
+      x: event.clientX - rect.left,
+      y: event.clientY - rect.top,
+    };
+    event.currentTarget.setPointerCapture(event.pointerId);
+    event.preventDefault();
+  };
+
+  const dragScriptOverlay: JSX.EventHandler<HTMLDivElement, PointerEvent> = (
+    event,
+  ) => {
+    if (!scriptOverlayDragOffset) {
+      return;
+    }
+
+    moveScriptOverlay(event.clientX, event.clientY);
+  };
+
+  const stopScriptOverlayDrag: JSX.EventHandler<HTMLDivElement, PointerEvent> = (
+    event,
+  ) => {
+    scriptOverlayDragOffset = undefined;
+
+    if (event.currentTarget.hasPointerCapture(event.pointerId)) {
+      event.currentTarget.releasePointerCapture(event.pointerId);
+    }
+  };
 
   const testBridge = () => {
     void runtime
@@ -1726,10 +1799,11 @@ ${source}
     </div>
     {scriptOverlayVisible() && (
       <div
+        ref={scriptOverlayElement}
         style={{
           position: "absolute",
-          top: "20px",
-          right: "20px",
+          top: `${scriptOverlayPosition().y}px`,
+          left: `${scriptOverlayPosition().x}px`,
           width: "560px",
           padding: "1rem",
           background: "rgba(0, 0, 0, 0.85)",
@@ -1743,7 +1817,20 @@ ${source}
           gap: "0.5rem",
         }}
       >
-        <div style={{ "font-weight": "bold" }}>Scripting Demo</div>
+        <div
+          onPointerDown={startScriptOverlayDrag}
+          onPointerMove={dragScriptOverlay}
+          onPointerUp={stopScriptOverlayDrag}
+          onPointerCancel={stopScriptOverlayDrag}
+          style={{
+            "font-weight": "bold",
+            cursor: "move",
+            "user-select": "none",
+            "touch-action": "none",
+          }}
+        >
+          Scripting Demo
+        </div>
         <div style={{ "font-size": "12px", opacity: 0.85 }}>
           Commands: {commandCount()} · Running: {running() ? "yes" : "no"}
         </div>
