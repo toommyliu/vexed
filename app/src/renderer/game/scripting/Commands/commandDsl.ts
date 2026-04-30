@@ -54,8 +54,7 @@ export type ScriptComparisonOperator =
   | "lt" // <
   | "lte" // <=
   | "gt" // >
-  | "gte" // >=
-;
+  | "gte"; // >=
 
 export type ScriptComparisonOperatorInput =
   | "="
@@ -191,6 +190,12 @@ export type ScriptCondition =
   | {
       readonly _tag: "FactionRank";
       readonly faction: string;
+      readonly operator: ScriptComparisonOperator;
+      readonly value: number;
+    }
+  | {
+      readonly _tag: "ClassRank";
+      readonly className: string;
       readonly operator: ScriptComparisonOperator;
       readonly value: number;
     }
@@ -918,6 +923,17 @@ export const createFactionRankCondition = (
   value,
 });
 
+export const createClassRankCondition = (
+  className: string,
+  operator: ScriptComparisonOperator,
+  value: number,
+): ScriptCondition => ({
+  _tag: "ClassRank",
+  className,
+  operator,
+  value,
+});
+
 export const createQuestStateCondition = (
   questId: number,
   state: "available" | "can_complete" | "in_progress",
@@ -1584,6 +1600,28 @@ export const evaluateScriptCondition = (
           );
         }),
       );
+    }
+    case "ClassRank": {
+      const className = condition.className;
+      if (typeof className !== "string" || className.trim() === "") {
+        return invalidArg(
+          context,
+          command,
+          "className must be a non-empty string",
+        );
+      }
+
+      return context
+        .run(context.inventory.getItem(className))
+        .pipe(
+          Effect.map((item) =>
+            compareNumbers(
+              item?.classRank ?? 0,
+              condition.operator as ScriptComparisonOperator,
+              condition.value as number,
+            ),
+          ),
+        );
     }
     case "QuestState": {
       const questId = condition.questId;

@@ -6,6 +6,7 @@ import {
   createAnyPlayerMetricCondition,
   createBooleanStateCondition,
   createCellCondition,
+  createClassRankCondition,
   createFactionRankCondition,
   createInventoryContainsCondition,
   createItemStateCondition,
@@ -93,14 +94,8 @@ type ConditionBuilderScriptDsl = {
   and(...conditions: ConditionInput[]): ScriptCondition;
   or(...conditions: ConditionInput[]): ScriptCondition;
   not(condition: ConditionInput): ScriptCondition;
-  hp(
-    operator: ScriptComparisonOperatorInput,
-    value: number,
-  ): ScriptCondition;
-  mp(
-    operator: ScriptComparisonOperatorInput,
-    value: number,
-  ): ScriptCondition;
+  hp(operator: ScriptComparisonOperatorInput, value: number): ScriptCondition;
+  mp(operator: ScriptComparisonOperatorInput, value: number): ScriptCondition;
   hp_percentage(
     operator: ScriptComparisonOperatorInput,
     value: number,
@@ -109,16 +104,18 @@ type ConditionBuilderScriptDsl = {
     operator: ScriptComparisonOperatorInput,
     value: number,
   ): ScriptCondition;
-  gold(
-    operator: ScriptComparisonOperatorInput,
-    value: number,
-  ): ScriptCondition;
+  gold(operator: ScriptComparisonOperatorInput, value: number): ScriptCondition;
   level(
     operator: ScriptComparisonOperatorInput,
     value: number,
   ): ScriptCondition;
   faction_rank(
     faction: string,
+    operator: ScriptComparisonOperatorInput,
+    value: number,
+  ): ScriptCondition;
+  class_rank(
+    className: string,
     operator: ScriptComparisonOperatorInput,
     value: number,
   ): ScriptCondition;
@@ -997,6 +994,24 @@ export const createConditionScriptDsl = (
     },
 
     /**
+     * Builds a class rank condition expression.
+     *
+     * @param className - Class item name.
+     * @param operator - Comparison operator.
+     * @param value - Rank value to compare against.
+     * @example
+     * cmd.if(cmd.class_rank("ArchPaladin", ">=", 10))
+     */
+    class_rank(className, operator, value) {
+      const comparison = readScriptComparison("class_rank", operator, value);
+      return createClassRankCondition(
+        requireScriptArgumentString("class_rank", "className", className),
+        comparison.operator,
+        comparison.value,
+      );
+    },
+
+    /**
      * Builds a named player HP condition expression.
      *
      * @param player - Player name.
@@ -1065,10 +1080,7 @@ export const createConditionScriptDsl = (
      */
     player_count(operator, value) {
       const comparison = readScriptComparison("player_count", operator, value);
-      return createPlayerCountCondition(
-        comparison.operator,
-        comparison.value,
-      );
+      return createPlayerCountCondition(comparison.operator, comparison.value);
     },
 
     /**
@@ -1599,6 +1611,7 @@ export const createConditionScriptDsl = (
 
     /**
      * Checks whether an item is at its max stack quantity.
+     * For class items, maxed means the class has reached rank 10.
      *
      * @param item - Item name.
      */

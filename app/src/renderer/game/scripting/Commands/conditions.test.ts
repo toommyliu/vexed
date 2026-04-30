@@ -13,6 +13,7 @@ type CommandMap = Record<string, (...args: unknown[]) => unknown> & {
   gold(operator: unknown, value: unknown): unknown;
   level(operator: unknown, value: unknown): unknown;
   faction_rank(faction: unknown, operator: unknown, value: unknown): unknown;
+  class_rank(className: unknown, operator: unknown, value: unknown): unknown;
   player_hp(player: unknown, operator: unknown, value: unknown): unknown;
   player_hp_percentage(
     player: unknown,
@@ -21,11 +22,7 @@ type CommandMap = Record<string, (...args: unknown[]) => unknown> & {
   ): unknown;
   any_player_hp_percentage(operator: unknown, value: unknown): unknown;
   player_count(operator: unknown, value: unknown): unknown;
-  cell_player_count(
-    operator: unknown,
-    value: unknown,
-    cell?: unknown,
-  ): unknown;
+  cell_player_count(operator: unknown, value: unknown, cell?: unknown): unknown;
   player_aura(
     player: unknown,
     aura: unknown,
@@ -166,6 +163,12 @@ test("records other numeric conditions through operator-based builders", () => {
     operator: "gte",
     value: 10,
   });
+  expectRecordedCondition((cmd) => cmd.class_rank("ArchPaladin", ">=", 10), {
+    _tag: "ClassRank",
+    className: "ArchPaladin",
+    operator: "gte",
+    value: 10,
+  });
   expectRecordedCondition((cmd) => cmd.player_hp("Artix", "<", 1000), {
     _tag: "PlayerNamedMetric",
     metric: "hp",
@@ -268,13 +271,40 @@ test("evaluates can-buy item quantity conditions", async () => {
 
   await expect(
     Effect.runPromise(
+      evaluateScriptCondition(context, "if", cmd.can_buy_item("Potion", 5)),
+    ),
+  ).resolves.toBe(true);
+});
+
+test("evaluates class rank conditions", async () => {
+  const { cmd } = createRecordedCommandMap();
+  const context = {
+    sourceName: "conditions.test.ts",
+    inventory: {
+      getItem: (item: ItemIdentifierToken) =>
+        Effect.succeed(item === "ArchPaladin" ? { classRank: 10 } : null),
+    },
+    run: (effect: Effect.Effect<unknown, unknown>) => effect,
+  } as unknown as ScriptExecutionContext;
+
+  await expect(
+    Effect.runPromise(
       evaluateScriptCondition(
         context,
         "if",
-        cmd.can_buy_item("Potion", 5),
+        cmd.class_rank("ArchPaladin", ">=", 10),
       ),
     ),
   ).resolves.toBe(true);
+  await expect(
+    Effect.runPromise(
+      evaluateScriptCondition(
+        context,
+        "if",
+        cmd.class_rank("Missing Class", ">", 0),
+      ),
+    ),
+  ).resolves.toBe(false);
 });
 
 test("evaluates self metric conditions through PlayerMetric", async () => {
@@ -351,6 +381,7 @@ test("does not expose legacy numeric condition names", () => {
   expect(commandNames).toContain("gold");
   expect(commandNames).toContain("level");
   expect(commandNames).toContain("faction_rank");
+  expect(commandNames).toContain("class_rank");
   expect(commandNames).toContain("player_hp");
   expect(commandNames).toContain("player_hp_percentage");
   expect(commandNames).toContain("any_player_hp_percentage");

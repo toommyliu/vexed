@@ -18,10 +18,11 @@ tableOfContents:
 | --- | --- |
 | [`cmd.and`](#command-and) | Builds a logical AND condition expression.<br><br>`and` only creates an expression. It does not start a block by itself;<br>pass the result to `if`, `not`, `or`, or another `and`. Use `if_all`<br>when the entire conditional block is a flat AND of several expressions. |
 | [`cmd.any_player_hp_percentage`](#command-any_player_hp_percentage) | Builds an any-player HP percentage condition expression. |
-| [`cmd.can_buy_item`](#command-can_buy_item) | Checks whether an item can be bought from the loaded shop. |
+| [`cmd.can_buy_item`](#command-can_buy_item) | Checks whether a quantity of an item can be bought from the loaded shop. |
 | [`cmd.can_complete_quest`](#command-can_complete_quest) | Checks whether a quest can be completed. |
 | [`cmd.cannot_complete_quest`](#command-cannot_complete_quest) | Checks whether a quest cannot be completed. |
 | [`cmd.cell_player_count`](#command-cell_player_count) | Builds a cell player count condition expression. |
+| [`cmd.class_rank`](#command-class_rank) | Builds a class rank condition expression. |
 | [`cmd.else`](#command-else) | Switches to the false branch of an active conditional block. |
 | [`cmd.end_if`](#command-end_if) | Ends the current conditional block. |
 | [`cmd.equipped`](#command-equipped) | Checks whether an item is equipped. |
@@ -41,7 +42,7 @@ tableOfContents:
 | [`cmd.in_inventory`](#command-in_inventory) | Checks whether the inventory contains an item. |
 | [`cmd.in_map`](#command-in_map) | Checks whether the player is in a map. |
 | [`cmd.in_tempinventory`](#command-in_tempinventory) | Checks whether the temp inventory contains an item. |
-| [`cmd.is_maxed`](#command-is_maxed) | Checks whether an item is at its max stack quantity. |
+| [`cmd.is_maxed`](#command-is_maxed) | Checks whether an item is at its max stack quantity.<br>For class items, maxed means the class has reached rank 10. |
 | [`cmd.is_member`](#command-is_member) | Checks whether the account is a member. |
 | [`cmd.is_not_maxed`](#command-is_not_maxed) | Checks whether an item is not at its max stack quantity. |
 | [`cmd.is_not_member`](#command-is_not_member) | Checks whether the account is not a member. |
@@ -102,7 +103,7 @@ Builds a logical AND condition expression.
 pass the result to `if`, `not`, `or`, or another `and`. Use `if_all`
 when the entire conditional block is a flat AND of several expressions.
 
-**Source:** `app/src/renderer/game/scripting/Commands/conditions.ts:1180`
+**Source:** `app/src/renderer/game/scripting/Commands/conditions.ts:1192`
 
 ```ts
 cmd.and(...conditions: ConditionInput[]): ScriptCondition
@@ -124,7 +125,7 @@ cmd.if(cmd.and(cmd.in_map("battleon"), cmd.hp_percentage(">", 80)))
 
 Builds an any-player HP percentage condition expression.
 
-**Source:** `app/src/renderer/game/scripting/Commands/conditions.ts:1045`
+**Source:** `app/src/renderer/game/scripting/Commands/conditions.ts:1060`
 
 ```ts
 cmd.any_player_hp_percentage(operator: ScriptComparisonOperatorInput, value: number): ScriptCondition
@@ -143,19 +144,20 @@ cmd.if(cmd.any_player_hp_percentage("<", 25))
 
 <a id="command-can_buy_item"></a>
 
-### `cmd.can_buy_item(item)`
+### `cmd.can_buy_item(item, quantity)`
 
-Checks whether an item can be bought from the loaded shop.
+Checks whether a quantity of an item can be bought from the loaded shop.
 
-**Source:** `app/src/renderer/game/scripting/Commands/conditions.ts:1733`
+**Source:** `app/src/renderer/game/scripting/Commands/conditions.ts:1747`
 
 ```ts
-cmd.can_buy_item(item: string): ScriptCondition
+cmd.can_buy_item(item: string, quantity: number | undefined): ScriptCondition
 ```
 
 | Name | Type | Required | Default | Description |
 | --- | --- | --- | --- | --- |
 | `item` | `string` | yes |  | Item name. |
+| `quantity` | `number` \| `undefined` | yes |  | Quantity to check. Defaults to 1. |
 
 <a id="command-can_complete_quest"></a>
 
@@ -163,7 +165,7 @@ cmd.can_buy_item(item: string): ScriptCondition
 
 Checks whether a quest can be completed.
 
-**Source:** `app/src/renderer/game/scripting/Commands/conditions.ts:1509`
+**Source:** `app/src/renderer/game/scripting/Commands/conditions.ts:1521`
 
 ```ts
 cmd.can_complete_quest(questId: number): ScriptCondition
@@ -179,7 +181,7 @@ cmd.can_complete_quest(questId: number): ScriptCondition
 
 Checks whether a quest cannot be completed.
 
-**Source:** `app/src/renderer/game/scripting/Commands/conditions.ts:1525`
+**Source:** `app/src/renderer/game/scripting/Commands/conditions.ts:1537`
 
 ```ts
 cmd.cannot_complete_quest(questId: number): ScriptCondition
@@ -195,7 +197,7 @@ cmd.cannot_complete_quest(questId: number): ScriptCondition
 
 Builds a cell player count condition expression.
 
-**Source:** `app/src/renderer/game/scripting/Commands/conditions.ts:1083`
+**Source:** `app/src/renderer/game/scripting/Commands/conditions.ts:1095`
 
 ```ts
 cmd.cell_player_count(operator: ScriptComparisonOperatorInput, value: number, cell: string | undefined): ScriptCondition
@@ -213,13 +215,37 @@ cmd.cell_player_count(operator: ScriptComparisonOperatorInput, value: number, ce
 cmd.if(cmd.cell_player_count(">=", 2, "Enter"))
 ```
 
+<a id="command-class_rank"></a>
+
+### `cmd.class_rank(className, operator, value)`
+
+Builds a class rank condition expression.
+
+**Source:** `app/src/renderer/game/scripting/Commands/conditions.ts:1005`
+
+```ts
+cmd.class_rank(className: string, operator: ScriptComparisonOperatorInput, value: number): ScriptCondition
+```
+
+| Name | Type | Required | Default | Description |
+| --- | --- | --- | --- | --- |
+| `className` | `string` | yes |  | Class item name. |
+| `operator` | `ScriptComparisonOperatorInput` | yes |  | Comparison operator. |
+| `value` | `number` | yes |  | Rank value to compare against. |
+
+**Examples**
+
+```js
+cmd.if(cmd.class_rank("ArchPaladin", ">=", 10))
+```
+
 <a id="command-else"></a>
 
 ### `cmd.else()`
 
 Switches to the false branch of an active conditional block.
 
-**Source:** `app/src/renderer/game/scripting/Commands/conditions.ts:884`
+**Source:** `app/src/renderer/game/scripting/Commands/conditions.ts:881`
 
 ```ts
 cmd.else(): void
@@ -241,7 +267,7 @@ cmd.end_if()
 
 Ends the current conditional block.
 
-**Source:** `app/src/renderer/game/scripting/Commands/conditions.ts:891`
+**Source:** `app/src/renderer/game/scripting/Commands/conditions.ts:888`
 
 ```ts
 cmd.end_if(): void
@@ -253,7 +279,7 @@ cmd.end_if(): void
 
 Checks whether an item is equipped.
 
-**Source:** `app/src/renderer/game/scripting/Commands/conditions.ts:1234`
+**Source:** `app/src/renderer/game/scripting/Commands/conditions.ts:1246`
 
 ```ts
 cmd.equipped(item: string): ScriptCondition
@@ -269,7 +295,7 @@ cmd.equipped(item: string): ScriptCondition
 
 Builds a faction rank condition expression.
 
-**Source:** `app/src/renderer/game/scripting/Commands/conditions.ts:990`
+**Source:** `app/src/renderer/game/scripting/Commands/conditions.ts:987`
 
 ```ts
 cmd.faction_rank(faction: string, operator: ScriptComparisonOperatorInput, value: number): ScriptCondition
@@ -293,7 +319,7 @@ cmd.if(cmd.faction_rank("Good", ">=", 10))
 
 Builds a gold condition expression.
 
-**Source:** `app/src/renderer/game/scripting/Commands/conditions.ts:965`
+**Source:** `app/src/renderer/game/scripting/Commands/conditions.ts:962`
 
 ```ts
 cmd.gold(operator: ScriptComparisonOperatorInput, value: number): ScriptCondition
@@ -316,7 +342,7 @@ cmd.if(cmd.gold(">=", 1000000))
 
 Checks whether the player currently has no target.
 
-**Source:** `app/src/renderer/game/scripting/Commands/conditions.ts:1274`
+**Source:** `app/src/renderer/game/scripting/Commands/conditions.ts:1286`
 
 ```ts
 cmd.has_no_target(): ScriptCondition
@@ -328,7 +354,7 @@ cmd.has_no_target(): ScriptCondition
 
 Checks whether the player currently has a target.
 
-**Source:** `app/src/renderer/game/scripting/Commands/conditions.ts:1264`
+**Source:** `app/src/renderer/game/scripting/Commands/conditions.ts:1276`
 
 ```ts
 cmd.has_target(): ScriptCondition
@@ -340,7 +366,7 @@ cmd.has_target(): ScriptCondition
 
 Builds a self HP condition expression.
 
-**Source:** `app/src/renderer/game/scripting/Commands/conditions.ts:917`
+**Source:** `app/src/renderer/game/scripting/Commands/conditions.ts:914`
 
 ```ts
 cmd.hp(operator: ScriptComparisonOperatorInput, value: number): ScriptCondition
@@ -363,7 +389,7 @@ cmd.if(cmd.hp("<", 1000))
 
 Builds a self HP percentage condition expression.
 
-**Source:** `app/src/renderer/game/scripting/Commands/conditions.ts:941`
+**Source:** `app/src/renderer/game/scripting/Commands/conditions.ts:938`
 
 ```ts
 cmd.hp_percentage(operator: ScriptComparisonOperatorInput, value: number): ScriptCondition
@@ -390,7 +416,7 @@ Starts a conditional block from one complete condition expression.
 expression, which can be a simple condition or a nested expression built
 with `and`, `or`, or `not`.
 
-**Source:** `app/src/renderer/game/scripting/Commands/conditions.ts:826`
+**Source:** `app/src/renderer/game/scripting/Commands/conditions.ts:823`
 
 ```ts
 cmd.if(condition: ConditionInput): void
@@ -416,7 +442,7 @@ Starts a conditional block that runs only when every expression matches.
 `if(and(a, b))`. Use it when the whole block has a flat AND condition.
 Use `and` inside `if` when you need to nest the AND with `or` or `not`.
 
-**Source:** `app/src/renderer/game/scripting/Commands/conditions.ts:841`
+**Source:** `app/src/renderer/game/scripting/Commands/conditions.ts:838`
 
 ```ts
 cmd.if_all(...conditions: ConditionInput[]): void
@@ -442,7 +468,7 @@ Starts a conditional block that runs when any expression matches.
 `if(or(a, b))`. Use it when the whole block has a flat OR condition.
 Use `or` inside `if` when you need to nest the OR with `and` or `not`.
 
-**Source:** `app/src/renderer/game/scripting/Commands/conditions.ts:863`
+**Source:** `app/src/renderer/game/scripting/Commands/conditions.ts:860`
 
 ```ts
 cmd.if_any(...conditions: ConditionInput[]): void
@@ -464,7 +490,7 @@ cmd.if_any(cmd.in_inventory("Token"), cmd.in_bank("Token"))
 
 Checks whether the bank contains an item.
 
-**Source:** `app/src/renderer/game/scripting/Commands/conditions.ts:1351`
+**Source:** `app/src/renderer/game/scripting/Commands/conditions.ts:1363`
 
 ```ts
 cmd.in_bank(item: ScriptItemIdentifier, quantity: number | undefined): ScriptCondition
@@ -481,7 +507,7 @@ cmd.in_bank(item: ScriptItemIdentifier, quantity: number | undefined): ScriptCon
 
 Checks whether the player is in a cell.
 
-**Source:** `app/src/renderer/game/scripting/Commands/conditions.ts:1204`
+**Source:** `app/src/renderer/game/scripting/Commands/conditions.ts:1216`
 
 ```ts
 cmd.in_cell(cell: string): ScriptCondition
@@ -497,7 +523,7 @@ cmd.in_cell(cell: string): ScriptCondition
 
 Checks whether the player is in combat.
 
-**Source:** `app/src/renderer/game/scripting/Commands/conditions.ts:1368`
+**Source:** `app/src/renderer/game/scripting/Commands/conditions.ts:1380`
 
 ```ts
 cmd.in_combat(): ScriptCondition
@@ -509,7 +535,7 @@ cmd.in_combat(): ScriptCondition
 
 Checks whether the house inventory contains an item.
 
-**Source:** `app/src/renderer/game/scripting/Commands/conditions.ts:1391`
+**Source:** `app/src/renderer/game/scripting/Commands/conditions.ts:1403`
 
 ```ts
 cmd.in_house(item: string, quantity: number | undefined): ScriptCondition
@@ -526,7 +552,7 @@ cmd.in_house(item: string, quantity: number | undefined): ScriptCondition
 
 Checks whether the inventory contains an item.
 
-**Source:** `app/src/renderer/game/scripting/Commands/conditions.ts:1287`
+**Source:** `app/src/renderer/game/scripting/Commands/conditions.ts:1299`
 
 ```ts
 cmd.in_inventory(item: string, quantity: number | undefined): ScriptCondition
@@ -543,7 +569,7 @@ cmd.in_inventory(item: string, quantity: number | undefined): ScriptCondition
 
 Checks whether the player is in a map.
 
-**Source:** `app/src/renderer/game/scripting/Commands/conditions.ts:1669`
+**Source:** `app/src/renderer/game/scripting/Commands/conditions.ts:1682`
 
 ```ts
 cmd.in_map(map: string): ScriptCondition
@@ -559,7 +585,7 @@ cmd.in_map(map: string): ScriptCondition
 
 Checks whether the temp inventory contains an item.
 
-**Source:** `app/src/renderer/game/scripting/Commands/conditions.ts:1319`
+**Source:** `app/src/renderer/game/scripting/Commands/conditions.ts:1331`
 
 ```ts
 cmd.in_tempinventory(item: string, quantity: number | undefined): ScriptCondition
@@ -575,8 +601,9 @@ cmd.in_tempinventory(item: string, quantity: number | undefined): ScriptConditio
 ### `cmd.is_maxed(item)`
 
 Checks whether an item is at its max stack quantity.
+For class items, maxed means the class has reached rank 10.
 
-**Source:** `app/src/renderer/game/scripting/Commands/conditions.ts:1605`
+**Source:** `app/src/renderer/game/scripting/Commands/conditions.ts:1618`
 
 ```ts
 cmd.is_maxed(item: string): ScriptCondition
@@ -592,7 +619,7 @@ cmd.is_maxed(item: string): ScriptCondition
 
 Checks whether the account is a member.
 
-**Source:** `app/src/renderer/game/scripting/Commands/conditions.ts:1408`
+**Source:** `app/src/renderer/game/scripting/Commands/conditions.ts:1420`
 
 ```ts
 cmd.is_member(): ScriptCondition
@@ -604,7 +631,7 @@ cmd.is_member(): ScriptCondition
 
 Checks whether an item is not at its max stack quantity.
 
-**Source:** `app/src/renderer/game/scripting/Commands/conditions.ts:1621`
+**Source:** `app/src/renderer/game/scripting/Commands/conditions.ts:1634`
 
 ```ts
 cmd.is_not_maxed(item: string): ScriptCondition
@@ -620,7 +647,7 @@ cmd.is_not_maxed(item: string): ScriptCondition
 
 Checks whether the account is not a member.
 
-**Source:** `app/src/renderer/game/scripting/Commands/conditions.ts:1418`
+**Source:** `app/src/renderer/game/scripting/Commands/conditions.ts:1430`
 
 ```ts
 cmd.is_not_member(): ScriptCondition
@@ -632,7 +659,7 @@ cmd.is_not_member(): ScriptCondition
 
 Checks whether an item is present in the drop list.
 
-**Source:** `app/src/renderer/game/scripting/Commands/conditions.ts:1637`
+**Source:** `app/src/renderer/game/scripting/Commands/conditions.ts:1650`
 
 ```ts
 cmd.item_has_dropped(item: string): ScriptCondition
@@ -648,7 +675,7 @@ cmd.item_has_dropped(item: string): ScriptCondition
 
 Checks whether an item is absent from the drop list.
 
-**Source:** `app/src/renderer/game/scripting/Commands/conditions.ts:1653`
+**Source:** `app/src/renderer/game/scripting/Commands/conditions.ts:1666`
 
 ```ts
 cmd.item_has_not_dropped(item: string): ScriptCondition
@@ -664,7 +691,7 @@ cmd.item_has_not_dropped(item: string): ScriptCondition
 
 Builds a level condition expression.
 
-**Source:** `app/src/renderer/game/scripting/Commands/conditions.ts:977`
+**Source:** `app/src/renderer/game/scripting/Commands/conditions.ts:974`
 
 ```ts
 cmd.level(operator: ScriptComparisonOperatorInput, value: number): ScriptCondition
@@ -687,7 +714,7 @@ cmd.if(cmd.level("=", 100))
 
 Builds a monster HP condition expression.
 
-**Source:** `app/src/renderer/game/scripting/Commands/conditions.ts:1140`
+**Source:** `app/src/renderer/game/scripting/Commands/conditions.ts:1152`
 
 ```ts
 cmd.monster_hp(target: string, operator: ScriptComparisonOperatorInput, value: number): ScriptCondition
@@ -711,7 +738,7 @@ cmd.if(cmd.monster_hp("Ultra Boss", "<=", 100000))
 
 Builds a monster HP percentage condition expression.
 
-**Source:** `app/src/renderer/game/scripting/Commands/conditions.ts:1159`
+**Source:** `app/src/renderer/game/scripting/Commands/conditions.ts:1171`
 
 ```ts
 cmd.monster_hp_percentage(target: string, operator: ScriptComparisonOperatorInput, value: number): ScriptCondition
@@ -735,7 +762,7 @@ cmd.if(cmd.monster_hp_percentage("Ultra Boss", "<=", 25))
 
 Checks whether a monster is present in the room.
 
-**Source:** `app/src/renderer/game/scripting/Commands/conditions.ts:1699`
+**Source:** `app/src/renderer/game/scripting/Commands/conditions.ts:1712`
 
 ```ts
 cmd.monster_in_room(monster: string): ScriptCondition
@@ -751,7 +778,7 @@ cmd.monster_in_room(monster: string): ScriptCondition
 
 Checks whether a monster is absent from the room.
 
-**Source:** `app/src/renderer/game/scripting/Commands/conditions.ts:1714`
+**Source:** `app/src/renderer/game/scripting/Commands/conditions.ts:1727`
 
 ```ts
 cmd.monster_not_in_room(monster: string): ScriptCondition
@@ -767,7 +794,7 @@ cmd.monster_not_in_room(monster: string): ScriptCondition
 
 Builds a self MP condition expression.
 
-**Source:** `app/src/renderer/game/scripting/Commands/conditions.ts:929`
+**Source:** `app/src/renderer/game/scripting/Commands/conditions.ts:926`
 
 ```ts
 cmd.mp(operator: ScriptComparisonOperatorInput, value: number): ScriptCondition
@@ -790,7 +817,7 @@ cmd.if(cmd.mp(">=", 30))
 
 Builds a self MP percentage condition expression.
 
-**Source:** `app/src/renderer/game/scripting/Commands/conditions.ts:953`
+**Source:** `app/src/renderer/game/scripting/Commands/conditions.ts:950`
 
 ```ts
 cmd.mp_percentage(operator: ScriptComparisonOperatorInput, value: number): ScriptCondition
@@ -816,7 +843,7 @@ Builds the inverse of a condition expression.
 `not` only creates an expression. It does not start a block by itself;
 pass it to `if`, `if_all`, `if_any`, `and`, or `or`.
 
-**Source:** `app/src/renderer/game/scripting/Commands/conditions.ts:905`
+**Source:** `app/src/renderer/game/scripting/Commands/conditions.ts:902`
 
 ```ts
 cmd.not(condition: ConditionInput): ScriptCondition
@@ -838,7 +865,7 @@ cmd.if(cmd.not(cmd.in_inventory("Token")))
 
 Checks whether an item is not equipped.
 
-**Source:** `app/src/renderer/game/scripting/Commands/conditions.ts:1250`
+**Source:** `app/src/renderer/game/scripting/Commands/conditions.ts:1262`
 
 ```ts
 cmd.not_equipped(item: string): ScriptCondition
@@ -854,7 +881,7 @@ cmd.not_equipped(item: string): ScriptCondition
 
 Checks whether the bank does not contain an item.
 
-**Source:** `app/src/renderer/game/scripting/Commands/conditions.ts:1361`
+**Source:** `app/src/renderer/game/scripting/Commands/conditions.ts:1373`
 
 ```ts
 cmd.not_in_bank(item: ScriptItemIdentifier, quantity: number | undefined): ScriptCondition
@@ -871,7 +898,7 @@ cmd.not_in_bank(item: ScriptItemIdentifier, quantity: number | undefined): Scrip
 
 Checks whether the player is not in a cell.
 
-**Source:** `app/src/renderer/game/scripting/Commands/conditions.ts:1219`
+**Source:** `app/src/renderer/game/scripting/Commands/conditions.ts:1231`
 
 ```ts
 cmd.not_in_cell(cell: string): ScriptCondition
@@ -887,7 +914,7 @@ cmd.not_in_cell(cell: string): ScriptCondition
 
 Checks whether the player is not in combat.
 
-**Source:** `app/src/renderer/game/scripting/Commands/conditions.ts:1378`
+**Source:** `app/src/renderer/game/scripting/Commands/conditions.ts:1390`
 
 ```ts
 cmd.not_in_combat(): ScriptCondition
@@ -899,7 +926,7 @@ cmd.not_in_combat(): ScriptCondition
 
 Checks whether the house inventory does not contain an item.
 
-**Source:** `app/src/renderer/game/scripting/Commands/conditions.ts:1401`
+**Source:** `app/src/renderer/game/scripting/Commands/conditions.ts:1413`
 
 ```ts
 cmd.not_in_house(item: string, quantity: number | undefined): ScriptCondition
@@ -916,7 +943,7 @@ cmd.not_in_house(item: string, quantity: number | undefined): ScriptCondition
 
 Checks whether the inventory does not contain an item.
 
-**Source:** `app/src/renderer/game/scripting/Commands/conditions.ts:1303`
+**Source:** `app/src/renderer/game/scripting/Commands/conditions.ts:1315`
 
 ```ts
 cmd.not_in_inventory(item: string, quantity: number | undefined): ScriptCondition
@@ -933,7 +960,7 @@ cmd.not_in_inventory(item: string, quantity: number | undefined): ScriptConditio
 
 Checks whether the player is not in a map.
 
-**Source:** `app/src/renderer/game/scripting/Commands/conditions.ts:1684`
+**Source:** `app/src/renderer/game/scripting/Commands/conditions.ts:1697`
 
 ```ts
 cmd.not_in_map(map: string): ScriptCondition
@@ -949,7 +976,7 @@ cmd.not_in_map(map: string): ScriptCondition
 
 Checks whether the temp inventory does not contain an item.
 
-**Source:** `app/src/renderer/game/scripting/Commands/conditions.ts:1335`
+**Source:** `app/src/renderer/game/scripting/Commands/conditions.ts:1347`
 
 ```ts
 cmd.not_in_tempinventory(item: string, quantity: number | undefined): ScriptCondition
@@ -970,7 +997,7 @@ Builds a logical OR condition expression.
 pass the result to `if`, `not`, `and`, or another `or`. Use `if_any`
 when the entire conditional block is a flat OR of several expressions.
 
-**Source:** `app/src/renderer/game/scripting/Commands/conditions.ts:1195`
+**Source:** `app/src/renderer/game/scripting/Commands/conditions.ts:1207`
 
 ```ts
 cmd.or(...conditions: ConditionInput[]): ScriptCondition
@@ -992,7 +1019,7 @@ cmd.if(cmd.or(cmd.in_inventory("Token"), cmd.in_bank("Token")))
 
 Builds a player aura value condition expression.
 
-**Source:** `app/src/renderer/game/scripting/Commands/conditions.ts:1108`
+**Source:** `app/src/renderer/game/scripting/Commands/conditions.ts:1120`
 
 ```ts
 cmd.player_aura(player: string, aura: string, operator: ScriptComparisonOperatorInput, value: number): ScriptCondition
@@ -1017,7 +1044,7 @@ cmd.if(cmd.player_aura("Artix", "Some Aura", ">=", 1))
 
 Builds a room player count condition expression.
 
-**Source:** `app/src/renderer/game/scripting/Commands/conditions.ts:1066`
+**Source:** `app/src/renderer/game/scripting/Commands/conditions.ts:1081`
 
 ```ts
 cmd.player_count(operator: ScriptComparisonOperatorInput, value: number): ScriptCondition
@@ -1040,7 +1067,7 @@ cmd.if(cmd.player_count(">=", 3))
 
 Builds a named player HP condition expression.
 
-**Source:** `app/src/renderer/game/scripting/Commands/conditions.ts:1008`
+**Source:** `app/src/renderer/game/scripting/Commands/conditions.ts:1023`
 
 ```ts
 cmd.player_hp(player: string, operator: ScriptComparisonOperatorInput, value: number): ScriptCondition
@@ -1064,7 +1091,7 @@ cmd.if(cmd.player_hp("Artix", "<", 1000))
 
 Builds a named player HP percentage condition expression.
 
-**Source:** `app/src/renderer/game/scripting/Commands/conditions.ts:1027`
+**Source:** `app/src/renderer/game/scripting/Commands/conditions.ts:1042`
 
 ```ts
 cmd.player_hp_percentage(player: string, operator: ScriptComparisonOperatorInput, value: number): ScriptCondition
@@ -1088,7 +1115,7 @@ cmd.if(cmd.player_hp_percentage("Artix", "<=", 40))
 
 Checks whether a player is in a cell.
 
-**Source:** `app/src/renderer/game/scripting/Commands/conditions.ts:1446`
+**Source:** `app/src/renderer/game/scripting/Commands/conditions.ts:1458`
 
 ```ts
 cmd.player_in_cell(player: string, cell: string): ScriptCondition
@@ -1105,7 +1132,7 @@ cmd.player_in_cell(player: string, cell: string): ScriptCondition
 
 Checks whether a player is in the current map.
 
-**Source:** `app/src/renderer/game/scripting/Commands/conditions.ts:1430`
+**Source:** `app/src/renderer/game/scripting/Commands/conditions.ts:1442`
 
 ```ts
 cmd.player_in_map(player: string): ScriptCondition
@@ -1121,7 +1148,7 @@ cmd.player_in_map(player: string): ScriptCondition
 
 Checks whether the current player name matches a value.
 
-**Source:** `app/src/renderer/game/scripting/Commands/conditions.ts:1494`
+**Source:** `app/src/renderer/game/scripting/Commands/conditions.ts:1506`
 
 ```ts
 cmd.player_name_equals(player: string): ScriptCondition
@@ -1137,7 +1164,7 @@ cmd.player_name_equals(player: string): ScriptCondition
 
 Checks whether a player is not in a cell.
 
-**Source:** `app/src/renderer/game/scripting/Commands/conditions.ts:1478`
+**Source:** `app/src/renderer/game/scripting/Commands/conditions.ts:1490`
 
 ```ts
 cmd.player_not_in_cell(player: string, cell: string): ScriptCondition
@@ -1154,7 +1181,7 @@ cmd.player_not_in_cell(player: string, cell: string): ScriptCondition
 
 Checks whether a player is not in the current map.
 
-**Source:** `app/src/renderer/game/scripting/Commands/conditions.ts:1462`
+**Source:** `app/src/renderer/game/scripting/Commands/conditions.ts:1474`
 
 ```ts
 cmd.player_not_in_map(player: string): ScriptCondition
@@ -1170,7 +1197,7 @@ cmd.player_not_in_map(player: string): ScriptCondition
 
 Checks whether a quest is in progress.
 
-**Source:** `app/src/renderer/game/scripting/Commands/conditions.ts:1541`
+**Source:** `app/src/renderer/game/scripting/Commands/conditions.ts:1553`
 
 ```ts
 cmd.quest_in_progress(questId: number): ScriptCondition
@@ -1186,7 +1213,7 @@ cmd.quest_in_progress(questId: number): ScriptCondition
 
 Checks whether a quest is available.
 
-**Source:** `app/src/renderer/game/scripting/Commands/conditions.ts:1573`
+**Source:** `app/src/renderer/game/scripting/Commands/conditions.ts:1585`
 
 ```ts
 cmd.quest_is_available(questId: number): ScriptCondition
@@ -1202,7 +1229,7 @@ cmd.quest_is_available(questId: number): ScriptCondition
 
 Checks whether a quest is not available.
 
-**Source:** `app/src/renderer/game/scripting/Commands/conditions.ts:1589`
+**Source:** `app/src/renderer/game/scripting/Commands/conditions.ts:1601`
 
 ```ts
 cmd.quest_not_available(questId: number): ScriptCondition
@@ -1218,7 +1245,7 @@ cmd.quest_not_available(questId: number): ScriptCondition
 
 Checks whether a quest is not in progress.
 
-**Source:** `app/src/renderer/game/scripting/Commands/conditions.ts:1557`
+**Source:** `app/src/renderer/game/scripting/Commands/conditions.ts:1569`
 
 ```ts
 cmd.quest_not_in_progress(questId: number): ScriptCondition
@@ -1234,7 +1261,7 @@ cmd.quest_not_in_progress(questId: number): ScriptCondition
 
 Builds a current target HP condition expression.
 
-**Source:** `app/src/renderer/game/scripting/Commands/conditions.ts:1126`
+**Source:** `app/src/renderer/game/scripting/Commands/conditions.ts:1138`
 
 ```ts
 cmd.target_hp(operator: ScriptComparisonOperatorInput, value: number): ScriptCondition
@@ -1257,7 +1284,7 @@ cmd.if(cmd.target_hp("<", 5000))
 
 ### `ConditionInput`
 
-**Source:** `app/src/renderer/game/scripting/Commands/conditions.ts:43`
+**Source:** `app/src/renderer/game/scripting/Commands/conditions.ts:44`
 
 ```ts
 type ConditionInput =
@@ -1278,7 +1305,7 @@ type ScriptComparisonOperator =
   | "lt" // <
   | "lte" // <=
   | "gt" // >
-  | "gte"; // >=
+  | "gte";
 ```
 
 <a id="type-scriptcondition"></a>
@@ -1299,7 +1326,7 @@ Example flow:
   3. `ifCommand` calls `evaluateScriptCondition` with that argument.
   4. The `"PlayerMetric"` case reads live HP and compares it to `1000`.
 
-**Source:** `app/src/renderer/game/scripting/Commands/commandDsl.ts:88`
+**Source:** `app/src/renderer/game/scripting/Commands/commandDsl.ts:87`
 
 ```ts
 type ScriptCondition =
@@ -1371,6 +1398,7 @@ type ScriptCondition =
   | {
       readonly _tag: "ItemState";
       readonly item: string;
+      readonly quantity?: number;
       readonly state: "equipped" | "maxed" | "dropped" | "can_buy";
       readonly expected: boolean;
     }
@@ -1407,6 +1435,12 @@ type ScriptCondition =
       readonly value: number;
     }
   | {
+      readonly _tag: "ClassRank";
+      readonly className: string;
+      readonly operator: ScriptComparisonOperator;
+      readonly value: number;
+    }
+  | {
       readonly _tag: "QuestState";
       readonly questId: number;
       readonly state: "available" | "can_complete" | "in_progress";
@@ -1433,7 +1467,7 @@ type ScriptCondition =
 
 ### `ScriptInventoryLocation`
 
-**Source:** `app/src/renderer/game/scripting/Commands/commandDsl.ts:71`
+**Source:** `app/src/renderer/game/scripting/Commands/commandDsl.ts:70`
 
 ```ts
 type ScriptInventoryLocation =
@@ -1447,7 +1481,7 @@ type ScriptInventoryLocation =
 
 ### `ScriptMonsterMetric`
 
-**Source:** `app/src/renderer/game/scripting/Commands/commandDsl.ts:70`
+**Source:** `app/src/renderer/game/scripting/Commands/commandDsl.ts:69`
 
 ```ts
 type ScriptMonsterMetric =
@@ -1459,7 +1493,7 @@ type ScriptMonsterMetric =
 
 ### `ScriptPlayerMetric`
 
-**Source:** `app/src/renderer/game/scripting/Commands/commandDsl.ts:69`
+**Source:** `app/src/renderer/game/scripting/Commands/commandDsl.ts:68`
 
 ```ts
 type ScriptPlayerMetric =
