@@ -1,4 +1,5 @@
-import { Effect, Layer, Random, Ref } from "effect";
+import { equalsIgnoreCase } from "@vexed/shared/string";
+import { Effect, Layer, Option, Random, Ref } from "effect";
 import {
   AutoZone,
   type AutoZoneSupportedMap,
@@ -6,6 +7,7 @@ import {
 } from "../Services/AutoZone";
 import { PacketDomain } from "../Services/PacketDomain";
 import { Player } from "../Services/Player";
+import { World } from "../Services/World";
 
 type CoordinateRange = readonly [
   x: [min: number, max: number],
@@ -99,9 +101,27 @@ const AUTO_ZONES: Partial<Record<AutoZoneSupportedMap, ZoneMap>> = {
       [344, 420],
     ],
   },
-  // TODO: this requires its own logic
-  queeniona: {},
 };
+
+const QUEENIONA_MAP = "queeniona" satisfies AutoZoneSupportedMap;
+const QUEENIONA_AURA_SETTLE_DELAY = "500 millis";
+const QUEENIONA_LEFT: CoordinateRange = [
+  [111, 272],
+  [369, 379],
+];
+const QUEENIONA_RIGHT: CoordinateRange = [
+  [746, 869],
+  [369, 379],
+];
+const QUEENIONA_CENTER = [490, 320] as const;
+const QUEENIONA_POSITIVE_CHARGES = [
+  "Positive Charge",
+  "Positive Charge?",
+] as const;
+const QUEENIONA_NEGATIVE_CHARGES = [
+  "Negative Charge",
+  "Negative Charge?",
+] as const;
 
 const randomInRange = ([min, max]: [number, number]) =>
   Random.nextIntBetween(min, max);
@@ -115,8 +135,109 @@ const getRandomPosition = ([[x0, x1], [y0, y1]]: CoordinateRange) =>
 const make = Effect.gen(function* () {
   const packetDomain = yield* PacketDomain;
   const player = yield* Player;
+  const world = yield* World;
+
+  const runFork = Effect.runForkWith(yield* Effect.services());
   const enabledRef = yield* Ref.make(true);
   const mapRef = yield* Ref.make<AutoZoneSupportedMap>("ultradage");
+  const queenionaSequenceRef = yield* Ref.make(0);
+
+  const walkTo = (x: number, y: number) =>
+    player.walkTo(x, y).pipe(Effect.catch(() => Effect.void));
+
+  const walkToRandomPosition = (range: CoordinateRange) =>
+    Effect.gen(function* () {
+      const { x, y } = yield* getRandomPosition(range);
+      yield* walkTo(x, y);
+    });
+
+  const hasSelfAura = (
+    entId: number,
+    auraNames: readonly string[],
+  ): Effect.Effect<boolean> =>
+    Effect.gen(function* () {
+      for (const auraName of auraNames) {
+        const aura = yield* world.players.getAura(entId, auraName);
+        if (Option.isSome(aura)) {
+          return true;
+        }
+      }
+
+      return false;
+    });
+
+  const isCurrentQueenionaSequence = (sequence: number) =>
+    Effect.gen(function* () {
+      const currentSequence = yield* Ref.get(queenionaSequenceRef);
+      if (sequence !== currentSequence) {
+        return false;
+      }
+
+      const enabled = yield* Ref.get(enabledRef);
+      if (!enabled) {
+        return false;
+      }
+
+      const selectedMap = yield* Ref.get(mapRef);
+      if (selectedMap !== QUEENIONA_MAP) {
+        return false;
+      }
+
+      const currentWorldMap = yield* world.map.getName();
+      return equalsIgnoreCase(currentWorldMap, QUEENIONA_MAP);
+    });
+
+  const handleQueenionaZone = (zone: string, sequence: number) =>
+    Effect.gen(function* () {
+      yield* Effect.sleep(QUEENIONA_AURA_SETTLE_DELAY);
+
+      const isCurrent = yield* isCurrentQueenionaSequence(sequence);
+      if (!isCurrent) {
+        return;
+      }
+
+      if (zone !== "A" && zone !== "B") {
+        yield* walkTo(QUEENIONA_CENTER[0], QUEENIONA_CENTER[1]);
+        return;
+      }
+
+      const entId = yield* world.players.withSelf((me) => me.data.entID);
+      if (Option.isNone(entId)) {
+        return;
+      }
+
+      const positiveCharge = yield* hasSelfAura(
+        entId.value,
+        QUEENIONA_POSITIVE_CHARGES,
+      );
+      const negativeCharge = positiveCharge
+        ? false
+        : yield* hasSelfAura(entId.value, QUEENIONA_NEGATIVE_CHARGES);
+
+      const targetRange =
+        zone === "A"
+          ? positiveCharge
+            ? QUEENIONA_RIGHT
+            : negativeCharge
+              ? QUEENIONA_LEFT
+              : undefined
+          : positiveCharge
+            ? QUEENIONA_LEFT
+            : negativeCharge
+              ? QUEENIONA_RIGHT
+              : undefined;
+
+      if (targetRange) {
+        yield* walkToRandomPosition(targetRange);
+      }
+    }).pipe(
+      Effect.catchCause((cause) =>
+        Effect.logError({
+          message: "queeniona auto zone failed",
+          cause,
+        }),
+      ),
+    );
 
   const dispose = yield* packetDomain.on("zone", (event) =>
     Effect.gen(function* () {
@@ -124,6 +245,16 @@ const make = Effect.gen(function* () {
       if (!enabled) return;
 
       const currentMap = yield* Ref.get(mapRef);
+      if (!equalsIgnoreCase(event.map, currentMap)) return;
+
+      if (equalsIgnoreCase(currentMap, QUEENIONA_MAP)) {
+        const sequence = yield* Ref.updateAndGet(
+          queenionaSequenceRef,
+          (value) => value + 1,
+        );
+        runFork(handleQueenionaZone(event.zone, sequence));
+        return;
+      }
 
       if (!AUTO_ZONES[currentMap]) {
         yield* Effect.logWarning(
@@ -133,13 +264,11 @@ const make = Effect.gen(function* () {
       }
 
       const zoneRange = AUTO_ZONES[currentMap][event.zone];
-
       if (!zoneRange) {
         return;
       }
 
-      const { x, y } = yield* getRandomPosition(zoneRange);
-      yield* player.walkTo(x, y).pipe(Effect.catch(() => Effect.void));
+      yield* walkToRandomPosition(zoneRange);
     }),
   );
 
