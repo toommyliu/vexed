@@ -90,29 +90,31 @@ const formatDebugValue = (value: unknown): string => {
 
   const seen = new WeakSet<object>();
 
-  return JSON.stringify(
-    value,
-    (_key, nestedValue) => {
-      if (typeof nestedValue === "bigint") {
-        return `${nestedValue}n`;
-      }
-
-      if (typeof nestedValue === "function") {
-        return `[Function ${nestedValue.name || "anonymous"}]`;
-      }
-
-      if (typeof nestedValue === "object" && nestedValue !== null) {
-        if (seen.has(nestedValue)) {
-          return "[Circular]";
+  return (
+    JSON.stringify(
+      value,
+      (_key, nestedValue) => {
+        if (typeof nestedValue === "bigint") {
+          return `${nestedValue}n`;
         }
 
-        seen.add(nestedValue);
-      }
+        if (typeof nestedValue === "function") {
+          return `[Function ${nestedValue.name || "anonymous"}]`;
+        }
 
-      return nestedValue;
-    },
-    2,
-  ) ?? String(value);
+        if (typeof nestedValue === "object" && nestedValue !== null) {
+          if (seen.has(nestedValue)) {
+            return "[Circular]";
+          }
+
+          seen.add(nestedValue);
+        }
+
+        return nestedValue;
+      },
+      2,
+    ) ?? String(value)
+  );
 };
 
 interface Point {
@@ -147,11 +149,6 @@ export default function App() {
   const [effectsEnabled, setEffectsEnabled] = createSignal(true);
   const [playersVisible, setPlayersVisible] = createSignal(true);
   const [lagKillerEnabled, setLagKillerEnabled] = createSignal(false);
-  const [renderPreset, setRenderPreset] =
-    createSignal<RenderPreset>("normal");
-  const [otherPlayerCosmeticsEnabled, setOtherPlayerCosmeticsEnabled] =
-    createSignal(true);
-  const [mapAnimationsEnabled, setMapAnimationsEnabled] = createSignal(true);
   const [enemyMagnetEnabled, setEnemyMagnetEnabled] = createSignal(false);
   const [infiniteRangeEnabled, setInfiniteRangeEnabled] = createSignal(false);
   const [provokeCellEnabled, setProvokeCellEnabled] = createSignal(false);
@@ -179,7 +176,9 @@ export default function App() {
     getInitialScriptOverlayPosition(),
   );
   const [scriptName, setScriptName] = createSignal(demoScriptName);
-  const [scriptPath, setScriptPath] = createSignal<string | undefined>(undefined);
+  const [scriptPath, setScriptPath] = createSignal<string | undefined>(
+    undefined,
+  );
   const [scriptSource, setScriptSource] = createSignal(demoScriptSource);
   const [status, setStatus] = createSignal("Ready");
   const [commandCount, setCommandCount] = createSignal(0);
@@ -188,6 +187,7 @@ export default function App() {
     createSignal<RunningScriptCommand | null>(null);
   let scriptOverlayElement: HTMLDivElement | undefined;
   let scriptOverlayDragOffset: Point | undefined;
+  let scriptRunRequestId = 0;
 
   const moveScriptOverlay = (clientX: number, clientY: number) => {
     const overlayWidth = scriptOverlayElement?.offsetWidth ?? 612;
@@ -202,9 +202,10 @@ export default function App() {
     });
   };
 
-  const startScriptOverlayDrag: JSX.EventHandler<HTMLDivElement, PointerEvent> = (
-    event,
-  ) => {
+  const startScriptOverlayDrag: JSX.EventHandler<
+    HTMLDivElement,
+    PointerEvent
+  > = (event) => {
     if (event.button !== 0 || !scriptOverlayElement) {
       return;
     }
@@ -228,9 +229,10 @@ export default function App() {
     moveScriptOverlay(event.clientX, event.clientY);
   };
 
-  const stopScriptOverlayDrag: JSX.EventHandler<HTMLDivElement, PointerEvent> = (
-    event,
-  ) => {
+  const stopScriptOverlayDrag: JSX.EventHandler<
+    HTMLDivElement,
+    PointerEvent
+  > = (event) => {
     scriptOverlayDragOffset = undefined;
 
     if (event.currentTarget.hasPointerCapture(event.pointerId)) {
@@ -367,7 +369,7 @@ ${source}
           });
 
           if (Effect.isEffect(program)) {
-            return yield* (program as Effect.Effect<unknown, unknown, never>);
+            return yield* program as Effect.Effect<unknown, unknown, never>;
           }
 
           return program;
@@ -980,7 +982,6 @@ ${source}
     settingsStateDisposer?.();
   });
 
-
   const refreshMeta = async () => {
     if (!window.cmd) {
       setStatus("cmd global is not ready yet");
@@ -1044,9 +1045,37 @@ ${source}
       return;
     }
 
-    window.cmd.run(source, scriptName());
-    setStatus(`Running ${scriptName()}`);
-    void refreshMeta();
+    const name = scriptName();
+    const requestId = ++scriptRunRequestId;
+    setStatus(`Running ${name}`);
+
+    void window.cmd
+      .run(source, name)
+      .catch((error) => {
+        if (requestId !== scriptRunRequestId) {
+          return;
+        }
+
+        console.error("Failed to start script", error);
+        setStatus(`Failed to start ${name}`);
+      })
+      .finally(() => {
+        if (requestId === scriptRunRequestId) {
+          void refreshMeta();
+        }
+      });
+  };
+
+  const runScriptFromEditorShortcut: JSX.EventHandler<
+    HTMLTextAreaElement,
+    KeyboardEvent
+  > = (event) => {
+    if (event.key !== "Enter" || (!event.metaKey && !event.ctrlKey)) {
+      return;
+    }
+
+    event.preventDefault();
+    runScript();
   };
 
   const stopScript = () => {
@@ -1074,820 +1103,829 @@ ${source}
 
   return (
     <>
-    <div
-      style={{
-        position: "absolute",
-        top: "20px",
-        left: "20px",
-        background: "rgba(0, 0, 0, 0.7)",
-        color: "white",
-        "border-radius": "8px",
-        "z-index": 100,
-        "pointer-events": "auto",
-        "font-family": "sans-serif",
-      }}
-    >
-      <div style={{ display: "flex", "align-items": "center", gap: "10px" }}>
-        <button
-          onClick={() => setOverlayVisible(!overlayVisible())}
-          style={{
-            padding: "5px 10px",
-            cursor: "pointer",
-            background: "#374151",
-            border: "none",
-            color: "white",
-            "border-radius": "8px",
-            "z-index": 100,
-            "pointer-events": "auto",
-            "font-family": "sans-serif",
-          }}
-        >
-          Flash Debug {overlayVisible() ? "-" : "+"}
-        </button>
-        <button
-          onClick={() => setScriptOverlayVisible(!scriptOverlayVisible())}
-          style={{
-            padding: "5px 10px",
-            cursor: "pointer",
-            background: "#4f46e5",
-            border: "none",
-            color: "white",
-            "border-radius": "8px",
-            "z-index": 100,
-            "pointer-events": "auto",
-            "font-family": "sans-serif",
-          }}
-        >
-          Script {scriptOverlayVisible() ? "-" : "+"}
-        </button>
-        {overlayVisible() && (
-          <>
-            <button
-              onClick={() => setCount(count() + 1)}
-              style={{
-                cursor: "pointer",
-                background: "#4f46e5",
-                border: "none",
-                color: "white",
-                "border-radius": "4px",
-              }}
-            >
-              count: {count()}
-            </button>
-            <button onClick={testBridge}>test bridge</button>
-            <button onClick={inspectWorld}>inspect world</button>
-            <button onClick={inspectDrops}>inspect drops</button>
-            <button onClick={testGetTarget}>get target</button>
-            <button onClick={testGetCellMonsters}>get cell monsters</button>
-            <input
-              type="text"
-              value={demoUsername()}
-              onInput={(e) => setDemoUsername(e.currentTarget.value)}
-              placeholder="Demo username"
-              style={{
-                padding: "5px",
-                "border-radius": "4px",
-                border: "1px solid #ccc",
-                background: "white",
-                color: "black",
-              }}
-            />
-            <button
-              onClick={demoLogin}
-              style={{
-                padding: "5px 10px",
-                cursor: "pointer",
-                background: "#10b981",
-                border: "none",
-                color: "white",
-                "border-radius": "4px",
-              }}
-            >
-              demo login
-            </button>
-            <button
-              onClick={togglePacketLogging}
-              style={{
-                padding: "5px 10px",
-                cursor: "pointer",
-                background: packetLoggingEnabled() ? "#059669" : "#6b7280",
-                border: "none",
-                color: "white",
-                "border-radius": "4px",
-              }}
-            >
-              {packetLoggingEnabled()
-                ? "packet logging: ON"
-                : "packet logging: OFF"}
-            </button>
-            <input
-              type="text"
-              value={targetName()}
-              onInput={(e) => setTargetName(e.currentTarget.value)}
-              placeholder="Target name or id:123"
-              style={{
-                padding: "5px",
-                "border-radius": "4px",
-                border: "1px solid #ccc",
-                background: "white",
-                color: "black",
-              }}
-            />
-            <button
-              onClick={killTarget}
-              style={{
-                padding: "5px 10px",
-                cursor: "pointer",
-                background: "#dc2626",
-                border: "none",
-                color: "white",
-                "border-radius": "4px",
-              }}
-            >
-              kill
-            </button>
-            <button
-              onClick={stopCombatTask}
-              style={{
-                padding: "5px 10px",
-                cursor: "pointer",
-                background: "#f59e0b",
-                border: "none",
-                color: "white",
-                "border-radius": "4px",
-              }}
-            >
-              stop combat task
-            </button>
-            <button
-              onClick={testCombatExit}
-              style={{
-                padding: "5px 10px",
-                cursor: "pointer",
-                background: "#6366f1",
-                border: "none",
-                color: "white",
-                "border-radius": "4px",
-              }}
-            >
-              combat exit
-            </button>
-          </>
-        )}
-      </div>
-      {overlayVisible() && (
-        <>
-          <div
+      <div
+        style={{
+          position: "absolute",
+          top: "20px",
+          left: "20px",
+          background: "rgba(0, 0, 0, 0.7)",
+          color: "white",
+          "border-radius": "8px",
+          "z-index": 100,
+          "pointer-events": "auto",
+          "font-family": "sans-serif",
+        }}
+      >
+        <div style={{ display: "flex", "align-items": "center", gap: "10px" }}>
+          <button
+            onClick={() => setOverlayVisible(!overlayVisible())}
             style={{
-              display: "flex",
-              "align-items": "center",
-              gap: "10px",
-              "margin-top": "10px",
+              padding: "5px 10px",
+              cursor: "pointer",
+              background: "#374151",
+              border: "none",
+              color: "white",
+              "border-radius": "8px",
+              "z-index": 100,
+              "pointer-events": "auto",
+              "font-family": "sans-serif",
             }}
           >
-            <input
-              type="text"
-              value={itemNameOrId()}
-              onInput={(e) => setItemNameOrId(e.currentTarget.value)}
-              placeholder="Item name or id:123"
-              style={{
-                padding: "5px",
-                "border-radius": "4px",
-                border: "1px solid #ccc",
-                background: "white",
-                color: "black",
-              }}
-            />
-            <input
-              type="text"
-              value={itemQuantity()}
-              onInput={(e) => setItemQuantity(e.currentTarget.value)}
-              placeholder="Qty (optional, default 1)"
-              style={{
-                width: "170px",
-                padding: "5px",
-                "border-radius": "4px",
-                border: "1px solid #ccc",
-                background: "white",
-                color: "black",
-              }}
-            />
-            <button
-              onClick={killForInventoryItem}
-              style={{
-                padding: "5px 10px",
-                cursor: "pointer",
-                background: "#7c3aed",
-                border: "none",
-                color: "white",
-                "border-radius": "4px",
-              }}
-            >
-              kill for inventory item
-            </button>
-            <button
-              onClick={killForTempInventoryItem}
-              style={{
-                padding: "5px 10px",
-                cursor: "pointer",
-                background: "#0891b2",
-                border: "none",
-                color: "white",
-                "border-radius": "4px",
-              }}
-            >
-              kill for temp item
-            </button>
-          </div>
-          <div
+            Flash Debug {overlayVisible() ? "-" : "+"}
+          </button>
+          <button
+            onClick={() => setScriptOverlayVisible(!scriptOverlayVisible())}
             style={{
-              display: "flex",
-              "align-items": "center",
-              gap: "10px",
-              "margin-top": "10px",
+              padding: "5px 10px",
+              cursor: "pointer",
+              background: "#4f46e5",
+              border: "none",
+              color: "white",
+              "border-radius": "8px",
+              "z-index": 100,
+              "pointer-events": "auto",
+              "font-family": "sans-serif",
             }}
           >
-            <label
-              style={{ display: "flex", "align-items": "center", gap: "5px" }}
-            >
-              <input
-                type="checkbox"
-                checked={findMost()}
-                onChange={(e) => setFindMost(e.currentTarget.checked)}
-                style={{ cursor: "pointer" }}
-              />
-              Find most
-            </label>
-            <button
-              onClick={huntTarget}
-              style={{
-                padding: "5px 10px",
-                cursor: "pointer",
-                background: "#059669",
-                border: "none",
-                color: "white",
-                "border-radius": "4px",
-              }}
-            >
-              hunt
-            </button>
-          </div>
-          <div
-            style={{
-              display: "flex",
-              "align-items": "center",
-              gap: "10px",
-              "margin-top": "10px",
-            }}
-          >
-            <label
-              style={{ display: "flex", "align-items": "center", gap: "5px" }}
-            >
-              <input
-                type="checkbox"
-                checked={autoZoneEnabled()}
-                onChange={toggleAutoZone}
-                style={{ cursor: "pointer" }}
-              />
-              AutoZone Enabled
-            </label>
-            <select
-              value={autoZoneMap()}
-              onInput={(e) => applyAutoZoneMap(e.currentTarget.value)}
-              style={{
-                padding: "5px",
-                "border-radius": "4px",
-                border: "1px solid #ccc",
-                background: "white",
-                color: "black",
-                cursor: "pointer",
-              }}
-            >
-              <option value="ledgermayne">ledgermayne</option>
-              <option value="moreskulls">moreskulls</option>
-              <option value="ultradage">ultradage</option>
-              <option value="darkcarnax">darkcarnax</option>
-              <option value="astralshrine">astralshrine</option>
-            </select>
-          </div>
-          <div
-            style={{
-              display: "flex",
-              "align-items": "center",
-              gap: "10px",
-              "margin-top": "10px",
-              "flex-wrap": "wrap",
-            }}
-          >
-            <label
-              style={{ display: "flex", "align-items": "center", gap: "5px" }}
-            >
-              <input
-                type="checkbox"
-                checked={enemyMagnetEnabled()}
-                onChange={handleToggleEnemyMagnet}
-                style={{ cursor: "pointer" }}
-              />
-              Enemy Magnet
-            </label>
-            <label
-              style={{ display: "flex", "align-items": "center", gap: "5px" }}
-            >
-              <input
-                type="checkbox"
-                checked={infiniteRangeEnabled()}
-                onChange={handleToggleInfiniteRange}
-                style={{ cursor: "pointer" }}
-              />
-              Infinite Range
-            </label>
-            <label
-              style={{ display: "flex", "align-items": "center", gap: "5px" }}
-            >
-              <input
-                type="checkbox"
-                checked={provokeCellEnabled()}
-                onChange={handleToggleProvokeCell}
-                style={{ cursor: "pointer" }}
-              />
-              Provoke Cell
-            </label>
-            <label
-              style={{ display: "flex", "align-items": "center", gap: "5px" }}
-            >
-              <input
-                type="checkbox"
-                checked={skipCutscenesEnabled()}
-                onChange={handleToggleSkipCutscenes}
-                style={{ cursor: "pointer" }}
-              />
-              Skip Cutscenes
-            </label>
-          </div>
-          <div
-            style={{
-              display: "flex",
-              "align-items": "center",
-              gap: "10px",
-              "margin-top": "10px",
-              "flex-wrap": "wrap",
-            }}
-          >
-            <input
-              type="text"
-              value={customName()}
-              onInput={(e) => setCustomName(e.currentTarget.value)}
-              placeholder="Custom Name"
-              style={{
-                padding: "5px",
-                "border-radius": "4px",
-                border: "1px solid #ccc",
-                background: "white",
-                color: "black",
-              }}
-            />
-            <button
-              onClick={handleSetCustomName}
-              style={{
-                padding: "5px 10px",
-                cursor: "pointer",
-                background: "#6366f1",
-                border: "none",
-                color: "white",
-                "border-radius": "4px",
-              }}
-            >
-              Set Name
-            </button>
-            <input
-              type="text"
-              value={customGuild()}
-              onInput={(e) => setCustomGuild(e.currentTarget.value)}
-              placeholder="Custom Guild"
-              style={{
-                padding: "5px",
-                "border-radius": "4px",
-                border: "1px solid #ccc",
-                background: "white",
-                color: "black",
-              }}
-            />
-            <button
-              onClick={handleSetCustomGuild}
-              style={{
-                padding: "5px 10px",
-                cursor: "pointer",
-                background: "#6366f1",
-                border: "none",
-                color: "white",
-                "border-radius": "4px",
-              }}
-            >
-              Set Guild
-            </button>
-          </div>
-          <div
-            style={{
-              display: "flex",
-              "align-items": "center",
-              gap: "10px",
-              "margin-top": "10px",
-              "flex-wrap": "wrap",
-            }}
-          >
-            <input
-              type="text"
-              value={walkSpeed()}
-              onInput={(e) => setWalkSpeed(e.currentTarget.value)}
-              placeholder="Walk Speed"
-              style={{
-                padding: "5px",
-                "border-radius": "4px",
-                border: "1px solid #ccc",
-                background: "white",
-                color: "black",
-                width: "100px",
-              }}
-            />
-            <button
-              onClick={handleSetWalkSpeed}
-              style={{
-                padding: "5px 10px",
-                cursor: "pointer",
-                background: "#6366f1",
-                border: "none",
-                color: "white",
-                "border-radius": "4px",
-              }}
-            >
-              Set Speed
-            </button>
-            <input
-              type="text"
-              value={frameRate()}
-              onInput={(e) => setFrameRate(e.currentTarget.value)}
-              placeholder="FPS"
-              style={{
-                padding: "5px",
-                "border-radius": "4px",
-                border: "1px solid #ccc",
-                background: "white",
-                color: "black",
-                width: "100px",
-              }}
-            />
-            <button
-              onClick={handleSetFrameRate}
-              style={{
-                padding: "5px 10px",
-                cursor: "pointer",
-                background: "#6366f1",
-                border: "none",
-                color: "white",
-                "border-radius": "4px",
-              }}
-            >
-              Set FPS
-            </button>
-          </div>
-          <div
-            style={{
-              display: "flex",
-              "align-items": "center",
-              gap: "10px",
-              "margin-top": "10px",
-              "flex-wrap": "wrap",
-            }}
-          >
-            <label
-              style={{ display: "flex", "align-items": "center", gap: "5px" }}
-            >
-              <input
-                type="checkbox"
-                checked={deathAdsEnabled()}
-                onChange={handleToggleDeathAds}
-                style={{ cursor: "pointer" }}
-              />
-              Death Ads
-            </label>
-            <label
-              style={{ display: "flex", "align-items": "center", gap: "5px" }}
-            >
-              <input
-                type="checkbox"
-                checked={collisionsEnabled()}
-                onChange={handleToggleCollisions}
-                style={{ cursor: "pointer" }}
-              />
-              Collisions
-            </label>
-            <label
-              style={{ display: "flex", "align-items": "center", gap: "5px" }}
-            >
-              <input
-                type="checkbox"
-                checked={effectsEnabled()}
-                onChange={handleToggleEffects}
-                style={{ cursor: "pointer" }}
-              />
-              Effects
-            </label>
-            <label
-              style={{ display: "flex", "align-items": "center", gap: "5px" }}
-            >
-              <input
-                type="checkbox"
-                checked={playersVisible()}
-                onChange={handleTogglePlayersVisible}
-                style={{ cursor: "pointer" }}
-              />
-              Players Visible
-            </label>
-            <label
-              style={{ display: "flex", "align-items": "center", gap: "5px" }}
-            >
-              <input
-                type="checkbox"
-                checked={lagKillerEnabled()}
-                onChange={handleToggleLagKiller}
-                style={{ cursor: "pointer" }}
-              />
-              Lag Killer
-            </label>
-          </div>
-          <div
-            style={{
-              display: "flex",
-              "align-items": "center",
-              gap: "10px",
-              "margin-top": "10px",
-              "flex-wrap": "wrap",
-            }}
-          >
-            <input
-              type="text"
-              value={testClientPacket()}
-              onInput={(e) => setTestClientPacket(e.currentTarget.value)}
-              placeholder="Client packet"
-              style={{
-                padding: "5px",
-                "border-radius": "4px",
-                border: "1px solid #ccc",
-                background: "white",
-                color: "black",
-                width: "200px",
-              }}
-            />
-            <select
-              value={clientPacketType()}
-              onInput={(e) => setClientPacketType(e.currentTarget.value as any)}
-              style={{
-                padding: "5px",
-                "border-radius": "4px",
-                border: "1px solid #ccc",
-                background: "white",
-                color: "black",
-                cursor: "pointer",
-              }}
-            >
-              <option value="str">str</option>
-              <option value="json">json</option>
-              <option value="xml">xml</option>
-            </select>
-            <button
-              onClick={testSendClientPacket}
-              style={{
-                padding: "5px 10px",
-                cursor: "pointer",
-                background: "#ec4899",
-                border: "none",
-                color: "white",
-                "border-radius": "4px",
-              }}
-            >
-              Send Client
-            </button>
-            <input
-              type="text"
-              value={testServerPacket()}
-              onInput={(e) => setTestServerPacket(e.currentTarget.value)}
-              placeholder="Server packet"
-              style={{
-                padding: "5px",
-                "border-radius": "4px",
-                border: "1px solid #ccc",
-                background: "white",
-                color: "black",
-                width: "200px",
-              }}
-            />
-            <select
-              value={serverPacketType()}
-              onInput={(e) => setServerPacketType(e.currentTarget.value as any)}
-              style={{
-                padding: "5px",
-                "border-radius": "4px",
-                border: "1px solid #ccc",
-                background: "white",
-                color: "black",
-                cursor: "pointer",
-              }}
-            >
-              <option value="String">String</option>
-              <option value="Json">Json</option>
-            </select>
-            <button
-              onClick={testSendServerPacket}
-              style={{
-                padding: "5px 10px",
-                cursor: "pointer",
-                background: "#ec4899",
-                border: "none",
-                color: "white",
-                "border-radius": "4px",
-              }}
-            >
-              Send Server
-            </button>
-          </div>
-          <div
-            style={{
-              display: "grid",
-              gap: "8px",
-              "margin-top": "10px",
-              width: "min(760px, calc(100vw - 40px))",
-            }}
-          >
-            <div
-              style={{
-                display: "flex",
-                "align-items": "center",
-                gap: "8px",
-                "flex-wrap": "wrap",
-              }}
-            >
-              <span style={{ "font-size": "12px", opacity: 0.85 }}>
-                Effect service code
-              </span>
+            Script {scriptOverlayVisible() ? "-" : "+"}
+          </button>
+          {overlayVisible() && (
+            <>
               <button
-                onClick={runFlashEval}
-                disabled={flashEvalRunning()}
+                onClick={() => setCount(count() + 1)}
                 style={{
-                  padding: "5px 10px",
-                  cursor: flashEvalRunning() ? "default" : "pointer",
-                  background: flashEvalRunning() ? "#6b7280" : "#0f766e",
+                  cursor: "pointer",
+                  background: "#4f46e5",
                   border: "none",
                   color: "white",
                   "border-radius": "4px",
                 }}
               >
-                {flashEvalRunning() ? "Running" : "Run"}
+                count: {count()}
               </button>
-              <span style={{ "font-size": "11px", opacity: 0.7 }}>
-                Use yield* with Inventory, Player, World, Combat, Settings, api
-              </span>
-            </div>
-            <textarea
-              value={flashEvalCode()}
-              onInput={(e) => setFlashEvalCode(e.currentTarget.value)}
-              rows={10}
-              spellcheck={false}
-              style={{
-                width: "100%",
-                resize: "vertical",
-                padding: "8px",
-                "border-radius": "4px",
-                border: "1px solid #555",
-                background: "#111827",
-                color: "white",
-                "font-family": "ui-monospace, Menlo, monospace",
-                "font-size": "12px",
-              }}
-            />
+              <button onClick={testBridge}>test bridge</button>
+              <button onClick={inspectWorld}>inspect world</button>
+              <button onClick={inspectDrops}>inspect drops</button>
+              <button onClick={testGetTarget}>get target</button>
+              <button onClick={testGetCellMonsters}>get cell monsters</button>
+              <input
+                type="text"
+                value={demoUsername()}
+                onInput={(e) => setDemoUsername(e.currentTarget.value)}
+                placeholder="Demo username"
+                style={{
+                  padding: "5px",
+                  "border-radius": "4px",
+                  border: "1px solid #ccc",
+                  background: "white",
+                  color: "black",
+                }}
+              />
+              <button
+                onClick={demoLogin}
+                style={{
+                  padding: "5px 10px",
+                  cursor: "pointer",
+                  background: "#10b981",
+                  border: "none",
+                  color: "white",
+                  "border-radius": "4px",
+                }}
+              >
+                demo login
+              </button>
+              <button
+                onClick={togglePacketLogging}
+                style={{
+                  padding: "5px 10px",
+                  cursor: "pointer",
+                  background: packetLoggingEnabled() ? "#059669" : "#6b7280",
+                  border: "none",
+                  color: "white",
+                  "border-radius": "4px",
+                }}
+              >
+                {packetLoggingEnabled()
+                  ? "packet logging: ON"
+                  : "packet logging: OFF"}
+              </button>
+              <input
+                type="text"
+                value={targetName()}
+                onInput={(e) => setTargetName(e.currentTarget.value)}
+                placeholder="Target name or id:123"
+                style={{
+                  padding: "5px",
+                  "border-radius": "4px",
+                  border: "1px solid #ccc",
+                  background: "white",
+                  color: "black",
+                }}
+              />
+              <button
+                onClick={killTarget}
+                style={{
+                  padding: "5px 10px",
+                  cursor: "pointer",
+                  background: "#dc2626",
+                  border: "none",
+                  color: "white",
+                  "border-radius": "4px",
+                }}
+              >
+                kill
+              </button>
+              <button
+                onClick={stopCombatTask}
+                style={{
+                  padding: "5px 10px",
+                  cursor: "pointer",
+                  background: "#f59e0b",
+                  border: "none",
+                  color: "white",
+                  "border-radius": "4px",
+                }}
+              >
+                stop combat task
+              </button>
+              <button
+                onClick={testCombatExit}
+                style={{
+                  padding: "5px 10px",
+                  cursor: "pointer",
+                  background: "#6366f1",
+                  border: "none",
+                  color: "white",
+                  "border-radius": "4px",
+                }}
+              >
+                combat exit
+              </button>
+            </>
+          )}
+        </div>
+        {overlayVisible() && (
+          <>
             <div
               style={{
                 display: "flex",
-                gap: "6px",
+                "align-items": "center",
+                gap: "10px",
+                "margin-top": "10px",
+              }}
+            >
+              <input
+                type="text"
+                value={itemNameOrId()}
+                onInput={(e) => setItemNameOrId(e.currentTarget.value)}
+                placeholder="Item name or id:123"
+                style={{
+                  padding: "5px",
+                  "border-radius": "4px",
+                  border: "1px solid #ccc",
+                  background: "white",
+                  color: "black",
+                }}
+              />
+              <input
+                type="text"
+                value={itemQuantity()}
+                onInput={(e) => setItemQuantity(e.currentTarget.value)}
+                placeholder="Qty (optional, default 1)"
+                style={{
+                  width: "170px",
+                  padding: "5px",
+                  "border-radius": "4px",
+                  border: "1px solid #ccc",
+                  background: "white",
+                  color: "black",
+                }}
+              />
+              <button
+                onClick={killForInventoryItem}
+                style={{
+                  padding: "5px 10px",
+                  cursor: "pointer",
+                  background: "#7c3aed",
+                  border: "none",
+                  color: "white",
+                  "border-radius": "4px",
+                }}
+              >
+                kill for inventory item
+              </button>
+              <button
+                onClick={killForTempInventoryItem}
+                style={{
+                  padding: "5px 10px",
+                  cursor: "pointer",
+                  background: "#0891b2",
+                  border: "none",
+                  color: "white",
+                  "border-radius": "4px",
+                }}
+              >
+                kill for temp item
+              </button>
+            </div>
+            <div
+              style={{
+                display: "flex",
+                "align-items": "center",
+                gap: "10px",
+                "margin-top": "10px",
+              }}
+            >
+              <label
+                style={{ display: "flex", "align-items": "center", gap: "5px" }}
+              >
+                <input
+                  type="checkbox"
+                  checked={findMost()}
+                  onChange={(e) => setFindMost(e.currentTarget.checked)}
+                  style={{ cursor: "pointer" }}
+                />
+                Find most
+              </label>
+              <button
+                onClick={huntTarget}
+                style={{
+                  padding: "5px 10px",
+                  cursor: "pointer",
+                  background: "#059669",
+                  border: "none",
+                  color: "white",
+                  "border-radius": "4px",
+                }}
+              >
+                hunt
+              </button>
+            </div>
+            <div
+              style={{
+                display: "flex",
+                "align-items": "center",
+                gap: "10px",
+                "margin-top": "10px",
+              }}
+            >
+              <label
+                style={{ display: "flex", "align-items": "center", gap: "5px" }}
+              >
+                <input
+                  type="checkbox"
+                  checked={autoZoneEnabled()}
+                  onChange={toggleAutoZone}
+                  style={{ cursor: "pointer" }}
+                />
+                AutoZone Enabled
+              </label>
+              <select
+                value={autoZoneMap()}
+                onInput={(e) => applyAutoZoneMap(e.currentTarget.value)}
+                style={{
+                  padding: "5px",
+                  "border-radius": "4px",
+                  border: "1px solid #ccc",
+                  background: "white",
+                  color: "black",
+                  cursor: "pointer",
+                }}
+              >
+                <option value="ledgermayne">ledgermayne</option>
+                <option value="moreskulls">moreskulls</option>
+                <option value="ultradage">ultradage</option>
+                <option value="darkcarnax">darkcarnax</option>
+                <option value="astralshrine">astralshrine</option>
+              </select>
+            </div>
+            <div
+              style={{
+                display: "flex",
+                "align-items": "center",
+                gap: "10px",
+                "margin-top": "10px",
                 "flex-wrap": "wrap",
               }}
             >
-              {flashServiceDebugExamples.map((example) => (
-                <button onClick={() => loadFlashEvalExample(example.source)}>
-                  {example.label}
-                </button>
-              ))}
+              <label
+                style={{ display: "flex", "align-items": "center", gap: "5px" }}
+              >
+                <input
+                  type="checkbox"
+                  checked={enemyMagnetEnabled()}
+                  onChange={handleToggleEnemyMagnet}
+                  style={{ cursor: "pointer" }}
+                />
+                Enemy Magnet
+              </label>
+              <label
+                style={{ display: "flex", "align-items": "center", gap: "5px" }}
+              >
+                <input
+                  type="checkbox"
+                  checked={infiniteRangeEnabled()}
+                  onChange={handleToggleInfiniteRange}
+                  style={{ cursor: "pointer" }}
+                />
+                Infinite Range
+              </label>
+              <label
+                style={{ display: "flex", "align-items": "center", gap: "5px" }}
+              >
+                <input
+                  type="checkbox"
+                  checked={provokeCellEnabled()}
+                  onChange={handleToggleProvokeCell}
+                  style={{ cursor: "pointer" }}
+                />
+                Provoke Cell
+              </label>
+              <label
+                style={{ display: "flex", "align-items": "center", gap: "5px" }}
+              >
+                <input
+                  type="checkbox"
+                  checked={skipCutscenesEnabled()}
+                  onChange={handleToggleSkipCutscenes}
+                  style={{ cursor: "pointer" }}
+                />
+                Skip Cutscenes
+              </label>
             </div>
-            <pre
+            <div
               style={{
-                margin: 0,
-                padding: "8px",
-                "max-height": "220px",
-                overflow: "auto",
-                "border-radius": "4px",
-                background: "#030712",
-                color: "#d1d5db",
-                "font-family": "ui-monospace, Menlo, monospace",
-                "font-size": "12px",
-                "white-space": "pre-wrap",
+                display: "flex",
+                "align-items": "center",
+                gap: "10px",
+                "margin-top": "10px",
+                "flex-wrap": "wrap",
               }}
             >
-              {flashEvalResult()}
-            </pre>
-          </div>
-        </>
-      )}
-    </div>
-    {scriptOverlayVisible() && (
-      <div
-        ref={scriptOverlayElement}
-        style={{
-          position: "absolute",
-          top: `${scriptOverlayPosition().y}px`,
-          left: `${scriptOverlayPosition().x}px`,
-          width: "560px",
-          padding: "1rem",
-          background: "rgba(0, 0, 0, 0.85)",
-          color: "white",
-          "border-radius": "8px",
-          "z-index": 101,
-          "pointer-events": "auto",
-          "font-family": "sans-serif",
-          display: "flex",
-          "flex-direction": "column",
-          gap: "0.5rem",
-        }}
-      >
+              <input
+                type="text"
+                value={customName()}
+                onInput={(e) => setCustomName(e.currentTarget.value)}
+                placeholder="Custom Name"
+                style={{
+                  padding: "5px",
+                  "border-radius": "4px",
+                  border: "1px solid #ccc",
+                  background: "white",
+                  color: "black",
+                }}
+              />
+              <button
+                onClick={handleSetCustomName}
+                style={{
+                  padding: "5px 10px",
+                  cursor: "pointer",
+                  background: "#6366f1",
+                  border: "none",
+                  color: "white",
+                  "border-radius": "4px",
+                }}
+              >
+                Set Name
+              </button>
+              <input
+                type="text"
+                value={customGuild()}
+                onInput={(e) => setCustomGuild(e.currentTarget.value)}
+                placeholder="Custom Guild"
+                style={{
+                  padding: "5px",
+                  "border-radius": "4px",
+                  border: "1px solid #ccc",
+                  background: "white",
+                  color: "black",
+                }}
+              />
+              <button
+                onClick={handleSetCustomGuild}
+                style={{
+                  padding: "5px 10px",
+                  cursor: "pointer",
+                  background: "#6366f1",
+                  border: "none",
+                  color: "white",
+                  "border-radius": "4px",
+                }}
+              >
+                Set Guild
+              </button>
+            </div>
+            <div
+              style={{
+                display: "flex",
+                "align-items": "center",
+                gap: "10px",
+                "margin-top": "10px",
+                "flex-wrap": "wrap",
+              }}
+            >
+              <input
+                type="text"
+                value={walkSpeed()}
+                onInput={(e) => setWalkSpeed(e.currentTarget.value)}
+                placeholder="Walk Speed"
+                style={{
+                  padding: "5px",
+                  "border-radius": "4px",
+                  border: "1px solid #ccc",
+                  background: "white",
+                  color: "black",
+                  width: "100px",
+                }}
+              />
+              <button
+                onClick={handleSetWalkSpeed}
+                style={{
+                  padding: "5px 10px",
+                  cursor: "pointer",
+                  background: "#6366f1",
+                  border: "none",
+                  color: "white",
+                  "border-radius": "4px",
+                }}
+              >
+                Set Speed
+              </button>
+              <input
+                type="text"
+                value={frameRate()}
+                onInput={(e) => setFrameRate(e.currentTarget.value)}
+                placeholder="FPS"
+                style={{
+                  padding: "5px",
+                  "border-radius": "4px",
+                  border: "1px solid #ccc",
+                  background: "white",
+                  color: "black",
+                  width: "100px",
+                }}
+              />
+              <button
+                onClick={handleSetFrameRate}
+                style={{
+                  padding: "5px 10px",
+                  cursor: "pointer",
+                  background: "#6366f1",
+                  border: "none",
+                  color: "white",
+                  "border-radius": "4px",
+                }}
+              >
+                Set FPS
+              </button>
+            </div>
+            <div
+              style={{
+                display: "flex",
+                "align-items": "center",
+                gap: "10px",
+                "margin-top": "10px",
+                "flex-wrap": "wrap",
+              }}
+            >
+              <label
+                style={{ display: "flex", "align-items": "center", gap: "5px" }}
+              >
+                <input
+                  type="checkbox"
+                  checked={deathAdsEnabled()}
+                  onChange={handleToggleDeathAds}
+                  style={{ cursor: "pointer" }}
+                />
+                Death Ads
+              </label>
+              <label
+                style={{ display: "flex", "align-items": "center", gap: "5px" }}
+              >
+                <input
+                  type="checkbox"
+                  checked={collisionsEnabled()}
+                  onChange={handleToggleCollisions}
+                  style={{ cursor: "pointer" }}
+                />
+                Collisions
+              </label>
+              <label
+                style={{ display: "flex", "align-items": "center", gap: "5px" }}
+              >
+                <input
+                  type="checkbox"
+                  checked={effectsEnabled()}
+                  onChange={handleToggleEffects}
+                  style={{ cursor: "pointer" }}
+                />
+                Effects
+              </label>
+              <label
+                style={{ display: "flex", "align-items": "center", gap: "5px" }}
+              >
+                <input
+                  type="checkbox"
+                  checked={playersVisible()}
+                  onChange={handleTogglePlayersVisible}
+                  style={{ cursor: "pointer" }}
+                />
+                Players Visible
+              </label>
+              <label
+                style={{ display: "flex", "align-items": "center", gap: "5px" }}
+              >
+                <input
+                  type="checkbox"
+                  checked={lagKillerEnabled()}
+                  onChange={handleToggleLagKiller}
+                  style={{ cursor: "pointer" }}
+                />
+                Lag Killer
+              </label>
+            </div>
+            <div
+              style={{
+                display: "flex",
+                "align-items": "center",
+                gap: "10px",
+                "margin-top": "10px",
+                "flex-wrap": "wrap",
+              }}
+            >
+              <input
+                type="text"
+                value={testClientPacket()}
+                onInput={(e) => setTestClientPacket(e.currentTarget.value)}
+                placeholder="Client packet"
+                style={{
+                  padding: "5px",
+                  "border-radius": "4px",
+                  border: "1px solid #ccc",
+                  background: "white",
+                  color: "black",
+                  width: "200px",
+                }}
+              />
+              <select
+                value={clientPacketType()}
+                onInput={(e) =>
+                  setClientPacketType(e.currentTarget.value as any)
+                }
+                style={{
+                  padding: "5px",
+                  "border-radius": "4px",
+                  border: "1px solid #ccc",
+                  background: "white",
+                  color: "black",
+                  cursor: "pointer",
+                }}
+              >
+                <option value="str">str</option>
+                <option value="json">json</option>
+                <option value="xml">xml</option>
+              </select>
+              <button
+                onClick={testSendClientPacket}
+                style={{
+                  padding: "5px 10px",
+                  cursor: "pointer",
+                  background: "#ec4899",
+                  border: "none",
+                  color: "white",
+                  "border-radius": "4px",
+                }}
+              >
+                Send Client
+              </button>
+              <input
+                type="text"
+                value={testServerPacket()}
+                onInput={(e) => setTestServerPacket(e.currentTarget.value)}
+                placeholder="Server packet"
+                style={{
+                  padding: "5px",
+                  "border-radius": "4px",
+                  border: "1px solid #ccc",
+                  background: "white",
+                  color: "black",
+                  width: "200px",
+                }}
+              />
+              <select
+                value={serverPacketType()}
+                onInput={(e) =>
+                  setServerPacketType(e.currentTarget.value as any)
+                }
+                style={{
+                  padding: "5px",
+                  "border-radius": "4px",
+                  border: "1px solid #ccc",
+                  background: "white",
+                  color: "black",
+                  cursor: "pointer",
+                }}
+              >
+                <option value="String">String</option>
+                <option value="Json">Json</option>
+              </select>
+              <button
+                onClick={testSendServerPacket}
+                style={{
+                  padding: "5px 10px",
+                  cursor: "pointer",
+                  background: "#ec4899",
+                  border: "none",
+                  color: "white",
+                  "border-radius": "4px",
+                }}
+              >
+                Send Server
+              </button>
+            </div>
+            <div
+              style={{
+                display: "grid",
+                gap: "8px",
+                "margin-top": "10px",
+                width: "min(760px, calc(100vw - 40px))",
+              }}
+            >
+              <div
+                style={{
+                  display: "flex",
+                  "align-items": "center",
+                  gap: "8px",
+                  "flex-wrap": "wrap",
+                }}
+              >
+                <span style={{ "font-size": "12px", opacity: 0.85 }}>
+                  Effect service code
+                </span>
+                <button
+                  onClick={runFlashEval}
+                  disabled={flashEvalRunning()}
+                  style={{
+                    padding: "5px 10px",
+                    cursor: flashEvalRunning() ? "default" : "pointer",
+                    background: flashEvalRunning() ? "#6b7280" : "#0f766e",
+                    border: "none",
+                    color: "white",
+                    "border-radius": "4px",
+                  }}
+                >
+                  {flashEvalRunning() ? "Running" : "Run"}
+                </button>
+                <span style={{ "font-size": "11px", opacity: 0.7 }}>
+                  Use yield* with Inventory, Player, World, Combat, Settings,
+                  api
+                </span>
+              </div>
+              <textarea
+                value={flashEvalCode()}
+                onInput={(e) => setFlashEvalCode(e.currentTarget.value)}
+                rows={10}
+                spellcheck={false}
+                style={{
+                  width: "100%",
+                  resize: "vertical",
+                  padding: "8px",
+                  "border-radius": "4px",
+                  border: "1px solid #555",
+                  background: "#111827",
+                  color: "white",
+                  "font-family": "ui-monospace, Menlo, monospace",
+                  "font-size": "12px",
+                }}
+              />
+              <div
+                style={{
+                  display: "flex",
+                  gap: "6px",
+                  "flex-wrap": "wrap",
+                }}
+              >
+                {flashServiceDebugExamples.map((example) => (
+                  <button onClick={() => loadFlashEvalExample(example.source)}>
+                    {example.label}
+                  </button>
+                ))}
+              </div>
+              <pre
+                style={{
+                  margin: 0,
+                  padding: "8px",
+                  "max-height": "220px",
+                  overflow: "auto",
+                  "border-radius": "4px",
+                  background: "#030712",
+                  color: "#d1d5db",
+                  "font-family": "ui-monospace, Menlo, monospace",
+                  "font-size": "12px",
+                  "white-space": "pre-wrap",
+                }}
+              >
+                {flashEvalResult()}
+              </pre>
+            </div>
+          </>
+        )}
+      </div>
+      {scriptOverlayVisible() && (
         <div
-          onPointerDown={startScriptOverlayDrag}
-          onPointerMove={dragScriptOverlay}
-          onPointerUp={stopScriptOverlayDrag}
-          onPointerCancel={stopScriptOverlayDrag}
+          ref={scriptOverlayElement}
           style={{
-            "font-weight": "bold",
-            cursor: "move",
-            "user-select": "none",
-            "touch-action": "none",
+            position: "absolute",
+            top: `${scriptOverlayPosition().y}px`,
+            left: `${scriptOverlayPosition().x}px`,
+            width: "560px",
+            padding: "1rem",
+            background: "rgba(0, 0, 0, 0.85)",
+            color: "white",
+            "border-radius": "8px",
+            "z-index": 101,
+            "pointer-events": "auto",
+            "font-family": "sans-serif",
+            display: "flex",
+            "flex-direction": "column",
+            gap: "0.5rem",
           }}
         >
-          Scripting Demo
-        </div>
-        <div style={{ "font-size": "12px", opacity: 0.85 }}>
-          Commands: {commandCount()} · Running: {running() ? "yes" : "no"}
-        </div>
-        <div style={{ "font-size": "12px", opacity: 0.8 }}>
-          Current command: {" "}
-          {currentCommand()
-            ? `#${currentCommand()!.index} ${currentCommand()!.name}`
-            : "idle"}
-        </div>
-        <div style={{ "font-size": "12px", opacity: 0.75 }}>
-          {scriptPath() ? `Path: ${scriptPath()}` : "Using in-memory script"}
-        </div>
+          <div
+            onPointerDown={startScriptOverlayDrag}
+            onPointerMove={dragScriptOverlay}
+            onPointerUp={stopScriptOverlayDrag}
+            onPointerCancel={stopScriptOverlayDrag}
+            style={{
+              "font-weight": "bold",
+              cursor: "move",
+              "user-select": "none",
+              "touch-action": "none",
+            }}
+          >
+            Scripting Demo
+          </div>
+          <div style={{ "font-size": "12px", opacity: 0.85 }}>
+            Commands: {commandCount()} · Running: {running() ? "yes" : "no"}
+          </div>
+          <div style={{ "font-size": "12px", opacity: 0.8 }}>
+            Current command:{" "}
+            {currentCommand()
+              ? `#${currentCommand()!.index} ${currentCommand()!.name}`
+              : "idle"}
+          </div>
+          <div style={{ "font-size": "12px", opacity: 0.75 }}>
+            {scriptPath() ? `Path: ${scriptPath()}` : "Using in-memory script"}
+          </div>
 
-        <input
-          value={scriptName()}
-          onInput={(event) => setScriptName(event.currentTarget.value)}
-          placeholder="script name"
-          style={{
-            padding: "6px 8px",
-            border: "1px solid #555",
-            "border-radius": "4px",
-            background: "#111",
-            color: "white",
-          }}
-        />
+          <input
+            value={scriptName()}
+            onInput={(event) => setScriptName(event.currentTarget.value)}
+            placeholder="script name"
+            style={{
+              padding: "6px 8px",
+              border: "1px solid #555",
+              "border-radius": "4px",
+              background: "#111",
+              color: "white",
+            }}
+          />
 
-        <textarea
-          value={scriptSource()}
-          onInput={(event) => setScriptSource(event.currentTarget.value)}
-          rows={14}
-          style={{
-            width: "100%",
-            resize: "vertical",
-            padding: "8px",
-            border: "1px solid #555",
-            "border-radius": "4px",
-            background: "#111",
-            color: "white",
-            "font-family": "ui-monospace, Menlo, monospace",
-            "font-size": "12px",
-          }}
-        />
+          <textarea
+            value={scriptSource()}
+            onInput={(event) => setScriptSource(event.currentTarget.value)}
+            onKeyDown={runScriptFromEditorShortcut}
+            rows={14}
+            style={{
+              width: "100%",
+              resize: "vertical",
+              padding: "8px",
+              border: "1px solid #555",
+              "border-radius": "4px",
+              background: "#111",
+              color: "white",
+              "font-family": "ui-monospace, Menlo, monospace",
+              "font-size": "12px",
+            }}
+          />
 
-        <div style={{ display: "flex", gap: "8px", "flex-wrap": "wrap" }}>
-          <button onClick={loadDemo}>Load demo</button>
-          <button onClick={() => void openScript()}>Open file...</button>
-          <button onClick={runScript}>Run</button>
-          <button onClick={stopScript}>Stop</button>
-          <button onClick={() => void refreshMeta()}>Refresh</button>
+          <div style={{ display: "flex", gap: "8px", "flex-wrap": "wrap" }}>
+            <button onClick={loadDemo}>Load demo</button>
+            <button onClick={() => void openScript()}>Open file...</button>
+            <button onClick={runScript}>Run</button>
+            <button onClick={stopScript}>Stop</button>
+            <button onClick={() => void refreshMeta()}>Refresh</button>
+          </div>
+
+          <div style={{ "font-size": "12px", opacity: 0.85 }}>
+            Status: {status()}
+          </div>
+          <div style={{ "font-size": "11px", opacity: 0.65 }}>
+            Tip: Cmd/Ctrl+Enter runs the script. Cmd/Ctrl+O opens a script file.
+            Cmd/Ctrl+Shift+X stops active script.
+          </div>
         </div>
-
-        <div style={{ "font-size": "12px", opacity: 0.85 }}>Status: {status()}</div>
-        <div style={{ "font-size": "11px", opacity: 0.65 }}>
-          Tip: Ctrl/Cmd+O opens a script file. Ctrl/Cmd+Shift+X stops active script.
-        </div>
-      </div>
-    )}
+      )}
     </>
   );
 }

@@ -1,7 +1,4 @@
-import type {
-  AppBridge,
-  ScriptExecutePayload,
-} from "../../shared/ipc";
+import type { AppBridge, ScriptExecutePayload } from "../../shared/ipc";
 
 declare global {
   // Item id or name
@@ -9,15 +6,14 @@ declare global {
   type ConnectionStatus = "OnConnection" | "OnConnectionLost";
 
   type MonsterName =
-	| string
-	| `id'${number}`
-	| `id.${number}`
+    | string
+    | `id'${number}`
+    | `id.${number}`
     | `id:${number}`
     | `id-${number}`;
   type MonsterMapID = number;
   type MonsterIdentifierToken = MonsterName | MonsterMapID;
   type Skill = number | string;
-
 
   interface RunningScriptCommand {
     readonly sourceName: string;
@@ -26,7 +22,7 @@ declare global {
   }
 
   interface ScriptGlobalApi {
-    run(source: string, name?: string): void;
+    run(source: string, name?: string): Promise<void>;
     stop(): void;
     open(): Promise<ScriptExecutePayload | null>;
     readFile(path: string): Promise<ScriptExecutePayload>;

@@ -49,7 +49,13 @@ export const makeScriptAsyncScope = (runFork: RunFork): ScriptAsyncScope => {
     fibers.add(fiber as AnyFiber);
 
     return new Promise((resolve, reject) => {
+      let observerActive = true;
       const removeObserver = fiber.addObserver((exit) => {
+        if (!observerActive) {
+          return;
+        }
+
+        observerActive = false;
         removeObserver();
         fibers.delete(fiber as AnyFiber);
 
@@ -89,11 +95,25 @@ export const makeScriptAsyncScope = (runFork: RunFork): ScriptAsyncScope => {
       ),
     );
 
+  const drainCleanups = () => {
+    const cleanupEffects = [...cleanups.values()];
+    cleanups.clear();
+
+    return Effect.forEach(cleanupEffects, (cleanup) => runCleanup(cleanup), {
+      discard: true,
+    });
+  };
+
   const setCleanup: ScriptAsyncScope["setCleanup"] = (key, cleanup) =>
     Effect.gen(function* () {
       const previous = cleanups.get(key);
       if (previous) {
         yield* runCleanup(previous);
+      }
+
+      if (isCancelled()) {
+        yield* runCleanup(cleanup);
+        return;
       }
 
       cleanups.set(key, cleanup);
@@ -118,16 +138,12 @@ export const makeScriptAsyncScope = (runFork: RunFork): ScriptAsyncScope => {
       }
 
       const activeFibers = [...fibers];
+      fibers.clear();
       for (const fiber of activeFibers) {
         fiber.interruptUnsafe();
       }
 
-      const cleanupEffects = [...cleanups.values()];
-      cleanups.clear();
-
-      yield* Effect.forEach(cleanupEffects, (cleanup) => runCleanup(cleanup), {
-        discard: true,
-      });
+      yield* drainCleanups();
     });
 
   return {
