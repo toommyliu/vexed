@@ -80,6 +80,7 @@ type MiscScriptCommandArguments = {
   use_autozone_ultradage: [];
   use_autozone_astralshrine: [];
   use_autozone_queeniona: [];
+  use_autozone_magnumopus: [];
   close_window: [];
   beep: [times?: number];
   register_task: [name: string, taskFn: () => void | Promise<void>];
@@ -726,6 +727,7 @@ const miscCommandHandlerMap = miscCommandDomain.defineHandlers({
   use_autozone_ultradage: autoZoneCommand("ultradage"),
   use_autozone_astralshrine: autoZoneCommand("astralshrine"),
   use_autozone_queeniona: autoZoneCommand("queeniona"),
+  use_autozone_magnumopus: autoZoneCommand("magnumopus"),
   close_window: createCommandHandler(() => Effect.sync(() => window.close())),
   beep: beepCommand,
   register_task: registerTaskCommand,

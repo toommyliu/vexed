@@ -1,4 +1,4 @@
-import { Effect, Layer, Ref } from "effect";
+import { Effect, Layer, Random, Ref } from "effect";
 import {
   AutoZone,
   type AutoZoneSupportedMap,
@@ -14,7 +14,7 @@ type CoordinateRange = readonly [
 
 type ZoneMap = Partial<Record<string, CoordinateRange>>;
 
-const AUTO_ZONES: Record<AutoZoneSupportedMap, ZoneMap> = {
+const AUTO_ZONES: Partial<Record<AutoZoneSupportedMap, ZoneMap>> = {
   ledgermayne: {
     A: [
       [147, 276],
@@ -85,17 +85,32 @@ const AUTO_ZONES: Record<AutoZoneSupportedMap, ZoneMap> = {
       [320, 325],
     ],
   },
+  magnumopus: {
+    A: [
+      [682, 813],
+      [367, 384],
+    ],
+    B: [
+      [170, 285],
+      [377, 384],
+    ],
+    "": [
+      [466, 470],
+      [344, 420],
+    ],
+  },
   // TODO: this requires its own logic
   queeniona: {},
 };
 
 const randomInRange = ([min, max]: [number, number]) =>
-  Math.floor(Math.random() * (max - min + 1)) + min;
+  Random.nextIntBetween(min, max);
 
-const getRandomPosition = ([[x0, x1], [y0, y1]]: CoordinateRange) => ({
-  x: randomInRange([x0, x1]),
-  y: randomInRange([y0, y1]),
-});
+const getRandomPosition = ([[x0, x1], [y0, y1]]: CoordinateRange) =>
+  Effect.all({
+    x: randomInRange([x0, x1]),
+    y: randomInRange([y0, y1]),
+  });
 
 const make = Effect.gen(function* () {
   const packetDomain = yield* PacketDomain;
@@ -123,7 +138,7 @@ const make = Effect.gen(function* () {
         return;
       }
 
-      const { x, y } = getRandomPosition(zoneRange);
+      const { x, y } = yield* getRandomPosition(zoneRange);
       yield* player.walkTo(x, y).pipe(Effect.catch(() => Effect.void));
     }),
   );

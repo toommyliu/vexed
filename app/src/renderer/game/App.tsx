@@ -4,7 +4,7 @@ import { createSignal, onCleanup, onMount } from "solid-js";
 import type { JSX } from "solid-js";
 import { runtime } from "./flash/Runtime";
 import { Combat } from "./flash/Services/Combat";
-import { AutoZone } from "./flash/Services/AutoZone";
+import { AutoZone, type AutoZoneSupportedMap } from "./flash/Services/AutoZone";
 import { Quests } from "./flash/Services/Quests";
 import { Packet } from "./flash/Services/Packet";
 import { Settings } from "./flash/Services/Settings";
@@ -136,7 +136,8 @@ export default function App() {
   const [itemNameOrId, setItemNameOrId] = createSignal("");
   const [itemQuantity, setItemQuantity] = createSignal("1");
   const [autoZoneEnabled, setAutoZoneEnabled] = createSignal(true);
-  const [autoZoneMap, setAutoZoneMap] = createSignal("ledgermayne");
+  const [autoZoneMap, setAutoZoneMap] =
+    createSignal<AutoZoneSupportedMap>("ledgermayne");
   const [findMost, setFindMost] = createSignal(false);
   const [packetLoggingEnabled, setPacketLoggingEnabled] = createSignal(false);
   const [overlayVisible, setOverlayVisible] = createSignal(false);
@@ -470,13 +471,13 @@ ${source}
       });
   };
 
-  const applyAutoZoneMap = (map: string) => {
+  const applyAutoZoneMap = (map: AutoZoneSupportedMap) => {
     setAutoZoneMap(map);
     void runtime
       .runPromise(
         Effect.gen(function* () {
           const autoZone = yield* AutoZone;
-          yield* autoZone.setMap(map as any);
+          yield* autoZone.setMap(map);
           console.log("AutoZone map set to:", map);
         }),
       )
@@ -1382,7 +1383,11 @@ ${source}
               </label>
               <select
                 value={autoZoneMap()}
-                onInput={(e) => applyAutoZoneMap(e.currentTarget.value)}
+                onInput={(e) =>
+                  applyAutoZoneMap(
+                    e.currentTarget.value as AutoZoneSupportedMap,
+                  )
+                }
                 style={{
                   padding: "5px",
                   "border-radius": "4px",
@@ -1397,6 +1402,7 @@ ${source}
                 <option value="ultradage">ultradage</option>
                 <option value="darkcarnax">darkcarnax</option>
                 <option value="astralshrine">astralshrine</option>
+                <option value="magnumopus">magnumopus</option>
               </select>
             </div>
             <div
