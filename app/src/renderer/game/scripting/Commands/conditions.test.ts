@@ -1,4 +1,5 @@
-import { Effect } from "effect";
+import type { Aura } from "@vexed/game";
+import { Effect, Option } from "effect";
 import { expect, test } from "vitest";
 import { createScriptDsl, scriptCommandHandlers } from ".";
 import type { ScriptExecutionContext } from "../Types";
@@ -23,11 +24,21 @@ type CommandMap = Record<string, (...args: unknown[]) => unknown> & {
   any_player_hp_percentage(operator: unknown, value: unknown): unknown;
   player_count(operator: unknown, value: unknown): unknown;
   cell_player_count(operator: unknown, value: unknown, cell?: unknown): unknown;
-  player_aura(
+  has_aura(aura: unknown): unknown;
+  aura_value(aura: unknown, operator: unknown, value: unknown): unknown;
+  aura_stacks(aura: unknown, operator: unknown, count: unknown): unknown;
+  has_player_aura(player: unknown, aura: unknown): unknown;
+  player_aura_value(
     player: unknown,
     aura: unknown,
     operator: unknown,
     value: unknown,
+  ): unknown;
+  player_aura_stacks(
+    player: unknown,
+    aura: unknown,
+    operator: unknown,
+    count: unknown,
   ): unknown;
   target_hp(operator: unknown, value: unknown): unknown;
   monster_hp(target: unknown, operator: unknown, value: unknown): unknown;
@@ -73,6 +84,49 @@ const createMetricContext = ({
     },
     run: (effect: Effect.Effect<unknown, unknown>) => effect,
   }) as unknown as ScriptExecutionContext;
+
+const createAuraContext = (
+  aura: Aura | undefined,
+  options: { readonly selfEntId?: number; readonly auraEntId?: number } = {},
+) => {
+  const namedPlayerEntId = 7;
+  const auraEntId = options.auraEntId ?? namedPlayerEntId;
+
+  return {
+    sourceName: "conditions.test.ts",
+    world: {
+      players: {
+        getSelf: () =>
+          Effect.succeed(
+            options.selfEntId === undefined
+              ? Option.none()
+              : Option.some({
+                  data: { entID: options.selfEntId },
+                  username: "Self",
+                }),
+          ),
+        getByName: (name: string) =>
+          Effect.succeed(
+            name === "Artix"
+              ? Option.some({
+                  data: { entID: namedPlayerEntId },
+                  username: "Artix",
+                })
+              : Option.none(),
+          ),
+        getAura: (entId: number, auraName: string) =>
+          Effect.succeed(
+            entId === auraEntId &&
+              auraName === "Some Aura" &&
+              aura !== undefined
+              ? Option.some(aura)
+              : Option.none(),
+          ),
+      },
+    },
+    run: (effect: Effect.Effect<unknown, unknown>) => effect,
+  } as unknown as ScriptExecutionContext;
+};
 
 const expectRecordedPlayerMetricCondition = (
   buildCondition: (cmd: CommandMap) => unknown,
@@ -203,14 +257,49 @@ test("records other numeric conditions through operator-based builders", () => {
     operator: "gte",
     value: 2,
   });
+  expectRecordedCondition((cmd) => cmd.has_aura("Some Aura"), {
+    _tag: "PlayerAuraPresence",
+    aura: "Some Aura",
+  });
+  expectRecordedCondition((cmd) => cmd.aura_value("Some Aura", ">=", 1), {
+    _tag: "PlayerAuraMetric",
+    metric: "value",
+    aura: "Some Aura",
+    operator: "gte",
+    value: 1,
+  });
+  expectRecordedCondition((cmd) => cmd.aura_stacks("Some Aura", ">=", 3), {
+    _tag: "PlayerAuraMetric",
+    metric: "stacks",
+    aura: "Some Aura",
+    operator: "gte",
+    value: 3,
+  });
+  expectRecordedCondition((cmd) => cmd.has_player_aura("Artix", "Some Aura"), {
+    _tag: "PlayerAuraPresence",
+    player: "Artix",
+    aura: "Some Aura",
+  });
   expectRecordedCondition(
-    (cmd) => cmd.player_aura("Artix", "Some Aura", ">=", 1),
+    (cmd) => cmd.player_aura_value("Artix", "Some Aura", ">=", 1),
     {
-      _tag: "PlayerAura",
+      _tag: "PlayerAuraMetric",
+      metric: "value",
       player: "Artix",
       aura: "Some Aura",
       operator: "gte",
       value: 1,
+    },
+  );
+  expectRecordedCondition(
+    (cmd) => cmd.player_aura_stacks("Artix", "Some Aura", ">=", 3),
+    {
+      _tag: "PlayerAuraMetric",
+      metric: "stacks",
+      player: "Artix",
+      aura: "Some Aura",
+      operator: "gte",
+      value: 3,
     },
   );
   expectRecordedCondition((cmd) => cmd.target_hp("<", 5000), {
@@ -307,6 +396,171 @@ test("evaluates class rank conditions", async () => {
   ).resolves.toBe(false);
 });
 
+test("evaluates player aura presence, value, and stack conditions", async () => {
+  const { cmd } = createRecordedCommandMap();
+  const context = createAuraContext({
+    name: "Some Aura",
+    stack: 3,
+    value: 2,
+  });
+
+  await expect(
+    Effect.runPromise(
+      evaluateScriptCondition(
+        context,
+        "if",
+        cmd.has_player_aura("Artix", "Some Aura"),
+      ),
+    ),
+  ).resolves.toBe(true);
+  await expect(
+    Effect.runPromise(
+      evaluateScriptCondition(
+        context,
+        "if",
+        cmd.player_aura_value("Artix", "Some Aura", "=", 2),
+      ),
+    ),
+  ).resolves.toBe(true);
+  await expect(
+    Effect.runPromise(
+      evaluateScriptCondition(
+        context,
+        "if",
+        cmd.player_aura_stacks("Artix", "Some Aura", ">=", 3),
+      ),
+    ),
+  ).resolves.toBe(true);
+});
+
+test("evaluates local-player aura presence, value, and stack conditions", async () => {
+  const { cmd } = createRecordedCommandMap();
+  const context = createAuraContext(
+    {
+      name: "Some Aura",
+      stack: 3,
+      value: 2,
+    },
+    { selfEntId: 11, auraEntId: 11 },
+  );
+
+  await expect(
+    Effect.runPromise(
+      evaluateScriptCondition(context, "if", cmd.has_aura("Some Aura")),
+    ),
+  ).resolves.toBe(true);
+  await expect(
+    Effect.runPromise(
+      evaluateScriptCondition(
+        context,
+        "if",
+        cmd.aura_value("Some Aura", "=", 2),
+      ),
+    ),
+  ).resolves.toBe(true);
+  await expect(
+    Effect.runPromise(
+      evaluateScriptCondition(
+        context,
+        "if",
+        cmd.aura_stacks("Some Aura", ">=", 3),
+      ),
+    ),
+  ).resolves.toBe(true);
+});
+
+test("missing local player fails local aura conditions", async () => {
+  const { cmd } = createRecordedCommandMap();
+  const context = createAuraContext(
+    {
+      name: "Some Aura",
+      stack: 3,
+      value: 2,
+    },
+    { auraEntId: 11 },
+  );
+
+  await expect(
+    Effect.runPromise(
+      evaluateScriptCondition(context, "if", cmd.has_aura("Some Aura")),
+    ),
+  ).resolves.toBe(false);
+  await expect(
+    Effect.runPromise(
+      evaluateScriptCondition(
+        context,
+        "if",
+        cmd.aura_value("Some Aura", "=", 2),
+      ),
+    ),
+  ).resolves.toBe(false);
+  await expect(
+    Effect.runPromise(
+      evaluateScriptCondition(
+        context,
+        "if",
+        cmd.aura_stacks("Some Aura", ">=", 3),
+      ),
+    ),
+  ).resolves.toBe(false);
+});
+
+test("missing or valueless player auras fail value comparisons", async () => {
+  const { cmd } = createRecordedCommandMap();
+
+  await expect(
+    Effect.runPromise(
+      evaluateScriptCondition(
+        createAuraContext(undefined),
+        "if",
+        cmd.player_aura_value("Artix", "Some Aura", "=", 0),
+      ),
+    ),
+  ).resolves.toBe(false);
+  await expect(
+    Effect.runPromise(
+      evaluateScriptCondition(
+        createAuraContext({ name: "Some Aura", stack: 1 }),
+        "if",
+        cmd.player_aura_value("Artix", "Some Aura", "=", 0),
+      ),
+    ),
+  ).resolves.toBe(false);
+  await expect(
+    Effect.runPromise(
+      evaluateScriptCondition(
+        createAuraContext({ name: "Some Aura", value: 0 }),
+        "if",
+        cmd.player_aura_value("Artix", "Some Aura", "=", 0),
+      ),
+    ),
+  ).resolves.toBe(true);
+});
+
+test("missing player auras fail presence and stack conditions", async () => {
+  const { cmd } = createRecordedCommandMap();
+  const context = createAuraContext(undefined);
+
+  await expect(
+    Effect.runPromise(
+      evaluateScriptCondition(
+        context,
+        "if",
+        cmd.has_player_aura("Artix", "Some Aura"),
+      ),
+    ),
+  ).resolves.toBe(false);
+  await expect(
+    Effect.runPromise(
+      evaluateScriptCondition(
+        context,
+        "if",
+        cmd.player_aura_stacks("Artix", "Some Aura", "=", 0),
+      ),
+    ),
+  ).resolves.toBe(false);
+});
+
 test("evaluates self metric conditions through PlayerMetric", async () => {
   const { cmd } = createRecordedCommandMap();
   const context = createMetricContext({
@@ -387,7 +641,13 @@ test("does not expose legacy numeric condition names", () => {
   expect(commandNames).toContain("any_player_hp_percentage");
   expect(commandNames).toContain("player_count");
   expect(commandNames).toContain("cell_player_count");
-  expect(commandNames).toContain("player_aura");
+  expect(commandNames).toContain("has_aura");
+  expect(commandNames).toContain("aura_value");
+  expect(commandNames).toContain("aura_stacks");
+  expect(commandNames).toContain("has_player_aura");
+  expect(commandNames).toContain("player_aura_value");
+  expect(commandNames).toContain("player_aura_stacks");
+  expect(commandNames).not.toContain("player_aura");
   expect(commandNames).toContain("target_hp");
   expect(commandNames).toContain("monster_hp");
   expect(commandNames).toContain("monster_hp_percentage");

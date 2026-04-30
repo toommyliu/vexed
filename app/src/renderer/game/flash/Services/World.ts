@@ -51,6 +51,7 @@ export interface WorldPlayersShape {
   addAura(entId: number, aura: Aura): Effect.Effect<void>;
   updateAura(entId: number, aura: Aura): Effect.Effect<void>;
   removeAura(entId: number, auraName: string): Effect.Effect<void>;
+  getAuras(entId: number): Effect.Effect<readonly Aura[]>;
   getAura(entId: number, auraName: string): Effect.Effect<Option.Option<Aura>>;
   clearAuras(entId: number): Effect.Effect<void>;
 }

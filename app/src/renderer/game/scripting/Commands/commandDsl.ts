@@ -67,6 +67,7 @@ export type ScriptComparisonOperatorInput =
 
 export type ScriptPlayerMetric = "hp" | "hp_percent" | "mp" | "mp_percent";
 export type ScriptMonsterMetric = "monster_health" | "monster_health_percent";
+export type ScriptAuraMetric = "value" | "stacks";
 export type ScriptInventoryLocation = "bank" | "house" | "inventory" | "temp";
 
 /**
@@ -122,7 +123,13 @@ export type ScriptCondition =
       readonly value: number;
     }
   | {
-      readonly _tag: "PlayerAura";
+      readonly _tag: "PlayerAuraPresence";
+      readonly player?: string;
+      readonly aura: string;
+    }
+  | {
+      readonly _tag: "PlayerAuraMetric";
+      readonly metric: ScriptAuraMetric;
       readonly player?: string;
       readonly aura: string;
       readonly operator: ScriptComparisonOperator;
@@ -798,13 +805,24 @@ export const createAnyPlayerMetricCondition = (
   value,
 });
 
-export const createPlayerAuraCondition = (
+export const createPlayerAuraPresenceCondition = (
+  player: string | undefined,
+  aura: string,
+): ScriptCondition => ({
+  _tag: "PlayerAuraPresence",
+  ...(player !== undefined ? { player } : {}),
+  aura,
+});
+
+export const createPlayerAuraMetricCondition = (
+  metric: ScriptAuraMetric,
   player: string | undefined,
   aura: string,
   operator: ScriptComparisonOperator,
   value: number,
 ): ScriptCondition => ({
-  _tag: "PlayerAura",
+  _tag: "PlayerAuraMetric",
+  metric,
   ...(player !== undefined ? { player } : {}),
   aura,
   operator,
@@ -1182,9 +1200,12 @@ const evaluatePlayerNamedMetric = (
     return compareNumbers(actual, condition.operator, condition.value);
   });
 
-const evaluatePlayerAura = (
+const getConditionPlayerAura = (
   context: ScriptExecutionContext,
-  condition: Extract<ScriptCondition, { readonly _tag: "PlayerAura" }>,
+  condition: {
+    readonly player?: string;
+    readonly aura: string;
+  },
 ) =>
   Effect.gen(function* () {
     const player =
@@ -1193,14 +1214,40 @@ const evaluatePlayerAura = (
         : yield* context.world.players.getByName(condition.player);
 
     if (Option.isNone(player)) {
-      return false;
+      return Option.none();
     }
 
-    const aura = yield* context.world.players.getAura(
+    return yield* context.world.players.getAura(
       player.value.data.entID,
       condition.aura,
     );
-    const actual = Option.isSome(aura) ? (aura.value.value ?? 0) : 0;
+  });
+
+const evaluatePlayerAuraPresence = (
+  context: ScriptExecutionContext,
+  condition: Extract<ScriptCondition, { readonly _tag: "PlayerAuraPresence" }>,
+) =>
+  Effect.map(getConditionPlayerAura(context, condition), (aura) =>
+    Option.isSome(aura),
+  );
+
+const evaluatePlayerAuraMetric = (
+  context: ScriptExecutionContext,
+  condition: Extract<ScriptCondition, { readonly _tag: "PlayerAuraMetric" }>,
+) =>
+  Effect.gen(function* () {
+    const aura = yield* getConditionPlayerAura(context, condition);
+    if (Option.isNone(aura)) {
+      return false;
+    }
+
+    const actual =
+      condition.metric === "value" ? aura.value.value : (aura.value.stack ?? 1);
+
+    if (actual === undefined) {
+      return false;
+    }
+
     return compareNumbers(actual, condition.operator, condition.value);
   });
 
@@ -1401,11 +1448,71 @@ export const evaluateScriptCondition = (
           { readonly _tag: "PlayerNamedMetric" }
         >,
       );
-    case "PlayerAura":
-      return evaluatePlayerAura(
+    case "PlayerAuraPresence": {
+      if (typeof condition.aura !== "string" || condition.aura.trim() === "") {
+        return invalidArg(context, command, "condition aura is required");
+      }
+
+      if (
+        condition.player !== undefined &&
+        (typeof condition.player !== "string" || condition.player.trim() === "")
+      ) {
+        return invalidArg(context, command, "condition player is invalid");
+      }
+
+      return evaluatePlayerAuraPresence(
         context,
-        condition as Extract<ScriptCondition, { readonly _tag: "PlayerAura" }>,
+        condition as Extract<
+          ScriptCondition,
+          { readonly _tag: "PlayerAuraPresence" }
+        >,
       );
+    }
+    case "PlayerAuraMetric": {
+      const metric = condition.metric;
+      const operator = condition.operator;
+      const value = condition.value;
+
+      if (metric !== "value" && metric !== "stacks") {
+        return invalidArg(
+          context,
+          command,
+          "condition aura metric is not supported",
+        );
+      }
+
+      if (typeof condition.aura !== "string" || condition.aura.trim() === "") {
+        return invalidArg(context, command, "condition aura is required");
+      }
+
+      if (
+        condition.player !== undefined &&
+        (typeof condition.player !== "string" || condition.player.trim() === "")
+      ) {
+        return invalidArg(context, command, "condition player is invalid");
+      }
+
+      if (
+        (operator !== "eq" &&
+          operator !== "ne" &&
+          operator !== "lt" &&
+          operator !== "lte" &&
+          operator !== "gt" &&
+          operator !== "gte") ||
+        typeof value !== "number" ||
+        !Number.isFinite(value)
+      ) {
+        return invalidArg(context, command, "condition comparison is invalid");
+      }
+
+      return evaluatePlayerAuraMetric(
+        context,
+        condition as Extract<
+          ScriptCondition,
+          { readonly _tag: "PlayerAuraMetric" }
+        >,
+      );
+    }
     case "AnyPlayerMetric":
       return evaluateAnyPlayerMetric(
         context,

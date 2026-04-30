@@ -66,6 +66,13 @@ type ConditionalBlockFrame = {
   readonly elseIndex?: number;
 };
 
+type ActiveScript = {
+  readonly token: number;
+  readonly fiber: Fiber.Fiber<void, unknown>;
+};
+
+type LaunchFiber = Fiber.Fiber<unknown, unknown>;
+
 const BUILTIN_SCRIPT_API_NAMES = new Set(
   Object.keys(createScriptDsl(() => {})),
 );
@@ -378,24 +385,71 @@ const make = Effect.gen(function* () {
   const runPromise = Effect.runPromiseWith(services);
 
   const readyRef = yield* Ref.make(false);
-  const activeFiberRef = yield* Ref.make<
-    Option.Option<Fiber.Fiber<void, unknown>>
-  >(Option.none());
+  const activeFiberRef = yield* Ref.make<Option.Option<ActiveScript>>(
+    Option.none(),
+  );
+  const pendingLaunchFiberRef = yield* Ref.make<Option.Option<LaunchFiber>>(
+    Option.none(),
+  );
+  const nextScriptTokenRef = yield* Ref.make(0);
   const runSemaphore = yield* Semaphore.make(1);
   const commandsRef = yield* Ref.make(new Map(scriptCommandHandlers));
   const currentCommandRef = yield* Ref.make<RunningScriptCommand | null>(null);
   const commandDelayRef = yield* Ref.make(1000);
 
+  const clearPendingLaunch = (fiber: LaunchFiber) =>
+    Ref.update(pendingLaunchFiberRef, (current) =>
+      Option.isSome(current) && current.value === fiber
+        ? Option.none()
+        : current,
+    );
+
+  const replacePendingLaunch = (fiber: LaunchFiber) =>
+    Effect.gen(function* () {
+      const previous = yield* Ref.getAndSet(
+        pendingLaunchFiberRef,
+        Option.some(fiber),
+      );
+
+      if (Option.isSome(previous) && previous.value !== fiber) {
+        yield* Fiber.interrupt(previous.value).pipe(
+          Effect.catchCause((cause) =>
+            Cause.hasInterruptsOnly(cause)
+              ? Effect.void
+              : Effect.logError({
+                  message: "failed to cancel pending script launch",
+                  cause,
+                }),
+          ),
+        );
+      }
+    });
+
+  const clearActiveScript = (token: number) =>
+    Effect.gen(function* () {
+      const removed = yield* Ref.modify(activeFiberRef, (current) => {
+        if (Option.isSome(current) && current.value.token === token) {
+          return [true, Option.none<ActiveScript>()] as const;
+        }
+
+        return [false, current] as const;
+      });
+
+      if (removed) {
+        yield* Ref.set(currentCommandRef, null);
+      }
+    });
+
   const interruptActiveScript = (reason: string) =>
     Effect.gen(function* () {
-      const activeFiber = yield* Ref.get(activeFiberRef);
-      if (Option.isNone(activeFiber)) {
+      const activeScript = yield* Ref.get(activeFiberRef);
+      if (Option.isNone(activeScript)) {
         return yield* Effect.void;
       }
 
-      yield* Fiber.interrupt(activeFiber.value);
       yield* Ref.set(activeFiberRef, Option.none());
       yield* Ref.set(currentCommandRef, null);
+      yield* Fiber.interrupt(activeScript.value.fiber);
       yield* Effect.logInfo(`[scripting] interrupted script (${reason})`);
     });
 
@@ -751,20 +805,20 @@ const make = Effect.gen(function* () {
       }).pipe(Effect.ensuring(scriptScope.interrupt("script finished")));
     });
 
-  const runScriptPayload = (payload: ScriptExecutePayload) => {
-    runFork(
+  const runScriptPayload = (payload: ScriptExecutePayload): Promise<void> =>
+    runPromise(
       run(payload.source, {
         name: scriptNameFromPayload(payload),
-      }).pipe(
-        Effect.catchCause((cause) =>
-          Effect.logError({
-            message: "failed to run script",
-            sourceName: scriptNameFromPayload(payload),
-            cause,
-          }),
-        ),
-      ),
+      }),
     );
+
+  const runScriptPayloadFromIpc = (payload: ScriptExecutePayload) => {
+    void runScriptPayload(payload).catch((cause) => {
+      console.error("Failed to run script", {
+        sourceName: scriptNameFromPayload(payload),
+        cause,
+      });
+    });
   };
 
   const stopFromIpc = () => {
@@ -772,7 +826,7 @@ const make = Effect.gen(function* () {
   };
 
   const executeListener = (payload: ScriptExecutePayload) => {
-    runScriptPayload(payload);
+    runScriptPayloadFromIpc(payload);
   };
 
   const stopListener = () => {
@@ -785,7 +839,7 @@ const make = Effect.gen(function* () {
 
   window.cmd = {
     run: (source: string, name?: string) => {
-      runScriptPayload(
+      return runScriptPayload(
         name === undefined
           ? { source }
           : {
@@ -805,7 +859,7 @@ const make = Effect.gen(function* () {
     },
     runFile: async (path: string) => {
       const payload = await window.ipc.scripting.readFile(path);
-      runScriptPayload(payload);
+      await runScriptPayload(payload);
     },
     listCommands: () => {
       return runPromise(listCommands());
@@ -864,89 +918,92 @@ const make = Effect.gen(function* () {
     interruptActiveScript(reason);
 
   const run: ScriptRunnerShape["run"] = (source, options) =>
-    Effect.gen(function* () {
-      const sourceName = options?.name?.trim() ? options.name : "inline-script";
-      const program = yield* compileProgram(source, sourceName);
-      const commands = yield* Ref.get(commandsRef);
-      const declaredCustomCommands = new Set<string>();
-      const declaredCustomConditions = new Set<string>();
+    Effect.withFiber((launchFiber) =>
+      Effect.gen(function* () {
+        yield* replacePendingLaunch(launchFiber);
 
-      for (const instruction of program.instructions) {
-        for (const conditionName of instructionCustomConditionNames(
-          instruction,
-        )) {
-          if (!declaredCustomConditions.has(conditionName)) {
-            return yield* new ScriptCustomConditionError({
+        const sourceName = options?.name?.trim()
+          ? options.name
+          : "inline-script";
+        const program = yield* compileProgram(source, sourceName);
+        const commands = yield* Ref.get(commandsRef);
+        const declaredCustomCommands = new Set<string>();
+        const declaredCustomConditions = new Set<string>();
+
+        for (const instruction of program.instructions) {
+          for (const conditionName of instructionCustomConditionNames(
+            instruction,
+          )) {
+            if (!declaredCustomConditions.has(conditionName)) {
+              return yield* new ScriptCustomConditionError({
+                sourceName: program.sourceName,
+                condition: conditionName,
+                cause: "custom condition must be registered before use",
+              });
+            }
+          }
+
+          if (commands.has(instruction.name)) {
+            if (
+              instruction.name === "register_command" &&
+              typeof instruction.args[0] === "string"
+            ) {
+              declaredCustomCommands.add(instruction.args[0]);
+            }
+
+            if (
+              instruction.name === "register_condition" &&
+              typeof instruction.args[0] === "string"
+            ) {
+              declaredCustomConditions.add(instruction.args[0]);
+            }
+
+            continue;
+          }
+
+          if (!declaredCustomCommands.has(instruction.name)) {
+            return yield* new ScriptUnknownCommandError({
               sourceName: program.sourceName,
-              condition: conditionName,
-              cause: "custom condition must be registered before use",
+              command: instruction.name,
+              instructionIndex: instruction.index,
             });
           }
         }
 
-        if (commands.has(instruction.name)) {
-          if (
-            instruction.name === "register_command" &&
-            typeof instruction.args[0] === "string"
-          ) {
-            declaredCustomCommands.add(instruction.args[0]);
-          }
+        yield* runSemaphore.withPermits(1)(
+          Effect.gen(function* () {
+            yield* ensureReady(program.sourceName);
+            yield* stop("replaced by a new script");
+            yield* Ref.set(commandDelayRef, 1000);
 
-          if (
-            instruction.name === "register_condition" &&
-            typeof instruction.args[0] === "string"
-          ) {
-            declaredCustomConditions.add(instruction.args[0]);
-          }
-
-          continue;
-        }
-
-        if (!declaredCustomCommands.has(instruction.name)) {
-          return yield* new ScriptUnknownCommandError({
-            sourceName: program.sourceName,
-            command: instruction.name,
-            instructionIndex: instruction.index,
-          });
-        }
-      }
-
-      yield* runSemaphore.withPermits(1)(
-        Effect.gen(function* () {
-          yield* ensureReady(program.sourceName);
-          yield* stop("replaced by a new script");
-          yield* Ref.set(commandDelayRef, 1000);
-
-          const fiber = yield* Effect.forkDetach(
-            executeProgram(program, commands).pipe(
-              Effect.catchCause((cause) =>
-                Cause.hasInterruptsOnly(cause)
-                  ? Effect.failCause(cause)
-                  : Effect.logError({
-                      message: "script execution failed",
-                      sourceName: program.sourceName,
-                      cause,
-                    }),
-              ),
-              Effect.ensuring(
-                Effect.all(
-                  [
-                    Ref.set(activeFiberRef, Option.none()),
-                    Ref.set(currentCommandRef, null),
-                  ],
-                  { discard: true },
+            const token = yield* Ref.updateAndGet(
+              nextScriptTokenRef,
+              (value) => value + 1,
+            );
+            const fiber = yield* Effect.forkDetach(
+              executeProgram(program, commands).pipe(
+                Effect.catchCause((cause) =>
+                  Cause.hasInterruptsOnly(cause)
+                    ? Effect.failCause(cause)
+                    : Effect.logError({
+                        message: "script execution failed",
+                        sourceName: program.sourceName,
+                        cause,
+                      }),
                 ),
+                Effect.ensuring(clearActiveScript(token)),
               ),
-            ),
-          );
+            );
 
-          yield* Ref.set(activeFiberRef, Option.some(fiber));
-          yield* Effect.logInfo(
-            `[scripting] started script: ${program.sourceName}`,
-          );
-        }),
-      );
-    });
+            yield* Ref.set(activeFiberRef, Option.some({ token, fiber }));
+            yield* clearPendingLaunch(launchFiber);
+            yield* Effect.logInfo(
+              `[scripting] started script: ${program.sourceName}`,
+            );
+          }),
+        );
+      }).pipe(Effect.ensuring(clearPendingLaunch(launchFiber))),
+    );
 
   const isRunning: ScriptRunnerShape["isRunning"] = () =>
     Ref.get(activeFiberRef).pipe(Effect.map(Option.isSome));

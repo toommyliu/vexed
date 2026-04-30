@@ -14,7 +14,8 @@ import {
   createMonsterMetricCondition,
   createMonsterPresenceCondition,
   createNotCondition,
-  createPlayerAuraCondition,
+  createPlayerAuraMetricCondition,
+  createPlayerAuraPresenceCondition,
   createPlayerCountCondition,
   createPlayerLocationCondition,
   createPlayerMetricCondition,
@@ -142,11 +143,29 @@ type ConditionBuilderScriptDsl = {
     value: number,
     cell?: string,
   ): ScriptCondition;
-  player_aura(
+  has_aura(aura: string): ScriptCondition;
+  aura_value(
+    aura: string,
+    operator: ScriptComparisonOperatorInput,
+    value: number,
+  ): ScriptCondition;
+  aura_stacks(
+    aura: string,
+    operator: ScriptComparisonOperatorInput,
+    count: number,
+  ): ScriptCondition;
+  has_player_aura(player: string, aura: string): ScriptCondition;
+  player_aura_value(
     player: string,
     aura: string,
     operator: ScriptComparisonOperatorInput,
     value: number,
+  ): ScriptCondition;
+  player_aura_stacks(
+    player: string,
+    aura: string,
+    operator: ScriptComparisonOperatorInput,
+    count: number,
   ): ScriptCondition;
   target_hp(
     operator: ScriptComparisonOperatorInput,
@@ -1108,20 +1127,132 @@ export const createConditionScriptDsl = (
     },
 
     /**
+     * Builds a local-player aura presence condition expression.
+     *
+     * @param aura - Aura name.
+     * @example
+     * cmd.if(cmd.has_aura("Some Aura"))
+     */
+    has_aura(aura) {
+      return createPlayerAuraPresenceCondition(
+        undefined,
+        requireScriptArgumentString("has_aura", "aura", aura),
+      );
+    },
+
+    /**
+     * Builds a local-player aura value condition expression.
+     *
+     * Aura value refers to the optional numeric `val` in the aura payload, which can be an
+     * integer or float. Use `cmd.aura_stacks` to compare repeated aura instances.
+     *
+     * @param aura - Aura name.
+     * @param operator - Comparison operator.
+     * @param value - Aura value to compare against. Can be an integer or float.
+     * @example
+     * cmd.if(cmd.aura_value("Some Aura", ">=", 1))
+     */
+    aura_value(aura, operator, value) {
+      const comparison = readScriptComparison("aura_value", operator, value);
+      return createPlayerAuraMetricCondition(
+        "value",
+        undefined,
+        requireScriptArgumentString("aura_value", "aura", aura),
+        comparison.operator,
+        comparison.value,
+      );
+    },
+
+    /**
+     * Builds a local-player aura stack-count condition expression.
+     *
+     * Stack count means repeated active aura instances with the same aura name.
+     * Use `cmd.aura_value` to compare the optional numeric `val` in the aura payload.
+     *
+     * @param aura - Aura name.
+     * @param operator - Comparison operator.
+     * @param count - Aura stack count to compare against.
+     * @example
+     * cmd.if(cmd.aura_stacks("Some Aura", ">=", 3))
+     */
+    aura_stacks(aura, operator, count) {
+      const comparison = readScriptComparison("aura_stacks", operator, count);
+      return createPlayerAuraMetricCondition(
+        "stacks",
+        undefined,
+        requireScriptArgumentString("aura_stacks", "aura", aura),
+        comparison.operator,
+        comparison.value,
+      );
+    },
+
+    /**
+     * Builds a player aura presence condition expression.
+     *
+     * @param player - Player name.
+     * @param aura - Aura name.
+     * @example
+     * cmd.if(cmd.has_player_aura("Artix", "Some Aura"))
+     */
+    has_player_aura(player, aura) {
+      return createPlayerAuraPresenceCondition(
+        requireScriptArgumentString("has_player_aura", "player", player),
+        requireScriptArgumentString("has_player_aura", "aura", aura),
+      );
+    },
+
+    /**
      * Builds a player aura value condition expression.
+     *
+     * Aura value refers to the optional numeric `val` in the aura payload, which can be an
+     * integer or float. Use `cmd.player_aura_stacks` to compare repeated aura
+     * instances.
      *
      * @param player - Player name.
      * @param aura - Aura name.
      * @param operator - Comparison operator.
-     * @param value - Aura value to compare against.
+     * @param value - Aura value to compare against. Can be an integer or float.
      * @example
-     * cmd.if(cmd.player_aura("Artix", "Some Aura", ">=", 1))
+     * cmd.if(cmd.player_aura_value("Artix", "Some Aura", ">=", 1))
      */
-    player_aura(player, aura, operator, value) {
-      const comparison = readScriptComparison("player_aura", operator, value);
-      return createPlayerAuraCondition(
-        requireScriptArgumentString("player_aura", "player", player),
-        requireScriptArgumentString("player_aura", "aura", aura),
+    player_aura_value(player, aura, operator, value) {
+      const comparison = readScriptComparison(
+        "player_aura_value",
+        operator,
+        value,
+      );
+      return createPlayerAuraMetricCondition(
+        "value",
+        requireScriptArgumentString("player_aura_value", "player", player),
+        requireScriptArgumentString("player_aura_value", "aura", aura),
+        comparison.operator,
+        comparison.value,
+      );
+    },
+
+    /**
+     * Builds a player aura stack-count condition expression.
+     *
+     * Stack count means repeated active aura instances with the same aura name.
+     * Use `cmd.player_aura_value` to compare the optional numeric `val` in the aura payload.
+     *
+     * @param player - Player name.
+     * @param aura - Aura name.
+     * @param operator - Comparison operator.
+     * @param count - Aura stack count to compare against.
+     * @example
+     * cmd.if(cmd.player_aura_stacks("Artix", "Some Aura", ">=", 3))
+     */
+    player_aura_stacks(player, aura, operator, count) {
+      const comparison = readScriptComparison(
+        "player_aura_stacks",
+        operator,
+        count,
+      );
+      return createPlayerAuraMetricCondition(
+        "stacks",
+        requireScriptArgumentString("player_aura_stacks", "player", player),
+        requireScriptArgumentString("player_aura_stacks", "aura", aura),
         comparison.operator,
         comparison.value,
       );

@@ -121,6 +121,19 @@ type RenderedFile = {
 };
 
 type TypeLinkRegistry = ReadonlyMap<string, string>;
+export type CommandLinkTarget = {
+  readonly domain: string;
+  readonly commandName: string;
+  readonly anchor: string;
+};
+export type CommandLinkSource = {
+  readonly domain: string;
+  readonly commands: readonly {
+    readonly name: string;
+    readonly aliases: readonly string[];
+  }[];
+};
+export type CommandLinkRegistry = ReadonlyMap<string, CommandLinkTarget>;
 
 class DocgenError extends Error {
   override readonly name = "DocgenError";
@@ -139,7 +152,7 @@ const parseCliOptions = (
   let includeSourceLinks = false;
 
   for (let index = 0; index < args.length; index += 1) {
-    const arg = args[index];
+    const arg = args[index] ?? fail(`Unable to read argument at ${index}`);
     if (arg === "--") {
       continue;
     }
@@ -529,12 +542,11 @@ const collectParameters = (
   const descriptions = getParamDescriptions(method);
   const params = method.parameters.map((parameter) => {
     const name = getParameterName(parameter);
-    const description = descriptions.get(name);
-    if (description === undefined) {
+    const description =
+      descriptions.get(name) ??
       fail(
         `${sourceFile.fileName}: cmd.${method.name.getText()} missing @param ${name}`,
       );
-    }
 
     const defaultValue = parameter.initializer?.getText(sourceFile) ?? null;
     const optional =
@@ -678,7 +690,8 @@ const getTrailingLineComment = (
   sourceFile: ts.SourceFile,
   node: ts.Node,
 ): string => {
-  const [comment] = ts.getTrailingCommentRanges(sourceFile.text, node.end) ?? [];
+  const [comment] =
+    ts.getTrailingCommentRanges(sourceFile.text, node.end) ?? [];
   if (
     comment === undefined ||
     comment.kind !== ts.SyntaxKind.SingleLineCommentTrivia
@@ -862,10 +875,9 @@ const collectCommandDocs = (
   const usedCommandNames = new Map<string, string>();
 
   return files.map((file) => {
-    const sourceFile = program.getSourceFile(file);
-    if (!sourceFile) {
+    const sourceFile =
+      program.getSourceFile(file) ??
       fail(`Unable to read source file: ${file}`);
-    }
 
     const domain = basename(file, ".ts");
     const aliasesByTarget = collectAliasMap(sourceFile);
@@ -1004,6 +1016,101 @@ const typeAnchor = (typeName: string): string => `type-${anchorSlug(typeName)}`;
 const commandAnchor = (commandName: string): string =>
   `command-${anchorSlug(commandName)}`;
 
+const sameCommandLinkTarget = (
+  left: CommandLinkTarget,
+  right: CommandLinkTarget,
+): boolean =>
+  left.domain === right.domain &&
+  left.commandName === right.commandName &&
+  left.anchor === right.anchor;
+
+export const buildCommandLinkRegistry = (
+  docs: ReadonlyArray<CommandLinkSource>,
+): CommandLinkRegistry => {
+  const registry = new Map<string, CommandLinkTarget>();
+
+  const register = (name: string, target: CommandLinkTarget) => {
+    const existing = registry.get(name);
+    if (existing === undefined) {
+      registry.set(name, target);
+      return;
+    }
+
+    if (sameCommandLinkTarget(existing, target)) {
+      return;
+    }
+
+    fail(
+      `cmd.${name} resolves to both ${existing.domain}.${existing.commandName} and ${target.domain}.${target.commandName}`,
+    );
+  };
+
+  for (const domainDocs of docs) {
+    for (const command of domainDocs.commands) {
+      const target: CommandLinkTarget = {
+        domain: domainDocs.domain,
+        commandName: command.name,
+        anchor: commandAnchor(command.name),
+      };
+      register(command.name, target);
+      for (const alias of command.aliases) {
+        register(alias, target);
+      }
+    }
+  }
+
+  return registry;
+};
+
+const commandReferencePattern = /^cmd\.([A-Za-z0-9_]+)(?:\(.*\))?$/;
+
+export const linkCommandReferences = (
+  value: string,
+  currentDomain: string,
+  commandLinks: CommandLinkRegistry,
+): string =>
+  value.replace(/`([^`\r\n]+)`/g, (match, code: string, offset: number) => {
+    const alreadyLinked =
+      value[offset - 1] === "[" &&
+      value.slice(offset + match.length, offset + match.length + 2) === "](";
+    if (alreadyLinked || code.indexOf("cmd.", "cmd.".length) !== -1) {
+      return match;
+    }
+
+    const reference = commandReferencePattern.exec(code);
+    if (reference === null) {
+      return match;
+    }
+
+    const commandName = reference[1];
+    if (commandName === undefined) {
+      return match;
+    }
+
+    const target = commandLinks.get(commandName);
+    if (target === undefined) {
+      return match;
+    }
+
+    const href =
+      target.domain === currentDomain
+        ? `#${target.anchor}`
+        : `../${target.domain}/#${target.anchor}`;
+    return `[\`${code}\`](${href})`;
+  });
+
+const renderProse = (
+  value: string,
+  currentDomain: string,
+  commandLinks: CommandLinkRegistry,
+): string => linkCommandReferences(value, currentDomain, commandLinks);
+
+const renderTableProse = (
+  value: string,
+  currentDomain: string,
+  commandLinks: CommandLinkRegistry,
+): string => escapeTableCell(renderProse(value, currentDomain, commandLinks));
+
 const buildTypeLinkRegistry = (
   docs: ReadonlyArray<DomainDocs>,
 ): TypeLinkRegistry => {
@@ -1035,10 +1142,17 @@ const renderTypeExpression = (
 
   for (let index = 0; index < type.length; ) {
     const char = type[index];
+    if (char === undefined) {
+      break;
+    }
 
     if (isIdentifierStart(char)) {
       let end = index + 1;
-      while (end < type.length && isIdentifierPart(type[end])) {
+      while (end < type.length) {
+        const nextChar = type[end];
+        if (nextChar === undefined || !isIdentifierPart(nextChar)) {
+          break;
+        }
         end += 1;
       }
 
@@ -1077,6 +1191,8 @@ const renderTagSection = (
   lines: string[],
   title: string,
   values: ReadonlyArray<string>,
+  currentDomain: string,
+  commandLinks: CommandLinkRegistry,
   codeFence: string | null = null,
 ) => {
   const filtered = values.filter((value) => value.trim().length > 0);
@@ -1091,7 +1207,7 @@ const renderTagSection = (
       continue;
     }
 
-    lines.push(value);
+    lines.push(renderProse(value, currentDomain, commandLinks));
     if (index < filtered.length - 1) {
       lines.push("");
     }
@@ -1099,7 +1215,12 @@ const renderTagSection = (
   lines.push("");
 };
 
-const renderTipSection = (lines: string[], values: ReadonlyArray<string>) => {
+const renderTipSection = (
+  lines: string[],
+  values: ReadonlyArray<string>,
+  currentDomain: string,
+  commandLinks: CommandLinkRegistry,
+) => {
   const filtered = values.filter((value) => value.trim().length > 0);
   if (filtered.length === 0) {
     return;
@@ -1110,7 +1231,9 @@ const renderTipSection = (lines: string[], values: ReadonlyArray<string>) => {
     if (index > 0) {
       lines.push("");
     }
-    for (const line of value.split(/\r?\n/)) {
+    for (const line of renderProse(value, currentDomain, commandLinks).split(
+      /\r?\n/,
+    )) {
       lines.push(line);
     }
   }
@@ -1120,6 +1243,7 @@ const renderTipSection = (lines: string[], values: ReadonlyArray<string>) => {
 const renderDeprecatedSection = (
   lines: string[],
   command: CommandDoc,
+  commandLinks: CommandLinkRegistry,
 ): void => {
   if (!command.deprecated) {
     return;
@@ -1137,7 +1261,11 @@ const renderDeprecatedSection = (
       if (index > 0) {
         lines.push("");
       }
-      for (const line of message.split(/\r?\n/)) {
+      for (const line of renderProse(
+        message,
+        command.domain,
+        commandLinks,
+      ).split(/\r?\n/)) {
         lines.push(line);
       }
     }
@@ -1148,6 +1276,8 @@ const renderDeprecatedSection = (
 const renderAdditionalTags = (
   lines: string[],
   tags: ReadonlyArray<CommandJsDocTag>,
+  currentDomain: string,
+  commandLinks: CommandLinkRegistry,
 ) => {
   if (tags.length === 0) {
     return;
@@ -1157,12 +1287,18 @@ const renderAdditionalTags = (
   for (const tag of tags) {
     const tagName =
       tag.name === null ? `@${tag.tag}` : `@${tag.tag} ${tag.name}`;
-    lines.push(`- ${renderCode(tagName)}: ${tag.text}`);
+    lines.push(
+      `- ${renderCode(tagName)}: ${renderProse(tag.text, currentDomain, commandLinks)}`,
+    );
   }
   lines.push(":::", "");
 };
 
-const renderReferenceIndex = (lines: string[], domainDocs: DomainDocs) => {
+const renderReferenceIndex = (
+  lines: string[],
+  domainDocs: DomainDocs,
+  commandLinks: CommandLinkRegistry,
+) => {
   const hasAliases = domainDocs.commands.some(
     (command) => command.aliases.length > 0,
   );
@@ -1185,7 +1321,11 @@ const renderReferenceIndex = (lines: string[], domainDocs: DomainDocs) => {
 
   for (const command of domainDocs.commands) {
     const commandLink = `[${renderCode(`cmd.${command.name}`)}](#${commandAnchor(command.name)})`;
-    const summary = escapeTableCell(command.summary);
+    const summary = renderTableProse(
+      command.summary,
+      domainDocs.domain,
+      commandLinks,
+    );
     const cells = [commandLink, summary];
     if (hasDeprecated) {
       cells.push(command.deprecated ? "Deprecated" : "");
@@ -1212,7 +1352,11 @@ const renderReferenceIndex = (lines: string[], domainDocs: DomainDocs) => {
   for (const type of domainDocs.types) {
     const typeLink = `[${renderCode(type.name)}](#${typeAnchor(type.name)})`;
     lines.push(
-      `| ${typeLink} | ${type.kind} | ${escapeTableCell(type.summary)} |`,
+      `| ${typeLink} | ${type.kind} | ${renderTableProse(
+        type.summary,
+        domainDocs.domain,
+        commandLinks,
+      )} |`,
     );
   }
 
@@ -1222,6 +1366,7 @@ const renderReferenceIndex = (lines: string[], domainDocs: DomainDocs) => {
 const renderDomainMarkdown = (
   domainDocs: DomainDocs,
   typeLinks: TypeLinkRegistry,
+  commandLinks: CommandLinkRegistry,
 ): string => {
   const title = titleCase(domainDocs.domain);
   const pageTitle = `${title} Commands`;
@@ -1240,15 +1385,20 @@ const renderDomainMarkdown = (
     "",
   ];
 
-  renderReferenceIndex(lines, domainDocs);
+  renderReferenceIndex(lines, domainDocs, commandLinks);
 
   lines.push("## Commands", "");
 
   for (const command of domainDocs.commands) {
     lines.push(`<a id="${commandAnchor(command.name)}"></a>`, "");
-    lines.push(`### \`${command.call}\``, "", command.summary, "");
-    renderDeprecatedSection(lines, command);
-    renderTipSection(lines, command.remarks);
+    lines.push(
+      `### \`${command.call}\``,
+      "",
+      renderProse(command.summary, domainDocs.domain, commandLinks),
+      "",
+    );
+    renderDeprecatedSection(lines, command, commandLinks);
+    renderTipSection(lines, command.remarks, domainDocs.domain, commandLinks);
 
     const sourceText = `**Source:** \`${command.sourcePath}:${command.sourceLine}\``;
     lines.push(
@@ -1269,7 +1419,11 @@ const renderDomainMarkdown = (
         lines.push(
           `| ${renderCode(param.name)} | ${renderTypeExpression(param.type, typeLinks)} | ${
             param.required ? "yes" : "no"
-          } | ${param.defaultValue === null ? "" : renderCode(param.defaultValue)} | ${escapeTableCell(param.description)} |`,
+          } | ${param.defaultValue === null ? "" : renderCode(param.defaultValue)} | ${renderTableProse(
+            param.description,
+            domainDocs.domain,
+            commandLinks,
+          )} |`,
         );
       }
       lines.push("");
@@ -1284,8 +1438,21 @@ const renderDomainMarkdown = (
       );
     }
 
-    renderTagSection(lines, "Examples", command.examples, "js");
-    renderTagSection(lines, "Returns", command.returns);
+    renderTagSection(
+      lines,
+      "Examples",
+      command.examples,
+      domainDocs.domain,
+      commandLinks,
+      "js",
+    );
+    renderTagSection(
+      lines,
+      "Returns",
+      command.returns,
+      domainDocs.domain,
+      commandLinks,
+    );
 
     const additionalTags = command.tags.filter(
       (tag) =>
@@ -1299,7 +1466,12 @@ const renderDomainMarkdown = (
           "returns",
         ].includes(tag.tag),
     );
-    renderAdditionalTags(lines, additionalTags);
+    renderAdditionalTags(
+      lines,
+      additionalTags,
+      domainDocs.domain,
+      commandLinks,
+    );
   }
 
   if (domainDocs.types.length > 0) {
@@ -1310,7 +1482,10 @@ const renderDomainMarkdown = (
       lines.push(`### \`${type.name}\``, "");
 
       if (type.summary) {
-        lines.push(type.summary, "");
+        lines.push(
+          renderProse(type.summary, domainDocs.domain, commandLinks),
+          "",
+        );
       }
 
       const sourceText = `**Source:** \`${type.sourcePath}:${type.sourceLine}\``;
@@ -1333,7 +1508,11 @@ const renderDomainMarkdown = (
           lines.push(
             `| ${renderCode(property.name)} | ${renderTypeExpression(property.type, typeLinks)} | ${
               property.required ? "yes" : "no"
-            } | ${property.readonly ? "yes" : "no"} | ${escapeTableCell(property.description)} |`,
+            } | ${property.readonly ? "yes" : "no"} | ${renderTableProse(
+              property.description,
+              domainDocs.domain,
+              commandLinks,
+            )} |`,
           );
         }
 
@@ -1353,9 +1532,10 @@ const renderFiles = (
   docs: ReadonlyArray<DomainDocs>,
 ): ReadonlyArray<RenderedFile> => {
   const typeLinks = buildTypeLinkRegistry(docs);
+  const commandLinks = buildCommandLinkRegistry(docs);
   return docs.map((domainDocs) => ({
     path: join(options.outputDir, `${domainDocs.domain}.md`),
-    content: renderDomainMarkdown(domainDocs, typeLinks),
+    content: renderDomainMarkdown(domainDocs, typeLinks, commandLinks),
   }));
 };
 
