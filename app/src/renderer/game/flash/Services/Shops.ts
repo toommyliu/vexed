@@ -5,7 +5,7 @@ import type { BridgeEffect } from "./Bridge";
 export interface ShopsShape {
   buyById(id: unknown, quantity?: number): BridgeEffect<boolean>;
   buyByName(name: string, quantity?: number): BridgeEffect<boolean>;
-  canBuyItem(itemName: string): BridgeEffect<boolean>;
+  canBuyItem(key: ItemIdentifierToken, quantity?: number): BridgeEffect<boolean>;
   getInfo(): BridgeEffect<ShopInfo | null>;
   getItem(key: ItemIdentifierToken): BridgeEffect<ShopItem | null>;
   getItems(): BridgeEffect<readonly ShopItem[]>;

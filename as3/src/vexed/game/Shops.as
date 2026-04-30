@@ -97,6 +97,18 @@ package vexed.game {
       return game.world.maximumShopBuys(item);
     }
 
+    private static function canBuyQuantity(item:Object, quantity:int):Boolean {
+      if (!item || quantity <= 0) {
+        return false;
+      }
+
+      if (!Util.canBuyItem(item)) {
+        return false;
+      }
+
+      return game.world.maximumShopBuys(item) >= quantity;
+    }
+
     [BridgeExport]
     public static function buyByName(name:String, quantity:int = 1):Boolean {
       if (!name || quantity <= 0) {
@@ -191,40 +203,17 @@ package vexed.game {
     }
 
     [BridgeExport]
-    public static function canBuyItem(itemName:String):Boolean {
+    public static function canBuyItem(key:*, quantity:int = 1):Boolean {
       if (!getShopInfo()) {
         return false;
       }
 
-      var item:Object = getItem(itemName);
+      var item:Object = getItem(key);
       if (!item) {
         return false;
       }
 
-      if (!isMergeShop()) {
-        return Util.canBuyItem(item);
-      }
-
-      if (!(item.turnin is Array)) {
-        return true;
-      }
-
-      for each (var req:Object in item.turnin) {
-        if (!req || !req.sName) {
-          continue;
-        }
-
-        var requiredQty:int = int(req.iQty);
-        if (requiredQty <= 0) {
-          requiredQty = 1;
-        }
-
-        if (!Inventory.contains(req.sName, requiredQty)) {
-          return false;
-        }
-      }
-
-      return true;
+      return canBuyQuantity(item, quantity);
     }
   }
 }

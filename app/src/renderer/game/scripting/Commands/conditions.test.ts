@@ -39,6 +39,7 @@ type CommandMap = Record<string, (...args: unknown[]) => unknown> & {
     operator: unknown,
     value: unknown,
   ): unknown;
+  can_buy_item(item: unknown, quantity?: unknown): unknown;
 };
 type RecordedInstruction = {
   readonly name: string;
@@ -242,6 +243,38 @@ test("rejects invalid comparison argument order and word operators", () => {
   expect(() => cmd.hp(1000, "<")).toThrow(
     "cmd.hp: comparison must be provided as (operator, value)",
   );
+});
+
+test("records can-buy item quantity conditions", () => {
+  expectRecordedCondition((cmd) => cmd.can_buy_item("Potion", 5), {
+    _tag: "ItemState",
+    item: "Potion",
+    quantity: 5,
+    state: "can_buy",
+    expected: true,
+  });
+});
+
+test("evaluates can-buy item quantity conditions", async () => {
+  const { cmd } = createRecordedCommandMap();
+  const context = {
+    sourceName: "conditions.test.ts",
+    shops: {
+      canBuyItem: (item: ItemIdentifierToken, quantity?: number) =>
+        Effect.succeed(item === "Potion" && quantity === 5),
+    },
+    run: (effect: Effect.Effect<unknown, unknown>) => effect,
+  } as unknown as ScriptExecutionContext;
+
+  await expect(
+    Effect.runPromise(
+      evaluateScriptCondition(
+        context,
+        "if",
+        cmd.can_buy_item("Potion", 5),
+      ),
+    ),
+  ).resolves.toBe(true);
 });
 
 test("evaluates self metric conditions through PlayerMetric", async () => {

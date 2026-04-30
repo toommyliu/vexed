@@ -158,6 +158,7 @@ export type ScriptCondition =
   | {
       readonly _tag: "ItemState";
       readonly item: string;
+      readonly quantity?: number;
       readonly state: "equipped" | "maxed" | "dropped" | "can_buy";
       readonly expected: boolean;
     }
@@ -842,12 +843,22 @@ export const createItemStateCondition = (
   item: string,
   state: "equipped" | "maxed" | "dropped" | "can_buy",
   expected: boolean,
-): ScriptCondition => ({
-  _tag: "ItemState",
-  item,
-  state,
-  expected,
-});
+  quantity?: number,
+): ScriptCondition =>
+  quantity === undefined
+    ? {
+        _tag: "ItemState",
+        item,
+        state,
+        expected,
+      }
+    : {
+        _tag: "ItemState",
+        item,
+        quantity,
+        state,
+        expected,
+      };
 
 export const createBooleanStateCondition = (
   state: "has_target" | "in_combat" | "member",
@@ -1111,7 +1122,9 @@ const evaluateItemState = (
         actual = yield* context.run(context.drops.containsDrop(condition.item));
         break;
       case "can_buy":
-        actual = yield* context.run(context.shops.canBuyItem(condition.item));
+        actual = yield* context.run(
+          context.shops.canBuyItem(condition.item, condition.quantity),
+        );
         break;
     }
 

@@ -86,7 +86,7 @@ type ConditionScriptCommandArguments = {
   not_in_map: [map: string];
   monster_in_room: [monster: string];
   monster_not_in_room: [monster: string];
-  can_buy_item: [item: string];
+  can_buy_item: [item: string, quantity?: number];
 };
 
 type ConditionBuilderScriptDsl = {
@@ -1726,17 +1726,25 @@ export const createConditionScriptDsl = (
     },
 
     /**
-     * Checks whether an item can be bought from the loaded shop.
+     * Checks whether a quantity of an item can be bought from the loaded shop.
      *
      * @param item - Item name.
+     * @param quantity - Quantity to check. Defaults to 1.
      */
-    can_buy_item(item) {
+    can_buy_item(item, quantity) {
       return emitCondition(
         "can_buy_item",
         createItemStateCondition(
           requireScriptArgumentString("can_buy_item", "item", item),
           "can_buy",
           true,
+          quantity === undefined
+            ? undefined
+            : requireScriptArgumentPositiveInteger(
+                "can_buy_item",
+                "quantity",
+                quantity,
+              ),
         ),
       );
     },

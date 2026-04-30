@@ -106,8 +106,10 @@ const make = Effect.gen(function* () {
         : bridge.call("shops.buyByName", [name, quantity]);
     });
 
-  const canBuyItem: ShopsShape["canBuyItem"] = (itemName) =>
-    bridge.call("shops.canBuyItem", [itemName]);
+  const canBuyItem: ShopsShape["canBuyItem"] = (key, quantity) =>
+    quantity === undefined
+      ? bridge.call("shops.canBuyItem", [key])
+      : bridge.call("shops.canBuyItem", [key, quantity]);
 
   const getInfo: ShopsShape["getInfo"] = () => Ref.get(shopInfoRef);
 

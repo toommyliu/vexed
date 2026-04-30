@@ -188,7 +188,9 @@ const autoBuy = (
         context.shops.getItem(missing.name),
       );
       const shopQuantity = requiredShopItem?.quantity ?? 1;
-      const canBuy = yield* context.run(context.shops.canBuyItem(missing.name));
+      const canBuy = yield* context.run(
+        context.shops.canBuyItem(missing.name, missing.needed),
+      );
 
       if (!canBuy) {
         continue;
