@@ -8,7 +8,7 @@ import type {
 } from "@vexed/game";
 import type { Collection } from "@vexed/collection";
 import { ServiceMap } from "effect";
-import type { Effect, Option } from "effect";
+import type { Duration, Effect, Option } from "effect";
 import type { BridgeEffect } from "./Bridge";
 
 export interface WorldMapShape {
@@ -22,7 +22,10 @@ export interface WorldMapShape {
   loadSwf(path: string): BridgeEffect<void>;
   reload(): BridgeEffect<void>;
   setSpawnPoint(cell?: string, pad?: string): BridgeEffect<void>;
-  waitForGameAction(gameAction: GameAction): BridgeEffect<void>;
+  waitForGameAction(
+    gameAction: GameAction,
+    timeout?: Duration.Input,
+  ): BridgeEffect<boolean>;
 
   // State methods
   getName(): Effect.Effect<string>;

@@ -154,10 +154,10 @@ const make = Effect.gen(function* () {
   const isActionAvailable: WorldMapShape["isActionAvailable"] = (gameAction) =>
     bridge.call("world.isActionAvailable", [gameAction]);
 
-  const waitForGameAction: WorldMapShape["waitForGameAction"] = (gameAction) =>
-    waitFor(isActionAvailable(gameAction), { timeout: "2 seconds" }).pipe(
-      Effect.asVoid,
-    );
+  const waitForGameAction: WorldMapShape["waitForGameAction"] = (
+    gameAction,
+    timeout = "2 seconds",
+  ) => waitFor(isActionAvailable(gameAction), { timeout });
 
   const getMapItem: WorldMapShape["getMapItem"] = (itemId) =>
     Effect.gen(function* () {
