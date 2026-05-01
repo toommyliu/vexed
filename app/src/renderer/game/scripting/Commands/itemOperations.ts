@@ -48,25 +48,23 @@ const toItemId = (item: ItemIdentifierToken): number | undefined => {
 };
 
 const loadShopState = (context: ScriptExecutionContext, shopId: number) =>
-  context.run(
-    waitFor(
-      context.shops
-        .getInfo()
-        .pipe(
-          Effect.map(
-            (info) =>
-              info !== null &&
-              Number(info.ShopID) === shopId &&
-              info.items.length > 0,
-          ),
+  waitFor(
+    context.shops
+      .getInfo()
+      .pipe(
+        Effect.map(
+          (info) =>
+            info !== null &&
+            Number(info.ShopID) === shopId &&
+            info.items.length > 0,
         ),
-      { timeout: "5 seconds" },
-    ),
+      ),
+    { timeout: "5 seconds" },
   );
 
 export const loadShopById = (context: ScriptExecutionContext, shopId: number) =>
   Effect.gen(function* () {
-    yield* context.run(context.shops.load(shopId));
+    yield* context.shops.load(shopId);
     yield* loadShopState(context, shopId);
   });
 
@@ -75,12 +73,8 @@ const getTotalQuantityAcrossInventories = (
   itemName: string,
 ) =>
   Effect.gen(function* () {
-    const inventoryItem = yield* context.run(
-      context.inventory.getItem(itemName),
-    );
-    const tempItem = yield* context.run(
-      context.tempInventory.getItem(itemName),
-    );
+    const inventoryItem = yield* context.inventory.getItem(itemName);
+    const tempItem = yield* context.tempInventory.getItem(itemName);
 
     return (inventoryItem?.quantity ?? 0) + (tempItem?.quantity ?? 0);
   });
@@ -91,8 +85,8 @@ const buyShopItem = (
   quantity: number,
 ) =>
   typeof item === "number"
-    ? context.run(context.shops.buyById(item, quantity))
-    : context.run(context.shops.buyByName(item, quantity));
+    ? context.shops.buyById(item, quantity)
+    : context.shops.buyByName(item, quantity);
 
 const normalBuy = (
   context: ScriptExecutionContext,
@@ -159,9 +153,7 @@ const autoBuy = (
         continue;
       }
 
-      const requiredShopItem = yield* context.run(
-        context.shops.getItem(requirement.sName),
-      );
+      const requiredShopItem = yield* context.shops.getItem(requirement.sName);
       const shopQuantity = requiredShopItem?.quantity ?? 1;
       const buyOperations = Math.ceil(needed / shopQuantity);
       const totalQuantityToBuy = buyOperations * shopQuantity;
@@ -185,12 +177,11 @@ const autoBuy = (
         return;
       }
 
-      const requiredShopItem = yield* context.run(
-        context.shops.getItem(missing.name),
-      );
+      const requiredShopItem = yield* context.shops.getItem(missing.name);
       const shopQuantity = requiredShopItem?.quantity ?? 1;
-      const canBuy = yield* context.run(
-        context.shops.canBuyItem(missing.name, missing.needed),
+      const canBuy = yield* context.shops.canBuyItem(
+        missing.name,
+        missing.needed,
       );
 
       if (!canBuy) {
@@ -199,7 +190,7 @@ const autoBuy = (
 
       const buyOperations = Math.ceil(missing.needed / shopQuantity);
       for (let operation = 0; operation < buyOperations; operation += 1) {
-        yield* context.run(context.shops.buyByName(missing.name, shopQuantity));
+        yield* context.shops.buyByName(missing.name, shopQuantity);
       }
     }
 
@@ -214,24 +205,22 @@ export const buyItem = (
   auto: boolean,
 ) =>
   Effect.gen(function* () {
-    const currentInfo = yield* context.run(context.shops.getInfo());
+    const currentInfo = yield* context.shops.getInfo();
     if (currentInfo === null || Number(currentInfo.ShopID) !== shopId) {
       yield* loadShopById(context, shopId);
     }
 
-    let shopItem = yield* context.run(context.shops.getItem(item));
+    let shopItem = yield* context.shops.getItem(item);
     if (!shopItem) {
       yield* loadShopById(context, shopId);
-      shopItem = yield* context.run(context.shops.getItem(item));
+      shopItem = yield* context.shops.getItem(item);
     }
 
     if (!shopItem) {
       return;
     }
 
-    const isMergeShop = auto
-      ? yield* context.run(context.shops.isMergeShop())
-      : false;
+    const isMergeShop = auto ? yield* context.shops.isMergeShop() : false;
 
     if (auto && isMergeShop) {
       yield* autoBuy(context, item, quantity, shopItem);
@@ -255,7 +244,7 @@ const resolveDropItemId = (
       return undefined;
     }
 
-    const rawDrops = yield* context.run(context.bridge.call("drops.getItems"));
+    const rawDrops = yield* context.bridge.call("drops.getItems");
     const dropValues = Array.isArray(rawDrops)
       ? rawDrops
       : Object.values(toRecord(rawDrops));
@@ -287,7 +276,7 @@ export const rejectDrop = (
       return;
     }
 
-    yield* context.run(context.drops.rejectDrop(itemId));
+    yield* context.drops.rejectDrop(itemId);
   });
 
 const logEnhancementWarning = (
@@ -356,8 +345,8 @@ const findBestEnhancement = (
 ) =>
   Effect.gen(function* () {
     const [isMember, shopInfo] = yield* Effect.all([
-      context.run(context.player.isMember()),
-      context.run(context.shops.getInfo()),
+      context.player.isMember(),
+      context.shops.getInfo(),
     ]);
 
     const rawItems = Array.isArray(shopInfo?.items) ? shopInfo.items : [];
@@ -425,7 +414,7 @@ export const equipItemByEnhancement = (
       return;
     }
 
-    const items = yield* context.run(context.inventory.getItems());
+    const items = yield* context.inventory.getItems();
     const candidates = rankEnhancementCandidates(
       items.filter((item) =>
         matchesEquipEnhancementFilter(item, filterResolution.filter),
@@ -452,7 +441,7 @@ export const equipItemByEnhancement = (
       return;
     }
 
-    yield* context.run(context.inventory.equip(targetItem.name));
+    yield* context.inventory.equip(targetItem.name);
   });
 
 export const enhanceItem = (
@@ -462,8 +451,8 @@ export const enhanceItem = (
 ) =>
   Effect.gen(function* () {
     const { enhancement, special } = options;
-    const playerLevel = yield* context.run(context.player.getLevel());
-    const itemRecord = yield* context.run(context.inventory.getItem(item));
+    const playerLevel = yield* context.player.getLevel();
+    const itemRecord = yield* context.inventory.getItem(item);
     if (!itemRecord) {
       yield* logEnhancementWarning("Item not found in inventory", {
         command: "enhance_item",
@@ -494,9 +483,9 @@ export const enhanceItem = (
     const strategy = strategyResolution.strategy;
 
     if (strategy.map !== undefined) {
-      const currentMap = yield* context.run(context.world.map.getName());
+      const currentMap = yield* context.world.map.getName();
       if (!equalsIgnoreCase(currentMap, strategy.map)) {
-        yield* context.run(context.player.joinMap(strategy.map));
+        yield* context.player.joinMap(strategy.map);
       }
     }
 
@@ -520,41 +509,38 @@ export const enhanceItem = (
       return;
     }
 
-    yield* context.run(
-      context.bridge.callGameFunction("world.confirmSendEnhItemRequestShop", {
+    yield* context.bridge.callGameFunction(
+      "world.confirmSendEnhItemRequestShop",
+      {
         accept: true,
         enh: enhancementSelection.candidateData,
         item: [itemRecord.id],
-      }),
+      },
     );
 
-    yield* context
-      .run(
-        waitFor(
-          context.inventory
-            .getItem(itemRecord.id)
-            .pipe(
-              Effect.map(
-                (updatedItem) =>
-                  updatedItem !== null &&
-                  matchesAppliedEnhancement(updatedItem, strategy),
-              ),
-            ),
-          { timeout: "5 seconds" },
+    yield* waitFor(
+      context.inventory
+        .getItem(itemRecord.id)
+        .pipe(
+          Effect.map(
+            (updatedItem) =>
+              updatedItem !== null &&
+              matchesAppliedEnhancement(updatedItem, strategy),
+          ),
         ),
-      )
-      .pipe(
-        Effect.catch(() =>
-          logEnhancementWarning("Enhancement request did not apply in time", {
-            command: "enhance_item",
-            enhancement,
-            item,
-            special,
-            shopId: strategy.shopId,
-            strategy,
-          }),
-        ),
-      );
+      { timeout: "5 seconds" },
+    ).pipe(
+      Effect.catch(() =>
+        logEnhancementWarning("Enhancement request did not apply in time", {
+          command: "enhance_item",
+          enhancement,
+          item,
+          special,
+          shopId: strategy.shopId,
+          strategy,
+        }),
+      ),
+    );
   });
 
 export const normalizeItemIdentifier = (

@@ -116,19 +116,19 @@ const attackCommand = createCommandHandler((context, args) =>
       0,
       "target",
     );
-    yield* context.run(context.combat.attackMonster(target));
+    yield* context.combat.attackMonster(target);
   }),
 );
 
 const cancelTargetCommand = createCommandHandler((context) =>
   Effect.gen(function* () {
-    yield* context.run(context.combat.cancelAutoAttack());
-    yield* context.run(context.combat.cancelTarget());
+    yield* context.combat.cancelAutoAttack();
+    yield* context.combat.cancelTarget();
   }),
 );
 
 const exitCombatCommand = createCommandHandler((context) =>
-  context.run(context.combat.exit()).pipe(Effect.asVoid),
+  context.combat.exit().pipe(Effect.asVoid),
 );
 
 const killCommand = createCommandHandler((context, args) =>
@@ -149,11 +149,11 @@ const killCommand = createCommandHandler((context, args) =>
     );
 
     if (options === undefined) {
-      yield* context.run(context.combat.kill(target));
+      yield* context.combat.kill(target);
       return;
     }
 
-    yield* context.run(context.combat.kill(target, options));
+    yield* context.combat.kill(target, options);
   }),
 );
 
@@ -190,14 +190,15 @@ const killForItemCommand = createCommandHandler((context, args) =>
 
     const normalizedQuantity = Math.max(1, Math.floor(quantity));
     if (options === undefined) {
-      yield* context.run(
-        context.combat.killForItem(target, item, normalizedQuantity),
-      );
+      yield* context.combat.killForItem(target, item, normalizedQuantity);
       return;
     }
 
-    yield* context.run(
-      context.combat.killForItem(target, item, normalizedQuantity, options),
+    yield* context.combat.killForItem(
+      target,
+      item,
+      normalizedQuantity,
+      options,
     );
   }),
 );
@@ -235,14 +236,15 @@ const killForTempItemCommand = createCommandHandler((context, args) =>
 
     const normalizedQuantity = Math.max(1, Math.floor(quantity));
     if (options === undefined) {
-      yield* context.run(
-        context.combat.killForTempItem(target, item, normalizedQuantity),
-      );
+      yield* context.combat.killForTempItem(target, item, normalizedQuantity);
       return;
     }
 
-    yield* context.run(
-      context.combat.killForTempItem(target, item, normalizedQuantity, options),
+    yield* context.combat.killForTempItem(
+      target,
+      item,
+      normalizedQuantity,
+      options,
     );
   }),
 );
@@ -256,8 +258,8 @@ const restCommand = createCommandHandler((context, args) =>
       0,
       "full",
     );
-    yield* context.run(context.combat.exit()).pipe(Effect.asVoid);
-    yield* context.run(context.player.rest(full ?? false));
+    yield* context.combat.exit().pipe(Effect.asVoid);
+    yield* context.player.rest(full ?? false);
   }),
 );
 
@@ -279,7 +281,7 @@ const useSkillCommand = (force: boolean): ScriptCommandHandler =>
         "wait",
       );
 
-      yield* context.run(context.combat.useSkill(skill, force, wait ?? false));
+      yield* context.combat.useSkill(skill, force, wait ?? false);
     }),
   );
 
@@ -299,9 +301,7 @@ const huntCommand = createCommandHandler((context, args) =>
       1,
       "most",
     );
-    yield* context
-      .run(context.combat.hunt(target, most ?? false))
-      .pipe(Effect.asVoid);
+    yield* context.combat.hunt(target, most ?? false).pipe(Effect.asVoid);
   }),
 );
 

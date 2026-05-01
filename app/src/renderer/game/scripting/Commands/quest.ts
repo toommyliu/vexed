@@ -49,7 +49,7 @@ const acceptQuestCommand = createCommandHandler((context, args) =>
       "silent",
     );
 
-    yield* context.run(context.quests.accept(questId, silent));
+    yield* context.quests.accept(questId, silent ?? false);
   }),
 );
 
@@ -63,7 +63,7 @@ const abandonQuestCommand = createCommandHandler((context, args) =>
       "quest_id",
     );
 
-    yield* context.run(context.quests.abandon(questId));
+    yield* context.quests.abandon(questId);
   }),
 );
 
@@ -86,7 +86,7 @@ const readOptionalQuestTurnIns = (
 ) => {
   const value = options?.turnIns;
   if (value === "max") {
-    return context.run(context.quests.getMaxTurnIns(questId));
+    return context.quests.getMaxTurnIns(questId);
   }
 
   if (value === undefined) {
@@ -206,15 +206,13 @@ const completeQuestCommand = createCommandHandler((context, args) =>
     );
     const options = yield* readCompleteQuestOptions(context, args);
     const turnIns = yield* readOptionalQuestTurnIns(context, questId, options);
-    const canComplete = yield* context.run(context.quests.canComplete(questId));
+    const canComplete = yield* context.quests.canComplete(questId);
 
     if (!canComplete) {
       return;
     }
 
-    yield* context.run(
-      context.quests.complete(questId, turnIns, options?.itemId),
-    );
+    yield* context.quests.complete(questId, turnIns, options?.itemId);
   }),
 );
 

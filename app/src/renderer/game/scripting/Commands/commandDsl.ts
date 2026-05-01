@@ -1049,20 +1049,20 @@ const readPlayerMetricValue = (
 ): Effect.Effect<number, ScriptCommandError> => {
   switch (metric) {
     case "hp":
-      return context.run(context.player.getHp());
+      return context.player.getHp();
     case "mp":
-      return context.run(context.player.getMp());
+      return context.player.getMp();
     case "hp_percent":
       return Effect.all([
-        context.run(context.player.getHp()),
-        context.run(context.player.getMaxHp()),
+        context.player.getHp(),
+        context.player.getMaxHp(),
       ]).pipe(
         Effect.map(([hp, maxHp]) => (maxHp <= 0 ? 0 : (hp / maxHp) * 100)),
       );
     case "mp_percent":
       return Effect.all([
-        context.run(context.player.getMp()),
-        context.run(context.player.getMaxMp()),
+        context.player.getMp(),
+        context.player.getMaxMp(),
       ]).pipe(
         Effect.map(([mp, maxMp]) => (maxMp <= 0 ? 0 : (mp / maxMp) * 100)),
       );
@@ -1124,11 +1124,9 @@ const evaluateInventoryContains = (
               return (item?.quantity ?? 0) >= condition.quantity;
             });
 
-  return context
-    .run(effect)
-    .pipe(
-      Effect.map((contains) => (condition.expected ? contains : !contains)),
-    );
+  return effect.pipe(
+    Effect.map((contains) => (condition.expected ? contains : !contains)),
+  );
 };
 
 const evaluateItemState = (
@@ -1139,25 +1137,22 @@ const evaluateItemState = (
     let actual = false;
     switch (condition.state) {
       case "equipped": {
-        const item = yield* context.run(
-          context.inventory.getItem(condition.item),
-        );
+        const item = yield* context.inventory.getItem(condition.item);
         actual = item?.isEquipped() ?? false;
         break;
       }
       case "maxed": {
-        const item = yield* context.run(
-          context.inventory.getItem(condition.item),
-        );
+        const item = yield* context.inventory.getItem(condition.item);
         actual = item?.isMaxed() ?? false;
         break;
       }
       case "dropped":
-        actual = yield* context.run(context.drops.containsDrop(condition.item));
+        actual = yield* context.drops.containsDrop(condition.item);
         break;
       case "can_buy":
-        actual = yield* context.run(
-          context.shops.canBuyItem(condition.item, condition.quantity),
+        actual = yield* context.shops.canBuyItem(
+          condition.item,
+          condition.quantity,
         );
         break;
     }
@@ -1172,11 +1167,10 @@ const evaluateBooleanState = (
   Effect.gen(function* () {
     const actual =
       condition.state === "has_target"
-        ? yield* context.run(context.combat.hasTarget())
+        ? yield* context.combat.hasTarget()
         : condition.state === "member"
-          ? yield* context.run(context.player.isMember())
-          : (yield* context.run(context.player.getState())) ===
-            EntityState.InCombat;
+          ? yield* context.player.isMember()
+          : (yield* context.player.getState()) === EntityState.InCombat;
 
     return condition.expected ? actual : !actual;
   });
@@ -1432,8 +1426,8 @@ export const evaluateScriptCondition = (
 
       const actual =
         metric === "gold"
-          ? context.run(context.player.getGold())
-          : context.run(context.player.getLevel());
+          ? context.player.getGold()
+          : context.player.getLevel();
       return actual.pipe(
         Effect.map((metricValue) =>
           compareNumbers(metricValue, operator, value),
@@ -1622,7 +1616,7 @@ export const evaluateScriptCondition = (
         return invalidArg(context, command, "cell must be a non-empty string");
       }
 
-      return context.run(context.player.getCell()).pipe(
+      return context.player.getCell().pipe(
         Effect.map((actualCell) => {
           const actual = equalsIgnoreCase(actualCell, cell);
           return condition.expected ? actual : !actual;
@@ -1637,8 +1631,8 @@ export const evaluateScriptCondition = (
 
       const target = parseMapAndRoom(map);
       return Effect.all([
-        context.run(context.world.map.getName()),
-        context.run(context.world.map.getRoomNumber()),
+        context.world.map.getName(),
+        context.world.map.getRoomNumber(),
       ]).pipe(
         Effect.map(([currentMap, currentRoom]) => {
           const actual =
@@ -1658,7 +1652,7 @@ export const evaluateScriptCondition = (
         );
       }
 
-      return context.run(context.world.players.getByName(playerName)).pipe(
+      return context.world.players.getByName(playerName).pipe(
         Effect.map((player) => {
           const actual =
             Option.isSome(player) &&
@@ -1678,7 +1672,7 @@ export const evaluateScriptCondition = (
         );
       }
 
-      return context.run(context.auth.getUsername()).pipe(
+      return context.auth.getUsername().pipe(
         Effect.map((username) => {
           const actual = equalsIgnoreCase(username, playerName);
           return condition.expected ? actual : !actual;
@@ -1695,7 +1689,7 @@ export const evaluateScriptCondition = (
         );
       }
 
-      return context.run(context.player.getFactions()).pipe(
+      return context.player.getFactions().pipe(
         Effect.map((factions) => {
           const faction = factions.find((candidate) =>
             equalsIgnoreCase(candidate.name, factionName),
@@ -1738,17 +1732,17 @@ export const evaluateScriptCondition = (
 
       const actual =
         condition.state === "available"
-          ? context.run(context.quests.isAvailable(questId))
+          ? context.quests.isAvailable(questId)
           : condition.state === "can_complete"
-            ? context.run(context.quests.canComplete(questId))
-            : context.run(context.quests.isInProgress(questId));
+            ? context.quests.canComplete(questId)
+            : context.quests.isInProgress(questId);
 
       return actual.pipe(
         Effect.map((matched) => (condition.expected ? matched : !matched)),
       );
     }
     case "TargetHp":
-      return context.run(context.combat.getTarget()).pipe(
+      return context.combat.getTarget().pipe(
         Effect.map((target) => {
           const hp = target?.hp ?? 0;
           if (

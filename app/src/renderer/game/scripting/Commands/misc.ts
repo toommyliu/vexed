@@ -150,9 +150,7 @@ const setFpsCommand = createCommandHandler((context, args) =>
       0,
       "fps",
     );
-    yield* context.run(
-      context.settings.setFrameRate(Math.max(1, Math.floor(fps))),
-    );
+    yield* context.settings.setFrameRate(Math.max(1, Math.floor(fps)));
   }),
 );
 
@@ -206,15 +204,15 @@ const buyLifeStealCommand = createCommandHandler((context, args) =>
       { minimum: 1, maximum: 99 },
     );
     const itemName = "Scroll of Life Steal";
-    const current = yield* context.run(context.inventory.getItem(itemName));
+    const current = yield* context.inventory.getItem(itemName);
     const needed = quantity - (current?.quantity ?? 0);
     if (needed <= 0) {
       return;
     }
 
-    yield* context.run(context.player.joinMap("arcangrove", "Potion", "Right"));
+    yield* context.player.joinMap("arcangrove", "Potion", "Right");
     yield* loadShopById(context, 211);
-    yield* context.run(context.shops.buyByName(itemName, needed));
+    yield* context.shops.buyByName(itemName, needed);
   }),
 );
 
@@ -233,62 +231,50 @@ const buyScrollOfEnrageCommand = createCommandHandler((context, args) =>
       { minimum: 1, maximum: 1_000 },
     );
     const itemName = "Scroll of Enrage";
-    if (yield* context.run(context.inventory.contains(itemName, quantity))) {
+    if (yield* context.inventory.contains(itemName, quantity)) {
       return;
     }
 
-    yield* context.run(
-      context.bank.withdrawMany(
-        "Gold Voucher 100k",
-        "Arcane Quill",
-        "Zealous Ink",
-      ),
+    yield* context.bank.withdrawMany(
+      "Gold Voucher 100k",
+      "Arcane Quill",
+      "Zealous Ink",
     );
-    yield* context.run(context.player.joinMap("spellcraft"));
+    yield* context.player.joinMap("spellcraft");
     yield* loadShopById(context, 693);
 
-    while (
-      !(yield* context.run(context.inventory.contains(itemName, quantity)))
-    ) {
-      if (yield* context.run(context.drops.containsDrop(itemName))) {
-        yield* context.run(context.drops.acceptDrop(itemName));
+    while (!(yield* context.inventory.contains(itemName, quantity))) {
+      if (yield* context.drops.containsDrop(itemName)) {
+        yield* context.drops.acceptDrop(itemName);
       }
 
-      yield* context.run(context.quests.accept(2330, true));
+      yield* context.quests.accept(2330, true);
 
-      if (
-        !(yield* context.run(
-          context.inventory.contains("Gold Voucher 100k", 1),
-        ))
-      ) {
-        if ((yield* context.run(context.player.getGold())) < 100_000) {
+      if (!(yield* context.inventory.contains("Gold Voucher 100k", 1))) {
+        if ((yield* context.player.getGold()) < 100_000) {
           return;
         }
-        yield* context.run(context.shops.buyByName("Gold Voucher 100k", 1));
+        yield* context.shops.buyByName("Gold Voucher 100k", 1);
       }
 
-      if (
-        !(yield* context.run(context.inventory.contains("Arcane Quill", 1)))
-      ) {
-        if ((yield* context.run(context.player.getGold())) < 100_000) {
+      if (!(yield* context.inventory.contains("Arcane Quill", 1))) {
+        if ((yield* context.player.getGold()) < 100_000) {
           return;
         }
-        yield* context.run(context.shops.buyByName("Arcane Quill", 1));
+        yield* context.shops.buyByName("Arcane Quill", 1);
       }
 
-      if (!(yield* context.run(context.inventory.contains("Zealous Ink", 5)))) {
-        if (
-          !(yield* context.run(context.inventory.contains("Arcane Quill", 1)))
-        ) {
+      if (!(yield* context.inventory.contains("Zealous Ink", 5))) {
+        if (!(yield* context.inventory.contains("Arcane Quill", 1))) {
           return;
         }
-        yield* context.run(context.shops.buyByName("Zealous Ink", 5));
+        yield* context.shops.buyByName("Zealous Ink", 5);
       }
 
-      if (!(yield* context.run(context.quests.canComplete(2330)))) {
+      if (!(yield* context.quests.canComplete(2330))) {
         return;
       }
-      yield* context.run(context.quests.complete(2330, 5));
+      yield* context.quests.complete(2330, 5);
     }
   }),
 );
@@ -557,13 +543,13 @@ const drinkConsumablesCommand = createCommandHandler((context, args) =>
         continue;
       }
 
-      yield* context.run(context.inventory.equip(item));
-      yield* context.run(context.combat.useSkill(5, true, true));
+      yield* context.inventory.equip(item);
+      yield* context.combat.useSkill(5, true, true);
       yield* Effect.sleep("1 second");
     }
 
     if (equipAfter !== undefined) {
-      yield* context.run(context.inventory.equip(equipAfter));
+      yield* context.inventory.equip(equipAfter);
     }
   }),
 );
@@ -579,24 +565,24 @@ const wheelOfDoomCommand = createCommandHandler((context, args) =>
     );
     const item = "Gear of Doom";
 
-    if (!(yield* context.run(context.inventory.contains(item, 3)))) {
-      yield* context.run(context.bank.open(true));
-      if (!(yield* context.run(context.bank.contains(item, 3)))) {
+    if (!(yield* context.inventory.contains(item, 3))) {
+      yield* context.bank.open(true);
+      if (!(yield* context.bank.contains(item, 3))) {
         return;
       }
-      yield* context.run(context.bank.withdraw(item));
+      yield* context.bank.withdraw(item);
     }
 
-    yield* context.run(context.player.joinMap("doom"));
-    yield* context.run(context.quests.accept(3076, true));
-    if (!(yield* context.run(context.quests.canComplete(3076)))) {
+    yield* context.player.joinMap("doom");
+    yield* context.quests.accept(3076, true);
+    if (!(yield* context.quests.canComplete(3076))) {
       return;
     }
-    yield* context.run(context.quests.complete(3076));
+    yield* context.quests.complete(3076);
 
     if (toBank === true) {
-      yield* context.run(context.bank.open(true));
-      yield* context.run(context.bank.deposit(item));
+      yield* context.bank.open(true);
+      yield* context.bank.deposit(item);
     }
   }),
 );
@@ -619,62 +605,62 @@ const gotoLabelCommand: ScriptCommandHandler = (context, instruction) =>
 const miscCommandHandlerMap = miscCommandDomain.defineHandlers({
   delay: delayCommand,
   log: logCommand,
-  logout: createCommandHandler((context) => context.run(context.auth.logout())),
+  logout: createCommandHandler((context) => context.auth.logout()),
   set_delay: setDelayCommand,
   set_fps: setFpsCommand,
   enable_collisions: settingCommand((context) =>
-    context.run(context.settings.setCollisionsEnabled(true)),
+    context.settings.setCollisionsEnabled(true),
   ),
   disable_collisions: settingCommand((context) =>
-    context.run(context.settings.setCollisionsEnabled(false)),
+    context.settings.setCollisionsEnabled(false),
   ),
   enable_fx: settingCommand((context) =>
-    context.run(context.settings.setEffectsEnabled(true)),
+    context.settings.setEffectsEnabled(true),
   ),
   disable_fx: settingCommand((context) =>
-    context.run(context.settings.setEffectsEnabled(false)),
+    context.settings.setEffectsEnabled(false),
   ),
   show_death_ads: settingCommand((context) =>
-    context.run(context.settings.setDeathAdsEnabled(true)),
+    context.settings.setDeathAdsEnabled(true),
   ),
   hide_death_ads: settingCommand((context) =>
-    context.run(context.settings.setDeathAdsEnabled(false)),
+    context.settings.setDeathAdsEnabled(false),
   ),
   enable_enemymagnet: settingCommand((context) =>
-    context.run(context.settings.setEnemyMagnetEnabled(true)),
+    context.settings.setEnemyMagnetEnabled(true),
   ),
   disable_enemymagnet: settingCommand((context) =>
-    context.run(context.settings.setEnemyMagnetEnabled(false)),
+    context.settings.setEnemyMagnetEnabled(false),
   ),
   enable_infiniterange: settingCommand((context) =>
-    context.run(context.settings.setInfiniteRangeEnabled(true)),
+    context.settings.setInfiniteRangeEnabled(true),
   ),
   disable_infiniterange: settingCommand((context) =>
-    context.run(context.settings.setInfiniteRangeEnabled(false)),
+    context.settings.setInfiniteRangeEnabled(false),
   ),
   enable_lagkiller: settingCommand((context) =>
-    context.run(context.settings.setLagKillerEnabled(true)),
+    context.settings.setLagKillerEnabled(true),
   ),
   disable_lagkiller: settingCommand((context) =>
-    context.run(context.settings.setLagKillerEnabled(false)),
+    context.settings.setLagKillerEnabled(false),
   ),
   enable_provokecell: settingCommand((context) =>
-    context.run(context.settings.setProvokeCellEnabled(true)),
+    context.settings.setProvokeCellEnabled(true),
   ),
   disable_provokecell: settingCommand((context) =>
-    context.run(context.settings.setProvokeCellEnabled(false)),
+    context.settings.setProvokeCellEnabled(false),
   ),
   enable_skipcutscenes: settingCommand((context) =>
-    context.run(context.settings.setSkipCutscenesEnabled(true)),
+    context.settings.setSkipCutscenesEnabled(true),
   ),
   disable_skipcutscenes: settingCommand((context) =>
-    context.run(context.settings.setSkipCutscenesEnabled(false)),
+    context.settings.setSkipCutscenesEnabled(false),
   ),
   enable_hideplayers: settingCommand((context) =>
-    context.run(context.settings.setPlayersVisible(false)),
+    context.settings.setPlayersVisible(false),
   ),
   disable_hideplayers: settingCommand((context) =>
-    context.run(context.settings.setPlayersVisible(true)),
+    context.settings.setPlayersVisible(true),
   ),
   set_walk_speed: createCommandHandler((context, args) =>
     Effect.gen(function* () {
@@ -685,7 +671,7 @@ const miscCommandHandlerMap = miscCommandDomain.defineHandlers({
         0,
         "speed",
       );
-      yield* context.run(context.settings.setWalkSpeed(Math.trunc(speed)));
+      yield* context.settings.setWalkSpeed(Math.trunc(speed));
     }),
   ),
   wait_for_player_count: waitForPlayerCountCommand,
@@ -698,7 +684,7 @@ const miscCommandHandlerMap = miscCommandDomain.defineHandlers({
         0,
         "name",
       );
-      yield* context.run(context.settings.setCustomName(name));
+      yield* context.settings.setCustomName(name);
     }),
   ),
   set_guild: createCommandHandler((context, args) =>
@@ -710,7 +696,7 @@ const miscCommandHandlerMap = miscCommandDomain.defineHandlers({
         0,
         "guild",
       );
-      yield* context.run(context.settings.setCustomGuild(guild));
+      yield* context.settings.setCustomGuild(guild);
     }),
   ),
   buy_lifesteal: buyLifeStealCommand,
@@ -1167,6 +1153,12 @@ export const createMiscScriptDsl = (
      */
     use_autozone_queeniona() {
       recordMiscInstruction("use_autozone_queeniona");
+    },
+    /**
+     * Enables the MagnumOpus auto-zone.
+     */
+    use_autozone_magnumopus() {
+      recordMiscInstruction("use_autozone_magnumopus");
     },
     /**
      * Closes the game window.

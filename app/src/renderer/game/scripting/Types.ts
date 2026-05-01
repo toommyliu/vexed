@@ -24,6 +24,7 @@ import type { TempInventoryShape } from "../flash/Services/TempInventory";
 import type { QuestsShape } from "../flash/Services/Quests";
 import type { WorldShape } from "../flash/Services/World";
 import type { ScriptEffect } from "./scriptEffect";
+import type { ScriptRuntimeValue } from "./scriptRuntimeApi";
 
 export interface ScriptInstructionControlFlow {
   readonly falseJumpIndex?: number;
@@ -205,23 +206,23 @@ export type ScriptPacketHandler = (
 
 export interface ScriptExecutionContext {
   readonly sourceName: string;
-  readonly auth: AuthShape;
-  readonly autoZone: AutoZoneShape;
-  readonly bank: BankShape;
-  readonly bridge: BridgeShape;
-  readonly combat: CombatShape;
-  readonly drops: DropsShape;
-  readonly house: HouseShape;
-  readonly inventory: InventoryShape;
-  readonly jobs: JobsShape;
-  readonly packet: PacketShape;
-  readonly packetDomain: PacketDomainShape;
-  readonly player: PlayerShape;
-  readonly quests: QuestsShape;
-  readonly settings: SettingsShape;
-  readonly shops: ShopsShape;
-  readonly tempInventory: TempInventoryShape;
-  readonly world: WorldShape;
+  readonly auth: ScriptRuntimeValue<AuthShape>;
+  readonly autoZone: ScriptRuntimeValue<AutoZoneShape>;
+  readonly bank: ScriptRuntimeValue<BankShape>;
+  readonly bridge: ScriptRuntimeValue<BridgeShape>;
+  readonly combat: ScriptRuntimeValue<CombatShape>;
+  readonly drops: ScriptRuntimeValue<DropsShape>;
+  readonly house: ScriptRuntimeValue<HouseShape>;
+  readonly inventory: ScriptRuntimeValue<InventoryShape>;
+  readonly jobs: ScriptRuntimeValue<JobsShape>;
+  readonly packet: ScriptRuntimeValue<PacketShape>;
+  readonly packetDomain: ScriptRuntimeValue<PacketDomainShape>;
+  readonly player: ScriptRuntimeValue<PlayerShape>;
+  readonly quests: ScriptRuntimeValue<QuestsShape>;
+  readonly settings: ScriptRuntimeValue<SettingsShape>;
+  readonly shops: ScriptRuntimeValue<ShopsShape>;
+  readonly tempInventory: ScriptRuntimeValue<TempInventoryShape>;
+  readonly world: ScriptRuntimeValue<WorldShape>;
   readonly signal: AbortSignal;
   isCancelled(): boolean;
   run<A, E>(

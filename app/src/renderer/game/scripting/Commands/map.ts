@@ -64,12 +64,10 @@ const joinMapCommand = createCommandHandler((context, args) =>
       "pad",
     );
 
-    yield* context.run(
-      context.player.joinMap(
-        map,
-        cell ?? DEFAULT_JOIN_CELL,
-        pad ?? DEFAULT_PAD,
-      ),
+    yield* context.player.joinMap(
+      map,
+      cell ?? DEFAULT_JOIN_CELL,
+      pad ?? DEFAULT_PAD,
     );
   }),
 );
@@ -91,7 +89,7 @@ const moveToCellCommand = createCommandHandler((context, args) =>
       "pad",
     );
 
-    yield* context.run(context.player.jumpToCell(cell, pad ?? DEFAULT_PAD));
+    yield* context.player.jumpToCell(cell, pad ?? DEFAULT_PAD);
   }),
 );
 
@@ -100,7 +98,7 @@ const walkToCommand = createCommandHandler((context, args) =>
     const x = yield* requireInstructionNumber(context, "walk_to", args, 0, "x");
     const y = yield* requireInstructionNumber(context, "walk_to", args, 1, "y");
 
-    yield* context.run(context.player.walkTo(x, y));
+    yield* context.player.walkTo(x, y);
   }),
 );
 
@@ -113,7 +111,7 @@ const gotoPlayerCommand = createCommandHandler((context, args) =>
       0,
       "player",
     );
-    yield* context.run(context.player.goToPlayer(player));
+    yield* context.player.goToPlayer(player);
   }),
 );
 
@@ -127,17 +125,15 @@ const gotoHouseCommand = createCommandHandler((context, args) =>
       "player",
     );
 
-    yield* context.run(
-      Effect.gen(function* () {
-        yield* context.combat.exit();
-        yield* context.world.map.waitForGameAction("tfer");
+    yield* Effect.gen(function* () {
+      yield* context.combat.exit();
+      yield* context.world.map.waitForGameAction("tfer");
 
-        const playerName =
-          player === undefined ? yield* context.auth.getUsername() : player;
+      const playerName =
+        player === undefined ? yield* context.auth.getUsername() : player;
 
-        yield* context.packet.sendServer(`%xt%zm%house%1%${playerName}%`);
-      }),
-    );
+      yield* context.packet.sendServer(`%xt%zm%house%1%${playerName}%`);
+    });
   }),
 );
 
@@ -158,7 +154,7 @@ const setSpawnPointCommand = createCommandHandler((context, args) =>
       "pad",
     );
 
-    yield* context.run(context.world.map.setSpawnPoint(cell, pad));
+    yield* context.world.map.setSpawnPoint(cell, pad);
   }),
 );
 

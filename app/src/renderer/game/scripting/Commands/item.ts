@@ -412,11 +412,11 @@ const depositCommand = createCommandHandler((context, args) =>
     );
 
     if (Array.isArray(item)) {
-      yield* context.run(context.bank.depositMany(...item));
+      yield* context.bank.depositMany(...item);
       return;
     }
 
-    yield* context.run(context.bank.deposit(item));
+    yield* context.bank.deposit(item);
   }),
 );
 
@@ -429,7 +429,7 @@ const getMapItemCommand = createCommandHandler((context, args) =>
       0,
       "item_id",
     );
-    yield* context.run(context.world.map.getMapItem(itemId));
+    yield* context.world.map.getMapItem(itemId);
   }),
 );
 
@@ -442,7 +442,7 @@ const pickupCommand = createCommandHandler((context, args) =>
       0,
       "item",
     );
-    yield* context.run(context.drops.acceptDrop(item));
+    yield* context.drops.acceptDrop(item);
   }),
 );
 
@@ -468,7 +468,7 @@ const sellItemCommand = createCommandHandler((context, args) =>
       0,
       "item",
     );
-    yield* context.run(context.shops.sellByName(item));
+    yield* context.shops.sellByName(item);
   }),
 );
 
@@ -488,7 +488,7 @@ const swapCommand = createCommandHandler((context, args) =>
       1,
       "inv_item",
     );
-    yield* context.run(context.bank.swap(invItem, bankItem));
+    yield* context.bank.swap(invItem, bankItem);
   }),
 );
 
@@ -503,11 +503,11 @@ const withdrawCommand = createCommandHandler((context, args) =>
     );
 
     if (Array.isArray(item)) {
-      yield* context.run(context.bank.withdrawMany(...item));
+      yield* context.bank.withdrawMany(...item);
       return;
     }
 
-    yield* context.run(context.bank.withdraw(item));
+    yield* context.bank.withdraw(item);
   }),
 );
 
@@ -520,7 +520,7 @@ const equipItemCommand = createCommandHandler((context, args) =>
       0,
       "item",
     );
-    yield* context.run(context.inventory.equip(item));
+    yield* context.inventory.equip(item);
   }),
 );
 

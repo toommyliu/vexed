@@ -25,7 +25,8 @@ export interface ScriptAsyncScope {
   runPromise<A, E>(effect: Effect.Effect<A, E>): Promise<A>;
   setCleanup(key: string, cleanup: CleanupEffect): Effect.Effect<void>;
   removeCleanup(key: string): Effect.Effect<void>;
-  interrupt(reason?: string): Effect.Effect<void>;
+  requestInterrupt(reason?: string): Effect.Effect<void>;
+  close(reason?: string): Effect.Effect<void>;
 }
 
 export const makeScriptAsyncScope = (runFork: RunFork): ScriptAsyncScope => {
@@ -129,7 +130,7 @@ export const makeScriptAsyncScope = (runFork: RunFork): ScriptAsyncScope => {
       }
     });
 
-  const interrupt: ScriptAsyncScope["interrupt"] = (reason) =>
+  const requestInterrupt: ScriptAsyncScope["requestInterrupt"] = (reason) =>
     Effect.gen(function* () {
       if (!cancelled) {
         cancelled = true;
@@ -139,10 +140,14 @@ export const makeScriptAsyncScope = (runFork: RunFork): ScriptAsyncScope => {
 
       const activeFibers = [...fibers];
       fibers.clear();
-      for (const fiber of activeFibers) {
-        fiber.interruptUnsafe();
-      }
+      yield* Effect.forEach(activeFibers, (fiber) => Fiber.interrupt(fiber), {
+        discard: true,
+      });
+    });
 
+  const close: ScriptAsyncScope["close"] = (reason) =>
+    Effect.gen(function* () {
+      yield* requestInterrupt(reason);
       yield* drainCleanups();
     });
 
@@ -152,6 +157,7 @@ export const makeScriptAsyncScope = (runFork: RunFork): ScriptAsyncScope => {
     runPromise,
     setCleanup,
     removeCleanup,
-    interrupt,
+    requestInterrupt,
+    close,
   };
 };

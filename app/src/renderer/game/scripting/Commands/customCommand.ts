@@ -16,9 +16,12 @@ import {
 } from "../Types";
 import { ScriptEffect } from "../scriptEffect";
 import { makeScriptCancellationError } from "../scriptAsyncScope";
+import {
+  createScriptRuntimeApiProxy,
+  type AnyEffect,
+} from "../scriptRuntimeApi";
 
 export const CUSTOM_COMMAND_NAME_PATTERN = /^[a-z][a-z0-9_]*$/;
-type AnyEffect = Effect.Effect<unknown, unknown, any>;
 
 export const isValidCustomCommandName = (name: string): boolean =>
   CUSTOM_COMMAND_NAME_PATTERN.test(name);
@@ -133,7 +136,9 @@ const createRuntimeApiProxy = (
           }
 
           const result = value.apply(target, args);
-          return Effect.isEffect(result) ? runEffect(result) : result;
+          return Effect.isEffect(result)
+            ? runEffect(result as unknown as AnyEffect)
+            : result;
         };
       }
 
@@ -142,7 +147,7 @@ const createRuntimeApiProxy = (
           return Promise.reject(makeScriptCancellationError());
         }
 
-        return runEffect(value);
+        return runEffect(value as unknown as AnyEffect);
       }
 
       if (typeof value === "object" && value !== null) {
@@ -152,66 +157,6 @@ const createRuntimeApiProxy = (
         }
 
         const proxy = createRuntimeApiProxy(value, runEffect, isCancelled);
-        nestedProxies.set(property, proxy);
-        return proxy;
-      }
-
-      return value;
-    },
-  });
-};
-
-const createEffectRuntimeApiProxy = (
-  source: unknown,
-  wrapEffect: (effect: AnyEffect) => AnyEffect,
-  isCancelled: () => boolean,
-): unknown => {
-  if (typeof source !== "object" || source === null) {
-    return source;
-  }
-
-  const nestedProxies = new Map<PropertyKey, unknown>();
-
-  return new Proxy(source as Record<PropertyKey, unknown>, {
-    get(target, property, receiver) {
-      if (property === "then") {
-        return undefined;
-      }
-
-      const value = Reflect.get(target, property, receiver);
-      if (typeof value === "function") {
-        return (...args: readonly unknown[]) =>
-          Effect.suspend(() => {
-            if (isCancelled()) {
-              return Effect.fail(makeScriptCancellationError());
-            }
-
-            const result = value.apply(target, args);
-            return Effect.isEffect(result)
-              ? wrapEffect(result)
-              : Effect.succeed(result);
-          });
-      }
-
-      if (Effect.isEffect(value)) {
-        return Effect.suspend(() =>
-          isCancelled()
-            ? Effect.fail(makeScriptCancellationError())
-            : wrapEffect(value),
-        );
-      }
-
-      if (typeof value === "object" && value !== null) {
-        const cached = nestedProxies.get(property);
-        if (cached !== undefined) {
-          return cached;
-        }
-
-        const proxy = createEffectRuntimeApiProxy(
-          value,
-          wrapEffect,
-          isCancelled,
-        );
         nestedProxies.set(property, proxy);
         return proxy;
       }
@@ -284,7 +229,7 @@ export const createCustomScriptEffectRuntimeApi = (
     world: context.world,
   };
 
-  return createEffectRuntimeApiProxy(
+  return createScriptRuntimeApiProxy(
     source,
     (effect) =>
       context.run(effect as Effect.Effect<unknown, unknown>) as AnyEffect,
