@@ -57,7 +57,7 @@ type ItemScriptCommandArguments = {
   equip_item: [item: string];
   equip_item_by_enhancement: [options: EquipItemByEnhancementOptions];
   load_shop: [shopId: number];
-  enhance_item: [options: EnhanceItemOptions];
+  enhance_item: [item: string, options: EnhanceItemOptions];
 };
 
 type ItemScriptDsl = ScriptCommandDsl<ItemScriptCommandArguments>;
@@ -226,11 +226,6 @@ const readScriptEnhanceItemOptions = (value: unknown): EnhanceItemOptions => {
     throw new Error(`cmd.${command}: options must be an object`);
   }
 
-  const item = requireScriptArgumentString(
-    command,
-    "options.item",
-    options["item"],
-  ).trim();
   const enhancement = requireScriptArgumentString(
     command,
     "options.enhancement",
@@ -243,7 +238,6 @@ const readScriptEnhanceItemOptions = (value: unknown): EnhanceItemOptions => {
   )?.trim();
 
   return {
-    item,
     enhancement,
     ...(special ? { special } : null),
   };
@@ -257,7 +251,7 @@ const readInstructionEnhanceItemOptions = (
     const command = "enhance_item";
     const options = yield* readOptionalInstructionObject<
       Record<string, unknown>
-    >(context, command, args, 0, "options");
+    >(context, command, args, 1, "options");
 
     if (options === undefined) {
       return yield* invalidItemArgument(
@@ -267,13 +261,6 @@ const readInstructionEnhanceItemOptions = (
       );
     }
 
-    const item = (yield* requireInstructionString(
-      context,
-      command,
-      [options["item"]],
-      0,
-      "options.item",
-    )).trim();
     const enhancement = (yield* requireInstructionString(
       context,
       command,
@@ -290,7 +277,6 @@ const readInstructionEnhanceItemOptions = (
     ))?.trim();
 
     return {
-      item,
       enhancement,
       ...(special ? { special } : null),
     } satisfies EnhanceItemOptions;
@@ -564,9 +550,16 @@ const loadShopCommand = createCommandHandler((context, args) =>
 
 const enhanceItemCommand = createCommandHandler((context, args) =>
   Effect.gen(function* () {
+    const item = yield* requireInstructionString(
+      context,
+      "enhance_item",
+      args,
+      0,
+      "item",
+    );
     const options = yield* readInstructionEnhanceItemOptions(context, args);
 
-    yield* enhanceItem(context, options);
+    yield* enhanceItem(context, item.trim(), options);
   }),
 );
 
@@ -769,20 +762,21 @@ export const createItemScriptDsl = (
     /**
      * Enhances an inventory item using a matching enhancement shop entry.
      *
+     * @param item - Inventory item name.
      * @param options - Enhancement request.
-     * @param options.item - Inventory item name.
      * @param options.enhancement - Enhancement name such as `Lucky` or `Forge`.
      * @param options.special - Optional Awe or Forge special name, such as `Valiance`; popular shorthands like `val` are also supported. See the {@source packages/game/src/util/enhancements.ts:318 enhancements.ts:318 alias source}.
      * @example
-     * cmd.enhance_item({ item: "Sword", enhancement: "Wizard" })
+     * cmd.enhance_item("Sword", { enhancement: "Wizard" })
      * @example
-     * cmd.enhance_item({ item: "Sword", enhancement: "Wizard", special: "Awe Blast" })
+     * cmd.enhance_item("Sword", { enhancement: "Wizard", special: "Awe Blast" })
      * @example
-     * cmd.enhance_item({ item: "Necrotic Sword", enhancement: "Forge", special: "Valiance" })
+     * cmd.enhance_item("Necrotic Sword", { enhancement: "Forge", special: "Valiance" })
      */
-    enhance_item(options: EnhanceItemOptions) {
+    enhance_item(item: string, options: EnhanceItemOptions) {
       recordItemInstruction(
         "enhance_item",
+        requireScriptArgumentString("enhance_item", "item", item).trim(),
         readScriptEnhanceItemOptions(options),
       );
     },

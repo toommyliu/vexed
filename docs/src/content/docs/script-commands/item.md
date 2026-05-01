@@ -49,7 +49,7 @@ tableOfContents:
 
 Buys an item from a shop.
 
-**Source:** `app/src/renderer/game/scripting/Commands/item.ts:609`
+**Source:** `app/src/renderer/game/scripting/Commands/item.ts:602`
 
 ```ts
 cmd.buy_item(shopId: number, item: ScriptItemIdentifier, quantity: number, auto: boolean = false): void
@@ -74,7 +74,7 @@ cmd.buy_item(147, "Health Potion", 5)
 
 Deposits one or more items into the bank.
 
-**Source:** `app/src/renderer/game/scripting/Commands/item.ts:633`
+**Source:** `app/src/renderer/game/scripting/Commands/item.ts:626`
 
 ```ts
 cmd.deposit(item: ScriptItemIdentifierList): void
@@ -96,35 +96,35 @@ cmd.deposit(["Voucher", "Merge Token"])
 
 <a id="command-enhance_item"></a>
 
-### `cmd.enhance_item(options)`
+### `cmd.enhance_item(item, options)`
 
 Enhances an inventory item using a matching enhancement shop entry.
 
-**Source:** `app/src/renderer/game/scripting/Commands/item.ts:783`
+**Source:** `app/src/renderer/game/scripting/Commands/item.ts:776`
 
 ```ts
-cmd.enhance_item(options: EnhanceItemOptions): void
+cmd.enhance_item(item: string, options: EnhanceItemOptions): void
 ```
 
 | Name | Type | Required | Default | Description |
 | --- | --- | --- | --- | --- |
+| `item` | `string` | yes |  | Inventory item name. |
 | `options` | [`EnhanceItemOptions`](../item/#type-enhanceitemoptions) | yes |  | Enhancement request. |
-| `options.item` | `string` | yes |  | Inventory item name. |
 | `options.enhancement` | `string` | yes |  | Enhancement name such as `Lucky` or `Forge`. |
 | `options.special` | `string` | no |  | Optional Awe or Forge special name, such as `Valiance`; popular shorthands like `val` are also supported. See the [enhancements.ts:318 alias source](https://github.com/toommyliu/vexed/blob/main/packages/game/src/util/enhancements.ts#L318). |
 
 **Examples**
 
 ```js
-cmd.enhance_item({ item: "Sword", enhancement: "Wizard" })
+cmd.enhance_item("Sword", { enhancement: "Wizard" })
 ```
 
 ```js
-cmd.enhance_item({ item: "Sword", enhancement: "Wizard", special: "Awe Blast" })
+cmd.enhance_item("Sword", { enhancement: "Wizard", special: "Awe Blast" })
 ```
 
 ```js
-cmd.enhance_item({ item: "Necrotic Sword", enhancement: "Forge", special: "Valiance" })
+cmd.enhance_item("Necrotic Sword", { enhancement: "Forge", special: "Valiance" })
 ```
 
 <a id="command-equip_item"></a>
@@ -133,7 +133,7 @@ cmd.enhance_item({ item: "Necrotic Sword", enhancement: "Forge", special: "Valia
 
 Equips an inventory item by name.
 
-**Source:** `app/src/renderer/game/scripting/Commands/item.ts:725`
+**Source:** `app/src/renderer/game/scripting/Commands/item.ts:718`
 
 ```ts
 cmd.equip_item(item: string): void
@@ -149,7 +149,7 @@ cmd.equip_item(item: string): void
 
 Equips the first inventory item matching an enhancement rule.
 
-**Source:** `app/src/renderer/game/scripting/Commands/item.ts:750`
+**Source:** `app/src/renderer/game/scripting/Commands/item.ts:743`
 
 ```ts
 cmd.equip_item_by_enhancement(options: EquipItemByEnhancementOptions): void
@@ -190,7 +190,7 @@ cmd.equip_item_by_enhancement({ enhancement: "Lucky", special: "Awe Blast" })
 
 Picks up a map item by id.
 
-**Source:** `app/src/renderer/game/scripting/Commands/item.ts:645`
+**Source:** `app/src/renderer/game/scripting/Commands/item.ts:638`
 
 ```ts
 cmd.get_map_item(itemId: number): void
@@ -206,7 +206,7 @@ cmd.get_map_item(itemId: number): void
 
 Loads a shop.
 
-**Source:** `app/src/renderer/game/scripting/Commands/item.ts:762`
+**Source:** `app/src/renderer/game/scripting/Commands/item.ts:755`
 
 ```ts
 cmd.load_shop(shopId: number): void
@@ -222,7 +222,7 @@ cmd.load_shop(shopId: number): void
 
 Accepts a dropped item.
 
-**Source:** `app/src/renderer/game/scripting/Commands/item.ts:657`
+**Source:** `app/src/renderer/game/scripting/Commands/item.ts:650`
 
 ```ts
 cmd.pickup(item: ScriptItemIdentifier): void
@@ -238,7 +238,7 @@ cmd.pickup(item: ScriptItemIdentifier): void
 
 Rejects a dropped item.
 
-**Source:** `app/src/renderer/game/scripting/Commands/item.ts:669`
+**Source:** `app/src/renderer/game/scripting/Commands/item.ts:662`
 
 ```ts
 cmd.reject(item: ScriptItemIdentifier): void
@@ -254,7 +254,7 @@ cmd.reject(item: ScriptItemIdentifier): void
 
 Sells an inventory item by name.
 
-**Source:** `app/src/renderer/game/scripting/Commands/item.ts:681`
+**Source:** `app/src/renderer/game/scripting/Commands/item.ts:674`
 
 ```ts
 cmd.sell_item(item: string): void
@@ -270,7 +270,7 @@ cmd.sell_item(item: string): void
 
 Swaps a bank item with an inventory item.
 
-**Source:** `app/src/renderer/game/scripting/Commands/item.ts:696`
+**Source:** `app/src/renderer/game/scripting/Commands/item.ts:689`
 
 ```ts
 cmd.swap(bankItem: ScriptItemIdentifier, invItem: ScriptItemIdentifier): void
@@ -293,7 +293,7 @@ cmd.swap("Farming Class", "Combat Class")
 
 Withdraws one or more items from the bank.
 
-**Source:** `app/src/renderer/game/scripting/Commands/item.ts:713`
+**Source:** `app/src/renderer/game/scripting/Commands/item.ts:706`
 
 ```ts
 cmd.withdraw(item: ScriptItemIdentifierList): void
@@ -323,7 +323,6 @@ cmd.withdraw(["Voucher", "Merge Token"])
 
 ```ts
 type EnhanceItemOptions = {
-  readonly item: string;
   readonly enhancement: string;
   readonly special?: string;
 }
@@ -331,7 +330,6 @@ type EnhanceItemOptions = {
 
 | Name | Type | Required | Readonly | Description |
 | --- | --- | --- | --- | --- |
-| `item` | `string` | yes | yes |  |
 | `enhancement` | `string` | yes | yes |  |
 | `special` | `string` | no | yes |  |
 

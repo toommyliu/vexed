@@ -325,7 +325,6 @@ type EnhancementShopEntry = {
 };
 
 export type EnhanceItemOptions = {
-  readonly item: string;
   readonly enhancement: string;
   readonly special?: string;
 };
@@ -458,10 +457,11 @@ export const equipItemByEnhancement = (
 
 export const enhanceItem = (
   context: ScriptExecutionContext,
+  item: string,
   options: EnhanceItemOptions,
 ) =>
   Effect.gen(function* () {
-    const { item, enhancement, special } = options;
+    const { enhancement, special } = options;
     const playerLevel = yield* context.run(context.player.getLevel());
     const itemRecord = yield* context.run(context.inventory.getItem(item));
     if (!itemRecord) {
