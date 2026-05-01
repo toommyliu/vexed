@@ -5,12 +5,17 @@ package vexed.game {
   [BridgeNamespace("shops")]
   public class Shops {
     private static var game:Object = Main.getInstance().getGame();
+    private static const SHOP_POPUP_LABELS:Object = {
+      "Shop": true,
+      "MergeShop": true,
+      "HouseShop": true
+    };
 
     private static function getShopInfo():Object {
       return game.world.shopinfo;
     }
 
-    private static function getShopItemsSafe():Array {
+    private static function getShopItems():Array {
       var info:Object = getShopInfo();
       if (!info || !(info.items is Array)) {
         return [];
@@ -65,7 +70,7 @@ package vexed.game {
         return null;
       }
 
-      var items:Array = getShopItemsSafe();
+      var items:Array = getShopItems();
       if (items.length === 0) {
         return null;
       }
@@ -95,6 +100,35 @@ package vexed.game {
       }
 
       return game.world.maximumShopBuys(item);
+    }
+
+    private static function isShopPopupOpen():Boolean {
+      var popup:* = game.ui.mcPopup;
+
+      return popup != null &&
+        popup.visible &&
+        SHOP_POPUP_LABELS[popup.currentLabel] === true;
+    }
+
+    [BridgeExport]
+    public static function isOpen(shopId:int = 0):Boolean {
+      var info:Object = getShopInfo();
+
+      if (!isShopPopupOpen() || info == null || !("ShopID" in info)) {
+        return false;
+      }
+
+      return shopId <= 0 || int(info.ShopID) == shopId;
+    }
+
+    [BridgeExport]
+    public static function close(shopId:int = 0):Boolean {
+      if (!isOpen(shopId)) {
+        return false;
+      }
+
+      game.ui.mcPopup.onClose();
+      return true;
     }
 
     private static function canBuyQuantity(item:Object, quantity:int):Boolean {
@@ -130,7 +164,7 @@ package vexed.game {
         return false;
       }
 
-      if (!(id is String) && !(id is int) && !(id is uint) && !(id is Number)) {
+      if (!(id is String) && !(id is int) && !(id is Number)) {
         return false;
       }
 
@@ -164,7 +198,7 @@ package vexed.game {
         return false;
       }
 
-      if (!(id is String) && !(id is int) && !(id is uint) && !(id is Number)) {
+      if (!(id is String) && !(id is int) && !(id is Number)) {
         return false;
       }
 
