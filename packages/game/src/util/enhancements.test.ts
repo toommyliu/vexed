@@ -1,6 +1,8 @@
 import { describe, expect, test } from "vitest";
 import {
   HelmSpecial,
+  WeaponSpecial,
+  matchesEnhancementShopCandidate,
   matchesEquipEnhancementFilter,
   rankEnhancementCandidates,
   resolveEquipEnhancementFilter,
@@ -259,5 +261,26 @@ describe("rankEnhancementCandidates", () => {
         best,
       ]).map((item) => item.name),
     ).toEqual(["best", "first tie", "second tie", "low enhancement"]);
+  });
+});
+
+describe("matchesEnhancementShopCandidate", () => {
+  test("matches Forge weapon proc shop items that use basic enhancement patterns", () => {
+    expect(
+      matchesEnhancementShopCandidate(
+        {
+          data: {
+            ItemProcID: WeaponSpecial.Dauntless,
+            PatternID: 2,
+          },
+          itemGroup: "weapon",
+        },
+        {
+          patternId: 10,
+          procId: WeaponSpecial.Dauntless,
+          slot: "weapon",
+        },
+      ),
+    ).toBe(true);
   });
 });

@@ -1111,7 +1111,11 @@ export function resolveEquipEnhancementFilter(
         : intent;
     }
 
-    const intent = resolveIntentForSlot(slot, enhancementName, selector.special);
+    const intent = resolveIntentForSlot(
+      slot,
+      enhancementName,
+      selector.special,
+    );
     return intent.ok
       ? { filter: equipFilterFromIntent(intent.intent), ok: true }
       : intent;
@@ -1310,6 +1314,13 @@ export function matchesEnhancementShopCandidate(
   const itemProcId = toNumber(data.ItemProcID) ?? toNumber(data.ProcID) ?? 0;
 
   if (strategy.procId > 0) {
+    if (isForgeWeaponProcId(strategy.procId)) {
+      return (
+        itemProcId === strategy.procId &&
+        (itemPatternId <= 0 || isForgeWeaponPatternId(itemPatternId))
+      );
+    }
+
     return (
       itemProcId === strategy.procId &&
       (itemPatternId <= 0 || itemPatternId === strategy.patternId)

@@ -324,6 +324,12 @@ type EnhancementShopEntry = {
   readonly level: number;
 };
 
+export type EnhanceItemOptions = {
+  readonly item: string;
+  readonly enhancement: string;
+  readonly special?: string;
+};
+
 const toEnhancementShopEntry = (
   value: unknown,
 ): EnhancementShopEntry | null => {
@@ -452,36 +458,35 @@ export const equipItemByEnhancement = (
 
 export const enhanceItem = (
   context: ScriptExecutionContext,
-  itemName: string,
-  enhancementName: string,
-  procName?: string,
+  options: EnhanceItemOptions,
 ) =>
   Effect.gen(function* () {
+    const { item, enhancement, special } = options;
     const playerLevel = yield* context.run(context.player.getLevel());
-    const item = yield* context.run(context.inventory.getItem(itemName));
-    if (!item) {
+    const itemRecord = yield* context.run(context.inventory.getItem(item));
+    if (!itemRecord) {
       yield* logEnhancementWarning("Item not found in inventory", {
         command: "enhance_item",
-        enhancementName,
-        itemName,
-        procName,
+        enhancement,
+        item,
+        special,
       });
       return;
     }
 
     const strategyResolution = resolveEnhancementStrategy(
-      item,
-      enhancementName,
+      itemRecord,
+      enhancement,
       playerLevel,
-      procName,
+      special,
     );
 
     if (!strategyResolution.ok) {
       yield* logEnhancementWarning(strategyResolution.reason, {
         command: "enhance_item",
-        enhancementName,
-        itemName,
-        procName,
+        enhancement,
+        item,
+        special,
       });
       return;
     }
@@ -503,10 +508,10 @@ export const enhanceItem = (
         "No purchasable enhancement shop item matched requested strategy",
         {
           command: "enhance_item",
-          enhancementName,
-          itemName,
+          enhancement,
+          item,
           memberEligibleCount: enhancementSelection.memberEligibleCount,
-          procName,
+          special,
           shopItemCount: enhancementSelection.shopItemCount,
           shopId: strategy.shopId,
           slotAndPatternCount: enhancementSelection.slotAndPatternCount,
@@ -519,7 +524,7 @@ export const enhanceItem = (
       context.bridge.callGameFunction("world.confirmSendEnhItemRequestShop", {
         accept: true,
         enh: enhancementSelection.candidateData,
-        item: [item.id],
+        item: [itemRecord.id],
       }),
     );
 
@@ -527,7 +532,7 @@ export const enhanceItem = (
       .run(
         waitFor(
           context.inventory
-            .getItem(item.id)
+            .getItem(itemRecord.id)
             .pipe(
               Effect.map(
                 (updatedItem) =>
@@ -542,9 +547,9 @@ export const enhanceItem = (
         Effect.catch(() =>
           logEnhancementWarning("Enhancement request did not apply in time", {
             command: "enhance_item",
-            enhancementName,
-            itemName,
-            procName,
+            enhancement,
+            item,
+            special,
             shopId: strategy.shopId,
             strategy,
           }),
