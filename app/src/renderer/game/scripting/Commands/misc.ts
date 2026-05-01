@@ -288,7 +288,7 @@ const buyScrollOfEnrageCommand = createCommandHandler((context, args) =>
       if (!(yield* context.run(context.quests.canComplete(2330)))) {
         return;
       }
-      yield* context.run(context.quests.complete(2330, 1, 5));
+      yield* context.run(context.quests.complete(2330, 5));
     }
   }),
 );
