@@ -13,9 +13,15 @@ type NamedId<TId extends number = number> = {
 
 export type VariantMap = Readonly<Record<string, readonly string[]>>;
 
-export type EnhancementSlot = "weapon" | "cape" | "helm" | "armor";
+export type EnhancementSlot = "weapon" | "cape" | "helm" | "class";
 
-export type EquipItemTypeFilter = "weapon" | "cape" | "helm" | "armor";
+export type EquipItemTypeFilter = "weapon" | "cape" | "helm" | "class";
+export type EquipEnhancementSelectorSlot = EquipItemTypeFilter | "armor";
+export type EquipEnhancementSelector = {
+  readonly enhancement: string;
+  readonly slot?: EquipEnhancementSelectorSlot;
+  readonly special?: string;
+};
 
 export interface EnhancementItemLike {
   readonly category: string;
@@ -228,6 +234,13 @@ export type EquipEnhancementFilter =
       readonly slot: "weapon";
     }
   | {
+      readonly enhancementType: EnhancementType;
+      readonly kind: "basic-forge-weapon";
+      readonly proc: ForgeWeaponSpecial;
+      readonly procId: ForgeWeaponSpecial;
+      readonly slot: "weapon";
+    }
+  | {
       readonly kind: "forge-cape";
       readonly patternId: CapeSpecial;
       readonly procId: 0;
@@ -242,8 +255,8 @@ export type EquipEnhancementFilter =
   | {
       readonly kind: "forge-weapon";
       readonly patternId: typeof FORGE_ENHANCEMENT_PATTERN;
-      readonly proc: ForgeWeaponSpecial;
-      readonly procId: ForgeWeaponSpecial;
+      readonly proc?: ForgeWeaponSpecial;
+      readonly procId: ForgeWeaponSpecial | 0;
       readonly slot: "weapon";
     };
 
@@ -521,19 +534,38 @@ export function isHelmProcName(name: string): boolean {
   return resolveHelmSpecial(name) !== null;
 }
 
-export function isForgeWeaponProc(proc: WeaponSpecial): proc is ForgeWeaponSpecial {
-  return proc >= WeaponSpecial.Lacerate;
+export function isForgeWeaponProc(
+  proc: WeaponSpecial,
+): proc is ForgeWeaponSpecial {
+  return proc >= WeaponSpecial.Lacerate && proc <= WeaponSpecial.Ravenous;
 }
 
+const isForgeWeaponProcId = (procId: number): procId is ForgeWeaponSpecial =>
+  procId >= WeaponSpecial.Lacerate && procId <= WeaponSpecial.Ravenous;
+
+const isBasicEnhancementPatternId = (
+  patternId: number,
+): patternId is EnhancementType =>
+  BASIC_ENHANCEMENT_TYPES.some((entry) => entry.id === patternId);
+
+const isForgeWeaponPatternId = (patternId: number): boolean =>
+  /* Forge weapon enhancements may use basic enhancement patterns — e.g. Dauntless, Elysium. */
+  patternId === FORGE_ENHANCEMENT_PATTERN ||
+  isBasicEnhancementPatternId(patternId);
+
 export function isAweProc(proc: WeaponSpecial): proc is AweWeaponSpecial {
-  return proc >= WeaponSpecial.SpiralCarve && proc <= WeaponSpecial.PowerwordDIE;
+  return (
+    proc >= WeaponSpecial.SpiralCarve && proc <= WeaponSpecial.PowerwordDIE
+  );
 }
 
 export function getItemProcId(item: Pick<EnhancementItemLike, "data">): number {
   return toNumber(item.data.ProcID) ?? 0;
 }
 
-export function resolveEnhancementSlot(item: EnhancementItemLike): EnhancementSlot | null {
+export function resolveEnhancementSlot(
+  item: EnhancementItemLike,
+): EnhancementSlot | null {
   if (item.isWeapon()) {
     return "weapon";
   }
@@ -546,8 +578,8 @@ export function resolveEnhancementSlot(item: EnhancementItemLike): EnhancementSl
     return "helm";
   }
 
-  if (item.isArmor() || item.isClass()) {
-    return "armor";
+  if (item.isClass()) {
+    return "class";
   }
 
   return null;
@@ -567,11 +599,94 @@ const resolveItemTypeFilter = (value: string): EquipItemTypeFilter | null => {
     return "helm";
   }
 
-  if (normalized === "armor" || normalized === "class") {
-    return "armor";
+  if (normalized === "class") {
+    return "class";
   }
 
   return null;
+};
+
+const resolveEquipSelectorSlot = (
+  slot: EquipEnhancementSelectorSlot | undefined,
+):
+  | {
+      readonly ok: true;
+      readonly slot?: EquipItemTypeFilter;
+    }
+  | {
+      readonly ok: false;
+      readonly reason: string;
+    } => {
+  if (slot === undefined) {
+    return { ok: true };
+  }
+
+  const normalized = normalizeName(slot);
+  if (normalized === "armor") {
+    return {
+      ok: false,
+      reason: "Armor items cannot be enhanced; use slot class for class items",
+    };
+  }
+
+  const resolved = resolveItemTypeFilter(normalized);
+  if (resolved === null) {
+    return {
+      ok: false,
+      reason: `Unknown item type filter: ${slot}`,
+    };
+  }
+
+  return { ok: true, slot: resolved };
+};
+
+const equipFilterFromIntent = (
+  intent: EnhancementIntent,
+): EquipEnhancementFilter => {
+  if (intent.kind === "basic") {
+    return {
+      enhancementType: intent.enhancementType,
+      kind: "basic",
+      procId: 0,
+      slot: intent.slot,
+    };
+  }
+
+  if (intent.kind === "awe-weapon") {
+    return {
+      enhancementType: intent.enhancementType,
+      kind: "basic-awe",
+      proc: intent.proc,
+      procId: intent.procId,
+      slot: "weapon",
+    };
+  }
+
+  if (intent.kind === "forge-weapon") {
+    return {
+      kind: "forge-weapon",
+      patternId: intent.patternId,
+      proc: intent.proc,
+      procId: intent.procId,
+      slot: "weapon",
+    };
+  }
+
+  if (intent.kind === "forge-cape") {
+    return {
+      kind: "forge-cape",
+      patternId: intent.patternId,
+      procId: 0,
+      slot: "cape",
+    };
+  }
+
+  return {
+    kind: "forge-helm",
+    patternId: intent.patternId,
+    procId: 0,
+    slot: "helm",
+  };
 };
 
 const resolveIntentForSlot = (
@@ -590,7 +705,9 @@ const resolveIntentForSlot = (
   const normalizedEnhancement = normalizeName(enhancementName);
   const normalizedProc = normalizeName(procName ?? "");
   const basicType = resolveEnhancementType(normalizedEnhancement);
-  const weaponProc = normalizedProc ? resolveWeaponSpecial(normalizedProc) : null;
+  const weaponProc = normalizedProc
+    ? resolveWeaponSpecial(normalizedProc)
+    : null;
   const capeProc = normalizedProc ? resolveCapeSpecial(normalizedProc) : null;
   const helmProc = normalizedProc ? resolveHelmSpecial(normalizedProc) : null;
   const isForge = normalizedEnhancement === "forge";
@@ -638,6 +755,13 @@ const resolveIntentForSlot = (
     }
 
     if (isForge) {
+      if (normalizedProc) {
+        return {
+          ok: false,
+          reason: `Unknown forge weapon proc: ${procName ?? ""}`,
+        };
+      }
+
       return {
         intent: {
           kind: "forge-weapon",
@@ -796,14 +920,14 @@ const resolveIntentForSlot = (
   if (isForge) {
     return {
       ok: false,
-      reason: "Forge enhancement does not apply to armor/class items",
+      reason: "Forge enhancement does not apply to class items",
     };
   }
 
   if (normalizedProc) {
     return {
       ok: false,
-      reason: `Armor/class enhancements do not support proc ${procName ?? ""}`,
+      reason: `Class enhancements do not support proc ${procName ?? ""}`,
     };
   }
 
@@ -820,7 +944,7 @@ const resolveIntentForSlot = (
       kind: "basic",
       patternId: basicType,
       procId: 0,
-      slot: "armor",
+      slot: "class",
     },
     ok: true,
   };
@@ -852,7 +976,10 @@ export function resolveEnhancementStrategy(
         intent: intent.intent,
         patternId: intent.intent.patternId,
         procId: 0,
-        shopId: getBasicEnhancementShopId(intent.intent.enhancementType, playerLevel),
+        shopId: getBasicEnhancementShopId(
+          intent.intent.enhancementType,
+          playerLevel,
+        ),
         slot,
       },
     };
@@ -922,64 +1049,72 @@ export function resolveEnhancementStrategy(
 }
 
 export function resolveEquipEnhancementFilter(
-  enhancementName: string,
-  procOrItemType?: string,
+  selector: EquipEnhancementSelector,
 ): EquipFilterResolution {
+  const enhancementName = selector.enhancement;
   const normalizedEnhancement = normalizeName(enhancementName);
-  const normalizedSecond = normalizeName(procOrItemType ?? "");
+  const normalizedSpecial = normalizeName(selector.special ?? "");
+  const slotResolution = resolveEquipSelectorSlot(selector.slot);
+  if (!slotResolution.ok) {
+    return slotResolution;
+  }
+
+  const slot = slotResolution.slot;
 
   if (normalizedEnhancement === "forge") {
-    if (!normalizedSecond) {
+    if (slot === "class") {
       return {
         ok: false,
-        reason: "Forge equip filter requires a proc name (weapon/cape/helm)",
+        reason: "Forge enhancement does not apply to class items",
       };
     }
 
-    const weaponProc = resolveWeaponSpecial(normalizedSecond);
-    if (weaponProc !== null && isForgeWeaponProc(weaponProc)) {
-      return {
-        filter: {
-          kind: "forge-weapon",
-          patternId: FORGE_ENHANCEMENT_PATTERN,
-          proc: weaponProc,
-          procId: weaponProc,
-          slot: "weapon",
-        },
-        ok: true,
-      };
+    if (!slot) {
+      if (!normalizedSpecial) {
+        return {
+          ok: false,
+          reason: "Forge equip filter requires a slot or unambiguous special",
+        };
+      }
+
+      const possibleSlots: EnhancementSlot[] = [];
+      const weaponProc = resolveWeaponSpecial(normalizedSpecial);
+      if (weaponProc !== null && isForgeWeaponProc(weaponProc)) {
+        possibleSlots.push("weapon");
+      }
+
+      if (resolveCapeSpecial(normalizedSpecial) !== null) {
+        possibleSlots.push("cape");
+      }
+
+      if (resolveHelmSpecial(normalizedSpecial) !== null) {
+        possibleSlots.push("helm");
+      }
+
+      if (possibleSlots.length !== 1) {
+        return {
+          ok: false,
+          reason:
+            possibleSlots.length === 0
+              ? `Unknown Forge special filter: ${selector.special ?? ""}`
+              : `Ambiguous Forge special filter ${selector.special ?? ""}; provide slot`,
+        };
+      }
+
+      const intent = resolveIntentForSlot(
+        possibleSlots[0]!,
+        enhancementName,
+        selector.special,
+      );
+      return intent.ok
+        ? { filter: equipFilterFromIntent(intent.intent), ok: true }
+        : intent;
     }
 
-    const capeProc = resolveCapeSpecial(normalizedSecond);
-    if (capeProc !== null) {
-      return {
-        filter: {
-          kind: "forge-cape",
-          patternId: capeProc,
-          procId: 0,
-          slot: "cape",
-        },
-        ok: true,
-      };
-    }
-
-    const helmProc = resolveHelmSpecial(normalizedSecond);
-    if (helmProc !== null) {
-      return {
-        filter: {
-          kind: "forge-helm",
-          patternId: helmProc,
-          procId: 0,
-          slot: "helm",
-        },
-        ok: true,
-      };
-    }
-
-    return {
-      ok: false,
-      reason: `Unknown Forge proc filter: ${procOrItemType ?? ""}`,
-    };
+    const intent = resolveIntentForSlot(slot, enhancementName, selector.special);
+    return intent.ok
+      ? { filter: equipFilterFromIntent(intent.intent), ok: true }
+      : intent;
   }
 
   const basicType = resolveEnhancementType(normalizedEnhancement);
@@ -990,36 +1125,32 @@ export function resolveEquipEnhancementFilter(
     };
   }
 
-  if (!normalizedSecond) {
-    return {
-      filter: {
-        enhancementType: basicType,
-        kind: "basic",
-        procId: 0,
-      },
-      ok: true,
-    };
-  }
-
-  const typeFilter = resolveItemTypeFilter(normalizedSecond);
-  if (typeFilter !== null) {
-    return {
-      filter: {
-        enhancementType: basicType,
-        kind: "basic",
-        procId: 0,
-        slot: typeFilter,
-      },
-      ok: true,
-    };
-  }
-
-  const weaponProc = resolveWeaponSpecial(normalizedSecond);
-  if (weaponProc !== null) {
-    if (!isAweProc(weaponProc)) {
+  if (normalizedSpecial) {
+    if (slot !== undefined && slot !== "weapon") {
       return {
         ok: false,
-        reason: `Proc ${getWeaponProcName(weaponProc)} requires Forge enhancement for equip filtering`,
+        reason: `Special ${selector.special ?? ""} only applies to weapon enhancements`,
+      };
+    }
+
+    const weaponProc = resolveWeaponSpecial(normalizedSpecial);
+    if (weaponProc === null) {
+      return {
+        ok: false,
+        reason: `Unknown weapon special filter: ${selector.special ?? ""}`,
+      };
+    }
+
+    if (isForgeWeaponProc(weaponProc)) {
+      return {
+        filter: {
+          enhancementType: basicType,
+          kind: "basic-forge-weapon",
+          proc: weaponProc,
+          procId: weaponProc,
+          slot: "weapon",
+        },
+        ok: true,
       };
     }
 
@@ -1036,12 +1167,20 @@ export function resolveEquipEnhancementFilter(
   }
 
   return {
-    ok: false,
-    reason: `Unknown proc or item type filter: ${procOrItemType ?? ""}`,
+    filter: {
+      enhancementType: basicType,
+      kind: "basic",
+      procId: 0,
+      ...(slot ? { slot } : null),
+    },
+    ok: true,
   };
 }
 
-const matchSlot = (slot: EnhancementSlot, filterSlot?: EquipItemTypeFilter): boolean => {
+const matchSlot = (
+  slot: EnhancementSlot,
+  filterSlot?: EquipItemTypeFilter,
+): boolean => {
   if (!filterSlot) {
     return true;
   }
@@ -1055,6 +1194,10 @@ export function matchesEquipEnhancementFilter(
 ): boolean {
   const slot = resolveEnhancementSlot(item);
   if (!slot) {
+    return false;
+  }
+
+  if (normalizeName(item.category) === "enhancement") {
     return false;
   }
 
@@ -1073,10 +1216,26 @@ export function matchesEquipEnhancementFilter(
     );
   }
 
-  if (filter.kind === "forge-weapon") {
+  if (filter.kind === "basic-forge-weapon") {
     return (
       slot === "weapon" &&
-      item.enhancementPatternId === filter.patternId &&
+      item.enhancementPatternId === filter.enhancementType &&
+      getItemProcId(item) === filter.procId
+    );
+  }
+
+  if (filter.kind === "forge-weapon") {
+    if (filter.procId === 0) {
+      return (
+        slot === "weapon" &&
+        item.enhancementPatternId === filter.patternId &&
+        getItemProcId(item) === 0
+      );
+    }
+
+    return (
+      slot === "weapon" &&
+      isForgeWeaponPatternId(item.enhancementPatternId) &&
       getItemProcId(item) === filter.procId
     );
   }
@@ -1096,7 +1255,7 @@ export function compareEnhancementCandidates(
     return right.level - left.level;
   }
 
-  return left.id - right.id;
+  return 0;
 }
 
 export function rankEnhancementCandidates<T extends EnhancementComparableLike>(
@@ -1109,6 +1268,13 @@ export function matchesAppliedEnhancement(
   item: EnhancementItemLike,
   strategy: Pick<EnhancementStrategy, "patternId" | "procId">,
 ): boolean {
+  if (isForgeWeaponProcId(strategy.procId)) {
+    return (
+      isForgeWeaponPatternId(item.enhancementPatternId) &&
+      getItemProcId(item) === strategy.procId
+    );
+  }
+
   if (item.enhancementPatternId !== strategy.patternId) {
     return false;
   }
@@ -1121,7 +1287,7 @@ export function matchesAppliedEnhancement(
 }
 
 const SLOT_GROUP: Record<EnhancementSlot, string> = {
-  armor: "ar",
+  class: "ar",
   cape: "ba",
   helm: "he",
   weapon: "weapon",

@@ -1,12 +1,15 @@
-import { Effect, Layer } from "effect";
+import { Deferred, Effect, Layer, Option } from "effect";
 import { makeItemCache } from "../ItemCache";
+import { asBoolean, asNumber, asRecord } from "../PacketPayload";
 import { Bridge } from "../Services/Bridge";
 import { Inventory } from "../Services/Inventory";
 import type { InventoryShape } from "../Services/Inventory";
+import { Packet } from "../Services/Packet";
 import { World } from "../Services/World";
 
 const make = Effect.gen(function* () {
   const bridge = yield* Bridge;
+  const packet = yield* Packet;
   const world = yield* World;
   const itemCache = yield* makeItemCache;
 
@@ -33,8 +36,57 @@ const make = Effect.gen(function* () {
       }
 
       yield* world.map.waitForGameAction("equipItem");
-      yield* bridge.call("inventory.equip", [toEquip.id]);
-      return true;
+
+      const result = yield* Deferred.make<boolean>();
+      const itemId = toEquip.id;
+      const equipped = yield* bridge.call("inventory.equip", [itemId]);
+      if (!equipped) {
+        return false;
+      }
+
+      if (!("bWear" in toEquip.data)) {
+        return true;
+      }
+
+      const dispose = yield* packet.json("wearItem", (response) =>
+        Effect.gen(function* () {
+          const payload = asRecord(response.data);
+          if (!payload) {
+            return;
+          }
+
+          const responseItemId = asNumber(payload["ItemID"]);
+          if (responseItemId !== itemId) {
+            return;
+          }
+
+          yield* Deferred.succeed(
+            result,
+            asBoolean(payload["success"]) === true,
+          );
+        }),
+      );
+
+      return yield* Effect.gen(function* () {
+        const mapId = yield* world.map.getId();
+        yield* packet.sendServer(
+          `%xt%zm%wearItem%${mapId}%${itemId}%`,
+          "String",
+        );
+
+        const response = yield* Deferred.await(result).pipe(
+          Effect.timeoutOption("3 seconds"),
+          Effect.map((option) =>
+            Option.isSome(option) ? option.value : false,
+          ),
+        );
+
+        if (response) {
+          yield* itemCache.clear;
+        }
+
+        return response;
+      }).pipe(Effect.ensuring(Effect.sync(dispose)));
     });
 
   const getItem: InventoryShape["getItem"] = (item) =>

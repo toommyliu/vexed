@@ -58,7 +58,7 @@ cmd.attack(target: string): void
 
 Casts a short buff rotation.
 
-**Source:** `app/src/renderer/game/scripting/Commands/combat.ts:541`
+**Source:** `app/src/renderer/game/scripting/Commands/combat.ts:553`
 
 ```ts
 cmd.buff(skillList?: ReadonlyArray<number> | null, wait: boolean = false): void
@@ -105,7 +105,7 @@ cmd.exit_combat(): void
 
 Uses a skill even without a target.
 
-**Source:** `app/src/renderer/game/scripting/Commands/combat.ts:510`
+**Source:** `app/src/renderer/game/scripting/Commands/combat.ts:522`
 
 ```ts
 cmd.force_use_skill(skill: number | string, wait: boolean = false): void
@@ -122,7 +122,7 @@ cmd.force_use_skill(skill: number | string, wait: boolean = false): void
 
 Jumps to the cell where a monster target can be found.
 
-**Source:** `app/src/renderer/game/scripting/Commands/combat.ts:525`
+**Source:** `app/src/renderer/game/scripting/Commands/combat.ts:537`
 
 ```ts
 cmd.hunt(target: string, most: boolean = false): void
@@ -139,7 +139,7 @@ cmd.hunt(target: string, most: boolean = false): void
 
 Kills a target.
 
-**Source:** `app/src/renderer/game/scripting/Commands/combat.ts:398`
+**Source:** `app/src/renderer/game/scripting/Commands/combat.ts:402`
 
 ```ts
 cmd.kill(target: string, options?: Partial<CombatKillOptions>): void
@@ -149,6 +149,10 @@ cmd.kill(target: string, options?: Partial<CombatKillOptions>): void
 | --- | --- | --- | --- | --- |
 | `target` | `string` | yes |  | Monster name or monMapId token. |
 | `options` | `Partial`&lt;[`CombatKillOptions`](../combat/#type-combatkilloptions)&gt; | no |  | Optional kill settings. |
+| `options.killPriority` | `string` \| `readonly` `MonsterIdentifierToken`[] | no |  | Target priority list or delimited target priority string. |
+| `options.skillSet` | `string` \| `readonly` `Skill`[] | no |  | Skill slot list or delimited skill slot string. |
+| `options.skillDelay` | `number` | no |  | Delay in milliseconds between skill casts. |
+| `options.skillWait` | `boolean` | no |  | Whether to wait for skill cooldowns before casting. |
 
 **Examples**
 
@@ -166,7 +170,7 @@ cmd.kill("id.3", { killPriority: ["id.1", "id:2"], skillSet: [1, 2], skillDelay:
 
 Kills a target until an inventory item reaches the requested quantity.
 
-**Source:** `app/src/renderer/game/scripting/Commands/combat.ts:418`
+**Source:** `app/src/renderer/game/scripting/Commands/combat.ts:426`
 
 ```ts
 cmd.kill_for_item(target: string, item: string | number, quantity: number, options?: Partial<CombatKillOptions>): void
@@ -178,6 +182,10 @@ cmd.kill_for_item(target: string, item: string | number, quantity: number, optio
 | `item` | `string` \| `number` | yes |  | Inventory item name or id. |
 | `quantity` | `number` | yes |  | Quantity to reach. |
 | `options` | `Partial`&lt;[`CombatKillOptions`](../combat/#type-combatkilloptions)&gt; | no |  | Optional kill settings. |
+| `options.killPriority` | `string` \| `readonly` `MonsterIdentifierToken`[] | no |  | Target priority list or delimited target priority string. |
+| `options.skillSet` | `string` \| `readonly` `Skill`[] | no |  | Skill slot list or delimited skill slot string. |
+| `options.skillDelay` | `number` | no |  | Delay in milliseconds between skill casts. |
+| `options.skillWait` | `boolean` | no |  | Whether to wait for skill cooldowns before casting. |
 
 <a id="command-kill_for_tempitem"></a>
 
@@ -185,7 +193,7 @@ cmd.kill_for_item(target: string, item: string | number, quantity: number, optio
 
 Kills a target until a temporary item reaches the requested quantity.
 
-**Source:** `app/src/renderer/game/scripting/Commands/combat.ts:450`
+**Source:** `app/src/renderer/game/scripting/Commands/combat.ts:462`
 
 ```ts
 cmd.kill_for_tempitem(target: string, item: string | number, quantity: number, options?: Partial<CombatKillOptions>): void
@@ -197,6 +205,10 @@ cmd.kill_for_tempitem(target: string, item: string | number, quantity: number, o
 | `item` | `string` \| `number` | yes |  | Temporary item name or id. |
 | `quantity` | `number` | yes |  | Quantity to reach. |
 | `options` | `Partial`&lt;[`CombatKillOptions`](../combat/#type-combatkilloptions)&gt; | no |  | Optional kill settings. |
+| `options.killPriority` | `string` \| `readonly` `MonsterIdentifierToken`[] | no |  | Target priority list or delimited target priority string. |
+| `options.skillSet` | `string` \| `readonly` `Skill`[] | no |  | Skill slot list or delimited skill slot string. |
+| `options.skillDelay` | `number` | no |  | Delay in milliseconds between skill casts. |
+| `options.skillWait` | `boolean` | no |  | Whether to wait for skill cooldowns before casting. |
 
 <a id="command-rest"></a>
 
@@ -204,7 +216,7 @@ cmd.kill_for_tempitem(target: string, item: string | number, quantity: number, o
 
 Rests the player.
 
-**Source:** `app/src/renderer/game/scripting/Commands/combat.ts:483`
+**Source:** `app/src/renderer/game/scripting/Commands/combat.ts:495`
 
 ```ts
 cmd.rest(full: boolean = false): void
@@ -220,7 +232,7 @@ cmd.rest(full: boolean = false): void
 
 Uses a skill.
 
-**Source:** `app/src/renderer/game/scripting/Commands/combat.ts:496`
+**Source:** `app/src/renderer/game/scripting/Commands/combat.ts:508`
 
 ```ts
 cmd.use_skill(skill: number | string, wait: boolean = false): void

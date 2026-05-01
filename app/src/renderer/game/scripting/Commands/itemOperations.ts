@@ -6,6 +6,7 @@ import {
   rankEnhancementCandidates,
   resolveEnhancementStrategy,
   resolveEquipEnhancementFilter,
+  type EquipEnhancementSelector,
   type EnhancementStrategy,
 } from "@vexed/game";
 import { equalsIgnoreCase } from "@vexed/shared/string";
@@ -406,20 +407,15 @@ const findBestEnhancement = (
 
 export const equipItemByEnhancement = (
   context: ScriptExecutionContext,
-  enhancementName: string,
-  procOrItemType?: string,
+  selector: EquipEnhancementSelector,
 ) =>
   Effect.gen(function* () {
-    const filterResolution = resolveEquipEnhancementFilter(
-      enhancementName,
-      procOrItemType,
-    );
+    const filterResolution = resolveEquipEnhancementFilter(selector);
 
     if (!filterResolution.ok) {
       yield* logEnhancementWarning(filterResolution.reason, {
         command: "equip_item_by_enhancement",
-        enhancementName,
-        procOrItemType,
+        selector,
       });
       return;
     }
@@ -437,12 +433,15 @@ export const equipItemByEnhancement = (
         "No inventory item matched the requested enhancement filter",
         {
           command: "equip_item_by_enhancement",
-          enhancementName,
-          procOrItemType,
+          selector,
         },
       );
       return;
     }
+
+    console.log(
+      `Equipping item ${targetItem.name} (${targetItem.id}) for enhancement ${selector.enhancement}`,
+    );
 
     if (targetItem.isEquipped()) {
       return;

@@ -239,7 +239,7 @@ export const createQuestScriptDsl = (
      * Accepts a quest.
      *
      * @param questId - Quest id.
-     * @param silent - Whether to load the quest without showing the Quest Popup. 
+     * @param silent - Whether to load the quest without showing the Quest Popup.
      */
     accept_quest(questId: number, silent: boolean = false) {
       recordQuestInstruction(
@@ -275,6 +275,8 @@ export const createQuestScriptDsl = (
      *
      * @param questId - Quest id.
      * @param options - Optional reward and turn-in settings.
+     * @param options.itemId - Reward item id to choose.
+     * @param options.turnIns - Number of turn-ins, or `max` to turn in as many times as possible.
      * @example
      * cmd.complete_quest(11)
      * @example

@@ -68,7 +68,7 @@ cmd.accept_quest(questId: number, silent: boolean = false): void
 
 Completes a quest.
 
-**Source:** `app/src/renderer/game/scripting/Commands/quest.ts:285`
+**Source:** `app/src/renderer/game/scripting/Commands/quest.ts:287`
 
 ```ts
 cmd.complete_quest(questId: number, options?: CompleteQuestOptions): void
@@ -78,6 +78,8 @@ cmd.complete_quest(questId: number, options?: CompleteQuestOptions): void
 | --- | --- | --- | --- | --- |
 | `questId` | `number` | yes |  | Quest id. |
 | `options` | [`CompleteQuestOptions`](../quest/#type-completequestoptions) | no |  | Optional reward and turn-in settings. |
+| `options.itemId` | `number` | no |  | Reward item id to choose. |
+| `options.turnIns` | [`QuestTurnInsArgument`](../quest/#type-questturninsargument) | no |  | Number of turn-ins, or `max` to turn in as many times as possible. |
 
 **Examples**
 

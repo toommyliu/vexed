@@ -33,6 +33,10 @@ tableOfContents:
 
 | Type | Kind | Summary |
 | --- | --- | --- |
+| [`EquipEnhancementSelector`](#type-equipenhancementselector) | type |  |
+| [`EquipEnhancementSelectorSlot`](#type-equipenhancementselectorslot) | type |  |
+| [`EquipItemByEnhancementOptions`](#type-equipitembyenhancementoptions) | type |  |
+| [`EquipItemTypeFilter`](#type-equipitemtypefilter) | type |  |
 | [`ScriptItemIdentifier`](#type-scriptitemidentifier) | type |  |
 | [`ScriptItemIdentifierList`](#type-scriptitemidentifierlist) | type |  |
 
@@ -44,7 +48,7 @@ tableOfContents:
 
 Buys an item from a shop.
 
-**Source:** `app/src/renderer/game/scripting/Commands/item.ts:412`
+**Source:** `app/src/renderer/game/scripting/Commands/item.ts:546`
 
 ```ts
 cmd.buy_item(shopId: number, item: ScriptItemIdentifier, quantity: number, auto: boolean = false): void
@@ -69,7 +73,7 @@ cmd.buy_item(147, "Health Potion", 5)
 
 Deposits one or more items into the bank.
 
-**Source:** `app/src/renderer/game/scripting/Commands/item.ts:436`
+**Source:** `app/src/renderer/game/scripting/Commands/item.ts:570`
 
 ```ts
 cmd.deposit(item: ScriptItemIdentifierList): void
@@ -95,7 +99,7 @@ cmd.deposit(["Voucher", "Merge Token"])
 
 Enhances an inventory item using a matching enhancement shop entry.
 
-**Source:** `app/src/renderer/game/scripting/Commands/item.ts:585`
+**Source:** `app/src/renderer/game/scripting/Commands/item.ts:717`
 
 ```ts
 cmd.enhance_item(itemName: string, enhancementName: string, procName?: string): void
@@ -105,11 +109,13 @@ cmd.enhance_item(itemName: string, enhancementName: string, procName?: string): 
 | --- | --- | --- | --- | --- |
 | `itemName` | `string` | yes |  | Inventory item name. |
 | `enhancementName` | `string` | yes |  | Enhancement name such as `Lucky` or `Forge`. |
-| `procName` | `string` | no |  | Optional Awe or Forge proc name, such as `Valiance`. |
+| `procName` | `string` | no |  | Optional Awe or Forge proc name, such as `Valiance`; popular shorthands like `val` are also supported. See the [enhancements.ts:318 alias source](https://github.com/toommyliu/vexed/blob/main/packages/game/src/util/enhancements.ts#L318). |
 
 **Examples**
 
 ```js
+cmd.enhance_item("Sword", "Wizard")
+cmd.enhance_item("Sword", "Wizard", "Awe Blast")
 cmd.enhance_item("Necrotic Sword", "Forge", "Valiance")
 ```
 
@@ -119,7 +125,7 @@ cmd.enhance_item("Necrotic Sword", "Forge", "Valiance")
 
 Equips an inventory item by name.
 
-**Source:** `app/src/renderer/game/scripting/Commands/item.ts:528`
+**Source:** `app/src/renderer/game/scripting/Commands/item.ts:662`
 
 ```ts
 cmd.equip_item(item: string): void
@@ -131,29 +137,43 @@ cmd.equip_item(item: string): void
 
 <a id="command-equip_item_by_enhancement"></a>
 
-### `cmd.equip_item_by_enhancement(enhancementName, procOrItemType)`
+### `cmd.equip_item_by_enhancement(options)`
 
 Equips the first inventory item matching an enhancement rule.
 
-**Source:** `app/src/renderer/game/scripting/Commands/item.ts:545`
+**Source:** `app/src/renderer/game/scripting/Commands/item.ts:687`
 
 ```ts
-cmd.equip_item_by_enhancement(enhancementName: string, procOrItemType?: string): void
+cmd.equip_item_by_enhancement(options: EquipItemByEnhancementOptions): void
 ```
 
 | Name | Type | Required | Default | Description |
 | --- | --- | --- | --- | --- |
-| `enhancementName` | `string` | yes |  | Enhancement name such as `Lucky` or `Forge`. |
-| `procOrItemType` | `string` | no |  | Optional Awe/Forge proc name or item type filter. |
+| `options` | [`EquipItemByEnhancementOptions`](../item/#type-equipitembyenhancementoptions) | yes |  | Enhancement selector. `slot` may be `weapon`, `cape`, `helm`, or `class`; `special` selects a weapon special or Forge cape/helm special. |
+| `options.enhancement` | `string` | yes |  | Enhancement name to match. |
+| `options.slot` | [`EquipEnhancementSelectorSlot`](../item/#type-equipenhancementselectorslot) | no |  | Equipment slot to match. |
+| `options.special` | `string` | no |  | Weapon special or Forge cape/helm special to match. |
 
 **Examples**
 
 ```js
-cmd.equip_item_by_enhancement("Lucky", "weapon")
+cmd.equip_item_by_enhancement({ enhancement: "Forge", slot: "helm" })
 ```
 
 ```js
-cmd.equip_item_by_enhancement("Forge", "Valiance")
+cmd.equip_item_by_enhancement({ enhancement: "Forge", slot: "helm", special: "Vim" })
+```
+
+```js
+cmd.equip_item_by_enhancement({ enhancement: "Forge", slot: "weapon", special: "Valiance" })
+```
+
+```js
+cmd.equip_item_by_enhancement({ enhancement: "Lucky", slot: "weapon" })
+```
+
+```js
+cmd.equip_item_by_enhancement({ enhancement: "Lucky", special: "Awe Blast" })
 ```
 
 <a id="command-get_map_item"></a>
@@ -162,7 +182,7 @@ cmd.equip_item_by_enhancement("Forge", "Valiance")
 
 Picks up a map item by id.
 
-**Source:** `app/src/renderer/game/scripting/Commands/item.ts:448`
+**Source:** `app/src/renderer/game/scripting/Commands/item.ts:582`
 
 ```ts
 cmd.get_map_item(itemId: number): void
@@ -178,7 +198,7 @@ cmd.get_map_item(itemId: number): void
 
 Loads a shop.
 
-**Source:** `app/src/renderer/game/scripting/Commands/item.ts:569`
+**Source:** `app/src/renderer/game/scripting/Commands/item.ts:699`
 
 ```ts
 cmd.load_shop(shopId: number): void
@@ -194,7 +214,7 @@ cmd.load_shop(shopId: number): void
 
 Accepts a dropped item.
 
-**Source:** `app/src/renderer/game/scripting/Commands/item.ts:460`
+**Source:** `app/src/renderer/game/scripting/Commands/item.ts:594`
 
 ```ts
 cmd.pickup(item: ScriptItemIdentifier): void
@@ -210,7 +230,7 @@ cmd.pickup(item: ScriptItemIdentifier): void
 
 Rejects a dropped item.
 
-**Source:** `app/src/renderer/game/scripting/Commands/item.ts:472`
+**Source:** `app/src/renderer/game/scripting/Commands/item.ts:606`
 
 ```ts
 cmd.reject(item: ScriptItemIdentifier): void
@@ -226,7 +246,7 @@ cmd.reject(item: ScriptItemIdentifier): void
 
 Sells an inventory item by name.
 
-**Source:** `app/src/renderer/game/scripting/Commands/item.ts:484`
+**Source:** `app/src/renderer/game/scripting/Commands/item.ts:618`
 
 ```ts
 cmd.sell_item(item: string): void
@@ -242,7 +262,7 @@ cmd.sell_item(item: string): void
 
 Swaps a bank item with an inventory item.
 
-**Source:** `app/src/renderer/game/scripting/Commands/item.ts:499`
+**Source:** `app/src/renderer/game/scripting/Commands/item.ts:633`
 
 ```ts
 cmd.swap(bankItem: ScriptItemIdentifier, invItem: ScriptItemIdentifier): void
@@ -265,7 +285,7 @@ cmd.swap("Farming Class", "Combat Class")
 
 Withdraws one or more items from the bank.
 
-**Source:** `app/src/renderer/game/scripting/Commands/item.ts:516`
+**Source:** `app/src/renderer/game/scripting/Commands/item.ts:650`
 
 ```ts
 cmd.withdraw(item: ScriptItemIdentifierList): void
@@ -287,11 +307,67 @@ cmd.withdraw(["Voucher", "Merge Token"])
 
 ## Referenced Types
 
+<a id="type-equipenhancementselector"></a>
+
+### `EquipEnhancementSelector`
+
+**Source:** `packages/game/dist/index.d.cts:1086`
+
+```ts
+type EquipEnhancementSelector = {
+  readonly enhancement: string;
+  readonly slot?: EquipEnhancementSelectorSlot;
+  readonly special?: string;
+}
+```
+
+| Name | Type | Required | Readonly | Description |
+| --- | --- | --- | --- | --- |
+| `enhancement` | `string` | yes | yes |  |
+| `slot` | [`EquipEnhancementSelectorSlot`](../item/#type-equipenhancementselectorslot) | no | yes |  |
+| `special` | `string` | no | yes |  |
+
+<a id="type-equipenhancementselectorslot"></a>
+
+### `EquipEnhancementSelectorSlot`
+
+**Source:** `packages/game/dist/index.d.cts:1085`
+
+```ts
+type EquipEnhancementSelectorSlot =
+  | EquipItemTypeFilter
+  | "armor";
+```
+
+<a id="type-equipitembyenhancementoptions"></a>
+
+### `EquipItemByEnhancementOptions`
+
+**Source:** `app/src/renderer/game/scripting/Commands/item.ts:40`
+
+```ts
+type EquipItemByEnhancementOptions = EquipEnhancementSelector
+```
+
+<a id="type-equipitemtypefilter"></a>
+
+### `EquipItemTypeFilter`
+
+**Source:** `packages/game/dist/index.d.cts:1084`
+
+```ts
+type EquipItemTypeFilter =
+  | "weapon"
+  | "cape"
+  | "helm"
+  | "class";
+```
+
 <a id="type-scriptitemidentifier"></a>
 
 ### `ScriptItemIdentifier`
 
-**Source:** `app/src/renderer/game/scripting/Commands/item.ts:30`
+**Source:** `app/src/renderer/game/scripting/Commands/item.ts:36`
 
 ```ts
 type ScriptItemIdentifier =
@@ -303,7 +379,7 @@ type ScriptItemIdentifier =
 
 ### `ScriptItemIdentifierList`
 
-**Source:** `app/src/renderer/game/scripting/Commands/item.ts:31`
+**Source:** `app/src/renderer/game/scripting/Commands/item.ts:37`
 
 ```ts
 type ScriptItemIdentifierList =

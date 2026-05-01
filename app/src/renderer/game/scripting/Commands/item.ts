@@ -1,3 +1,7 @@
+import type {
+  EquipEnhancementSelector,
+  EquipEnhancementSelectorSlot,
+} from "@vexed/game";
 import { Effect } from "effect";
 import { ScriptInvalidArgumentError } from "../Errors";
 import type { ScriptExecutionContext } from "../Types";
@@ -5,8 +9,10 @@ import {
   createCommandHandler,
   defineScriptCommandDomain,
   readOptionalInstructionBoolean,
+  readOptionalInstructionObject,
   readOptionalInstructionString,
   readOptionalScriptArgumentBoolean,
+  readOptionalScriptArgumentObject,
   readOptionalScriptArgumentString,
   requireInstructionIdentifier,
   requireInstructionPositiveInteger,
@@ -31,6 +37,7 @@ type ScriptItemIdentifier = string | number;
 type ScriptItemIdentifierList =
   | ScriptItemIdentifier
   | ReadonlyArray<ScriptItemIdentifier>;
+type EquipItemByEnhancementOptions = EquipEnhancementSelector;
 
 type ItemScriptCommandArguments = {
   buy_item: [
@@ -47,7 +54,7 @@ type ItemScriptCommandArguments = {
   swap: [bankItem: ScriptItemIdentifier, invItem: ScriptItemIdentifier];
   withdraw: [item: ScriptItemIdentifierList];
   equip_item: [item: string];
-  equip_item_by_enhancement: [enhancementName: string, procOrItemType?: string];
+  equip_item_by_enhancement: [options: EquipItemByEnhancementOptions];
   load_shop: [shopId: number];
   enhance_item: [itemName: string, enhancementName: string, procName?: string];
 };
@@ -68,6 +75,143 @@ const invalidItemArgument = (
       message,
     }),
   );
+
+const EQUIP_ENHANCEMENT_SELECTOR_SLOTS = [
+  "weapon",
+  "cape",
+  "helm",
+  "class",
+  "armor",
+] as const satisfies readonly EquipEnhancementSelectorSlot[];
+
+const parseEquipEnhancementSelectorSlot = (
+  value: string | undefined,
+): EquipEnhancementSelectorSlot | undefined | null => {
+  if (value === undefined) {
+    return undefined;
+  }
+
+  const normalized = value.toLowerCase().trim();
+  return EQUIP_ENHANCEMENT_SELECTOR_SLOTS.includes(
+    normalized as EquipEnhancementSelectorSlot,
+  )
+    ? (normalized as EquipEnhancementSelectorSlot)
+    : null;
+};
+
+const normalizeEquipEnhancementSelectorSlot = (
+  command: string,
+  argName: string,
+  value: string | undefined,
+): EquipEnhancementSelectorSlot | undefined => {
+  const slot = parseEquipEnhancementSelectorSlot(value);
+
+  if (slot === null) {
+    throw new Error(
+      `cmd.${command}: ${argName} must be one of weapon, cape, helm, class`,
+    );
+  }
+
+  return slot;
+};
+
+const readScriptEquipEnhancementOptions = (
+  value: unknown,
+): EquipItemByEnhancementOptions => {
+  const command = "equip_item_by_enhancement";
+  const options = readOptionalScriptArgumentObject<Record<string, unknown>>(
+    command,
+    "options",
+    value,
+  );
+
+  if (options === undefined) {
+    throw new Error(`cmd.${command}: options must be an object`);
+  }
+
+  const enhancement = requireScriptArgumentString(
+    command,
+    "options.enhancement",
+    options["enhancement"],
+  ).trim();
+  const rawSlot = readOptionalScriptArgumentString(
+    command,
+    "options.slot",
+    options["slot"],
+  );
+  const special = readOptionalScriptArgumentString(
+    command,
+    "options.special",
+    options["special"],
+  )?.trim();
+  const slot = normalizeEquipEnhancementSelectorSlot(
+    command,
+    "options.slot",
+    rawSlot,
+  );
+
+  return {
+    enhancement,
+    ...(slot ? { slot } : null),
+    ...(special ? { special } : null),
+  };
+};
+
+const readInstructionEquipEnhancementOptions = (
+  context: ScriptExecutionContext,
+  args: ReadonlyArray<unknown>,
+) =>
+  Effect.gen(function* () {
+    const command = "equip_item_by_enhancement";
+    const options = yield* readOptionalInstructionObject<
+      Record<string, unknown>
+    >(context, command, args, 0, "options");
+
+    if (options === undefined) {
+      return yield* invalidItemArgument(
+        context,
+        command,
+        "options must be an object",
+      );
+    }
+
+    const enhancement = (yield* requireInstructionString(
+      context,
+      command,
+      [options["enhancement"]],
+      0,
+      "options.enhancement",
+    )).trim();
+    const rawSlot = yield* readOptionalInstructionString(
+      context,
+      command,
+      [options["slot"]],
+      0,
+      "options.slot",
+    );
+    const special = (yield* readOptionalInstructionString(
+      context,
+      command,
+      [options["special"]],
+      0,
+      "options.special",
+    ))?.trim();
+
+    const slot = parseEquipEnhancementSelectorSlot(rawSlot);
+    if (slot === null) {
+      return yield* invalidItemArgument(
+        context,
+        command,
+        "options.slot must be one of weapon, cape, helm, class",
+      );
+    }
+
+    return {
+      enhancement,
+      ...(slot ? { slot } : null),
+      ...(special ? { special } : null),
+    } satisfies EquipItemByEnhancementOptions;
+  });
 
 const requireInstructionItemIdentifier = (
   context: ScriptExecutionContext,
@@ -313,22 +457,12 @@ const equipItemCommand = createCommandHandler((context, args) =>
 
 const equipItemByEnhancementCommand = createCommandHandler((context, args) =>
   Effect.gen(function* () {
-    const enhancementName = yield* requireInstructionString(
+    const options = yield* readInstructionEquipEnhancementOptions(
       context,
-      "equip_item_by_enhancement",
       args,
-      0,
-      "enhancement_name",
-    );
-    const procOrItemType = yield* readOptionalInstructionString(
-      context,
-      "equip_item_by_enhancement",
-      args,
-      1,
-      "proc_or_item_type",
     );
 
-    yield* equipItemByEnhancement(context, enhancementName, procOrItemType);
+    yield* equipItemByEnhancement(context, options);
   }),
 );
 
@@ -535,29 +669,25 @@ export const createItemScriptDsl = (
     /**
      * Equips the first inventory item matching an enhancement rule.
      *
-     * @param enhancementName - Enhancement name such as `Lucky` or `Forge`.
-     * @param procOrItemType - Optional Awe/Forge proc name or item type filter.
+     * @param options - Enhancement selector. `slot` may be `weapon`, `cape`, `helm`, or `class`; `special` selects a weapon special or Forge cape/helm special.
+     * @param options.enhancement - Enhancement name to match.
+     * @param options.slot - Equipment slot to match.
+     * @param options.special - Weapon special or Forge cape/helm special to match.
      * @example
-     * cmd.equip_item_by_enhancement("Lucky", "weapon")
+     * cmd.equip_item_by_enhancement({ enhancement: "Forge", slot: "helm" })
      * @example
-     * cmd.equip_item_by_enhancement("Forge", "Valiance")
+     * cmd.equip_item_by_enhancement({ enhancement: "Forge", slot: "helm", special: "Vim" })
+     * @example
+     * cmd.equip_item_by_enhancement({ enhancement: "Forge", slot: "weapon", special: "Valiance" })
+     * @example
+     * cmd.equip_item_by_enhancement({ enhancement: "Lucky", slot: "weapon" })
+     * @example
+     * cmd.equip_item_by_enhancement({ enhancement: "Lucky", special: "Awe Blast" })
      */
-    equip_item_by_enhancement(
-      enhancementName: string,
-      procOrItemType?: string,
-    ) {
+    equip_item_by_enhancement(options: EquipItemByEnhancementOptions) {
       recordItemInstruction(
         "equip_item_by_enhancement",
-        requireScriptArgumentString(
-          "equip_item_by_enhancement",
-          "enhancement_name",
-          enhancementName,
-        ),
-        readOptionalScriptArgumentString(
-          "equip_item_by_enhancement",
-          "proc_or_item_type",
-          procOrItemType,
-        ),
+        readScriptEquipEnhancementOptions(options),
       );
     },
 
@@ -578,8 +708,10 @@ export const createItemScriptDsl = (
      *
      * @param itemName - Inventory item name.
      * @param enhancementName - Enhancement name such as `Lucky` or `Forge`.
-     * @param procName - Optional Awe or Forge proc name, such as `Valiance`.
+     * @param procName - Optional Awe or Forge proc name, such as `Valiance`; popular shorthands like `val` are also supported. See the {@source packages/game/src/util/enhancements.ts:318 enhancements.ts:318 alias source}.
      * @example
+     * cmd.enhance_item("Sword", "Wizard")
+     * cmd.enhance_item("Sword", "Wizard", "Awe Blast")
      * cmd.enhance_item("Necrotic Sword", "Forge", "Valiance")
      */
     enhance_item(itemName: string, enhancementName: string, procName?: string) {

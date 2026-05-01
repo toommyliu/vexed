@@ -390,6 +390,10 @@ export const createCombatScriptDsl = (
      *
      * @param target - Monster name or monMapId token.
      * @param options - Optional kill settings.
+     * @param options.killPriority - Target priority list or delimited target priority string.
+     * @param options.skillSet - Skill slot list or delimited skill slot string.
+     * @param options.skillDelay - Delay in milliseconds between skill casts.
+     * @param options.skillWait - Whether to wait for skill cooldowns before casting.
      * @example
      * cmd.kill("Slime")
      * @example
@@ -414,6 +418,10 @@ export const createCombatScriptDsl = (
      * @param item - Inventory item name or id.
      * @param quantity - Quantity to reach.
      * @param options - Optional kill settings.
+     * @param options.killPriority - Target priority list or delimited target priority string.
+     * @param options.skillSet - Skill slot list or delimited skill slot string.
+     * @param options.skillDelay - Delay in milliseconds between skill casts.
+     * @param options.skillWait - Whether to wait for skill cooldowns before casting.
      */
     kill_for_item(
       target: string,
@@ -446,6 +454,10 @@ export const createCombatScriptDsl = (
      * @param item - Temporary item name or id.
      * @param quantity - Quantity to reach.
      * @param options - Optional kill settings.
+     * @param options.killPriority - Target priority list or delimited target priority string.
+     * @param options.skillSet - Skill slot list or delimited skill slot string.
+     * @param options.skillDelay - Delay in milliseconds between skill casts.
+     * @param options.skillWait - Whether to wait for skill cooldowns before casting.
      */
     kill_for_tempitem(
       target: string,

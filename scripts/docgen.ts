@@ -62,6 +62,8 @@ type CommandParameterDoc = {
   readonly rest: boolean;
   readonly defaultValue: string | null;
   readonly description: string;
+  readonly depth: number;
+  readonly parentName: string | null;
 };
 
 type CommandJsDocTag = {
@@ -96,6 +98,17 @@ type TypePropertyDoc = {
   readonly required: boolean;
   readonly readonly: boolean;
   readonly description: string;
+};
+
+type ParameterPropertyDoc = {
+  readonly name: string;
+  readonly type: string;
+  readonly required: boolean;
+};
+
+type ParamDescriptionDocs = {
+  readonly topLevel: ReadonlyMap<string, string>;
+  readonly nested: ReadonlyMap<string, string>;
 };
 
 type TypeShapeDoc = {
@@ -512,38 +525,145 @@ const collectJsDocTags = (doc: ts.JSDoc | null): CommandJsDocTag[] => {
   });
 };
 
+const setParamDescription = (
+  map: Map<string, string>,
+  sourceFile: ts.SourceFile,
+  method: ts.MethodDeclaration,
+  name: string,
+  description: string,
+) => {
+  if (map.has(name)) {
+    fail(
+      `${sourceFile.fileName}: cmd.${method.name.getText()} has duplicate @param ${name}`,
+    );
+  }
+
+  map.set(name, description);
+};
+
 const getParamDescriptions = (
   method: ts.MethodDeclaration,
-): Map<string, string> => {
-  const descriptions = new Map<string, string>();
+  sourceFile: ts.SourceFile,
+): ParamDescriptionDocs => {
+  const topLevel = new Map<string, string>();
+  const nested = new Map<string, string>();
   const doc = getMethodJsDoc(method);
   if (!doc?.tags) {
-    return descriptions;
+    return { topLevel, nested };
   }
 
   for (const tag of doc.tags) {
     if (!ts.isJSDocParameterTag(tag)) {
       continue;
     }
-    descriptions.set(
-      tag.name.getText(),
+    const name = tag.name.getText();
+    setParamDescription(
+      name.includes(".") ? nested : topLevel,
+      sourceFile,
+      method,
+      name,
       normalizeJsDocTagText(getText(tag.comment)),
     );
   }
 
-  return descriptions;
+  return { topLevel, nested };
 };
 
-const collectParameters = (
+const isUndefinedLikeType = (type: ts.Type): boolean =>
+  (type.flags &
+    (ts.TypeFlags.Undefined | ts.TypeFlags.Void | ts.TypeFlags.Never)) !==
+  0;
+
+const withoutUndefinedLikeTypes = (type: ts.Type): ts.Type => {
+  if (!type.isUnion()) {
+    return type;
+  }
+
+  const concreteTypes = type.types.filter(
+    (candidate) => !isUndefinedLikeType(candidate),
+  );
+  return concreteTypes.length === 1 ? (concreteTypes[0] ?? type) : type;
+};
+
+const isNonExpandablePrimitiveType = (type: ts.Type): boolean =>
+  (type.flags &
+    (ts.TypeFlags.StringLike |
+      ts.TypeFlags.NumberLike |
+      ts.TypeFlags.BooleanLike |
+      ts.TypeFlags.BigIntLike |
+      ts.TypeFlags.ESSymbolLike |
+      ts.TypeFlags.Null |
+      ts.TypeFlags.Undefined |
+      ts.TypeFlags.Void |
+      ts.TypeFlags.Never |
+      ts.TypeFlags.Unknown)) !==
+  0;
+
+const getFiniteObjectType = (type: ts.Type): ts.Type | null => {
+  const concreteType = withoutUndefinedLikeTypes(type);
+
+  if (concreteType.isUnion()) {
+    return null;
+  }
+
+  return isNonExpandablePrimitiveType(concreteType) ? null : concreteType;
+};
+
+const getPropertyTypeText = (
+  checker: ts.TypeChecker,
+  property: ts.Symbol,
+  location: ts.Node,
+): string => {
+  const propertyType = checker.getTypeOfSymbolAtLocation(property, location);
+  return checker.typeToString(
+    withoutUndefinedLikeTypes(propertyType),
+    location,
+    ts.TypeFormatFlags.NoTruncation,
+  );
+};
+
+export const collectParameterProperties = (
+  checker: ts.TypeChecker,
+  parameter: ts.ParameterDeclaration,
+): ParameterPropertyDoc[] => {
+  const objectType = getFiniteObjectType(checker.getTypeAtLocation(parameter));
+  if (objectType === null) {
+    return [];
+  }
+
+  if (
+    checker.isArrayType(objectType) ||
+    checker.isTupleType(objectType) ||
+    checker.getSignaturesOfType(objectType, ts.SignatureKind.Call).length > 0
+  ) {
+    return [];
+  }
+
+  return checker
+    .getPropertiesOfType(objectType)
+    .filter((property) => !property.getName().startsWith("__"))
+    .map((property) => ({
+      name: property.getName(),
+      type: getPropertyTypeText(checker, property, parameter),
+      required: (property.flags & ts.SymbolFlags.Optional) === 0,
+    }));
+};
+
+export const collectParameters = (
   checker: ts.TypeChecker,
   method: ts.MethodDeclaration,
   sourceFile: ts.SourceFile,
 ): CommandParameterDoc[] => {
-  const descriptions = getParamDescriptions(method);
-  const params = method.parameters.map((parameter) => {
+  const descriptions = getParamDescriptions(method, sourceFile);
+  const params: CommandParameterDoc[] = [];
+  const topLevelParamNames = new Set<string>();
+  const nestedParamNames = new Set<string>();
+
+  for (const parameter of method.parameters) {
     const name = getParameterName(parameter);
+    topLevelParamNames.add(name);
     const description =
-      descriptions.get(name) ??
+      descriptions.topLevel.get(name) ??
       fail(
         `${sourceFile.fileName}: cmd.${method.name.getText()} missing @param ${name}`,
       );
@@ -551,21 +671,60 @@ const collectParameters = (
     const defaultValue = parameter.initializer?.getText(sourceFile) ?? null;
     const optional =
       parameter.questionToken !== undefined || defaultValue !== null;
+    const required = !optional;
 
-    return {
+    params.push({
       name,
       type: getParameterType(checker, parameter, sourceFile),
-      required: !optional,
+      required,
       rest: parameter.dotDotDotToken !== undefined,
       defaultValue,
       description,
-    };
-  });
+      depth: 0,
+      parentName: null,
+    });
 
-  for (const paramName of descriptions.keys()) {
-    if (!params.some((param) => param.name === paramName)) {
+    for (const property of collectParameterProperties(checker, parameter)) {
+      const nestedName = `${name}.${property.name}`;
+      const nestedDescription =
+        descriptions.nested.get(nestedName) ??
+        fail(
+          `${sourceFile.fileName}: cmd.${method.name.getText()} missing @param ${nestedName}`,
+        );
+      nestedParamNames.add(nestedName);
+
+      params.push({
+        name: nestedName,
+        type: property.type,
+        required: required && property.required,
+        rest: false,
+        defaultValue: null,
+        description: nestedDescription,
+        depth: 1,
+        parentName: name,
+      });
+    }
+  }
+
+  for (const paramName of descriptions.topLevel.keys()) {
+    if (!topLevelParamNames.has(paramName)) {
       fail(
         `${sourceFile.fileName}: @param ${paramName} does not match a parameter`,
+      );
+    }
+  }
+
+  for (const paramName of descriptions.nested.keys()) {
+    const [parentName] = paramName.split(".");
+    if (parentName === undefined || !topLevelParamNames.has(parentName)) {
+      fail(
+        `${sourceFile.fileName}: @param ${paramName} does not match a parameter`,
+      );
+    }
+
+    if (!nestedParamNames.has(paramName)) {
+      fail(
+        `${sourceFile.fileName}: @param ${paramName} does not match a parameter property`,
       );
     }
   }
@@ -848,6 +1007,31 @@ const buildSourceUrl = (
   return `${git.repoUrl}/blob/${git.branch}/${repoRelativePath}#L${sourceLine}`;
 };
 
+const buildSourceFileUrl = (
+  git: GitSourceInfo | null,
+  repoRoot: string,
+  sourcePath: string,
+  sourceLine: number | null,
+): string | null => {
+  if (git === null) {
+    return null;
+  }
+
+  const resolvedPath = isAbsolute(sourcePath)
+    ? sourcePath
+    : resolve(repoRoot, sourcePath);
+  const repoRelativePath = relative(repoRoot, resolvedPath).replaceAll(
+    "\\",
+    "/",
+  );
+  if (repoRelativePath.startsWith("..")) {
+    return null;
+  }
+
+  const lineAnchor = sourceLine === null ? "" : `#L${sourceLine}`;
+  return `${git.repoUrl}/blob/${git.branch}/${repoRelativePath}${lineAnchor}`;
+};
+
 const collectCommandDocs = (
   options: CliOptions,
   files: ReadonlyArray<string>,
@@ -941,7 +1125,10 @@ const collectCommandDocs = (
         sourceFile.getLineAndCharacterOfPosition(method.getStart(sourceFile))
           .line + 1;
       const sourcePath = relative(options.repoRoot, file).replaceAll("\\", "/");
-      const signatureParameters = parameters
+      const topLevelParameters = parameters.filter(
+        (param) => param.depth === 0,
+      );
+      const signatureParameters = topLevelParameters
         .map((param) => {
           const prefix = param.rest ? "..." : "";
           const optional =
@@ -951,7 +1138,7 @@ const collectCommandDocs = (
           return `${prefix}${param.name}${optional}: ${param.type}${defaultValue}`;
         })
         .join(", ");
-      const callParameters = parameters
+      const callParameters = topLevelParameters
         .map((param) => `${param.rest ? "..." : ""}${param.name}`)
         .join(", ");
 
@@ -1110,6 +1297,45 @@ const renderTableProse = (
   currentDomain: string,
   commandLinks: CommandLinkRegistry,
 ): string => escapeTableCell(renderProse(value, currentDomain, commandLinks));
+
+const sourceReferencePattern = /\{@source\s+([^\s}]+)(?:\s+([^}]+))?\}/g;
+
+const parseSourceReference = (
+  value: string,
+): {
+  readonly sourceLine: number | null;
+  readonly sourcePath: string;
+} => {
+  const match = /^(.*):([1-9][0-9]*)$/.exec(value);
+  if (match === null) {
+    return { sourceLine: null, sourcePath: value };
+  }
+
+  const sourcePath = match[1];
+  const sourceLine = Number(match[2]);
+  return sourcePath === undefined || sourcePath === ""
+    ? { sourceLine: null, sourcePath: value }
+    : { sourceLine, sourcePath };
+};
+
+const renderSourceReferences = (
+  value: string,
+  repoRoot: string,
+  git: GitSourceInfo | null,
+): string =>
+  value.replace(
+    sourceReferencePattern,
+    (_match, sourceReference: string, linkText: string | undefined) => {
+      const { sourceLine, sourcePath } = parseSourceReference(sourceReference);
+      const text = linkText?.trim() || sourceReference;
+      const url = buildSourceFileUrl(git, repoRoot, sourcePath, sourceLine);
+      if (url === null) {
+        return text;
+      }
+
+      return `[${text}](${url})`;
+    },
+  );
 
 const buildTypeLinkRegistry = (
   docs: ReadonlyArray<DomainDocs>,
@@ -1364,6 +1590,8 @@ const renderReferenceIndex = (
 };
 
 const renderDomainMarkdown = (
+  options: CliOptions,
+  git: GitSourceInfo | null,
   domainDocs: DomainDocs,
   typeLinks: TypeLinkRegistry,
   commandLinks: CommandLinkRegistry,
@@ -1521,21 +1749,29 @@ const renderDomainMarkdown = (
     }
   }
 
-  return `${lines
+  const content = `${lines
     .join("\n")
     .replace(/\n{3,}/g, "\n\n")
     .trimEnd()}\n`;
+  return renderSourceReferences(content, options.repoRoot, git);
 };
 
 const renderFiles = (
   options: CliOptions,
+  git: GitSourceInfo | null,
   docs: ReadonlyArray<DomainDocs>,
 ): ReadonlyArray<RenderedFile> => {
   const typeLinks = buildTypeLinkRegistry(docs);
   const commandLinks = buildCommandLinkRegistry(docs);
   return docs.map((domainDocs) => ({
     path: join(options.outputDir, `${domainDocs.domain}.md`),
-    content: renderDomainMarkdown(domainDocs, typeLinks, commandLinks),
+    content: renderDomainMarkdown(
+      options,
+      git,
+      domainDocs,
+      typeLinks,
+      commandLinks,
+    ),
   }));
 };
 
@@ -1578,11 +1814,13 @@ const writeGeneratedDocs = (
 const main = (options: CliOptions): Effect.Effect<void, unknown> =>
   Effect.gen(function* () {
     const files = yield* listDomainFiles(options.sourceDir);
-    const git = options.includeSourceLinks
-      ? yield* getGitSourceInfo(options.repoRoot)
-      : null;
-    const docs = collectCommandDocs(options, files, git);
-    const renderedFiles = renderFiles(options, docs);
+    const git = yield* getGitSourceInfo(options.repoRoot);
+    const docs = collectCommandDocs(
+      options,
+      files,
+      options.includeSourceLinks ? git : null,
+    );
+    const renderedFiles = renderFiles(options, git, docs);
 
     yield* writeGeneratedDocs(options.outputDir, renderedFiles);
     yield* Console.log(

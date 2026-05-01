@@ -75,7 +75,7 @@ tableOfContents:
 
 Plays a short beep.
 
-**Source:** `app/src/renderer/game/scripting/Commands/misc.ts:1185`
+**Source:** `app/src/renderer/game/scripting/Commands/misc.ts:1186`
 
 ```ts
 cmd.beep(times: number | undefined = 1): void
@@ -101,7 +101,7 @@ cmd.beep(3)
 
 Buys enough Scroll of Life Steal to reach the requested quantity.
 
-**Source:** `app/src/renderer/game/scripting/Commands/misc.ts:1017`
+**Source:** `app/src/renderer/game/scripting/Commands/misc.ts:1018`
 
 ```ts
 cmd.buy_lifesteal(quantity: number): void
@@ -123,7 +123,7 @@ cmd.buy_lifesteal(20)
 
 Buys enough Scroll of Enrage to reach the requested quantity.
 
-**Source:** `app/src/renderer/game/scripting/Commands/misc.ts:1030`
+**Source:** `app/src/renderer/game/scripting/Commands/misc.ts:1031`
 
 ```ts
 cmd.buy_scroll_of_enrage(quantity: number): void
@@ -145,7 +145,7 @@ cmd.buy_scroll_of_enrage(20)
 
 Closes the game window.
 
-**Source:** `app/src/renderer/game/scripting/Commands/misc.ts:1173`
+**Source:** `app/src/renderer/game/scripting/Commands/misc.ts:1174`
 
 ```ts
 cmd.close_window(): void
@@ -157,7 +157,7 @@ cmd.close_window(): void
 
 Pauses the script for a fixed number of milliseconds.
 
-**Source:** `app/src/renderer/game/scripting/Commands/misc.ts:777`
+**Source:** `app/src/renderer/game/scripting/Commands/misc.ts:778`
 
 ```ts
 cmd.delay(ms: number): void
@@ -179,7 +179,7 @@ cmd.delay(1000)
 
 Disables collision checks.
 
-**Source:** `app/src/renderer/game/scripting/Commands/misc.ts:837`
+**Source:** `app/src/renderer/game/scripting/Commands/misc.ts:838`
 
 ```ts
 cmd.disable_collisions(): void
@@ -191,7 +191,7 @@ cmd.disable_collisions(): void
 
 Disables enemy magnet.
 
-**Source:** `app/src/renderer/game/scripting/Commands/misc.ts:873`
+**Source:** `app/src/renderer/game/scripting/Commands/misc.ts:874`
 
 ```ts
 cmd.disable_enemymagnet(): void
@@ -203,7 +203,7 @@ cmd.disable_enemymagnet(): void
 
 Hides Flash visual effects.
 
-**Source:** `app/src/renderer/game/scripting/Commands/misc.ts:849`
+**Source:** `app/src/renderer/game/scripting/Commands/misc.ts:850`
 
 ```ts
 cmd.disable_fx(): void
@@ -215,7 +215,7 @@ cmd.disable_fx(): void
 
 Shows other players.
 
-**Source:** `app/src/renderer/game/scripting/Commands/misc.ts:933`
+**Source:** `app/src/renderer/game/scripting/Commands/misc.ts:934`
 
 ```ts
 cmd.disable_hideplayers(): void
@@ -227,7 +227,7 @@ cmd.disable_hideplayers(): void
 
 Disables infinite range.
 
-**Source:** `app/src/renderer/game/scripting/Commands/misc.ts:885`
+**Source:** `app/src/renderer/game/scripting/Commands/misc.ts:886`
 
 ```ts
 cmd.disable_infiniterange(): void
@@ -239,7 +239,7 @@ cmd.disable_infiniterange(): void
 
 Disables lag killer.
 
-**Source:** `app/src/renderer/game/scripting/Commands/misc.ts:897`
+**Source:** `app/src/renderer/game/scripting/Commands/misc.ts:898`
 
 ```ts
 cmd.disable_lagkiller(): void
@@ -251,7 +251,7 @@ cmd.disable_lagkiller(): void
 
 Disables provoke cell behavior.
 
-**Source:** `app/src/renderer/game/scripting/Commands/misc.ts:909`
+**Source:** `app/src/renderer/game/scripting/Commands/misc.ts:910`
 
 ```ts
 cmd.disable_provokecell(): void
@@ -263,7 +263,7 @@ cmd.disable_provokecell(): void
 
 Disables cutscene skipping.
 
-**Source:** `app/src/renderer/game/scripting/Commands/misc.ts:921`
+**Source:** `app/src/renderer/game/scripting/Commands/misc.ts:922`
 
 ```ts
 cmd.disable_skipcutscenes(): void
@@ -275,7 +275,7 @@ cmd.disable_skipcutscenes(): void
 
 Turns in the Wheel of Doom quest when enough Gear of Doom is available.
 
-**Source:** `app/src/renderer/game/scripting/Commands/misc.ts:1256`
+**Source:** `app/src/renderer/game/scripting/Commands/misc.ts:1257`
 
 ```ts
 cmd.do_wheelofdoom(toBank: boolean | undefined = false): void
@@ -297,7 +297,7 @@ cmd.do_wheelofdoom(true)
 
 Equips and drinks one or more consumables, then optionally re-equips an item.
 
-**Source:** `app/src/renderer/game/scripting/Commands/misc.ts:1229`
+**Source:** `app/src/renderer/game/scripting/Commands/misc.ts:1230`
 
 ```ts
 cmd.drink_consumables(items: string | readonly string[], equipAfter: string | undefined): void
@@ -324,7 +324,7 @@ cmd.drink_consumables(["Body Tonic", "Potent Honor Potion"])
 
 Enables collision checks.
 
-**Source:** `app/src/renderer/game/scripting/Commands/misc.ts:831`
+**Source:** `app/src/renderer/game/scripting/Commands/misc.ts:832`
 
 ```ts
 cmd.enable_collisions(): void
@@ -336,7 +336,7 @@ cmd.enable_collisions(): void
 
 Enables enemy magnet.
 
-**Source:** `app/src/renderer/game/scripting/Commands/misc.ts:867`
+**Source:** `app/src/renderer/game/scripting/Commands/misc.ts:868`
 
 ```ts
 cmd.enable_enemymagnet(): void
@@ -348,7 +348,7 @@ cmd.enable_enemymagnet(): void
 
 Shows Flash visual effects.
 
-**Source:** `app/src/renderer/game/scripting/Commands/misc.ts:843`
+**Source:** `app/src/renderer/game/scripting/Commands/misc.ts:844`
 
 ```ts
 cmd.enable_fx(): void
@@ -360,7 +360,7 @@ cmd.enable_fx(): void
 
 Hides other players.
 
-**Source:** `app/src/renderer/game/scripting/Commands/misc.ts:927`
+**Source:** `app/src/renderer/game/scripting/Commands/misc.ts:928`
 
 ```ts
 cmd.enable_hideplayers(): void
@@ -372,7 +372,7 @@ cmd.enable_hideplayers(): void
 
 Enables infinite range.
 
-**Source:** `app/src/renderer/game/scripting/Commands/misc.ts:879`
+**Source:** `app/src/renderer/game/scripting/Commands/misc.ts:880`
 
 ```ts
 cmd.enable_infiniterange(): void
@@ -384,7 +384,7 @@ cmd.enable_infiniterange(): void
 
 Enables lag killer.
 
-**Source:** `app/src/renderer/game/scripting/Commands/misc.ts:891`
+**Source:** `app/src/renderer/game/scripting/Commands/misc.ts:892`
 
 ```ts
 cmd.enable_lagkiller(): void
@@ -396,7 +396,7 @@ cmd.enable_lagkiller(): void
 
 Enables provoke cell behavior.
 
-**Source:** `app/src/renderer/game/scripting/Commands/misc.ts:903`
+**Source:** `app/src/renderer/game/scripting/Commands/misc.ts:904`
 
 ```ts
 cmd.enable_provokecell(): void
@@ -408,7 +408,7 @@ cmd.enable_provokecell(): void
 
 Enables cutscene skipping.
 
-**Source:** `app/src/renderer/game/scripting/Commands/misc.ts:915`
+**Source:** `app/src/renderer/game/scripting/Commands/misc.ts:916`
 
 ```ts
 cmd.enable_skipcutscenes(): void
@@ -420,7 +420,7 @@ cmd.enable_skipcutscenes(): void
 
 Jumps to a label.
 
-**Source:** `app/src/renderer/game/scripting/Commands/misc.ts:1283`
+**Source:** `app/src/renderer/game/scripting/Commands/misc.ts:1284`
 
 ```ts
 cmd.goto_label(label: string): void
@@ -442,7 +442,7 @@ cmd.goto_label("farm_loop")
 
 Hides death ads.
 
-**Source:** `app/src/renderer/game/scripting/Commands/misc.ts:861`
+**Source:** `app/src/renderer/game/scripting/Commands/misc.ts:862`
 
 ```ts
 cmd.hide_death_ads(): void
@@ -454,7 +454,7 @@ cmd.hide_death_ads(): void
 
 Defines a jump target for `goto_label`.
 
-**Source:** `app/src/renderer/game/scripting/Commands/misc.ts:1270`
+**Source:** `app/src/renderer/game/scripting/Commands/misc.ts:1271`
 
 ```ts
 cmd.label(label: string): void
@@ -476,7 +476,7 @@ cmd.label("farm_loop")
 
 Logs a script-scoped message to the console.
 
-**Source:** `app/src/renderer/game/scripting/Commands/misc.ts:790`
+**Source:** `app/src/renderer/game/scripting/Commands/misc.ts:791`
 
 ```ts
 cmd.log(message: string): void
@@ -498,7 +498,7 @@ cmd.log("quest complete")
 
 Logs out of the current game session.
 
-**Source:** `app/src/renderer/game/scripting/Commands/misc.ts:799`
+**Source:** `app/src/renderer/game/scripting/Commands/misc.ts:800`
 
 ```ts
 cmd.logout(): void
@@ -510,7 +510,7 @@ cmd.logout(): void
 
 Registers a script-local custom command.
 
-**Source:** `app/src/renderer/game/scripting/Commands/misc.ts:1082`
+**Source:** `app/src/renderer/game/scripting/Commands/misc.ts:1083`
 
 ```ts
 cmd.register_command(name: string, handler: CustomCommandHandler): void
@@ -535,7 +535,7 @@ cmd.register_command("my_check", async ({ api, skipNext }) => {
 
 Registers a script-local custom condition expression.
 
-**Source:** `app/src/renderer/game/scripting/Commands/misc.ts:1113`
+**Source:** `app/src/renderer/game/scripting/Commands/misc.ts:1114`
 
 ```ts
 cmd.register_condition(name: string, handler: CustomConditionHandler): void
@@ -564,7 +564,7 @@ Registers a named raw packet handler.
 The same `(type, name)` pair replaces the previous handler.
 :::
 
-**Source:** `app/src/renderer/game/scripting/Commands/misc.ts:1046`
+**Source:** `app/src/renderer/game/scripting/Commands/misc.ts:1047`
 
 ```ts
 cmd.register_handler(type: PacketHandlerType, name: string, handler: ScriptPacketHandler): void
@@ -588,7 +588,7 @@ cmd.register_handler("pext", "debug", packet => console.info(packet))
 
 Starts a named background task.
 
-**Source:** `app/src/renderer/game/scripting/Commands/misc.ts:1196`
+**Source:** `app/src/renderer/game/scripting/Commands/misc.ts:1197`
 
 ```ts
 cmd.register_task(name: string, taskFn: () => void | Promise<void>): void
@@ -611,7 +611,7 @@ cmd.register_task("heartbeat", () => console.info("tick"))
 
 Sets a delay applied after each subsequent command.
 
-**Source:** `app/src/renderer/game/scripting/Commands/misc.ts:809`
+**Source:** `app/src/renderer/game/scripting/Commands/misc.ts:810`
 
 ```ts
 cmd.set_delay(ms: number): void
@@ -633,7 +633,7 @@ cmd.set_delay(750)
 
 Changes the Flash client frame rate.
 
-**Source:** `app/src/renderer/game/scripting/Commands/misc.ts:825`
+**Source:** `app/src/renderer/game/scripting/Commands/misc.ts:826`
 
 ```ts
 cmd.set_fps(fps: number): void
@@ -655,7 +655,7 @@ cmd.set_fps(60)
 
 Overrides the displayed guild name.
 
-**Source:** `app/src/renderer/game/scripting/Commands/misc.ts:1004`
+**Source:** `app/src/renderer/game/scripting/Commands/misc.ts:1005`
 
 ```ts
 cmd.set_guild(guild: string): void
@@ -677,7 +677,7 @@ cmd.set_guild("Legion")
 
 Overrides the displayed player name.
 
-**Source:** `app/src/renderer/game/scripting/Commands/misc.ts:991`
+**Source:** `app/src/renderer/game/scripting/Commands/misc.ts:992`
 
 ```ts
 cmd.set_name(name: string): void
@@ -699,7 +699,7 @@ cmd.set_name("Guest")
 
 Sets the player walk speed.
 
-**Source:** `app/src/renderer/game/scripting/Commands/misc.ts:943`
+**Source:** `app/src/renderer/game/scripting/Commands/misc.ts:944`
 
 ```ts
 cmd.set_walk_speed(speed: number): void
@@ -721,7 +721,7 @@ cmd.set_walk_speed(16)
 
 Shows death ads.
 
-**Source:** `app/src/renderer/game/scripting/Commands/misc.ts:855`
+**Source:** `app/src/renderer/game/scripting/Commands/misc.ts:856`
 
 ```ts
 cmd.show_death_ads(): void
@@ -733,7 +733,7 @@ cmd.show_death_ads(): void
 
 Stops the current script.
 
-**Source:** `app/src/renderer/game/scripting/Commands/misc.ts:1294`
+**Source:** `app/src/renderer/game/scripting/Commands/misc.ts:1295`
 
 ```ts
 cmd.stop(): void
@@ -749,7 +749,7 @@ cmd.stop(): void
 
 Removes a script-local custom command.
 
-**Source:** `app/src/renderer/game/scripting/Commands/misc.ts:1097`
+**Source:** `app/src/renderer/game/scripting/Commands/misc.ts:1098`
 
 ```ts
 cmd.unregister_command(name: string): void
@@ -765,7 +765,7 @@ cmd.unregister_command(name: string): void
 
 Removes a script-local custom condition.
 
-**Source:** `app/src/renderer/game/scripting/Commands/misc.ts:1128`
+**Source:** `app/src/renderer/game/scripting/Commands/misc.ts:1129`
 
 ```ts
 cmd.unregister_condition(name: string): void
@@ -781,7 +781,7 @@ cmd.unregister_condition(name: string): void
 
 Removes a previously registered packet handler.
 
-**Source:** `app/src/renderer/game/scripting/Commands/misc.ts:1065`
+**Source:** `app/src/renderer/game/scripting/Commands/misc.ts:1066`
 
 ```ts
 cmd.unregister_handler(type: PacketHandlerType, name: string): void
@@ -804,7 +804,7 @@ cmd.unregister_handler("pext", "debug")
 
 Stops a named background task.
 
-**Source:** `app/src/renderer/game/scripting/Commands/misc.ts:1213`
+**Source:** `app/src/renderer/game/scripting/Commands/misc.ts:1214`
 
 ```ts
 cmd.unregister_task(name: string): void
@@ -826,7 +826,7 @@ cmd.unregister_task("heartbeat")
 
 Enables the AstralShrine auto-zone.
 
-**Source:** `app/src/renderer/game/scripting/Commands/misc.ts:1161`
+**Source:** `app/src/renderer/game/scripting/Commands/misc.ts:1162`
 
 ```ts
 cmd.use_autozone_astralshrine(): void
@@ -838,7 +838,7 @@ cmd.use_autozone_astralshrine(): void
 
 Enables the DarkCarnax auto-zone.
 
-**Source:** `app/src/renderer/game/scripting/Commands/misc.ts:1149`
+**Source:** `app/src/renderer/game/scripting/Commands/misc.ts:1150`
 
 ```ts
 cmd.use_autozone_darkcarnax(): void
@@ -850,7 +850,7 @@ cmd.use_autozone_darkcarnax(): void
 
 Enables the LedgerMayne auto-zone.
 
-**Source:** `app/src/renderer/game/scripting/Commands/misc.ts:1137`
+**Source:** `app/src/renderer/game/scripting/Commands/misc.ts:1138`
 
 ```ts
 cmd.use_autozone_ledgermayne(): void
@@ -862,7 +862,7 @@ cmd.use_autozone_ledgermayne(): void
 
 Enables the MoreSkulls auto-zone.
 
-**Source:** `app/src/renderer/game/scripting/Commands/misc.ts:1143`
+**Source:** `app/src/renderer/game/scripting/Commands/misc.ts:1144`
 
 ```ts
 cmd.use_autozone_moreskulls(): void
@@ -874,7 +874,7 @@ cmd.use_autozone_moreskulls(): void
 
 Enables the Queeniona auto-zone.
 
-**Source:** `app/src/renderer/game/scripting/Commands/misc.ts:1167`
+**Source:** `app/src/renderer/game/scripting/Commands/misc.ts:1168`
 
 ```ts
 cmd.use_autozone_queeniona(): void
@@ -886,7 +886,7 @@ cmd.use_autozone_queeniona(): void
 
 Enables the UltraDage auto-zone.
 
-**Source:** `app/src/renderer/game/scripting/Commands/misc.ts:1155`
+**Source:** `app/src/renderer/game/scripting/Commands/misc.ts:1156`
 
 ```ts
 cmd.use_autozone_ultradage(): void
@@ -898,7 +898,7 @@ cmd.use_autozone_ultradage(): void
 
 Waits until the room has enough players, or exactly that many players.
 
-**Source:** `app/src/renderer/game/scripting/Commands/misc.ts:964`
+**Source:** `app/src/renderer/game/scripting/Commands/misc.ts:965`
 
 ```ts
 cmd.wait_for_player_count(count: number, exact: boolean | undefined = false): void
