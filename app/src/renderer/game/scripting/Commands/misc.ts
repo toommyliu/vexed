@@ -42,22 +42,22 @@ type MiscScriptCommandArguments = {
   set_fps: [fps: number];
   enable_collisions: [];
   disable_collisions: [];
-  enable_fx: [];
-  disable_fx: [];
+  enable_effects: [];
+  disable_effects: [];
   show_death_ads: [];
   hide_death_ads: [];
-  enable_enemymagnet: [];
-  disable_enemymagnet: [];
-  enable_infiniterange: [];
-  disable_infiniterange: [];
-  enable_lagkiller: [];
-  disable_lagkiller: [];
-  enable_provokecell: [];
-  disable_provokecell: [];
-  enable_skipcutscenes: [];
-  disable_skipcutscenes: [];
-  enable_hideplayers: [];
-  disable_hideplayers: [];
+  enable_enemy_magnet: [];
+  disable_enemy_magnet: [];
+  enable_infinite_range: [];
+  disable_infinite_range: [];
+  enable_lag_killer: [];
+  disable_lag_killer: [];
+  enable_provoke_cell: [];
+  disable_provoke_cell: [];
+  enable_skip_cutscenes: [];
+  disable_skip_cutscenes: [];
+  hide_players: [];
+  show_players: [];
   set_walk_speed: [speed: number];
   wait_for_player_count: [count: number, exact?: boolean];
   set_name: [name: string];
@@ -614,53 +614,53 @@ const miscCommandHandlerMap = miscCommandDomain.defineHandlers({
   disable_collisions: settingCommand((context) =>
     context.settings.setCollisionsEnabled(false),
   ),
-  enable_fx: settingCommand((context) =>
+  enable_effects: settingCommand((context) =>
     context.settings.setEffectsEnabled(true),
   ),
-  disable_fx: settingCommand((context) =>
+  disable_effects: settingCommand((context) =>
     context.settings.setEffectsEnabled(false),
   ),
   show_death_ads: settingCommand((context) =>
-    context.settings.setDeathAdsEnabled(true),
+    context.settings.setDeathAdsVisible(true),
   ),
   hide_death_ads: settingCommand((context) =>
-    context.settings.setDeathAdsEnabled(false),
+    context.settings.setDeathAdsVisible(false),
   ),
-  enable_enemymagnet: settingCommand((context) =>
+  enable_enemy_magnet: settingCommand((context) =>
     context.settings.setEnemyMagnetEnabled(true),
   ),
-  disable_enemymagnet: settingCommand((context) =>
+  disable_enemy_magnet: settingCommand((context) =>
     context.settings.setEnemyMagnetEnabled(false),
   ),
-  enable_infiniterange: settingCommand((context) =>
+  enable_infinite_range: settingCommand((context) =>
     context.settings.setInfiniteRangeEnabled(true),
   ),
-  disable_infiniterange: settingCommand((context) =>
+  disable_infinite_range: settingCommand((context) =>
     context.settings.setInfiniteRangeEnabled(false),
   ),
-  enable_lagkiller: settingCommand((context) =>
+  enable_lag_killer: settingCommand((context) =>
     context.settings.setLagKillerEnabled(true),
   ),
-  disable_lagkiller: settingCommand((context) =>
+  disable_lag_killer: settingCommand((context) =>
     context.settings.setLagKillerEnabled(false),
   ),
-  enable_provokecell: settingCommand((context) =>
+  enable_provoke_cell: settingCommand((context) =>
     context.settings.setProvokeCellEnabled(true),
   ),
-  disable_provokecell: settingCommand((context) =>
+  disable_provoke_cell: settingCommand((context) =>
     context.settings.setProvokeCellEnabled(false),
   ),
-  enable_skipcutscenes: settingCommand((context) =>
+  enable_skip_cutscenes: settingCommand((context) =>
     context.settings.setSkipCutscenesEnabled(true),
   ),
-  disable_skipcutscenes: settingCommand((context) =>
+  disable_skip_cutscenes: settingCommand((context) =>
     context.settings.setSkipCutscenesEnabled(false),
   ),
-  enable_hideplayers: settingCommand((context) =>
-    context.settings.setPlayersVisible(false),
+  hide_players: settingCommand((context) =>
+    context.settings.setOtherPlayersVisible(false),
   ),
-  disable_hideplayers: settingCommand((context) =>
-    context.settings.setPlayersVisible(true),
+  show_players: settingCommand((context) =>
+    context.settings.setOtherPlayersVisible(true),
   ),
   set_walk_speed: createCommandHandler((context, args) =>
     Effect.gen(function* () {
@@ -825,16 +825,16 @@ export const createMiscScriptDsl = (
       recordMiscInstruction("disable_collisions");
     },
     /**
-     * Shows Flash visual effects.
+     * Enables Flash visual effects.
      */
-    enable_fx() {
-      recordMiscInstruction("enable_fx");
+    enable_effects() {
+      recordMiscInstruction("enable_effects");
     },
     /**
-     * Hides Flash visual effects.
+     * Disables Flash visual effects.
      */
-    disable_fx() {
-      recordMiscInstruction("disable_fx");
+    disable_effects() {
+      recordMiscInstruction("disable_effects");
     },
     /**
      * Shows death ads.
@@ -851,74 +851,74 @@ export const createMiscScriptDsl = (
     /**
      * Enables enemy magnet.
      */
-    enable_enemymagnet() {
-      recordMiscInstruction("enable_enemymagnet");
+    enable_enemy_magnet() {
+      recordMiscInstruction("enable_enemy_magnet");
     },
     /**
      * Disables enemy magnet.
      */
-    disable_enemymagnet() {
-      recordMiscInstruction("disable_enemymagnet");
+    disable_enemy_magnet() {
+      recordMiscInstruction("disable_enemy_magnet");
     },
     /**
      * Enables infinite range.
      */
-    enable_infiniterange() {
-      recordMiscInstruction("enable_infiniterange");
+    enable_infinite_range() {
+      recordMiscInstruction("enable_infinite_range");
     },
     /**
      * Disables infinite range.
      */
-    disable_infiniterange() {
-      recordMiscInstruction("disable_infiniterange");
+    disable_infinite_range() {
+      recordMiscInstruction("disable_infinite_range");
     },
     /**
      * Enables lag killer.
      */
-    enable_lagkiller() {
-      recordMiscInstruction("enable_lagkiller");
+    enable_lag_killer() {
+      recordMiscInstruction("enable_lag_killer");
     },
     /**
      * Disables lag killer.
      */
-    disable_lagkiller() {
-      recordMiscInstruction("disable_lagkiller");
+    disable_lag_killer() {
+      recordMiscInstruction("disable_lag_killer");
     },
     /**
      * Enables provoke cell behavior.
      */
-    enable_provokecell() {
-      recordMiscInstruction("enable_provokecell");
+    enable_provoke_cell() {
+      recordMiscInstruction("enable_provoke_cell");
     },
     /**
      * Disables provoke cell behavior.
      */
-    disable_provokecell() {
-      recordMiscInstruction("disable_provokecell");
+    disable_provoke_cell() {
+      recordMiscInstruction("disable_provoke_cell");
     },
     /**
      * Enables cutscene skipping.
      */
-    enable_skipcutscenes() {
-      recordMiscInstruction("enable_skipcutscenes");
+    enable_skip_cutscenes() {
+      recordMiscInstruction("enable_skip_cutscenes");
     },
     /**
      * Disables cutscene skipping.
      */
-    disable_skipcutscenes() {
-      recordMiscInstruction("disable_skipcutscenes");
+    disable_skip_cutscenes() {
+      recordMiscInstruction("disable_skip_cutscenes");
     },
     /**
      * Hides other players.
      */
-    enable_hideplayers() {
-      recordMiscInstruction("enable_hideplayers");
+    hide_players() {
+      recordMiscInstruction("hide_players");
     },
     /**
      * Shows other players.
      */
-    disable_hideplayers() {
-      recordMiscInstruction("disable_hideplayers");
+    show_players() {
+      recordMiscInstruction("show_players");
     },
     /**
      * Sets the player walk speed.

@@ -113,11 +113,11 @@ declare global {
       "settings.setCollisionsEnabled": (enabled: boolean) => void;
       "settings.setCustomGuild": (name: string) => void;
       "settings.setCustomName": (name: string) => void;
-      "settings.setDeathAdsEnabled": (enabled: boolean) => void;
+      "settings.setDeathAdsVisible": (visible: boolean) => void;
       "settings.setEffectsEnabled": (enabled: boolean) => void;
       "settings.setFrameRate": (fps: number) => void;
       "settings.setLagKillerEnabled": (enabled: boolean) => void;
-      "settings.setPlayersVisible": (visible: boolean) => void;
+      "settings.setOtherPlayersVisible": (visible: boolean) => void;
       "settings.setWalkSpeed": (speed: number) => void;
       "settings.skipCutscenes": () => void;
       "shops.buyById": (id: unknown, quantity?: number) => boolean;

@@ -126,11 +126,11 @@ package vexed.generated
       external.externalize("settings.setCollisionsEnabled", Settings.setCollisionsEnabled);
       external.externalize("settings.setCustomGuild", Settings.setCustomGuild);
       external.externalize("settings.setCustomName", Settings.setCustomName);
-      external.externalize("settings.setDeathAdsEnabled", Settings.setDeathAdsEnabled);
+      external.externalize("settings.setDeathAdsVisible", Settings.setDeathAdsVisible);
       external.externalize("settings.setEffectsEnabled", Settings.setEffectsEnabled);
       external.externalize("settings.setFrameRate", Settings.setFrameRate);
       external.externalize("settings.setLagKillerEnabled", Settings.setLagKillerEnabled);
-      external.externalize("settings.setPlayersVisible", Settings.setPlayersVisible);
+      external.externalize("settings.setOtherPlayersVisible", Settings.setOtherPlayersVisible);
       external.externalize("settings.setWalkSpeed", Settings.setWalkSpeed);
       external.externalize("settings.skipCutscenes", Settings.skipCutscenes);
       external.externalize("shops.buyById", Shops.buyById);

@@ -3,9 +3,9 @@ export const demoScriptName = "demo-loop";
 export const demoScriptSource = `
 cmd.log("Demo script started")
 cmd.set_fps(30)
-cmd.enable_lagkiller()
-cmd.enable_hideplayers()
-cmd.enable_infiniterange()
+cmd.enable_lag_killer()
+cmd.hide_players()
+cmd.enable_infinite_range()
 
 cmd.join("battleon", "Enter", "Spawn")
 cmd.move_to_cell("Enter", "Spawn")

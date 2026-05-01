@@ -68,8 +68,8 @@ package vexed.game {
     }
 
     [BridgeExport]
-    public static function setDeathAdsEnabled(enabled:Boolean):void {
-      Main.getInstance().getGame().userPreference.data.bDeathAd = enabled;
+    public static function setDeathAdsVisible(visible:Boolean):void {
+      Main.getInstance().getGame().userPreference.data.bDeathAd = visible;
     }
 
     [BridgeExport]
@@ -83,7 +83,7 @@ package vexed.game {
     }
 
     [BridgeExport]
-    public static function setPlayersVisible(visible:Boolean):void {
+    public static function setOtherPlayersVisible(visible:Boolean):void {
       setModuleEnabled("HidePlayers", !visible);
     }
 

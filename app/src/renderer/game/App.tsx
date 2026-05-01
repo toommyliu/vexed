@@ -145,10 +145,10 @@ export default function App() {
   const [customGuild, setCustomGuild] = createSignal("");
   const [walkSpeed, setWalkSpeed] = createSignal("8");
   const [frameRate, setFrameRate] = createSignal("24");
-  const [deathAdsEnabled, setDeathAdsEnabled] = createSignal(false);
+  const [deathAdsVisible, setDeathAdsVisible] = createSignal(false);
   const [collisionsEnabled, setCollisionsEnabled] = createSignal(true);
   const [effectsEnabled, setEffectsEnabled] = createSignal(true);
-  const [playersVisible, setPlayersVisible] = createSignal(true);
+  const [otherPlayersVisible, setOtherPlayersVisible] = createSignal(true);
   const [lagKillerEnabled, setLagKillerEnabled] = createSignal(false);
   const [enemyMagnetEnabled, setEnemyMagnetEnabled] = createSignal(false);
   const [infiniteRangeEnabled, setInfiniteRangeEnabled] = createSignal(false);
@@ -799,14 +799,14 @@ ${source}
   };
 
   const handleToggleDeathAds = () => {
-    const newEnabled = !deathAdsEnabled();
-    setDeathAdsEnabled(newEnabled);
+    const newVisible = !deathAdsVisible();
+    setDeathAdsVisible(newVisible);
     void runtime
       .runPromise(
         Effect.gen(function* () {
           const settings = yield* Settings;
-          yield* settings.setDeathAdsEnabled(newEnabled);
-          console.log("Death ads", newEnabled ? "enabled" : "disabled");
+          yield* settings.setDeathAdsVisible(newVisible);
+          console.log("Death ads", newVisible ? "visible" : "hidden");
         }),
       )
       .catch((error) => {
@@ -847,13 +847,13 @@ ${source}
   };
 
   const handleTogglePlayersVisible = () => {
-    const newVisible = !playersVisible();
-    setPlayersVisible(newVisible);
+    const newVisible = !otherPlayersVisible();
+    setOtherPlayersVisible(newVisible);
     void runtime
       .runPromise(
         Effect.gen(function* () {
           const settings = yield* Settings;
-          yield* settings.setPlayersVisible(newVisible);
+          yield* settings.setOtherPlayersVisible(newVisible);
           console.log("Players", newVisible ? "visible" : "hidden");
         }),
       )
@@ -957,10 +957,10 @@ ${source}
             setCustomGuild(state.customGuild ?? "");
             setWalkSpeed(String(state.walkSpeed));
             setFrameRate(String(state.frameRate));
-            setDeathAdsEnabled(state.deathAdsEnabled);
+            setDeathAdsVisible(state.deathAdsVisible);
             setCollisionsEnabled(state.collisionsEnabled);
             setEffectsEnabled(state.effectsEnabled);
-            setPlayersVisible(state.playersVisible);
+            setOtherPlayersVisible(state.otherPlayersVisible);
             setLagKillerEnabled(state.lagKillerEnabled);
             setEnemyMagnetEnabled(state.enemyMagnetEnabled);
             setInfiniteRangeEnabled(state.infiniteRangeEnabled);
@@ -1600,7 +1600,7 @@ ${source}
               >
                 <input
                   type="checkbox"
-                  checked={deathAdsEnabled()}
+                  checked={deathAdsVisible()}
                   onChange={handleToggleDeathAds}
                   style={{ cursor: "pointer" }}
                 />
@@ -1633,7 +1633,7 @@ ${source}
               >
                 <input
                   type="checkbox"
-                  checked={playersVisible()}
+                  checked={otherPlayersVisible()}
                   onChange={handleTogglePlayersVisible}
                   style={{ cursor: "pointer" }}
                 />

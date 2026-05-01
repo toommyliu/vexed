@@ -12,10 +12,10 @@ import type {
 
 const DEFAULT_STATE: SettingsState = {
   walkSpeed: 8,
-  deathAdsEnabled: true,
+  deathAdsVisible: true,
   collisionsEnabled: true,
   effectsEnabled: true,
-  playersVisible: true,
+  otherPlayersVisible: true,
   lagKillerEnabled: false,
   frameRate: 24,
   enemyMagnetEnabled: false,
@@ -44,8 +44,8 @@ const normalizePatch = (patch: SettingsPatch): SettingsPatch => {
     );
   }
 
-  if (patch.deathAdsEnabled !== undefined) {
-    normalized.deathAdsEnabled = patch.deathAdsEnabled;
+  if (patch.deathAdsVisible !== undefined) {
+    normalized.deathAdsVisible = patch.deathAdsVisible;
   }
 
   if (patch.collisionsEnabled !== undefined) {
@@ -56,8 +56,8 @@ const normalizePatch = (patch: SettingsPatch): SettingsPatch => {
     normalized.effectsEnabled = patch.effectsEnabled;
   }
 
-  if (patch.playersVisible !== undefined) {
-    normalized.playersVisible = patch.playersVisible;
+  if (patch.otherPlayersVisible !== undefined) {
+    normalized.otherPlayersVisible = patch.otherPlayersVisible;
   }
 
   if (patch.lagKillerEnabled !== undefined) {
@@ -94,10 +94,10 @@ const hasPatchChanges = (patch: SettingsPatch): boolean =>
   patch.customName !== undefined ||
   patch.customGuild !== undefined ||
   patch.walkSpeed !== undefined ||
-  patch.deathAdsEnabled !== undefined ||
+  patch.deathAdsVisible !== undefined ||
   patch.collisionsEnabled !== undefined ||
   patch.effectsEnabled !== undefined ||
-  patch.playersVisible !== undefined ||
+  patch.otherPlayersVisible !== undefined ||
   patch.lagKillerEnabled !== undefined ||
   patch.frameRate !== undefined ||
   patch.enemyMagnetEnabled !== undefined ||
@@ -151,9 +151,9 @@ const make = Effect.gen(function* () {
         yield* bridge.call("settings.setWalkSpeed", [patch.walkSpeed]);
       }
 
-      if (patch.deathAdsEnabled !== undefined) {
-        yield* bridge.call("settings.setDeathAdsEnabled", [
-          patch.deathAdsEnabled,
+      if (patch.deathAdsVisible !== undefined) {
+        yield* bridge.call("settings.setDeathAdsVisible", [
+          patch.deathAdsVisible,
         ]);
       }
 
@@ -169,9 +169,9 @@ const make = Effect.gen(function* () {
         ]);
       }
 
-      if (patch.playersVisible !== undefined) {
-        yield* bridge.call("settings.setPlayersVisible", [
-          patch.playersVisible,
+      if (patch.otherPlayersVisible !== undefined) {
+        yield* bridge.call("settings.setOtherPlayersVisible", [
+          patch.otherPlayersVisible,
         ]);
       }
 
@@ -289,8 +289,8 @@ const make = Effect.gen(function* () {
   const setWalkSpeed: SettingsShape["setWalkSpeed"] = (speed) =>
     Effect.asVoid(patchState({ walkSpeed: speed }));
 
-  const setDeathAdsEnabled: SettingsShape["setDeathAdsEnabled"] = (enabled) =>
-    Effect.asVoid(patchState({ deathAdsEnabled: enabled }));
+  const setDeathAdsVisible: SettingsShape["setDeathAdsVisible"] = (visible) =>
+    Effect.asVoid(patchState({ deathAdsVisible: visible }));
 
   const setCollisionsEnabled: SettingsShape["setCollisionsEnabled"] = (
     enabled,
@@ -299,8 +299,9 @@ const make = Effect.gen(function* () {
   const setEffectsEnabled: SettingsShape["setEffectsEnabled"] = (enabled) =>
     Effect.asVoid(patchState({ effectsEnabled: enabled }));
 
-  const setPlayersVisible: SettingsShape["setPlayersVisible"] = (visible) =>
-    Effect.asVoid(patchState({ playersVisible: visible }));
+  const setOtherPlayersVisible: SettingsShape["setOtherPlayersVisible"] = (
+    visible,
+  ) => Effect.asVoid(patchState({ otherPlayersVisible: visible }));
 
   const setLagKillerEnabled: SettingsShape["setLagKillerEnabled"] = (enabled) =>
     Effect.asVoid(patchState({ lagKillerEnabled: enabled }));
@@ -331,10 +332,10 @@ const make = Effect.gen(function* () {
     setCustomName,
     setCustomGuild,
     setWalkSpeed,
-    setDeathAdsEnabled,
+    setDeathAdsVisible,
     setCollisionsEnabled,
     setEffectsEnabled,
-    setPlayersVisible,
+    setOtherPlayersVisible,
     setLagKillerEnabled,
     setFrameRate,
     apply,
