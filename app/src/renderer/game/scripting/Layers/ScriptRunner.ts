@@ -67,6 +67,7 @@ import {
   createScriptRuntimeApiProxy,
   type AnyEffect,
 } from "../scriptRuntimeApi";
+import { makeScriptFeedback } from "../scriptFeedback";
 
 type ConditionalBlockFrame = {
   readonly ifIndex: number;
@@ -718,6 +719,11 @@ const make = Effect.gen(function* () {
         world: api.world,
         signal: scriptScope.signal,
         isCancelled: scriptScope.isCancelled,
+        feedback: makeScriptFeedback({
+          sourceName: program.sourceName,
+          notify: (diagnostic) =>
+            appendDiagnostic(program.sourceName, diagnostic),
+        }),
         run: <A, E>(effect: Effect.Effect<A, E>) => wrapScriptEffect(effect),
         runApiEffect: <A, E>(effect: Effect.Effect<A, E>) =>
           scriptScope.runPromise(wrapScriptEffect(effect)),
@@ -731,6 +737,7 @@ const make = Effect.gen(function* () {
           Effect.gen(function* () {
             const key = `${type}:${name.trim().toLowerCase()}`;
             const cleanupKey = `packet:${key}`;
+            const feedbackSource = { command: key };
             const packetContext = {
               sourceName: program.sourceName,
               api: createCustomScriptRuntimeApi(context),
@@ -742,11 +749,12 @@ const make = Effect.gen(function* () {
                   `[script:${program.sourceName}:handler:${key}] ${message}`,
                 );
               },
+              feedback: makeScriptFeedback(context, feedbackSource),
               notify: (diagnostic: ScriptDiagnosticInput) => {
                 runFork(
                   context.notify({
                     ...diagnostic,
-                    command: diagnostic.command ?? key,
+                    command: diagnostic.command ?? feedbackSource.command,
                   }),
                 );
               },

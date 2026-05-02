@@ -317,6 +317,7 @@ test("use_consumables fails closed when slot 5 does not match the equipped item"
   expect(fixture.diagnostics).toEqual([
     {
       command: "use_consumables",
+      instructionIndex: 0,
       severity: "error",
       message: 'Consumable "Body Tonic" did not appear in slot 5.',
     },

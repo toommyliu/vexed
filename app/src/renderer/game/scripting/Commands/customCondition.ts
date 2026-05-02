@@ -8,6 +8,7 @@ import {
 } from "../Types";
 import { ScriptEffect } from "../scriptEffect";
 import { makeScriptCancellationError } from "../scriptAsyncScope";
+import { makeScriptFeedback } from "../scriptFeedback";
 import {
   createCustomScriptEffectRuntimeApi,
   createCustomScriptRuntimeApi,
@@ -45,6 +46,7 @@ export const makeCustomConditionEvaluator =
     args: ReadonlyArray<unknown>,
   ): Effect.Effect<boolean, ScriptCommandError> => {
     const sourceName = context.sourceName;
+    const feedbackSource = { command: name };
     const customContext = {
       args,
       sourceName,
@@ -55,11 +57,12 @@ export const makeCustomConditionEvaluator =
       log: (message: string) => {
         console.info(`[script:${sourceName}:${name}] ${message}`);
       },
+      feedback: makeScriptFeedback(context, feedbackSource),
       notify: (diagnostic: ScriptDiagnosticInput) => {
         void context.runApiEffect(
           context.notify({
             ...diagnostic,
-            command: diagnostic.command ?? name,
+            command: diagnostic.command ?? feedbackSource.command,
           }),
         );
       },

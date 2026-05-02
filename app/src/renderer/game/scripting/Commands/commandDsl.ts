@@ -10,6 +10,7 @@ import {
   type ScriptExecutionContext,
   type ScriptInstruction,
 } from "../Types";
+import { withInstructionFeedback } from "../scriptFeedback";
 
 // Command domain types
 
@@ -607,7 +608,11 @@ export const createCommandHandler =
   ): ScriptCommandHandler =>
   (context, instruction) =>
     Effect.as(
-      handler(context, instruction.args, instruction),
+      handler(
+        withInstructionFeedback(context, instruction),
+        instruction.args,
+        instruction,
+      ),
       ScriptCommandResult.Continue,
     );
 

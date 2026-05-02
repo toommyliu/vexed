@@ -78,6 +78,19 @@ export interface ScriptDiagnosticInput {
   readonly details?: Readonly<Record<string, unknown>>;
 }
 
+export interface ScriptFeedbackOptions {
+  readonly details?: Readonly<Record<string, unknown>>;
+}
+
+export interface ScriptFeedback {
+  info(message: string, options?: ScriptFeedbackOptions): Effect.Effect<void>;
+  warn(message: string, options?: ScriptFeedbackOptions): Effect.Effect<void>;
+  fail(
+    message: string,
+    options?: ScriptFeedbackOptions,
+  ): Effect.Effect<never, ScriptInvalidArgumentError>;
+}
+
 type CustomScriptRuntimeValue<T> =
   T extends Effect.Effect<infer A, unknown, unknown>
     ? Promise<A>
@@ -166,6 +179,7 @@ export interface CustomCommandContext {
   jumpToIndex(index: number): CustomCommandResult;
   stop(): CustomCommandResult;
   log(message: string): void;
+  readonly feedback: ScriptFeedback;
   notify(diagnostic: ScriptDiagnosticInput): void;
 }
 
@@ -196,6 +210,7 @@ export interface CustomConditionContext {
   readonly signal: AbortSignal;
   isCancelled(): boolean;
   log(message: string): void;
+  readonly feedback: ScriptFeedback;
   notify(diagnostic: ScriptDiagnosticInput): void;
 }
 
@@ -215,6 +230,7 @@ export interface ScriptPacketHandlerContext {
   readonly signal: AbortSignal;
   isCancelled(): boolean;
   log(message: string): void;
+  readonly feedback: ScriptFeedback;
   notify(diagnostic: ScriptDiagnosticInput): void;
 }
 
@@ -249,6 +265,7 @@ export interface ScriptExecutionContext {
   readonly world: ScriptRuntimeValue<WorldShape>;
   readonly signal: AbortSignal;
   isCancelled(): boolean;
+  readonly feedback: ScriptFeedback;
   run<A, E>(
     effect: Effect.Effect<A, E>,
   ): Effect.Effect<A, E | ScriptNotReadyError>;

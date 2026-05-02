@@ -21,6 +21,7 @@ import {
   createScriptRuntimeApiProxy,
   type AnyEffect,
 } from "../scriptRuntimeApi";
+import { makeScriptFeedback } from "../scriptFeedback";
 
 export const CUSTOM_COMMAND_NAME_PATTERN = /^[a-z][a-z0-9_]*$/;
 
@@ -347,6 +348,10 @@ export const makeCustomCommandHandler =
   (name: string, handler: CustomCommandHandler): ScriptCommandHandler =>
   (context, instruction) => {
     const sourceName = context.sourceName;
+    const feedbackSource = {
+      command: instruction.name,
+      instructionIndex: instruction.index,
+    };
     const customContext = {
       args: instruction.args,
       sourceName,
@@ -363,11 +368,14 @@ export const makeCustomCommandHandler =
       log: (message: string) => {
         console.info(`[script:${sourceName}:${name}] ${message}`);
       },
+      feedback: makeScriptFeedback(context, feedbackSource),
       notify: (diagnostic: ScriptDiagnosticInput) => {
         void context.runApiEffect(
           context.notify({
             ...diagnostic,
-            command: diagnostic.command ?? name,
+            command: diagnostic.command ?? feedbackSource.command,
+            instructionIndex:
+              diagnostic.instructionIndex ?? feedbackSource.instructionIndex,
           }),
         );
       },

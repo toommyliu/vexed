@@ -39,7 +39,6 @@ import {
   assertValidCustomCommandName,
   validateCustomCommandName,
 } from "./customCommand";
-import { failCommand } from "./commandFeedback";
 import { loadShopById } from "./itemOperations";
 
 type PacketHandlerType = "packetFromClient" | "packetFromServer" | "pext";
@@ -590,18 +589,14 @@ const useConsumablesCommand = createCommandHandler((context, args) =>
 
       const inventoryItem = yield* context.inventory.getItem(item);
       if (!inventoryItem) {
-        return yield* failCommand(
-          context,
-          "use_consumables",
+        return yield* context.feedback.fail(
           `Consumable "${item}" was not found in inventory.`,
         );
       }
 
       const equipped = yield* context.inventory.equip(item);
       if (!equipped) {
-        return yield* failCommand(
-          context,
-          "use_consumables",
+        return yield* context.feedback.fail(
           `Consumable "${item}" could not be equipped.`,
         );
       }
@@ -611,9 +606,7 @@ const useConsumablesCommand = createCommandHandler((context, args) =>
         inventoryItem,
       );
       if (!slotMatches) {
-        return yield* failCommand(
-          context,
-          "use_consumables",
+        return yield* context.feedback.fail(
           `Consumable "${inventoryItem.name}" did not appear in slot ${CONSUMABLE_SKILL_INDEX}.`,
         );
       }
