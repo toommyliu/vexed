@@ -319,7 +319,7 @@ cmd.withdraw(["Voucher", "Merge Token"])
 
 ### `EnhanceItemOptions`
 
-**Source:** `app/src/renderer/game/scripting/Commands/itemOperations.ts:327`
+**Source:** `app/src/renderer/game/scripting/Commands/itemOperations.ts:316`
 
 ```ts
 type EnhanceItemOptions = {

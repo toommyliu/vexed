@@ -31,7 +31,7 @@ tableOfContents:
 
 Goes to the player's house.
 
-**Source:** `app/src/renderer/game/scripting/Commands/map.ts:270`
+**Source:** `app/src/renderer/game/scripting/Commands/map.ts:266`
 
 ```ts
 cmd.goto_house(player?: string): void
@@ -57,7 +57,7 @@ cmd.goto_house("Artix")
 
 Goes to another player.
 
-**Source:** `app/src/renderer/game/scripting/Commands/map.ts:254`
+**Source:** `app/src/renderer/game/scripting/Commands/map.ts:250`
 
 ```ts
 cmd.goto_player(player: string): void
@@ -79,7 +79,7 @@ cmd.goto_player("Artix")
 
 Joins a map, optionally targeting a cell and pad.
 
-**Source:** `app/src/renderer/game/scripting/Commands/map.ts:198`
+**Source:** `app/src/renderer/game/scripting/Commands/map.ts:194`
 
 ```ts
 cmd.join_map(map: string, cell: string = DEFAULT_JOIN_CELL, pad: string = DEFAULT_PAD): void
@@ -111,7 +111,7 @@ cmd.join("battleon")
 
 Moves the player to a cell and optional pad.
 
-**Source:** `app/src/renderer/game/scripting/Commands/map.ts:223`
+**Source:** `app/src/renderer/game/scripting/Commands/map.ts:219`
 
 ```ts
 cmd.move_to_cell(cell: string, pad: string = DEFAULT_PAD): void
@@ -142,7 +142,7 @@ cmd.jump_to_cell("Enter")
 
 Sets the spawn point.
 
-**Source:** `app/src/renderer/game/scripting/Commands/map.ts:288`
+**Source:** `app/src/renderer/game/scripting/Commands/map.ts:284`
 
 ```ts
 cmd.set_spawnpoint(cell?: string, pad?: string): void
@@ -173,7 +173,7 @@ cmd.set_spawn("Enter", "Spawn")
 
 Walks to a point on the map.
 
-**Source:** `app/src/renderer/game/scripting/Commands/map.ts:239`
+**Source:** `app/src/renderer/game/scripting/Commands/map.ts:235`
 
 ```ts
 cmd.walk_to(x: number, y: number): void

@@ -35,7 +35,7 @@ tableOfContents:
 
 Abandons a quest.
 
-**Source:** `app/src/renderer/game/scripting/Commands/quest.ts:262`
+**Source:** `app/src/renderer/game/scripting/Commands/quest.ts:260`
 
 ```ts
 cmd.abandon_quest(questId: number): void
@@ -51,7 +51,7 @@ cmd.abandon_quest(questId: number): void
 
 Accepts a quest.
 
-**Source:** `app/src/renderer/game/scripting/Commands/quest.ts:244`
+**Source:** `app/src/renderer/game/scripting/Commands/quest.ts:242`
 
 ```ts
 cmd.accept_quest(questId: number, silent: boolean = false): void
@@ -68,7 +68,7 @@ cmd.accept_quest(questId: number, silent: boolean = false): void
 
 Completes a quest.
 
-**Source:** `app/src/renderer/game/scripting/Commands/quest.ts:287`
+**Source:** `app/src/renderer/game/scripting/Commands/quest.ts:285`
 
 ```ts
 cmd.complete_quest(questId: number, options?: CompleteQuestOptions): void
