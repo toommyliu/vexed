@@ -1,8 +1,16 @@
-import { Effect, Number as EffectNumber } from "effect";
+import type { ItemData } from "@vexed/game";
+import { Deferred, Effect, Number as EffectNumber, Option } from "effect";
+import { asItemData } from "../../flash/ItemDataPayload";
+import { asRecord } from "../../flash/PacketPayload";
 import type { AutoZoneSupportedMap } from "../../flash/Services/AutoZone";
 import { waitFor } from "../../utils/waitFor";
 import { ScriptInvalidArgumentError } from "../Errors";
-import { ScriptCommandResult, type ScriptCommandHandler } from "../Types";
+import {
+  ScriptCommandResult,
+  type ScriptCommandError,
+  type ScriptCommandHandler,
+  type ScriptExecutionContext,
+} from "../Types";
 import type {
   CustomCommandHandler,
   CustomConditionHandler,
@@ -554,6 +562,57 @@ const drinkConsumablesCommand = createCommandHandler((context, args) =>
   }),
 );
 
+const GEAR_OF_DOOM = "Gear of Doom";
+const TREASURE_POTION = "Treasure Potion";
+const WHEEL_OF_DOOM_QUEST_ID = 3_076;
+
+const extractWheelRewardItems = (payload: unknown): readonly ItemData[] => {
+  const data = asRecord(payload);
+  if (!data) {
+    return [];
+  }
+
+  const items = new Map<number, ItemData>();
+  const addItem = (value: unknown) => {
+    const item = asItemData(value);
+    if (item) {
+      items.set(item.ItemID, item);
+    }
+  };
+
+  const dropItems = asRecord(data["dropItems"]);
+  if (dropItems) {
+    for (const value of Object.values(dropItems)) {
+      addItem(value);
+    }
+  }
+
+  addItem(data["Item"]);
+
+  return Array.from(items.values());
+};
+
+const completeWheelOfDoomAndReadRewards = (
+  context: ScriptExecutionContext,
+): Effect.Effect<readonly ItemData[], ScriptCommandError> =>
+  Effect.gen(function* () {
+    const result = yield* Deferred.make<readonly ItemData[]>();
+    const dispose = yield* context.packet
+      .json("Wheel", (packet) =>
+        Deferred.succeed(result, extractWheelRewardItems(packet.data)),
+      )
+      .pipe(Effect.orDie);
+
+    return yield* Effect.gen(function* () {
+      yield* context.quests.complete(WHEEL_OF_DOOM_QUEST_ID);
+      const rewards = yield* Deferred.await(result).pipe(
+        Effect.timeoutOption("5 seconds"),
+      );
+
+      return Option.isSome(rewards) ? rewards.value : [];
+    }).pipe(Effect.ensuring(Effect.sync(dispose)));
+  });
+
 const wheelOfDoomCommand = createCommandHandler((context, args) =>
   Effect.gen(function* () {
     const toBank = yield* readOptionalInstructionBoolean(
@@ -563,27 +622,38 @@ const wheelOfDoomCommand = createCommandHandler((context, args) =>
       0,
       "toBank",
     );
-    const item = "Gear of Doom";
 
-    if (!(yield* context.inventory.contains(item, 3))) {
+    if (!(yield* context.inventory.contains(GEAR_OF_DOOM, 3))) {
       yield* context.bank.open(true);
-      if (!(yield* context.bank.contains(item, 3))) {
+      if (!(yield* context.bank.contains(GEAR_OF_DOOM, 3))) {
         return;
       }
-      yield* context.bank.withdraw(item);
+      yield* context.bank.withdraw(GEAR_OF_DOOM);
     }
 
     yield* context.player.joinMap("doom");
-    yield* context.quests.accept(3076, true);
-    if (!(yield* context.quests.canComplete(3076))) {
+    yield* context.quests.accept(WHEEL_OF_DOOM_QUEST_ID, true);
+    if (!(yield* context.quests.canComplete(WHEEL_OF_DOOM_QUEST_ID))) {
       return;
     }
-    yield* context.quests.complete(3076);
 
-    if (toBank === true) {
-      yield* context.bank.open(true);
-      yield* context.bank.deposit(item);
+    if (toBank !== true) {
+      yield* context.quests.complete(WHEEL_OF_DOOM_QUEST_ID);
+      return;
     }
+
+    const rewards = yield* completeWheelOfDoomAndReadRewards(context);
+    const bankableRewards = rewards.filter(
+      (item) => item.sName !== TREASURE_POTION,
+    );
+    if (bankableRewards.length === 0) {
+      return;
+    }
+
+    yield* Effect.log("Depositing Wheel of Doom rewards to bank", bankableRewards);
+
+    yield* context.bank.open(true);
+    yield* context.bank.depositMany(...bankableRewards.map((item) => item.sName));
   }),
 );
 
@@ -1242,7 +1312,7 @@ export const createMiscScriptDsl = (
     /**
      * Turns in the Wheel of Doom quest when enough Gear of Doom is available.
      *
-     * @param toBank - Whether to bank remaining Gear of Doom afterward.
+     * @param toBank - Whether to bank rewards reported by the Wheel packet afterward.
      * @example
      * cmd.do_wheelofdoom(true)
      */

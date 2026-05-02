@@ -1,25 +1,13 @@
 import type { ItemData } from "@vexed/game";
 import { equalsIgnoreCase } from "@vexed/shared/string";
 import { Effect, Layer } from "effect";
+import { asItemData } from "../ItemDataPayload";
 import { asRecord } from "../PacketPayload";
 import { Auth } from "../Services/Auth";
 import { Bridge } from "../Services/Bridge";
 import type { DropsShape } from "../Services/Drops";
 import { Drops } from "../Services/Drops";
 import { Packet } from "../Services/Packet";
-
-const isItemData = (value: unknown): value is ItemData => {
-  const record = asRecord(value);
-  if (!record) {
-    return false;
-  }
-
-  return (
-    typeof record["ItemID"] === "number" &&
-    typeof record["iQty"] === "number" &&
-    typeof record["sName"] === "string"
-  );
-};
 
 const make = Effect.gen(function* () {
   const bridge = yield* Bridge;
@@ -72,8 +60,9 @@ const make = Effect.gen(function* () {
         return;
       }
 
-      for (const item of Object.values(items)) {
-        if (!isItemData(item)) {
+      for (const value of Object.values(items)) {
+        const item = asItemData(value);
+        if (!item) {
           continue;
         }
 
