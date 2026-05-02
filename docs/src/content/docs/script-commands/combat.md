@@ -249,7 +249,7 @@ cmd.use_skill(skill: number | string, wait: boolean = false): void
 
 ### `CombatKillOptions`
 
-**Source:** `app/src/renderer/game/flash/Services/Combat.ts:5`
+**Source:** `app/src/renderer/game/flash/Services/Combat.ts:6`
 
 ```ts
 interface CombatKillOptions

@@ -1433,7 +1433,7 @@ type ConditionInput =
 
 ### `ScriptAuraMetric`
 
-**Source:** `app/src/renderer/game/scripting/Commands/commandDsl.ts:70`
+**Source:** `app/src/renderer/game/scripting/Commands/commandDsl.ts:71`
 
 ```ts
 type ScriptAuraMetric =
@@ -1445,7 +1445,7 @@ type ScriptAuraMetric =
 
 ### `ScriptComparisonOperator`
 
-**Source:** `app/src/renderer/game/scripting/Commands/commandDsl.ts:51`
+**Source:** `app/src/renderer/game/scripting/Commands/commandDsl.ts:52`
 
 ```ts
 type ScriptComparisonOperator =
@@ -1475,7 +1475,7 @@ Example flow:
   3. `ifCommand` calls `evaluateScriptCondition` with that argument.
   4. The `"PlayerMetric"` case reads live HP and compares it to `1000`.
 
-**Source:** `app/src/renderer/game/scripting/Commands/commandDsl.ts:88`
+**Source:** `app/src/renderer/game/scripting/Commands/commandDsl.ts:89`
 
 ```ts
 type ScriptCondition =
@@ -1622,7 +1622,7 @@ type ScriptCondition =
 
 ### `ScriptInventoryLocation`
 
-**Source:** `app/src/renderer/game/scripting/Commands/commandDsl.ts:71`
+**Source:** `app/src/renderer/game/scripting/Commands/commandDsl.ts:72`
 
 ```ts
 type ScriptInventoryLocation =
@@ -1636,7 +1636,7 @@ type ScriptInventoryLocation =
 
 ### `ScriptMonsterMetric`
 
-**Source:** `app/src/renderer/game/scripting/Commands/commandDsl.ts:69`
+**Source:** `app/src/renderer/game/scripting/Commands/commandDsl.ts:70`
 
 ```ts
 type ScriptMonsterMetric =
@@ -1648,7 +1648,7 @@ type ScriptMonsterMetric =
 
 ### `ScriptPlayerMetric`
 
-**Source:** `app/src/renderer/game/scripting/Commands/commandDsl.ts:68`
+**Source:** `app/src/renderer/game/scripting/Commands/commandDsl.ts:69`
 
 ```ts
 type ScriptPlayerMetric =

@@ -29,7 +29,6 @@ tableOfContents:
 | [`cmd.disable_provoke_cell`](#command-disable_provoke_cell) | Disables provoke cell behavior. |  |
 | [`cmd.disable_skip_cutscenes`](#command-disable_skip_cutscenes) | Disables cutscene skipping. |  |
 | [`cmd.do_wheelofdoom`](#command-do_wheelofdoom) | Turns in the Wheel of Doom quest when enough Gear of Doom is available. |  |
-| [`cmd.use_consumables`](#command-use_consumables) | Equips and uses one or more consumables, then optionally re-equips an item. |  |
 | [`cmd.enable_collisions`](#command-enable_collisions) | Enables collision checks. |  |
 | [`cmd.enable_effects`](#command-enable_effects) | Enables Flash visual effects. |  |
 | [`cmd.enable_enemy_magnet`](#command-enable_enemy_magnet) | Enables enemy magnet. |  |
@@ -66,6 +65,7 @@ tableOfContents:
 | [`cmd.use_autozone_moreskulls`](#command-use_autozone_moreskulls) | Enables the MoreSkulls auto-zone. |  |
 | [`cmd.use_autozone_queeniona`](#command-use_autozone_queeniona) | Enables the Queeniona auto-zone. |  |
 | [`cmd.use_autozone_ultradage`](#command-use_autozone_ultradage) | Enables the UltraDage auto-zone. |  |
+| [`cmd.use_consumables`](#command-use_consumables) | Equips and uses one or more consumables, then optionally re-equips an item. |  |
 | [`cmd.wait_for_player_count`](#command-wait_for_player_count) | Waits until the room has enough players, or exactly that many players. |  |
 
 ## Commands
@@ -76,7 +76,7 @@ tableOfContents:
 
 Plays a short beep.
 
-**Source:** `app/src/renderer/game/scripting/Commands/misc.ts:1178`
+**Source:** `app/src/renderer/game/scripting/Commands/misc.ts:1312`
 
 ```ts
 cmd.beep(times: number | undefined = 1): void
@@ -102,7 +102,7 @@ cmd.beep(3)
 
 Buys enough Scroll of Life Steal to reach the requested quantity.
 
-**Source:** `app/src/renderer/game/scripting/Commands/misc.ts:1004`
+**Source:** `app/src/renderer/game/scripting/Commands/misc.ts:1138`
 
 ```ts
 cmd.buy_lifesteal(quantity: number): void
@@ -124,7 +124,7 @@ cmd.buy_lifesteal(20)
 
 Buys enough Scroll of Enrage to reach the requested quantity.
 
-**Source:** `app/src/renderer/game/scripting/Commands/misc.ts:1017`
+**Source:** `app/src/renderer/game/scripting/Commands/misc.ts:1151`
 
 ```ts
 cmd.buy_scroll_of_enrage(quantity: number): void
@@ -146,7 +146,7 @@ cmd.buy_scroll_of_enrage(20)
 
 Closes the game window.
 
-**Source:** `app/src/renderer/game/scripting/Commands/misc.ts:1166`
+**Source:** `app/src/renderer/game/scripting/Commands/misc.ts:1300`
 
 ```ts
 cmd.close_window(): void
@@ -158,7 +158,7 @@ cmd.close_window(): void
 
 Pauses the script for a fixed number of milliseconds.
 
-**Source:** `app/src/renderer/game/scripting/Commands/misc.ts:764`
+**Source:** `app/src/renderer/game/scripting/Commands/misc.ts:898`
 
 ```ts
 cmd.delay(ms: number): void
@@ -180,7 +180,7 @@ cmd.delay(1000)
 
 Disables collision checks.
 
-**Source:** `app/src/renderer/game/scripting/Commands/misc.ts:824`
+**Source:** `app/src/renderer/game/scripting/Commands/misc.ts:958`
 
 ```ts
 cmd.disable_collisions(): void
@@ -192,7 +192,7 @@ cmd.disable_collisions(): void
 
 Disables Flash visual effects.
 
-**Source:** `app/src/renderer/game/scripting/Commands/misc.ts:836`
+**Source:** `app/src/renderer/game/scripting/Commands/misc.ts:970`
 
 ```ts
 cmd.disable_effects(): void
@@ -204,7 +204,7 @@ cmd.disable_effects(): void
 
 Disables enemy magnet.
 
-**Source:** `app/src/renderer/game/scripting/Commands/misc.ts:860`
+**Source:** `app/src/renderer/game/scripting/Commands/misc.ts:994`
 
 ```ts
 cmd.disable_enemy_magnet(): void
@@ -216,7 +216,7 @@ cmd.disable_enemy_magnet(): void
 
 Disables infinite range.
 
-**Source:** `app/src/renderer/game/scripting/Commands/misc.ts:872`
+**Source:** `app/src/renderer/game/scripting/Commands/misc.ts:1006`
 
 ```ts
 cmd.disable_infinite_range(): void
@@ -228,7 +228,7 @@ cmd.disable_infinite_range(): void
 
 Disables lag killer.
 
-**Source:** `app/src/renderer/game/scripting/Commands/misc.ts:884`
+**Source:** `app/src/renderer/game/scripting/Commands/misc.ts:1018`
 
 ```ts
 cmd.disable_lag_killer(): void
@@ -240,7 +240,7 @@ cmd.disable_lag_killer(): void
 
 Disables provoke cell behavior.
 
-**Source:** `app/src/renderer/game/scripting/Commands/misc.ts:896`
+**Source:** `app/src/renderer/game/scripting/Commands/misc.ts:1030`
 
 ```ts
 cmd.disable_provoke_cell(): void
@@ -252,7 +252,7 @@ cmd.disable_provoke_cell(): void
 
 Disables cutscene skipping.
 
-**Source:** `app/src/renderer/game/scripting/Commands/misc.ts:908`
+**Source:** `app/src/renderer/game/scripting/Commands/misc.ts:1042`
 
 ```ts
 cmd.disable_skip_cutscenes(): void
@@ -264,7 +264,7 @@ cmd.disable_skip_cutscenes(): void
 
 Turns in the Wheel of Doom quest when enough Gear of Doom is available.
 
-**Source:** `app/src/renderer/game/scripting/Commands/misc.ts:1249`
+**Source:** `app/src/renderer/game/scripting/Commands/misc.ts:1383`
 
 ```ts
 cmd.do_wheelofdoom(toBank: boolean | undefined = false): void
@@ -272,39 +272,12 @@ cmd.do_wheelofdoom(toBank: boolean | undefined = false): void
 
 | Name | Type | Required | Default | Description |
 | --- | --- | --- | --- | --- |
-| `toBank` | `boolean` \| `undefined` | no | `false` | Whether to bank remaining Gear of Doom afterward. |
+| `toBank` | `boolean` \| `undefined` | no | `false` | Whether to bank rewards reported by the Wheel packet afterward. |
 
 **Examples**
 
 ```js
 cmd.do_wheelofdoom(true)
-```
-
-<a id="command-use_consumables"></a>
-
-### `cmd.use_consumables(items, equipAfter)`
-
-Equips and uses one or more consumables, then optionally re-equips an item.
-
-**Source:** `app/src/renderer/game/scripting/Commands/misc.ts:1222`
-
-```ts
-cmd.use_consumables(items: string | readonly string[], equipAfter: string | undefined): void
-```
-
-| Name | Type | Required | Default | Description |
-| --- | --- | --- | --- | --- |
-| `items` | `string` \| `readonly` `string`[] | yes |  | Consumable item name or names. |
-| `equipAfter` | `string` \| `undefined` | yes |  | Optional item to equip after using consumables. |
-
-**Examples**
-
-```js
-cmd.use_consumables("Felicitous Philtre", "Main Class")
-```
-
-```js
-cmd.use_consumables(["Body Tonic", "Potent Honor Potion"])
 ```
 
 <a id="command-enable_collisions"></a>
@@ -313,7 +286,7 @@ cmd.use_consumables(["Body Tonic", "Potent Honor Potion"])
 
 Enables collision checks.
 
-**Source:** `app/src/renderer/game/scripting/Commands/misc.ts:818`
+**Source:** `app/src/renderer/game/scripting/Commands/misc.ts:952`
 
 ```ts
 cmd.enable_collisions(): void
@@ -325,7 +298,7 @@ cmd.enable_collisions(): void
 
 Enables Flash visual effects.
 
-**Source:** `app/src/renderer/game/scripting/Commands/misc.ts:830`
+**Source:** `app/src/renderer/game/scripting/Commands/misc.ts:964`
 
 ```ts
 cmd.enable_effects(): void
@@ -337,7 +310,7 @@ cmd.enable_effects(): void
 
 Enables enemy magnet.
 
-**Source:** `app/src/renderer/game/scripting/Commands/misc.ts:854`
+**Source:** `app/src/renderer/game/scripting/Commands/misc.ts:988`
 
 ```ts
 cmd.enable_enemy_magnet(): void
@@ -349,7 +322,7 @@ cmd.enable_enemy_magnet(): void
 
 Enables infinite range.
 
-**Source:** `app/src/renderer/game/scripting/Commands/misc.ts:866`
+**Source:** `app/src/renderer/game/scripting/Commands/misc.ts:1000`
 
 ```ts
 cmd.enable_infinite_range(): void
@@ -361,7 +334,7 @@ cmd.enable_infinite_range(): void
 
 Enables lag killer.
 
-**Source:** `app/src/renderer/game/scripting/Commands/misc.ts:878`
+**Source:** `app/src/renderer/game/scripting/Commands/misc.ts:1012`
 
 ```ts
 cmd.enable_lag_killer(): void
@@ -373,7 +346,7 @@ cmd.enable_lag_killer(): void
 
 Enables provoke cell behavior.
 
-**Source:** `app/src/renderer/game/scripting/Commands/misc.ts:890`
+**Source:** `app/src/renderer/game/scripting/Commands/misc.ts:1024`
 
 ```ts
 cmd.enable_provoke_cell(): void
@@ -385,7 +358,7 @@ cmd.enable_provoke_cell(): void
 
 Enables cutscene skipping.
 
-**Source:** `app/src/renderer/game/scripting/Commands/misc.ts:902`
+**Source:** `app/src/renderer/game/scripting/Commands/misc.ts:1036`
 
 ```ts
 cmd.enable_skip_cutscenes(): void
@@ -397,7 +370,7 @@ cmd.enable_skip_cutscenes(): void
 
 Jumps to a label.
 
-**Source:** `app/src/renderer/game/scripting/Commands/misc.ts:1276`
+**Source:** `app/src/renderer/game/scripting/Commands/misc.ts:1410`
 
 ```ts
 cmd.goto_label(label: string): void
@@ -419,7 +392,7 @@ cmd.goto_label("farm_loop")
 
 Hides death ads.
 
-**Source:** `app/src/renderer/game/scripting/Commands/misc.ts:848`
+**Source:** `app/src/renderer/game/scripting/Commands/misc.ts:982`
 
 ```ts
 cmd.hide_death_ads(): void
@@ -431,7 +404,7 @@ cmd.hide_death_ads(): void
 
 Hides other players.
 
-**Source:** `app/src/renderer/game/scripting/Commands/misc.ts:914`
+**Source:** `app/src/renderer/game/scripting/Commands/misc.ts:1048`
 
 ```ts
 cmd.hide_players(): void
@@ -443,7 +416,7 @@ cmd.hide_players(): void
 
 Defines a jump target for `goto_label`.
 
-**Source:** `app/src/renderer/game/scripting/Commands/misc.ts:1263`
+**Source:** `app/src/renderer/game/scripting/Commands/misc.ts:1397`
 
 ```ts
 cmd.label(label: string): void
@@ -465,7 +438,7 @@ cmd.label("farm_loop")
 
 Logs a script-scoped message to the console.
 
-**Source:** `app/src/renderer/game/scripting/Commands/misc.ts:777`
+**Source:** `app/src/renderer/game/scripting/Commands/misc.ts:911`
 
 ```ts
 cmd.log(message: string): void
@@ -487,7 +460,7 @@ cmd.log("quest complete")
 
 Logs out of the current game session.
 
-**Source:** `app/src/renderer/game/scripting/Commands/misc.ts:786`
+**Source:** `app/src/renderer/game/scripting/Commands/misc.ts:920`
 
 ```ts
 cmd.logout(): void
@@ -499,7 +472,7 @@ cmd.logout(): void
 
 Registers a script-local custom command.
 
-**Source:** `app/src/renderer/game/scripting/Commands/misc.ts:1069`
+**Source:** `app/src/renderer/game/scripting/Commands/misc.ts:1203`
 
 ```ts
 cmd.register_command(name: string, handler: CustomCommandHandler): void
@@ -524,7 +497,7 @@ cmd.register_command("my_check", async ({ api, skipNext }) => {
 
 Registers a script-local custom condition expression.
 
-**Source:** `app/src/renderer/game/scripting/Commands/misc.ts:1100`
+**Source:** `app/src/renderer/game/scripting/Commands/misc.ts:1234`
 
 ```ts
 cmd.register_condition(name: string, handler: CustomConditionHandler): void
@@ -553,7 +526,7 @@ Registers a named raw packet handler.
 The same `(type, name)` pair replaces the previous handler.
 :::
 
-**Source:** `app/src/renderer/game/scripting/Commands/misc.ts:1033`
+**Source:** `app/src/renderer/game/scripting/Commands/misc.ts:1167`
 
 ```ts
 cmd.register_handler(type: PacketHandlerType, name: string, handler: ScriptPacketHandler): void
@@ -577,7 +550,7 @@ cmd.register_handler("pext", "debug", packet => console.info(packet))
 
 Starts a named background task.
 
-**Source:** `app/src/renderer/game/scripting/Commands/misc.ts:1189`
+**Source:** `app/src/renderer/game/scripting/Commands/misc.ts:1323`
 
 ```ts
 cmd.register_task(name: string, taskFn: () => void | Promise<void>): void
@@ -600,7 +573,7 @@ cmd.register_task("heartbeat", () => console.info("tick"))
 
 Sets a delay applied after each subsequent command.
 
-**Source:** `app/src/renderer/game/scripting/Commands/misc.ts:796`
+**Source:** `app/src/renderer/game/scripting/Commands/misc.ts:930`
 
 ```ts
 cmd.set_delay(ms: number): void
@@ -622,7 +595,7 @@ cmd.set_delay(750)
 
 Changes the Flash client frame rate.
 
-**Source:** `app/src/renderer/game/scripting/Commands/misc.ts:812`
+**Source:** `app/src/renderer/game/scripting/Commands/misc.ts:946`
 
 ```ts
 cmd.set_fps(fps: number): void
@@ -644,7 +617,7 @@ cmd.set_fps(60)
 
 Overrides the displayed guild name.
 
-**Source:** `app/src/renderer/game/scripting/Commands/misc.ts:991`
+**Source:** `app/src/renderer/game/scripting/Commands/misc.ts:1125`
 
 ```ts
 cmd.set_guild(guild: string): void
@@ -666,7 +639,7 @@ cmd.set_guild("Legion")
 
 Overrides the displayed player name.
 
-**Source:** `app/src/renderer/game/scripting/Commands/misc.ts:978`
+**Source:** `app/src/renderer/game/scripting/Commands/misc.ts:1112`
 
 ```ts
 cmd.set_name(name: string): void
@@ -688,7 +661,7 @@ cmd.set_name("Guest")
 
 Sets the player walk speed.
 
-**Source:** `app/src/renderer/game/scripting/Commands/misc.ts:930`
+**Source:** `app/src/renderer/game/scripting/Commands/misc.ts:1064`
 
 ```ts
 cmd.set_walk_speed(speed: number): void
@@ -710,7 +683,7 @@ cmd.set_walk_speed(16)
 
 Shows death ads.
 
-**Source:** `app/src/renderer/game/scripting/Commands/misc.ts:842`
+**Source:** `app/src/renderer/game/scripting/Commands/misc.ts:976`
 
 ```ts
 cmd.show_death_ads(): void
@@ -722,7 +695,7 @@ cmd.show_death_ads(): void
 
 Shows other players.
 
-**Source:** `app/src/renderer/game/scripting/Commands/misc.ts:920`
+**Source:** `app/src/renderer/game/scripting/Commands/misc.ts:1054`
 
 ```ts
 cmd.show_players(): void
@@ -734,7 +707,7 @@ cmd.show_players(): void
 
 Stops the current script.
 
-**Source:** `app/src/renderer/game/scripting/Commands/misc.ts:1287`
+**Source:** `app/src/renderer/game/scripting/Commands/misc.ts:1421`
 
 ```ts
 cmd.stop(): void
@@ -750,7 +723,7 @@ cmd.stop(): void
 
 Removes a script-local custom command.
 
-**Source:** `app/src/renderer/game/scripting/Commands/misc.ts:1084`
+**Source:** `app/src/renderer/game/scripting/Commands/misc.ts:1218`
 
 ```ts
 cmd.unregister_command(name: string): void
@@ -766,7 +739,7 @@ cmd.unregister_command(name: string): void
 
 Removes a script-local custom condition.
 
-**Source:** `app/src/renderer/game/scripting/Commands/misc.ts:1115`
+**Source:** `app/src/renderer/game/scripting/Commands/misc.ts:1249`
 
 ```ts
 cmd.unregister_condition(name: string): void
@@ -782,7 +755,7 @@ cmd.unregister_condition(name: string): void
 
 Removes a previously registered packet handler.
 
-**Source:** `app/src/renderer/game/scripting/Commands/misc.ts:1052`
+**Source:** `app/src/renderer/game/scripting/Commands/misc.ts:1186`
 
 ```ts
 cmd.unregister_handler(type: PacketHandlerType, name: string): void
@@ -805,7 +778,7 @@ cmd.unregister_handler("pext", "debug")
 
 Stops a named background task.
 
-**Source:** `app/src/renderer/game/scripting/Commands/misc.ts:1206`
+**Source:** `app/src/renderer/game/scripting/Commands/misc.ts:1340`
 
 ```ts
 cmd.unregister_task(name: string): void
@@ -827,7 +800,7 @@ cmd.unregister_task("heartbeat")
 
 Enables the AstralShrine auto-zone.
 
-**Source:** `app/src/renderer/game/scripting/Commands/misc.ts:1148`
+**Source:** `app/src/renderer/game/scripting/Commands/misc.ts:1282`
 
 ```ts
 cmd.use_autozone_astralshrine(): void
@@ -839,7 +812,7 @@ cmd.use_autozone_astralshrine(): void
 
 Enables the DarkCarnax auto-zone.
 
-**Source:** `app/src/renderer/game/scripting/Commands/misc.ts:1136`
+**Source:** `app/src/renderer/game/scripting/Commands/misc.ts:1270`
 
 ```ts
 cmd.use_autozone_darkcarnax(): void
@@ -851,7 +824,7 @@ cmd.use_autozone_darkcarnax(): void
 
 Enables the LedgerMayne auto-zone.
 
-**Source:** `app/src/renderer/game/scripting/Commands/misc.ts:1124`
+**Source:** `app/src/renderer/game/scripting/Commands/misc.ts:1258`
 
 ```ts
 cmd.use_autozone_ledgermayne(): void
@@ -863,7 +836,7 @@ cmd.use_autozone_ledgermayne(): void
 
 Enables the MagnumOpus auto-zone.
 
-**Source:** `app/src/renderer/game/scripting/Commands/misc.ts:1160`
+**Source:** `app/src/renderer/game/scripting/Commands/misc.ts:1294`
 
 ```ts
 cmd.use_autozone_magnumopus(): void
@@ -875,7 +848,7 @@ cmd.use_autozone_magnumopus(): void
 
 Enables the MoreSkulls auto-zone.
 
-**Source:** `app/src/renderer/game/scripting/Commands/misc.ts:1130`
+**Source:** `app/src/renderer/game/scripting/Commands/misc.ts:1264`
 
 ```ts
 cmd.use_autozone_moreskulls(): void
@@ -887,7 +860,7 @@ cmd.use_autozone_moreskulls(): void
 
 Enables the Queeniona auto-zone.
 
-**Source:** `app/src/renderer/game/scripting/Commands/misc.ts:1154`
+**Source:** `app/src/renderer/game/scripting/Commands/misc.ts:1288`
 
 ```ts
 cmd.use_autozone_queeniona(): void
@@ -899,10 +872,37 @@ cmd.use_autozone_queeniona(): void
 
 Enables the UltraDage auto-zone.
 
-**Source:** `app/src/renderer/game/scripting/Commands/misc.ts:1142`
+**Source:** `app/src/renderer/game/scripting/Commands/misc.ts:1276`
 
 ```ts
 cmd.use_autozone_ultradage(): void
+```
+
+<a id="command-use_consumables"></a>
+
+### `cmd.use_consumables(items, equipAfter)`
+
+Equips and uses one or more consumables, then optionally re-equips an item.
+
+**Source:** `app/src/renderer/game/scripting/Commands/misc.ts:1356`
+
+```ts
+cmd.use_consumables(items: string | readonly string[], equipAfter: string | undefined): void
+```
+
+| Name | Type | Required | Default | Description |
+| --- | --- | --- | --- | --- |
+| `items` | `string` \| `readonly` `string`[] | yes |  | Consumable item name or names. |
+| `equipAfter` | `string` \| `undefined` | yes |  | Optional item to equip after using consumables. |
+
+**Examples**
+
+```js
+cmd.use_consumables("Felicitous Philtre", "Main Class")
+```
+
+```js
+cmd.use_consumables(["Body Tonic", "Potent Honor Potion"])
 ```
 
 <a id="command-wait_for_player_count"></a>
@@ -911,7 +911,7 @@ cmd.use_autozone_ultradage(): void
 
 Waits until the room has enough players, or exactly that many players.
 
-**Source:** `app/src/renderer/game/scripting/Commands/misc.ts:951`
+**Source:** `app/src/renderer/game/scripting/Commands/misc.ts:1085`
 
 ```ts
 cmd.wait_for_player_count(count: number, exact: boolean | undefined = false): void
