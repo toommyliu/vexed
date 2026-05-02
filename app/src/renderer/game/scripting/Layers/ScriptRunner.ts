@@ -44,6 +44,8 @@ import {
   type CustomConditionHandler,
   type ScriptCommandError,
   type ScriptCommandHandler,
+  type ScriptDiagnostic,
+  type ScriptDiagnosticInput,
   type ScriptExecutionContext,
   type ScriptInstruction,
   type ScriptProgram,
@@ -82,6 +84,7 @@ type LaunchFiber = Fiber.Fiber<unknown, unknown>;
 const BUILTIN_SCRIPT_API_NAMES = new Set(
   Object.keys(createScriptDsl(() => {})),
 );
+const MAX_SCRIPT_DIAGNOSTICS = 50;
 
 type CustomConditionEvaluator = (
   context: ScriptExecutionContext,
@@ -402,6 +405,33 @@ const make = Effect.gen(function* () {
   const commandsRef = yield* Ref.make(new Map(scriptCommandHandlers));
   const currentCommandRef = yield* Ref.make<RunningScriptCommand | null>(null);
   const commandDelayRef = yield* Ref.make(1000);
+  const nextDiagnosticIdRef = yield* Ref.make(0);
+  const diagnosticsRef = yield* Ref.make<ReadonlyArray<ScriptDiagnostic>>([]);
+
+  const appendDiagnostic = (sourceName: string, input: ScriptDiagnosticInput) =>
+    Effect.gen(function* () {
+      const currentCommand = yield* Ref.get(currentCommandRef);
+      const id = yield* Ref.updateAndGet(
+        nextDiagnosticIdRef,
+        (value) => value + 1,
+      );
+      const command = input.command ?? currentCommand?.name;
+      const instructionIndex = input.instructionIndex ?? currentCommand?.index;
+      const diagnostic: ScriptDiagnostic = {
+        id,
+        sourceName,
+        severity: input.severity,
+        message: input.message,
+        ...(command !== undefined ? { command } : null),
+        ...(instructionIndex !== undefined ? { instructionIndex } : null),
+        ...(input.details !== undefined ? { details: input.details } : null),
+        createdAt: Date.now(),
+      };
+
+      yield* Ref.update(diagnosticsRef, (current) =>
+        [...current, diagnostic].slice(-MAX_SCRIPT_DIAGNOSTICS),
+      );
+    });
 
   const clearPendingLaunch = (fiber: LaunchFiber) =>
     Ref.update(pendingLaunchFiberRef, (current) =>
@@ -691,6 +721,8 @@ const make = Effect.gen(function* () {
         run: <A, E>(effect: Effect.Effect<A, E>) => wrapScriptEffect(effect),
         runApiEffect: <A, E>(effect: Effect.Effect<A, E>) =>
           scriptScope.runPromise(wrapScriptEffect(effect)),
+        notify: (diagnostic) =>
+          appendDiagnostic(program.sourceName, diagnostic),
         setScriptCleanup: scriptScope.setCleanup,
         removeScriptCleanup: scriptScope.removeCleanup,
         setCommandDelay: (ms) =>
@@ -708,6 +740,14 @@ const make = Effect.gen(function* () {
               log: (message: string) => {
                 console.info(
                   `[script:${program.sourceName}:handler:${key}] ${message}`,
+                );
+              },
+              notify: (diagnostic: ScriptDiagnosticInput) => {
+                runFork(
+                  context.notify({
+                    ...diagnostic,
+                    command: diagnostic.command ?? key,
+                  }),
                 );
               },
             };
@@ -905,6 +945,9 @@ const make = Effect.gen(function* () {
     currentCommand: () => {
       return runPromise(currentCommand());
     },
+    diagnostics: () => {
+      return runPromise(diagnostics());
+    },
   };
 
   yield* Effect.addFinalizer(() =>
@@ -1010,6 +1053,7 @@ const make = Effect.gen(function* () {
             yield* ensureReady(program.sourceName);
             yield* stop("replaced by a new script");
             yield* Ref.set(commandDelayRef, 1000);
+            yield* Ref.set(diagnosticsRef, []);
 
             const token = yield* Ref.updateAndGet(
               nextScriptTokenRef,
@@ -1050,11 +1094,15 @@ const make = Effect.gen(function* () {
   const currentCommand: ScriptRunnerShape["currentCommand"] = () =>
     Ref.get(currentCommandRef);
 
+  const diagnostics: ScriptRunnerShape["diagnostics"] = () =>
+    Ref.get(diagnosticsRef);
+
   return {
     run,
     stop,
     isRunning,
     currentCommand,
+    diagnostics,
     listCommands,
     register,
     unregister,

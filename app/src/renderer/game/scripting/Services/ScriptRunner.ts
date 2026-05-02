@@ -12,7 +12,7 @@ import type {
   ScriptNotReadyError,
   ScriptUnknownCommandError,
 } from "../Errors";
-import type { ScriptCommandHandler } from "../Types";
+import type { ScriptCommandHandler, ScriptDiagnostic } from "../Types";
 
 export interface RunScriptOptions {
   readonly name?: string;
@@ -44,6 +44,7 @@ export interface ScriptRunnerShape {
   stop(reason?: string): Effect.Effect<void>;
   isRunning(): Effect.Effect<boolean>;
   currentCommand(): Effect.Effect<RunningScriptCommand | null>;
+  diagnostics(): Effect.Effect<ReadonlyArray<ScriptDiagnostic>>;
   listCommands(): Effect.Effect<ReadonlyArray<string>>;
   register(name: string, handler: ScriptCommandHandler): Effect.Effect<void>;
   unregister(name: string): Effect.Effect<void>;

@@ -57,6 +57,27 @@ export const ScriptCommandResult = {
   Stop: { _tag: "Stop" } as const,
 };
 
+export type ScriptDiagnosticSeverity = "info" | "warning" | "error";
+
+export interface ScriptDiagnostic {
+  readonly id: number;
+  readonly sourceName: string;
+  readonly command?: string;
+  readonly instructionIndex?: number;
+  readonly severity: ScriptDiagnosticSeverity;
+  readonly message: string;
+  readonly details?: Readonly<Record<string, unknown>>;
+  readonly createdAt: number;
+}
+
+export interface ScriptDiagnosticInput {
+  readonly command?: string;
+  readonly instructionIndex?: number;
+  readonly severity: ScriptDiagnosticSeverity;
+  readonly message: string;
+  readonly details?: Readonly<Record<string, unknown>>;
+}
+
 type CustomScriptRuntimeValue<T> =
   T extends Effect.Effect<infer A, unknown, unknown>
     ? Promise<A>
@@ -145,6 +166,7 @@ export interface CustomCommandContext {
   jumpToIndex(index: number): CustomCommandResult;
   stop(): CustomCommandResult;
   log(message: string): void;
+  notify(diagnostic: ScriptDiagnosticInput): void;
 }
 
 export interface CustomCommandEffectContext
@@ -174,6 +196,7 @@ export interface CustomConditionContext {
   readonly signal: AbortSignal;
   isCancelled(): boolean;
   log(message: string): void;
+  notify(diagnostic: ScriptDiagnosticInput): void;
 }
 
 export interface CustomConditionEffectContext
@@ -192,6 +215,7 @@ export interface ScriptPacketHandlerContext {
   readonly signal: AbortSignal;
   isCancelled(): boolean;
   log(message: string): void;
+  notify(diagnostic: ScriptDiagnosticInput): void;
 }
 
 export interface ScriptPacketHandlerEffectContext
@@ -262,6 +286,7 @@ export interface ScriptExecutionContext {
     name: string,
     args: ReadonlyArray<unknown>,
   ): Effect.Effect<boolean, ScriptCommandError>;
+  notify(diagnostic: ScriptDiagnosticInput): Effect.Effect<void>;
 }
 
 export type ScriptCommandError =

@@ -77,6 +77,22 @@ package vexed.game {
     }
 
     [BridgeExport]
+    [BridgeTsReturnType("FlashTypes.ActiveSkillItem | null")]
+    public static function getActiveSkillItem(index:int):Object {
+      var skill:Object = game.world.actions.active[index];
+      if (!skill || skill.sArg1 == null) {
+        return null;
+      }
+
+      var itemId:Number = Number(skill.sArg1);
+      if (isNaN(itemId) || itemId <= 0) {
+        return null;
+      }
+
+      return { itemId: itemId };
+    }
+
+    [BridgeExport]
     public static function useSkill(index:String):void {
       var skill:Object = game.world.actions.active[parseInt(index)];
 

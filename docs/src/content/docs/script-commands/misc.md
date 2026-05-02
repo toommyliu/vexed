@@ -29,7 +29,7 @@ tableOfContents:
 | [`cmd.disable_provoke_cell`](#command-disable_provoke_cell) | Disables provoke cell behavior. |  |
 | [`cmd.disable_skip_cutscenes`](#command-disable_skip_cutscenes) | Disables cutscene skipping. |  |
 | [`cmd.do_wheelofdoom`](#command-do_wheelofdoom) | Turns in the Wheel of Doom quest when enough Gear of Doom is available. |  |
-| [`cmd.drink_consumables`](#command-drink_consumables) | Equips and drinks one or more consumables, then optionally re-equips an item. |  |
+| [`cmd.use_consumables`](#command-use_consumables) | Equips and uses one or more consumables, then optionally re-equips an item. |  |
 | [`cmd.enable_collisions`](#command-enable_collisions) | Enables collision checks. |  |
 | [`cmd.enable_effects`](#command-enable_effects) | Enables Flash visual effects. |  |
 | [`cmd.enable_enemy_magnet`](#command-enable_enemy_magnet) | Enables enemy magnet. |  |
@@ -280,31 +280,31 @@ cmd.do_wheelofdoom(toBank: boolean | undefined = false): void
 cmd.do_wheelofdoom(true)
 ```
 
-<a id="command-drink_consumables"></a>
+<a id="command-use_consumables"></a>
 
-### `cmd.drink_consumables(items, equipAfter)`
+### `cmd.use_consumables(items, equipAfter)`
 
-Equips and drinks one or more consumables, then optionally re-equips an item.
+Equips and uses one or more consumables, then optionally re-equips an item.
 
 **Source:** `app/src/renderer/game/scripting/Commands/misc.ts:1222`
 
 ```ts
-cmd.drink_consumables(items: string | readonly string[], equipAfter: string | undefined): void
+cmd.use_consumables(items: string | readonly string[], equipAfter: string | undefined): void
 ```
 
 | Name | Type | Required | Default | Description |
 | --- | --- | --- | --- | --- |
 | `items` | `string` \| `readonly` `string`[] | yes |  | Consumable item name or names. |
-| `equipAfter` | `string` \| `undefined` | yes |  | Optional item to equip after drinking. |
+| `equipAfter` | `string` \| `undefined` | yes |  | Optional item to equip after using consumables. |
 
 **Examples**
 
 ```js
-cmd.drink_consumables("Felicitous Philtre", "Main Class")
+cmd.use_consumables("Felicitous Philtre", "Main Class")
 ```
 
 ```js
-cmd.drink_consumables(["Body Tonic", "Potent Honor Potion"])
+cmd.use_consumables(["Body Tonic", "Potent Honor Potion"])
 ```
 
 <a id="command-enable_collisions"></a>

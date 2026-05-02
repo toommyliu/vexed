@@ -150,7 +150,7 @@
 - [x] register_task
 - [x] unregister_task
 - [ ] do_looptaunt - Not ported: loop-taunt strategy runtime/event API is not backported.
-- [x] drink_consumables
+- [x] use_consumables
 - [ ] set_reject_else - Not ported: environment-backed drop registration/rejection API is intentionally skipped.
 - [ ] set_auto_register_requirements - Not ported: legacy Environment flag has no current runtime consumer.
 - [ ] set_auto_register_rewards - Not ported: legacy Environment flag has no current runtime consumer.

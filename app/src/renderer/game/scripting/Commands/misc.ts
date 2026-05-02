@@ -1,5 +1,6 @@
-import type { ItemData } from "@vexed/game";
+import type { Item, ItemData } from "@vexed/game";
 import { Deferred, Effect, Number as EffectNumber, Option } from "effect";
+import type { ActiveSkillItem } from "../../flash/Types";
 import { asItemData } from "../../flash/ItemDataPayload";
 import { asRecord } from "../../flash/PacketPayload";
 import type { AutoZoneSupportedMap } from "../../flash/Services/AutoZone";
@@ -38,6 +39,7 @@ import {
   assertValidCustomCommandName,
   validateCustomCommandName,
 } from "./customCommand";
+import { failCommand } from "./commandFeedback";
 import { loadShopById } from "./itemOperations";
 
 type PacketHandlerType = "packetFromClient" | "packetFromServer" | "pext";
@@ -93,10 +95,7 @@ type MiscScriptCommandArguments = {
   beep: [times?: number];
   register_task: [name: string, taskFn: () => void | Promise<void>];
   unregister_task: [name: string];
-  drink_consumables: [
-    items: string | ReadonlyArray<string>,
-    equipAfter?: string,
-  ];
+  use_consumables: [items: string | ReadonlyArray<string>, equipAfter?: string];
   do_wheelofdoom: [toBank?: boolean];
   label: [label: string];
   goto_label: [label: string];
@@ -534,13 +533,51 @@ const unregisterTaskCommand = createCommandHandler((context, args) =>
   }),
 );
 
-const drinkConsumablesCommand = createCommandHandler((context, args) =>
+const CONSUMABLE_SKILL_INDEX = 5;
+
+const normalizeConsumableName = (name: string) => name.trim().toLowerCase();
+
+const activeSkillItemMatches = (
+  activeItem: ActiveSkillItem | null,
+  expectedItem: Item,
+) => {
+  if (!activeItem) {
+    return false;
+  }
+
+  if (activeItem.itemId !== undefined) {
+    return activeItem.itemId === expectedItem.id;
+  }
+
+  if (activeItem.name !== undefined) {
+    return (
+      normalizeConsumableName(activeItem.name) ===
+      normalizeConsumableName(expectedItem.name)
+    );
+  }
+
+  return false;
+};
+
+const waitForConsumableSkillSlot = (
+  context: ScriptExecutionContext,
+  expectedItem: Item,
+) =>
+  waitFor(
+    Effect.map(
+      context.combat.getActiveSkillItem(CONSUMABLE_SKILL_INDEX),
+      (activeItem) => activeSkillItemMatches(activeItem, expectedItem),
+    ),
+    { timeout: "2 seconds" },
+  );
+
+const useConsumablesCommand = createCommandHandler((context, args) =>
   Effect.gen(function* () {
     const rawItems = args[0];
     const items = Array.isArray(rawItems) ? rawItems : [rawItems];
     const equipAfter = yield* readOptionalInstructionString(
       context,
-      "drink_consumables",
+      "use_consumables",
       args,
       1,
       "equipAfter",
@@ -551,8 +588,37 @@ const drinkConsumablesCommand = createCommandHandler((context, args) =>
         continue;
       }
 
-      yield* context.inventory.equip(item);
-      yield* context.combat.useSkill(5, true, true);
+      const inventoryItem = yield* context.inventory.getItem(item);
+      if (!inventoryItem) {
+        return yield* failCommand(
+          context,
+          "use_consumables",
+          `Consumable "${item}" was not found in inventory.`,
+        );
+      }
+
+      const equipped = yield* context.inventory.equip(item);
+      if (!equipped) {
+        return yield* failCommand(
+          context,
+          "use_consumables",
+          `Consumable "${item}" could not be equipped.`,
+        );
+      }
+
+      const slotMatches = yield* waitForConsumableSkillSlot(
+        context,
+        inventoryItem,
+      );
+      if (!slotMatches) {
+        return yield* failCommand(
+          context,
+          "use_consumables",
+          `Consumable "${inventoryItem.name}" did not appear in slot ${CONSUMABLE_SKILL_INDEX}.`,
+        );
+      }
+
+      yield* context.combat.useSkill(CONSUMABLE_SKILL_INDEX, true, true);
       yield* Effect.sleep("1 second");
     }
 
@@ -650,10 +716,15 @@ const wheelOfDoomCommand = createCommandHandler((context, args) =>
       return;
     }
 
-    yield* Effect.log("Depositing Wheel of Doom rewards to bank", bankableRewards);
+    yield* Effect.log(
+      "Depositing Wheel of Doom rewards to bank",
+      bankableRewards,
+    );
 
     yield* context.bank.open(true);
-    yield* context.bank.depositMany(...bankableRewards.map((item) => item.sName));
+    yield* context.bank.depositMany(
+      ...bankableRewards.map((item) => item.sName),
+    );
   }),
 );
 
@@ -788,7 +859,7 @@ const miscCommandHandlerMap = miscCommandDomain.defineHandlers({
   beep: beepCommand,
   register_task: registerTaskCommand,
   unregister_task: unregisterTaskCommand,
-  drink_consumables: drinkConsumablesCommand,
+  use_consumables: useConsumablesCommand,
   do_wheelofdoom: wheelOfDoomCommand,
   label: createCommandHandler((context, args) =>
     requireInstructionString(context, "label", args, 0, "label"),
@@ -1280,30 +1351,30 @@ export const createMiscScriptDsl = (
       );
     },
     /**
-     * Equips and drinks one or more consumables, then optionally re-equips an item.
+     * Equips and uses one or more consumables, then optionally re-equips an item.
      *
      * @param items - Consumable item name or names.
-     * @param equipAfter - Optional item to equip after drinking.
+     * @param equipAfter - Optional item to equip after using consumables.
      * @example
-     * cmd.drink_consumables("Felicitous Philtre", "Main Class")
+     * cmd.use_consumables("Felicitous Philtre", "Main Class")
      * @example
-     * cmd.drink_consumables(["Body Tonic", "Potent Honor Potion"])
+     * cmd.use_consumables(["Body Tonic", "Potent Honor Potion"])
      */
-    drink_consumables(items, equipAfter) {
+    use_consumables(items, equipAfter) {
       const normalizedItems = Array.isArray(items)
         ? items.map((item, index) =>
             requireScriptArgumentString(
-              "drink_consumables",
+              "use_consumables",
               `items[${index}]`,
               item,
             ),
           )
-        : requireScriptArgumentString("drink_consumables", "items", items);
+        : requireScriptArgumentString("use_consumables", "items", items);
       recordMiscInstruction(
-        "drink_consumables",
+        "use_consumables",
         normalizedItems,
         readOptionalScriptArgumentString(
-          "drink_consumables",
+          "use_consumables",
           "equipAfter",
           equipAfter,
         ),

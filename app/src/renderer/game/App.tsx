@@ -19,6 +19,7 @@ import { Player } from "./flash/Services/Player";
 import { Shops } from "./flash/Services/Shops";
 import { TempInventory } from "./flash/Services/TempInventory";
 import { demoScriptName, demoScriptSource } from "./scripting/demoScript";
+import type { ScriptDiagnostic } from "./scripting/Types";
 
 const flashServiceDebugExamples = [
   {
@@ -186,6 +187,9 @@ export default function App() {
   const [running, setRunning] = createSignal(false);
   const [currentCommand, setCurrentCommand] =
     createSignal<RunningScriptCommand | null>(null);
+  const [scriptDiagnostics, setScriptDiagnostics] = createSignal<
+    ReadonlyArray<ScriptDiagnostic>
+  >([]);
   let scriptOverlayElement: HTMLDivElement | undefined;
   let scriptOverlayDragOffset: Point | undefined;
   let scriptRunRequestId = 0;
@@ -990,15 +994,17 @@ ${source}
     }
 
     try {
-      const [commands, isRunning, command] = await Promise.all([
+      const [commands, isRunning, command, diagnostics] = await Promise.all([
         window.cmd.listCommands(),
         window.cmd.isRunning(),
         window.cmd.currentCommand(),
+        window.cmd.diagnostics(),
       ]);
 
       setCommandCount(commands.length);
       setRunning(isRunning);
       setCurrentCommand(command);
+      setScriptDiagnostics(diagnostics);
     } catch (error) {
       console.error("Failed to refresh scripting metadata", error);
     }
@@ -1881,6 +1887,40 @@ ${source}
               ? `#${currentCommand()!.index} ${currentCommand()!.name}`
               : "idle"}
           </div>
+          {scriptDiagnostics().length > 0 && (
+            <div
+              style={{
+                display: "grid",
+                gap: "4px",
+                "font-size": "11px",
+              }}
+            >
+              {scriptDiagnostics()
+                .slice(-5)
+                .map((diagnostic) => {
+                  const color =
+                    diagnostic.severity === "error"
+                      ? "#ff8585"
+                      : diagnostic.severity === "warning"
+                        ? "#ffd27a"
+                        : "#9ad1ff";
+                  return (
+                    <div
+                      style={{
+                        color,
+                        border: `1px solid ${color}`,
+                        "border-radius": "4px",
+                        padding: "4px 6px",
+                        background: "rgba(0, 0, 0, 0.22)",
+                      }}
+                    >
+                      {new Date(diagnostic.createdAt).toLocaleTimeString()} ·{" "}
+                      {diagnostic.command ?? "script"} · {diagnostic.message}
+                    </div>
+                  );
+                })}
+            </div>
+          )}
           <div style={{ "font-size": "12px", opacity: 0.75 }}>
             {scriptPath() ? `Path: ${scriptPath()}` : "Using in-memory script"}
           </div>

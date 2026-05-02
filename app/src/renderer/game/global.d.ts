@@ -1,4 +1,5 @@
 import type { AppBridge, ScriptExecutePayload } from "../../shared/ipc";
+import type { ScriptDiagnostic } from "./scripting/Types";
 
 declare global {
   // Item id or name
@@ -30,6 +31,7 @@ declare global {
     listCommands(): Promise<ReadonlyArray<string>>;
     isRunning(): Promise<boolean>;
     currentCommand(): Promise<RunningScriptCommand | null>;
+    diagnostics(): Promise<ReadonlyArray<ScriptDiagnostic>>;
   }
 
   interface Window {

@@ -37,3 +37,8 @@ export type PlayerTargetInfo = AvatarData & {
 };
 
 export type TargetInfo = MonsterTargetInfo | PlayerTargetInfo;
+
+export type ActiveSkillItem = {
+  itemId?: number;
+  name?: string;
+};

@@ -3,6 +3,7 @@ import { ScriptCustomConditionError } from "../Errors";
 import {
   type CustomConditionHandler,
   type ScriptCommandError,
+  type ScriptDiagnosticInput,
   type ScriptExecutionContext,
 } from "../Types";
 import { ScriptEffect } from "../scriptEffect";
@@ -53,6 +54,14 @@ export const makeCustomConditionEvaluator =
       isCancelled: context.isCancelled,
       log: (message: string) => {
         console.info(`[script:${sourceName}:${name}] ${message}`);
+      },
+      notify: (diagnostic: ScriptDiagnosticInput) => {
+        void context.runApiEffect(
+          context.notify({
+            ...diagnostic,
+            command: diagnostic.command ?? name,
+          }),
+        );
       },
     };
     const effectContext = {

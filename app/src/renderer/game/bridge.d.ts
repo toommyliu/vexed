@@ -29,6 +29,7 @@ declare global {
       "combat.cancelAutoAttack": () => void;
       "combat.cancelTarget": () => void;
       "combat.forceUseSkill": (index: string) => void;
+      "combat.getActiveSkillItem": (index: number) => FlashTypes.ActiveSkillItem | null;
       "combat.getSkillCooldownRemaining": (index: number) => number;
       "combat.getTarget": () => FlashTypes.TargetInfo | null;
       "combat.hasTarget": () => boolean;

@@ -14,6 +14,7 @@ import { expiresAtMs as counterAttackExpiresAtMs } from "../counterAttack";
 const DEFAULT_SKILL_ROTATION: readonly Skill[] = [1, 2, 3, 4];
 const DEFAULT_SKILL_DELAY_MS = 150;
 const COUNTER_ATTACK_WAIT_MS = 50;
+const SKILL_READY_CONFIRMATION_DELAY_MS = 150;
 
 type ResolvedKillTarget =
   | {
@@ -411,6 +412,35 @@ const make = Effect.gen(function* () {
   const cancelTarget: CombatShape["cancelTarget"] = () =>
     bridge.call("combat.cancelTarget");
 
+  const getSkillCooldownRemaining = (idx: number) =>
+    bridge
+      .call("combat.getSkillCooldownRemaining", [idx])
+      .pipe(
+        Effect.map((cooldown) =>
+          Number.isFinite(cooldown) ? Math.max(0, Math.trunc(cooldown)) : 0,
+        ),
+      );
+
+  const waitForSkillReady = (idx: number) =>
+    Effect.gen(function* () {
+      while (true) {
+        const cooldown = yield* getSkillCooldownRemaining(idx);
+        if (cooldown > 0) {
+          yield* Effect.sleep(`${cooldown} millis`);
+          continue;
+        }
+
+        yield* Effect.sleep(`${SKILL_READY_CONFIRMATION_DELAY_MS} millis`);
+
+        const confirmedCooldown = yield* getSkillCooldownRemaining(idx);
+        if (confirmedCooldown === 0) {
+          return;
+        }
+
+        yield* Effect.sleep(`${confirmedCooldown} millis`);
+      }
+    });
+
   const exit: CombatShape["exit"] = () =>
     Effect.gen(function* () {
       const maybeWorld = yield* Effect.serviceOption(World);
@@ -535,11 +565,7 @@ const make = Effect.gen(function* () {
       }
 
       if (wait) {
-        const duration = yield* bridge.call(
-          "combat.getSkillCooldownRemaining",
-          [idx],
-        );
-        yield* Effect.sleep(duration);
+        yield* waitForSkillReady(idx);
       }
 
       const targetBeforeCast = yield* getCurrentTargetMonMapId();
@@ -567,10 +593,19 @@ const make = Effect.gen(function* () {
         return false;
       }
 
-      const cooldown = yield* bridge.call("combat.getSkillCooldownRemaining", [
-        idx,
-      ]);
+      const cooldown = yield* getSkillCooldownRemaining(idx);
       return cooldown === 0;
+    });
+
+  const getActiveSkillItem: CombatShape["getActiveSkillItem"] = (index) =>
+    Effect.gen(function* () {
+      const idx =
+        typeof index === "number" ? index : Number.parseInt(index, 10);
+      if (!isValidSkillIndex(idx)) {
+        return null;
+      }
+
+      return yield* bridge.call("combat.getActiveSkillItem", [idx]);
     });
 
   const hasTarget: CombatShape["hasTarget"] = () =>
@@ -997,6 +1032,7 @@ const make = Effect.gen(function* () {
     useSkill,
     canUseSkill,
     exit,
+    getActiveSkillItem,
     getTarget,
     hasTarget,
     kill,

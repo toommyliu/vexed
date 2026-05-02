@@ -11,6 +11,7 @@ import {
   type CustomScriptEffectRuntimeApi,
   type CustomScriptRuntimeApi,
   type ScriptCommandHandler,
+  type ScriptDiagnosticInput,
   type ScriptExecutionContext,
   type ScriptInstruction,
 } from "../Types";
@@ -361,6 +362,14 @@ export const makeCustomCommandHandler =
       stop: () => customResult.Stop,
       log: (message: string) => {
         console.info(`[script:${sourceName}:${name}] ${message}`);
+      },
+      notify: (diagnostic: ScriptDiagnosticInput) => {
+        void context.runApiEffect(
+          context.notify({
+            ...diagnostic,
+            command: diagnostic.command ?? name,
+          }),
+        );
       },
     };
     const effectContext = {
