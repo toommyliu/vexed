@@ -2,6 +2,75 @@
   box-sizing: border-box;
 }
 
+html,
+body,
+* {
+  scrollbar-color: rgb(var(--scrollbar-thumb)) rgb(var(--scrollbar-track));
+  scrollbar-width: auto;
+}
+
+html::-webkit-scrollbar,
+body::-webkit-scrollbar,
+*::-webkit-scrollbar {
+  height: 0.875rem;
+  width: 0.875rem;
+}
+
+html::-webkit-scrollbar-track,
+body::-webkit-scrollbar-track,
+*::-webkit-scrollbar-track {
+  background: rgb(var(--scrollbar-track));
+}
+
+html::-webkit-scrollbar-thumb,
+body::-webkit-scrollbar-thumb,
+*::-webkit-scrollbar-thumb {
+  background-clip: padding-box;
+  background-color: rgb(var(--scrollbar-thumb));
+  border: 0.1875rem solid rgb(var(--scrollbar-track));
+  border-radius: 999px;
+  min-height: 2.75rem;
+  min-width: 2.75rem;
+}
+
+html::-webkit-scrollbar-thumb:hover,
+body::-webkit-scrollbar-thumb:hover,
+*::-webkit-scrollbar-thumb:hover {
+  background-color: rgb(var(--scrollbar-thumb-hover));
+}
+
+html::-webkit-scrollbar-thumb:active,
+body::-webkit-scrollbar-thumb:active,
+*::-webkit-scrollbar-thumb:active {
+  background-color: rgb(var(--scrollbar-thumb-active));
+}
+
+html::-webkit-scrollbar-corner,
+body::-webkit-scrollbar-corner,
+*::-webkit-scrollbar-corner {
+  background: rgb(var(--scrollbar-corner));
+}
+
+@media (forced-colors: active) {
+  html,
+  body,
+  * {
+    scrollbar-color: auto;
+  }
+
+  html::-webkit-scrollbar-track,
+  body::-webkit-scrollbar-track,
+  *::-webkit-scrollbar-track,
+  html::-webkit-scrollbar-thumb,
+  body::-webkit-scrollbar-thumb,
+  *::-webkit-scrollbar-thumb,
+  html::-webkit-scrollbar-corner,
+  body::-webkit-scrollbar-corner,
+  *::-webkit-scrollbar-corner {
+    forced-color-adjust: auto;
+  }
+}
+
 /* Shared State Transitions */
 
 .button,

@@ -26,6 +26,11 @@
   --border: 235, 235, 235;
   --input: 229, 229, 229;
   --ring: 163, 163, 163;
+  --scrollbar-track: var(--background);
+  --scrollbar-thumb: var(--muted-foreground);
+  --scrollbar-thumb-hover: var(--foreground);
+  --scrollbar-thumb-active: var(--primary);
+  --scrollbar-corner: var(--background);
   --white: 255, 255, 255;
   --black: 0, 0, 0;
 
@@ -53,6 +58,11 @@
   --color-info: rgb(var(--info));
   --color-info-foreground: rgb(var(--info-foreground));
   --color-ring: rgb(var(--ring));
+  --color-scrollbar-track: rgb(var(--scrollbar-track));
+  --color-scrollbar-thumb: rgb(var(--scrollbar-thumb));
+  --color-scrollbar-thumb-hover: rgb(var(--scrollbar-thumb-hover));
+  --color-scrollbar-thumb-active: rgb(var(--scrollbar-thumb-active));
+  --color-scrollbar-corner: rgb(var(--scrollbar-corner));
   --font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", system-ui,
     sans-serif;
   --font-mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas,
@@ -103,6 +113,11 @@
   --border: 38, 38, 40;
   --input: 46, 46, 49;
   --ring: 115, 115, 115;
+  --scrollbar-track: var(--background);
+  --scrollbar-thumb: var(--muted-foreground);
+  --scrollbar-thumb-hover: var(--foreground);
+  --scrollbar-thumb-active: var(--primary);
+  --scrollbar-corner: var(--background);
   --shadow-xs: 0 1px 2px rgba(var(--black), 0.24);
   --shadow-sm: 0 2px 8px rgba(var(--black), 0.3);
 
@@ -130,4 +145,9 @@
   --color-info: rgb(var(--info));
   --color-info-foreground: rgb(var(--info-foreground));
   --color-ring: rgb(var(--ring));
+  --color-scrollbar-track: rgb(var(--scrollbar-track));
+  --color-scrollbar-thumb: rgb(var(--scrollbar-thumb));
+  --color-scrollbar-thumb-hover: rgb(var(--scrollbar-thumb-hover));
+  --color-scrollbar-thumb-active: rgb(var(--scrollbar-thumb-active));
+  --color-scrollbar-corner: rgb(var(--scrollbar-corner));
 }

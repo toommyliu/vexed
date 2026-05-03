@@ -33,6 +33,16 @@ describe("CSS color tokens", () => {
     expect(tokens).toContain("--primary: 245, 245, 245;");
     expect(tokens).toContain("--destructive: 248, 113, 113;");
   });
+
+  it("defines semantic scrollbar tokens", () => {
+    const tokens = readStyle("tokens.css");
+
+    expect(tokens).toContain("--scrollbar-track:");
+    expect(tokens).toContain("--scrollbar-thumb:");
+    expect(tokens).toContain("--scrollbar-thumb-hover:");
+    expect(tokens).toContain("--scrollbar-thumb-active:");
+    expect(tokens).toContain("--color-scrollbar-thumb:");
+  });
 });
 
 describe("component color usage", () => {
@@ -72,6 +82,17 @@ describe("component color usage", () => {
     const components = readStyle("components.css");
 
     expect(components).not.toContain("transform: translateY(1px)");
+  });
+
+  it("styles scrollbars with theme tokens and accessible fallbacks", () => {
+    const components = readStyle("components.css");
+
+    expect(components).toContain("scrollbar-color: rgb(var(--scrollbar-thumb))");
+    expect(components).toContain("html::-webkit-scrollbar");
+    expect(components).toContain("*::-webkit-scrollbar-thumb");
+    expect(components).toContain("background-color: rgb(var(--scrollbar-thumb))");
+    expect(components).toContain("@media (forced-colors: active)");
+    expect(components).toContain("scrollbar-color: auto;");
   });
 
   it("does not use forbidden Chrome 87-incompatible CSS syntax", () => {
