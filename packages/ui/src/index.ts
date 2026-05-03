@@ -186,7 +186,12 @@ export {
   type InputGroupTextProps,
   type InputGroupTextareaProps,
 } from "./components/InputGroup";
-export { Kbd, type KbdProps } from "./components/Kbd";
+export {
+  Kbd,
+  KbdGroup,
+  type KbdGroupProps,
+  type KbdProps,
+} from "./components/Kbd";
 export { Label, type LabelProps } from "./components/Label";
 export {
   Menu,

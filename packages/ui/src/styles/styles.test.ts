@@ -17,12 +17,12 @@ describe("CSS color tokens", () => {
   it("defines Chrome 87-compatible neutral primary and semantic tokens", () => {
     const tokens = readStyle("tokens.css");
 
-    expect(tokens).toContain("--primary: 38 38 38;");
-    expect(tokens).toContain("--primary-rgb: 38, 38, 38;");
-    expect(tokens).toContain("--destructive-rgb: 239, 68, 68;");
-    expect(tokens).toContain("--info-rgb: 59, 130, 246;");
-    expect(tokens).toContain("--success-rgb: 16, 185, 129;");
-    expect(tokens).toContain("--warning-rgb: 245, 158, 11;");
+    expect(tokens).toContain("--primary: 38, 38, 38;");
+    expect(tokens).toContain("--destructive: 239, 68, 68;");
+    expect(tokens).toContain("--info: 59, 130, 246;");
+    expect(tokens).toContain("--success: 16, 185, 129;");
+    expect(tokens).toContain("--warning: 245, 158, 11;");
+    expect(tokens).not.toContain("-rgb:");
   });
 
   it("supports dark mode by class and data attribute", () => {
@@ -30,26 +30,19 @@ describe("CSS color tokens", () => {
 
     expect(tokens).toContain(".dark,\n[data-theme=\"dark\"]");
     expect(tokens).toContain("color-scheme: dark;");
-    expect(tokens).toContain("--primary-rgb: 245, 245, 245;");
-    expect(tokens).toContain("--destructive-rgb: 248, 113, 113;");
+    expect(tokens).toContain("--primary: 245, 245, 245;");
+    expect(tokens).toContain("--destructive: 248, 113, 113;");
   });
 });
 
 describe("component color usage", () => {
-  it("does not use space-separated tokens inside rgba()", () => {
+  it("uses comma-separated canonical tokens inside rgba()", () => {
     const components = readStyle("components.css");
 
-    expect(components).not.toContain("rgba(var(--primary),");
-    expect(components).not.toContain("rgba(var(--destructive),");
-    expect(components).not.toContain("rgba(var(--ring),");
-  });
-
-  it("uses comma-separated rgb companion tokens inside rgba()", () => {
-    const components = readStyle("components.css");
-
-    expect(components).toContain("rgba(var(--primary-rgb),");
-    expect(components).toContain("rgba(var(--destructive-rgb),");
-    expect(components).toContain("rgba(var(--ring-rgb),");
+    expect(components).toContain("rgba(var(--primary),");
+    expect(components).toContain("rgba(var(--destructive),");
+    expect(components).toContain("rgba(var(--ring),");
+    expect(components).not.toContain("-rgb");
   });
 
   it("defines component BEM modifiers", () => {

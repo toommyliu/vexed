@@ -76,6 +76,7 @@ import {
   InputGroupTextarea,
   type InputGroupAddonAlign,
   Kbd,
+  KbdGroup,
   Label,
   Menu,
   MenuCheckboxItem,
@@ -105,10 +106,10 @@ import {
   TabsTrigger,
   type TabsVariant,
   Textarea,
-  Tooltip,
-  TooltipArrow,
-  TooltipContent,
-  TooltipTrigger,
+  TooltipButton,
+  TooltipButtonArrow,
+  TooltipButtonContent,
+  TooltipButtonTrigger,
   VisuallyHidden,
   type AlertVariant,
   type BadgeSize,
@@ -155,6 +156,19 @@ const badgeVariantLabels: Record<BadgeVariant, string> = {
   success: "Success",
   warning: "Warning",
 };
+
+function getShortcutModifierLabel(): "⌘" | "Ctrl" {
+  const platform =
+    typeof navigator === "undefined" ? "" : navigator.platform || "";
+  const userAgent =
+    typeof navigator === "undefined" ? "" : navigator.userAgent || "";
+
+  return /\b(Mac|iPhone|iPad|iPod)\b/i.test(`${platform} ${userAgent}`)
+    ? "⌘"
+    : "Ctrl";
+}
+
+const shortcutModifier = getShortcutModifierLabel();
 const buttonVariants = [
   "default",
   "secondary",
@@ -571,9 +585,10 @@ function DemoApp() {
                         </InputGroupAddon>
                         <InputGroupInput placeholder="battleon" />
                         <InputGroupAddon align="inline-end">
-                          <Badge size="sm" variant="outline">
-                            map
-                          </Badge>
+                          <KbdGroup>
+                            <Kbd>{shortcutModifier}</Kbd>
+                            <Kbd>K</Kbd>
+                          </KbdGroup>
                         </InputGroupAddon>
                       </InputGroup>
                     </div>
@@ -734,15 +749,15 @@ function DemoApp() {
               <div class="demo-row">
                 <For each={tooltipPlacements}>
                   {(placement) => (
-                    <Tooltip positioning={{ placement }}>
-                      <TooltipTrigger class="button button--ghost button--size-default">
+                    <TooltipButton positioning={{ placement }}>
+                      <TooltipButtonTrigger variant="ghost">
                         {placement}
-                      </TooltipTrigger>
-                      <TooltipContent>
+                      </TooltipButtonTrigger>
+                      <TooltipButtonContent>
                         Tooltip {placement}
-                        <TooltipArrow />
-                      </TooltipContent>
-                    </Tooltip>
+                        <TooltipButtonArrow />
+                      </TooltipButtonContent>
+                    </TooltipButton>
                   )}
                 </For>
               </div>
@@ -871,10 +886,35 @@ function DemoApp() {
                 </Badge>
               </div>
               <Separator />
-              <div class="demo-row">
-                <Kbd>Cmd</Kbd>
-                <Kbd>Enter</Kbd>
-                <span class="demo-muted">Run command</span>
+              <div class="demo-matrix">
+                <div class="demo-matrix__row">
+                  <span class="demo-matrix__label">single keys</span>
+                  <div class="demo-row">
+                    <Kbd>K</Kbd>
+                    <Kbd>⌘</Kbd>
+                    <Kbd>⌃</Kbd>
+                    <Kbd>⇧</Kbd>
+                  </div>
+                </div>
+                <div class="demo-matrix__row">
+                  <span class="demo-matrix__label">shortcuts</span>
+                  <div class="demo-row">
+                    <KbdGroup>
+                      <Kbd>{shortcutModifier}</Kbd>
+                      <Kbd>K</Kbd>
+                    </KbdGroup>
+                    <KbdGroup>
+                      <Kbd>{shortcutModifier}</Kbd>
+                      <Kbd>Shift</Kbd>
+                      <Kbd>P</Kbd>
+                    </KbdGroup>
+                    <KbdGroup>
+                      <Kbd>Ctrl</Kbd>
+                      <Kbd>Alt</Kbd>
+                      <Kbd>Delete</Kbd>
+                    </KbdGroup>
+                  </div>
+                </div>
               </div>
               <div class="demo-row">
                 <For each={spinnerSizes}>

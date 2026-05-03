@@ -1,14 +1,30 @@
-import type { JSX } from "solid-js";
+import { splitProps, type JSX } from "solid-js";
 import { cn } from "../lib/cn";
 
-export interface KbdProps extends JSX.HTMLAttributes<HTMLElement> {
+export interface KbdProps
+  extends Omit<JSX.HTMLAttributes<HTMLElement>, "class"> {
   readonly class?: string;
 }
 
 export function Kbd(props: KbdProps): JSX.Element {
+  const [local, rest] = splitProps(props, ["class"]);
   return (
-    <kbd {...props} class={cn("kbd", props.class)} data-slot="kbd">
-      {props.children}
-    </kbd>
+    <kbd {...rest} class={cn("kbd", local.class)} data-slot="kbd" />
+  );
+}
+
+export interface KbdGroupProps
+  extends Omit<JSX.HTMLAttributes<HTMLElement>, "class"> {
+  readonly class?: string;
+}
+
+export function KbdGroup(props: KbdGroupProps): JSX.Element {
+  const [local, rest] = splitProps(props, ["class"]);
+  return (
+    <kbd
+      {...rest}
+      class={cn("kbd-group", local.class)}
+      data-slot="kbd-group"
+    />
   );
 }

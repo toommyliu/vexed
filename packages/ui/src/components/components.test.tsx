@@ -59,6 +59,8 @@ import {
   InputGroupInput,
   InputGroupText,
   InputGroupTextarea,
+  Kbd,
+  KbdGroup,
   Menu,
   MenuCheckboxItem,
   MenuContent,
@@ -282,6 +284,20 @@ describe("Card", () => {
     ).not.toBeNull();
     expect(root.querySelector("[data-slot='card-action']")).not.toBeNull();
     expect(root.querySelector("[data-slot='card-panel']")).not.toBeNull();
+  });
+});
+
+describe("Kbd", () => {
+  it("renders single keys and grouped shortcuts", () => {
+    const root = renderUi(() => (
+      <KbdGroup aria-label="Open command menu">
+        <Kbd>⌘</Kbd>
+        <Kbd>K</Kbd>
+      </KbdGroup>
+    ));
+
+    expect(root.querySelector("[data-slot='kbd-group']")).not.toBeNull();
+    expect(root.querySelectorAll("[data-slot='kbd']")).toHaveLength(2);
   });
 });
 

@@ -9,8 +9,8 @@ body {
 }
 
 .demo-shell {
-  background: rgb(var(--background-rgb));
-  color: rgb(var(--foreground-rgb));
+  background: rgb(var(--background));
+  color: rgb(var(--foreground));
   font-family: var(--font-family);
   min-height: 100vh;
 }
@@ -43,7 +43,7 @@ body {
 }
 
 .demo-header p {
-  color: rgb(var(--muted-foreground-rgb));
+  color: rgb(var(--muted-foreground));
   margin: 8px 0 0;
 }
 
@@ -72,7 +72,7 @@ body {
 }
 
 .demo-matrix__label {
-  color: rgb(var(--muted-foreground-rgb));
+  color: rgb(var(--muted-foreground));
   font-size: 0.75rem;
   font-weight: 600;
   line-height: 1.4;
@@ -106,19 +106,15 @@ body {
 }
 
 .demo-muted {
-  color: rgb(var(--muted-foreground-rgb));
+  color: rgb(var(--muted-foreground));
   font-size: 0.875rem;
 }
 
 .demo-custom-theme {
-  --primary: 13 148 136;
-  --primary-rgb: 13, 148, 136;
-  --ring: 13 148 136;
-  --ring-rgb: 13, 148, 136;
-  --accent: 204 251 241;
-  --accent-rgb: 204, 251, 241;
-  --accent-foreground: 15 118 110;
-  --accent-foreground-rgb: 15, 118, 110;
+  --primary: 13, 148, 136;
+  --ring: 13, 148, 136;
+  --accent: 204, 251, 241;
+  --accent-foreground: 15, 118, 110;
 }
 
 @media (max-width: 760px) {
