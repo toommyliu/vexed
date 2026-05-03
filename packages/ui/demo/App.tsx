@@ -1,6 +1,6 @@
 import "@vexed/ui/styles.css";
 import "./demo.css";
-import { createEffect, createSignal } from "solid-js";
+import { createEffect, createSignal, For } from "solid-js";
 import { render } from "solid-js/web";
 import {
   Badge,
@@ -46,7 +46,9 @@ import {
   CommandGroupItems,
   CommandInput,
   CommandItem,
+  CommandLinkItem,
   CommandList,
+  CommandLoading,
   CommandPanel,
   CommandShortcut,
   Dialog,
@@ -78,6 +80,13 @@ import {
   Switch,
   Textarea,
   VisuallyHidden,
+  type AlertVariant,
+  type BadgeSize,
+  type BadgeVariant,
+  type ButtonSize,
+  type ButtonVariant,
+  type EmptyMediaVariant,
+  type IconButtonSize,
 } from "@vexed/ui";
 import {
   Check,
@@ -90,6 +99,64 @@ import {
   ShieldAlert,
   X,
 } from "lucide-solid";
+
+const badgeSizes = ["sm", "default", "lg"] as const satisfies readonly BadgeSize[];
+const badgeVariants = [
+  "default",
+  "secondary",
+  "outline",
+  "destructive",
+  "error",
+  "info",
+  "success",
+  "warning",
+] as const satisfies readonly BadgeVariant[];
+const badgeVariantLabels: Record<BadgeVariant, string> = {
+  default: "Default",
+  destructive: "Destructive",
+  error: "Error",
+  info: "Info",
+  outline: "Outline",
+  secondary: "Secondary",
+  success: "Success",
+  warning: "Warning",
+};
+const buttonVariants = [
+  "default",
+  "secondary",
+  "outline",
+  "ghost",
+  "destructive",
+  "destructive-outline",
+  "link",
+] as const satisfies readonly ButtonVariant[];
+const buttonSizes = [
+  "xs",
+  "sm",
+  "default",
+  "lg",
+  "xl",
+] as const satisfies readonly ButtonSize[];
+const iconButtonSizes = [
+  "icon-xs",
+  "icon-sm",
+  "icon",
+  "icon-lg",
+  "icon-xl",
+] as const satisfies readonly IconButtonSize[];
+const alertVariants = [
+  "default",
+  "error",
+  "info",
+  "success",
+  "warning",
+] as const satisfies readonly AlertVariant[];
+const fieldSizes = ["sm", "default", "lg"] as const;
+const spinnerSizes = ["sm", "md", "lg"] as const;
+const emptyMediaVariants = [
+  "default",
+  "icon",
+] as const satisfies readonly EmptyMediaVariant[];
 
 function DemoApp() {
   const [dark, setDark] = createSignal(false);
@@ -139,41 +206,67 @@ function DemoApp() {
               </CardAction>
             </CardHeader>
             <CardContent class="demo-stack">
-              <div class="demo-row">
-                <Button>Default</Button>
-                <Button variant="secondary">Secondary</Button>
-                <Button variant="outline">Outline</Button>
-                <Button variant="ghost">Ghost</Button>
-                <Button variant="destructive">Delete</Button>
-                <Button variant="destructive-outline">Review</Button>
+              <div class="demo-matrix">
+                <For each={buttonVariants}>
+                  {(variant) => (
+                    <div class="demo-matrix__row">
+                      <span class="demo-matrix__label">{variant}</span>
+                      <div class="demo-row">
+                        <For each={buttonSizes}>
+                          {(size) => (
+                            <Button size={size} variant={variant}>
+                              {size}
+                            </Button>
+                          )}
+                        </For>
+                      </div>
+                    </div>
+                  )}
+                </For>
+              </div>
+              <Separator />
+              <div class="demo-matrix">
+                <For each={buttonVariants.filter((variant) => variant !== "link")}>
+                  {(variant) => (
+                    <div class="demo-matrix__row">
+                      <span class="demo-matrix__label">{variant}</span>
+                      <div class="demo-row">
+                        <For each={iconButtonSizes}>
+                          {(size) => (
+                            <IconButton
+                              aria-label={`${variant} ${size}`}
+                              size={size}
+                              variant={variant}
+                            >
+                              <Settings class="button__icon" />
+                            </IconButton>
+                          )}
+                        </For>
+                      </div>
+                    </div>
+                  )}
+                </For>
               </div>
               <div class="demo-row">
-                <Button size="xs">XS</Button>
-                <Button size="sm">
-                  <Play class="button__icon" />
-                  Start
-                </Button>
-                <Button size="xl">XL action</Button>
                 <Button loading variant="outline">
                   Syncing
                 </Button>
-                <IconButton
-                  aria-label="Settings"
-                  size="icon-sm"
-                  variant="ghost"
-                >
-                  <Settings class="button__icon" />
-                </IconButton>
-                <IconButton aria-label="Copy" variant="outline">
+                <Button disabled variant="outline">
+                  Disabled
+                </Button>
+                <Button size="sm">
+                  <Play class="button__icon" />
+                  With icon
+                </Button>
+                <Button size="xl" variant="destructive-outline">
                   <Copy class="button__icon" />
-                </IconButton>
+                  Review
+                </Button>
+                <Button as="a" href="#" variant="link">
+                  Link action
+                </Button>
               </div>
             </CardContent>
-            <CardFooter>
-              <Button as="a" href="#" variant="link">
-                Link action
-              </Button>
-            </CardFooter>
           </Card>
 
           <Card>
@@ -184,29 +277,60 @@ function DemoApp() {
               </CardDescription>
             </CardHeader>
             <CardContent class="demo-form">
-              <Label for="name">Profile name</Label>
-              <Input fullWidth id="name" placeholder="Ada Lovelace" />
-              <Label for="notes">Notes</Label>
-              <Textarea fullWidth id="notes" placeholder="Review notes" />
+              <div class="demo-matrix">
+                <For each={fieldSizes}>
+                  {(size) => (
+                    <div class="demo-matrix__row">
+                      <span class="demo-matrix__label">input {size}</span>
+                      <div class="demo-row demo-row--stretch">
+                        <Input size={size} placeholder="Default value" />
+                        <Input
+                          invalid
+                          size={size}
+                          value="Invalid value"
+                        />
+                        <Input disabled size={size} value="Disabled" />
+                      </div>
+                    </div>
+                  )}
+                </For>
+              </div>
+              <div class="demo-matrix">
+                <For each={fieldSizes}>
+                  {(size) => (
+                    <div class="demo-matrix__row">
+                      <span class="demo-matrix__label">textarea {size}</span>
+                      <div class="demo-row demo-row--stretch">
+                        <Textarea size={size} value="Default textarea" />
+                        <Textarea
+                          invalid
+                          size={size}
+                          value="Invalid textarea"
+                        />
+                        <Textarea disabled size={size} value="Disabled" />
+                      </div>
+                    </div>
+                  )}
+                </For>
+              </div>
               <Textarea
                 fullWidth
-                invalid
-                placeholder="Invalid textarea"
-                value="Missing required summary"
+                unstyled
+                value="Unstyled textarea for embedded layouts"
               />
-              <Input
-                fullWidth
-                invalid
-                placeholder="Invalid value"
-                value="999999"
-              />
+              <Separator />
               <div class="demo-row">
-                <Checkbox checked>Enable notifications</Checkbox>
-                <Checkbox invalid>
-                  Invalid option
-                </Checkbox>
+                <Checkbox>Unchecked</Checkbox>
+                <Checkbox checked>Checked</Checkbox>
+                <Checkbox invalid>Invalid</Checkbox>
+                <Checkbox disabled>Disabled</Checkbox>
               </div>
-              <Switch checked>Auto refresh</Switch>
+              <div class="demo-row">
+                <Switch>Off</Switch>
+                <Switch checked>On</Switch>
+                <Switch invalid>Invalid</Switch>
+                <Switch disabled>Disabled</Switch>
+              </div>
             </CardContent>
           </Card>
 
@@ -258,15 +382,19 @@ function DemoApp() {
                   </AlertDialogContent>
                 </AlertDialog>
               </div>
-              <Alert variant="warning">
-                <AlertTitle>Connection unstable</AlertTitle>
-                <AlertDescription>
-                  Responses are taking longer than expected.
-                </AlertDescription>
-                <AlertAction>
-                  <Button size="sm" variant="outline">Retry</Button>
-                </AlertAction>
-              </Alert>
+              <For each={alertVariants}>
+                {(variant) => (
+                  <Alert variant={variant}>
+                    <AlertTitle>{variant} alert</AlertTitle>
+                    <AlertDescription>
+                      Responses are taking longer than expected.
+                    </AlertDescription>
+                    <AlertAction>
+                      <Button size="sm" variant="outline">Retry</Button>
+                    </AlertAction>
+                  </Alert>
+                )}
+              </For>
             </CardContent>
           </Card>
 
@@ -278,37 +406,65 @@ function DemoApp() {
               </CardDescription>
             </CardHeader>
             <CardContent class="demo-form">
-              <Label>Framework</Label>
-              <Select
-                value={[framework()]}
-                onValueChange={(details) => setFramework(details.value[0] ?? "")}
-              >
-                <SelectTrigger>
-                  <SelectValue placeholder="Select framework" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="solid">Solid</SelectItem>
-                  <SelectItem value="svelte">Svelte</SelectItem>
-                  <SelectItem value="react">React</SelectItem>
-                </SelectContent>
-              </Select>
+              <div class="demo-matrix">
+                <For each={fieldSizes}>
+                  {(size) => (
+                    <div class="demo-matrix__row">
+                      <span class="demo-matrix__label">select {size}</span>
+                      <Select
+                        value={[framework()]}
+                        onValueChange={(details) =>
+                          setFramework(details.value[0] ?? "")}
+                      >
+                        <SelectTrigger size={size}>
+                          <SelectValue placeholder="Select framework" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="solid">Solid</SelectItem>
+                          <SelectItem value="svelte">Svelte</SelectItem>
+                          <SelectItem value="react">React</SelectItem>
+                          <SelectItem disabled value="disabled">
+                            Disabled
+                          </SelectItem>
+                        </SelectContent>
+                      </Select>
+                    </div>
+                  )}
+                </For>
+              </div>
 
-              <Label>Target</Label>
-              <Combobox
-                inputBehavior="autohighlight"
-                value={target() ? [target()] : []}
-                onValueChange={(details) => setTarget(details.value[0] ?? "")}
-              >
-                <ComboboxInput placeholder="Search target..." showClear />
-                <ComboboxContent>
-                  <ComboboxEmpty>No target found.</ComboboxEmpty>
-                  <ComboboxList>
-                    <ComboboxItem value="overview">Overview</ComboboxItem>
-                    <ComboboxItem value="reports">Reports</ComboboxItem>
-                    <ComboboxItem value="settings">Settings</ComboboxItem>
-                  </ComboboxList>
-                </ComboboxContent>
-              </Combobox>
+              <div class="demo-matrix">
+                <For each={fieldSizes}>
+                  {(size) => (
+                    <div class="demo-matrix__row">
+                      <span class="demo-matrix__label">combobox {size}</span>
+                      <Combobox
+                        inputBehavior="autohighlight"
+                        value={target() ? [target()] : []}
+                        onValueChange={(details) =>
+                          setTarget(details.value[0] ?? "")}
+                      >
+                        <ComboboxInput
+                          placeholder="Search target..."
+                          showClear
+                          size={size}
+                        />
+                        <ComboboxContent>
+                          <ComboboxEmpty>No target found.</ComboboxEmpty>
+                          <ComboboxList>
+                            <ComboboxItem value="overview">Overview</ComboboxItem>
+                            <ComboboxItem value="reports">Reports</ComboboxItem>
+                            <ComboboxItem value="settings">Settings</ComboboxItem>
+                            <ComboboxItem disabled value="disabled">
+                              Disabled
+                            </ComboboxItem>
+                          </ComboboxList>
+                        </ComboboxContent>
+                      </Combobox>
+                    </div>
+                  )}
+                </For>
+              </div>
             </CardContent>
           </Card>
 
@@ -340,6 +496,10 @@ function DemoApp() {
                           <span>Enable guard rails</span>
                           <ShieldAlert class="button__icon" />
                         </CommandItem>
+                        <CommandLinkItem href="#" value="docs">
+                          <span>Open docs</span>
+                          <CommandShortcut>⌘K</CommandShortcut>
+                        </CommandLinkItem>
                       </CommandGroupItems>
                     </CommandGroup>
                   </CommandList>
@@ -349,25 +509,39 @@ function DemoApp() {
                   </CommandFooter>
                 </Command>
               </CommandPanel>
+              <Separator />
+              <div class="demo-row">
+                <CommandEmpty>No command found.</CommandEmpty>
+                <CommandLoading>
+                  <Spinner size="sm" />
+                  Loading commands
+                </CommandLoading>
+              </div>
             </CardContent>
           </Card>
 
           <Card>
             <CardContent>
-              <Empty>
-                <EmptyHeader>
-                  <EmptyMedia variant="icon">
-                    <Inbox class="button__icon" />
-                  </EmptyMedia>
-                  <EmptyTitle>No queued items</EmptyTitle>
-                  <EmptyDescription>
-                    New activity will appear here as the session runs.
-                  </EmptyDescription>
-                </EmptyHeader>
-                <EmptyContent>
-                  <Button variant="outline">Refresh</Button>
-                </EmptyContent>
-              </Empty>
+              <div class="demo-empty-grid">
+                <For each={emptyMediaVariants}>
+                  {(variant) => (
+                    <Empty>
+                      <EmptyHeader>
+                        <EmptyMedia variant={variant}>
+                          <Inbox class="button__icon" />
+                        </EmptyMedia>
+                        <EmptyTitle>{variant} media</EmptyTitle>
+                        <EmptyDescription>
+                          New activity will appear here as the session runs.
+                        </EmptyDescription>
+                      </EmptyHeader>
+                      <EmptyContent>
+                        <Button variant="outline">Refresh</Button>
+                      </EmptyContent>
+                    </Empty>
+                  )}
+                </For>
+              </div>
             </CardContent>
           </Card>
 
@@ -375,19 +549,43 @@ function DemoApp() {
             <CardHeader>
               <CardTitle>Status</CardTitle>
               <CardDescription>
-                Small display primitives for dense app surfaces.
+                Badge sizes, variants, and interactive states.
               </CardDescription>
             </CardHeader>
             <CardContent class="demo-stack">
+              <div class="demo-matrix">
+                <For each={badgeSizes}>
+                  {(size) => (
+                    <div class="demo-matrix__row">
+                      <span class="demo-matrix__label">{size}</span>
+                      <div class="demo-row">
+                        <For each={badgeVariants}>
+                          {(variant) => (
+                            <Badge size={size} variant={variant}>
+                              {badgeVariantLabels[variant]}
+                            </Badge>
+                          )}
+                        </For>
+                      </div>
+                    </div>
+                  )}
+                </For>
+              </div>
               <div class="demo-row">
-                <Badge>Running</Badge>
-                <Badge size="sm" variant="secondary">Queued</Badge>
-                <Badge variant="success">Connected</Badge>
-                <Badge variant="warning">Retrying</Badge>
-                <Badge variant="destructive">Failed</Badge>
-                <Badge variant="error">Error</Badge>
-                <Badge variant="info">Info</Badge>
-                <Badge size="lg" variant="outline">Idle</Badge>
+                <Badge as="button" variant="outline">
+                  <Check />
+                  Button
+                </Badge>
+                <Badge as="a" href="#" variant="secondary">
+                  Link
+                </Badge>
+                <Badge as="button" disabled variant="destructive">
+                  Disabled
+                </Badge>
+                <Badge variant="info">
+                  <Settings />
+                  Icon
+                </Badge>
               </div>
               <Separator />
               <div class="demo-row">
@@ -396,7 +594,10 @@ function DemoApp() {
                 <span class="demo-muted">Run command</span>
               </div>
               <div class="demo-row">
-                <Spinner />
+                <For each={spinnerSizes}>
+                  {(size) => <Spinner size={size} />}
+                </For>
+                <Separator class="demo-separator-vertical" orientation="vertical" />
                 <span>Loading records</span>
                 <VisuallyHidden>Loading records</VisuallyHidden>
               </div>

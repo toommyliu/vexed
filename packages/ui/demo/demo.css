@@ -55,6 +55,40 @@ body {
   gap: 8px;
 }
 
+.demo-row--stretch > * {
+  flex: 1 1 9rem;
+}
+
+.demo-matrix {
+  display: grid;
+  gap: 10px;
+}
+
+.demo-matrix__row {
+  align-items: start;
+  display: grid;
+  gap: 8px;
+  grid-template-columns: 7.5rem minmax(0, 1fr);
+}
+
+.demo-matrix__label {
+  color: rgb(var(--muted-foreground-rgb));
+  font-size: 0.75rem;
+  font-weight: 600;
+  line-height: 1.4;
+  padding-top: 0.25rem;
+}
+
+.demo-empty-grid {
+  display: grid;
+  gap: 12px;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.demo-separator-vertical {
+  height: 1.5rem;
+}
+
 .demo-grid {
   display: grid;
   gap: 16px;
@@ -96,6 +130,8 @@ body {
     display: grid;
   }
 
+  .demo-matrix__row,
+  .demo-empty-grid,
   .demo-grid {
     grid-template-columns: 1fr;
   }
