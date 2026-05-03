@@ -32,6 +32,7 @@ import {
   ComboboxInput,
   ComboboxItem,
   ComboboxList,
+  Dropdown,
   Command,
   CommandEmpty,
   CommandInput,
@@ -52,13 +53,40 @@ import {
   EmptyTitle,
   IconButton,
   Input,
+  InputGroup,
+  InputGroupAddon,
+  InputGroupInput,
+  InputGroupText,
+  InputGroupTextarea,
+  Menu,
+  MenuCheckboxItem,
+  MenuContent,
+  MenuGroup,
+  MenuItem,
+  MenuLabel,
+  MenuRadioGroup,
+  MenuRadioItem,
+  MenuSeparator,
+  MenuShortcut,
+  MenuSub,
+  MenuSubContent,
+  MenuSubTrigger,
+  MenuTrigger,
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
   Switch,
+  Tabs,
+  TabsContent,
+  TabsList,
+  TabsTrigger,
   Textarea,
+  Tooltip,
+  TooltipArrow,
+  TooltipContent,
+  TooltipTrigger,
 } from "../index";
 
 const disposers: Array<() => void> = [];
@@ -72,6 +100,12 @@ function renderUi(element: () => JSX.Element) {
     root.remove();
   });
   return root;
+}
+
+function pressItem(element: HTMLElement | null) {
+  element?.dispatchEvent(new Event("pointerdown", { bubbles: true }));
+  element?.dispatchEvent(new Event("pointerup", { bubbles: true }));
+  element?.click();
 }
 
 afterEach(() => {
@@ -126,6 +160,45 @@ describe("Input", () => {
   });
 });
 
+describe("InputGroup", () => {
+  it("renders addons and focuses the inner input from addon press", () => {
+    const root = renderUi(() => (
+      <InputGroup>
+        <InputGroupAddon>
+          <InputGroupText>Map</InputGroupText>
+        </InputGroupAddon>
+        <InputGroupInput placeholder="battleon" />
+      </InputGroup>
+    ));
+    const addon = root.querySelector<HTMLElement>(
+      "[data-slot='input-group-addon']",
+    );
+    const input = root.querySelector<HTMLInputElement>("[data-slot='input']");
+
+    addon?.dispatchEvent(
+      new MouseEvent("mousedown", { bubbles: true, cancelable: true }),
+    );
+
+    expect(root.querySelector("[data-slot='input-group']")).not.toBeNull();
+    expect(document.activeElement).toBe(input);
+  });
+
+  it("reflects invalid, disabled, and textarea states on the group", () => {
+    const root = renderUi(() => (
+      <InputGroup>
+        <InputGroupAddon align="block-start">Script</InputGroupAddon>
+        <InputGroupTextarea disabled invalid />
+      </InputGroup>
+    ));
+    const group = root.querySelector("[data-slot='input-group']");
+
+    expect(group?.className).toContain("input-group--invalid");
+    expect(group?.className).toContain("input-group--disabled");
+    expect(group?.className).toContain("input-group--textarea");
+    expect(group?.className).toContain("input-group--block");
+  });
+});
+
 describe("Textarea", () => {
   it("uses shared size names", () => {
     const root = renderUi(() => <Textarea size="lg" />);
@@ -176,7 +249,9 @@ describe("Card", () => {
     ));
 
     expect(root.querySelector("[data-slot='card-frame']")).not.toBeNull();
-    expect(root.querySelector("[data-slot='card-frame-action']")).not.toBeNull();
+    expect(
+      root.querySelector("[data-slot='card-frame-action']"),
+    ).not.toBeNull();
     expect(root.querySelector("[data-slot='card-action']")).not.toBeNull();
     expect(root.querySelector("[data-slot='card-panel']")).not.toBeNull();
   });
@@ -269,9 +344,15 @@ describe("Dialog", () => {
       </Dialog>
     ));
 
-    expect(document.body.querySelector("[data-slot='dialog-content']")).not.toBeNull();
-    expect(document.body.querySelector("[data-slot='dialog-title']")).not.toBeNull();
-    expect(document.body.querySelector("[data-slot='dialog-close']")).not.toBeNull();
+    expect(
+      document.body.querySelector("[data-slot='dialog-content']"),
+    ).not.toBeNull();
+    expect(
+      document.body.querySelector("[data-slot='dialog-title']"),
+    ).not.toBeNull();
+    expect(
+      document.body.querySelector("[data-slot='dialog-close']"),
+    ).not.toBeNull();
   });
 });
 
@@ -315,8 +396,12 @@ describe("Select", () => {
       </Select>
     ));
 
-    expect(document.body.querySelector("[data-slot='select-trigger']")).not.toBeNull();
-    expect(document.body.querySelectorAll("[data-slot='select-item']")).toHaveLength(2);
+    expect(
+      document.body.querySelector("[data-slot='select-trigger']"),
+    ).not.toBeNull();
+    expect(
+      document.body.querySelectorAll("[data-slot='select-item']"),
+    ).toHaveLength(2);
   });
 });
 
@@ -334,8 +419,12 @@ describe("Combobox", () => {
       </Combobox>
     ));
 
-    expect(document.body.querySelector("[data-slot='combobox-input']")).not.toBeNull();
-    expect(document.body.querySelector("[data-slot='combobox-item']")).not.toBeNull();
+    expect(
+      document.body.querySelector("[data-slot='combobox-input']"),
+    ).not.toBeNull();
+    expect(
+      document.body.querySelector("[data-slot='combobox-item']"),
+    ).not.toBeNull();
   });
 
   it("shows the trigger instead of clear control before selection", () => {
@@ -347,6 +436,139 @@ describe("Combobox", () => {
 
     expect(root.querySelector("[data-slot='combobox-trigger']")).not.toBeNull();
     expect(root.querySelector("[data-slot='combobox-clear']")).toBeNull();
+  });
+});
+
+describe("Dropdown", () => {
+  it("renders readonly dropdown input and updates value from selected item", () => {
+    let selected = "";
+    renderUi(() => (
+      <Dropdown open onValueChange={(value) => (selected = value)}>
+        <ComboboxItem value="solid">Solid</ComboboxItem>
+      </Dropdown>
+    ));
+    const input = document.body.querySelector<HTMLInputElement>(
+      "[data-slot='combobox-input']",
+    );
+    const item = document.body.querySelector<HTMLElement>(
+      "[data-slot='combobox-item']",
+    );
+
+    pressItem(item);
+
+    expect(input?.readOnly).toBe(true);
+    expect(selected).toBe("solid");
+  });
+});
+
+describe("Menu", () => {
+  it("renders menu content and calls item selection handlers", () => {
+    let selected = false;
+    renderUi(() => (
+      <Menu open>
+        <MenuTrigger>Open</MenuTrigger>
+        <MenuContent>
+          <MenuGroup>
+            <MenuLabel>Actions</MenuLabel>
+            <MenuItem value="start" onSelect={() => (selected = true)}>
+              Start
+              <MenuShortcut>Cmd+S</MenuShortcut>
+            </MenuItem>
+            <MenuSeparator />
+            <MenuCheckboxItem checked value="bank">
+              Bank
+            </MenuCheckboxItem>
+            <MenuRadioGroup value="safe">
+              <MenuRadioItem value="safe">Safe</MenuRadioItem>
+            </MenuRadioGroup>
+          </MenuGroup>
+        </MenuContent>
+      </Menu>
+    ));
+
+    pressItem(
+      document.body.querySelector<HTMLElement>("[data-slot='menu-item']"),
+    );
+
+    expect(
+      document.body.querySelector("[data-slot='menu-content']"),
+    ).not.toBeNull();
+    expect(
+      document.body.querySelector("[data-slot='menu-checkbox-item']"),
+    ).not.toBeNull();
+    expect(
+      document.body.querySelector("[data-slot='menu-radio-item']"),
+    ).not.toBeNull();
+    expect(selected).toBe(true);
+  });
+
+  it("renders submenu trigger and content slots", () => {
+    renderUi(() => (
+      <Menu open>
+        <MenuTrigger>Open</MenuTrigger>
+        <MenuContent>
+          <MenuSub open>
+            <MenuSubTrigger value="more">More</MenuSubTrigger>
+            <MenuSubContent>
+              <MenuItem value="nested">Nested</MenuItem>
+            </MenuSubContent>
+          </MenuSub>
+        </MenuContent>
+      </Menu>
+    ));
+
+    expect(
+      document.body.querySelector("[data-slot='menu-sub-trigger']"),
+    ).not.toBeNull();
+    expect(
+      document.body.querySelector("[data-slot='menu-content']"),
+    ).not.toBeNull();
+  });
+});
+
+describe("Tabs", () => {
+  it("renders active content and switches tabs", () => {
+    const root = renderUi(() => (
+      <Tabs defaultValue="one">
+        <TabsList>
+          <TabsTrigger value="one">One</TabsTrigger>
+          <TabsTrigger value="two">Two</TabsTrigger>
+        </TabsList>
+        <TabsContent value="one">First</TabsContent>
+        <TabsContent value="two">Second</TabsContent>
+      </Tabs>
+    ));
+
+    root
+      .querySelectorAll<HTMLElement>("[data-slot='tabs-trigger']")[1]
+      ?.click();
+
+    expect(root.querySelector("[data-slot='tabs-list']")).not.toBeNull();
+    expect(root.textContent).toContain("Second");
+  });
+});
+
+describe("Tooltip", () => {
+  it("renders open tooltip content, arrow, and trigger attributes", () => {
+    renderUi(() => (
+      <Tooltip open>
+        <TooltipTrigger aria-label="Info">Info</TooltipTrigger>
+        <TooltipContent>
+          Runtime status
+          <TooltipArrow />
+        </TooltipContent>
+      </Tooltip>
+    ));
+
+    expect(
+      document.body.querySelector("[data-slot='tooltip-trigger']"),
+    ).not.toBeNull();
+    expect(
+      document.body.querySelector("[data-slot='tooltip-content']"),
+    ).not.toBeNull();
+    expect(
+      document.body.querySelector("[data-slot='tooltip-arrow']"),
+    ).not.toBeNull();
   });
 });
 
@@ -366,7 +588,9 @@ describe("Command", () => {
       </Command>
     ));
     const input = root.querySelector("input");
-    const start = root.querySelector<HTMLElement>("[data-command-value='start']");
+    const start = root.querySelector<HTMLElement>(
+      "[data-command-value='start']",
+    );
     const bank = root.querySelector<HTMLElement>("[data-command-value='bank']");
 
     input!.value = "sta";

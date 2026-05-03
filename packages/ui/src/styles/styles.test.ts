@@ -75,6 +75,12 @@ describe("component color usage", () => {
     expect(components).toContain(".textarea-control--invalid");
   });
 
+  it("does not translate filled buttons on active press", () => {
+    const components = readStyle("components.css");
+
+    expect(components).not.toContain("transform: translateY(1px)");
+  });
+
   it("does not use forbidden Chrome 87-incompatible CSS syntax", () => {
     const css = [readStyle("tokens.css"), readStyle("components.css")].join("\n");
     const forbidden = [

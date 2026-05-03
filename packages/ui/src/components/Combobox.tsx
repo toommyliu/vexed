@@ -45,16 +45,18 @@ export function Combobox(props: ComboboxProps): JSX.Element {
     "items",
     "positioning",
   ]);
-  const [registeredItems, setRegisteredItems] = createSignal<ComboboxOption[]>(
-    [...(local.items ?? [])],
-  );
+  const [registeredItems, setRegisteredItems] = createSignal<ComboboxOption[]>([
+    ...(local.items ?? []),
+  ]);
   const collection = createMemo(() =>
     createListCollection<ComboboxOption>({ items: registeredItems() }),
   );
   const context: ComboboxContextValue = {
     registerItem(item) {
       setRegisteredItems((items) => {
-        const next = items.filter((candidate) => candidate.value !== item.value);
+        const next = items.filter(
+          (candidate) => candidate.value !== item.value,
+        );
         return [...next, item];
       });
     },
@@ -72,7 +74,9 @@ export function Combobox(props: ComboboxProps): JSX.Element {
         class={cn("combobox", local.class)}
         collection={collection()}
         data-slot="combobox"
-        positioning={local.positioning ?? { fitViewport: true, sameWidth: true }}
+        positioning={
+          local.positioning ?? { fitViewport: true, sameWidth: true }
+        }
       >
         {local.children}
       </ComboboxPrimitive.Root>
@@ -81,7 +85,10 @@ export function Combobox(props: ComboboxProps): JSX.Element {
 }
 
 export interface ComboboxInputProps
-  extends Omit<Parameters<typeof ComboboxPrimitive.Input>[0], "class" | "size"> {
+  extends Omit<
+    Parameters<typeof ComboboxPrimitive.Input>[0],
+    "class" | "size"
+  > {
   readonly class?: string;
   readonly clearProps?: ComboboxClearProps;
   readonly showClear?: boolean;
@@ -123,7 +130,10 @@ export function ComboboxInput(props: ComboboxInputProps): JSX.Element {
               </ComboboxClear>
             )}
             {local.showTrigger !== false && !hasSelection() && (
-              <ComboboxTrigger class="combobox__trigger" {...local.triggerProps}>
+              <ComboboxTrigger
+                class="combobox__trigger"
+                {...local.triggerProps}
+              >
                 <ChevronsUpDown />
               </ComboboxTrigger>
             )}
@@ -134,7 +144,9 @@ export function ComboboxInput(props: ComboboxInputProps): JSX.Element {
   );
 }
 
-export type ComboboxTriggerProps = Parameters<typeof ComboboxPrimitive.Trigger>[0];
+export type ComboboxTriggerProps = Parameters<
+  typeof ComboboxPrimitive.Trigger
+>[0];
 
 export function ComboboxTrigger(props: ComboboxTriggerProps): JSX.Element {
   const [local, rest] = splitProps(props, ["class"]);
@@ -218,6 +230,7 @@ export function ComboboxItem(props: ComboboxItemProps): JSX.Element {
       {...rest}
       class={cn("combobox__item", local.class)}
       data-slot="combobox-item"
+      data-value={item().value}
       item={item()}
     >
       <ComboboxPrimitive.ItemIndicator class="combobox__item-indicator">
@@ -230,7 +243,9 @@ export function ComboboxItem(props: ComboboxItemProps): JSX.Element {
   );
 }
 
-export type ComboboxGroupProps = Parameters<typeof ComboboxPrimitive.ItemGroup>[0];
+export type ComboboxGroupProps = Parameters<
+  typeof ComboboxPrimitive.ItemGroup
+>[0];
 
 export function ComboboxGroup(props: ComboboxGroupProps): JSX.Element {
   const [local, rest] = splitProps(props, ["class"]);
@@ -247,7 +262,9 @@ export type ComboboxGroupLabelProps = Parameters<
   typeof ComboboxPrimitive.ItemGroupLabel
 >[0];
 
-export function ComboboxGroupLabel(props: ComboboxGroupLabelProps): JSX.Element {
+export function ComboboxGroupLabel(
+  props: ComboboxGroupLabelProps,
+): JSX.Element {
   const [local, rest] = splitProps(props, ["class"]);
   return (
     <ComboboxPrimitive.ItemGroupLabel

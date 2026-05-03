@@ -38,6 +38,7 @@ import {
   ComboboxInput,
   ComboboxItem,
   ComboboxList,
+  Dropdown,
   Command,
   CommandEmpty,
   CommandFooter,
@@ -68,8 +69,28 @@ import {
   EmptyTitle,
   IconButton,
   Input,
+  InputGroup,
+  InputGroupAddon,
+  InputGroupInput,
+  InputGroupText,
+  InputGroupTextarea,
+  type InputGroupAddonAlign,
   Kbd,
   Label,
+  Menu,
+  MenuCheckboxItem,
+  MenuContent,
+  MenuGroup,
+  MenuItem,
+  MenuLabel,
+  MenuRadioGroup,
+  MenuRadioItem,
+  MenuSeparator,
+  MenuShortcut,
+  MenuSub,
+  MenuSubContent,
+  MenuSubTrigger,
+  MenuTrigger,
   Select,
   SelectContent,
   SelectItem,
@@ -78,7 +99,16 @@ import {
   Separator,
   Spinner,
   Switch,
+  Tabs,
+  TabsContent,
+  TabsList,
+  TabsTrigger,
+  type TabsVariant,
   Textarea,
+  Tooltip,
+  TooltipArrow,
+  TooltipContent,
+  TooltipTrigger,
   VisuallyHidden,
   type AlertVariant,
   type BadgeSize,
@@ -100,7 +130,11 @@ import {
   X,
 } from "lucide-solid";
 
-const badgeSizes = ["sm", "default", "lg"] as const satisfies readonly BadgeSize[];
+const badgeSizes = [
+  "sm",
+  "default",
+  "lg",
+] as const satisfies readonly BadgeSize[];
 const badgeVariants = [
   "default",
   "secondary",
@@ -152,7 +186,18 @@ const alertVariants = [
   "warning",
 ] as const satisfies readonly AlertVariant[];
 const fieldSizes = ["sm", "default", "lg"] as const;
+const inputGroupAligns = [
+  "inline-start",
+  "inline-end",
+  "block-start",
+  "block-end",
+] as const satisfies readonly InputGroupAddonAlign[];
 const spinnerSizes = ["sm", "md", "lg"] as const;
+const tabsVariants = [
+  "default",
+  "underline",
+] as const satisfies readonly TabsVariant[];
+const tooltipPlacements = ["top", "right", "bottom", "left"] as const;
 const emptyMediaVariants = [
   "default",
   "icon",
@@ -160,7 +205,9 @@ const emptyMediaVariants = [
 
 function DemoApp() {
   const [dark, setDark] = createSignal(false);
+  const [dropdownTarget, setDropdownTarget] = createSignal("");
   const [framework, setFramework] = createSignal("solid");
+  const [menuMode, setMenuMode] = createSignal("safe");
   const [target, setTarget] = createSignal("");
 
   createEffect(() => {
@@ -226,7 +273,9 @@ function DemoApp() {
               </div>
               <Separator />
               <div class="demo-matrix">
-                <For each={buttonVariants.filter((variant) => variant !== "link")}>
+                <For
+                  each={buttonVariants.filter((variant) => variant !== "link")}
+                >
                   {(variant) => (
                     <div class="demo-matrix__row">
                       <span class="demo-matrix__label">{variant}</span>
@@ -284,11 +333,7 @@ function DemoApp() {
                       <span class="demo-matrix__label">input {size}</span>
                       <div class="demo-row demo-row--stretch">
                         <Input size={size} placeholder="Default value" />
-                        <Input
-                          invalid
-                          size={size}
-                          value="Invalid value"
-                        />
+                        <Input invalid size={size} value="Invalid value" />
                         <Input disabled size={size} value="Disabled" />
                       </div>
                     </div>
@@ -390,7 +435,9 @@ function DemoApp() {
                       Responses are taking longer than expected.
                     </AlertDescription>
                     <AlertAction>
-                      <Button size="sm" variant="outline">Retry</Button>
+                      <Button size="sm" variant="outline">
+                        Retry
+                      </Button>
                     </AlertAction>
                   </Alert>
                 )}
@@ -414,7 +461,8 @@ function DemoApp() {
                       <Select
                         value={[framework()]}
                         onValueChange={(details) =>
-                          setFramework(details.value[0] ?? "")}
+                          setFramework(details.value[0] ?? "")
+                        }
                       >
                         <SelectTrigger size={size}>
                           <SelectValue placeholder="Select framework" />
@@ -442,7 +490,8 @@ function DemoApp() {
                         inputBehavior="autohighlight"
                         value={target() ? [target()] : []}
                         onValueChange={(details) =>
-                          setTarget(details.value[0] ?? "")}
+                          setTarget(details.value[0] ?? "")
+                        }
                       >
                         <ComboboxInput
                           placeholder="Search target..."
@@ -452,9 +501,13 @@ function DemoApp() {
                         <ComboboxContent>
                           <ComboboxEmpty>No target found.</ComboboxEmpty>
                           <ComboboxList>
-                            <ComboboxItem value="overview">Overview</ComboboxItem>
+                            <ComboboxItem value="overview">
+                              Overview
+                            </ComboboxItem>
                             <ComboboxItem value="reports">Reports</ComboboxItem>
-                            <ComboboxItem value="settings">Settings</ComboboxItem>
+                            <ComboboxItem value="settings">
+                              Settings
+                            </ComboboxItem>
                             <ComboboxItem disabled value="disabled">
                               Disabled
                             </ComboboxItem>
@@ -462,6 +515,234 @@ function DemoApp() {
                         </ComboboxContent>
                       </Combobox>
                     </div>
+                  )}
+                </For>
+              </div>
+            </CardContent>
+          </Card>
+
+          <Card>
+            <CardHeader>
+              <CardTitle>Dropdown</CardTitle>
+              <CardDescription>
+                Readonly combobox wrapper for simple selections.
+              </CardDescription>
+            </CardHeader>
+            <CardContent class="demo-stack">
+              <div class="demo-matrix">
+                <For each={fieldSizes}>
+                  {(size) => (
+                    <div class="demo-matrix__row">
+                      <span class="demo-matrix__label">dropdown {size}</span>
+                      <Dropdown
+                        size={size}
+                        value={dropdownTarget()}
+                        onValueChange={setDropdownTarget}
+                        placeholder="Choose target"
+                      >
+                        <ComboboxItem value="overview">Overview</ComboboxItem>
+                        <ComboboxItem value="reports">Reports</ComboboxItem>
+                        <ComboboxItem value="settings">Settings</ComboboxItem>
+                      </Dropdown>
+                    </div>
+                  )}
+                </For>
+              </div>
+            </CardContent>
+          </Card>
+
+          <Card>
+            <CardHeader>
+              <CardTitle>Input Group</CardTitle>
+              <CardDescription>
+                Inputs and textareas with inline or block addons.
+              </CardDescription>
+            </CardHeader>
+            <CardContent class="demo-stack">
+              <div class="demo-matrix">
+                <For each={fieldSizes}>
+                  {(size) => (
+                    <div class="demo-matrix__row">
+                      <span class="demo-matrix__label">input group {size}</span>
+                      <InputGroup size={size}>
+                        <InputGroupAddon>
+                          <Search />
+                          <InputGroupText>/join</InputGroupText>
+                        </InputGroupAddon>
+                        <InputGroupInput placeholder="battleon" />
+                        <InputGroupAddon align="inline-end">
+                          <Badge size="sm" variant="outline">
+                            map
+                          </Badge>
+                        </InputGroupAddon>
+                      </InputGroup>
+                    </div>
+                  )}
+                </For>
+              </div>
+
+              <div class="demo-matrix">
+                <For each={inputGroupAligns}>
+                  {(align) => (
+                    <div class="demo-matrix__row">
+                      <span class="demo-matrix__label">addon {align}</span>
+                      <InputGroup
+                        invalid={align === "block-end"}
+                        disabled={align === "inline-end"}
+                      >
+                        <InputGroupAddon align={align}>
+                          <InputGroupText>{align}</InputGroupText>
+                        </InputGroupAddon>
+                        {align === "block-start" || align === "block-end" ? (
+                          <InputGroupTextarea value="Grouped textarea" />
+                        ) : (
+                          <InputGroupInput value="Grouped input" />
+                        )}
+                      </InputGroup>
+                    </div>
+                  )}
+                </For>
+              </div>
+            </CardContent>
+          </Card>
+
+          <Card>
+            <CardHeader>
+              <CardTitle>Menu</CardTitle>
+              <CardDescription>
+                Dense action menus with checkbox, radio, and submenu items.
+              </CardDescription>
+            </CardHeader>
+            <CardContent class="demo-stack">
+              <div class="demo-row demo-row--stretch">
+                <Menu>
+                  <MenuTrigger class="button button--outline button--size-default">
+                    Default menu
+                  </MenuTrigger>
+                  <MenuContent>
+                    <MenuGroup>
+                      <MenuLabel>Actions</MenuLabel>
+                      <MenuItem value="sync">
+                        Sync
+                        <MenuShortcut>Cmd+S</MenuShortcut>
+                      </MenuItem>
+                      <MenuCheckboxItem checked value="drops">
+                        Watch drops
+                      </MenuCheckboxItem>
+                      <MenuRadioGroup
+                        value={menuMode()}
+                        onValueChange={(details) => setMenuMode(details.value)}
+                      >
+                        <MenuRadioItem value="safe">Safe mode</MenuRadioItem>
+                        <MenuRadioItem value="fast">Fast mode</MenuRadioItem>
+                      </MenuRadioGroup>
+                      <MenuSeparator />
+                      <MenuSub>
+                        <MenuSubTrigger value="more">More</MenuSubTrigger>
+                        <MenuSubContent>
+                          <MenuItem value="copy">Copy ID</MenuItem>
+                        </MenuSubContent>
+                      </MenuSub>
+                    </MenuGroup>
+                  </MenuContent>
+                </Menu>
+
+                <Menu>
+                  <MenuTrigger class="button button--destructive-outline button--size-default">
+                    Variant menu
+                  </MenuTrigger>
+                  <MenuContent>
+                    <MenuItem inset value="inset">
+                      Inset item
+                    </MenuItem>
+                    <MenuItem variant="destructive" value="delete">
+                      Delete
+                    </MenuItem>
+                    <MenuItem disabled value="disabled">
+                      Disabled
+                    </MenuItem>
+                  </MenuContent>
+                </Menu>
+              </div>
+            </CardContent>
+          </Card>
+
+          <Card>
+            <CardHeader>
+              <CardTitle>Tabs</CardTitle>
+              <CardDescription>
+                Horizontal and vertical tab sets with variant styles.
+              </CardDescription>
+            </CardHeader>
+            <CardContent class="demo-stack">
+              <div class="demo-matrix">
+                <For each={tabsVariants}>
+                  {(variant) => (
+                    <div class="demo-matrix__row">
+                      <span class="demo-matrix__label">tabs {variant}</span>
+                      <Tabs defaultValue="overview">
+                        <TabsList variant={variant}>
+                          <TabsTrigger value="overview">Overview</TabsTrigger>
+                          <TabsTrigger value="logs">Logs</TabsTrigger>
+                          <TabsTrigger disabled value="disabled">
+                            Disabled
+                          </TabsTrigger>
+                        </TabsList>
+                        <TabsContent value="overview">
+                          <Alert>
+                            <AlertTitle>Overview</AlertTitle>
+                            <AlertDescription>
+                              Tabs share compact focus and active states.
+                            </AlertDescription>
+                          </Alert>
+                        </TabsContent>
+                        <TabsContent value="logs">
+                          <CommandLoading>
+                            <Spinner size="sm" />
+                            Waiting for records
+                          </CommandLoading>
+                        </TabsContent>
+                      </Tabs>
+                    </div>
+                  )}
+                </For>
+              </div>
+
+              <Tabs defaultValue="overview" orientation="vertical">
+                <TabsList variant="underline">
+                  <TabsTrigger value="overview">Overview</TabsTrigger>
+                  <TabsTrigger value="logs">Logs</TabsTrigger>
+                </TabsList>
+                <TabsContent value="overview">
+                  <span class="demo-muted">Vertical underline tabs</span>
+                </TabsContent>
+                <TabsContent value="logs">
+                  <span class="demo-muted">Log panel</span>
+                </TabsContent>
+              </Tabs>
+            </CardContent>
+          </Card>
+
+          <Card>
+            <CardHeader>
+              <CardTitle>Tooltip</CardTitle>
+              <CardDescription>
+                Compact positioned hints with optional arrows.
+              </CardDescription>
+            </CardHeader>
+            <CardContent class="demo-stack">
+              <div class="demo-row">
+                <For each={tooltipPlacements}>
+                  {(placement) => (
+                    <Tooltip positioning={{ placement }}>
+                      <TooltipTrigger class="button button--ghost button--size-default">
+                        {placement}
+                      </TooltipTrigger>
+                      <TooltipContent>
+                        Tooltip {placement}
+                        <TooltipArrow />
+                      </TooltipContent>
+                    </Tooltip>
                   )}
                 </For>
               </div>
@@ -488,7 +769,10 @@ function DemoApp() {
                           <span>Start process</span>
                           <CommandShortcut>Enter</CommandShortcut>
                         </CommandItem>
-                        <CommandItem value="search" keywords={["find", "lookup"]}>
+                        <CommandItem
+                          value="search"
+                          keywords={["find", "lookup"]}
+                        >
                           <span>Search records</span>
                           <Search class="button__icon" />
                         </CommandItem>
@@ -513,7 +797,6 @@ function DemoApp() {
               <div class="demo-row">
                 <CommandEmpty>No command found.</CommandEmpty>
                 <CommandLoading>
-                  <Spinner size="sm" />
                   Loading commands
                 </CommandLoading>
               </div>
@@ -597,7 +880,10 @@ function DemoApp() {
                 <For each={spinnerSizes}>
                   {(size) => <Spinner size={size} />}
                 </For>
-                <Separator class="demo-separator-vertical" orientation="vertical" />
+                <Separator
+                  class="demo-separator-vertical"
+                  orientation="vertical"
+                />
                 <span>Loading records</span>
                 <VisuallyHidden>Loading records</VisuallyHidden>
               </div>
@@ -636,7 +922,9 @@ function DemoApp() {
                 Grouped surfaces for dense app panels.
               </CardFrameDescription>
               <CardFrameAction>
-                <Button size="sm" variant="outline">Configure</Button>
+                <Button size="sm" variant="outline">
+                  Configure
+                </Button>
               </CardFrameAction>
             </CardFrameHeader>
             <Card>
@@ -652,7 +940,9 @@ function DemoApp() {
                 />
               </CardPanel>
               <CardFooter>
-                <Button disabled variant="outline">Disabled</Button>
+                <Button disabled variant="outline">
+                  Disabled
+                </Button>
                 <Button size="sm">Resolve</Button>
               </CardFooter>
             </Card>

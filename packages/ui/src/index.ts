@@ -102,6 +102,7 @@ export {
   type ComboboxTriggerProps,
   type ComboboxValueProps,
 } from "./components/Combobox";
+export { Dropdown, type DropdownProps } from "./components/Dropdown";
 export {
   Command,
   CommandDialog,
@@ -171,8 +172,52 @@ export {
   type IconButtonSize,
 } from "./components/IconButton";
 export { Input, type InputProps } from "./components/Input";
+export {
+  InputGroup,
+  InputGroupAddon,
+  InputGroupInput,
+  InputGroupText,
+  InputGroupTextarea,
+  type InputGroupAddonAlign,
+  type InputGroupAddonProps,
+  type InputGroupInputProps,
+  type InputGroupProps,
+  type InputGroupSize,
+  type InputGroupTextProps,
+  type InputGroupTextareaProps,
+} from "./components/InputGroup";
 export { Kbd, type KbdProps } from "./components/Kbd";
 export { Label, type LabelProps } from "./components/Label";
+export {
+  Menu,
+  MenuCheckboxItem,
+  MenuContent,
+  MenuGroup,
+  MenuItem,
+  MenuLabel,
+  MenuRadioGroup,
+  MenuRadioItem,
+  MenuSeparator,
+  MenuShortcut,
+  MenuSub,
+  MenuSubContent,
+  MenuSubTrigger,
+  MenuTrigger,
+  type MenuCheckboxItemProps,
+  type MenuContentProps,
+  type MenuGroupProps,
+  type MenuItemProps,
+  type MenuLabelProps,
+  type MenuProps,
+  type MenuRadioGroupProps,
+  type MenuRadioItemProps,
+  type MenuSeparatorProps,
+  type MenuShortcutProps,
+  type MenuSubContentProps,
+  type MenuSubProps,
+  type MenuSubTriggerProps,
+  type MenuTriggerProps,
+} from "./components/Menu";
 export { Portal, type PortalProps } from "./components/Portal";
 export { Separator, type SeparatorProps } from "./components/Separator";
 export {
@@ -200,7 +245,28 @@ export {
 } from "./components/Select";
 export { Spinner, type SpinnerProps } from "./components/Spinner";
 export { Switch, type SwitchProps } from "./components/Switch";
+export {
+  Tabs,
+  TabsContent,
+  TabsList,
+  TabsTrigger,
+  type TabsContentProps,
+  type TabsListProps,
+  type TabsProps,
+  type TabsTriggerProps,
+  type TabsVariant,
+} from "./components/Tabs";
 export { Textarea, type TextareaProps } from "./components/Textarea";
+export {
+  Tooltip,
+  TooltipArrow,
+  TooltipContent,
+  TooltipTrigger,
+  type TooltipArrowProps,
+  type TooltipContentProps,
+  type TooltipProps,
+  type TooltipTriggerProps,
+} from "./components/Tooltip";
 export {
   VisuallyHidden,
   type VisuallyHiddenProps,

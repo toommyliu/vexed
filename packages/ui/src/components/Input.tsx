@@ -8,6 +8,7 @@ export interface InputProps
   readonly fullWidth?: boolean;
   readonly invalid?: boolean;
   readonly size?: "sm" | "default" | "lg";
+  readonly unstyled?: boolean;
 }
 
 export function Input(props: InputProps): JSX.Element {
@@ -17,6 +18,7 @@ export function Input(props: InputProps): JSX.Element {
     "fullWidth",
     "invalid",
     "size",
+    "unstyled",
   ]);
   const size = () => local.size ?? "default";
   const invalid = () =>
@@ -27,12 +29,14 @@ export function Input(props: InputProps): JSX.Element {
       {...rest}
       aria-invalid={invalid() ? "true" : local["aria-invalid"]}
       class={cn(
-        "input",
-        `input--${size()}`,
+        !local.unstyled && "input",
+        !local.unstyled && `input--${size()}`,
+        local.unstyled && "input--unstyled",
         local.fullWidth && "input--full-width",
         invalid() && "input--invalid",
         local.class,
       )}
+      data-size={size()}
       data-slot="input"
     />
   );
