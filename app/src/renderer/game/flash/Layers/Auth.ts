@@ -3,27 +3,27 @@ import { Effect, Layer, Schedule, SynchronizedRef } from "effect";
 import type { AuthShape } from "../Services/Auth";
 import { Auth } from "../Services/Auth";
 import { Bridge } from "../Services/Bridge";
-import type { LoginInfo, LoginCredentials } from "../Types";
+import type { LoginSession, LoginCredentials } from "../Types";
 import { waitFor } from "../../utils/waitFor";
 
 type RuntimeState = {
   readonly servers: Map<string, Server>;
   username: string;
   password: string;
-  loginInfo: LoginInfo | undefined;
+  loginSession: LoginSession | undefined;
 };
 
 const initialState = (): RuntimeState => ({
   servers: new Map<string, Server>(),
   username: "",
   password: "",
-  loginInfo: undefined,
+  loginSession: undefined,
 });
 
 const clearSession = (state: RuntimeState): RuntimeState => {
   state.username = "";
   state.password = "";
-  state.loginInfo = undefined;
+  state.loginSession = undefined;
   return state;
 };
 
@@ -74,10 +74,10 @@ const make = Effect.gen(function* () {
     SynchronizedRef.get(stateRef).pipe(Effect.map((state) => state.password));
 
   // Account credentials, initial server info, and other account-related metadata
-  const getLoginInfo: AuthShape["getLoginInfo"] = () =>
+  const getLoginSession: AuthShape["getLoginSession"] = () =>
     SynchronizedRef.modifyEffect(stateRef, (state) => {
-      if (state.loginInfo !== undefined) {
-        return Effect.succeed([state.loginInfo, state] as const);
+      if (state.loginSession !== undefined) {
+        return Effect.succeed([state.loginSession, state] as const);
       }
 
       return Effect.gen(function* () {
@@ -86,21 +86,21 @@ const make = Effect.gen(function* () {
           bridge.call("flash.getGameObjectS", ["loginInfo"]),
         ]);
 
-        const loginResponse = JSON.parse(loginResponseStr) as LoginInfo;
+        const loginSession = JSON.parse(loginResponseStr) as LoginSession;
         const loginCredentials = JSON.parse(
           loginCredentialsStr,
         ) as LoginCredentials;
 
-        state.loginInfo = loginResponse;
-        state.username = loginResponse.unm;
+        state.loginSession = loginSession;
+        state.username = loginSession.unm;
         state.password = loginCredentials.strPassword;
-        return [loginResponse, state] as const;
+        return [loginSession, state] as const;
       });
     });
 
   const isLoggedIn: AuthShape["isLoggedIn"] = () =>
     SynchronizedRef.get(stateRef).pipe(
-      Effect.map((state) => state.loginInfo !== undefined),
+      Effect.map((state) => state.loginSession !== undefined),
     );
 
   const isTemporarilyKicked: AuthShape["isTemporarilyKicked"] = () =>
@@ -130,7 +130,7 @@ const make = Effect.gen(function* () {
 
   const dispose = yield* bridge.onConnection((status) => {
     if (status === "OnConnection") {
-      runFork(getLoginInfo().pipe(Effect.asVoid));
+      runFork(getLoginSession().pipe(Effect.asVoid));
     } else if (status === "OnConnectionLost") {
       runFork(clearSessionState);
     }
@@ -143,7 +143,7 @@ const make = Effect.gen(function* () {
     getServers,
     getUsername,
     getPassword,
-    getLoginInfo,
+    getLoginSession,
     isLoggedIn,
     isTemporarilyKicked,
     login,

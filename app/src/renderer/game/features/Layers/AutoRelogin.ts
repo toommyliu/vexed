@@ -19,7 +19,7 @@ import { Jobs } from "../../flash/Services/Jobs";
 import { Player } from "../../flash/Services/Player";
 import { Settings } from "../../flash/Services/Settings";
 import type { SettingsState } from "../../flash/Services/Settings";
-import type { LoginInfo } from "../../flash/Types";
+import type { LoginSession } from "../../flash/Types";
 import { waitFor } from "../../utils/waitFor";
 import {
   AutoRelogin,
@@ -193,7 +193,7 @@ const formatReloginError = (error: unknown): string => {
 
 const isServerEligible = (
   server: Server,
-  loginInfo: LoginInfo | null,
+  loginSession: LoginSession | null,
 ): boolean => {
   if (!server.isOnline() || server.isFull()) {
     return false;
@@ -203,23 +203,23 @@ const isServerEligible = (
     return false;
   }
 
-  if (loginInfo === null) {
+  if (loginSession === null) {
     return true;
   }
 
   const hasActiveMembership =
-    typeof loginInfo.iUpgDays === "number" && loginInfo.iUpgDays >= 0;
+    typeof loginSession.iUpgDays === "number" && loginSession.iUpgDays >= 0;
   const upgradeOnly = server.isUpgrade() && !hasActiveMembership;
-  const chatRestricted = server.data.iChat > 0 && loginInfo.bCCOnly === 1;
+  const chatRestricted = server.data.iChat > 0 && loginSession.bCCOnly === 1;
   const underageNonMember =
     server.data.iChat > 0 &&
-    typeof loginInfo.iAge === "number" &&
-    loginInfo.iAge < 13 &&
+    typeof loginSession.iAge === "number" &&
+    loginSession.iAge < 13 &&
     !hasActiveMembership;
   const emailUnconfirmed =
     server.data.iLevel > 0 &&
-    typeof loginInfo.iEmailStatus === "number" &&
-    loginInfo.iEmailStatus <= 2;
+    typeof loginSession.iEmailStatus === "number" &&
+    loginSession.iEmailStatus <= 2;
 
   return !(
     upgradeOnly ||
@@ -424,7 +424,7 @@ const make = Effect.gen(function* () {
       }
 
       // Hydrates Auth's cached credentials and membership flags.
-      yield* auth.getLoginInfo();
+      yield* auth.getLoginSession();
 
       const [username, password, serverInfo] = yield* Effect.all([
         auth.getUsername(),
@@ -656,10 +656,10 @@ const make = Effect.gen(function* () {
             );
           }
 
-          const loginInfo = yield* auth
-            .getLoginInfo()
+          const loginSession = yield* auth
+            .getLoginSession()
             .pipe(Effect.catchCause(() => Effect.succeed(null)));
-          if (!isServerEligible(targetServer, loginInfo)) {
+          if (!isServerEligible(targetServer, loginSession)) {
             return yield* failAttempt(
               `captured server is not eligible: ${captured.server.sName}`,
               false,

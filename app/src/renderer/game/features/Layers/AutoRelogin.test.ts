@@ -154,7 +154,7 @@ const withAutoRelogin = async <A>(
     getPassword() {
       return Effect.succeed(password);
     },
-    getLoginInfo() {
+    getLoginSession() {
       return Effect.succeed({
         ...twigServer,
         bSuccess: 1,
