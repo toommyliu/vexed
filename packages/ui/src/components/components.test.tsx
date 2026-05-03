@@ -87,6 +87,10 @@ import {
   Textarea,
   Tooltip,
   TooltipArrow,
+  TooltipButton,
+  TooltipButtonArrow,
+  TooltipButtonContent,
+  TooltipButtonTrigger,
   TooltipContent,
   TooltipTrigger,
 } from "../index";
@@ -593,6 +597,48 @@ describe("Tooltip", () => {
     expect(
       document.body.querySelector("[data-slot='tooltip-arrow']"),
     ).not.toBeNull();
+  });
+});
+
+describe("TooltipButton", () => {
+  it("renders a button trigger with button defaults and tooltip content", () => {
+    const root = renderUi(() => (
+      <TooltipButton open>
+        <TooltipButtonTrigger variant="ghost" size="icon-sm" aria-label="Info">
+          Info
+        </TooltipButtonTrigger>
+        <TooltipButtonContent>
+          Runtime status
+          <TooltipButtonArrow />
+        </TooltipButtonContent>
+      </TooltipButton>
+    ));
+    const button = root.querySelector("button");
+
+    expect(button?.getAttribute("type")).toBe("button");
+    expect(button?.getAttribute("aria-label")).toBe("Info");
+    expect(button?.className).toContain("button--ghost");
+    expect(button?.className).toContain("button--icon-sm");
+    expect(root.querySelectorAll("button")).toHaveLength(1);
+    expect(
+      document.body.querySelector("[data-slot='tooltip-content']"),
+    ).not.toBeNull();
+    expect(
+      document.body.querySelector("[data-slot='tooltip-arrow']"),
+    ).not.toBeNull();
+  });
+
+  it("disables the trigger and renders a spinner while loading", () => {
+    const root = renderUi(() => (
+      <TooltipButton>
+        <TooltipButtonTrigger loading>Run</TooltipButtonTrigger>
+        <TooltipButtonContent>Running</TooltipButtonContent>
+      </TooltipButton>
+    ));
+    const button = root.querySelector("button");
+
+    expect(button?.disabled).toBe(true);
+    expect(root.querySelector("[data-slot='spinner']")).not.toBeNull();
   });
 });
 

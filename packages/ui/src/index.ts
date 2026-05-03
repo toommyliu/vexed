@@ -268,6 +268,16 @@ export {
   type TooltipTriggerProps,
 } from "./components/Tooltip";
 export {
+  TooltipButton,
+  TooltipButtonArrow,
+  TooltipButtonContent,
+  TooltipButtonTrigger,
+  type TooltipButtonArrowProps,
+  type TooltipButtonContentProps,
+  type TooltipButtonProps,
+  type TooltipButtonTriggerProps,
+} from "./components/TooltipButton";
+export {
   VisuallyHidden,
   type VisuallyHiddenProps,
 } from "./components/VisuallyHidden";
