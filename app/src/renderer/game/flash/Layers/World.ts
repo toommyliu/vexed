@@ -20,15 +20,13 @@ import type {
 } from "../Services/World";
 import { waitFor } from "../../utils/waitFor";
 
-type TrackedAura = Aura & { stack?: number };
-
 type RuntimeState = {
   readonly players: Collection<string, Avatar>;
   readonly playerEntityIds: Map<string, number>;
   meUsername: string | undefined;
   readonly monsters: Collection<number, Monster>;
-  readonly playerAuras: Collection<number, Collection<string, TrackedAura>>;
-  readonly monsterAuras: Collection<number, Collection<string, TrackedAura>>;
+  readonly playerAuras: Collection<number, Collection<string, Aura>>;
+  readonly monsterAuras: Collection<number, Collection<string, Aura>>;
 };
 
 const normalize = (value: string) => value.toLowerCase();
@@ -38,8 +36,8 @@ const initialState = (): RuntimeState => ({
   playerEntityIds: new Map<string, number>(),
   meUsername: undefined,
   monsters: new Collection<number, Monster>(),
-  playerAuras: new Collection<number, Collection<string, TrackedAura>>(),
-  monsterAuras: new Collection<number, Collection<string, TrackedAura>>(),
+  playerAuras: new Collection<number, Collection<string, Aura>>(),
+  monsterAuras: new Collection<number, Collection<string, Aura>>(),
 });
 
 const mutate = <A>(
@@ -49,16 +47,17 @@ const mutate = <A>(
   SynchronizedRef.modify(stateRef, (state) => [f(state), state] as const);
 
 const getTargetAuras = (
-  cache: Collection<number, Collection<string, TrackedAura>>,
+  cache: Collection<number, Collection<string, Aura>>,
   targetId: number,
-): Collection<string, TrackedAura> =>
-  cache.ensure(targetId, () => new Collection<string, TrackedAura>());
+): Collection<string, Aura> =>
+  cache.ensure(targetId, () => new Collection<string, Aura>());
 
 const addAuraToTarget = (
-  targetAuras: Collection<string, TrackedAura>,
+  targetAuras: Collection<string, Aura>,
   aura: Aura,
 ): void => {
-  const existing = targetAuras.get(aura.name);
+  const auraKey = normalize(aura.name);
+  const existing = targetAuras.get(auraKey);
   if (existing) {
     existing.stack = (existing.stack ?? 1) + 1;
     if (aura.duration !== undefined) {
@@ -71,14 +70,15 @@ const addAuraToTarget = (
     return;
   }
 
-  targetAuras.set(aura.name, { ...aura, stack: 1 });
+  targetAuras.set(auraKey, { ...aura, stack: aura.stack ?? 1 });
 };
 
 const updateAuraOnTarget = (
-  targetAuras: Collection<string, TrackedAura>,
+  targetAuras: Collection<string, Aura>,
   aura: Aura,
 ): void => {
-  const existing = targetAuras.get(aura.name);
+  const auraKey = normalize(aura.name);
+  const existing = targetAuras.get(auraKey);
   if (existing) {
     if (aura.duration !== undefined) {
       existing.duration = aura.duration;
@@ -90,7 +90,26 @@ const updateAuraOnTarget = (
     return;
   }
 
-  targetAuras.set(aura.name, { ...aura, stack: 1 });
+  targetAuras.set(auraKey, { ...aura, stack: aura.stack ?? 1 });
+};
+
+const removeAuraFromTarget = (
+  targetAuras: Collection<string, Aura> | undefined,
+  auraName: string,
+): void => {
+  const auraKey = normalize(auraName);
+  const existing = targetAuras?.get(auraKey);
+  if (!targetAuras || !existing) {
+    return;
+  }
+
+  const stack = existing.stack ?? 1;
+  if (stack > 1) {
+    existing.stack = stack - 1;
+    return;
+  }
+
+  targetAuras.delete(auraKey);
 };
 
 const clearRuntimeState = (state: RuntimeState): void => {
@@ -154,10 +173,10 @@ const make = Effect.gen(function* () {
   const isActionAvailable: WorldMapShape["isActionAvailable"] = (gameAction) =>
     bridge.call("world.isActionAvailable", [gameAction]);
 
-  const waitForGameAction: WorldMapShape["waitForGameAction"] = (gameAction) =>
-    waitFor(isActionAvailable(gameAction), { timeout: "2 seconds" }).pipe(
-      Effect.asVoid,
-    );
+  const waitForGameAction: WorldMapShape["waitForGameAction"] = (
+    gameAction,
+    timeout = "2 seconds",
+  ) => waitFor(isActionAvailable(gameAction), { timeout });
 
   const getMapItem: WorldMapShape["getMapItem"] = (itemId) =>
     Effect.gen(function* () {
@@ -254,6 +273,9 @@ const make = Effect.gen(function* () {
       state.meUsername = normalize(username);
     }).pipe(Effect.asVoid);
 
+  const getPlayers: WorldPlayersShape["getAll"] = () =>
+    mutate(stateRef, (state) => state.players);
+
   const resolveSelf = (state: RuntimeState): Avatar | undefined => {
     if (!state.meUsername) {
       return undefined;
@@ -302,8 +324,24 @@ const make = Effect.gen(function* () {
 
   const removePlayerAura: WorldPlayersShape["removeAura"] = (entId, auraName) =>
     mutate(stateRef, (state) => {
-      state.playerAuras.get(entId)?.delete(auraName);
+      removeAuraFromTarget(state.playerAuras.get(entId), auraName);
     }).pipe(Effect.asVoid);
+
+  const getPlayerAura: WorldPlayersShape["getAura"] = (entId, auraName) =>
+    mutate(stateRef, (state) => {
+      const aura = state.playerAuras.get(entId)?.get(normalize(auraName));
+      return aura ? Option.some(aura) : Option.none();
+    });
+
+  const getPlayerAuras: WorldPlayersShape["getAuras"] = (entId) =>
+    mutate(stateRef, (state) => {
+      const auras = state.playerAuras.get(entId);
+      if (!auras) {
+        return [];
+      }
+
+      return Array.from(auras.values(), (aura) => ({ ...aura }));
+    });
 
   const clearPlayerAuras: WorldPlayersShape["clearAuras"] = (entId) =>
     mutate(stateRef, (state) => {
@@ -358,8 +396,14 @@ const make = Effect.gen(function* () {
     auraName,
   ) =>
     mutate(stateRef, (state) => {
-      state.monsterAuras.get(monMapId)?.delete(auraName);
+      removeAuraFromTarget(state.monsterAuras.get(monMapId), auraName);
     }).pipe(Effect.asVoid);
+
+  const getMonsterAura: WorldMonstersShape["getAura"] = (monMapId, auraName) =>
+    mutate(stateRef, (state) => {
+      const aura = state.monsterAuras.get(monMapId)?.get(normalize(auraName));
+      return aura ? Option.some(aura) : Option.none();
+    });
 
   const clearMonsterAuras: WorldMonstersShape["clearAuras"] = (monMapId) =>
     mutate(stateRef, (state) => {
@@ -392,6 +436,7 @@ const make = Effect.gen(function* () {
     add: addPlayer,
     remove: removePlayer,
     setSelf,
+    getAll: getPlayers,
     getSelf,
     withSelf,
     get: getPlayer,
@@ -399,6 +444,8 @@ const make = Effect.gen(function* () {
     addAura: addPlayerAura,
     updateAura: updatePlayerAura,
     removeAura: removePlayerAura,
+    getAuras: getPlayerAuras,
+    getAura: getPlayerAura,
     clearAuras: clearPlayerAuras,
   };
 
@@ -410,6 +457,7 @@ const make = Effect.gen(function* () {
     addAura: addMonsterAura,
     updateAura: updateMonsterAura,
     removeAura: removeMonsterAura,
+    getAura: getMonsterAura,
     clearAuras: clearMonsterAuras,
   };
 

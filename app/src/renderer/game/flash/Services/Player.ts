@@ -5,6 +5,9 @@ import type { BridgeEffect } from "./Bridge";
 
 export interface PlayerShape {
   getCell(): BridgeEffect<string>;
+  /**
+   * Uppercased class name.
+   */
   getClassName(): BridgeEffect<string>;
   getFactions(): BridgeEffect<Collection<string, Faction>>;
   getGender(): BridgeEffect<string>;

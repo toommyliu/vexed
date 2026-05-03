@@ -49,7 +49,6 @@ package vexed.util {
       var _loc_3:* = 1 - Math.min(Math.max(game.world.myAvatar.dataLeaf.sta.$tha, -1), 0.5);
       if (param1.OldCD != null) {
         _loc_4 = Math.round(param1.OldCD * _loc_3);
-        delete param1.OldCD;
       }
       else {
         _loc_4 = Math.round(param1.cd * _loc_3);

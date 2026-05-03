@@ -1,4 +1,4 @@
-import { Effect, Layer, SynchronizedRef } from "effect";
+import { Effect, Layer } from "effect";
 import { makeItemCache } from "../ItemCache";
 import { Auth } from "../Services/Auth";
 import type { BankShape } from "../Services/Bank";
@@ -10,19 +10,11 @@ const make = Effect.gen(function* () {
   const bridge = yield* Bridge;
   const auth = yield* Auth;
   const itemCache = yield* makeItemCache;
-
-  const runFork = Effect.runFork;
-
-  const loaded = yield* SynchronizedRef.make(false);
+  const runFork = Effect.runForkWith(yield* Effect.services());
 
   const dispose = yield* bridge.onConnection((status) => {
     if (status === "OnConnectionLost") {
-      runFork(
-        Effect.gen(function* () {
-          yield* SynchronizedRef.set(loaded, false);
-          yield* itemCache.clear;
-        }),
-      );
+      runFork(itemCache.clear);
     }
   });
 
@@ -97,12 +89,6 @@ const make = Effect.gen(function* () {
         } else {
           return yield* Effect.void;
         }
-      }
-
-      const isLoaded = yield* SynchronizedRef.get(loaded);
-      if (!isLoaded) {
-        yield* bridge.call("bank.loadItems");
-        yield* SynchronizedRef.set(loaded, true);
       }
 
       yield* bridge.call("bank.open");

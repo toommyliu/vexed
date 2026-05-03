@@ -4,6 +4,7 @@
   "main": "./dist/index.cjs",
   "types": "./dist/index.d.cts",
   "scripts": {
+    "test": "vitest run",
     "typecheck": "tsc --noEmit",
     "build": "tsdown --format cjs --dts --minify --outDir dist src/index.ts",
     "postinstall": "npm run build"

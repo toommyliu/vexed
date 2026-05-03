@@ -11,11 +11,21 @@ import { World } from "../Services/World";
 
 const asShopInfo = (value: unknown): ShopInfo | null => {
   const record = asRecord(value);
-  if (!record || !Array.isArray(record["items"])) {
+  if (!record) {
     return null;
   }
 
-  return record as ShopInfo;
+  const shopinfo = asRecord(record["shopinfo"]);
+  if (!shopinfo) {
+    return null;
+  }
+
+  const items = shopinfo["items"];
+  if (!Array.isArray(items)) {
+    return null;
+  }
+
+  return shopinfo as ShopInfo;
 };
 
 const isItemMatch = (value: unknown, key: ItemIdentifierToken): boolean => {
@@ -96,8 +106,15 @@ const make = Effect.gen(function* () {
         : bridge.call("shops.buyByName", [name, quantity]);
     });
 
-  const canBuyItem: ShopsShape["canBuyItem"] = (itemName) =>
-    bridge.call("shops.canBuyItem", [itemName]);
+  const canBuyItem: ShopsShape["canBuyItem"] = (key, quantity) =>
+    quantity === undefined
+      ? bridge.call("shops.canBuyItem", [key])
+      : bridge.call("shops.canBuyItem", [key, quantity]);
+
+  const close: ShopsShape["close"] = (shopId) =>
+    shopId === undefined
+      ? bridge.call("shops.close")
+      : bridge.call("shops.close", [shopId]);
 
   const getInfo: ShopsShape["getInfo"] = () => Ref.get(shopInfoRef);
 
@@ -124,11 +141,27 @@ const make = Effect.gen(function* () {
       }),
     );
 
+  const getMaxBuyQuantity: ShopsShape["getMaxBuyQuantity"] = (key) =>
+    bridge.call("shops.getMaxBuyQuantity", [key]);
+
+  const isOpen: ShopsShape["isOpen"] = (shopId) =>
+    shopId === undefined
+      ? bridge.call("shops.isOpen")
+      : bridge.call("shops.isOpen", [shopId]);
+
   const isMergeShop: ShopsShape["isMergeShop"] = () =>
     bridge.call("shops.isMergeShop");
 
   const load: ShopsShape["load"] = (shopId) =>
-    bridge.call("shops.load", [shopId]);
+    Effect.gen(function* () {
+      const info = yield* Ref.get(shopInfoRef);
+      const currentShopId = asNumber(info?.ShopID);
+      if (currentShopId !== undefined && currentShopId !== shopId) {
+        yield* close(currentShopId);
+      }
+
+      yield* bridge.call("shops.load", [shopId]);
+    });
 
   const loadArmorCustomize: ShopsShape["loadArmorCustomize"] = () =>
     bridge.call("shops.loadArmorCustomize");
@@ -156,9 +189,12 @@ const make = Effect.gen(function* () {
     buyById,
     buyByName,
     canBuyItem,
+    close,
     getInfo,
     getItem,
     getItems,
+    getMaxBuyQuantity,
+    isOpen,
     isMergeShop,
     load,
     loadArmorCustomize,

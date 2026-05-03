@@ -1,9 +1,11 @@
 import { Collection } from "@vexed/collection";
 import { Faction, type Avatar, type FactionData } from "@vexed/game";
+import { equalsIgnoreCase } from "@vexed/shared/string";
 import { Effect, Layer, Option, Random, Ref } from "effect";
 import { isRecord } from "../PacketPayload";
 import { Auth } from "../Services/Auth";
 import { Bridge } from "../Services/Bridge";
+import type { BridgeEffect } from "../Services/Bridge";
 import { Player } from "../Services/Player";
 import type { PlayerShape } from "../Services/Player";
 import { World } from "../Services/World";
@@ -25,6 +27,56 @@ const isFactionData = (value: unknown): value is FactionData => {
     typeof value["sName"] === "string"
   );
 };
+
+const MIN_RANDOM_ROOM_NUMBER = 10_000;
+const MAX_FIXED_ROOM_NUMBER = 99_999;
+
+type MapTarget = {
+  readonly map: string;
+  readonly name: string;
+  readonly roomNumber?: number;
+  readonly requireExactRoom: boolean;
+};
+
+const parseMapTarget = (map: string): Effect.Effect<MapTarget> =>
+  Effect.gen(function* () {
+    const trimmed = map.trim();
+    const separatorIndex = trimmed.indexOf("-");
+    if (separatorIndex === -1) {
+      return { map: trimmed, name: trimmed, requireExactRoom: false };
+    }
+
+    const name = trimmed.slice(0, separatorIndex);
+    const roomToken = trimmed.slice(separatorIndex + 1);
+
+    if (/^\d+$/.test(roomToken)) {
+      const roomNumber = Number(roomToken);
+      if (
+        Number.isSafeInteger(roomNumber) &&
+        roomNumber <= MAX_FIXED_ROOM_NUMBER
+      ) {
+        return {
+          map: trimmed,
+          name,
+          roomNumber,
+          requireExactRoom: true,
+        };
+      }
+    }
+
+    // Fallback to a random room number.
+    const roomNumber = yield* Random.nextIntBetween(
+      MIN_RANDOM_ROOM_NUMBER,
+      MAX_FIXED_ROOM_NUMBER,
+    );
+
+    return {
+      map: `${name}-${roomNumber}`,
+      name,
+      roomNumber,
+      requireExactRoom: true,
+    };
+  });
 
 const make = Effect.gen(function* () {
   const bridge = yield* Bridge;
@@ -139,19 +191,131 @@ const make = Effect.gen(function* () {
       }
     });
 
+  const isTargetMapLoaded = (targetMap: MapTarget): BridgeEffect<boolean> =>
+    Effect.gen(function* () {
+      const isLoaded = yield* world.map.isLoaded();
+      if (!isLoaded) {
+        return false;
+      }
+
+      const currentMapName = yield* world.map.getName();
+      if (!equalsIgnoreCase(currentMapName, targetMap.name)) {
+        return false;
+      }
+
+      if (targetMap.requireExactRoom && targetMap.roomNumber !== undefined) {
+        const currentRoomNumber = yield* world.map.getRoomNumber();
+        if (currentRoomNumber !== targetMap.roomNumber) {
+          return false;
+        }
+      }
+
+      return true;
+    });
+
+  const isAtTargetLocation = (
+    targetCell: string | undefined,
+    targetPad: string | undefined,
+  ): BridgeEffect<boolean> =>
+    Effect.gen(function* () {
+      if (targetCell !== undefined) {
+        const currentCell = yield* getCell();
+        if (!equalsIgnoreCase(currentCell, targetCell)) {
+          return false;
+        }
+      }
+
+      if (targetPad !== undefined) {
+        const currentPad = yield* getPad();
+        if (!equalsIgnoreCase(currentPad, targetPad)) {
+          return false;
+        }
+      }
+
+      return true;
+    });
+
+  const targetCellExists = (targetCell: string): BridgeEffect<boolean> =>
+    Effect.map(world.map.getCells(), (cells) =>
+      cells.some((cell) => equalsIgnoreCase(cell, targetCell)),
+    );
+
+  const correctJoinLocation = (
+    targetCell: string | undefined,
+    targetPad: string | undefined,
+    options?: { readonly force?: boolean },
+  ): BridgeEffect<void> =>
+    Effect.gen(function* () {
+      if (targetCell === undefined) {
+        return;
+      }
+
+      if (!options?.force) {
+        const alreadyAtTarget = yield* isAtTargetLocation(
+          targetCell,
+          targetPad,
+        );
+        if (alreadyAtTarget) {
+          return;
+        }
+      }
+
+      const canJumpToCell = yield* targetCellExists(targetCell);
+      if (!canJumpToCell) {
+        return;
+      }
+
+      if (targetPad === undefined) {
+        yield* bridge.call("player.jump", [targetCell]);
+      } else {
+        yield* bridge.call("player.jump", [targetCell, targetPad]);
+      }
+
+      yield* waitFor(isAtTargetLocation(targetCell, targetPad), {
+        timeout: "5 seconds",
+      });
+    });
+
   const joinMap: PlayerShape["joinMap"] = (map, cell, pad) =>
     Effect.gen(function* () {
-      yield* world.map.waitForGameAction("tfer");
+      const targetMap = yield* parseMapTarget(map);
+      const targetCell = cell ?? (pad !== undefined ? "Enter" : undefined);
+
+      if (yield* isTargetMapLoaded(targetMap)) {
+        yield* correctJoinLocation(targetCell, pad, { force: true });
+        return;
+      }
+
+      const canTransfer = yield* world.map.waitForGameAction(
+        "tfer",
+        "10 seconds",
+      );
+
+      if (!canTransfer) {
+        return;
+      }
 
       if (cell === undefined && pad === undefined) {
-        return yield* bridge.call("player.joinMap", [map]);
+        yield* bridge.call("player.joinMap", [targetMap.map]);
+      } else if (cell !== undefined && pad === undefined) {
+        yield* bridge.call("player.joinMap", [targetMap.map, cell]);
+      } else {
+        yield* bridge.call("player.joinMap", [
+          targetMap.map,
+          cell ?? "Enter",
+          pad,
+        ]);
       }
 
-      if (cell !== undefined && pad === undefined) {
-        return yield* bridge.call("player.joinMap", [map, cell]);
+      const loadedTargetMap = yield* waitFor(isTargetMapLoaded(targetMap), {
+        timeout: "5 seconds",
+      });
+
+      if (!loadedTargetMap) {
+        return;
       }
 
-      return yield* bridge.call("player.joinMap", [map, cell ?? "Enter", pad]);
+      yield* correctJoinLocation(targetCell, pad);
     });
 
   const goToPlayer: PlayerShape["goToPlayer"] = (name) =>
@@ -208,15 +372,29 @@ const make = Effect.gen(function* () {
     Effect.map(getHp(), (hp) => hp > 0);
 
   const walkTo: PlayerShape["walkTo"] = (x, y, walkSpeed) =>
-    Effect.flatMap(isAlive(), (alive) => {
+    Effect.gen(function* () {
+      const alive = yield* isAlive();
       if (!alive) {
-        return Effect.succeed(false);
+        return false;
       }
 
-      return walkSpeed === undefined
-        ? bridge.call("player.walkTo", [x, y])
-        : bridge.call("player.walkTo", [x, y, walkSpeed]);
-    });
+      const started =
+        walkSpeed === undefined
+          ? yield* bridge.call("player.walkTo", [x, y])
+          : yield* bridge.call("player.walkTo", [x, y, walkSpeed]);
+
+      if (!started) {
+        return false;
+      }
+
+      return yield* waitFor(
+        Effect.gen(function* () {
+          const [currentX, currentY] = yield* getPosition();
+          return currentX === x && currentY === y;
+        }),
+        { timeout: "3 seconds" },
+      );
+    }).pipe(Effect.catch(() => Effect.succeed(false)));
 
   return {
     getCell,

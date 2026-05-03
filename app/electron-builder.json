@@ -1,6 +1,6 @@
 {
-  "appId": "com.github.vexed",
-  "productName": "vexed",
+  "appId": "com.app.vexed",
+  "productName": "Vexed",
   "electronVersion": "11.5.0",
   "directories": {
     "output": "build"

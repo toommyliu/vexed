@@ -7,6 +7,7 @@ export const AutoZoneSupportedMap = Schema.Literals([
   "darkcarnax",
   "astralshrine",
   "queeniona",
+  "magnumopus",
 ]);
 export type AutoZoneSupportedMap = Schema.Schema.Type<
   typeof AutoZoneSupportedMap

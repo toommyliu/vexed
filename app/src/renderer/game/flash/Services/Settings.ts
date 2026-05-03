@@ -6,10 +6,10 @@ export interface SettingsState {
   customName?: string;
   customGuild?: string;
   walkSpeed: number;
-  deathAdsEnabled: boolean;
+  deathAdsVisible: boolean;
   collisionsEnabled: boolean;
   effectsEnabled: boolean;
-  playersVisible: boolean;
+  otherPlayersVisible: boolean;
   lagKillerEnabled: boolean;
   frameRate: number;
   enemyMagnetEnabled: boolean;
@@ -40,10 +40,10 @@ export interface SettingsShape {
   setCustomName(name: string): BridgeEffect<void>;
   setCustomGuild(name: string): BridgeEffect<void>;
   setWalkSpeed(speed: number): BridgeEffect<void>;
-  setDeathAdsEnabled(enabled: boolean): BridgeEffect<void>;
+  setDeathAdsVisible(visible: boolean): BridgeEffect<void>;
   setCollisionsEnabled(enabled: boolean): BridgeEffect<void>;
   setEffectsEnabled(enabled: boolean): BridgeEffect<void>;
-  setPlayersVisible(visible: boolean): BridgeEffect<void>;
+  setOtherPlayersVisible(visible: boolean): BridgeEffect<void>;
   setLagKillerEnabled(enabled: boolean): BridgeEffect<void>;
   setFrameRate(fps: number): BridgeEffect<void>;
 

@@ -1,4 +1,13 @@
 import type { ItemData } from "../types/ItemData";
+import { getRankFromPoints, hasMaxRankPoints } from "../util/rank-points";
+
+// This should deal with their inconsistencies.
+const normalizeBoolean = (value: string | number | boolean): boolean => {
+  if (typeof value === "boolean") return value;
+  if (typeof value === "number") return value === 1;
+  if (typeof value === "string") return value === "1";
+  return false;
+};
 
 /**
  * The base class for all-things item related.
@@ -50,14 +59,14 @@ export class Item {
    * Whether the item is member-only.
    */
   public isUpgrade(): boolean {
-    return this.data.bUpg === 1;
+    return normalizeBoolean(this.data.bUpg);
   }
 
   /**
    * Whether the item is AC tagged.
    */
   public isAC(): boolean {
-    return Number(this.data.bCoins) === 1;
+    return normalizeBoolean(this.data.bCoins);
   }
 
   /**
@@ -71,7 +80,7 @@ export class Item {
    * Whether the item belongs to the temp inventory.
    */
   public isTemp(): boolean {
-    return this.data.bTemp === 1;
+    return normalizeBoolean(this.data.bTemp);
   }
 
   /**
@@ -97,6 +106,13 @@ export class Item {
    */
   public isArmor(): boolean {
     return this.itemGroup === "co";
+  }
+
+  /**
+   * Whether the item is type Class.
+   */
+  public isClass(): boolean {
+    return this.category === "Class";
   }
 
   /**
@@ -165,9 +181,21 @@ export class Item {
   }
 
   /**
+   * The class rank represented by this item's accumulated class points.
+   */
+  public get classRank(): number | null {
+    return this.isClass() ? getRankFromPoints(this.quantity) : null;
+  }
+
+  /**
    * Whether the item is at its maximum stack size.
    */
   public isMaxed(): boolean {
+    // Classes use quantity to track accumulated class points.
+    if (this.isClass()) {
+      return hasMaxRankPoints(this.quantity);
+    }
+
     return this.quantity === this.maxStack;
   }
 
@@ -175,7 +203,7 @@ export class Item {
    * Whether the item is member-only.
    */
   public isMember(): boolean {
-    return this.data.bUpg === 1;
+    return normalizeBoolean(this.data.bUpg);
   }
 
   /**
@@ -189,14 +217,14 @@ export class Item {
    * Whether the item is equipped.
    */
   public isEquipped(): boolean {
-    return this.data.bEquip === 1;
+    return normalizeBoolean(this.data.bEquip);
   }
 
   /**
    * Whether the item is currently being worn.
    */
   public isWearing(): boolean {
-    return this.data.bWear === 1;
+    return normalizeBoolean(this.data.bWear);
   }
 
   /**

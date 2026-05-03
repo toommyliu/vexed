@@ -6,22 +6,33 @@
     "as3": "pnpm run as3:bridge && pnpm run as3:build",
     "as3:bridge": "tsx scripts/gen-as3-bridge.ts",
     "as3:build": "tsx scripts/build-as3-swf.ts",
+    "clean": "tsx scripts/clean.ts",
+    "dev": "tsx scripts/dev-runner.ts dev",
+    "dev:app": "tsx scripts/dev-runner.ts app",
+    "dev:docs": "tsx scripts/dev-runner.ts docs",
+    "docgen": "tsx scripts/docgen.ts",
     "lint": "oxlint",
     "lint:fix": "oxlint --fix",
     "format": "oxfmt --check",
     "format:write": "oxfmt",
-    "typecheck": "pnpm -r typecheck"
+    "release": "tsx scripts/release.ts",
+    "test": "pnpm -r --if-present test",
+    "test:watch": "pnpm -r --if-present test:watch",
+    "typecheck": "tsc -p tsconfig.json --noEmit && pnpm -r typecheck"
   },
   "dependencies": {
     "effect": "4.0.0-beta.43"
   },
   "devDependencies": {
     "@effect/platform-node": "4.0.0-beta.43",
+    "@types/node": "^24.12.2",
     "asconfigc": "^1.9.0",
+    "git-cliff": "^2.9.1",
     "oxfmt": "^0.13.0",
     "oxlint": "^0.13.0",
     "tsx": "^4.21.0",
-    "typescript": "^5.9.3"
+    "typescript": "^5.9.3",
+    "vitest": "^3.2.4"
   },
   "pnpm": {
     "overrides": {
@@ -30,6 +41,11 @@
       "@effect/platform-node": "4.0.0-beta.43",
       "@effect/platform-node-shared": "4.0.0-beta.43",
       "typescript": "^5.9.3"
-    }
+    },
+    "onlyBuiltDependencies": [
+      "electron",
+      "esbuild",
+      "sharp"
+    ]
   }
 }
