@@ -8,7 +8,7 @@ import {
   Jobs,
   type JobsShape,
   type PeriodicJobDefinition,
-} from "../../flash/Services/Jobs";
+} from "../../jobs/Services/Jobs";
 import { Player, type PlayerShape } from "../../flash/Services/Player";
 import { Settings, type SettingsShape } from "../../flash/Services/Settings";
 import { AutoRelogin, type AutoReloginShape } from "../Services/AutoRelogin";

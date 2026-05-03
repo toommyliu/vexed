@@ -1,13 +1,11 @@
 import { Effect, Layer } from "effect";
 import { AuthLive } from "./Auth";
-import { AutoZoneLive } from "./AutoZone";
 import { BankLive } from "./Bank";
 import { BridgeLive } from "./Bridge";
 import { CombatLive } from "./Combat";
 import { DropsLive } from "./Drops";
 import { HouseLive } from "./House";
 import { InventoryLive } from "./Inventory";
-import { JobsLive } from "./Jobs";
 import { PacketLive } from "./Packet";
 import { PacketDomainLive } from "./PacketDomain";
 import { PlayerLive } from "./Player";
@@ -16,7 +14,6 @@ import { SettingsLive } from "./Settings";
 import { ShopsLive } from "./Shops";
 import { TempInventoryLive } from "./TempInventory";
 import { WorldLive } from "./World";
-import { FeaturesLive } from "../../features/Layers/Features";
 
 const BridgeCoreLive = BridgeLive;
 const PacketRuntimeLive = PacketLive.pipe(Layer.provide(BridgeCoreLive));
@@ -45,30 +42,14 @@ const DomainRuntimeLive = Layer.mergeAll(
   QuestsLive,
 ).pipe(Layer.provide(CoreRuntimeLive));
 
-const InfrastructureRuntimeLive = JobsLive.pipe(
+const CombatRuntimeLive = CombatLive.pipe(
   Layer.provide(Layer.mergeAll(CoreRuntimeLive, DomainRuntimeLive)),
-);
-
-const FlashFeatureRuntimeLive = Layer.mergeAll(CombatLive, AutoZoneLive).pipe(
-  Layer.provide(Layer.mergeAll(CoreRuntimeLive, DomainRuntimeLive)),
-);
-
-const FeatureRuntimeLive = FeaturesLive.pipe(
-  Layer.provide(
-    Layer.mergeAll(
-      CoreRuntimeLive,
-      DomainRuntimeLive,
-      InfrastructureRuntimeLive,
-    ),
-  ),
 );
 
 export const FlashLive = Layer.mergeAll(
   CoreRuntimeLive,
   DomainRuntimeLive,
-  InfrastructureRuntimeLive,
-  FlashFeatureRuntimeLive,
-  FeatureRuntimeLive,
+  CombatRuntimeLive,
 ).pipe(
   Layer.tapCause((cause) =>
     Effect.logError({

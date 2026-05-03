@@ -8,13 +8,13 @@ import type {
 } from "./Errors";
 import type { BridgeError, BridgeShape } from "../flash/Services/Bridge";
 import type { AuthShape } from "../flash/Services/Auth";
-import type { AutoZoneShape } from "../flash/Services/AutoZone";
+import type { AutoZoneShape } from "../features/Services/AutoZone";
 import type { BankShape } from "../flash/Services/Bank";
 import type { CombatShape } from "../flash/Services/Combat";
 import type { DropsShape } from "../flash/Services/Drops";
 import type { HouseShape } from "../flash/Services/House";
 import type { InventoryShape } from "../flash/Services/Inventory";
-import type { JobsShape } from "../flash/Services/Jobs";
+import type { JobsShape } from "../jobs/Services/Jobs";
 import type { PacketShape } from "../flash/Services/Packet";
 import type { PacketDomainShape } from "../flash/Services/PacketDomain";
 import type { PlayerShape } from "../flash/Services/Player";

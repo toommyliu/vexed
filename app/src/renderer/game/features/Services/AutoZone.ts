@@ -21,5 +21,5 @@ export interface AutoZoneShape {
 }
 
 export class AutoZone extends ServiceMap.Service<AutoZone, AutoZoneShape>()(
-  "flash/Services/AutoZone",
+  "features/Services/AutoZone",
 ) {}
