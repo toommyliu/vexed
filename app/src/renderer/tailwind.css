@@ -1,6 +1,4 @@
 @import "@vexed/ui/styles.css";
-@import "@fontsource-variable/inter";
-
 @tailwind base;
 @tailwind components;
 @tailwind utilities;

@@ -1,0 +1,102 @@
+html,
+body,
+#root {
+  min-height: 100%;
+}
+
+body {
+  margin: 0;
+}
+
+.demo-shell {
+  background: rgb(var(--background-rgb));
+  color: rgb(var(--foreground-rgb));
+  font-family: var(--font-family);
+  min-height: 100vh;
+}
+
+.demo-theme-changing,
+.demo-theme-changing *,
+.demo-theme-changing *::before,
+.demo-theme-changing *::after {
+  transition: none !important;
+}
+
+.demo-page {
+  margin: 0 auto;
+  max-width: 1120px;
+  padding: 32px;
+}
+
+.demo-header {
+  align-items: flex-start;
+  display: flex;
+  gap: 24px;
+  justify-content: space-between;
+  margin-bottom: 24px;
+}
+
+.demo-header h1 {
+  font-size: 28px;
+  line-height: 1.1;
+  margin: 0;
+}
+
+.demo-header p {
+  color: rgb(var(--muted-foreground-rgb));
+  margin: 8px 0 0;
+}
+
+.demo-toolbar,
+.demo-row {
+  align-items: center;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.demo-grid {
+  display: grid;
+  gap: 16px;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.demo-stack,
+.demo-form {
+  display: grid;
+  gap: 12px;
+}
+
+.demo-form {
+  align-items: start;
+}
+
+.demo-muted {
+  color: rgb(var(--muted-foreground-rgb));
+  font-size: 0.875rem;
+}
+
+.demo-custom-theme {
+  --primary: 13 148 136;
+  --primary-rgb: 13, 148, 136;
+  --ring: 13 148 136;
+  --ring-rgb: 13, 148, 136;
+  --accent: 204 251 241;
+  --accent-rgb: 204, 251, 241;
+  --accent-foreground: 15 118 110;
+  --accent-foreground-rgb: 15, 118, 110;
+}
+
+@media (max-width: 760px) {
+  .demo-page {
+    padding: 20px;
+  }
+
+  .demo-header {
+    display: grid;
+  }
+
+  .demo-grid {
+    grid-template-columns: 1fr;
+  }
+}

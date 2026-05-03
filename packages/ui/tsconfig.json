@@ -4,8 +4,16 @@
     "lib": ["esnext", "dom", "dom.iterable"],
     "module": "esnext",
     "moduleResolution": "bundler",
+    "jsx": "react-jsx",
+    "jsxImportSource": "solid-js",
+    "paths": {
+      "@vexed/ui": ["./src/index.ts"],
+      "@vexed/ui/styles.css": ["./src/styles/styles.css"]
+    },
+    "resolveJsonModule": true,
     "noEmit": true,
+    "allowSyntheticDefaultImports": true,
     "skipDefaultLibCheck": true
   },
-  "include": ["src/**/*"]
+  "include": ["src/**/*", "demo/**/*", "scripts/**/*", "vitest.config.ts"]
 }

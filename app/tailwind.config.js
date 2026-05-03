@@ -2,8 +2,8 @@
 module.exports = {
   darkMode: ["variant", ".dark &"],
   content: [
-    "./src/**/*.{html,js,svelte,ts}",
-    "../packages/ui/src/**/*.{html,js,svelte,ts}",
+    "./src/**/*.{html,js,ts,tsx}",
+    "../packages/ui/src/**/*.{css,js,jsx,ts,tsx}",
   ],
   theme: {
     extend: {

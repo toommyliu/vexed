@@ -1,4 +1,5 @@
 const { build, context } = require("esbuild");
+const postcss = require("esbuild-postcss");
 const {
   appendFileSync,
   copyFileSync,
@@ -98,9 +99,14 @@ function createRendererBuildOptions() {
     entryPoints: ["./src/renderer/game/index.tsx"],
     bundle: true,
     platform: "browser",
-    conditions: ["browser"],
+    target: "chrome87",
+    conditions: ["solid", "browser"],
     outdir: rendererHtmlOutDir,
-    plugins: [solidPlugin(), createDevBuildNotifyPlugin("renderer")],
+    plugins: [
+      solidPlugin(),
+      postcss(),
+      createDevBuildNotifyPlugin("renderer"),
+    ],
     define: {
       "process.env.NODE_ENV": JSON.stringify(
         process.env.NODE_ENV || "development",
