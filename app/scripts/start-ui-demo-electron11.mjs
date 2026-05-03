@@ -1,6 +1,5 @@
 import { spawn } from "node:child_process";
 import { get } from "node:http";
-import { createServer } from "node:net";
 import { dirname, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 
@@ -8,18 +7,18 @@ const __dirname = dirname(fileURLToPath(import.meta.url));
 const appDir = resolve(__dirname, "..");
 const repoRoot = resolve(appDir, "..");
 const uiDir = resolve(repoRoot, "packages/ui");
-const uiDemoHost = "127.0.0.1";
-const uiDemoPort = 4173;
-const uiDemoOrigin = "http://127.0.0.1:4173";
+const defaultUiDemoHost = "localhost";
+const defaultUiDemoPort = 4173;
 const readyTimeoutMs = 30_000;
 const readyPollMs = 250;
 const children = new Set();
 
 function spawnChild(command, args, options) {
+  const { stdio = "inherit", ...spawnOptions } = options;
   const child = spawn(command, args, {
-    ...options,
+    ...spawnOptions,
     shell: process.platform === "win32",
-    stdio: "inherit",
+    stdio,
   });
 
   children.add(child);
@@ -74,6 +73,18 @@ function sleep(ms) {
   return new Promise((resolvePromise) => setTimeout(resolvePromise, ms));
 }
 
+function resolveDemoHost() {
+  const host = process.env["VEXED_UI_DEMO_HOST"] ?? defaultUiDemoHost;
+
+  if (host === "localhost" || host === "127.0.0.1") {
+    return host;
+  }
+
+  throw new Error(
+    `VEXED_UI_DEMO_HOST must be localhost or 127.0.0.1, received ${JSON.stringify(host)}`,
+  );
+}
+
 async function runRequired(label, command, args, cwd) {
   const child = spawnChild(command, args, {
     cwd,
@@ -111,23 +122,38 @@ function requestReady(url) {
   });
 }
 
-function assertPortAvailable(host, port) {
+function waitForViteUrl(child) {
   return new Promise((resolvePromise, reject) => {
-    const server = createServer();
+    let output = "";
+    let settled = false;
+    const timer = setTimeout(() => {
+      cleanup();
+      reject(new Error("Timed out waiting for Vite to print its local URL"));
+    }, readyTimeoutMs);
 
-    server.once("error", (error) => {
-      reject(
-        new Error(
-          error.code === "EADDRINUSE"
-            ? `${host}:${port} is already in use. Stop the process using that port and rerun this command.`
-            : `Failed to check ${host}:${port}: ${error.message}`,
-        ),
-      );
-    });
+    const cleanup = () => {
+      settled = true;
+      clearTimeout(timer);
+      child.stdout?.off("data", onData);
+      child.stderr?.off("data", onData);
+    };
 
-    server.listen(port, host, () => {
-      server.close(() => resolvePromise());
-    });
+    const onData = (chunk) => {
+      const text = chunk.toString();
+      output += text;
+      process.stdout.write(chunk);
+
+      const match = output.match(/https?:\/\/(?:localhost|127\.0\.0\.1):\d+\//);
+      if (!match || settled) {
+        return;
+      }
+
+      cleanup();
+      resolvePromise(match[0]);
+    };
+
+    child.stdout?.on("data", onData);
+    child.stderr?.on("data", onData);
   });
 }
 
@@ -152,18 +178,30 @@ async function waitForServer(url, isRunning) {
 }
 
 async function main() {
-  await assertPortAvailable(uiDemoHost, uiDemoPort);
+  const uiDemoHost = resolveDemoHost();
+  const uiDemoPort = defaultUiDemoPort;
 
   console.log("[ui-demo-electron11] compiling app");
   await runRequired("app compile", "pnpm", ["compile"], appDir);
 
-  console.log(`[ui-demo-electron11] starting UI demo at ${uiDemoOrigin}`);
+  console.log(
+    `[ui-demo-electron11] starting UI demo on ${uiDemoHost}:${uiDemoPort}`,
+  );
   const vite = spawnChild(
     "pnpm",
-    ["--dir", uiDir, "demo", "--port", String(uiDemoPort), "--strictPort"],
+    [
+      "--dir",
+      uiDir,
+      "demo",
+      "--host",
+      uiDemoHost,
+      "--port",
+      String(uiDemoPort),
+    ],
     {
       cwd: repoRoot,
       env: process.env,
+      stdio: ["inherit", "pipe", "pipe"],
     },
   );
 
@@ -173,14 +211,25 @@ async function main() {
     return result;
   });
 
-  await waitForServer(uiDemoOrigin, () => viteExit === null);
+  const uiDemoUrl = await Promise.race([
+    waitForViteUrl(vite),
+    viteExitPromise.then((nextViteExit) => {
+      throw new Error(
+        nextViteExit.signal
+          ? `Vite demo server exited after ${nextViteExit.signal}`
+          : `Vite demo server exited with code ${nextViteExit.code}`,
+      );
+    }),
+  ]);
 
-  console.log("[ui-demo-electron11] launching Electron 11");
+  await waitForServer(uiDemoUrl, () => viteExit === null);
+
+  console.log(`[ui-demo-electron11] launching Electron 11 at ${uiDemoUrl}`);
   const electron = spawnChild("pnpm", ["electron"], {
     cwd: appDir,
     env: {
       ...process.env,
-      VEXED_DEV_RENDERER_URL: `${uiDemoOrigin}/`,
+      VEXED_DEV_RENDERER_URL: uiDemoUrl,
     },
   });
 

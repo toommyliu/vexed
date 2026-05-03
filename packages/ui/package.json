@@ -13,7 +13,9 @@
     "!dist/**/*.spec.*"
   ],
   "sideEffects": [
-    "**/*.css"
+    "**/*.css",
+    "src/lib/polyfills.ts",
+    "dist/index.js"
   ],
   "exports": {
     ".": {
@@ -44,6 +46,7 @@
     "solid-js": "^1.9.12"
   },
   "dependencies": {
+    "@ark-ui/solid": "^5.36.2",
     "clsx": "^2.1.1",
     "lucide-solid": "^1.14.0"
   },

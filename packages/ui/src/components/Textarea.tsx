@@ -8,6 +8,7 @@ export interface TextareaProps
   readonly fullWidth?: boolean;
   readonly invalid?: boolean;
   readonly size?: "sm" | "default" | "lg";
+  readonly unstyled?: boolean;
 }
 
 export function Textarea(props: TextareaProps): JSX.Element {
@@ -17,23 +18,36 @@ export function Textarea(props: TextareaProps): JSX.Element {
     "fullWidth",
     "invalid",
     "size",
+    "unstyled",
   ]);
   const size = () => local.size ?? "default";
   const invalid = () =>
     Boolean(local.invalid || isAriaInvalid(local["aria-invalid"]));
 
   return (
-    <textarea
-      {...rest}
-      aria-invalid={invalid() ? "true" : local["aria-invalid"]}
+    <span
       class={cn(
-        "textarea",
-        `textarea--${size()}`,
-        local.fullWidth && "textarea--full-width",
-        invalid() && "textarea--invalid",
-        local.class,
+        !local.unstyled && "textarea-control",
+        !local.unstyled && `textarea-control--${size()}`,
+        local.fullWidth && "textarea-control--full-width",
+        invalid() && "textarea-control--invalid",
       )}
-      data-slot="textarea"
-    />
+      data-size={size()}
+      data-slot="textarea-control"
+    >
+      <textarea
+        {...rest}
+        aria-invalid={invalid() ? "true" : local["aria-invalid"]}
+        class={cn(
+          "textarea",
+          `textarea--${size()}`,
+          local.fullWidth && "textarea--full-width",
+          invalid() && "textarea--invalid",
+          local.unstyled && "textarea--unstyled",
+          local.class,
+        )}
+        data-slot="textarea"
+      />
+    </span>
   );
 }

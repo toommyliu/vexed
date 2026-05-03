@@ -20,20 +20,11 @@ describe("main process dev renderer URL", () => {
     expect(mainSource).toContain("win.loadURL(rendererUrl)");
   });
 
-  it("passes strict Vite port flags through pnpm without an extra argument separator", () => {
-    expect(launcherSource).toContain("const uiDemoPort = 4173");
-    expect(launcherSource).toContain("\"--port\", String(uiDemoPort)");
-    expect(launcherSource).toContain("\"--strictPort\"");
-    expect(launcherSource).not.toContain(
-      "[\"--dir\", uiDir, \"demo\", \"--\", \"--port\"",
-    );
-  });
-
-  it("checks the fixed Vite port before launching Electron", () => {
-    expect(launcherSource).toContain("import { createServer } from \"node:net\"");
-    expect(launcherSource).toContain("function assertPortAvailable");
-    expect(launcherSource).toContain(
-      "await assertPortAvailable(uiDemoHost, uiDemoPort)",
-    );
+  it("uses the Vite-reported URL instead of assuming a fixed port", () => {
+    expect(launcherSource).toContain("function waitForViteUrl");
+    expect(launcherSource).toContain("const uiDemoUrl = await Promise.race");
+    expect(launcherSource).toContain("await waitForServer(uiDemoUrl");
+    expect(launcherSource).toContain("VEXED_DEV_RENDERER_URL: uiDemoUrl");
+    expect(launcherSource).not.toContain("assertPortAvailable");
   });
 });

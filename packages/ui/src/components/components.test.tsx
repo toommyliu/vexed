@@ -14,8 +14,49 @@ import {
   CardPanel,
   CardTitle,
   Checkbox,
+  Alert,
+  AlertAction,
+  AlertDescription,
+  AlertTitle,
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  Combobox,
+  ComboboxContent,
+  ComboboxEmpty,
+  ComboboxInput,
+  ComboboxItem,
+  ComboboxList,
+  Command,
+  CommandEmpty,
+  CommandInput,
+  CommandItem,
+  CommandList,
+  Dialog,
+  DialogClose,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+  Empty,
+  EmptyContent,
+  EmptyDescription,
+  EmptyHeader,
+  EmptyMedia,
+  EmptyTitle,
   IconButton,
   Input,
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
   Switch,
   Textarea,
 } from "../index";
@@ -75,22 +116,30 @@ describe("IconButton", () => {
 describe("Input", () => {
   it("passes native props and marks invalid inputs", () => {
     const root = renderUi(() => (
-      <Input invalid placeholder="Name" value="Drakath" />
+      <Input invalid placeholder="Name" value="Ada" />
     ));
     const input = root.querySelector("input");
 
-    expect(input?.value).toBe("Drakath");
+    expect(input?.value).toBe("Ada");
     expect(input?.getAttribute("aria-invalid")).toBe("true");
     expect(input?.className).toContain("input--invalid");
   });
 });
 
 describe("Textarea", () => {
-  it("uses Coss-style size names", () => {
+  it("uses shared size names", () => {
     const root = renderUi(() => <Textarea size="lg" />);
     const textarea = root.querySelector("textarea");
 
     expect(textarea?.className).toContain("textarea--lg");
+  });
+
+  it("renders the control wrapper", () => {
+    const root = renderUi(() => <Textarea fullWidth invalid />);
+    const control = root.querySelector("[data-slot='textarea-control']");
+
+    expect(control?.className).toContain("textarea-control--full-width");
+    expect(control?.className).toContain("textarea-control--invalid");
   });
 });
 
@@ -177,11 +226,173 @@ describe("Invalid and disabled states", () => {
 
 describe("Switch", () => {
   it("uses a native checkbox with switch role", () => {
-    const root = renderUi(() => <Switch checked>Auto relogin</Switch>);
+    const root = renderUi(() => <Switch checked>Auto refresh</Switch>);
     const input = root.querySelector("input");
 
     expect(input?.type).toBe("checkbox");
     expect(input?.getAttribute("role")).toBe("switch");
     expect(input?.checked).toBe(true);
+  });
+});
+
+describe("Alert", () => {
+  it("renders semantic alert slots and actions", () => {
+    const root = renderUi(() => (
+      <Alert variant="warning">
+        <AlertTitle>Warning</AlertTitle>
+        <AlertDescription>Retrying connection.</AlertDescription>
+        <AlertAction>Retry</AlertAction>
+      </Alert>
+    ));
+
+    expect(root.querySelector("[data-slot='alert']")?.className).toContain(
+      "alert--warning",
+    );
+    expect(root.querySelector("[data-slot='alert-title']")).not.toBeNull();
+    expect(root.querySelector("[data-slot='alert-action']")).not.toBeNull();
+  });
+});
+
+describe("Dialog", () => {
+  it("renders open dialog content and close action", () => {
+    renderUi(() => (
+      <Dialog open>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Settings</DialogTitle>
+            <DialogDescription>Runtime settings</DialogDescription>
+          </DialogHeader>
+          <DialogFooter>
+            <DialogClose>Close</DialogClose>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+    ));
+
+    expect(document.body.querySelector("[data-slot='dialog-content']")).not.toBeNull();
+    expect(document.body.querySelector("[data-slot='dialog-title']")).not.toBeNull();
+    expect(document.body.querySelector("[data-slot='dialog-close']")).not.toBeNull();
+  });
+});
+
+describe("AlertDialog", () => {
+  it("renders alert dialog action and cancel buttons", () => {
+    renderUi(() => (
+      <AlertDialog open>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Stop?</AlertDialogTitle>
+            <AlertDialogDescription>Stop the process.</AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogAction>Stop</AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+    ));
+
+    expect(
+      document.body.querySelector("[data-slot='alert-dialog-action']"),
+    ).not.toBeNull();
+    expect(
+      document.body.querySelector("[data-slot='alert-dialog-cancel']"),
+    ).not.toBeNull();
+  });
+});
+
+describe("Select", () => {
+  it("renders trigger, value, content, and registered items", () => {
+    renderUi(() => (
+      <Select open value={["solid"]}>
+        <SelectTrigger>
+          <SelectValue placeholder="Select framework" />
+        </SelectTrigger>
+        <SelectContent>
+          <SelectItem value="solid">Solid</SelectItem>
+          <SelectItem value="svelte">Svelte</SelectItem>
+        </SelectContent>
+      </Select>
+    ));
+
+    expect(document.body.querySelector("[data-slot='select-trigger']")).not.toBeNull();
+    expect(document.body.querySelectorAll("[data-slot='select-item']")).toHaveLength(2);
+  });
+});
+
+describe("Combobox", () => {
+  it("renders input, empty state, and registered items", () => {
+    renderUi(() => (
+      <Combobox open inputBehavior="autohighlight">
+        <ComboboxInput placeholder="Search" />
+        <ComboboxContent>
+          <ComboboxEmpty>No result</ComboboxEmpty>
+          <ComboboxList>
+            <ComboboxItem value="reports">Reports</ComboboxItem>
+          </ComboboxList>
+        </ComboboxContent>
+      </Combobox>
+    ));
+
+    expect(document.body.querySelector("[data-slot='combobox-input']")).not.toBeNull();
+    expect(document.body.querySelector("[data-slot='combobox-item']")).not.toBeNull();
+  });
+
+  it("shows the trigger instead of clear control before selection", () => {
+    const root = renderUi(() => (
+      <Combobox value={[]}>
+        <ComboboxInput placeholder="Search" showClear />
+      </Combobox>
+    ));
+
+    expect(root.querySelector("[data-slot='combobox-trigger']")).not.toBeNull();
+    expect(root.querySelector("[data-slot='combobox-clear']")).toBeNull();
+  });
+});
+
+describe("Command", () => {
+  it("filters items and calls select handlers", () => {
+    let selected = "";
+    const root = renderUi(() => (
+      <Command>
+        <CommandInput />
+        <CommandList>
+          <CommandEmpty>No command</CommandEmpty>
+          <CommandItem value="start" onSelect={(value) => (selected = value)}>
+            Start process
+          </CommandItem>
+          <CommandItem value="bank">Bank cleanup</CommandItem>
+        </CommandList>
+      </Command>
+    ));
+    const input = root.querySelector("input");
+    const start = root.querySelector<HTMLElement>("[data-command-value='start']");
+    const bank = root.querySelector<HTMLElement>("[data-command-value='bank']");
+
+    input!.value = "sta";
+    input!.dispatchEvent(new InputEvent("input", { bubbles: true }));
+    start!.click();
+
+    expect(selected).toBe("start");
+    expect(start?.style.display).toBe("");
+    expect(bank?.style.display).toBe("none");
+  });
+});
+
+describe("Empty", () => {
+  it("renders empty state slots", () => {
+    const root = renderUi(() => (
+      <Empty>
+        <EmptyHeader>
+          <EmptyMedia variant="icon">I</EmptyMedia>
+          <EmptyTitle>No results</EmptyTitle>
+          <EmptyDescription>Nothing queued.</EmptyDescription>
+        </EmptyHeader>
+        <EmptyContent>Refresh</EmptyContent>
+      </Empty>
+    ));
+
+    expect(root.querySelector("[data-slot='empty-media']")).not.toBeNull();
+    expect(root.querySelector("[data-slot='empty-content']")).not.toBeNull();
   });
 });

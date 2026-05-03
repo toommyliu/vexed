@@ -52,7 +52,7 @@ describe("component color usage", () => {
     expect(components).toContain("rgba(var(--ring-rgb),");
   });
 
-  it("defines Coss-style BEM modifiers", () => {
+  it("defines component BEM modifiers", () => {
     const components = readStyle("components.css");
 
     expect(components).toContain(".button--default");
@@ -66,6 +66,13 @@ describe("component color usage", () => {
     expect(components).toContain(".card__action");
     expect(components).toContain(".card__panel");
     expect(components).toContain(".checkbox--disabled");
+    expect(components).toContain(".alert--warning");
+    expect(components).toContain(".dialog__content");
+    expect(components).toContain(".select__trigger");
+    expect(components).toContain(".combobox__control");
+    expect(components).toContain(".command__item");
+    expect(components).toContain(".empty__media");
+    expect(components).toContain(".textarea-control--invalid");
   });
 
   it("does not use forbidden Chrome 87-incompatible CSS syntax", () => {
@@ -99,7 +106,7 @@ describe("component color usage", () => {
 });
 
 describe("demo API usage", () => {
-  it("uses compact defaults and the Coss-style API names", () => {
+  it("uses compact defaults and shared API names", () => {
     const demo = [
       readPackageFile("demo/App.tsx"),
       readPackageFile("demo/demo.css"),
@@ -110,6 +117,10 @@ describe("demo API usage", () => {
     expect(demo).not.toContain("size=\"md\"");
     expect(demo).toContain("variant=\"destructive-outline\"");
     expect(demo).toContain("size=\"xl\"");
+    expect(demo).toContain("<AlertDialog");
+    expect(demo).toContain("<Combobox");
+    expect(demo).toContain("<Command");
+    expect(demo).toContain("<Empty");
   });
 
   it("builds the demo for the Electron v11 Chrome 87 runtime", () => {

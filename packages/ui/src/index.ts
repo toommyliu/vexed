@@ -1,3 +1,37 @@
+import "./lib/polyfills";
+
+export {
+  Alert,
+  AlertAction,
+  AlertDescription,
+  AlertTitle,
+  type AlertActionProps,
+  type AlertDescriptionProps,
+  type AlertProps,
+  type AlertTitleProps,
+  type AlertVariant,
+} from "./components/Alert";
+export {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogClose,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogOverlay,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+  type AlertDialogCloseProps,
+  type AlertDialogContentProps,
+  type AlertDialogDescriptionProps,
+  type AlertDialogFooterProps,
+  type AlertDialogHeaderProps,
+  type AlertDialogProps,
+  type AlertDialogTitleProps,
+  type AlertDialogTriggerProps,
+} from "./components/AlertDialog";
 export {
   Badge,
   type BadgeProps,
@@ -42,6 +76,96 @@ export {
 } from "./components/Card";
 export { Checkbox, type CheckboxProps } from "./components/Checkbox";
 export {
+  Combobox,
+  ComboboxClear,
+  ComboboxContent,
+  ComboboxEmpty,
+  ComboboxGroup,
+  ComboboxGroupLabel,
+  ComboboxInput,
+  ComboboxItem,
+  ComboboxList,
+  ComboboxSeparator,
+  ComboboxTrigger,
+  ComboboxValue,
+  type ComboboxClearProps,
+  type ComboboxContentProps,
+  type ComboboxEmptyProps,
+  type ComboboxGroupLabelProps,
+  type ComboboxGroupProps,
+  type ComboboxInputProps,
+  type ComboboxItemProps,
+  type ComboboxListProps,
+  type ComboboxOption,
+  type ComboboxProps,
+  type ComboboxSeparatorProps,
+  type ComboboxTriggerProps,
+  type ComboboxValueProps,
+} from "./components/Combobox";
+export {
+  Command,
+  CommandDialog,
+  CommandEmpty,
+  CommandFooter,
+  CommandGroup,
+  CommandGroupHeading,
+  CommandGroupItems,
+  CommandInput,
+  CommandItem,
+  CommandLinkItem,
+  CommandList,
+  CommandLoading,
+  CommandPanel,
+  CommandSeparator,
+  CommandShortcut,
+  CommandState,
+  CommandViewport,
+  type CommandDialogProps,
+  type CommandEmptyProps,
+  type CommandFilterFn,
+  type CommandGroupProps,
+  type CommandInputProps,
+  type CommandItemProps,
+  type CommandLinkItemProps,
+  type CommandListProps,
+  type CommandLoadingProps,
+  type CommandProps,
+  type CommandShortcutProps,
+} from "./components/Command";
+export {
+  Dialog,
+  DialogClose,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogOverlay,
+  DialogPanel,
+  DialogTitle,
+  DialogTrigger,
+  type DialogCloseProps,
+  type DialogContentProps,
+  type DialogDescriptionProps,
+  type DialogFooterProps,
+  type DialogHeaderProps,
+  type DialogPanelProps,
+  type DialogProps,
+  type DialogTitleProps,
+  type DialogTriggerProps,
+} from "./components/Dialog";
+export {
+  Empty,
+  EmptyContent,
+  EmptyDescription,
+  EmptyHeader,
+  EmptyMedia,
+  EmptyTitle,
+  type EmptyDescriptionProps,
+  type EmptyMediaProps,
+  type EmptyMediaVariant,
+  type EmptyProps,
+} from "./components/Empty";
+export {
   IconButton,
   type IconButtonProps,
   type IconButtonSize,
@@ -51,6 +175,29 @@ export { Kbd, type KbdProps } from "./components/Kbd";
 export { Label, type LabelProps } from "./components/Label";
 export { Portal, type PortalProps } from "./components/Portal";
 export { Separator, type SeparatorProps } from "./components/Separator";
+export {
+  Select,
+  SelectButton,
+  SelectContent,
+  SelectGroup,
+  SelectGroupLabel,
+  SelectItem,
+  SelectLabel,
+  SelectSeparator,
+  SelectTrigger,
+  SelectValue,
+  type SelectButtonProps,
+  type SelectContentProps,
+  type SelectGroupLabelProps,
+  type SelectGroupProps,
+  type SelectItemProps,
+  type SelectLabelProps,
+  type SelectOption,
+  type SelectProps,
+  type SelectSeparatorProps,
+  type SelectTriggerProps,
+  type SelectValueProps,
+} from "./components/Select";
 export { Spinner, type SpinnerProps } from "./components/Spinner";
 export { Switch, type SwitchProps } from "./components/Switch";
 export { Textarea, type TextareaProps } from "./components/Textarea";
@@ -60,5 +207,6 @@ export {
 } from "./components/VisuallyHidden";
 export { cn } from "./lib/cn";
 export { composeEventHandlers } from "./lib/composeEventHandlers";
+export { computeCommandScore } from "./lib/commandScore";
 export { isAriaInvalid } from "./lib/domState";
 export { mergeRefs, type AssignableRef } from "./lib/mergeRefs";

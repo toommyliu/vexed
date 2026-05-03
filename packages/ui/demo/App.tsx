@@ -19,10 +19,60 @@ import {
   CardPanel,
   CardTitle,
   Checkbox,
+  Alert,
+  AlertAction,
+  AlertDescription,
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+  AlertTitle,
+  Combobox,
+  ComboboxContent,
+  ComboboxEmpty,
+  ComboboxInput,
+  ComboboxItem,
+  ComboboxList,
+  Command,
+  CommandEmpty,
+  CommandFooter,
+  CommandGroup,
+  CommandGroupHeading,
+  CommandGroupItems,
+  CommandInput,
+  CommandItem,
+  CommandList,
+  CommandPanel,
+  CommandShortcut,
+  Dialog,
+  DialogClose,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogPanel,
+  DialogTitle,
+  DialogTrigger,
+  Empty,
+  EmptyContent,
+  EmptyDescription,
+  EmptyHeader,
+  EmptyMedia,
+  EmptyTitle,
   IconButton,
   Input,
   Kbd,
   Label,
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
   Separator,
   Spinner,
   Switch,
@@ -32,14 +82,19 @@ import {
 import {
   Check,
   Copy,
+  Inbox,
   Pause,
   Play,
+  Search,
   Settings,
+  ShieldAlert,
   X,
 } from "lucide-solid";
 
 function DemoApp() {
   const [dark, setDark] = createSignal(false);
+  const [framework, setFramework] = createSignal("solid");
+  const [target, setTarget] = createSignal("");
 
   createEffect(() => {
     const theme = dark() ? "dark" : "light";
@@ -129,13 +184,15 @@ function DemoApp() {
               </CardDescription>
             </CardHeader>
             <CardContent class="demo-form">
-              <Label for="name">Character name</Label>
-              <Input fullWidth id="name" placeholder="Drakath" />
+              <Label for="name">Profile name</Label>
+              <Input fullWidth id="name" placeholder="Ada Lovelace" />
               <Label for="notes">Notes</Label>
+              <Textarea fullWidth id="notes" placeholder="Review notes" />
               <Textarea
                 fullWidth
-                id="notes"
-                placeholder="Combat script notes"
+                invalid
+                placeholder="Invalid textarea"
+                value="Missing required summary"
               />
               <Input
                 fullWidth
@@ -144,14 +201,173 @@ function DemoApp() {
                 value="999999"
               />
               <div class="demo-row">
-                <Checkbox checked>
-                  Enable drops
-                </Checkbox>
+                <Checkbox checked>Enable notifications</Checkbox>
                 <Checkbox invalid>
                   Invalid option
                 </Checkbox>
               </div>
-              <Switch checked>Auto relogin</Switch>
+              <Switch checked>Auto refresh</Switch>
+            </CardContent>
+          </Card>
+
+          <Card>
+            <CardHeader>
+              <CardTitle>Overlays</CardTitle>
+              <CardDescription>
+                Dialog and alert dialog composition.
+              </CardDescription>
+            </CardHeader>
+            <CardContent class="demo-stack">
+              <div class="demo-row">
+                <Dialog>
+                  <DialogTrigger class="button button--outline button--size-default">
+                    Open dialog
+                  </DialogTrigger>
+                  <DialogContent>
+                    <DialogHeader>
+                      <DialogTitle>Runtime settings</DialogTitle>
+                      <DialogDescription>
+                        Configure compact runtime preferences.
+                      </DialogDescription>
+                    </DialogHeader>
+                    <DialogPanel class="demo-form">
+                      <Label for="dialog-name">Preset name</Label>
+                      <Input fullWidth id="dialog-name" value="Daily review" />
+                    </DialogPanel>
+                    <DialogFooter>
+                      <DialogClose>Done</DialogClose>
+                    </DialogFooter>
+                  </DialogContent>
+                </Dialog>
+
+                <AlertDialog>
+                  <AlertDialogTrigger class="button button--destructive button--size-default">
+                    Stop process
+                  </AlertDialogTrigger>
+                  <AlertDialogContent>
+                    <AlertDialogHeader>
+                      <AlertDialogTitle>Stop this process?</AlertDialogTitle>
+                      <AlertDialogDescription>
+                        Current background work will be cancelled.
+                      </AlertDialogDescription>
+                    </AlertDialogHeader>
+                    <AlertDialogFooter>
+                      <AlertDialogCancel>Cancel</AlertDialogCancel>
+                      <AlertDialogAction>Stop</AlertDialogAction>
+                    </AlertDialogFooter>
+                  </AlertDialogContent>
+                </AlertDialog>
+              </div>
+              <Alert variant="warning">
+                <AlertTitle>Connection unstable</AlertTitle>
+                <AlertDescription>
+                  Responses are taking longer than expected.
+                </AlertDescription>
+                <AlertAction>
+                  <Button size="sm" variant="outline">Retry</Button>
+                </AlertAction>
+              </Alert>
+            </CardContent>
+          </Card>
+
+          <Card>
+            <CardHeader>
+              <CardTitle>Select and Combobox</CardTitle>
+              <CardDescription>
+                Collection primitives with shared component styling.
+              </CardDescription>
+            </CardHeader>
+            <CardContent class="demo-form">
+              <Label>Framework</Label>
+              <Select
+                value={[framework()]}
+                onValueChange={(details) => setFramework(details.value[0] ?? "")}
+              >
+                <SelectTrigger>
+                  <SelectValue placeholder="Select framework" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="solid">Solid</SelectItem>
+                  <SelectItem value="svelte">Svelte</SelectItem>
+                  <SelectItem value="react">React</SelectItem>
+                </SelectContent>
+              </Select>
+
+              <Label>Target</Label>
+              <Combobox
+                inputBehavior="autohighlight"
+                value={target() ? [target()] : []}
+                onValueChange={(details) => setTarget(details.value[0] ?? "")}
+              >
+                <ComboboxInput placeholder="Search target..." showClear />
+                <ComboboxContent>
+                  <ComboboxEmpty>No target found.</ComboboxEmpty>
+                  <ComboboxList>
+                    <ComboboxItem value="overview">Overview</ComboboxItem>
+                    <ComboboxItem value="reports">Reports</ComboboxItem>
+                    <ComboboxItem value="settings">Settings</ComboboxItem>
+                  </ComboboxList>
+                </ComboboxContent>
+              </Combobox>
+            </CardContent>
+          </Card>
+
+          <Card>
+            <CardHeader>
+              <CardTitle>Command</CardTitle>
+              <CardDescription>
+                Filtered command palette primitives.
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              <CommandPanel>
+                <Command loop>
+                  <CommandInput placeholder="Search commands..." />
+                  <CommandList>
+                    <CommandEmpty>No command found.</CommandEmpty>
+                    <CommandGroup>
+                      <CommandGroupHeading>Actions</CommandGroupHeading>
+                      <CommandGroupItems>
+                        <CommandItem value="start">
+                          <span>Start process</span>
+                          <CommandShortcut>Enter</CommandShortcut>
+                        </CommandItem>
+                        <CommandItem value="search" keywords={["find", "lookup"]}>
+                          <span>Search records</span>
+                          <Search class="button__icon" />
+                        </CommandItem>
+                        <CommandItem value="guard">
+                          <span>Enable guard rails</span>
+                          <ShieldAlert class="button__icon" />
+                        </CommandItem>
+                      </CommandGroupItems>
+                    </CommandGroup>
+                  </CommandList>
+                  <CommandFooter>
+                    <span>Use arrows to move</span>
+                    <span>Enter to select</span>
+                  </CommandFooter>
+                </Command>
+              </CommandPanel>
+            </CardContent>
+          </Card>
+
+          <Card>
+            <CardContent>
+              <Empty>
+                <EmptyHeader>
+                  <EmptyMedia variant="icon">
+                    <Inbox class="button__icon" />
+                  </EmptyMedia>
+                  <EmptyTitle>No queued items</EmptyTitle>
+                  <EmptyDescription>
+                    New activity will appear here as the session runs.
+                  </EmptyDescription>
+                </EmptyHeader>
+                <EmptyContent>
+                  <Button variant="outline">Refresh</Button>
+                </EmptyContent>
+              </Empty>
             </CardContent>
           </Card>
 
@@ -177,12 +393,12 @@ function DemoApp() {
               <div class="demo-row">
                 <Kbd>Cmd</Kbd>
                 <Kbd>Enter</Kbd>
-                <span class="demo-muted">Run script</span>
+                <span class="demo-muted">Run command</span>
               </div>
               <div class="demo-row">
                 <Spinner />
-                <span>Loading inventory</span>
-                <VisuallyHidden>Loading inventory</VisuallyHidden>
+                <span>Loading records</span>
+                <VisuallyHidden>Loading records</VisuallyHidden>
               </div>
             </CardContent>
           </Card>
