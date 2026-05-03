@@ -5,12 +5,15 @@ import {
   type AutoZoneSupportedMap,
   type AutoZoneShape,
 } from "../Services/AutoZone";
-import { PacketDomain } from "../Services/PacketDomain";
-import { Player } from "../Services/Player";
-import { World } from "../Services/World";
+import { PacketDomain } from "../../flash/Services/PacketDomain";
+import { Player } from "../../flash/Services/Player";
+import { World } from "../../flash/Services/World";
 
+// Defines the 2x2 coordinate range on the map for each zone.
 type CoordinateRange = readonly [
+  // x0, x1
   x: [min: number, max: number],
+  // y0, y1
   y: [min: number, max: number],
 ];
 

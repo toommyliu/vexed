@@ -3,7 +3,7 @@ import { Deferred, Effect, Number as EffectNumber, Option } from "effect";
 import type { ActiveSkillItem } from "../../flash/Types";
 import { asItemData } from "../../flash/ItemDataPayload";
 import { asRecord } from "../../flash/PacketPayload";
-import type { AutoZoneSupportedMap } from "../../flash/Services/AutoZone";
+import type { AutoZoneSupportedMap } from "../../features/Services/AutoZone";
 import { waitFor } from "../../utils/waitFor";
 import { ScriptInvalidArgumentError } from "../Errors";
 import {

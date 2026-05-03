@@ -1,7 +1,7 @@
 import { Cause, Effect, Fiber, Layer, Option, Ref, Semaphore } from "effect";
 import { type ScriptExecutePayload } from "../ipc";
 import { Auth } from "../../flash/Services/Auth";
-import { AutoZone } from "../../flash/Services/AutoZone";
+import { AutoZone } from "../../features/Services/AutoZone";
 import { AutoRelogin } from "../../features/Services/AutoRelogin";
 import { Bank } from "../../flash/Services/Bank";
 import { Bridge } from "../../flash/Services/Bridge";
@@ -9,7 +9,7 @@ import { Combat } from "../../flash/Services/Combat";
 import { Drops } from "../../flash/Services/Drops";
 import { House } from "../../flash/Services/House";
 import { Inventory } from "../../flash/Services/Inventory";
-import { Jobs } from "../../flash/Services/Jobs";
+import { Jobs } from "../../jobs/Services/Jobs";
 import { Packet } from "../../flash/Services/Packet";
 import { PacketDomain } from "../../flash/Services/PacketDomain";
 import { Player } from "../../flash/Services/Player";

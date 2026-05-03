@@ -1,18 +1,11 @@
-import { positiveInt } from "@vexed/shared/number";
 import { Cause, Effect, Fiber, Layer, Ref, SynchronizedRef } from "effect";
 import type { Duration } from "effect";
-import { Bridge } from "../Services/Bridge";
+import { JobGate } from "../Services/JobGate";
 import { Jobs } from "../Services/Jobs";
-import { Player } from "../Services/Player";
-import { Quests } from "../Services/Quests";
-import { Settings } from "../Services/Settings";
-import type { SettingsPatch, SettingsState } from "../Services/Settings";
+import type { JobRunWhen } from "../Services/JobGate";
 import type {
-  JobRunWhen,
   JobsShape,
-  PeriodicJobDefinition,
   PeriodicJobStartOptions,
-  QuestProgressJobOptions,
 } from "../Services/Jobs";
 
 type JobToken = number;
@@ -27,83 +20,13 @@ type StartResult = {
   readonly previous: Fiber.Fiber<void, unknown> | undefined;
 };
 
-const SETTINGS_ACTION_JOB_KEY = "settings/actions";
-const SETTINGS_ACTION_INTERVAL: Duration.Input = "500 millis";
-const SETTINGS_REAPPLY_JOB_KEY = "settings/apply";
-const SETTINGS_REAPPLY_INTERVAL: Duration.Input = "1 second";
-
-const hasRecurringSettingActions = (state: SettingsState): boolean =>
-  state.enemyMagnetEnabled ||
-  state.infiniteRangeEnabled ||
-  state.provokeCellEnabled ||
-  state.skipCutscenesEnabled;
-
-const getRecurringSettingsPatch = (state: SettingsState): SettingsPatch => ({
-  ...(state.enemyMagnetEnabled ? { enemyMagnetEnabled: true } : {}),
-  ...(state.infiniteRangeEnabled ? { infiniteRangeEnabled: true } : {}),
-  ...(state.provokeCellEnabled ? { provokeCellEnabled: true } : {}),
-  ...(state.skipCutscenesEnabled ? { skipCutscenesEnabled: true } : {}),
-});
-
 const make = Effect.gen(function* () {
-  const bridge = yield* Bridge;
-  const player = yield* Player;
-  const quests = yield* Quests;
-  const settings = yield* Settings;
+  const jobGate = yield* JobGate;
 
   const activeJobs = yield* SynchronizedRef.make<Map<string, JobEntry>>(
     new Map(),
   );
   const nextJobToken = yield* Ref.make<JobToken>(0);
-
-  const unavailableQuestIds = yield* SynchronizedRef.make<Set<number>>(
-    new Set(),
-  );
-
-  const clearUnavailableQuestIds = SynchronizedRef.update(
-    unavailableQuestIds,
-    (questIds) => {
-      questIds.clear();
-      return questIds;
-    },
-  );
-
-  const isQuestUnavailable = (questId: number) =>
-    SynchronizedRef.get(unavailableQuestIds).pipe(
-      Effect.map((questIds) => questIds.has(questId)),
-    );
-
-  const markQuestUnavailable = (questId: number) =>
-    SynchronizedRef.update(unavailableQuestIds, (questIds) => {
-      questIds.add(questId);
-      return questIds;
-    });
-
-  const runFork = Effect.runForkWith(yield* Effect.services());
-
-  const applyCurrentSettings = Effect.gen(function* () {
-    const currentState = yield* settings.getState();
-    yield* settings.apply(currentState);
-  });
-
-  const applyRecurringSettingActions = Effect.gen(function* () {
-    const currentState = yield* settings.getState();
-    if (!hasRecurringSettingActions(currentState)) {
-      return;
-    }
-
-    yield* settings.apply(getRecurringSettingsPatch(currentState));
-  });
-
-  const dispose = yield* bridge.onConnection((status) => {
-    if (status === "OnConnection") {
-      runFork(applyCurrentSettings);
-    } else if (status === "OnConnectionLost") {
-      runFork(clearUnavailableQuestIds);
-    }
-  });
-
-  yield* Effect.addFinalizer(() => Effect.sync(dispose));
 
   const removeIfCurrent = (key: string, token: JobToken) =>
     SynchronizedRef.update(activeJobs, (jobs) => {
@@ -224,10 +147,7 @@ const make = Effect.gen(function* () {
       return Effect.succeed(true);
     }
 
-    return player.isReady().pipe(
-      Effect.catchCause(() => Effect.succeed(false)),
-      Effect.map((ready) => (runWhen === "loggedIn" ? ready : !ready)),
-    );
+    return jobGate.isOpen(runWhen);
   };
 
   const runPeriodic = (
@@ -292,99 +212,6 @@ const make = Effect.gen(function* () {
     SynchronizedRef.get(activeJobs).pipe(
       Effect.map((jobs) => Array.from(jobs.keys()).sort()),
     );
-
-  // Domain jobs
-
-  const startQuestProgressJob = (options: QuestProgressJobOptions) => {
-    const questId = positiveInt(options.questId);
-    if (questId === undefined) {
-      return Effect.logWarning({
-        message: "quest progress job requires a valid quest id",
-        questId: options.questId,
-      }).pipe(Effect.as(false));
-    }
-
-    const key = options.key ?? `quest/progress/${questId}`;
-
-    const task = Effect.gen(function* () {
-      if (yield* isQuestUnavailable(questId)) {
-        return;
-      }
-
-      const hasQuest = yield* quests.has(questId);
-      if (!hasQuest) {
-        yield* quests.load(questId, true);
-      }
-
-      const available = yield* quests.isAvailable(questId);
-      if (!available) {
-        yield* markQuestUnavailable(questId);
-        return;
-      }
-
-      if (!(yield* quests.isInProgress(questId))) {
-        yield* quests.accept(questId, true);
-      }
-
-      const canComplete = yield* quests.canComplete(questId);
-      if (!canComplete) {
-        return;
-      }
-
-      yield* quests.complete(
-        questId,
-        options.turnIns,
-        options.itemId,
-        options.special,
-      );
-    });
-
-    return startPeriodicJob({
-      key,
-      interval: options.interval,
-      task,
-      runWhen: options.runWhen ?? "loggedIn",
-      ...(options.replace !== undefined ? { replace: options.replace } : {}),
-      ...(options.runOnStart !== undefined
-        ? { runOnStart: options.runOnStart }
-        : {}),
-    });
-  };
-
-  void startQuestProgressJob;
-
-  // yield* startQuestProgressJob({ questId: 11, interval: "500 millis" });
-
-  const settingsApplyJobDefinition: PeriodicJobDefinition = {
-    key: SETTINGS_REAPPLY_JOB_KEY,
-    interval: SETTINGS_REAPPLY_INTERVAL,
-    runOnStart: true,
-    runWhen: "loggedIn",
-    task: applyCurrentSettings,
-  };
-
-  yield* startPeriodicJob(settingsApplyJobDefinition);
-
-  const syncSettingsActionJob = (state: SettingsState) => {
-    if (!hasRecurringSettingActions(state)) {
-      return stop(SETTINGS_ACTION_JOB_KEY).pipe(Effect.asVoid);
-    }
-
-    return startPeriodicJob({
-      key: SETTINGS_ACTION_JOB_KEY,
-      interval: SETTINGS_ACTION_INTERVAL,
-      runOnStart: true,
-      runWhen: "loggedIn",
-      replace: false,
-      task: applyRecurringSettingActions,
-    }).pipe(Effect.asVoid);
-  };
-
-  const disposeSettingsActionJob = yield* settings.onState((state) => {
-    runFork(syncSettingsActionJob(state));
-  });
-
-  yield* Effect.addFinalizer(() => Effect.sync(disposeSettingsActionJob));
 
   return {
     start,

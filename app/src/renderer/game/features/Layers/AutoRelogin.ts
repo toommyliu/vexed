@@ -15,7 +15,7 @@ import {
 } from "../../flash/Errors";
 import { Auth } from "../../flash/Services/Auth";
 import { Bridge } from "../../flash/Services/Bridge";
-import { Jobs } from "../../flash/Services/Jobs";
+import { Jobs } from "../../jobs/Services/Jobs";
 import { Player } from "../../flash/Services/Player";
 import { Settings } from "../../flash/Services/Settings";
 import type { SettingsState } from "../../flash/Services/Settings";
