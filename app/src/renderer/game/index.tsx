@@ -1,5 +1,4 @@
 /* @refresh reload */
-import "../tailwind.css";
 import "./entrypoint";
 import { render } from "solid-js/web";
 import App from "./App";

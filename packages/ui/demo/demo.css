@@ -11,7 +11,7 @@ body {
 .demo-shell {
   background: rgb(var(--background));
   color: rgb(var(--foreground));
-  font-family: var(--font-family);
+  font-family: var(--font-sans);
   min-height: 100vh;
 }
 
@@ -211,7 +211,7 @@ body {
   border-radius: var(--radius-md);
   color: rgb(var(--foreground));
   cursor: pointer;
-  font-family: var(--font-family);
+  font-family: var(--font-sans);
   font-size: 0.8125rem;
   font-weight: 500;
   outline: none;

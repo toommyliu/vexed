@@ -1,5 +1,4 @@
 const { build, context } = require("esbuild");
-const postcss = require("esbuild-postcss");
 const {
   appendFileSync,
   copyFileSync,
@@ -102,11 +101,11 @@ function createRendererBuildOptions() {
     target: "chrome87",
     conditions: ["solid", "browser"],
     outdir: rendererHtmlOutDir,
-    plugins: [
-      solidPlugin(),
-      postcss(),
-      createDevBuildNotifyPlugin("renderer"),
-    ],
+    assetNames: "assets/[name]-[hash]",
+    loader: {
+      ".woff2": "file",
+    },
+    plugins: [solidPlugin(), createDevBuildNotifyPlugin("renderer")],
     define: {
       "process.env.NODE_ENV": JSON.stringify(
         process.env.NODE_ENV || "development",
