@@ -601,10 +601,7 @@ function DemoApp() {
                   {(align) => (
                     <div class="demo-matrix__row">
                       <span class="demo-matrix__label">addon {align}</span>
-                      <InputGroup
-                        invalid={align === "block-end"}
-                        disabled={align === "inline-end"}
-                      >
+                      <InputGroup invalid={align === "block-end"}>
                         <InputGroupAddon align={align}>
                           <InputGroupText>{align}</InputGroupText>
                         </InputGroupAddon>
@@ -712,10 +709,8 @@ function DemoApp() {
                           </Alert>
                         </TabsContent>
                         <TabsContent value="logs">
-                          <CommandLoading>
-                            <Spinner size="sm" />
-                            Waiting for records
-                          </CommandLoading>
+                          <Spinner size="sm" />
+                          Waiting for records
                         </TabsContent>
                       </Tabs>
                     </div>
