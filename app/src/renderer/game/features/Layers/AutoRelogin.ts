@@ -77,7 +77,9 @@ type RuntimeState = {
   loggedOutSince: number | undefined;
   // SmartFox can be connected while player.isReady() is still false.
   connected: boolean;
-  // Bumped on each connection so long waits can be interrupted safely.
+  // Prevents the relogin attempt's own socket connection from interrupting itself.
+  ownedConnectionServerName: string | undefined;
+  // Bumped on external connections so long waits can be interrupted safely.
   connectionSeq: number;
 };
 
@@ -95,6 +97,7 @@ const initialState = (): RuntimeState => ({
   lastAttemptAt: 0,
   loggedOutSince: undefined,
   connected: false,
+  ownedConnectionServerName: undefined,
   connectionSeq: 0,
 });
 
@@ -260,6 +263,18 @@ const make = Effect.gen(function* () {
     Set<AutoReloginStateListener>
   >(new Set());
 
+  const addStateListener = (listener: AutoReloginStateListener) =>
+    SynchronizedRef.update(listenersRef, (listeners) => {
+      listeners.add(listener);
+      return listeners;
+    });
+
+  const removeStateListener = (listener: AutoReloginStateListener) =>
+    SynchronizedRef.update(listenersRef, (listeners) => {
+      listeners.delete(listener);
+      return listeners;
+    });
+
   const emitState = (state: AutoReloginState) =>
     Effect.gen(function* () {
       const listeners = yield* SynchronizedRef.get(listenersRef);
@@ -315,6 +330,8 @@ const make = Effect.gen(function* () {
           state.captured?.password,
         );
         state.attempting = false;
+        state.connected = false;
+        state.ownedConnectionServerName = undefined;
       });
       yield* Effect.logWarning({
         message: "autorelogin failed",
@@ -327,6 +344,17 @@ const make = Effect.gen(function* () {
     updateState((state) => {
       state.lastError = undefined;
       state.attempting = false;
+      state.ownedConnectionServerName = undefined;
+    });
+
+  const markReloginSuccess = () =>
+    updateState((state) => {
+      state.lastError = undefined;
+      state.attempting = false;
+      state.connected = true;
+      state.ownedConnectionServerName = undefined;
+      state.loggedOutSince = undefined;
+      state.lastAttemptAt = 0;
     });
 
   const markInterrupted = (interrupt: AutoReloginInterrupted) =>
@@ -342,12 +370,14 @@ const make = Effect.gen(function* () {
   const clearAttempting = () =>
     updateState((state) => {
       state.attempting = false;
+      state.ownedConnectionServerName = undefined;
     });
 
   const markLoggedIn = () =>
     SynchronizedRef.update(stateRef, (state) => {
       // A ready player closes the disconnect window.
       state.connected = true;
+      state.ownedConnectionServerName = undefined;
       state.loggedOutSince = undefined;
       state.lastAttemptAt = 0;
       return state;
@@ -359,6 +389,7 @@ const make = Effect.gen(function* () {
       (state): readonly [LogoutObservation, RuntimeState] => {
         // Keep the first logout timestamp stable across periodic job ticks.
         state.connected = false;
+        state.ownedConnectionServerName = undefined;
         if (state.loggedOutSince !== undefined) {
           return [
             { firstObserved: false, loggedOutSince: state.loggedOutSince },
@@ -408,6 +439,30 @@ const make = Effect.gen(function* () {
     connectionSeq: number,
     effect: Effect.Effect<A, E>,
   ) => Effect.raceFirst(effect, interruptSignal(connectionSeq));
+
+  const setOwnedConnectionServerName = (serverName: string | undefined) =>
+    SynchronizedRef.update(stateRef, (state) => {
+      state.ownedConnectionServerName = serverName;
+      return state;
+    });
+
+  const interruptIfOwnedConnectionChanged = (
+    ownedConnectionServerName: string | undefined,
+  ) =>
+    ownedConnectionServerName === undefined
+      ? Effect.void
+      : SynchronizedRef.update(stateRef, (state) => {
+          const currentServerName = state.captured?.server.sName;
+          if (
+            currentServerName !== undefined &&
+            currentServerName.toLowerCase() !==
+              ownedConnectionServerName.toLowerCase()
+          ) {
+            state.ownedConnectionServerName = undefined;
+            state.connectionSeq += 1;
+          }
+          return state;
+        });
 
   const captureCurrentSession: AutoReloginShape["captureCurrentSession"] = () =>
     Effect.gen(function* () {
@@ -670,27 +725,33 @@ const make = Effect.gen(function* () {
           yield* Effect.sleep("1 second");
 
           yield* logStage("connect start", { server: targetServer.name });
-          const didConnect = yield* auth.connectTo(targetServer.name);
-          if (!didConnect) {
-            return yield* failAttempt(
-              `failed to select captured server: ${captured.server.sName}`,
-              true,
-            );
-          }
+          yield* setOwnedConnectionServerName(targetServer.name);
+          yield* Effect.gen(function* () {
+            const didConnect = yield* auth.connectTo(targetServer.name);
+            if (!didConnect) {
+              return yield* failAttempt(
+                `failed to select captured server: ${captured.server.sName}`,
+                true,
+              );
+            }
 
-          yield* logStage("waiting for game entry");
-          if (!(yield* waitForGameEntry) || !(yield* isGameEntrySuccessful)) {
-            return yield* failAttempt("game entry failed", true);
-          }
+            yield* logStage("waiting for game entry");
+            if (
+              !(yield* waitForGameEntry) ||
+              !(yield* isGameEntrySuccessful)
+            ) {
+              return yield* failAttempt("game entry failed", true);
+            }
 
-          yield* logStage("waiting for player ready");
-          const ready = yield* waitFor(isPlayerReady(), {
-            timeout: PLAYER_READY_TIMEOUT,
-            schedule: Schedule.spaced("250 millis"),
-          });
-          if (!ready) {
-            return yield* failAttempt("player did not become ready", true);
-          }
+            yield* logStage("waiting for player ready");
+            const ready = yield* waitFor(isPlayerReady(), {
+              timeout: PLAYER_READY_TIMEOUT,
+              schedule: Schedule.spaced("250 millis"),
+            });
+            if (!ready) {
+              return yield* failAttempt("player did not become ready", true);
+            }
+          }).pipe(Effect.ensuring(setOwnedConnectionServerName(undefined)));
         }),
       ),
     );
@@ -775,7 +836,6 @@ const make = Effect.gen(function* () {
         loggedOutSince: state.loggedOutSince,
       })),
     );
-    // Jobs maps "loggedOut" to !player.isReady(); ignore connected loading.
     if (connectionState.connected) {
       return;
     }
@@ -815,7 +875,7 @@ const make = Effect.gen(function* () {
             : markFailure(error).pipe(Effect.asVoid),
         onSuccess: () =>
           logStage("attempt succeeded").pipe(
-            Effect.andThen(markSuccess()),
+            Effect.andThen(markReloginSuccess()),
             Effect.asVoid,
           ),
       }),
@@ -863,6 +923,7 @@ const make = Effect.gen(function* () {
       return yield* updateState((state) => {
         state.enabled = false;
         state.attempting = false;
+        state.ownedConnectionServerName = undefined;
         state.lastError = undefined;
       });
     });
@@ -878,39 +939,46 @@ const make = Effect.gen(function* () {
 
   const onState: AutoReloginShape["onState"] = (listener, options) =>
     Effect.gen(function* () {
-      yield* SynchronizedRef.update(listenersRef, (listeners) => {
-        listeners.add(listener);
-        return listeners;
-      });
+      yield* addStateListener(listener);
 
       if (options?.emitCurrent ?? true) {
-        const state = yield* getState();
-        yield* Effect.sync(() => listener(state));
+        yield* getState().pipe(
+          Effect.flatMap((state) => Effect.sync(() => listener(state))),
+          Effect.catchCause((cause) =>
+            removeStateListener(listener).pipe(
+              Effect.andThen(Effect.failCause(cause)),
+            ),
+          ),
+        );
       }
 
       return () => {
-        runFork(
-          SynchronizedRef.update(listenersRef, (listeners) => {
-            listeners.delete(listener);
-            return listeners;
-          }),
-        );
+        runFork(removeStateListener(listener));
       };
     });
 
   const disposeConnection = yield* bridge.onConnection((status) => {
     if (status === "OnConnection") {
       runFork(
-        SynchronizedRef.update(stateRef, (state) => {
+        SynchronizedRef.modify(stateRef, (state) => {
+          const ownedConnectionServerName = state.ownedConnectionServerName;
           // objServerInfo is refreshed after SmartFox connects.
-          state.connected = true;
-          state.connectionSeq += 1;
           state.loggedOutSince = undefined;
           state.lastAttemptAt = 0;
-          return state;
+          state.connected = true;
+          if (ownedConnectionServerName === undefined) {
+            state.connectionSeq += 1;
+          }
+          return [ownedConnectionServerName, state] as const;
         }).pipe(
           Effect.tap(() => logStage("connection observed")),
-          Effect.andThen(captureCurrentSession()),
+          Effect.flatMap((ownedConnectionServerName) =>
+            captureCurrentSession().pipe(
+              Effect.andThen(
+                interruptIfOwnedConnectionChanged(ownedConnectionServerName),
+              ),
+            ),
+          ),
           Effect.asVoid,
         ),
       );

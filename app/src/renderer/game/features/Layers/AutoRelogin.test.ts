@@ -1,5 +1,5 @@
 import { Server, type ServerData } from "@vexed/game";
-import { Effect, Fiber, Layer } from "effect";
+import { Effect, Exit, Fiber, Layer } from "effect";
 import { expect, test } from "vitest";
 import { SwfCallError } from "../../flash/Errors";
 import { Auth, type AuthShape } from "../../flash/Services/Auth";
@@ -34,8 +34,10 @@ const yorumiServer: ServerData = {
 
 type HarnessOptions = {
   readonly bridgeLoggedIn?: boolean;
+  readonly emitConnectionOnConnect?: boolean;
   readonly iUpgDays?: number;
   readonly password?: string;
+  readonly playerReadyAfterConnectDelayMs?: number;
   readonly playerReadyFailures?: number;
   readonly serverInfo?: string;
   readonly serverSelectStalls?: boolean;
@@ -140,10 +142,23 @@ const withAutoRelogin = async <A>(
 
   const auth = {
     connectTo(server: string) {
-      authCalls.push(`connectTo:${server}`);
-      phase = "game";
-      playerReady = true;
-      return Effect.succeed(true);
+      return Effect.gen(function* () {
+        authCalls.push(`connectTo:${server}`);
+        phase = "game";
+        if (options.emitConnectionOnConnect === true) {
+          for (const handler of connectionHandlers) {
+            handler("OnConnection");
+          }
+        }
+
+        if (options.playerReadyAfterConnectDelayMs !== undefined) {
+          yield* Effect.sleep(
+            `${options.playerReadyAfterConnectDelayMs} millis`,
+          );
+        }
+        playerReady = true;
+        return true;
+      });
     },
     getServers() {
       return Effect.succeed(servers.map((server) => new Server(server)));
@@ -344,6 +359,30 @@ test("captures current session automatically on connection", async () => {
   });
 });
 
+test("removes listener when initial state emit throws", async () => {
+  const result = await withAutoRelogin({}, (autoRelogin) =>
+    Effect.gen(function* () {
+      let failingCalls = 0;
+      const exit = yield* Effect.exit(
+        autoRelogin.onState(() => {
+          failingCalls += 1;
+          throw new Error("listener failed");
+        }),
+      );
+
+      yield* autoRelogin.enable();
+
+      return {
+        failed: Exit.isFailure(exit),
+        failingCalls,
+      };
+    }),
+  );
+
+  expect(result.failed).toBe(true);
+  expect(result.failingCalls).toBe(1);
+});
+
 test("successful task logs in and connects to captured server", async () => {
   const harness = await withAutoRelogin({}, (autoRelogin, currentHarness) =>
     Effect.gen(function* () {
@@ -362,6 +401,35 @@ test("successful task logs in and connects to captured server", async () => {
     { lagKillerEnabled: false, skipCutscenesEnabled: false },
     { lagKillerEnabled: true, skipCutscenesEnabled: true },
   ]);
+});
+
+test("socket connection during relogin does not interrupt before player ready", async () => {
+  const result = await withAutoRelogin(
+    {
+      emitConnectionOnConnect: true,
+      playerReadyAfterConnectDelayMs: 150,
+    },
+    (autoRelogin, harness) =>
+      Effect.gen(function* () {
+        yield* autoRelogin.enable();
+        yield* autoRelogin.setDelayMs(0);
+        yield* harness.jobsState.task!;
+        return {
+          calls: harness.authCalls,
+          state: yield* autoRelogin.getState(),
+        };
+      }),
+  );
+
+  expect(result.calls).toEqual([
+    "login:Hero:secret-password",
+    "connectTo:Twig",
+  ]);
+  expect(result.state).toMatchObject({
+    attempting: false,
+    server: "Twig",
+  });
+  expect(result.state.lastError).toBeUndefined();
 });
 
 test("waits delayMs after logout before attempting", async () => {
@@ -484,6 +552,40 @@ test("manual login during attempt interrupts without reconnecting captured serve
   );
 
   expect(result.calls).toEqual(["login:Hero:secret-password"]);
+  expect(result.state).toMatchObject({
+    attempting: false,
+    server: "Yorumi",
+  });
+  expect(result.state.lastError).toBeUndefined();
+});
+
+test("manual login during owned connection interrupts when server changes", async () => {
+  const result = await withAutoRelogin(
+    {
+      emitConnectionOnConnect: true,
+      playerReadyAfterConnectDelayMs: 500,
+    },
+    (autoRelogin, harness) =>
+      Effect.gen(function* () {
+        yield* autoRelogin.enable();
+        yield* autoRelogin.setDelayMs(0);
+        const fiber = yield* Effect.forkDetach(harness.jobsState.task!, {
+          startImmediately: true,
+        });
+        yield* Effect.sleep("1100 millis");
+        harness.manualLogin(yorumiServer);
+        yield* Fiber.join(fiber);
+        return {
+          calls: harness.authCalls,
+          state: yield* autoRelogin.getState(),
+        };
+      }),
+  );
+
+  expect(result.calls).toEqual([
+    "login:Hero:secret-password",
+    "connectTo:Twig",
+  ]);
   expect(result.state).toMatchObject({
     attempting: false,
     server: "Yorumi",
