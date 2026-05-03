@@ -98,8 +98,13 @@ function createRendererBuildOptions() {
     entryPoints: ["./src/renderer/game/index.tsx"],
     bundle: true,
     platform: "browser",
-    conditions: ["browser"],
+    target: "chrome87",
+    conditions: ["solid", "browser"],
     outdir: rendererHtmlOutDir,
+    assetNames: "assets/[name]-[hash]",
+    loader: {
+      ".woff2": "file",
+    },
     plugins: [solidPlugin(), createDevBuildNotifyPlugin("renderer")],
     define: {
       "process.env.NODE_ENV": JSON.stringify(

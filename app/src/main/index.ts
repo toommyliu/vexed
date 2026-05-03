@@ -57,6 +57,7 @@ const assetsPath = join(app.getAppPath(), "..", "assets");
 const documentsPath = join(app.getPath("documents"), "vexed");
 const scriptsPath = join(documentsPath, "scripts");
 const devRendererReloadPath = process.env["VEXED_DEV_RENDERER_RELOAD"];
+const devRendererUrl = process.env["VEXED_DEV_RENDERER_URL"];
 
 const flashPath = join(
   app.getPath("userData"),
@@ -255,6 +256,23 @@ const installDevDockIcon = () => {
   app.dock.setIcon(join(assetsPath, activeBranding.iconPng));
 };
 
+const resolveDevRendererUrl = (): string | null => {
+  if (!isDevApp || !devRendererUrl) {
+    return null;
+  }
+
+  try {
+    const url = new URL(devRendererUrl);
+    const isLoopback =
+      url.protocol === "http:" &&
+      (url.hostname === "127.0.0.1" || url.hostname === "localhost");
+
+    return isLoopback ? url.toString() : null;
+  } catch {
+    return null;
+  }
+};
+
 function createWindow() {
   const win = new BrowserWindow({
     width: 1024,
@@ -288,9 +306,14 @@ function createWindow() {
     callback({ requestHeaders, cancel: false });
   });
 
-  win
-    .loadFile(join(__dirname, "../renderer/game/index.html"))
-    .catch((err) => console.error("Failed to load renderer HTML:", err));
+  const rendererUrl = resolveDevRendererUrl();
+  const rendererLoad = rendererUrl
+    ? win.loadURL(rendererUrl)
+    : win.loadFile(join(__dirname, "../renderer/game/index.html"));
+
+  rendererLoad.catch((err) =>
+    console.error("Failed to load renderer HTML:", err),
+  );
 }
 
 app.whenReady().then(() => {

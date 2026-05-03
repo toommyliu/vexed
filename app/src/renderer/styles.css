@@ -1,0 +1,23 @@
+@import "@vexed/ui/styles.css";
+
+html,
+body {
+  user-select: none;
+  font-family: var(--font-sans);
+  font-feature-settings: "cv01", "cv02", "cv03", "cv04", "ss01";
+  -webkit-font-smoothing: antialiased;
+}
+
+:focus:not(:focus-visible) {
+  outline: none;
+  box-shadow: none;
+}
+
+:focus-visible {
+  outline: 2px solid rgba(var(--ring), 0.72);
+  outline-offset: 2px;
+}
+
+.no-scrollbar::-webkit-scrollbar {
+  display: none !important;
+}

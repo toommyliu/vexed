@@ -1,3 +1,4 @@
+import "../styles.css";
 import { Effect, Fiber } from "effect";
 import { Monster } from "@vexed/game";
 import { createSignal, onCleanup, onMount } from "solid-js";
@@ -1220,7 +1221,7 @@ ${source}
           "border-radius": "8px",
           "z-index": 100,
           "pointer-events": "auto",
-          "font-family": "sans-serif",
+          "font-family": "var(--font-sans)",
         }}
       >
         <div style={{ display: "flex", "align-items": "center", gap: "10px" }}>
@@ -1235,7 +1236,7 @@ ${source}
               "border-radius": "8px",
               "z-index": 100,
               "pointer-events": "auto",
-              "font-family": "sans-serif",
+              "font-family": "var(--font-sans)",
             }}
           >
             Flash Debug {overlayVisible() ? "-" : "+"}
@@ -1251,7 +1252,7 @@ ${source}
               "border-radius": "8px",
               "z-index": 100,
               "pointer-events": "auto",
-              "font-family": "sans-serif",
+              "font-family": "var(--font-sans)",
             }}
           >
             Script {scriptOverlayVisible() ? "-" : "+"}
@@ -1962,7 +1963,7 @@ ${source}
                   border: "1px solid #555",
                   background: "#111827",
                   color: "white",
-                  "font-family": "ui-monospace, Menlo, monospace",
+                  "font-family": "var(--font-mono)",
                   "font-size": "12px",
                 }}
               />
@@ -1988,7 +1989,7 @@ ${source}
                   "border-radius": "4px",
                   background: "#030712",
                   color: "#d1d5db",
-                  "font-family": "ui-monospace, Menlo, monospace",
+                  "font-family": "var(--font-mono)",
                   "font-size": "12px",
                   "white-space": "pre-wrap",
                 }}
@@ -2013,7 +2014,7 @@ ${source}
             "border-radius": "8px",
             "z-index": 101,
             "pointer-events": "auto",
-            "font-family": "sans-serif",
+            "font-family": "var(--font-sans)",
             display: "flex",
             "flex-direction": "column",
             gap: "0.5rem",
@@ -2106,7 +2107,7 @@ ${source}
               "border-radius": "4px",
               background: "#111",
               color: "white",
-              "font-family": "ui-monospace, Menlo, monospace",
+              "font-family": "var(--font-mono)",
               "font-size": "12px",
             }}
           />
