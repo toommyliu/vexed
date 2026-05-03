@@ -25,3 +25,7 @@ Long term maintainability is a core priority. If you add new functionality, firs
 - `app/src/renderer`: The main entrypoint for the renderer process. Contains the Svelte app(s) and related client side behaviors.
 - `app/src/shared`: Shared code between main and renderer processes. This includes shared types, utilities, and any logic that needs to be used in both contexts.
 - `packages/`: Shared packages consumed by the app.
+
+## References
+
+- Efffect v3 to v4 beta migration guide: https://github.com/Effect-TS/effect-smol/blob/main/MIGRATION.md https://github.com/Effect-TS/effect-smol/blob/main/migration/schema.md
