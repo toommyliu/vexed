@@ -31,7 +31,7 @@ function listen(port: number): void {
     const safePath = pathname === "/" ? "/index.html" : pathname;
     const filePath = resolve(join(dist, safePath));
 
-    if (!filePath.startsWith(dist)) {
+    if (filePath !== dist && !filePath.startsWith(`${dist}/`)) {
       response.writeHead(403);
       response.end("Forbidden");
       return;

@@ -8,11 +8,14 @@ body {
   -webkit-font-smoothing: antialiased;
 }
 
-:focus,
-:focus-visible,
-:active {
-  outline: none !important;
-  box-shadow: none !important;
+:focus:not(:focus-visible) {
+  outline: none;
+  box-shadow: none;
+}
+
+:focus-visible {
+  outline: 2px solid rgba(var(--ring), 0.72);
+  outline-offset: 2px;
 }
 
 .no-scrollbar::-webkit-scrollbar {
