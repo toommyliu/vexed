@@ -2,6 +2,12 @@ import { afterEach, describe, expect, it } from "vitest";
 import type { JSX } from "solid-js";
 import { render } from "solid-js/web";
 import {
+  AppShell,
+  AppShellBody,
+  AppShellHeader,
+  AppShellHeaderLeft,
+  AppShellHeaderRight,
+  AppShellTitle,
   Badge,
   Button,
   Card,
@@ -257,6 +263,91 @@ describe("Badge", () => {
 
     expect(badge?.className).toContain("badge--info");
     expect(badge?.className).toContain("badge--lg");
+  });
+});
+
+describe("AppShell", () => {
+  it("renders slots and defaults to vertical orientation", () => {
+    const root = renderUi(() => (
+      <AppShell>
+        <AppShellHeader>
+          <AppShellHeaderLeft>
+            <AppShellTitle>Workspace</AppShellTitle>
+          </AppShellHeaderLeft>
+        </AppShellHeader>
+        <AppShellBody>Content</AppShellBody>
+      </AppShell>
+    ));
+    const shell = root.querySelector("[data-slot='app-shell']");
+    const header = root.querySelector("[data-slot='app-shell-header']");
+    const body = root.querySelector("[data-slot='app-shell-body']");
+
+    expect(shell?.getAttribute("data-orientation")).toBe("vertical");
+    expect(shell?.className).toContain("app-shell--vertical");
+    expect(header).not.toBeNull();
+    expect(body).not.toBeNull();
+  });
+
+  it("reflects horizontal orientation", () => {
+    const root = renderUi(() => (
+      <AppShell orientation="horizontal">
+        <AppShellHeader orientation="horizontal">
+          <AppShellHeaderLeft>
+            <AppShellTitle>Navigation</AppShellTitle>
+          </AppShellHeaderLeft>
+        </AppShellHeader>
+        <AppShellBody orientation="horizontal">Content</AppShellBody>
+      </AppShell>
+    ));
+    const shell = root.querySelector("[data-slot='app-shell']");
+    const header = root.querySelector("[data-slot='app-shell-header']");
+    const body = root.querySelector("[data-slot='app-shell-body']");
+
+    expect(shell?.getAttribute("data-orientation")).toBe("horizontal");
+    expect(shell?.className).toContain("app-shell--horizontal");
+    expect(header?.getAttribute("data-orientation")).toBe("horizontal");
+    expect(body?.getAttribute("data-orientation")).toBe("horizontal");
+  });
+
+  it("renders header title and side content", () => {
+    const root = renderUi(() => (
+      <AppShellHeader>
+        <AppShellHeaderLeft>
+          <AppShellTitle>Runtime</AppShellTitle>
+          <Badge variant="success">Ready</Badge>
+        </AppShellHeaderLeft>
+        <AppShellHeaderRight>
+          <Button size="sm">Run</Button>
+        </AppShellHeaderRight>
+      </AppShellHeader>
+    ));
+
+    expect(root.querySelector(".app-shell__title")?.textContent).toBe(
+      "Runtime",
+    );
+    expect(root.querySelector(".app-shell__header-left")?.textContent).toBe(
+      "RuntimeReady",
+    );
+    expect(root.querySelector("[data-slot='badge']")?.textContent).toBe(
+      "Ready",
+    );
+    expect(root.querySelector(".app-shell__header-right")?.textContent).toBe(
+      "Run",
+    );
+    expect(root.querySelector("[data-slot='app-shell-title']")).not.toBeNull();
+  });
+
+  it("supports fixed bodies without an inner max-width wrapper", () => {
+    const root = renderUi(() => (
+      <AppShellBody maxWidth={false} scroll={false}>
+        Content
+      </AppShellBody>
+    ));
+    const body = root.querySelector("[data-slot='app-shell-body']");
+
+    expect(body?.className).toContain("app-shell__body--fixed");
+    expect(body?.getAttribute("data-scroll")).toBe("false");
+    expect(root.querySelector(".app-shell__container")).toBeNull();
   });
 });
 
@@ -589,6 +680,26 @@ describe("Tabs", () => {
 
     expect(root.querySelector("[data-slot='tabs-list']")).not.toBeNull();
     expect(root.textContent).toContain("Second");
+  });
+
+  it("marks inactive custom-display content as hidden", () => {
+    const root = renderUi(() => (
+      <Tabs defaultValue="one">
+        <TabsList>
+          <TabsTrigger value="one">One</TabsTrigger>
+          <TabsTrigger value="two">Two</TabsTrigger>
+        </TabsList>
+        <TabsContent value="one">First</TabsContent>
+        <TabsContent class="demo-tabs-status" value="two">
+          Waiting for records
+        </TabsContent>
+      </Tabs>
+    ));
+    const inactive = root.querySelectorAll<HTMLElement>(
+      "[data-slot='tabs-content']",
+    )[1];
+
+    expect(inactive?.hasAttribute("hidden")).toBe(true);
   });
 });
 

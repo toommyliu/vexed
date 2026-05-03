@@ -3,6 +3,12 @@ import "./demo.css";
 import { createEffect, createSignal, For } from "solid-js";
 import { render } from "solid-js/web";
 import {
+  AppShell,
+  AppShellBody,
+  AppShellHeader,
+  AppShellHeaderLeft,
+  AppShellHeaderRight,
+  AppShellTitle,
   Badge,
   Button,
   Card,
@@ -758,9 +764,14 @@ function DemoApp() {
                             </AlertDescription>
                           </Alert>
                         </TabsContent>
-                        <TabsContent value="logs">
-                          <Spinner size="sm" />
-                          Waiting for records
+                        <TabsContent
+                          aria-live="polite"
+                          class="demo-tabs-status"
+                          role="status"
+                          value="logs"
+                        >
+                          <Spinner class="demo-tabs-status__spinner" size="sm" />
+                          <span>Waiting for records</span>
                         </TabsContent>
                       </Tabs>
                     </div>
@@ -997,6 +1008,106 @@ function DemoApp() {
                 </IconButton>
               </div>
               <Input fullWidth placeholder="Custom themed input" />
+            </CardContent>
+          </Card>
+
+          <Card class="demo-app-shell-card">
+            <CardHeader>
+              <CardTitle>AppShell</CardTitle>
+              <CardDescription>
+                Viewport shells for tool-heavy application screens.
+              </CardDescription>
+            </CardHeader>
+            <CardContent class="demo-stack">
+              <AppShell class="demo-app-shell-preview">
+                <AppShellHeader>
+                  <AppShellHeaderLeft>
+                    <AppShellTitle>Workspace</AppShellTitle>
+                    <Badge variant="success">Synced</Badge>
+                  </AppShellHeaderLeft>
+                  <AppShellHeaderRight>
+                    <Button size="sm" variant="outline">
+                      <Search class="button__icon" />
+                      Search
+                    </Button>
+                    <IconButton
+                      aria-label="Settings"
+                      size="icon-sm"
+                      variant="ghost"
+                    >
+                      <Settings class="button__icon" />
+                    </IconButton>
+                  </AppShellHeaderRight>
+                </AppShellHeader>
+                <AppShellBody>
+                  <div class="demo-app-shell-dashboard">
+                    <div class="demo-app-shell-stat">
+                      <span>Requests</span>
+                      <strong>1,284</strong>
+                    </div>
+                    <div class="demo-app-shell-stat">
+                      <span>Response</span>
+                      <strong>42ms</strong>
+                    </div>
+                    <div class="demo-app-shell-stat">
+                      <span>Tasks</span>
+                      <strong>7 open</strong>
+                    </div>
+                  </div>
+                  <div class="demo-app-shell-log">
+                    <span>10:24:03 loaded workspace</span>
+                    <span>10:24:08 refreshed project cache</span>
+                    <span>10:24:12 background sync completed</span>
+                  </div>
+                </AppShellBody>
+              </AppShell>
+
+              <AppShell
+                class="demo-app-shell-preview demo-app-shell-preview--horizontal"
+                orientation="horizontal"
+              >
+                <AppShellHeader
+                  maxWidth={false}
+                  orientation="horizontal"
+                  wrapChildren
+                >
+                  <div class="demo-app-shell-nav">
+                    <div class="demo-app-shell-nav__brand">Console</div>
+                    <button
+                      class="demo-app-shell-nav__item demo-app-shell-nav__item--active"
+                      type="button"
+                    >
+                      Overview
+                    </button>
+                    <button class="demo-app-shell-nav__item" type="button">
+                      Projects
+                    </button>
+                    <button class="demo-app-shell-nav__item" type="button">
+                      Reports
+                    </button>
+                    <div class="demo-app-shell-nav__footer">
+                      <Badge variant="outline">Preview</Badge>
+                    </div>
+                  </div>
+                </AppShellHeader>
+                <AppShellBody orientation="horizontal" scroll={false}>
+                  <Card class="demo-app-shell-panel">
+                    <CardHeader>
+                      <CardTitle>Session</CardTitle>
+                      <CardDescription>
+                        Compact content stays inside the body region.
+                      </CardDescription>
+                    </CardHeader>
+                    <CardPanel class="demo-stack">
+                      <Input fullWidth value="weekly-status" />
+                      <div class="demo-row">
+                        <Badge variant="info">Queued</Badge>
+                        <span class="demo-muted">Next action in 4s</span>
+                      </div>
+                    </CardPanel>
+                  </Card>
+                </AppShellBody>
+              </AppShell>
             </CardContent>
           </Card>
 
