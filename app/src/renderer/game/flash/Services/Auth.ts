@@ -1,13 +1,14 @@
 import { ServiceMap } from "effect";
 import type { BridgeEffect } from "./Bridge";
 import type { Server } from "@vexed/game";
+import type { LoginSession } from "../Types";
 
 export interface AuthShape {
   connectTo(server: string): BridgeEffect<boolean>;
   getServers(): BridgeEffect<Server[]>;
   getUsername(): BridgeEffect<string>;
   getPassword(): BridgeEffect<string>;
-  getLoginInfo(): BridgeEffect<unknown>;
+  getLoginSession(): BridgeEffect<LoginSession>;
   isLoggedIn(): BridgeEffect<boolean>;
   isTemporarilyKicked(): BridgeEffect<boolean>;
   login(username: string, password: string): BridgeEffect<void>;

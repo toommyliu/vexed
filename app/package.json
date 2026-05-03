@@ -17,7 +17,6 @@
     "compile:watch": "tsx esbuild.config.js --watch",
     "compile:prod": "cross-env NODE_ENV=production tsx esbuild.config.js",
     "electron": "node scripts/start-electron.mjs",
-    "electron:raw": "electron .",
     "build": "npm-run-all --sequential clean typecheck compile:prod \"electron-builder build\"",
     "build:fast": "npm-run-all --sequential compile:prod \"electron-builder build\"",
     "build:all": "npm-run-all --sequential clean typecheck compile:prod \"electron-builder -mwl\"",

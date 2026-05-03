@@ -18,6 +18,7 @@ import { Jobs } from "./flash/Services/Jobs";
 import { Player } from "./flash/Services/Player";
 import { Shops } from "./flash/Services/Shops";
 import { TempInventory } from "./flash/Services/TempInventory";
+import { AutoRelogin } from "./features/Services/AutoRelogin";
 import { demoScriptName, demoScriptSource } from "./scripting/demoScript";
 import type { ScriptDiagnostic } from "./scripting/Types";
 
@@ -155,6 +156,13 @@ export default function App() {
   const [infiniteRangeEnabled, setInfiniteRangeEnabled] = createSignal(false);
   const [provokeCellEnabled, setProvokeCellEnabled] = createSignal(false);
   const [skipCutscenesEnabled, setSkipCutscenesEnabled] = createSignal(false);
+  const [autoReloginEnabled, setAutoReloginEnabled] = createSignal(false);
+  const [autoReloginCaptured, setAutoReloginCaptured] = createSignal(false);
+  const [autoReloginAttempting, setAutoReloginAttempting] = createSignal(false);
+  const [autoReloginDelayMs, setAutoReloginDelayMs] = createSignal("3000");
+  const [autoReloginUsername, setAutoReloginUsername] = createSignal("");
+  const [autoReloginServer, setAutoReloginServer] = createSignal("");
+  const [autoReloginLastError, setAutoReloginLastError] = createSignal("");
   const [testClientPacket, setTestClientPacket] = createSignal("%xt%hello%");
   const [testServerPacket, setTestServerPacket] = createSignal("%xt%zm%cmd%");
   const [clientPacketType, setClientPacketType] = createSignal<
@@ -172,6 +180,7 @@ export default function App() {
   let activeCombatFiber: Fiber.Fiber<void, unknown> | undefined;
   let packetLogDisposer: (() => void) | undefined;
   let settingsStateDisposer: (() => void) | undefined;
+  let autoReloginStateDisposer: (() => void) | undefined;
 
   const [scriptOverlayVisible, setScriptOverlayVisible] = createSignal(false);
   const [scriptOverlayPosition, setScriptOverlayPosition] = createSignal(
@@ -260,6 +269,7 @@ export default function App() {
 
   const makeFlashServiceDebugApi = Effect.gen(function* () {
     const auth = yield* Auth;
+    const autoRelogin = yield* AutoRelogin;
     const autoZone = yield* AutoZone;
     const bank = yield* Bank;
     const combat = yield* Combat;
@@ -277,6 +287,7 @@ export default function App() {
 
     return {
       Auth: auth,
+      AutoRelogin: autoRelogin,
       AutoZone: autoZone,
       Bank: bank,
       Combat: combat,
@@ -293,6 +304,7 @@ export default function App() {
       World: world,
       api: {
         auth,
+        autoRelogin,
         autoZone,
         bank,
         combat,
@@ -309,6 +321,7 @@ export default function App() {
         world,
       },
       auth,
+      autoRelogin,
       autoZone,
       bank,
       combat,
@@ -343,6 +356,7 @@ export default function App() {
                 `"use strict";
 const {
   Auth,
+  AutoRelogin,
   AutoZone,
   Bank,
   Combat,
@@ -882,6 +896,69 @@ ${source}
       });
   };
 
+  const refreshAutoReloginState = () => {
+    void runtime
+      .runPromise(
+        Effect.gen(function* () {
+          const autoRelogin = yield* AutoRelogin;
+          return yield* autoRelogin.getState();
+        }),
+      )
+      .then((state) => {
+        setAutoReloginEnabled(state.enabled);
+        setAutoReloginCaptured(state.captured);
+        setAutoReloginAttempting(state.attempting);
+        setAutoReloginDelayMs(String(state.delayMs));
+        setAutoReloginUsername(state.username ?? "");
+        setAutoReloginServer(state.server ?? "");
+        setAutoReloginLastError(state.lastError ?? "");
+      })
+      .catch((error) => {
+        console.error("Refresh autorelogin state error:", error);
+      });
+  };
+
+  const handleToggleAutoRelogin = () => {
+    const nextEnabled = !autoReloginEnabled();
+    setAutoReloginEnabled(nextEnabled);
+
+    void runtime
+      .runPromise(
+        Effect.gen(function* () {
+          const autoRelogin = yield* AutoRelogin;
+          const action = nextEnabled
+            ? autoRelogin.enable()
+            : autoRelogin.disable();
+          return yield* action;
+        }),
+      )
+      .catch((error) => {
+        console.error("Toggle autorelogin error:", error);
+        refreshAutoReloginState();
+      });
+  };
+
+  const handleSetAutoReloginDelay = () => {
+    const delayMs = Number.parseInt(autoReloginDelayMs(), 10);
+    if (!Number.isFinite(delayMs) || delayMs < 0) {
+      console.error("Invalid autorelogin delay");
+      refreshAutoReloginState();
+      return;
+    }
+
+    void runtime
+      .runPromise(
+        Effect.gen(function* () {
+          const autoRelogin = yield* AutoRelogin;
+          return yield* autoRelogin.setDelayMs(delayMs);
+        }),
+      )
+      .catch((error) => {
+        console.error("Set autorelogin delay error:", error);
+        refreshAutoReloginState();
+      });
+  };
+
   const testSendClientPacket = () => {
     const packet = testClientPacket().trim();
     if (packet === "") {
@@ -979,12 +1056,35 @@ ${source}
       .catch((error) => {
         console.error("Settings state subscription error:", error);
       });
+
+    void runtime
+      .runPromise(
+        Effect.gen(function* () {
+          const autoRelogin = yield* AutoRelogin;
+          return yield* autoRelogin.onState((state) => {
+            setAutoReloginEnabled(state.enabled);
+            setAutoReloginCaptured(state.captured);
+            setAutoReloginAttempting(state.attempting);
+            setAutoReloginDelayMs(String(state.delayMs));
+            setAutoReloginUsername(state.username ?? "");
+            setAutoReloginServer(state.server ?? "");
+            setAutoReloginLastError(state.lastError ?? "");
+          });
+        }),
+      )
+      .then((dispose) => {
+        autoReloginStateDisposer = dispose;
+      })
+      .catch((error) => {
+        console.error("AutoRelogin state subscription error:", error);
+      });
   });
 
   onCleanup(() => {
     stopCombatTask();
     packetLogDisposer?.();
     settingsStateDisposer?.();
+    autoReloginStateDisposer?.();
   });
 
   const refreshMeta = async () => {
@@ -1411,6 +1511,61 @@ ${source}
                 <option value="magnumopus">magnumopus</option>
                 <option value="queeniona">queeniona</option>
               </select>
+            </div>
+            <div
+              style={{
+                display: "flex",
+                "align-items": "center",
+                gap: "10px",
+                "margin-top": "10px",
+                "flex-wrap": "wrap",
+              }}
+            >
+              <label
+                style={{ display: "flex", "align-items": "center", gap: "5px" }}
+              >
+                <input
+                  type="checkbox"
+                  checked={autoReloginEnabled()}
+                  onChange={handleToggleAutoRelogin}
+                  style={{ cursor: "pointer" }}
+                />
+                Auto Relogin
+              </label>
+              <input
+                type="text"
+                value={autoReloginDelayMs()}
+                onInput={(e) => setAutoReloginDelayMs(e.currentTarget.value)}
+                placeholder="Delay ms"
+                style={{
+                  padding: "5px",
+                  "border-radius": "4px",
+                  border: "1px solid #ccc",
+                  background: "white",
+                  color: "black",
+                  width: "100px",
+                }}
+              />
+              <button
+                onClick={handleSetAutoReloginDelay}
+                style={{
+                  padding: "5px 10px",
+                  cursor: "pointer",
+                  background: "#6366f1",
+                  border: "none",
+                  color: "white",
+                  "border-radius": "4px",
+                }}
+              >
+                Set Delay
+              </button>
+              <span style={{ "font-size": "12px", opacity: 0.85 }}>
+                {autoReloginCaptured()
+                  ? `${autoReloginUsername()} @ ${autoReloginServer()}`
+                  : "not captured"}
+                {autoReloginAttempting() ? " - attempting" : ""}
+                {autoReloginLastError() ? ` - ${autoReloginLastError()}` : ""}
+              </span>
             </div>
             <div
               style={{

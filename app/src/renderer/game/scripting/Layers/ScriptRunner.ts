@@ -2,6 +2,7 @@ import { Cause, Effect, Fiber, Layer, Option, Ref, Semaphore } from "effect";
 import { type ScriptExecutePayload } from "../ipc";
 import { Auth } from "../../flash/Services/Auth";
 import { AutoZone } from "../../flash/Services/AutoZone";
+import { AutoRelogin } from "../../features/Services/AutoRelogin";
 import { Bank } from "../../flash/Services/Bank";
 import { Bridge } from "../../flash/Services/Bridge";
 import { Combat } from "../../flash/Services/Combat";
@@ -373,6 +374,7 @@ const compileProgram = (
 
 const make = Effect.gen(function* () {
   const auth = yield* Auth;
+  const autoRelogin = yield* AutoRelogin;
   const autoZone = yield* AutoZone;
   const bank = yield* Bank;
   const bridge = yield* Bridge;
@@ -554,6 +556,7 @@ const make = Effect.gen(function* () {
       const api = createScriptRuntimeApiProxy(
         {
           auth,
+          autoRelogin,
           autoZone,
           bank,
           bridge,
@@ -701,6 +704,7 @@ const make = Effect.gen(function* () {
       context = {
         sourceName: program.sourceName,
         auth: api.auth,
+        autoRelogin: api.autoRelogin,
         autoZone: api.autoZone,
         bank: api.bank,
         bridge: api.bridge,

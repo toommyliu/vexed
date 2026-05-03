@@ -94,6 +94,7 @@ type RuntimeApiSource = Omit<
   Pick<
     ScriptExecutionContext,
     | "auth"
+    | "autoRelogin"
     | "autoZone"
     | "bank"
     | "bridge"
@@ -173,6 +174,7 @@ export const createCustomScriptRuntimeApi = (
 ): CustomScriptRuntimeApi => {
   const source: RuntimeApiSource = {
     auth: context.auth,
+    autoRelogin: context.autoRelogin,
     autoZone: context.autoZone,
     bank: context.bank,
     bridge: context.bridge,
@@ -208,6 +210,7 @@ export const createCustomScriptEffectRuntimeApi = (
 ): CustomScriptEffectRuntimeApi => {
   const source: RuntimeApiSource = {
     auth: context.auth,
+    autoRelogin: context.autoRelogin,
     autoZone: context.autoZone,
     bank: context.bank,
     bridge: context.bridge,
