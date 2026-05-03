@@ -37,6 +37,10 @@ declare global {
   interface Window {
     readonly ipc: AppBridge;
     cmd?: ScriptGlobalApi;
+    __vexedLoaderState?: {
+      loaded: boolean;
+      progress?: number;
+    };
   }
 }
 

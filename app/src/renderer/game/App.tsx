@@ -1,149 +1,120 @@
 import "../styles.css";
-import { Effect, Fiber } from "effect";
-import { Monster } from "@vexed/game";
-import { createSignal, onCleanup, onMount } from "solid-js";
-import type { JSX } from "solid-js";
+import { Effect } from "effect";
+import {
+  For,
+  Show,
+  createMemo,
+  createSignal,
+  onCleanup,
+  onMount,
+  type JSX,
+} from "solid-js";
+import {
+  Button,
+  Checkbox,
+  Input,
+  Kbd,
+  Menu,
+  MenuCheckboxItem,
+  MenuContent,
+  MenuGroup,
+  MenuItem,
+  MenuLabel,
+  MenuSeparator,
+  MenuTrigger,
+  cn,
+} from "@vexed/ui";
 import { runtime } from "./Runtime";
-import { Combat } from "./flash/Services/Combat";
-import { AutoZone, type AutoZoneSupportedMap } from "./features/Services/AutoZone";
-import { Quests } from "./flash/Services/Quests";
-import { Packet } from "./flash/Services/Packet";
-import { Settings } from "./flash/Services/Settings";
-import { Auth } from "./flash/Services/Auth";
-import { World } from "./flash/Services/World";
-import { Bank } from "./flash/Services/Bank";
-import { Drops } from "./flash/Services/Drops";
-import { House } from "./flash/Services/House";
-import { Inventory } from "./flash/Services/Inventory";
-import { Jobs } from "./jobs/Services/Jobs";
-import { Player } from "./flash/Services/Player";
-import { Shops } from "./flash/Services/Shops";
-import { TempInventory } from "./flash/Services/TempInventory";
+import { Settings, type SettingsShape } from "./flash/Services/Settings";
 import { AutoRelogin } from "./features/Services/AutoRelogin";
-import { demoScriptName, demoScriptSource } from "./scripting/demoScript";
-import type { ScriptDiagnostic } from "./scripting/Types";
+import { getGameLoadState, subscribeGameLoadState } from "./loadState";
 
-const flashServiceDebugExamples = [
-  {
-    label: "settings",
-    source: `const state = yield* Settings.getState();
-console.log(state);
-return state;`,
-  },
-  {
-    label: "position",
-    source: `const position = yield* Player.getPosition();
-console.log(position);
-return position;`,
-  },
-  {
-    label: "target",
-    source: `const target = yield* Combat.getTarget();
-console.log(target);
-return target;`,
-  },
-  {
-    label: "monsters",
-    source: `const monsters = yield* World.map.getCellMonsters();
-console.log(monsters);
-return monsters;`,
-  },
-  {
-    label: "inventory",
-    source: `const items = yield* Inventory.getItems();
-console.log(items);
-return items;`,
-  },
-  {
-    label: "contains item",
-    source: `const contains = yield* Inventory.contains("Health Potion");
-console.log(contains);
-return contains;`,
-  },
-  {
-    label: "multi read",
-    source: `const position = yield* Player.getPosition();
-const cell = yield* Player.getCell();
-const monsters = yield* World.map.getCellMonsters();
+type OpenMenu =
+  | "windows"
+  | "scripts"
+  | "options"
+  | "relogin"
+  | "pads"
+  | "cells";
 
-return { position, cell, monsters };`,
-  },
-];
-
-const formatDebugValue = (value: unknown): string => {
-  if (value === undefined) {
-    return "undefined";
-  }
-
-  if (typeof value === "bigint") {
-    return `${value}n`;
-  }
-
-  if (typeof value === "function") {
-    return `[Function ${value.name || "anonymous"}]`;
-  }
-
-  if (typeof value === "string") {
-    try {
-      return JSON.stringify(JSON.parse(value), null, 2);
-    } catch {
-      return value;
-    }
-  }
-
-  const seen = new WeakSet<object>();
-
-  return (
-    JSON.stringify(
-      value,
-      (_key, nestedValue) => {
-        if (typeof nestedValue === "bigint") {
-          return `${nestedValue}n`;
-        }
-
-        if (typeof nestedValue === "function") {
-          return `[Function ${nestedValue.name || "anonymous"}]`;
-        }
-
-        if (typeof nestedValue === "object" && nestedValue !== null) {
-          if (seen.has(nestedValue)) {
-            return "[Circular]";
-          }
-
-          seen.add(nestedValue);
-        }
-
-        return nestedValue;
-      },
-      2,
-    ) ?? String(value)
-  );
-};
-
-interface Point {
-  readonly x: number;
-  readonly y: number;
+interface WindowMenuItem {
+  readonly id: string;
+  readonly label: string;
+  readonly shortcut?: string;
+  readonly disabled?: boolean;
 }
 
-const clamp = (value: number, min: number, max: number) =>
-  Math.min(Math.max(value, min), max);
+interface WindowMenuGroup {
+  readonly name: string;
+  readonly items: readonly WindowMenuItem[];
+}
 
-const getInitialScriptOverlayPosition = (): Point => ({
-  x: Math.max(20, window.innerWidth - 612),
-  y: 20,
-});
+const windowMenuGroups: readonly WindowMenuGroup[] = [
+  {
+    name: "Application",
+    items: [
+      { id: "environment", label: "Environment", disabled: true },
+      { id: "hotkeys", label: "Hotkeys", disabled: true },
+    ],
+  },
+  {
+    name: "Tools",
+    items: [
+      { id: "fast-travels", label: "Fast travels", disabled: true },
+      { id: "loader-grabber", label: "Loader/grabber", disabled: true },
+      { id: "follower", label: "Follower", disabled: true },
+    ],
+  },
+  {
+    name: "Packets",
+    items: [
+      { id: "packet-logger", label: "Logger", disabled: true },
+      { id: "packet-spammer", label: "Spammer", disabled: true },
+    ],
+  },
+] as const;
 
-export default function App() {
-  const [count, setCount] = createSignal(0);
-  const [targetName, setTargetName] = createSignal("");
-  const [itemNameOrId, setItemNameOrId] = createSignal("");
-  const [itemQuantity, setItemQuantity] = createSignal("1");
-  const [autoZoneEnabled, setAutoZoneEnabled] = createSignal(true);
-  const [autoZoneMap, setAutoZoneMap] =
-    createSignal<AutoZoneSupportedMap>("ledgermayne");
-  const [findMost, setFindMost] = createSignal(false);
-  const [packetLoggingEnabled, setPacketLoggingEnabled] = createSignal(false);
-  const [overlayVisible, setOverlayVisible] = createSignal(false);
+const defaultPads = [
+  "Center",
+  "Spawn",
+  "Left",
+  "Right",
+  "Top",
+  "Bottom",
+  "Up",
+  "Down",
+] as const;
+
+const placeholderCells = ["Enter"] as const;
+
+const formatScriptStatus = (
+  loaded: boolean,
+  running: boolean,
+  currentCommand: RunningScriptCommand | null,
+) => {
+  if (running && currentCommand) {
+    return `Running #${currentCommand.index} ${currentCommand.name}`;
+  }
+
+  if (running) {
+    return "Running";
+  }
+
+  return loaded ? "Loaded" : "No script loaded";
+};
+
+export default function App(): JSX.Element {
+  const [openMenu, setOpenMenu] = createSignal<OpenMenu | null>(null);
+  const [gameLoaded, setGameLoaded] = createSignal(getGameLoadState().loaded);
+  const [autoAttackEnabled, setAutoAttackEnabled] = createSignal(false);
+  const [scriptName, setScriptName] = createSignal("");
+  const [scriptSource, setScriptSource] = createSignal("");
+  const [scriptLoaded, setScriptLoaded] = createSignal(false);
+  const [scriptRunning, setScriptRunning] = createSignal(false);
+  const [scriptCommandCount, setScriptCommandCount] = createSignal(0);
+  const [scriptStatus, setScriptStatus] = createSignal("No script loaded");
+  const [scriptDiagnosticsCount, setScriptDiagnosticsCount] = createSignal(0);
+
   const [customName, setCustomName] = createSignal("");
   const [customGuild, setCustomGuild] = createSignal("");
   const [walkSpeed, setWalkSpeed] = createSignal("8");
@@ -157,6 +128,7 @@ export default function App() {
   const [infiniteRangeEnabled, setInfiniteRangeEnabled] = createSignal(false);
   const [provokeCellEnabled, setProvokeCellEnabled] = createSignal(false);
   const [skipCutscenesEnabled, setSkipCutscenesEnabled] = createSignal(false);
+
   const [autoReloginEnabled, setAutoReloginEnabled] = createSignal(false);
   const [autoReloginCaptured, setAutoReloginCaptured] = createSignal(false);
   const [autoReloginAttempting, setAutoReloginAttempting] = createSignal(false);
@@ -164,737 +136,237 @@ export default function App() {
   const [autoReloginUsername, setAutoReloginUsername] = createSignal("");
   const [autoReloginServer, setAutoReloginServer] = createSignal("");
   const [autoReloginLastError, setAutoReloginLastError] = createSignal("");
-  const [testClientPacket, setTestClientPacket] = createSignal("%xt%hello%");
-  const [testServerPacket, setTestServerPacket] = createSignal("%xt%zm%cmd%");
-  const [clientPacketType, setClientPacketType] = createSignal<
-    "str" | "json" | "xml"
-  >("str");
-  const [serverPacketType, setServerPacketType] = createSignal<
-    "String" | "Json"
-  >("String");
-  const [demoUsername, setDemoUsername] = createSignal("");
-  const [flashEvalCode, setFlashEvalCode] = createSignal(
-    flashServiceDebugExamples[0]!.source,
-  );
-  const [flashEvalResult, setFlashEvalResult] = createSignal("No result yet");
-  const [flashEvalRunning, setFlashEvalRunning] = createSignal(false);
-  let activeCombatFiber: Fiber.Fiber<void, unknown> | undefined;
-  let packetLogDisposer: (() => void) | undefined;
+
   let settingsStateDisposer: (() => void) | undefined;
   let autoReloginStateDisposer: (() => void) | undefined;
 
-  const [scriptOverlayVisible, setScriptOverlayVisible] = createSignal(false);
-  const [scriptOverlayPosition, setScriptOverlayPosition] = createSignal(
-    getInitialScriptOverlayPosition(),
-  );
-  const [scriptName, setScriptName] = createSignal(demoScriptName);
-  const [scriptPath, setScriptPath] = createSignal<string | undefined>(
-    undefined,
-  );
-  const [scriptSource, setScriptSource] = createSignal(demoScriptSource);
-  const [status, setStatus] = createSignal("Ready");
-  const [commandCount, setCommandCount] = createSignal(0);
-  const [running, setRunning] = createSignal(false);
-  const [currentCommand, setCurrentCommand] =
-    createSignal<RunningScriptCommand | null>(null);
-  const [scriptDiagnostics, setScriptDiagnostics] = createSignal<
-    ReadonlyArray<ScriptDiagnostic>
-  >([]);
-  let scriptOverlayElement: HTMLDivElement | undefined;
-  let scriptOverlayDragOffset: Point | undefined;
-  let scriptRunRequestId = 0;
-
-  const moveScriptOverlay = (clientX: number, clientY: number) => {
-    const overlayWidth = scriptOverlayElement?.offsetWidth ?? 612;
-    const overlayHeight = scriptOverlayElement?.offsetHeight ?? 520;
-    const maxX = Math.max(0, window.innerWidth - overlayWidth);
-    const maxY = Math.max(0, window.innerHeight - overlayHeight);
-    const dragOffset = scriptOverlayDragOffset ?? { x: 0, y: 0 };
-
-    setScriptOverlayPosition({
-      x: clamp(clientX - dragOffset.x, 0, maxX),
-      y: clamp(clientY - dragOffset.y, 0, maxY),
-    });
-  };
-
-  const startScriptOverlayDrag: JSX.EventHandler<
-    HTMLDivElement,
-    PointerEvent
-  > = (event) => {
-    if (event.button !== 0 || !scriptOverlayElement) {
-      return;
-    }
-
-    const rect = scriptOverlayElement.getBoundingClientRect();
-    scriptOverlayDragOffset = {
-      x: event.clientX - rect.left,
-      y: event.clientY - rect.top,
+  const setMenuOpen =
+    (menu: OpenMenu) =>
+    (details: { readonly open: boolean }): void => {
+      setOpenMenu(details.open ? menu : null);
     };
-    event.currentTarget.setPointerCapture(event.pointerId);
-    event.preventDefault();
-  };
 
-  const dragScriptOverlay: JSX.EventHandler<HTMLDivElement, PointerEvent> = (
-    event,
-  ) => {
-    if (!scriptOverlayDragOffset) {
+  const toggleMenu =
+    (menu: OpenMenu): JSX.EventHandler<HTMLButtonElement, MouseEvent> =>
+    (event) => {
+      event.preventDefault();
+      setOpenMenu((current) => (current === menu ? null : menu));
+    };
+
+  const refreshScriptMeta = async () => {
+    if (!window.cmd) {
+      setScriptStatus("Script bridge is not ready");
       return;
     }
 
-    moveScriptOverlay(event.clientX, event.clientY);
-  };
+    try {
+      const [commands, isRunning, currentCommand, diagnostics] =
+        await Promise.all([
+          window.cmd.listCommands(),
+          window.cmd.isRunning(),
+          window.cmd.currentCommand(),
+          window.cmd.diagnostics(),
+        ]);
 
-  const stopScriptOverlayDrag: JSX.EventHandler<
-    HTMLDivElement,
-    PointerEvent
-  > = (event) => {
-    scriptOverlayDragOffset = undefined;
-
-    if (event.currentTarget.hasPointerCapture(event.pointerId)) {
-      event.currentTarget.releasePointerCapture(event.pointerId);
+      setScriptCommandCount(commands.length);
+      setScriptRunning(isRunning);
+      setScriptDiagnosticsCount(diagnostics.length);
+      setScriptStatus(
+        formatScriptStatus(scriptLoaded(), isRunning, currentCommand),
+      );
+    } catch (error) {
+      console.error("Failed to refresh script metadata", error);
+      setScriptStatus("Failed to refresh script state");
     }
   };
 
-  const testBridge = () => {
-    void runtime
-      .runPromise(
-        Effect.gen(function* () {
-          const quests = yield* Quests;
-          console.log(yield* quests.getTree());
-        }),
-      )
-      .catch((error) => {
-        console.error("Bridge error:", error);
-      });
+  const loadScript = async () => {
+    if (!window.cmd) {
+      setScriptStatus("Script bridge is not ready");
+      return;
+    }
+
+    try {
+      const payload = await window.cmd.open();
+      if (!payload) {
+        setScriptStatus("Open script cancelled");
+        return;
+      }
+
+      setScriptName(payload.name ?? payload.path ?? "script");
+      setScriptSource(payload.source);
+      setScriptLoaded(true);
+      setScriptStatus(`Loaded ${payload.name ?? payload.path ?? "script"}`);
+      void refreshScriptMeta();
+    } catch (error) {
+      console.error("Failed to load script", error);
+      setScriptStatus("Failed to load script");
+    }
   };
 
-  const makeFlashServiceDebugApi = Effect.gen(function* () {
-    const auth = yield* Auth;
-    const autoRelogin = yield* AutoRelogin;
-    const autoZone = yield* AutoZone;
-    const bank = yield* Bank;
-    const combat = yield* Combat;
-    const drops = yield* Drops;
-    const house = yield* House;
-    const inventory = yield* Inventory;
-    const jobs = yield* Jobs;
-    const packet = yield* Packet;
-    const player = yield* Player;
-    const quests = yield* Quests;
-    const settings = yield* Settings;
-    const shops = yield* Shops;
-    const tempInventory = yield* TempInventory;
-    const world = yield* World;
+  const startScript = () => {
+    if (!window.cmd) {
+      setScriptStatus("Script bridge is not ready");
+      return;
+    }
 
-    return {
-      Auth: auth,
-      AutoRelogin: autoRelogin,
-      AutoZone: autoZone,
-      Bank: bank,
-      Combat: combat,
-      Drops: drops,
-      House: house,
-      Inventory: inventory,
-      Jobs: jobs,
-      Packet: packet,
-      Player: player,
-      Quests: quests,
-      Settings: settings,
-      Shops: shops,
-      TempInventory: tempInventory,
-      World: world,
-      api: {
-        auth,
-        autoRelogin,
-        autoZone,
-        bank,
-        combat,
-        drops,
-        house,
-        inventory,
-        jobs,
-        packet,
-        player,
-        quests,
-        settings,
-        shops,
-        tempInventory,
-        world,
-      },
-      auth,
-      autoRelogin,
-      autoZone,
-      bank,
-      combat,
-      drops,
-      house,
-      inventory,
-      jobs,
-      packet,
-      player,
-      quests,
-      settings,
-      shops,
-      tempInventory,
-      world,
-    } satisfies Record<string, unknown>;
-  });
+    const source = scriptSource().trim();
+    if (!source) {
+      setScriptStatus("No script loaded");
+      return;
+    }
 
-  const runFlashEval = () => {
-    const source = flashEvalCode();
-    setFlashEvalRunning(true);
-    setFlashEvalResult("Running...");
-
-    void runtime
-      .runPromise(
-        Effect.gen(function* () {
-          const services = yield* makeFlashServiceDebugApi;
-          const program = yield* Effect.try({
-            try: () => {
-              const evaluate = new Function(
-                "services",
-                "Effect",
-                `"use strict";
-const {
-  Auth,
-  AutoRelogin,
-  AutoZone,
-  Bank,
-  Combat,
-  Drops,
-  House,
-  Inventory,
-  Jobs,
-  Packet,
-  Player,
-  Quests,
-  Settings,
-  Shops,
-  TempInventory,
-  World,
-  api,
-} = services;
-
-return Effect.gen(function* () {
-${source}
-});`,
-              ) as (
-                services: Record<string, unknown>,
-                effect: typeof Effect,
-              ) => unknown;
-
-              return evaluate(services, Effect);
-            },
-            catch: (cause) => cause,
-          });
-
-          if (Effect.isEffect(program)) {
-            return yield* program as Effect.Effect<unknown, unknown, never>;
-          }
-
-          return program;
-        }),
-      )
-      .then((result) => {
-        const formatted = formatDebugValue(result);
-        setFlashEvalResult(formatted);
-        console.log("[Flash Service Eval]", result);
+    const name = scriptName() || "script";
+    setScriptStatus(`Starting ${name}`);
+    void window.cmd
+      .run(source, name)
+      .then(() => {
+        setScriptRunning(true);
+        setScriptStatus(`Running ${name}`);
       })
       .catch((error) => {
-        console.error("[Flash Service Eval] error:", error);
-        setFlashEvalResult(formatDebugValue(error));
+        console.error("Failed to start script", error);
+        setScriptStatus(`Failed to start ${name}`);
       })
       .finally(() => {
-        setFlashEvalRunning(false);
+        void refreshScriptMeta();
       });
   };
 
-  const loadFlashEvalExample = (source: string) => {
-    setFlashEvalCode(source);
-  };
-
-  const inspectWorld = () => {
-    void runtime
-      .runPromise(
-        Effect.gen(function* () {
-          const quests = yield* Quests;
-          console.log(yield* quests.getTree());
-        }),
-      )
-      .catch((error) => {
-        console.error("Inspection error:", error);
-      });
-  };
-
-  const inspectDrops = () => {
-    void runtime
-      .runPromise(
-        Effect.gen(function* () {
-          const quests = yield* Quests;
-          yield* quests.abandon(11);
-        }),
-      )
-      .catch((error) => {
-        console.error("Inspection error:", error);
-      });
-  };
-
-  const testGetTarget = () => {
-    void runtime
-      .runPromise(
-        Effect.gen(function* () {
-          const combat = yield* Combat;
-          const target = yield* combat.getTarget();
-          if (target) {
-            console.log(
-              "Target type:",
-              target instanceof Monster ? "Monster" : "Avatar",
-            );
-            console.log("Target data:", target);
-          }
-        }),
-      )
-      .catch((error) => {
-        console.error("GetTarget error:", error);
-      });
-  };
-
-  const testGetCellMonsters = () => {
-    void runtime
-      .runPromise(
-        Effect.gen(function* () {
-          const world = yield* World;
-          const monsters = yield* world.map.getCellMonsters();
-          console.log("Cell monsters:", monsters);
-          console.log("Count:", monsters.length);
-        }),
-      )
-      .catch((error) => {
-        console.error("GetCellMonsters error:", error);
-      });
-  };
-
-  const toggleAutoZone = () => {
-    const newEnabled = !autoZoneEnabled();
-    setAutoZoneEnabled(newEnabled);
-    void runtime
-      .runPromise(
-        Effect.gen(function* () {
-          const autoZone = yield* AutoZone;
-          yield* autoZone.setEnabled(newEnabled);
-          console.log("AutoZone", newEnabled ? "enabled" : "disabled");
-        }),
-      )
-      .catch((error) => {
-        console.error("AutoZone toggle error:", error);
-      });
-  };
-
-  const applyAutoZoneMap = (map: AutoZoneSupportedMap) => {
-    setAutoZoneMap(map);
-    void runtime
-      .runPromise(
-        Effect.gen(function* () {
-          const autoZone = yield* AutoZone;
-          yield* autoZone.setMap(map);
-          console.log("AutoZone map set to:", map);
-        }),
-      )
-      .catch((error) => {
-        console.error("AutoZone setMap error:", error);
-      });
-  };
-
-  const togglePacketLogging = () => {
-    const newEnabled = !packetLoggingEnabled();
-    setPacketLoggingEnabled(newEnabled);
-
-    if (newEnabled) {
-      void runtime
-        .runPromise(
-          Effect.gen(function* () {
-            const packet = yield* Packet;
-            packetLogDisposer?.();
-
-            const disposeClient = yield* packet.packetFromClient((rawPacket) =>
-              Effect.sync(() => {
-                console.log("[Client Packet]", rawPacket);
-              }),
-            );
-            const disposeServer = yield* packet.packetFromServer((rawPacket) =>
-              Effect.sync(() => {
-                console.log("[Server Packet]", rawPacket);
-              }),
-            );
-
-            packetLogDisposer = () => {
-              disposeClient();
-              disposeServer();
-            };
-            console.log("Packet logging enabled");
-          }),
-        )
-        .catch((error) => {
-          console.error("Packet logging enable error:", error);
-          setPacketLoggingEnabled(false);
-        });
-    } else {
-      packetLogDisposer?.();
-      packetLogDisposer = undefined;
-      console.log("Packet logging disabled");
-    }
-  };
-
-  const stopCombatTask = () => {
-    const fiber = activeCombatFiber;
-    activeCombatFiber = undefined;
-
-    if (!fiber) {
+  const stopScript = () => {
+    if (!window.cmd) {
+      setScriptStatus("Script bridge is not ready");
       return;
     }
 
-    void runtime.runPromise(Fiber.interrupt(fiber)).catch((error) => {
-      console.error("Interrupt combat task error:", error);
-    });
+    window.cmd.stop();
+    setScriptRunning(false);
+    setScriptStatus("Stop requested");
+    void refreshScriptMeta();
   };
 
-  const startCombatTask = (
+  const runSettingsEffect = (
     label: string,
-    task: Effect.Effect<void, unknown, Combat>,
+    effect: (settings: SettingsShape) => Effect.Effect<void, unknown>,
   ) => {
-    stopCombatTask();
-
-    const fiber = runtime.runFork(
-      task.pipe(
-        Effect.catch((error) =>
-          Effect.sync(() => {
-            console.error(`${label} error:`, error);
-          }),
-        ),
-      ),
-    );
-
-    activeCombatFiber = fiber;
-
-    void runtime.runPromise(Fiber.await(fiber)).finally(() => {
-      if (activeCombatFiber === fiber) {
-        activeCombatFiber = undefined;
-      }
-    });
-  };
-
-  const parseItemQuantity = (): number | undefined => {
-    const value = itemQuantity().trim();
-    if (value === "") {
-      return undefined;
-    }
-
-    const parsed = Number.parseInt(value, 10);
-    return Number.isFinite(parsed) && parsed > 0 ? parsed : undefined;
-  };
-
-  const killTarget = () => {
-    const target = targetName().trim();
-    if (target === "") {
-      return;
-    }
-
-    startCombatTask(
-      "Kill",
-      Effect.gen(function* () {
-        const combat = yield* Combat;
-        yield* combat.kill(target, {
-          killPriority: ["Stalagbite", "Vath"],
-          skillSet: [2, 4],
-          skillWait: true,
-        });
-      }),
-    );
-  };
-
-  const killForInventoryItem = () => {
-    const target = targetName().trim();
-    const item = itemNameOrId().trim();
-    if (target === "" || item === "") {
-      return;
-    }
-
-    const quantity = parseItemQuantity();
-
-    startCombatTask(
-      "Kill for inventory item",
-      Effect.gen(function* () {
-        const combat = yield* Combat;
-        yield* combat.killForItem(target, item, quantity);
-      }),
-    );
-  };
-
-  const killForTempInventoryItem = () => {
-    const target = targetName().trim();
-    const item = itemNameOrId().trim();
-    if (target === "" || item === "") {
-      return;
-    }
-
-    const quantity = parseItemQuantity();
-
-    startCombatTask(
-      "Kill for temp inventory item",
-      Effect.gen(function* () {
-        const combat = yield* Combat;
-        yield* combat.killForTempItem(target, item, quantity);
-      }),
-    );
-  };
-
-  const huntTarget = () => {
-    const target = targetName().trim();
-    if (target === "") {
-      return;
-    }
-
     void runtime
       .runPromise(
         Effect.gen(function* () {
-          const combat = yield* Combat;
-          const cell = yield* combat.hunt(target, findMost());
-          console.log("Hunt result - cell:", cell);
+          const settings = yield* Settings;
+          yield* effect(settings);
         }),
       )
       .catch((error) => {
-        console.error("Hunt error:", error);
-      });
-  };
-
-  const testCombatExit = () => {
-    void runtime
-      .runPromise(
-        Effect.gen(function* () {
-          const combat = yield* Combat;
-          const exited = yield* combat.exit();
-          console.log("Combat exit result:", exited);
-        }),
-      )
-      .catch((error) => {
-        console.error("Combat exit error:", error);
+        console.error(`${label} error:`, error);
       });
   };
 
   const handleToggleEnemyMagnet = () => {
     const nextEnabled = !enemyMagnetEnabled();
     setEnemyMagnetEnabled(nextEnabled);
-
-    void runtime
-      .runPromise(
-        Effect.gen(function* () {
-          const settings = yield* Settings;
-          yield* settings.setEnemyMagnetEnabled(nextEnabled);
-          console.log("Enemy magnet", nextEnabled ? "enabled" : "disabled");
-        }),
-      )
-      .catch((error) => {
-        console.error("Toggle enemy magnet error:", error);
-      });
+    runSettingsEffect("Toggle enemy magnet", (settings) =>
+      settings.setEnemyMagnetEnabled(nextEnabled),
+    );
   };
 
   const handleToggleInfiniteRange = () => {
     const nextEnabled = !infiniteRangeEnabled();
     setInfiniteRangeEnabled(nextEnabled);
-
-    void runtime
-      .runPromise(
-        Effect.gen(function* () {
-          const settings = yield* Settings;
-          yield* settings.setInfiniteRangeEnabled(nextEnabled);
-          console.log("Infinite range", nextEnabled ? "enabled" : "disabled");
-        }),
-      )
-      .catch((error) => {
-        console.error("Toggle infinite range error:", error);
-      });
+    runSettingsEffect("Toggle infinite range", (settings) =>
+      settings.setInfiniteRangeEnabled(nextEnabled),
+    );
   };
 
   const handleToggleProvokeCell = () => {
     const nextEnabled = !provokeCellEnabled();
     setProvokeCellEnabled(nextEnabled);
-
-    void runtime
-      .runPromise(
-        Effect.gen(function* () {
-          const settings = yield* Settings;
-          yield* settings.setProvokeCellEnabled(nextEnabled);
-          console.log("Provoke cell", nextEnabled ? "enabled" : "disabled");
-        }),
-      )
-      .catch((error) => {
-        console.error("Toggle provoke cell error:", error);
-      });
+    runSettingsEffect("Toggle provoke cell", (settings) =>
+      settings.setProvokeCellEnabled(nextEnabled),
+    );
   };
 
   const handleToggleSkipCutscenes = () => {
     const nextEnabled = !skipCutscenesEnabled();
     setSkipCutscenesEnabled(nextEnabled);
-
-    void runtime
-      .runPromise(
-        Effect.gen(function* () {
-          const settings = yield* Settings;
-          yield* settings.setSkipCutscenesEnabled(nextEnabled);
-          console.log("Skip cutscenes", nextEnabled ? "enabled" : "disabled");
-        }),
-      )
-      .catch((error) => {
-        console.error("Toggle skip cutscenes error:", error);
-      });
-  };
-
-  const handleSetCustomName = () => {
-    void runtime
-      .runPromise(
-        Effect.gen(function* () {
-          const settings = yield* Settings;
-          yield* settings.setCustomName(customName());
-          console.log("Custom name set to:", customName());
-        }),
-      )
-      .catch((error) => {
-        console.error("Set custom name error:", error);
-      });
-  };
-
-  const handleSetCustomGuild = () => {
-    void runtime
-      .runPromise(
-        Effect.gen(function* () {
-          const settings = yield* Settings;
-          yield* settings.setCustomGuild(customGuild());
-          console.log("Custom guild set to:", customGuild());
-        }),
-      )
-      .catch((error) => {
-        console.error("Set custom guild error:", error);
-      });
-  };
-
-  const handleSetWalkSpeed = () => {
-    const speed = Number.parseFloat(walkSpeed());
-    if (Number.isNaN(speed) || speed <= 0) {
-      console.error("Invalid walk speed");
-      return;
-    }
-
-    void runtime
-      .runPromise(
-        Effect.gen(function* () {
-          const settings = yield* Settings;
-          yield* settings.setWalkSpeed(speed);
-          console.log("Walk speed set to:", speed);
-        }),
-      )
-      .catch((error) => {
-        console.error("Set walk speed error:", error);
-      });
-  };
-
-  const handleSetFrameRate = () => {
-    const fps = Number.parseInt(frameRate(), 10);
-    if (Number.isNaN(fps) || fps <= 0) {
-      console.error("Invalid frame rate");
-      return;
-    }
-
-    void runtime
-      .runPromise(
-        Effect.gen(function* () {
-          const settings = yield* Settings;
-          yield* settings.setFrameRate(fps);
-          console.log("Frame rate set to:", fps);
-        }),
-      )
-      .catch((error) => {
-        console.error("Set frame rate error:", error);
-      });
+    runSettingsEffect("Toggle skip cutscenes", (settings) =>
+      settings.setSkipCutscenesEnabled(nextEnabled),
+    );
   };
 
   const handleToggleDeathAds = () => {
-    const newVisible = !deathAdsVisible();
-    setDeathAdsVisible(newVisible);
-    void runtime
-      .runPromise(
-        Effect.gen(function* () {
-          const settings = yield* Settings;
-          yield* settings.setDeathAdsVisible(newVisible);
-          console.log("Death ads", newVisible ? "visible" : "hidden");
-        }),
-      )
-      .catch((error) => {
-        console.error("Toggle death ads error:", error);
-      });
+    const nextVisible = !deathAdsVisible();
+    setDeathAdsVisible(nextVisible);
+    runSettingsEffect("Toggle death ads", (settings) =>
+      settings.setDeathAdsVisible(nextVisible),
+    );
   };
 
   const handleToggleCollisions = () => {
-    const newEnabled = !collisionsEnabled();
-    setCollisionsEnabled(newEnabled);
-    void runtime
-      .runPromise(
-        Effect.gen(function* () {
-          const settings = yield* Settings;
-          yield* settings.setCollisionsEnabled(newEnabled);
-          console.log("Collisions", newEnabled ? "enabled" : "disabled");
-        }),
-      )
-      .catch((error) => {
-        console.error("Toggle collisions error:", error);
-      });
+    const nextEnabled = !collisionsEnabled();
+    setCollisionsEnabled(nextEnabled);
+    runSettingsEffect("Toggle collisions", (settings) =>
+      settings.setCollisionsEnabled(nextEnabled),
+    );
   };
 
   const handleToggleEffects = () => {
-    const newEnabled = !effectsEnabled();
-    setEffectsEnabled(newEnabled);
-    void runtime
-      .runPromise(
-        Effect.gen(function* () {
-          const settings = yield* Settings;
-          yield* settings.setEffectsEnabled(newEnabled);
-          console.log("Effects", newEnabled ? "enabled" : "disabled");
-        }),
-      )
-      .catch((error) => {
-        console.error("Toggle effects error:", error);
-      });
+    const nextEnabled = !effectsEnabled();
+    setEffectsEnabled(nextEnabled);
+    runSettingsEffect("Toggle effects", (settings) =>
+      settings.setEffectsEnabled(nextEnabled),
+    );
   };
 
   const handleTogglePlayersVisible = () => {
-    const newVisible = !otherPlayersVisible();
-    setOtherPlayersVisible(newVisible);
-    void runtime
-      .runPromise(
-        Effect.gen(function* () {
-          const settings = yield* Settings;
-          yield* settings.setOtherPlayersVisible(newVisible);
-          console.log("Players", newVisible ? "visible" : "hidden");
-        }),
-      )
-      .catch((error) => {
-        console.error("Toggle players visible error:", error);
-      });
+    const nextVisible = !otherPlayersVisible();
+    setOtherPlayersVisible(nextVisible);
+    runSettingsEffect("Toggle players visible", (settings) =>
+      settings.setOtherPlayersVisible(nextVisible),
+    );
   };
 
   const handleToggleLagKiller = () => {
     const nextEnabled = !lagKillerEnabled();
     setLagKillerEnabled(nextEnabled);
-    void runtime
-      .runPromise(
-        Effect.gen(function* () {
-          const settings = yield* Settings;
-          yield* settings.setLagKillerEnabled(nextEnabled);
-          console.log("Lag killer", nextEnabled ? "enabled" : "disabled");
-        }),
-      )
-      .catch((error) => {
-        console.error("Toggle lag killer error:", error);
-      });
+    runSettingsEffect("Toggle lag killer", (settings) =>
+      settings.setLagKillerEnabled(nextEnabled),
+    );
+  };
+
+  const handleSetCustomName = () => {
+    runSettingsEffect("Set custom name", (settings) =>
+      settings.setCustomName(customName()),
+    );
+  };
+
+  const handleSetCustomGuild = () => {
+    runSettingsEffect("Set custom guild", (settings) =>
+      settings.setCustomGuild(customGuild()),
+    );
+  };
+
+  const handleSetWalkSpeed = () => {
+    const speed = Number.parseFloat(walkSpeed());
+    if (!Number.isFinite(speed) || speed <= 0) {
+      setWalkSpeed("8");
+      return;
+    }
+
+    runSettingsEffect("Set walk speed", (settings) =>
+      settings.setWalkSpeed(speed),
+    );
+  };
+
+  const handleSetFrameRate = () => {
+    const fps = Number.parseInt(frameRate(), 10);
+    if (!Number.isFinite(fps) || fps <= 0) {
+      setFrameRate("24");
+      return;
+    }
+
+    runSettingsEffect("Set frame rate", (settings) =>
+      settings.setFrameRate(fps),
+    );
   };
 
   const refreshAutoReloginState = () => {
@@ -927,14 +399,37 @@ ${source}
       .runPromise(
         Effect.gen(function* () {
           const autoRelogin = yield* AutoRelogin;
-          const action = nextEnabled
+          return yield* nextEnabled
             ? autoRelogin.enable()
             : autoRelogin.disable();
-          return yield* action;
         }),
       )
+      .then((state) => {
+        setAutoReloginEnabled(state.enabled);
+        setAutoReloginCaptured(state.captured);
+        setAutoReloginAttempting(state.attempting);
+        setAutoReloginDelayMs(String(state.delayMs));
+        setAutoReloginUsername(state.username ?? "");
+        setAutoReloginServer(state.server ?? "");
+        setAutoReloginLastError(state.lastError ?? "");
+      })
       .catch((error) => {
         console.error("Toggle autorelogin error:", error);
+        refreshAutoReloginState();
+      });
+  };
+
+  const handleCaptureAutoReloginSession = () => {
+    void runtime
+      .runPromise(
+        Effect.gen(function* () {
+          const autoRelogin = yield* AutoRelogin;
+          return yield* autoRelogin.captureCurrentSession();
+        }),
+      )
+      .then(() => refreshAutoReloginState())
+      .catch((error) => {
+        console.error("Capture autorelogin session error:", error);
         refreshAutoReloginState();
       });
   };
@@ -942,7 +437,6 @@ ${source}
   const handleSetAutoReloginDelay = () => {
     const delayMs = Number.parseInt(autoReloginDelayMs(), 10);
     if (!Number.isFinite(delayMs) || delayMs < 0) {
-      console.error("Invalid autorelogin delay");
       refreshAutoReloginState();
       return;
     }
@@ -954,82 +448,83 @@ ${source}
           return yield* autoRelogin.setDelayMs(delayMs);
         }),
       )
+      .then((state) => {
+        setAutoReloginDelayMs(String(state.delayMs));
+        setAutoReloginLastError(state.lastError ?? "");
+      })
       .catch((error) => {
         console.error("Set autorelogin delay error:", error);
         refreshAutoReloginState();
       });
   };
 
-  const testSendClientPacket = () => {
-    const packet = testClientPacket().trim();
-    if (packet === "") {
-      return;
-    }
-
-    void runtime
-      .runPromise(
-        Effect.gen(function* () {
-          const packetService = yield* Packet;
-          yield* packetService.sendClient(packet, clientPacketType());
-          console.log(
-            "[Demo] Sent client packet:",
-            packet,
-            "type:",
-            clientPacketType(),
-          );
-        }),
-      )
-      .catch((error) => {
-        console.error("Send client packet error:", error);
-      });
-  };
-
-  const testSendServerPacket = () => {
-    const packet = testServerPacket().trim();
-    if (packet === "") {
-      return;
-    }
-
-    void runtime
-      .runPromise(
-        Effect.gen(function* () {
-          const packetService = yield* Packet;
-          yield* packetService.sendServer(packet, serverPacketType());
-          console.log(
-            "[Demo] Sent server packet:",
-            packet,
-            "type:",
-            serverPacketType(),
-          );
-        }),
-      )
-      .catch((error) => {
-        console.error("Send server packet error:", error);
-      });
-  };
-
-  const demoLogin = () => {
-    const username = demoUsername().trim();
-    if (username === "") {
-      console.error("Username cannot be empty");
-      return;
-    }
-
-    void runtime
-      .runPromise(
-        Effect.gen(function* () {
-          const auth = yield* Auth;
-          const password = yield* auth.getPassword();
-          yield* auth.login(username, password);
-          console.log("[Demo] Login attempted for username:", username);
-        }),
-      )
-      .catch((error) => {
-        console.error("Demo login error:", error);
-      });
-  };
+  const optionItems = createMemo(() => [
+    {
+      id: "infinite-range",
+      label: "Infinite Range",
+      checked: infiniteRangeEnabled(),
+      onSelect: handleToggleInfiniteRange,
+    },
+    {
+      id: "provoke-cell",
+      label: "Provoke Cell",
+      checked: provokeCellEnabled(),
+      onSelect: handleToggleProvokeCell,
+    },
+    {
+      id: "enemy-magnet",
+      label: "Enemy Magnet",
+      checked: enemyMagnetEnabled(),
+      onSelect: handleToggleEnemyMagnet,
+    },
+    {
+      id: "lag-killer",
+      label: "Lag Killer",
+      checked: lagKillerEnabled(),
+      onSelect: handleToggleLagKiller,
+    },
+    {
+      id: "hide-players",
+      label: "Hide Players",
+      checked: !otherPlayersVisible(),
+      onSelect: handleTogglePlayersVisible,
+    },
+    {
+      id: "skip-cutscenes",
+      label: "Skip Cutscenes",
+      checked: skipCutscenesEnabled(),
+      onSelect: handleToggleSkipCutscenes,
+    },
+    {
+      id: "disable-fx",
+      label: "Disable FX",
+      checked: !effectsEnabled(),
+      onSelect: handleToggleEffects,
+    },
+    {
+      id: "disable-collisions",
+      label: "Disable Collisions",
+      checked: !collisionsEnabled(),
+      onSelect: handleToggleCollisions,
+    },
+    {
+      id: "disable-death-ads",
+      label: "Disable Death Ads",
+      checked: !deathAdsVisible(),
+      onSelect: handleToggleDeathAds,
+    },
+  ]);
 
   onMount(() => {
+    const disposeGameLoadState = subscribeGameLoadState((state) => {
+      setGameLoaded(state.loaded);
+    });
+
+    void refreshScriptMeta();
+    const scriptMetaInterval = setInterval(() => {
+      void refreshScriptMeta();
+    }, 1200);
+
     void runtime
       .runPromise(
         Effect.gen(function* () {
@@ -1079,1056 +574,354 @@ ${source}
       .catch((error) => {
         console.error("AutoRelogin state subscription error:", error);
       });
+
+    onCleanup(() => {
+      disposeGameLoadState();
+      clearInterval(scriptMetaInterval);
+    });
   });
 
   onCleanup(() => {
-    stopCombatTask();
-    packetLogDisposer?.();
     settingsStateDisposer?.();
     autoReloginStateDisposer?.();
   });
 
-  const refreshMeta = async () => {
-    if (!window.cmd) {
-      setStatus("cmd global is not ready yet");
-      return;
-    }
-
-    try {
-      const [commands, isRunning, command, diagnostics] = await Promise.all([
-        window.cmd.listCommands(),
-        window.cmd.isRunning(),
-        window.cmd.currentCommand(),
-        window.cmd.diagnostics(),
-      ]);
-
-      setCommandCount(commands.length);
-      setRunning(isRunning);
-      setCurrentCommand(command);
-      setScriptDiagnostics(diagnostics);
-    } catch (error) {
-      console.error("Failed to refresh scripting metadata", error);
-    }
-  };
-
-  const loadDemo = () => {
-    setScriptName(demoScriptName);
-    setScriptPath(undefined);
-    setScriptSource(demoScriptSource);
-    setStatus("Loaded demo script");
-  };
-
-  const openScript = async () => {
-    if (!window.cmd) {
-      setStatus("cmd global is not ready yet");
-      return;
-    }
-
-    try {
-      const payload = await window.cmd.open();
-      if (!payload) {
-        setStatus("Open script cancelled");
-        return;
-      }
-
-      setScriptName(payload.name ?? "external-script");
-      setScriptPath(payload.path);
-      setScriptSource(payload.source);
-      setStatus(`Loaded ${payload.name ?? payload.path ?? "script"}`);
-    } catch (error) {
-      console.error("Failed to open script", error);
-      setStatus("Failed to open script");
-    }
-  };
-
-  const runScript = () => {
-    if (!window.cmd) {
-      setStatus("cmd global is not ready yet");
-      return;
-    }
-
-    const source = scriptSource();
-    if (source.trim() === "") {
-      setStatus("Script is empty");
-      return;
-    }
-
-    const name = scriptName();
-    const requestId = ++scriptRunRequestId;
-    setStatus(`Running ${name}`);
-
-    void window.cmd
-      .run(source, name)
-      .catch((error) => {
-        if (requestId !== scriptRunRequestId) {
-          return;
-        }
-
-        console.error("Failed to start script", error);
-        setStatus(`Failed to start ${name}`);
-      })
-      .finally(() => {
-        if (requestId === scriptRunRequestId) {
-          void refreshMeta();
-        }
-      });
-  };
-
-  const runScriptFromEditorShortcut: JSX.EventHandler<
-    HTMLTextAreaElement,
-    KeyboardEvent
-  > = (event) => {
-    if (event.key !== "Enter" || (!event.metaKey && !event.ctrlKey)) {
-      return;
-    }
-
-    event.preventDefault();
-    runScript();
-  };
-
-  const stopScript = () => {
-    if (!window.cmd) {
-      setStatus("cmd global is not ready yet");
-      return;
-    }
-
-    window.cmd.stop();
-    setStatus("Stop requested");
-    void refreshMeta();
-  };
-
-  onMount(() => {
-    void refreshMeta();
-
-    const interval = setInterval(() => {
-      void refreshMeta();
-    }, 1200);
-
-    onCleanup(() => {
-      clearInterval(interval);
-    });
-  });
-
   return (
-    <>
-      <div
-        style={{
-          position: "absolute",
-          top: "20px",
-          left: "20px",
-          background: "rgba(0, 0, 0, 0.7)",
-          color: "white",
-          "border-radius": "8px",
-          "z-index": 100,
-          "pointer-events": "auto",
-          "font-family": "var(--font-sans)",
-        }}
-      >
-        <div style={{ display: "flex", "align-items": "center", gap: "10px" }}>
-          <button
-            onClick={() => setOverlayVisible(!overlayVisible())}
-            style={{
-              padding: "5px 10px",
-              cursor: "pointer",
-              background: "#374151",
-              border: "none",
-              color: "white",
-              "border-radius": "8px",
-              "z-index": 100,
-              "pointer-events": "auto",
-              "font-family": "var(--font-sans)",
-            }}
-          >
-            Flash Debug {overlayVisible() ? "-" : "+"}
-          </button>
-          <button
-            onClick={() => setScriptOverlayVisible(!scriptOverlayVisible())}
-            style={{
-              padding: "5px 10px",
-              cursor: "pointer",
-              background: "#4f46e5",
-              border: "none",
-              color: "white",
-              "border-radius": "8px",
-              "z-index": 100,
-              "pointer-events": "auto",
-              "font-family": "var(--font-sans)",
-            }}
-          >
-            Script {scriptOverlayVisible() ? "-" : "+"}
-          </button>
-          {overlayVisible() && (
-            <>
-              <button
-                onClick={() => setCount(count() + 1)}
-                style={{
-                  cursor: "pointer",
-                  background: "#4f46e5",
-                  border: "none",
-                  color: "white",
-                  "border-radius": "4px",
-                }}
-              >
-                count: {count()}
-              </button>
-              <button onClick={testBridge}>test bridge</button>
-              <button onClick={inspectWorld}>inspect world</button>
-              <button onClick={inspectDrops}>inspect drops</button>
-              <button onClick={testGetTarget}>get target</button>
-              <button onClick={testGetCellMonsters}>get cell monsters</button>
-              <input
-                type="text"
-                value={demoUsername()}
-                onInput={(e) => setDemoUsername(e.currentTarget.value)}
-                placeholder="Demo username"
-                style={{
-                  padding: "5px",
-                  "border-radius": "4px",
-                  border: "1px solid #ccc",
-                  background: "white",
-                  color: "black",
-                }}
-              />
-              <button
-                onClick={demoLogin}
-                style={{
-                  padding: "5px 10px",
-                  cursor: "pointer",
-                  background: "#10b981",
-                  border: "none",
-                  color: "white",
-                  "border-radius": "4px",
-                }}
-              >
-                demo login
-              </button>
-              <button
-                onClick={togglePacketLogging}
-                style={{
-                  padding: "5px 10px",
-                  cursor: "pointer",
-                  background: packetLoggingEnabled() ? "#059669" : "#6b7280",
-                  border: "none",
-                  color: "white",
-                  "border-radius": "4px",
-                }}
-              >
-                {packetLoggingEnabled()
-                  ? "packet logging: ON"
-                  : "packet logging: OFF"}
-              </button>
-              <input
-                type="text"
-                value={targetName()}
-                onInput={(e) => setTargetName(e.currentTarget.value)}
-                placeholder="Target name or id:123"
-                style={{
-                  padding: "5px",
-                  "border-radius": "4px",
-                  border: "1px solid #ccc",
-                  background: "white",
-                  color: "black",
-                }}
-              />
-              <button
-                onClick={killTarget}
-                style={{
-                  padding: "5px 10px",
-                  cursor: "pointer",
-                  background: "#dc2626",
-                  border: "none",
-                  color: "white",
-                  "border-radius": "4px",
-                }}
-              >
-                kill
-              </button>
-              <button
-                onClick={stopCombatTask}
-                style={{
-                  padding: "5px 10px",
-                  cursor: "pointer",
-                  background: "#f59e0b",
-                  border: "none",
-                  color: "white",
-                  "border-radius": "4px",
-                }}
-              >
-                stop combat task
-              </button>
-              <button
-                onClick={testCombatExit}
-                style={{
-                  padding: "5px 10px",
-                  cursor: "pointer",
-                  background: "#6366f1",
-                  border: "none",
-                  color: "white",
-                  "border-radius": "4px",
-                }}
-              >
-                combat exit
-              </button>
-            </>
-          )}
-        </div>
-        {overlayVisible() && (
-          <>
-            <div
-              style={{
-                display: "flex",
-                "align-items": "center",
-                gap: "10px",
-                "margin-top": "10px",
-              }}
+    <main class="game-shell">
+      <div id="topnav-container" class="game-topnav-container">
+        <nav id="topnav" class="game-topnav" aria-label="Game controls">
+          <div class="game-topnav__left">
+            <Menu
+              open={openMenu() === "windows"}
+              onOpenChange={setMenuOpen("windows")}
             >
-              <input
-                type="text"
-                value={itemNameOrId()}
-                onInput={(e) => setItemNameOrId(e.currentTarget.value)}
-                placeholder="Item name or id:123"
-                style={{
-                  padding: "5px",
-                  "border-radius": "4px",
-                  border: "1px solid #ccc",
-                  background: "white",
-                  color: "black",
-                }}
-              />
-              <input
-                type="text"
-                value={itemQuantity()}
-                onInput={(e) => setItemQuantity(e.currentTarget.value)}
-                placeholder="Qty (optional, default 1)"
-                style={{
-                  width: "170px",
-                  padding: "5px",
-                  "border-radius": "4px",
-                  border: "1px solid #ccc",
-                  background: "white",
-                  color: "black",
-                }}
-              />
-              <button
-                onClick={killForInventoryItem}
-                style={{
-                  padding: "5px 10px",
-                  cursor: "pointer",
-                  background: "#7c3aed",
-                  border: "none",
-                  color: "white",
-                  "border-radius": "4px",
-                }}
+              <MenuTrigger
+                class="game-topnav__trigger"
+                data-expanded={openMenu() === "windows" ? "" : undefined}
+                onClick={toggleMenu("windows")}
               >
-                kill for inventory item
-              </button>
-              <button
-                onClick={killForTempInventoryItem}
-                style={{
-                  padding: "5px 10px",
-                  cursor: "pointer",
-                  background: "#0891b2",
-                  border: "none",
-                  color: "white",
-                  "border-radius": "4px",
-                }}
-              >
-                kill for temp item
-              </button>
-            </div>
-            <div
-              style={{
-                display: "flex",
-                "align-items": "center",
-                gap: "10px",
-                "margin-top": "10px",
-              }}
+                Windows
+              </MenuTrigger>
+              <MenuContent class="game-menu game-menu--mega" portal={false}>
+                <div class="game-menu__mega-grid">
+                  <For each={windowMenuGroups}>
+                    {(group) => (
+                      <MenuGroup class="game-menu__group">
+                        <MenuLabel>{group.name}</MenuLabel>
+                        <For each={group.items}>
+                          {(item) => (
+                            <MenuItem
+                              class="game-menu__item"
+                              disabled={item.disabled}
+                              value={item.id}
+                            >
+                              <span class="game-menu__item-label">
+                                {item.label}
+                              </span>
+                              <Show when={item.shortcut}>
+                                {(shortcut) => <Kbd>{shortcut()}</Kbd>}
+                              </Show>
+                            </MenuItem>
+                          )}
+                        </For>
+                      </MenuGroup>
+                    )}
+                  </For>
+                </div>
+              </MenuContent>
+            </Menu>
+
+            <div class="game-topnav__divider" />
+
+            <Menu
+              open={openMenu() === "scripts"}
+              onOpenChange={setMenuOpen("scripts")}
             >
-              <label
-                style={{ display: "flex", "align-items": "center", gap: "5px" }}
+              <MenuTrigger
+                class="game-topnav__trigger"
+                data-expanded={openMenu() === "scripts" ? "" : undefined}
+                onClick={toggleMenu("scripts")}
               >
-                <input
-                  type="checkbox"
-                  checked={findMost()}
-                  onChange={(e) => setFindMost(e.currentTarget.checked)}
-                  style={{ cursor: "pointer" }}
-                />
-                Find most
-              </label>
-              <button
-                onClick={huntTarget}
-                style={{
-                  padding: "5px 10px",
-                  cursor: "pointer",
-                  background: "#059669",
-                  border: "none",
-                  color: "white",
-                  "border-radius": "4px",
-                }}
-              >
-                hunt
-              </button>
-            </div>
-            <div
-              style={{
-                display: "flex",
-                "align-items": "center",
-                gap: "10px",
-                "margin-top": "10px",
-              }}
+                Scripts
+              </MenuTrigger>
+              <MenuContent class="game-menu game-menu--scripts" portal={false}>
+                <MenuGroup>
+                  <MenuItem
+                    class="game-menu__item"
+                    onSelect={() => void loadScript()}
+                    value="load-script"
+                  >
+                    <span class="game-menu__item-label">Load Script</span>
+                    <Kbd>Cmd/Ctrl+O</Kbd>
+                  </MenuItem>
+                  <MenuItem
+                    class="game-menu__item"
+                    disabled={!scriptLoaded() || scriptRunning()}
+                    onSelect={startScript}
+                    value="start-script"
+                  >
+                    <span class="game-menu__item-label">Start</span>
+                  </MenuItem>
+                  <MenuItem
+                    class="game-menu__item"
+                    disabled={!scriptRunning()}
+                    onSelect={stopScript}
+                    value="stop-script"
+                    variant="destructive"
+                  >
+                    <span class="game-menu__item-label">Stop</span>
+                    <Kbd>Cmd/Ctrl+Shift+X</Kbd>
+                  </MenuItem>
+                </MenuGroup>
+                <MenuSeparator />
+                <div class="game-menu__status">
+                  <span>{scriptStatus()}</span>
+                  <span>{scriptCommandCount()} commands</span>
+                  <Show when={scriptDiagnosticsCount() > 0}>
+                    <span>{scriptDiagnosticsCount()} diagnostics</span>
+                  </Show>
+                </div>
+              </MenuContent>
+            </Menu>
+
+            <Menu
+              open={openMenu() === "options"}
+              onOpenChange={setMenuOpen("options")}
             >
-              <label
-                style={{ display: "flex", "align-items": "center", gap: "5px" }}
+              <MenuTrigger
+                class="game-topnav__trigger"
+                data-expanded={openMenu() === "options" ? "" : undefined}
+                onClick={toggleMenu("options")}
               >
-                <input
-                  type="checkbox"
-                  checked={autoZoneEnabled()}
-                  onChange={toggleAutoZone}
-                  style={{ cursor: "pointer" }}
-                />
-                AutoZone Enabled
-              </label>
-              <select
-                value={autoZoneMap()}
-                onInput={(e) =>
-                  applyAutoZoneMap(
-                    e.currentTarget.value as AutoZoneSupportedMap,
-                  )
-                }
-                style={{
-                  padding: "5px",
-                  "border-radius": "4px",
-                  border: "1px solid #ccc",
-                  background: "white",
-                  color: "black",
-                  cursor: "pointer",
-                }}
-              >
-                <option value="ledgermayne">ledgermayne</option>
-                <option value="moreskulls">moreskulls</option>
-                <option value="ultradage">ultradage</option>
-                <option value="darkcarnax">darkcarnax</option>
-                <option value="astralshrine">astralshrine</option>
-                <option value="magnumopus">magnumopus</option>
-                <option value="queeniona">queeniona</option>
-              </select>
-            </div>
-            <div
-              style={{
-                display: "flex",
-                "align-items": "center",
-                gap: "10px",
-                "margin-top": "10px",
-                "flex-wrap": "wrap",
-              }}
+                Options
+              </MenuTrigger>
+              <MenuContent class="game-menu game-menu--options" portal={false}>
+                <div class="game-options-grid">
+                  <For each={optionItems()}>
+                    {(option) => (
+                      <MenuCheckboxItem
+                        checked={option.checked}
+                        class="game-menu__item"
+                        onClick={option.onSelect}
+                        value={option.id}
+                      >
+                        {option.label}
+                      </MenuCheckboxItem>
+                    )}
+                  </For>
+                </div>
+                <MenuSeparator />
+                <div class="game-menu__fields">
+                  <label class="game-menu__field">
+                    <span>Walk Speed</span>
+                    <Input
+                      size="sm"
+                      value={walkSpeed()}
+                      onBlur={handleSetWalkSpeed}
+                      onInput={(event) =>
+                        setWalkSpeed(event.currentTarget.value)
+                      }
+                    />
+                  </label>
+                  <label class="game-menu__field">
+                    <span>FPS</span>
+                    <Input
+                      size="sm"
+                      value={frameRate()}
+                      onBlur={handleSetFrameRate}
+                      onInput={(event) =>
+                        setFrameRate(event.currentTarget.value)
+                      }
+                    />
+                  </label>
+                  <label class="game-menu__field game-menu__field--wide">
+                    <span>Custom Name</span>
+                    <Input
+                      size="sm"
+                      value={customName()}
+                      onBlur={handleSetCustomName}
+                      onInput={(event) =>
+                        setCustomName(event.currentTarget.value)
+                      }
+                    />
+                  </label>
+                  <label class="game-menu__field game-menu__field--wide">
+                    <span>Custom Guild</span>
+                    <Input
+                      size="sm"
+                      value={customGuild()}
+                      onBlur={handleSetCustomGuild}
+                      onInput={(event) =>
+                        setCustomGuild(event.currentTarget.value)
+                      }
+                    />
+                  </label>
+                </div>
+              </MenuContent>
+            </Menu>
+
+            <Menu
+              open={openMenu() === "relogin"}
+              onOpenChange={setMenuOpen("relogin")}
             >
-              <label
-                style={{ display: "flex", "align-items": "center", gap: "5px" }}
+              <MenuTrigger
+                class={cn(
+                  "game-topnav__trigger",
+                  autoReloginEnabled() && "game-topnav__trigger--success",
+                )}
+                data-expanded={openMenu() === "relogin" ? "" : undefined}
+                onClick={toggleMenu("relogin")}
               >
-                <input
-                  type="checkbox"
-                  checked={autoReloginEnabled()}
-                  onChange={handleToggleAutoRelogin}
-                  style={{ cursor: "pointer" }}
-                />
                 Auto Relogin
-              </label>
-              <input
-                type="text"
-                value={autoReloginDelayMs()}
-                onInput={(e) => setAutoReloginDelayMs(e.currentTarget.value)}
-                placeholder="Delay ms"
-                style={{
-                  padding: "5px",
-                  "border-radius": "4px",
-                  border: "1px solid #ccc",
-                  background: "white",
-                  color: "black",
-                  width: "100px",
-                }}
-              />
-              <button
-                onClick={handleSetAutoReloginDelay}
-                style={{
-                  padding: "5px 10px",
-                  cursor: "pointer",
-                  background: "#6366f1",
-                  border: "none",
-                  color: "white",
-                  "border-radius": "4px",
-                }}
-              >
-                Set Delay
-              </button>
-              <span style={{ "font-size": "12px", opacity: 0.85 }}>
-                {autoReloginCaptured()
-                  ? `${autoReloginUsername()} @ ${autoReloginServer()}`
-                  : "not captured"}
-                {autoReloginAttempting() ? " - attempting" : ""}
-                {autoReloginLastError() ? ` - ${autoReloginLastError()}` : ""}
-              </span>
-            </div>
-            <div
-              style={{
-                display: "flex",
-                "align-items": "center",
-                gap: "10px",
-                "margin-top": "10px",
-                "flex-wrap": "wrap",
-              }}
-            >
-              <label
-                style={{ display: "flex", "align-items": "center", gap: "5px" }}
-              >
-                <input
-                  type="checkbox"
-                  checked={enemyMagnetEnabled()}
-                  onChange={handleToggleEnemyMagnet}
-                  style={{ cursor: "pointer" }}
-                />
-                Enemy Magnet
-              </label>
-              <label
-                style={{ display: "flex", "align-items": "center", gap: "5px" }}
-              >
-                <input
-                  type="checkbox"
-                  checked={infiniteRangeEnabled()}
-                  onChange={handleToggleInfiniteRange}
-                  style={{ cursor: "pointer" }}
-                />
-                Infinite Range
-              </label>
-              <label
-                style={{ display: "flex", "align-items": "center", gap: "5px" }}
-              >
-                <input
-                  type="checkbox"
-                  checked={provokeCellEnabled()}
-                  onChange={handleToggleProvokeCell}
-                  style={{ cursor: "pointer" }}
-                />
-                Provoke Cell
-              </label>
-              <label
-                style={{ display: "flex", "align-items": "center", gap: "5px" }}
-              >
-                <input
-                  type="checkbox"
-                  checked={skipCutscenesEnabled()}
-                  onChange={handleToggleSkipCutscenes}
-                  style={{ cursor: "pointer" }}
-                />
-                Skip Cutscenes
-              </label>
-            </div>
-            <div
-              style={{
-                display: "flex",
-                "align-items": "center",
-                gap: "10px",
-                "margin-top": "10px",
-                "flex-wrap": "wrap",
-              }}
-            >
-              <input
-                type="text"
-                value={customName()}
-                onInput={(e) => setCustomName(e.currentTarget.value)}
-                placeholder="Custom Name"
-                style={{
-                  padding: "5px",
-                  "border-radius": "4px",
-                  border: "1px solid #ccc",
-                  background: "white",
-                  color: "black",
-                }}
-              />
-              <button
-                onClick={handleSetCustomName}
-                style={{
-                  padding: "5px 10px",
-                  cursor: "pointer",
-                  background: "#6366f1",
-                  border: "none",
-                  color: "white",
-                  "border-radius": "4px",
-                }}
-              >
-                Set Name
-              </button>
-              <input
-                type="text"
-                value={customGuild()}
-                onInput={(e) => setCustomGuild(e.currentTarget.value)}
-                placeholder="Custom Guild"
-                style={{
-                  padding: "5px",
-                  "border-radius": "4px",
-                  border: "1px solid #ccc",
-                  background: "white",
-                  color: "black",
-                }}
-              />
-              <button
-                onClick={handleSetCustomGuild}
-                style={{
-                  padding: "5px 10px",
-                  cursor: "pointer",
-                  background: "#6366f1",
-                  border: "none",
-                  color: "white",
-                  "border-radius": "4px",
-                }}
-              >
-                Set Guild
-              </button>
-            </div>
-            <div
-              style={{
-                display: "flex",
-                "align-items": "center",
-                gap: "10px",
-                "margin-top": "10px",
-                "flex-wrap": "wrap",
-              }}
-            >
-              <input
-                type="text"
-                value={walkSpeed()}
-                onInput={(e) => setWalkSpeed(e.currentTarget.value)}
-                placeholder="Walk Speed"
-                style={{
-                  padding: "5px",
-                  "border-radius": "4px",
-                  border: "1px solid #ccc",
-                  background: "white",
-                  color: "black",
-                  width: "100px",
-                }}
-              />
-              <button
-                onClick={handleSetWalkSpeed}
-                style={{
-                  padding: "5px 10px",
-                  cursor: "pointer",
-                  background: "#6366f1",
-                  border: "none",
-                  color: "white",
-                  "border-radius": "4px",
-                }}
-              >
-                Set Speed
-              </button>
-              <input
-                type="text"
-                value={frameRate()}
-                onInput={(e) => setFrameRate(e.currentTarget.value)}
-                placeholder="FPS"
-                style={{
-                  padding: "5px",
-                  "border-radius": "4px",
-                  border: "1px solid #ccc",
-                  background: "white",
-                  color: "black",
-                  width: "100px",
-                }}
-              />
-              <button
-                onClick={handleSetFrameRate}
-                style={{
-                  padding: "5px 10px",
-                  cursor: "pointer",
-                  background: "#6366f1",
-                  border: "none",
-                  color: "white",
-                  "border-radius": "4px",
-                }}
-              >
-                Set FPS
-              </button>
-            </div>
-            <div
-              style={{
-                display: "flex",
-                "align-items": "center",
-                gap: "10px",
-                "margin-top": "10px",
-                "flex-wrap": "wrap",
-              }}
-            >
-              <label
-                style={{ display: "flex", "align-items": "center", gap: "5px" }}
-              >
-                <input
-                  type="checkbox"
-                  checked={deathAdsVisible()}
-                  onChange={handleToggleDeathAds}
-                  style={{ cursor: "pointer" }}
-                />
-                Death Ads
-              </label>
-              <label
-                style={{ display: "flex", "align-items": "center", gap: "5px" }}
-              >
-                <input
-                  type="checkbox"
-                  checked={collisionsEnabled()}
-                  onChange={handleToggleCollisions}
-                  style={{ cursor: "pointer" }}
-                />
-                Collisions
-              </label>
-              <label
-                style={{ display: "flex", "align-items": "center", gap: "5px" }}
-              >
-                <input
-                  type="checkbox"
-                  checked={effectsEnabled()}
-                  onChange={handleToggleEffects}
-                  style={{ cursor: "pointer" }}
-                />
-                Effects
-              </label>
-              <label
-                style={{ display: "flex", "align-items": "center", gap: "5px" }}
-              >
-                <input
-                  type="checkbox"
-                  checked={otherPlayersVisible()}
-                  onChange={handleTogglePlayersVisible}
-                  style={{ cursor: "pointer" }}
-                />
-                Players Visible
-              </label>
-              <label
-                style={{ display: "flex", "align-items": "center", gap: "5px" }}
-              >
-                <input
-                  type="checkbox"
-                  checked={lagKillerEnabled()}
-                  onChange={handleToggleLagKiller}
-                  style={{ cursor: "pointer" }}
-                />
-                Lag Killer
-              </label>
-            </div>
-            <div
-              style={{
-                display: "flex",
-                "align-items": "center",
-                gap: "10px",
-                "margin-top": "10px",
-                "flex-wrap": "wrap",
-              }}
-            >
-              <input
-                type="text"
-                value={testClientPacket()}
-                onInput={(e) => setTestClientPacket(e.currentTarget.value)}
-                placeholder="Client packet"
-                style={{
-                  padding: "5px",
-                  "border-radius": "4px",
-                  border: "1px solid #ccc",
-                  background: "white",
-                  color: "black",
-                  width: "200px",
-                }}
-              />
-              <select
-                value={clientPacketType()}
-                onInput={(e) =>
-                  setClientPacketType(e.currentTarget.value as any)
-                }
-                style={{
-                  padding: "5px",
-                  "border-radius": "4px",
-                  border: "1px solid #ccc",
-                  background: "white",
-                  color: "black",
-                  cursor: "pointer",
-                }}
-              >
-                <option value="str">str</option>
-                <option value="json">json</option>
-                <option value="xml">xml</option>
-              </select>
-              <button
-                onClick={testSendClientPacket}
-                style={{
-                  padding: "5px 10px",
-                  cursor: "pointer",
-                  background: "#ec4899",
-                  border: "none",
-                  color: "white",
-                  "border-radius": "4px",
-                }}
-              >
-                Send Client
-              </button>
-              <input
-                type="text"
-                value={testServerPacket()}
-                onInput={(e) => setTestServerPacket(e.currentTarget.value)}
-                placeholder="Server packet"
-                style={{
-                  padding: "5px",
-                  "border-radius": "4px",
-                  border: "1px solid #ccc",
-                  background: "white",
-                  color: "black",
-                  width: "200px",
-                }}
-              />
-              <select
-                value={serverPacketType()}
-                onInput={(e) =>
-                  setServerPacketType(e.currentTarget.value as any)
-                }
-                style={{
-                  padding: "5px",
-                  "border-radius": "4px",
-                  border: "1px solid #ccc",
-                  background: "white",
-                  color: "black",
-                  cursor: "pointer",
-                }}
-              >
-                <option value="String">String</option>
-                <option value="Json">Json</option>
-              </select>
-              <button
-                onClick={testSendServerPacket}
-                style={{
-                  padding: "5px 10px",
-                  cursor: "pointer",
-                  background: "#ec4899",
-                  border: "none",
-                  color: "white",
-                  "border-radius": "4px",
-                }}
-              >
-                Send Server
-              </button>
-            </div>
-            <div
-              style={{
-                display: "grid",
-                gap: "8px",
-                "margin-top": "10px",
-                width: "min(760px, calc(100vw - 40px))",
-              }}
-            >
-              <div
-                style={{
-                  display: "flex",
-                  "align-items": "center",
-                  gap: "8px",
-                  "flex-wrap": "wrap",
-                }}
-              >
-                <span style={{ "font-size": "12px", opacity: 0.85 }}>
-                  Effect service code
-                </span>
-                <button
-                  onClick={runFlashEval}
-                  disabled={flashEvalRunning()}
-                  style={{
-                    padding: "5px 10px",
-                    cursor: flashEvalRunning() ? "default" : "pointer",
-                    background: flashEvalRunning() ? "#6b7280" : "#0f766e",
-                    border: "none",
-                    color: "white",
-                    "border-radius": "4px",
-                  }}
+              </MenuTrigger>
+              <MenuContent class="game-menu game-menu--relogin" portal={false}>
+                <div class="game-menu__status">
+                  <span>
+                    {autoReloginCaptured()
+                      ? `${autoReloginUsername() || "Captured user"}${
+                          autoReloginServer() ? ` @ ${autoReloginServer()}` : ""
+                        }`
+                      : "No captured session"}
+                  </span>
+                  <Show when={autoReloginAttempting()}>
+                    <span>Attempting reconnect</span>
+                  </Show>
+                  <Show when={autoReloginLastError()}>
+                    {(error) => <span class="game-menu__error">{error()}</span>}
+                  </Show>
+                </div>
+                <MenuSeparator />
+                <MenuItem
+                  class="game-menu__item"
+                  onSelect={handleCaptureAutoReloginSession}
+                  value="capture-session"
                 >
-                  {flashEvalRunning() ? "Running" : "Run"}
-                </button>
-                <span style={{ "font-size": "11px", opacity: 0.7 }}>
-                  Use yield* with Inventory, Player, World, Combat, Settings,
-                  api
-                </span>
-              </div>
-              <textarea
-                value={flashEvalCode()}
-                onInput={(e) => setFlashEvalCode(e.currentTarget.value)}
-                rows={10}
-                spellcheck={false}
-                style={{
-                  width: "100%",
-                  resize: "vertical",
-                  padding: "8px",
-                  "border-radius": "4px",
-                  border: "1px solid #555",
-                  background: "#111827",
-                  color: "white",
-                  "font-family": "var(--font-mono)",
-                  "font-size": "12px",
-                }}
-              />
-              <div
-                style={{
-                  display: "flex",
-                  gap: "6px",
-                  "flex-wrap": "wrap",
-                }}
-              >
-                {flashServiceDebugExamples.map((example) => (
-                  <button onClick={() => loadFlashEvalExample(example.source)}>
-                    {example.label}
-                  </button>
-                ))}
-              </div>
-              <pre
-                style={{
-                  margin: 0,
-                  padding: "8px",
-                  "max-height": "220px",
-                  overflow: "auto",
-                  "border-radius": "4px",
-                  background: "#030712",
-                  color: "#d1d5db",
-                  "font-family": "var(--font-mono)",
-                  "font-size": "12px",
-                  "white-space": "pre-wrap",
-                }}
-              >
-                {flashEvalResult()}
-              </pre>
-            </div>
-          </>
-        )}
-      </div>
-      {scriptOverlayVisible() && (
-        <div
-          ref={scriptOverlayElement}
-          style={{
-            position: "absolute",
-            top: `${scriptOverlayPosition().y}px`,
-            left: `${scriptOverlayPosition().x}px`,
-            width: "560px",
-            padding: "1rem",
-            background: "rgba(0, 0, 0, 0.85)",
-            color: "white",
-            "border-radius": "8px",
-            "z-index": 101,
-            "pointer-events": "auto",
-            "font-family": "var(--font-sans)",
-            display: "flex",
-            "flex-direction": "column",
-            gap: "0.5rem",
-          }}
-        >
-          <div
-            onPointerDown={startScriptOverlayDrag}
-            onPointerMove={dragScriptOverlay}
-            onPointerUp={stopScriptOverlayDrag}
-            onPointerCancel={stopScriptOverlayDrag}
-            style={{
-              "font-weight": "bold",
-              cursor: "move",
-              "user-select": "none",
-              "touch-action": "none",
-            }}
-          >
-            Scripting Demo
-          </div>
-          <div style={{ "font-size": "12px", opacity: 0.85 }}>
-            Commands: {commandCount()} · Running: {running() ? "yes" : "no"}
-          </div>
-          <div style={{ "font-size": "12px", opacity: 0.8 }}>
-            Current command:{" "}
-            {currentCommand()
-              ? `#${currentCommand()!.index} ${currentCommand()!.name}`
-              : "idle"}
-          </div>
-          {scriptDiagnostics().length > 0 && (
-            <div
-              style={{
-                display: "grid",
-                gap: "4px",
-                "font-size": "11px",
-              }}
+                  Capture Current Session
+                </MenuItem>
+                <MenuItem
+                  class="game-menu__item"
+                  disabled={!autoReloginCaptured() && !autoReloginEnabled()}
+                  onSelect={handleToggleAutoRelogin}
+                  value="toggle-autorelogin"
+                  variant={autoReloginEnabled() ? "destructive" : "default"}
+                >
+                  {autoReloginEnabled() ? "Disable" : "Enable"}
+                </MenuItem>
+                <MenuSeparator />
+                <label class="game-menu__field">
+                  <span>Delay ms</span>
+                  <Input
+                    size="sm"
+                    value={autoReloginDelayMs()}
+                    onBlur={handleSetAutoReloginDelay}
+                    onInput={(event) =>
+                      setAutoReloginDelayMs(event.currentTarget.value)
+                    }
+                  />
+                </label>
+              </MenuContent>
+            </Menu>
+
+            <Button
+              class={cn(
+                "game-topnav__button",
+                scriptRunning() && "game-topnav__button--danger",
+                scriptLoaded() &&
+                  !scriptRunning() &&
+                  "game-topnav__button--success",
+              )}
+              disabled={!scriptLoaded()}
+              onClick={scriptRunning() ? stopScript : startScript}
+              size="xs"
+              variant="ghost"
             >
-              {scriptDiagnostics()
-                .slice(-5)
-                .map((diagnostic) => {
-                  const color =
-                    diagnostic.severity === "error"
-                      ? "#ff8585"
-                      : diagnostic.severity === "warning"
-                        ? "#ffd27a"
-                        : "#9ad1ff";
-                  return (
-                    <div
-                      style={{
-                        color,
-                        border: `1px solid ${color}`,
-                        "border-radius": "4px",
-                        padding: "4px 6px",
-                        background: "rgba(0, 0, 0, 0.22)",
-                      }}
-                    >
-                      {new Date(diagnostic.createdAt).toLocaleTimeString()} ·{" "}
-                      {diagnostic.command ?? "script"} · {diagnostic.message}
-                    </div>
-                  );
-                })}
-            </div>
-          )}
-          <div style={{ "font-size": "12px", opacity: 0.75 }}>
-            {scriptPath() ? `Path: ${scriptPath()}` : "Using in-memory script"}
+              {scriptRunning() ? "Stop" : "Start"}
+            </Button>
           </div>
 
-          <input
-            value={scriptName()}
-            onInput={(event) => setScriptName(event.currentTarget.value)}
-            placeholder="script name"
-            style={{
-              padding: "6px 8px",
-              border: "1px solid #555",
-              "border-radius": "4px",
-              background: "#111",
-              color: "white",
-            }}
-          />
+          <div class="game-topnav__right">
+            <Checkbox
+              checked={autoAttackEnabled()}
+              onChange={(event) =>
+                setAutoAttackEnabled(event.currentTarget.checked)
+              }
+            >
+              Auto
+            </Checkbox>
 
-          <textarea
-            value={scriptSource()}
-            onInput={(event) => setScriptSource(event.currentTarget.value)}
-            onKeyDown={runScriptFromEditorShortcut}
-            rows={14}
-            style={{
-              width: "100%",
-              resize: "vertical",
-              padding: "8px",
-              border: "1px solid #555",
-              "border-radius": "4px",
-              background: "#111",
-              color: "white",
-              "font-family": "var(--font-mono)",
-              "font-size": "12px",
-            }}
-          />
+            <div class="game-topnav__divider" />
 
-          <div style={{ display: "flex", gap: "8px", "flex-wrap": "wrap" }}>
-            <button onClick={loadDemo}>Load demo</button>
-            <button onClick={() => void openScript()}>Open file...</button>
-            <button onClick={runScript}>Run</button>
-            <button onClick={stopScript}>Stop</button>
-            <button onClick={() => void refreshMeta()}>Refresh</button>
-          </div>
+            <Menu
+              open={openMenu() === "pads"}
+              onOpenChange={setMenuOpen("pads")}
+            >
+              <MenuTrigger class="game-topnav__select-trigger" disabled>
+                Spawn
+              </MenuTrigger>
+              <MenuContent class="game-menu game-menu--compact" portal={false}>
+                <For each={defaultPads}>
+                  {(pad) => (
+                    <MenuItem class="game-menu__item" disabled value={pad}>
+                      {pad}
+                    </MenuItem>
+                  )}
+                </For>
+              </MenuContent>
+            </Menu>
 
-          <div style={{ "font-size": "12px", opacity: 0.85 }}>
-            Status: {status()}
+            <Menu
+              open={openMenu() === "cells"}
+              onOpenChange={setMenuOpen("cells")}
+            >
+              <MenuTrigger
+                class="game-topnav__select-trigger game-topnav__select-trigger--cell"
+                disabled
+              >
+                Enter
+              </MenuTrigger>
+              <MenuContent class="game-menu game-menu--compact" portal={false}>
+                <For each={placeholderCells}>
+                  {(cell) => (
+                    <MenuItem class="game-menu__item" disabled value={cell}>
+                      {cell}
+                    </MenuItem>
+                  )}
+                </For>
+              </MenuContent>
+            </Menu>
+
+            <div class="game-topnav__divider" />
+
+            <Button
+              class="game-topnav__button"
+              disabled
+              size="xs"
+              variant="ghost"
+            >
+              Bank
+            </Button>
           </div>
-          <div style={{ "font-size": "11px", opacity: 0.65 }}>
-            Tip: Cmd/Ctrl+Enter runs the script. Cmd/Ctrl+O opens a script file.
-            Cmd/Ctrl+Shift+X stops active script.
-          </div>
+        </nav>
+      </div>
+
+      <section
+        id="loader-container"
+        class="game-loader"
+        classList={{ "game-loader--hidden": gameLoaded() }}
+        aria-hidden={gameLoaded() ? "true" : undefined}
+        aria-live="polite"
+      >
+        <div class="game-loader__content">
+          <div class="game-loader__spinner" aria-hidden="true" />
+          <span id="progress-text">Loading...</span>
         </div>
-      )}
-    </>
+      </section>
+
+      <section
+        id="game-container"
+        class="game-viewport"
+        classList={{ "game-viewport--loaded": gameLoaded() }}
+      />
+    </main>
   );
 }
