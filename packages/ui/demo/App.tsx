@@ -404,20 +404,50 @@ function DemoApp() {
               <div class="demo-row">
                 <Dialog>
                   <DialogTrigger class="button button--outline button--size-default">
-                    Open dialog
+                    Default footer
                   </DialogTrigger>
                   <DialogContent>
                     <DialogHeader>
-                      <DialogTitle>Runtime settings</DialogTitle>
+                      <DialogTitle>Default footer</DialogTitle>
                       <DialogDescription>
-                        Configure compact runtime preferences.
+                        Use the standard footer treatment for primary actions.
                       </DialogDescription>
                     </DialogHeader>
                     <DialogPanel class="demo-form">
-                      <Label for="dialog-name">Preset name</Label>
-                      <Input fullWidth id="dialog-name" value="Daily review" />
+                      <Label for="dialog-default-name">Preset name</Label>
+                      <Input
+                        fullWidth
+                        id="dialog-default-name"
+                        value="Daily review"
+                      />
                     </DialogPanel>
-                    <DialogFooter>
+                    <DialogFooter variant="default">
+                      <DialogClose variant="outline">Cancel</DialogClose>
+                      <DialogClose>Save</DialogClose>
+                    </DialogFooter>
+                  </DialogContent>
+                </Dialog>
+
+                <Dialog>
+                  <DialogTrigger class="button button--outline button--size-default">
+                    Bare footer
+                  </DialogTrigger>
+                  <DialogContent>
+                    <DialogHeader>
+                      <DialogTitle>Bare footer</DialogTitle>
+                      <DialogDescription>
+                        Keep the actions attached to content without a divider.
+                      </DialogDescription>
+                    </DialogHeader>
+                    <DialogPanel class="demo-form">
+                      <Label for="dialog-bare-name">Queue label</Label>
+                      <Input
+                        fullWidth
+                        id="dialog-bare-name"
+                        value="Farming queue"
+                      />
+                    </DialogPanel>
+                    <DialogFooter variant="bare">
                       <DialogClose>Done</DialogClose>
                     </DialogFooter>
                   </DialogContent>
@@ -425,16 +455,36 @@ function DemoApp() {
 
                 <AlertDialog>
                   <AlertDialogTrigger class="button button--destructive button--size-default">
-                    Stop process
+                    Default alert footer
                   </AlertDialogTrigger>
                   <AlertDialogContent>
                     <AlertDialogHeader>
-                      <AlertDialogTitle>Stop this process?</AlertDialogTitle>
+                      <AlertDialogTitle>Default alert footer</AlertDialogTitle>
                       <AlertDialogDescription>
-                        Current background work will be cancelled.
+                        Use the standard alert footer treatment for destructive
+                        decisions.
                       </AlertDialogDescription>
                     </AlertDialogHeader>
-                    <AlertDialogFooter>
+                    <AlertDialogFooter variant="default">
+                      <AlertDialogCancel>Cancel</AlertDialogCancel>
+                      <AlertDialogAction>Stop</AlertDialogAction>
+                    </AlertDialogFooter>
+                  </AlertDialogContent>
+                </AlertDialog>
+
+                <AlertDialog>
+                  <AlertDialogTrigger class="button button--destructive button--size-default">
+                    Bare alert footer
+                  </AlertDialogTrigger>
+                  <AlertDialogContent>
+                    <AlertDialogHeader>
+                      <AlertDialogTitle>Bare alert footer</AlertDialogTitle>
+                      <AlertDialogDescription>
+                        Keep alert actions close to the message without a
+                        footer divider.
+                      </AlertDialogDescription>
+                    </AlertDialogHeader>
+                    <AlertDialogFooter variant="bare">
                       <AlertDialogCancel>Cancel</AlertDialogCancel>
                       <AlertDialogAction>Stop</AlertDialogAction>
                     </AlertDialogFooter>
