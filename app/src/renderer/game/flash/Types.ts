@@ -3,10 +3,17 @@ import type { AvatarData, ServerData } from "@vexed/game";
 export type LoginResponse = {
   servers: ServerData[];
   bSuccess: number;
+  bCCOnly?: number;
+  iAccess?: number;
+  iAge?: number;
+  iEmailStatus?: number;
   iUpg: number;
+  iUpgDays?: number;
   unm: string; // username
   sToken: string; // password
 };
+
+export type LoginInfo = LoginResponse;
 
 export type LoginCredentials = {
   strUsername: string;

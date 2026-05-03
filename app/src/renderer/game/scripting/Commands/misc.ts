@@ -90,6 +90,8 @@ type MiscScriptCommandArguments = {
   use_autozone_astralshrine: [];
   use_autozone_queeniona: [];
   use_autozone_magnumopus: [];
+  use_autorelogin: [];
+  disable_autorelogin: [];
   close_window: [];
   beep: [times?: number];
   register_task: [name: string, taskFn: () => void | Promise<void>];
@@ -848,6 +850,12 @@ const miscCommandHandlerMap = miscCommandDomain.defineHandlers({
   use_autozone_astralshrine: autoZoneCommand("astralshrine"),
   use_autozone_queeniona: autoZoneCommand("queeniona"),
   use_autozone_magnumopus: autoZoneCommand("magnumopus"),
+  use_autorelogin: createCommandHandler((context) =>
+    Effect.asVoid(context.autoRelogin.enable()),
+  ),
+  disable_autorelogin: createCommandHandler((context) =>
+    Effect.asVoid(context.autoRelogin.disable()),
+  ),
   close_window: createCommandHandler(() => Effect.sync(() => window.close())),
   beep: beepCommand,
   register_task: registerTaskCommand,
@@ -1293,6 +1301,18 @@ export const createMiscScriptDsl = (
      */
     use_autozone_magnumopus() {
       recordMiscInstruction("use_autozone_magnumopus");
+    },
+    /**
+     * Enables current-session auto relogin.
+     */
+    use_autorelogin() {
+      recordMiscInstruction("use_autorelogin");
+    },
+    /**
+     * Disables current-session auto relogin.
+     */
+    disable_autorelogin() {
+      recordMiscInstruction("disable_autorelogin");
     },
     /**
      * Closes the game window.

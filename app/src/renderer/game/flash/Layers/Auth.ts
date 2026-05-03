@@ -3,14 +3,14 @@ import { Effect, Layer, Schedule, SynchronizedRef } from "effect";
 import type { AuthShape } from "../Services/Auth";
 import { Auth } from "../Services/Auth";
 import { Bridge } from "../Services/Bridge";
-import type { LoginResponse, LoginCredentials } from "../Types";
+import type { LoginInfo, LoginCredentials } from "../Types";
 import { waitFor } from "../../utils/waitFor";
 
 type RuntimeState = {
   readonly servers: Map<string, Server>;
   username: string;
   password: string;
-  loginInfo: LoginResponse | undefined;
+  loginInfo: LoginInfo | undefined;
 };
 
 const initialState = (): RuntimeState => ({
@@ -86,7 +86,7 @@ const make = Effect.gen(function* () {
           bridge.call("flash.getGameObjectS", ["loginInfo"]),
         ]);
 
-        const loginResponse = JSON.parse(loginResponseStr) as LoginResponse;
+        const loginResponse = JSON.parse(loginResponseStr) as LoginInfo;
         const loginCredentials = JSON.parse(
           loginCredentialsStr,
         ) as LoginCredentials;

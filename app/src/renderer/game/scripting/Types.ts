@@ -25,6 +25,7 @@ import type { QuestsShape } from "../flash/Services/Quests";
 import type { WorldShape } from "../flash/Services/World";
 import type { ScriptEffect } from "./scriptEffect";
 import type { ScriptRuntimeValue } from "./scriptRuntimeApi";
+import type { AutoReloginShape } from "../features/Services/AutoRelogin";
 
 export interface ScriptInstructionControlFlow {
   readonly falseJumpIndex?: number;
@@ -120,6 +121,7 @@ type CustomScriptPacketApi = Pick<
 
 export interface CustomScriptRuntimeApi {
   readonly auth: CustomScriptRuntimeValue<AuthShape>;
+  readonly autoRelogin: CustomScriptRuntimeValue<AutoReloginShape>;
   readonly autoZone: CustomScriptRuntimeValue<AutoZoneShape>;
   readonly bank: CustomScriptRuntimeValue<BankShape>;
   readonly bridge: CustomScriptRuntimeValue<BridgeShape>;
@@ -139,6 +141,7 @@ export interface CustomScriptRuntimeApi {
 
 export interface CustomScriptEffectRuntimeApi {
   readonly auth: CustomScriptEffectRuntimeValue<AuthShape>;
+  readonly autoRelogin: CustomScriptEffectRuntimeValue<AutoReloginShape>;
   readonly autoZone: CustomScriptEffectRuntimeValue<AutoZoneShape>;
   readonly bank: CustomScriptEffectRuntimeValue<BankShape>;
   readonly bridge: CustomScriptEffectRuntimeValue<BridgeShape>;
@@ -247,6 +250,7 @@ export type ScriptPacketHandler = (
 export interface ScriptExecutionContext {
   readonly sourceName: string;
   readonly auth: ScriptRuntimeValue<AuthShape>;
+  readonly autoRelogin: ScriptRuntimeValue<AutoReloginShape>;
   readonly autoZone: ScriptRuntimeValue<AutoZoneShape>;
   readonly bank: ScriptRuntimeValue<BankShape>;
   readonly bridge: ScriptRuntimeValue<BridgeShape>;

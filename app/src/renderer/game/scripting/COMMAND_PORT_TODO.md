@@ -145,8 +145,8 @@
 - [x] use_autozone_queeniona
 - [x] close_window
 - [x] beep
-- [ ] use_autorelogin - Not ported: no current AutoRelogin service/runtime API exists.
-- [ ] disable_autorelogin - Not ported: no current AutoRelogin service/runtime API exists.
+- [x] use_autorelogin
+- [x] disable_autorelogin
 - [x] register_task
 - [x] unregister_task
 - [ ] do_looptaunt - Not ported: loop-taunt strategy runtime/event API is not backported.
