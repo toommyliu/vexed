@@ -8,19 +8,23 @@ export interface SeparatorProps extends JSX.HTMLAttributes<HTMLDivElement> {
 
 export function Separator(props: SeparatorProps): JSX.Element {
   const [local, rest] = splitProps(props, [
+    "aria-orientation",
     "class",
     "decorative",
     "orientation",
   ]);
   const orientation = () => local.orientation ?? "horizontal";
+  const decorative = () => local.decorative ?? true;
 
   return (
     <div
       {...rest}
-      aria-orientation={orientation()}
+      aria-orientation={
+        decorative() ? undefined : (local["aria-orientation"] ?? orientation())
+      }
       class={cn("separator", `separator--${orientation()}`, local.class)}
       data-slot="separator"
-      role={(local.decorative ?? true) ? "none" : "separator"}
+      role={decorative() ? "none" : "separator"}
     />
   );
 }

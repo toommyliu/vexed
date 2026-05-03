@@ -1,8 +1,10 @@
 import { Search } from "lucide-solid";
 import {
   createContext,
+  createEffect,
   createMemo,
   createSignal,
+  createUniqueId,
   For,
   onCleanup,
   onMount,
@@ -30,16 +32,20 @@ export type CommandFilterFn = (
 
 interface CommandItemRecord {
   readonly disabled: boolean;
+  readonly id: string;
   readonly keywords: ReadonlyArray<string>;
   readonly value: string;
 }
 
 interface CommandContextValue {
+  readonly activeOptionId: Accessor<string | undefined>;
   readonly filteredItems: Accessor<ReadonlyArray<CommandItemRecord>>;
+  readonly listId: Accessor<string | undefined>;
   readonly registerItem: (item: CommandItemRecord) => void;
   readonly search: Accessor<string>;
   readonly selectValue: (value: string) => void;
   readonly selectedValue: Accessor<string>;
+  readonly setListId: (id: string | undefined) => void;
   readonly setSearch: (value: string) => void;
   readonly shouldFilter: Accessor<boolean>;
   readonly unregisterItem: (value: string) => void;
@@ -80,8 +86,11 @@ export function Command(props: CommandProps): JSX.Element {
     "value",
   ]);
   const [items, setItems] = createSignal<CommandItemRecord[]>([]);
+  const [listId, setListId] = createSignal<string>();
   const [search, setSearch] = createSignal("");
-  const [internalValue, setInternalValue] = createSignal(local.defaultValue ?? "");
+  const [internalValue, setInternalValue] = createSignal(
+    local.defaultValue ?? "",
+  );
   const selectedValue = () => local.value ?? internalValue();
   const shouldFilter = () => local.shouldFilter !== false;
   const filter = () => local.filter ?? computeCommandScore;
@@ -102,17 +111,24 @@ export function Command(props: CommandProps): JSX.Element {
     setInternalValue(value);
     local.onValueChange?.(value);
   };
+  const activeOptionId = () =>
+    filteredItems().find((item) => item.value === selectedValue())?.id;
   const context: CommandContextValue = {
+    activeOptionId,
     filteredItems,
+    listId,
     registerItem(item) {
       setItems((current) => {
-        const next = current.filter((candidate) => candidate.value !== item.value);
+        const next = current.filter(
+          (candidate) => candidate.value !== item.value,
+        );
         return [...next, item];
       });
     },
     search,
     selectValue,
     selectedValue,
+    setListId,
     setSearch,
     shouldFilter,
     unregisterItem(value) {
@@ -129,7 +145,8 @@ export function Command(props: CommandProps): JSX.Element {
       (item) => item.value === selectedValue(),
     );
     const fallbackIndex = offset > 0 ? -1 : 0;
-    let nextIndex = (currentIndex === -1 ? fallbackIndex : currentIndex) + offset;
+    let nextIndex =
+      (currentIndex === -1 ? fallbackIndex : currentIndex) + offset;
     if (local.loop) {
       nextIndex = (nextIndex + candidates.length) % candidates.length;
     } else {
@@ -185,19 +202,36 @@ export interface CommandInputProps
 }
 
 export function CommandInput(props: CommandInputProps): JSX.Element {
-  const [local, rest] = splitProps(props, ["class", "onInput"]);
+  const [local, rest] = splitProps(props, [
+    "aria-activedescendant",
+    "aria-autocomplete",
+    "aria-controls",
+    "aria-expanded",
+    "aria-haspopup",
+    "class",
+    "onInput",
+    "role",
+  ]);
   const context = useContext(CommandContext);
   return (
     <div class="command__input-wrap" data-slot="command-input-wrap">
-      <Search class="command__input-icon" />
+      <Search aria-hidden="true" class="command__input-icon" />
       <input
         {...rest}
+        aria-activedescendant={
+          local["aria-activedescendant"] ?? context?.activeOptionId()
+        }
+        aria-autocomplete={local["aria-autocomplete"] ?? "list"}
+        aria-controls={local["aria-controls"] ?? context?.listId()}
+        aria-expanded={local["aria-expanded"] ?? "true"}
+        aria-haspopup={local["aria-haspopup"] ?? "listbox"}
         class={cn("command__input", local.class)}
         data-slot="command-input"
         onInput={(event) => {
           callEventHandler(local.onInput, event);
           context?.setSearch(event.currentTarget.value);
         }}
+        role={local.role ?? "combobox"}
         value={context?.search() ?? rest.value}
       />
     </div>
@@ -210,12 +244,24 @@ export interface CommandListProps
 }
 
 export function CommandList(props: CommandListProps): JSX.Element {
-  const [local, rest] = splitProps(props, ["class"]);
+  const [local, rest] = splitProps(props, ["class", "id"]);
+  const context = useContext(CommandContext);
+  const generatedId = createUniqueId();
+  const id = () => local.id ?? `command-list-${generatedId}`;
+
+  createEffect(() => {
+    context?.setListId(id());
+    onCleanup(() => {
+      if (context?.listId() === id()) context.setListId(undefined);
+    });
+  });
+
   return (
     <div
       {...rest}
       class={cn("command__list", local.class)}
       data-slot="command-list"
+      id={id()}
       role="listbox"
     />
   );
@@ -287,22 +333,28 @@ export function CommandItem(props: CommandItemProps): JSX.Element {
     "class",
     "disabled",
     "forceMount",
+    "id",
     "keywords",
     "onClick",
     "onSelect",
+    "tabIndex",
     "value",
   ]);
   const context = useContext(CommandContext);
+  const generatedId = createUniqueId();
   const item = createMemo<CommandItemRecord>(() => ({
     disabled: Boolean(local.disabled),
+    id: local.id ?? `command-item-${generatedId}`,
     keywords: local.keywords ?? [],
     value: local.value,
   }));
   const visible = () =>
     Boolean(
       local.forceMount ||
-        !context?.shouldFilter() ||
-        context?.filteredItems().some((candidate) => candidate.value === local.value),
+      !context?.shouldFilter() ||
+      context
+        ?.filteredItems()
+        .some((candidate) => candidate.value === local.value),
     );
   const selected = () => context?.selectedValue() === local.value;
 
@@ -319,6 +371,7 @@ export function CommandItem(props: CommandItemProps): JSX.Element {
       data-disabled={local.disabled ? "" : undefined}
       data-selected={selected() ? "" : undefined}
       data-slot="command-item"
+      id={item().id}
       onClick={(event) => {
         callEventHandler(local.onClick, event);
         if (event.defaultPrevented || local.disabled) return;
@@ -327,7 +380,7 @@ export function CommandItem(props: CommandItemProps): JSX.Element {
       }}
       role="option"
       style={{ display: visible() ? undefined : "none" }}
-      tabIndex={local.disabled ? undefined : -1}
+      tabIndex={local.disabled ? undefined : (local.tabIndex ?? -1)}
     >
       {local.children}
     </div>
@@ -335,7 +388,10 @@ export function CommandItem(props: CommandItemProps): JSX.Element {
 }
 
 export interface CommandLinkItemProps
-  extends Omit<JSX.AnchorHTMLAttributes<HTMLAnchorElement>, "class" | "onSelect"> {
+  extends Omit<
+    JSX.AnchorHTMLAttributes<HTMLAnchorElement>,
+    "class" | "onSelect"
+  > {
   readonly class?: string;
   readonly disabled?: boolean;
   readonly forceMount?: boolean;
@@ -350,46 +406,62 @@ export function CommandLinkItem(props: CommandLinkItemProps): JSX.Element {
     "class",
     "disabled",
     "forceMount",
+    "href",
+    "id",
     "keywords",
     "onClick",
     "onSelect",
+    "tabIndex",
     "value",
   ]);
   const context = useContext(CommandContext);
+  const generatedId = createUniqueId();
+  const item = createMemo<CommandItemRecord>(() => ({
+    disabled: Boolean(local.disabled),
+    id: local.id ?? `command-link-item-${generatedId}`,
+    keywords: local.keywords ?? [],
+    value: local.value,
+  }));
   const visible = () =>
     Boolean(
       local.forceMount ||
-        !context?.shouldFilter() ||
-        context?.filteredItems().some((candidate) => candidate.value === local.value),
+      !context?.shouldFilter() ||
+      context
+        ?.filteredItems()
+        .some((candidate) => candidate.value === local.value),
     );
 
-  onMount(() =>
-    context?.registerItem({
-      disabled: Boolean(local.disabled),
-      keywords: local.keywords ?? [],
-      value: local.value,
-    }),
-  );
+  onMount(() => context?.registerItem(item()));
   onCleanup(() => context?.unregisterItem(local.value));
 
   return (
     <a
       {...rest}
       aria-disabled={local.disabled ? "true" : undefined}
+      aria-selected={
+        context?.selectedValue() === local.value ? "true" : "false"
+      }
       class={cn("command__item", "command__link-item", local.class)}
       data-command-value={local.value}
       data-disabled={local.disabled ? "" : undefined}
       data-selected={context?.selectedValue() === local.value ? "" : undefined}
       data-slot="command-link-item"
+      href={local.disabled ? undefined : local.href}
+      id={item().id}
       onClick={(event) => {
+        if (local.disabled) {
+          event.preventDefault();
+          event.stopPropagation();
+          return;
+        }
         callEventHandler(local.onClick, event);
-        if (event.defaultPrevented || local.disabled) return;
+        if (event.defaultPrevented) return;
         context?.selectValue(local.value);
         local.onSelect?.(local.value);
       }}
       role="option"
       style={{ display: visible() ? undefined : "none" }}
-      tabIndex={local.disabled ? undefined : -1}
+      tabIndex={local.disabled ? undefined : (local.tabIndex ?? -1)}
     >
       {local.children}
     </a>

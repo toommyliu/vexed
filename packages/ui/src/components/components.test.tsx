@@ -37,6 +37,7 @@ import {
   CommandEmpty,
   CommandInput,
   CommandItem,
+  CommandLinkItem,
   CommandList,
   Dialog,
   DialogClose,
@@ -77,6 +78,7 @@ import {
   SelectItem,
   SelectTrigger,
   SelectValue,
+  Separator,
   Switch,
   Tabs,
   TabsContent,
@@ -130,6 +132,28 @@ describe("Button", () => {
 
     expect(button?.disabled).toBe(true);
     expect(root.querySelector("[data-slot='spinner']")).not.toBeNull();
+  });
+
+  it("prevents disabled anchor buttons from activating", () => {
+    let clicked = false;
+    const root = renderUi(() => (
+      <Button as="a" disabled href="/run" onClick={() => (clicked = true)}>
+        Run
+      </Button>
+    ));
+    const link = root.querySelector("a");
+    const event = new MouseEvent("click", {
+      bubbles: true,
+      cancelable: true,
+    });
+
+    const dispatched = link!.dispatchEvent(event);
+
+    expect(link?.getAttribute("aria-disabled")).toBe("true");
+    expect(link?.getAttribute("href")).toBeNull();
+    expect(link?.tabIndex).toBe(-1);
+    expect(dispatched).toBe(false);
+    expect(clicked).toBe(false);
   });
 });
 
@@ -600,6 +624,90 @@ describe("Command", () => {
     expect(selected).toBe("start");
     expect(start?.style.display).toBe("");
     expect(bank?.style.display).toBe("none");
+  });
+
+  it("links the input to the active listbox option", () => {
+    const root = renderUi(() => (
+      <Command>
+        <CommandInput />
+        <CommandList>
+          <CommandItem value="start">Start process</CommandItem>
+          <CommandItem value="bank">Bank cleanup</CommandItem>
+        </CommandList>
+      </Command>
+    ));
+    const input = root.querySelector("input");
+    const list = root.querySelector("[data-slot='command-list']");
+    const start = root.querySelector<HTMLElement>(
+      "[data-command-value='start']",
+    );
+
+    input!.dispatchEvent(
+      new KeyboardEvent("keydown", {
+        bubbles: true,
+        cancelable: true,
+        key: "ArrowDown",
+      }),
+    );
+
+    expect(input?.getAttribute("role")).toBe("combobox");
+    expect(input?.getAttribute("aria-controls")).toBe(list?.id);
+    expect(input?.getAttribute("aria-activedescendant")).toBe(start?.id);
+    expect(start?.getAttribute("aria-selected")).toBe("true");
+  });
+
+  it("prevents disabled command links from navigating", () => {
+    let selected = "";
+    let clicked = false;
+    const root = renderUi(() => (
+      <Command>
+        <CommandInput />
+        <CommandList>
+          <CommandLinkItem
+            disabled
+            href="/docs"
+            onClick={() => (clicked = true)}
+            onSelect={(value) => (selected = value)}
+            value="docs"
+          >
+            Docs
+          </CommandLinkItem>
+        </CommandList>
+      </Command>
+    ));
+    const link = root.querySelector("a");
+    const event = new MouseEvent("click", {
+      bubbles: true,
+      cancelable: true,
+    });
+
+    const dispatched = link!.dispatchEvent(event);
+
+    expect(link?.getAttribute("aria-disabled")).toBe("true");
+    expect(link?.getAttribute("href")).toBeNull();
+    expect(dispatched).toBe(false);
+    expect(clicked).toBe(false);
+    expect(selected).toBe("");
+  });
+});
+
+describe("Separator", () => {
+  it("omits orientation ARIA when decorative", () => {
+    const root = renderUi(() => <Separator />);
+    const separator = root.querySelector("[data-slot='separator']");
+
+    expect(separator?.getAttribute("role")).toBe("none");
+    expect(separator?.getAttribute("aria-orientation")).toBeNull();
+  });
+
+  it("sets orientation ARIA for semantic separators", () => {
+    const root = renderUi(() => (
+      <Separator decorative={false} orientation="vertical" />
+    ));
+    const separator = root.querySelector("[data-slot='separator']");
+
+    expect(separator?.getAttribute("role")).toBe("separator");
+    expect(separator?.getAttribute("aria-orientation")).toBe("vertical");
   });
 });
 

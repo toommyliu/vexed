@@ -41,7 +41,9 @@ export function Button(props: ButtonProps): JSX.Element {
     "disabled",
     "href",
     "loading",
+    "onClick",
     "size",
+    "tabIndex",
     "type",
     "variant",
   ]);
@@ -74,7 +76,23 @@ export function Button(props: ButtonProps): JSX.Element {
         class={className()}
         data-loading={local.loading ? "" : undefined}
         data-slot="button"
-        href={local.href}
+        href={disabled() ? undefined : local.href}
+        onClick={(event) => {
+          if (disabled()) {
+            event.preventDefault();
+            event.stopPropagation();
+            return;
+          }
+          if (typeof local.onClick === "function") {
+            (
+              local.onClick as unknown as JSX.EventHandler<
+                HTMLAnchorElement,
+                MouseEvent
+              >
+            )(event);
+          }
+        }}
+        tabIndex={disabled() ? -1 : local.tabIndex}
       >
         {children()}
       </a>
@@ -88,6 +106,14 @@ export function Button(props: ButtonProps): JSX.Element {
       data-loading={local.loading ? "" : undefined}
       data-slot="button"
       disabled={disabled()}
+      onClick={(event) => {
+        if (typeof local.onClick === "function") {
+          (local.onClick as JSX.EventHandler<HTMLButtonElement, MouseEvent>)(
+            event,
+          );
+        }
+      }}
+      tabIndex={local.tabIndex}
       type={local.type ?? "button"}
     >
       {children()}
