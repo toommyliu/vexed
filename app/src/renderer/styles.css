@@ -2,9 +2,13 @@
 
 html,
 body {
-  user-select: none;
+  background: rgb(var(--background));
   font-family: var(--font-sans);
   font-feature-settings: "cv01", "cv02", "cv03", "cv04", "ss01";
+  height: 100%;
+  margin: 0;
+  min-height: 100%;
+  user-select: none;
   -webkit-font-smoothing: antialiased;
 }
 
@@ -23,5 +27,15 @@ body {
 }
 
 #root {
-  min-height: 100vh;
+  background: rgb(var(--background));
+  display: flex;
+  height: 100dvh;
+  min-height: 0;
+  min-width: 0;
+  overflow: hidden;
+  width: 100dvw;
+}
+
+#root > .app-shell {
+  flex: 1 1 auto;
 }

@@ -51,10 +51,16 @@ type DevEvent =
     }
   | {
       readonly _tag: "electron-exit";
+      readonly pid: number;
       readonly exitCode: number | null;
       readonly managed: boolean;
       readonly cause?: unknown;
     };
+
+type ActiveElectron = {
+  readonly child: ChildProcessHandle;
+  readonly managedExit: Ref.Ref<boolean>;
+};
 
 class DevRunnerError extends Data.TaggedError("DevRunnerError")<{
   readonly message: string;
@@ -168,6 +174,18 @@ const toDevBuildTarget = (label: unknown): DevBuildTarget => {
   }
 };
 
+const toDevBuildTargets = (payload: {
+  readonly label?: unknown;
+  readonly labels?: unknown;
+}): ReadonlyArray<DevBuildTarget> => {
+  const labels =
+    Array.isArray(payload.labels) && payload.labels.length > 0
+      ? payload.labels
+      : [payload.label];
+
+  return labels.map(toDevBuildTarget);
+};
+
 const readDevBuildTargets = (
   offset: number,
 ): {
@@ -188,12 +206,15 @@ const readDevBuildTargets = (
       targets: unreadContent
         .split("\n")
         .filter((line) => line.trim() !== "")
-        .map((line) => {
+        .flatMap((line): ReadonlyArray<DevBuildTarget> => {
           try {
-            const payload = JSON.parse(line) as { label?: unknown };
-            return toDevBuildTarget(payload.label);
+            const payload = JSON.parse(line) as {
+              label?: unknown;
+              labels?: unknown;
+            };
+            return toDevBuildTargets(payload);
           } catch {
-            return "unknown";
+            return ["unknown"];
           }
         }),
     };
@@ -209,6 +230,10 @@ const installNotifyWatcher = (events: Queue.Queue<DevEvent>) =>
     let notifyOffset = 0;
 
     const queueRebuild = (targets: ReadonlyArray<DevBuildTarget>) => {
+      if (targets.length === 0) {
+        return;
+      }
+
       for (const target of targets) {
         pendingTargets.add(target);
       }
@@ -289,16 +314,17 @@ const watchCompileExit = (
 
 const watchElectronExit = (
   events: Queue.Queue<DevEvent>,
-  restartingElectron: Ref.Ref<boolean>,
   electron: ChildProcessHandle,
+  managedExit: Ref.Ref<boolean>,
 ) =>
   electron.exitCode.pipe(
     Effect.matchEffect({
       onFailure: (cause) =>
         Effect.gen(function* () {
-          const managed = yield* Ref.get(restartingElectron);
+          const managed = yield* Ref.get(managedExit);
           yield* Queue.offer(events, {
             _tag: "electron-exit",
+            pid: electron.pid,
             exitCode: null,
             managed,
             cause,
@@ -306,9 +332,10 @@ const watchElectronExit = (
         }),
       onSuccess: (exitCode) =>
         Effect.gen(function* () {
-          const managed = yield* Ref.get(restartingElectron);
+          const managed = yield* Ref.get(managedExit);
           yield* Queue.offer(events, {
             _tag: "electron-exit",
+            pid: electron.pid,
             exitCode: toExitCodeNumber(exitCode),
             managed,
           });
@@ -326,8 +353,7 @@ const runDevLoop = () =>
     yield* runRequiredCommand("initial compile", ["compile"], APP_DIR, baseEnv);
 
     const events = yield* Queue.make<DevEvent>();
-    const restartingElectron = yield* Ref.make(false);
-    const activeElectron = yield* Ref.make<ChildProcessHandle | null>(null);
+    const activeElectron = yield* Ref.make<ActiveElectron | null>(null);
 
     yield* installNotifyWatcher(events);
 
@@ -338,20 +364,26 @@ const runDevLoop = () =>
     const startElectron = Effect.gen(function* () {
       yield* Console.log("[dev-runner] starting electron");
       const electron = yield* spawnPnpm(["electron"], APP_DIR, electronEnv);
-      yield* Ref.set(activeElectron, electron);
+      const managedExit = yield* Ref.make(false);
+      yield* Ref.set(activeElectron, { child: electron, managedExit });
       yield* Effect.forkScoped(
-        watchElectronExit(events, restartingElectron, electron),
+        watchElectronExit(events, electron, managedExit),
       );
     });
 
     const stopActiveElectron = Effect.gen(function* () {
-      const electron = yield* Ref.get(activeElectron);
-      if (!electron) {
+      const active = yield* Ref.get(activeElectron);
+      if (!active) {
         return;
       }
 
-      yield* stopChild("electron", electron);
-      yield* Ref.set(activeElectron, null);
+      yield* Ref.set(active.managedExit, true);
+      yield* stopChild("electron", active.child);
+
+      const current = yield* Ref.get(activeElectron);
+      if (current?.child.pid === active.child.pid) {
+        yield* Ref.set(activeElectron, null);
+      }
     });
 
     yield* startElectron;
@@ -372,10 +404,7 @@ const runDevLoop = () =>
           yield* Console.log(
             "[dev-runner] rebuild detected; restarting electron",
           );
-          yield* Ref.set(restartingElectron, true);
-          yield* stopActiveElectron.pipe(
-            Effect.ensuring(Ref.set(restartingElectron, false)),
-          );
+          yield* stopActiveElectron;
           yield* startElectron;
           break;
         }
@@ -396,6 +425,12 @@ const runDevLoop = () =>
             break;
           }
 
+          const active = yield* Ref.get(activeElectron);
+          if (active?.child.pid !== event.pid) {
+            break;
+          }
+
+          yield* Ref.set(activeElectron, null);
           yield* stopChild("compile watcher", compileWatch);
 
           if (event.exitCode === 0) {

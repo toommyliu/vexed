@@ -1,4 +1,24 @@
 import type { WindowId } from "./windows";
+import type {
+  AppSettings,
+  AppearancePatch,
+  PreferencesPatch,
+} from "./settings";
+
+export type {
+  AppSettings,
+  Appearance,
+  AppearancePatch,
+  AppLaunchMode,
+  Preferences,
+  PreferencesPatch,
+  ThemeMode,
+  ThemeProfile,
+  ThemeProfilePatch,
+  ThemeRgb,
+  ThemeTokenName,
+  ThemeVariant,
+} from "./settings";
 
 export const ScriptingIpcChannels = {
   execute: "scripting:execute",
@@ -9,6 +29,14 @@ export const ScriptingIpcChannels = {
 
 export const WindowIpcChannels = {
   open: "windows:open",
+} as const;
+
+export const SettingsIpcChannels = {
+  get: "settings:get",
+  updatePreferences: "settings:update-preferences",
+  updateAppearance: "settings:update-appearance",
+  resetAppearance: "settings:reset-appearance",
+  changed: "settings:changed",
 } as const;
 
 export interface ScriptExecutePayload {
@@ -56,7 +84,36 @@ export interface WindowsBridge {
   open(id: WindowId): Promise<void>;
 }
 
+export interface SettingsInvokeChannels {
+  readonly [SettingsIpcChannels.get]: IpcInvokeDefinition<[], AppSettings>;
+  readonly [SettingsIpcChannels.updatePreferences]: IpcInvokeDefinition<
+    [patch: PreferencesPatch],
+    AppSettings
+  >;
+  readonly [SettingsIpcChannels.updateAppearance]: IpcInvokeDefinition<
+    [patch: AppearancePatch],
+    AppSettings
+  >;
+  readonly [SettingsIpcChannels.resetAppearance]: IpcInvokeDefinition<
+    [],
+    AppSettings
+  >;
+}
+
+export interface SettingsRendererEventChannels {
+  readonly [SettingsIpcChannels.changed]: [settings: AppSettings];
+}
+
+export interface SettingsBridge {
+  get(): Promise<AppSettings>;
+  updatePreferences(patch: PreferencesPatch): Promise<AppSettings>;
+  updateAppearance(patch: AppearancePatch): Promise<AppSettings>;
+  resetAppearance(): Promise<AppSettings>;
+  onChanged(listener: (settings: AppSettings) => void): () => void;
+}
+
 export interface AppBridge {
   readonly scripting: ScriptingBridge;
+  readonly settings: SettingsBridge;
   readonly windows: WindowsBridge;
 }

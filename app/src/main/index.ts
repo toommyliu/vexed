@@ -18,6 +18,11 @@ import { WindowIds } from "../shared/windows";
 import { createApplicationMenu } from "./menu";
 import * as Appearance from "./settings/Appearance";
 import * as Preferences from "./settings/Preferences";
+import { registerSettingsIpcHandlers } from "./settings-ipc";
+import {
+  installNativeThemeChangeBroadcast,
+  syncNativeTheme,
+} from "./settings-service";
 import { registerWindowIpcHandlers } from "./window-ipc";
 import {
   getRendererGameWindowPath,
@@ -360,8 +365,9 @@ const openStartupWindow = (launchMode: Preferences.AppLaunchMode): void => {
 
 const loadMainSettings = () => {
   const preferences = Preferences.ensure();
-  Appearance.ensure();
-  return { preferences };
+  const appearance = Appearance.ensure();
+  syncNativeTheme(appearance);
+  return { appearance, preferences };
 };
 
 app.whenReady().then(() => {
@@ -380,7 +386,9 @@ app.whenReady().then(() => {
   ): Promise<A> => Effect.runPromise(effect.pipe(Effect.provide(windowLayer)));
 
   registerScriptingIpcHandlers();
+  registerSettingsIpcHandlers();
   registerWindowIpcHandlers(runConfiguredWindowEffect);
+  installNativeThemeChangeBroadcast();
   installGameRequestHeaders();
   installDevRendererReloadWatcher();
   installDevDockIcon();

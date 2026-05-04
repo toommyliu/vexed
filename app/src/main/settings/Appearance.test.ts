@@ -7,42 +7,62 @@ describe("appearance settings", () => {
     expect(
       Appearance.normalize({
         themeMode: "system",
-        tokenOverrides: {},
+        themes: {},
       }),
     ).toEqual({
       themeMode: "system",
-      tokenOverrides: {
-        light: {},
-        dark: {},
+      themes: {
+        light: Appearance.DEFAULT.themes.light,
+        dark: Appearance.DEFAULT.themes.dark,
       },
     });
   });
 
-  it("normalizes light and dark token overrides", () => {
+  it("normalizes light and dark theme profiles", () => {
     expect(
       Appearance.normalize({
         themeMode: "dark",
-        tokenOverrides: {
+        themes: {
           light: {
-            primary: [13, 148, 136],
-            unknown: [1, 2, 3],
+            tokens: {
+              primary: [13, 148, 136],
+              unknown: [1, 2, 3],
+            },
+            sansFont: "  Inter  ",
+            monoFont: "",
+            rounding: -1,
           },
           dark: {
-            primary: [96, 165, 250],
-            ring: [96, 165, 250],
-            border: [256, 0, 0],
+            tokens: {
+              primary: [96, 165, 250],
+              ring: [96, 165, 250],
+              border: [256, 0, 0],
+            },
+            sansFont: "System",
+            monoFont: "Mono",
+            rounding: 3,
           },
         },
       }),
     ).toEqual({
       themeMode: "dark",
-      tokenOverrides: {
+      themes: {
         light: {
-          primary: [13, 148, 136],
+          tokens: {
+            primary: [13, 148, 136],
+          },
+          sansFont: "Inter",
+          monoFont: Appearance.DEFAULT.themes.light.monoFont,
+          rounding: 0,
         },
         dark: {
-          primary: [96, 165, 250],
-          ring: [96, 165, 250],
+          tokens: {
+            primary: [96, 165, 250],
+            ring: [96, 165, 250],
+          },
+          sansFont: "System",
+          monoFont: "Mono",
+          rounding: 2,
         },
       },
     });
@@ -54,14 +74,22 @@ describe("appearance settings", () => {
     expect(
       Appearance.normalize({
         themeMode: "custom",
-        tokenOverrides: {
+        themes: {
           light: "bad",
           dark: {
-            primary: [1, 2],
+            tokens: {
+              primary: [1, 2],
+            },
           },
         },
       }),
-    ).toEqual(Appearance.DEFAULT);
+    ).toEqual({
+      themeMode: Appearance.DEFAULT.themeMode,
+      themes: {
+        light: Appearance.DEFAULT.themes.light,
+        dark: Appearance.DEFAULT.themes.dark,
+      },
+    });
   });
 
   it("resolves appearance under VEXED_HOME userdata", () => {

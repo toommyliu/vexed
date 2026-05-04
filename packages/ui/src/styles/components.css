@@ -3,6 +3,13 @@
 }
 
 html,
+body {
+  height: 100%;
+  margin: 0;
+  min-height: 100%;
+}
+
+html,
 body,
 * {
   scrollbar-color: rgb(var(--scrollbar-thumb)) rgb(var(--scrollbar-track));
@@ -968,25 +975,24 @@ a.badge--destructive:hover {
 /* App Shell */
 
 .app-shell {
-  background: rgb(var(--muted));
+  background: rgb(var(--background));
   color: rgb(var(--foreground));
   display: flex;
   font-family: var(--font-sans);
-  min-height: 100vh;
+  flex: 1 1 auto;
+  height: 100%;
+  min-height: 0;
   min-width: 0;
+  overflow: hidden;
+  width: 100%;
 }
 
 .app-shell--vertical {
   flex-direction: column;
-  height: 100vh;
-  width: 100%;
 }
 
 .app-shell--horizontal {
   flex-direction: row;
-  height: 100vh;
-  overflow: hidden;
-  width: 100vw;
 }
 
 .app-shell__container {
@@ -1024,7 +1030,7 @@ a.badge--destructive:hover {
 
 .app-shell__header[data-orientation="horizontal"] {
   border-right: 1px solid rgb(var(--border));
-  height: 100vh;
+  height: 100%;
   left: 0;
   overflow: hidden;
   padding: 0.75rem;
@@ -1100,6 +1106,7 @@ a.badge--destructive:hover {
   background: rgb(var(--background));
   flex: 1 1 auto;
   min-width: 0;
+  min-height: 0;
   padding: 1rem;
 }
 
@@ -1122,6 +1129,8 @@ a.badge--destructive:hover {
 @media (max-width: 760px) {
   .app-shell--horizontal {
     flex-direction: column;
+    height: auto;
+    min-height: 100dvh;
     overflow: auto;
     width: 100%;
   }

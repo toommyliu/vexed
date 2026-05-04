@@ -1,16 +1,13 @@
 import * as Files from "./Files";
+import {
+  DEFAULT_PREFERENCES,
+  type AppLaunchMode,
+  type Preferences,
+} from "../../shared/settings";
 
-export type AppLaunchMode = "game" | "account-manager";
+export type { AppLaunchMode, Preferences };
 
-export interface Preferences {
-  readonly checkForUpdates: boolean;
-  readonly launchMode: AppLaunchMode;
-}
-
-export const DEFAULT: Preferences = {
-  checkForUpdates: true,
-  launchMode: "game",
-};
+export const DEFAULT: Preferences = DEFAULT_PREFERENCES;
 
 export const isLaunchMode = (value: unknown): value is AppLaunchMode =>
   value === "game" || value === "account-manager";

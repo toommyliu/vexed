@@ -1,56 +1,26 @@
 import * as Files from "./Files";
+import {
+  DEFAULT_APPEARANCE,
+  DEFAULT_THEME_PROFILE,
+  THEME_TOKEN_NAMES,
+  type Appearance,
+  type ThemeMode,
+  type ThemeProfile,
+  type ThemeRgb,
+  type ThemeTokenName,
+} from "../../shared/settings";
 
-export type ThemeMode = "light" | "dark" | "system";
-export type ThemeVariant = "light" | "dark";
-export type ThemeRgb = readonly [number, number, number];
+export {
+  THEME_TOKEN_NAMES,
+  type Appearance,
+  type ThemeMode,
+  type ThemeProfile,
+  type ThemeRgb,
+  type ThemeTokenName,
+  type ThemeVariant,
+} from "../../shared/settings";
 
-export const THEME_TOKEN_NAMES = [
-  "background",
-  "foreground",
-  "card",
-  "cardForeground",
-  "popover",
-  "popoverForeground",
-  "primary",
-  "primaryForeground",
-  "secondary",
-  "secondaryForeground",
-  "muted",
-  "mutedForeground",
-  "accent",
-  "accentForeground",
-  "destructive",
-  "destructiveForeground",
-  "success",
-  "successForeground",
-  "warning",
-  "warningForeground",
-  "info",
-  "infoForeground",
-  "border",
-  "input",
-  "ring",
-] as const;
-
-export type ThemeTokenName = (typeof THEME_TOKEN_NAMES)[number];
-
-export interface ThemeTokenOverrides {
-  readonly light: Partial<Record<ThemeTokenName, ThemeRgb>>;
-  readonly dark: Partial<Record<ThemeTokenName, ThemeRgb>>;
-}
-
-export interface Appearance {
-  readonly themeMode: ThemeMode;
-  readonly tokenOverrides: ThemeTokenOverrides;
-}
-
-export const DEFAULT: Appearance = {
-  themeMode: "dark",
-  tokenOverrides: {
-    light: {},
-    dark: {},
-  },
-};
+export const DEFAULT: Appearance = DEFAULT_APPEARANCE;
 
 const themeTokenNames = new Set<string>(THEME_TOKEN_NAMES);
 
@@ -102,25 +72,59 @@ const normalizeTokens = (
   return tokens;
 };
 
+const normalizeFont = (value: unknown, fallback: string): string => {
+  if (typeof value !== "string") {
+    return fallback;
+  }
+
+  const font = value.trim();
+  return font.length > 0 && font.length <= 256 ? font : fallback;
+};
+
+const normalizeRounding = (value: unknown, fallback: number): number => {
+  if (typeof value !== "number" || !Number.isFinite(value)) {
+    return fallback;
+  }
+
+  return Math.min(2, Math.max(0, value));
+};
+
+const normalizeThemeProfile = (value: unknown): ThemeProfile => {
+  if (typeof value !== "object" || value === null) {
+    return DEFAULT_THEME_PROFILE;
+  }
+
+  const record = value as Record<string, unknown>;
+
+  return {
+    tokens: normalizeTokens(record["tokens"]),
+    sansFont: normalizeFont(record["sansFont"], DEFAULT_THEME_PROFILE.sansFont),
+    monoFont: normalizeFont(record["monoFont"], DEFAULT_THEME_PROFILE.monoFont),
+    rounding: normalizeRounding(
+      record["rounding"],
+      DEFAULT_THEME_PROFILE.rounding,
+    ),
+  };
+};
+
 export const normalize = (value: unknown): Appearance => {
   if (typeof value !== "object" || value === null) {
     return DEFAULT;
   }
 
   const record = value as Record<string, unknown>;
-  const rawTokenOverrides =
-    typeof record["tokenOverrides"] === "object" &&
-    record["tokenOverrides"] !== null
-      ? (record["tokenOverrides"] as Record<string, unknown>)
+  const rawThemes =
+    typeof record["themes"] === "object" && record["themes"] !== null
+      ? (record["themes"] as Record<string, unknown>)
       : {};
 
   return {
     themeMode: isThemeMode(record["themeMode"])
       ? record["themeMode"]
       : DEFAULT.themeMode,
-    tokenOverrides: {
-      light: normalizeTokens(rawTokenOverrides["light"]),
-      dark: normalizeTokens(rawTokenOverrides["dark"]),
+    themes: {
+      light: normalizeThemeProfile(rawThemes["light"]),
+      dark: normalizeThemeProfile(rawThemes["dark"]),
     },
   };
 };
@@ -133,4 +137,5 @@ export const write = (appearance: Appearance): void => {
   Files.writeJson(path(), normalize(appearance));
 };
 
-export const ensure = (): Appearance => Files.ensureJson(path(), DEFAULT, normalize);
+export const ensure = (): Appearance =>
+  Files.ensureJson(path(), DEFAULT, normalize);
