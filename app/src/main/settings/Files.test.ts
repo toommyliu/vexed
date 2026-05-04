@@ -75,6 +75,14 @@ describe("Files", () => {
     expect(normalize(Files.readJson(path))).toEqual(defaults);
   });
 
+  it("replaces corrupt JSON with normalized defaults when ensured", async () => {
+    const path = join(testDir, "settings.json");
+    await writeFile(path, "{ nope", "utf8");
+
+    expect(Files.ensureJson(path, defaults, normalize)).toEqual(defaults);
+    expect(JSON.parse(await readFile(path, "utf8"))).toEqual(defaults);
+  });
+
   it("writes pretty JSON with a trailing newline", async () => {
     const path = join(testDir, "nested", "settings.json");
 

@@ -32,7 +32,7 @@ export const join = (
   ...parts: readonly string[]
 ): string => joinPath(home(), "userdata", ...parts);
 
-export const readJson = (path: string): unknown | undefined => {
+export const readJson = (path: string): unknown => {
   if (!existsSync(path)) {
     return undefined;
   }
@@ -66,7 +66,14 @@ export const ensureJson = <T>(
   normalize: (value: unknown) => T,
 ): T => {
   if (existsSync(path)) {
-    return normalize(readJson(path));
+    const value = readJson(path);
+    const normalized = normalize(value);
+
+    if (value === undefined) {
+      writeJson(path, normalized);
+    }
+
+    return normalized;
   }
 
   writeJson(path, defaults);
