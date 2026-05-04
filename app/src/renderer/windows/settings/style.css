@@ -26,8 +26,19 @@
   overflow-y: auto;
   overflow-x: hidden;
   padding: 4rem 2rem 6rem;
-  scroll-behavior: smooth;
   width: 100%;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .settings-main {
+    scroll-behavior: smooth;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .settings-main {
+    scroll-behavior: auto;
+  }
 }
 
 .settings-content-wrapper {

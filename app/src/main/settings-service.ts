@@ -34,46 +34,6 @@ const isThemeVariant = (value: string): value is ThemeVariant =>
 const isThemeTokenName = (value: string): value is ThemeTokenName =>
   themeTokenNames.has(value);
 
-const normalizeRgb = (value: unknown): ThemeRgb | null => {
-  if (!Array.isArray(value) || value.length !== 3) {
-    return null;
-  }
-
-  const [red, green, blue] = value;
-  if (
-    !Number.isInteger(red) ||
-    !Number.isInteger(green) ||
-    !Number.isInteger(blue) ||
-    red < 0 ||
-    red > 255 ||
-    green < 0 ||
-    green > 255 ||
-    blue < 0 ||
-    blue > 255
-  ) {
-    return null;
-  }
-
-  return [red, green, blue];
-};
-
-const normalizeFont = (value: unknown): string | null => {
-  if (typeof value !== "string") {
-    return null;
-  }
-
-  const font = value.trim();
-  return font.length > 0 && font.length <= 256 ? font : null;
-};
-
-const normalizeRounding = (value: unknown): number | null => {
-  if (typeof value !== "number" || !Number.isFinite(value)) {
-    return null;
-  }
-
-  return Math.min(2, Math.max(0, value));
-};
-
 const applyThemeProfilePatch = (
   profile: ThemeProfile,
   patch: ThemeProfilePatch,
@@ -93,8 +53,8 @@ const applyThemeProfilePatch = (
         continue;
       }
 
-      const value = normalizeRgb(rawValue);
-      if (value) {
+      const value = AppearanceSettings.normalizeRgb(rawValue);
+      if (value !== undefined) {
         tokens[name] = value;
       }
     }
@@ -102,9 +62,12 @@ const applyThemeProfilePatch = (
 
   return {
     tokens,
-    sansFont: normalizeFont(patch.sansFont) ?? profile.sansFont,
-    monoFont: normalizeFont(patch.monoFont) ?? profile.monoFont,
-    rounding: normalizeRounding(patch.rounding) ?? profile.rounding,
+    sansFont:
+      AppearanceSettings.normalizeFont(patch.sansFont) ?? profile.sansFont,
+    monoFont:
+      AppearanceSettings.normalizeFont(patch.monoFont) ?? profile.monoFont,
+    rounding:
+      AppearanceSettings.normalizeRounding(patch.rounding) ?? profile.rounding,
   };
 };
 

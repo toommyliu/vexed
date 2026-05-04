@@ -14,7 +14,12 @@ const requireRecord = (
   value: unknown,
   label: string,
 ): Record<string, unknown> => {
-  if (typeof value !== "object" || value === null) {
+  if (
+    typeof value !== "object" ||
+    value === null ||
+    Array.isArray(value) ||
+    Object.getPrototypeOf(value) !== Object.prototype
+  ) {
     throw new Error(`Invalid ${label}`);
   }
 

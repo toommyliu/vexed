@@ -24,6 +24,7 @@ import {
 import {
   DEFAULT_APPEARANCE,
   DEFAULT_PREFERENCES,
+  DEFAULT_THEME_TOKENS,
   THEME_TOKEN_NAMES,
   type AppSettings,
   type AppearancePatch,
@@ -35,68 +36,9 @@ import {
 } from "../../../shared/settings";
 import { mountWindow } from "../mount";
 
-type ThemeTokenValues = Record<ThemeTokenName, ThemeRgb>;
-
 const defaultSettings: AppSettings = {
   preferences: DEFAULT_PREFERENCES,
   appearance: DEFAULT_APPEARANCE,
-};
-
-const defaultThemeTokens: Record<ThemeVariant, ThemeTokenValues> = {
-  light: {
-    background: [255, 255, 255],
-    foreground: [38, 38, 38],
-    card: [255, 255, 255],
-    cardForeground: [38, 38, 38],
-    popover: [255, 255, 255],
-    popoverForeground: [38, 38, 38],
-    primary: [38, 38, 38],
-    primaryForeground: [250, 250, 250],
-    secondary: [245, 245, 245],
-    secondaryForeground: [38, 38, 38],
-    muted: [245, 245, 245],
-    mutedForeground: [92, 92, 92],
-    accent: [245, 245, 245],
-    accentForeground: [38, 38, 38],
-    destructive: [239, 68, 68],
-    destructiveForeground: [185, 28, 28],
-    success: [16, 185, 129],
-    successForeground: [4, 120, 87],
-    warning: [245, 158, 11],
-    warningForeground: [180, 83, 9],
-    info: [59, 130, 246],
-    infoForeground: [29, 78, 216],
-    border: [235, 235, 235],
-    input: [229, 229, 229],
-    ring: [163, 163, 163],
-  },
-  dark: {
-    background: [14, 14, 15],
-    foreground: [245, 245, 245],
-    card: [18, 18, 20],
-    cardForeground: [245, 245, 245],
-    popover: [22, 22, 24],
-    popoverForeground: [245, 245, 245],
-    primary: [245, 245, 245],
-    primaryForeground: [38, 38, 38],
-    secondary: [32, 32, 34],
-    secondaryForeground: [245, 245, 245],
-    muted: [32, 32, 34],
-    mutedForeground: [166, 166, 166],
-    accent: [32, 32, 34],
-    accentForeground: [245, 245, 245],
-    destructive: [248, 113, 113],
-    destructiveForeground: [248, 113, 113],
-    success: [52, 211, 153],
-    successForeground: [52, 211, 153],
-    warning: [251, 191, 36],
-    warningForeground: [251, 191, 36],
-    info: [96, 165, 250],
-    infoForeground: [96, 165, 250],
-    border: [38, 38, 40],
-    input: [46, 46, 49],
-    ring: [115, 115, 115],
-  },
 };
 
 const themeModes: ReadonlyArray<{
@@ -421,7 +363,7 @@ function AppearanceSettings(props: {
             <For each={THEME_TOKEN_NAMES}>
               {(name) => (
                 <ThemeTokenRow
-                  defaultValue={defaultThemeTokens[variant][name]}
+                  defaultValue={DEFAULT_THEME_TOKENS[variant][name]}
                   name={name}
                   onChange={(value) =>
                     updateThemeProfile(variant, {

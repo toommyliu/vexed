@@ -412,12 +412,6 @@ app.on("window-all-closed", () => {
 });
 
 app.on("activate", () => {
-  void runConfiguredWindowEffect(
-    Effect.gen(function* () {
-      const windows = yield* WindowService;
-      yield* windows.revealGameWindow;
-    }),
-  ).catch((error) => {
-    console.error("Failed to reveal game window:", error);
-  });
+  const preferences = Preferences.read();
+  openStartupWindow(preferences.launchMode);
 });

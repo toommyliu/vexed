@@ -49,6 +49,16 @@ describe("settings IPC and appearance wiring", () => {
     );
   });
 
+  it("rejects malformed settings IPC patch payloads", () => {
+    const ipcSource = readSource("settings-ipc.ts");
+
+    expect(ipcSource).toContain("Array.isArray(value)");
+    expect(ipcSource).toContain(
+      "Object.getPrototypeOf(value) !== Object.prototype",
+    );
+    expect(ipcSource).toContain("throw new Error(`Invalid ${label}`)");
+  });
+
   it("broadcasts settings changes and syncs Electron nativeTheme", () => {
     const indexSource = readSource("index.ts");
     const serviceSource = readSource("settings-service.ts");

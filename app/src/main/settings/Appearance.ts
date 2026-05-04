@@ -27,7 +27,7 @@ const themeTokenNames = new Set<string>(THEME_TOKEN_NAMES);
 const isThemeMode = (value: unknown): value is ThemeMode =>
   value === "light" || value === "dark" || value === "system";
 
-const normalizeRgb = (value: unknown): ThemeRgb | undefined => {
+export const normalizeRgb = (value: unknown): ThemeRgb | undefined => {
   if (!Array.isArray(value) || value.length !== 3) {
     return undefined;
   }
@@ -72,18 +72,18 @@ const normalizeTokens = (
   return tokens;
 };
 
-const normalizeFont = (value: unknown, fallback: string): string => {
+export const normalizeFont = (value: unknown): string | undefined => {
   if (typeof value !== "string") {
-    return fallback;
+    return undefined;
   }
 
   const font = value.trim();
-  return font.length > 0 && font.length <= 256 ? font : fallback;
+  return font.length > 0 && font.length <= 256 ? font : undefined;
 };
 
-const normalizeRounding = (value: unknown, fallback: number): number => {
+export const normalizeRounding = (value: unknown): number | undefined => {
   if (typeof value !== "number" || !Number.isFinite(value)) {
-    return fallback;
+    return undefined;
   }
 
   return Math.min(2, Math.max(0, value));
@@ -98,12 +98,12 @@ const normalizeThemeProfile = (value: unknown): ThemeProfile => {
 
   return {
     tokens: normalizeTokens(record["tokens"]),
-    sansFont: normalizeFont(record["sansFont"], DEFAULT_THEME_PROFILE.sansFont),
-    monoFont: normalizeFont(record["monoFont"], DEFAULT_THEME_PROFILE.monoFont),
-    rounding: normalizeRounding(
-      record["rounding"],
-      DEFAULT_THEME_PROFILE.rounding,
-    ),
+    sansFont:
+      normalizeFont(record["sansFont"]) ?? DEFAULT_THEME_PROFILE.sansFont,
+    monoFont:
+      normalizeFont(record["monoFont"]) ?? DEFAULT_THEME_PROFILE.monoFont,
+    rounding:
+      normalizeRounding(record["rounding"]) ?? DEFAULT_THEME_PROFILE.rounding,
   };
 };
 

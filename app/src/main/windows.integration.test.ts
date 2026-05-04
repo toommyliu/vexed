@@ -55,6 +55,23 @@ describe("app window wiring", () => {
     );
   });
 
+  it("tears down shared window settings sync during renderer HMR disposal", () => {
+    const mountSource = readSource("../renderer/windows/mount.tsx");
+    const themeSource = readSource("../renderer/theme.ts");
+    const preloadSource = readSource("preload.ts");
+
+    expect(mountSource).toContain("import { installSettingsSync }");
+    expect(mountSource).toContain("const teardown = installSettingsSync()");
+    expect(mountSource).toContain("import.meta.hot");
+    expect(mountSource).toContain("import.meta.hot.dispose");
+    expect(mountSource).toContain('typeof teardown === "function"');
+    expect(mountSource).toContain("teardown()");
+    expect(themeSource).toContain("globalThis.matchMedia");
+    expect(preloadSource).toContain(
+      "ipcRenderer.removeListener(SettingsIpcChannels.changed",
+    );
+  });
+
   it("loads child windows with their window id in the renderer URL", () => {
     const source = readSource("windows.ts");
 
