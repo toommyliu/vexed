@@ -1,14 +1,10 @@
 /* @refresh reload */
 import "./style.css";
 import {
-  AppShell,
-  AppShellBody,
   Button,
-  Card,
   Input,
   Switch,
   Tabs,
-  TabsContent,
   TabsList,
   TabsTrigger,
 } from "@vexed/ui";
@@ -145,36 +141,23 @@ const tokenLabel = (name: ThemeTokenName): string =>
 const isSettingsPage = (value: string | null): value is SettingsPage =>
   value === "general" || value === "appearance";
 
-function SettingsSidebar(): JSX.Element {
-  return (
-    <aside class="settings-sidebar">
-      <div class="settings-sidebar__title">Settings</div>
-      <TabsList class="settings-sidebar__nav" variant="underline">
-        <TabsTrigger class="settings-sidebar__item" value="general">
-          General
-        </TabsTrigger>
-        <TabsTrigger class="settings-sidebar__item" value="appearance">
-          Appearance
-        </TabsTrigger>
-      </TabsList>
-    </aside>
-  );
-}
+
 
 function SettingsSection(props: {
   readonly children: JSX.Element;
   readonly description?: string;
+  readonly id: string;
   readonly title: string;
 }): JSX.Element {
   return (
-    <section class="settings-section">
+    <section class="settings-section" id={props.id}>
       <header class="settings-section__header">
         <h2>{props.title}</h2>
         <Show when={props.description}>
           {(description) => <p>{description()}</p>}
         </Show>
       </header>
-      <Card class="settings-section__panel">{props.children}</Card>
+      <div class="settings-section__content">{props.children}</div>
     </section>
   );
 }
@@ -209,28 +192,19 @@ function SegmentedControl<T extends string>(props: {
   readonly onChange: (value: T) => void;
 }): JSX.Element {
   return (
-    <div
+    <Tabs
       aria-label={props["aria-label"]}
-      class="segmented-control"
-      role="radiogroup"
+      onValueChange={(details) => props.onChange(details.value as T)}
+      value={props.value}
     >
-      <For each={props.options}>
-        {(option) => (
-          <button
-            aria-checked={props.value === option.value}
-            class="segmented-control__item"
-            classList={{
-              "segmented-control__item--active": props.value === option.value,
-            }}
-            onClick={() => props.onChange(option.value)}
-            role="radio"
-            type="button"
-          >
-            {option.label}
-          </button>
-        )}
-      </For>
-    </div>
+      <TabsList>
+        <For each={props.options}>
+          {(option) => (
+            <TabsTrigger value={option.value}>{option.label}</TabsTrigger>
+          )}
+        </For>
+      </TabsList>
+    </Tabs>
   );
 }
 
@@ -297,7 +271,7 @@ function GeneralSettings(props: {
   readonly onPreferencesPatch: (patch: PreferencesPatch) => void;
 }): JSX.Element {
   return (
-    <SettingsSection title="General">
+    <SettingsSection id="general" title="General">
       <SettingsRow
         action={
           <Switch
@@ -309,7 +283,7 @@ function GeneralSettings(props: {
             }
           />
         }
-        description="Check for app updates when Vexed starts."
+        description="Check for updates when the app starts."
         title="Check for updates"
       />
       <SettingsRow
@@ -364,6 +338,7 @@ function AppearanceSettings(props: {
             action={
               <Input
                 class="settings-text-input"
+                fullWidth
                 onChange={(event) =>
                   updateThemeProfile(variant, {
                     sansFont: event.currentTarget.value,
@@ -379,6 +354,7 @@ function AppearanceSettings(props: {
             action={
               <Input
                 class="settings-text-input"
+                fullWidth
                 onChange={(event) =>
                   updateThemeProfile(variant, {
                     monoFont: event.currentTarget.value,
@@ -441,7 +417,7 @@ function AppearanceSettings(props: {
   };
 
   return (
-    <SettingsSection title="Appearance">
+    <SettingsSection id="appearance" title="Appearance">
       <SettingsRow
         action={
           <SegmentedControl
@@ -473,7 +449,6 @@ function AppearanceSettings(props: {
 }
 
 function SettingsApp(): JSX.Element {
-  const [page, setPage] = createSignal<SettingsPage>("general");
   const [settings, setSettings] = createSignal<AppSettings>(defaultSettings);
   const [error, setError] = createSignal<string | null>(null);
 
@@ -507,27 +482,13 @@ function SettingsApp(): JSX.Element {
   });
 
   return (
-    <AppShell class="settings-app" orientation="horizontal">
-      <Tabs
-        class="settings-tabs"
-        onValueChange={(details) => {
-          if (isSettingsPage(details.value)) {
-            setPage(details.value);
-          }
-        }}
-        orientation="vertical"
-        value={page()}
-      >
-        <SettingsSidebar />
-        <AppShellBody
-          class="settings-main"
-          maxWidth={false}
-          orientation="horizontal"
-        >
-          <Show when={error()}>
-            {(message) => <div class="settings-error">{message()}</div>}
-          </Show>
-          <TabsContent class="settings-tab-content" value="general">
+    <div class="settings-app">
+      <div class="settings-layout">
+        <main class="settings-main">
+          <div class="settings-content-wrapper">
+            <Show when={error()}>
+              {(message) => <div class="settings-error">{message()}</div>}
+            </Show>
             <GeneralSettings
               onPreferencesPatch={(patch) =>
                 void runSettingsUpdate(
@@ -536,8 +497,6 @@ function SettingsApp(): JSX.Element {
               }
               settings={settings()}
             />
-          </TabsContent>
-          <TabsContent class="settings-tab-content" value="appearance">
             <AppearanceSettings
               onAppearancePatch={(patch) =>
                 void runSettingsUpdate(
@@ -547,12 +506,12 @@ function SettingsApp(): JSX.Element {
               onResetAppearance={() =>
                 void runSettingsUpdate(window.ipc.settings.resetAppearance())
               }
-            settings={settings()}
-          />
-        </TabsContent>
-        </AppShellBody>
-      </Tabs>
-    </AppShell>
+              settings={settings()}
+            />
+          </div>
+        </main>
+      </div>
+    </div>
   );
 }
 

@@ -1,7 +1,20 @@
-import { Show, splitProps, type JSX } from "solid-js";
+import {
+  createContext,
+  Show,
+  splitProps,
+  useContext,
+  type Accessor,
+  type JSX,
+} from "solid-js";
 import { cn } from "../lib/cn";
 
 export type AppShellOrientation = "vertical" | "horizontal";
+
+interface AppShellContextValue {
+  readonly orientation: Accessor<AppShellOrientation>;
+}
+
+const AppShellContext = createContext<AppShellContextValue>();
 
 export interface AppShellProps extends JSX.HTMLAttributes<HTMLDivElement> {
   readonly class?: string;
@@ -12,7 +25,6 @@ export interface AppShellHeaderProps
   extends JSX.HTMLAttributes<HTMLElement> {
   readonly class?: string;
   readonly maxWidth?: string | false;
-  readonly orientation?: AppShellOrientation;
   readonly wrapChildren?: boolean;
 }
 
@@ -35,15 +47,19 @@ export interface AppShellBodyProps
   extends JSX.HTMLAttributes<HTMLElement> {
   readonly class?: string;
   readonly maxWidth?: string | false;
-  readonly orientation?: AppShellOrientation;
   readonly scroll?: boolean;
 }
 
 const defaultContainerClass = "app-shell__container--default";
 
+function useAppShellContext(): AppShellContextValue {
+  return useContext(AppShellContext) ?? { orientation: () => "vertical" };
+}
+
 export function AppShell(props: AppShellProps): JSX.Element {
   const [local, rest] = splitProps(props, ["children", "class", "orientation"]);
   const orientation = () => local.orientation ?? "vertical";
+  const context: AppShellContextValue = { orientation };
 
   return (
     <div
@@ -52,20 +68,21 @@ export function AppShell(props: AppShellProps): JSX.Element {
       data-orientation={orientation()}
       data-slot="app-shell"
     >
-      {local.children}
+      <AppShellContext.Provider value={context}>
+        {local.children}
+      </AppShellContext.Provider>
     </div>
   );
 }
 
 export function AppShellHeader(props: AppShellHeaderProps): JSX.Element {
+  const context = useAppShellContext();
   const [local, rest] = splitProps(props, [
     "children",
     "class",
     "maxWidth",
-    "orientation",
     "wrapChildren",
   ]);
-  const orientation = () => local.orientation ?? "vertical";
   const maxWidth = () => local.maxWidth ?? defaultContainerClass;
 
   const content = () => {
@@ -80,7 +97,7 @@ export function AppShellHeader(props: AppShellHeaderProps): JSX.Element {
     <header
       {...rest}
       class={cn("app-shell__header", local.class)}
-      data-orientation={orientation()}
+      data-orientation={context.orientation()}
       data-slot="app-shell-header"
     >
       <Show
@@ -134,14 +151,13 @@ export function AppShellTitle(props: AppShellTitleProps): JSX.Element {
 }
 
 export function AppShellBody(props: AppShellBodyProps): JSX.Element {
+  const context = useAppShellContext();
   const [local, rest] = splitProps(props, [
     "children",
     "class",
     "maxWidth",
-    "orientation",
     "scroll",
   ]);
-  const orientation = () => local.orientation ?? "vertical";
   const maxWidth = () => local.maxWidth ?? defaultContainerClass;
   const scroll = () => local.scroll ?? true;
 
@@ -170,7 +186,7 @@ export function AppShellBody(props: AppShellBodyProps): JSX.Element {
         scroll() ? "app-shell__body--scroll" : "app-shell__body--fixed",
         local.class,
       )}
-      data-orientation={orientation()}
+      data-orientation={context.orientation()}
       data-scroll={scroll() ? "true" : "false"}
       data-slot="app-shell-body"
     >

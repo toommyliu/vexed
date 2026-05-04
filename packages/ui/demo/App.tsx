@@ -1068,7 +1068,6 @@ function DemoApp() {
               >
                 <AppShellHeader
                   maxWidth={false}
-                  orientation="horizontal"
                   wrapChildren
                 >
                   <div class="demo-app-shell-nav">
@@ -1090,7 +1089,7 @@ function DemoApp() {
                     </div>
                   </div>
                 </AppShellHeader>
-                <AppShellBody orientation="horizontal" scroll={false}>
+                <AppShellBody scroll={false}>
                   <Card class="demo-app-shell-panel">
                     <CardHeader>
                       <CardTitle>Session</CardTitle>

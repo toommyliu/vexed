@@ -267,7 +267,7 @@ describe("Badge", () => {
 });
 
 describe("AppShell", () => {
-  it("renders slots and defaults to vertical orientation", () => {
+  it("renders slots and defaults root slots to vertical orientation", () => {
     const root = renderUi(() => (
       <AppShell>
         <AppShellHeader>
@@ -284,19 +284,19 @@ describe("AppShell", () => {
 
     expect(shell?.getAttribute("data-orientation")).toBe("vertical");
     expect(shell?.className).toContain("app-shell--vertical");
-    expect(header).not.toBeNull();
-    expect(body).not.toBeNull();
+    expect(header?.getAttribute("data-orientation")).toBe("vertical");
+    expect(body?.getAttribute("data-orientation")).toBe("vertical");
   });
 
-  it("reflects horizontal orientation", () => {
+  it("inherits horizontal orientation from the root shell", () => {
     const root = renderUi(() => (
       <AppShell orientation="horizontal">
-        <AppShellHeader orientation="horizontal">
+        <AppShellHeader>
           <AppShellHeaderLeft>
             <AppShellTitle>Navigation</AppShellTitle>
           </AppShellHeaderLeft>
         </AppShellHeader>
-        <AppShellBody orientation="horizontal">Content</AppShellBody>
+        <AppShellBody>Content</AppShellBody>
       </AppShell>
     ));
     const shell = root.querySelector("[data-slot='app-shell']");
@@ -307,6 +307,26 @@ describe("AppShell", () => {
     expect(shell?.className).toContain("app-shell--horizontal");
     expect(header?.getAttribute("data-orientation")).toBe("horizontal");
     expect(body?.getAttribute("data-orientation")).toBe("horizontal");
+  });
+
+  it("defaults standalone headers to vertical orientation", () => {
+    const root = renderUi(() => (
+      <AppShellHeader>
+        <AppShellHeaderLeft>
+          <AppShellTitle>Runtime</AppShellTitle>
+        </AppShellHeaderLeft>
+      </AppShellHeader>
+    ));
+    const header = root.querySelector("[data-slot='app-shell-header']");
+
+    expect(header?.getAttribute("data-orientation")).toBe("vertical");
+  });
+
+  it("defaults standalone bodies to vertical orientation", () => {
+    const root = renderUi(() => <AppShellBody>Content</AppShellBody>);
+    const body = root.querySelector("[data-slot='app-shell-body']");
+
+    expect(body?.getAttribute("data-orientation")).toBe("vertical");
   });
 
   it("renders header title and side content", () => {
@@ -337,7 +357,27 @@ describe("AppShell", () => {
     expect(root.querySelector("[data-slot='app-shell-title']")).not.toBeNull();
   });
 
-  it("supports fixed bodies without an inner max-width wrapper", () => {
+  it("renders custom header wrappers", () => {
+    const root = renderUi(() => (
+      <AppShellHeader wrapChildren>
+        <nav>Navigation</nav>
+      </AppShellHeader>
+    ));
+
+    expect(root.querySelector(".app-shell__header-custom")?.textContent).toBe(
+      "Navigation",
+    );
+  });
+
+  it("supports bodies without an inner max-width wrapper", () => {
+    const root = renderUi(() => (
+      <AppShellBody maxWidth={false}>Content</AppShellBody>
+    ));
+
+    expect(root.querySelector(".app-shell__container")).toBeNull();
+  });
+
+  it("supports fixed bodies", () => {
     const root = renderUi(() => (
       <AppShellBody maxWidth={false} scroll={false}>
         Content
@@ -347,7 +387,6 @@ describe("AppShell", () => {
 
     expect(body?.className).toContain("app-shell__body--fixed");
     expect(body?.getAttribute("data-scroll")).toBe("false");
-    expect(root.querySelector(".app-shell__container")).toBeNull();
   });
 });
 
