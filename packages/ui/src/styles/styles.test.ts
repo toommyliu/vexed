@@ -14,6 +14,14 @@ function readPackageFile(path: string): string {
 }
 
 describe("CSS color tokens", () => {
+  it("hides booting renderer roots until their first ready paint", () => {
+    const styles = readStyle("styles.css");
+
+    expect(styles).toContain('html[data-ready="false"] #root');
+    expect(styles).toContain("visibility: hidden;");
+    expect(styles).toContain('html[data-ready="false"] body');
+  });
+
   it("defines Chrome 87-compatible neutral primary and semantic tokens", () => {
     const tokens = readStyle("tokens.css");
 

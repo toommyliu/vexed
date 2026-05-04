@@ -507,8 +507,12 @@ function AppearanceSettings(props: {
   );
 }
 
-function SettingsApp(): JSX.Element {
-  const [settings, setSettings] = createSignal<AppSettings>(defaultSettings);
+function SettingsApp(props: {
+  readonly initialSettings: AppSettings | null;
+}): JSX.Element {
+  const [settings, setSettings] = createSignal<AppSettings>(
+    props.initialSettings ?? defaultSettings,
+  );
   const [error, setError] = createSignal<string | null>(null);
 
   const runSettingsUpdate = async (
@@ -526,15 +530,17 @@ function SettingsApp(): JSX.Element {
   };
 
   onMount(() => {
-    void window.ipc.settings
-      .get()
-      .then(setSettings)
-      .catch((cause: unknown) => {
-        console.error("Failed to load settings:", cause);
-        setError(
-          cause instanceof Error ? cause.message : "Settings unavailable",
-        );
-      });
+    if (props.initialSettings === null) {
+      void window.ipc.settings
+        .get()
+        .then(setSettings)
+        .catch((cause: unknown) => {
+          console.error("Failed to load settings:", cause);
+          setError(
+            cause instanceof Error ? cause.message : "Settings unavailable",
+          );
+        });
+    }
 
     const unsubscribe = window.ipc.settings.onChanged(setSettings);
     onCleanup(unsubscribe);
@@ -574,4 +580,6 @@ function SettingsApp(): JSX.Element {
   );
 }
 
-mountWindow(() => <SettingsApp />);
+mountWindow(({ initialSettings }) => (
+  <SettingsApp initialSettings={initialSettings} />
+));

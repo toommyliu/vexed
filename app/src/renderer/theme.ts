@@ -41,6 +41,11 @@ const tokenCssNames = new Map<ThemeTokenName, string>(
 
 let activeAppearance: Appearance | null = null;
 
+export interface RendererSettingsSync {
+  readonly ready: Promise<AppSettings | null>;
+  readonly dispose: () => void;
+}
+
 export const rgbToCssValue = (rgb: ThemeRgb): string => rgb.join(", ");
 
 const formatPx = (value: number): string => `${Number(value.toFixed(4))}px`;
@@ -130,12 +135,19 @@ export const applySettings = (settings: AppSettings): void => {
   applyAppearance(settings.appearance);
 };
 
-export const installSettingsSync = (): (() => void) => {
+export const installSettingsSync = (): RendererSettingsSync => {
   const bridge = window.ipc?.settings;
   if (!bridge) {
-    return () => {};
+    return {
+      ready: Promise.resolve(null),
+      dispose: () => {},
+    };
   }
 
+  let disposed = false;
+  let initialSettled = false;
+  let changedDuringInitialLoad = false;
+  let latestSettings: AppSettings | null = null;
   const media = globalThis.matchMedia?.("(prefers-color-scheme: dark)") ?? null;
   const mediaListener = () => {
     if (activeAppearance?.themeMode === "system") {
@@ -151,16 +163,38 @@ export const installSettingsSync = (): (() => void) => {
     }
   }
 
-  void bridge
+  const unsubscribeSettings = bridge.onChanged((settings) => {
+    latestSettings = settings;
+    if (!initialSettled) {
+      changedDuringInitialLoad = true;
+    }
+    applySettings(settings);
+  });
+
+  const ready = bridge
     .get()
-    .then(applySettings)
+    .then((settings) => {
+      latestSettings = changedDuringInitialLoad ? latestSettings : settings;
+
+      if (!changedDuringInitialLoad && !disposed) {
+        applySettings(settings);
+      }
+
+      initialSettled = true;
+      return latestSettings;
+    })
     .catch((error: unknown) => {
+      initialSettled = true;
       console.error("Failed to load settings:", error);
+      return null;
     });
 
-  const unsubscribeSettings = bridge.onChanged(applySettings);
+  const dispose = () => {
+    if (disposed) {
+      return;
+    }
 
-  return () => {
+    disposed = true;
     unsubscribeSettings();
 
     if (!media) {
@@ -173,4 +207,6 @@ export const installSettingsSync = (): (() => void) => {
       media.removeListener(mediaListener);
     }
   };
+
+  return { ready, dispose };
 };

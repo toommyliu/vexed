@@ -2,6 +2,7 @@ import "../styles.css";
 import { render } from "solid-js/web";
 import type { JSX } from "solid-js";
 import { installSettingsSync } from "../theme";
+import type { AppSettings } from "../../shared/settings";
 
 declare global {
   interface ImportMeta {
@@ -11,21 +12,57 @@ declare global {
   }
 }
 
-export function mountWindow(App: () => JSX.Element): void {
+export interface WindowMountContext {
+  readonly initialSettings: AppSettings | null;
+}
+
+const markReady = (): void => {
+  document.documentElement.dataset["ready"] = "true";
+};
+
+export function mountWindow(
+  App: (context: WindowMountContext) => JSX.Element,
+): void {
   const root = document.getElementById("root");
+  const settingsSync = installSettingsSync();
+  let disposed = false;
+  let disposeRender: (() => void) | undefined;
 
-  if (root) {
-    const teardown = installSettingsSync();
-    const disposeRender = render(() => <App />, root);
-
-    if (import.meta.hot) {
-      import.meta.hot.dispose(() => {
-        disposeRender();
-
-        if (typeof teardown === "function") {
-          teardown();
-        }
-      });
+  const cleanup = () => {
+    if (disposed) {
+      return;
     }
+
+    disposed = true;
+    disposeRender?.();
+    settingsSync.dispose();
+    window.removeEventListener("beforeunload", cleanup);
+  };
+
+  window.addEventListener("beforeunload", cleanup, { once: true });
+
+  if (import.meta.hot) {
+    import.meta.hot.dispose(cleanup);
   }
+
+  if (!root) {
+    cleanup();
+    markReady();
+    return;
+  }
+
+  void settingsSync.ready
+    .then((initialSettings) => {
+      if (disposed) {
+        return;
+      }
+
+      disposeRender = render(() => App({ initialSettings }), root);
+      markReady();
+    })
+    .catch((error: unknown) => {
+      console.error("Failed to mount renderer window:", error);
+      cleanup();
+      markReady();
+    });
 }
