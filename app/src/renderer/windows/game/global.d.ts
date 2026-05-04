@@ -1,4 +1,4 @@
-import type { AppBridge, ScriptExecutePayload } from "../../shared/ipc";
+import type { AppBridge, ScriptExecutePayload } from "../../../shared/ipc";
 import type { ScriptDiagnostic } from "./scripting/Types";
 
 declare global {

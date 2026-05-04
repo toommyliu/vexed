@@ -1,4 +1,4 @@
-import "../styles.css";
+import "../../styles.css";
 import { Effect } from "effect";
 import {
   For,
@@ -28,7 +28,7 @@ import { runtime } from "./Runtime";
 import { Settings, type SettingsShape } from "./flash/Services/Settings";
 import { AutoRelogin } from "./features/Services/AutoRelogin";
 import { getGameLoadState, subscribeGameLoadState } from "./loadState";
-import { gameWindowGroups, type WindowId } from "../../shared/windows";
+import { gameWindowGroups, type WindowId } from "../../../shared/windows";
 
 type OpenMenu =
   | "windows"

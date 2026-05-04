@@ -2,5 +2,5 @@
   "installCommand": "pnpm --filter @vexed/docs... install --frozen-lockfile",
   "buildCommand": "pnpm --filter @vexed/docs build",
   "outputDirectory": "docs/dist",
-  "ignoreCommand": "git diff HEAD^ HEAD --quiet -- docs/ scripts/docgen.ts app/src/renderer/game/scripting/Commands/"
+  "ignoreCommand": "git diff HEAD^ HEAD --quiet -- docs/ scripts/docgen.ts app/src/renderer/windows/game/scripting/Commands/"
 }

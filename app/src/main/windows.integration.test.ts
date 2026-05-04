@@ -39,7 +39,7 @@ describe("app window wiring", () => {
   });
 
   it("uses the game catalog for the game topnav window menu", () => {
-    const source = readSource("../renderer/game/App.tsx");
+    const source = readSource("../renderer/windows/game/GameApp.tsx");
 
     expect(source).toContain("gameWindowGroups");
     expect(source).toContain("window.ipc.windows.open(id)");
@@ -95,8 +95,10 @@ describe("app window wiring", () => {
 
     expect(source).toContain("const solidRendererTargets");
     expect(source).toContain("name: \"game\"");
-    expect(source).toContain("entryPoint: \"./src/renderer/game/index.tsx\"");
-    expect(source).toContain("html: \"src/renderer/game/index.html\"");
+    expect(source).toContain(
+      "entryPoint: \"./src/renderer/windows/game/app.tsx\"",
+    );
+    expect(source).toContain("html: \"src/renderer/windows/game/index.html\"");
     expect(source).not.toContain("window-view");
     expect(source).toContain("html: \"src/renderer/windows/index.html\"");
     expect(source).toContain("outDir: `dist/renderer/${target.name}`");

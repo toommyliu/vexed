@@ -19,7 +19,7 @@ const execFileAsync = promisify(execFile);
 
 const SCRIPT_DIR = dirname(fileURLToPath(import.meta.url));
 const DEFAULT_REPO_ROOT = join(SCRIPT_DIR, "..");
-const DEFAULT_SOURCE_DIR = "app/src/renderer/game/scripting/Commands";
+const DEFAULT_SOURCE_DIR = "app/src/renderer/windows/game/scripting/Commands";
 const DEFAULT_OUTPUT_DIR = "docs/src/content/docs/script-commands";
 const COMMAND_FACTORY_PATTERN = /^create.*ScriptDsl$/;
 const GENERATED_HEADER =
@@ -1039,7 +1039,7 @@ const collectCommandDocs = (
 ): DomainDocs[] => {
   const configPath = join(
     options.repoRoot,
-    "app/src/renderer/game/tsconfig.json",
+    "app/src/renderer/windows/game/tsconfig.json",
   );
   const configFile = ts.readConfigFile(configPath, ts.sys.readFile);
   if (configFile.error) {

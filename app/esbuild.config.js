@@ -21,8 +21,8 @@ const base = {
 const solidRendererTargets = [
   {
     name: "game",
-    entryPoint: "./src/renderer/game/index.tsx",
-    html: "src/renderer/game/index.html",
+    entryPoint: "./src/renderer/windows/game/app.tsx",
+    html: "src/renderer/windows/game/index.html",
   },
   {
     name: "account-manager",

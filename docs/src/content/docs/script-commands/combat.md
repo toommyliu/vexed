@@ -42,7 +42,7 @@ tableOfContents:
 
 Attacks a target.
 
-**Source:** `app/src/renderer/game/scripting/Commands/combat.ts:367`
+**Source:** `app/src/renderer/windows/game/scripting/Commands/combat.ts:367`
 
 ```ts
 cmd.attack(target: string): void
@@ -58,7 +58,7 @@ cmd.attack(target: string): void
 
 Casts a short buff rotation.
 
-**Source:** `app/src/renderer/game/scripting/Commands/combat.ts:553`
+**Source:** `app/src/renderer/windows/game/scripting/Commands/combat.ts:553`
 
 ```ts
 cmd.buff(skillList?: ReadonlyArray<number> | null, wait: boolean = false): void
@@ -81,7 +81,7 @@ cmd.buff([1, 2, 3, 4, 1, 2, 3, 4], true)
 
 Clears the current target.
 
-**Source:** `app/src/renderer/game/scripting/Commands/combat.ts:377`
+**Source:** `app/src/renderer/windows/game/scripting/Commands/combat.ts:377`
 
 ```ts
 cmd.cancel_target(): void
@@ -93,7 +93,7 @@ cmd.cancel_target(): void
 
 Exits the player from combat.
 
-**Source:** `app/src/renderer/game/scripting/Commands/combat.ts:384`
+**Source:** `app/src/renderer/windows/game/scripting/Commands/combat.ts:384`
 
 ```ts
 cmd.exit_combat(): void
@@ -105,7 +105,7 @@ cmd.exit_combat(): void
 
 Uses a skill even without a target.
 
-**Source:** `app/src/renderer/game/scripting/Commands/combat.ts:522`
+**Source:** `app/src/renderer/windows/game/scripting/Commands/combat.ts:522`
 
 ```ts
 cmd.force_use_skill(skill: number | string, wait: boolean = false): void
@@ -122,7 +122,7 @@ cmd.force_use_skill(skill: number | string, wait: boolean = false): void
 
 Jumps to the cell where a monster target can be found.
 
-**Source:** `app/src/renderer/game/scripting/Commands/combat.ts:537`
+**Source:** `app/src/renderer/windows/game/scripting/Commands/combat.ts:537`
 
 ```ts
 cmd.hunt(target: string, most: boolean = false): void
@@ -139,7 +139,7 @@ cmd.hunt(target: string, most: boolean = false): void
 
 Kills a target.
 
-**Source:** `app/src/renderer/game/scripting/Commands/combat.ts:402`
+**Source:** `app/src/renderer/windows/game/scripting/Commands/combat.ts:402`
 
 ```ts
 cmd.kill(target: string, options?: Partial<CombatKillOptions>): void
@@ -170,7 +170,7 @@ cmd.kill("id.3", { killPriority: ["id.1", "id:2"], skillSet: [1, 2], skillDelay:
 
 Kills a target until an inventory item reaches the requested quantity.
 
-**Source:** `app/src/renderer/game/scripting/Commands/combat.ts:426`
+**Source:** `app/src/renderer/windows/game/scripting/Commands/combat.ts:426`
 
 ```ts
 cmd.kill_for_item(target: string, item: string | number, quantity: number, options?: Partial<CombatKillOptions>): void
@@ -193,7 +193,7 @@ cmd.kill_for_item(target: string, item: string | number, quantity: number, optio
 
 Kills a target until a temporary item reaches the requested quantity.
 
-**Source:** `app/src/renderer/game/scripting/Commands/combat.ts:462`
+**Source:** `app/src/renderer/windows/game/scripting/Commands/combat.ts:462`
 
 ```ts
 cmd.kill_for_tempitem(target: string, item: string | number, quantity: number, options?: Partial<CombatKillOptions>): void
@@ -216,7 +216,7 @@ cmd.kill_for_tempitem(target: string, item: string | number, quantity: number, o
 
 Rests the player.
 
-**Source:** `app/src/renderer/game/scripting/Commands/combat.ts:495`
+**Source:** `app/src/renderer/windows/game/scripting/Commands/combat.ts:495`
 
 ```ts
 cmd.rest(full: boolean = false): void
@@ -232,7 +232,7 @@ cmd.rest(full: boolean = false): void
 
 Uses a skill.
 
-**Source:** `app/src/renderer/game/scripting/Commands/combat.ts:508`
+**Source:** `app/src/renderer/windows/game/scripting/Commands/combat.ts:508`
 
 ```ts
 cmd.use_skill(skill: number | string, wait: boolean = false): void
@@ -249,7 +249,7 @@ cmd.use_skill(skill: number | string, wait: boolean = false): void
 
 ### `CombatKillOptions`
 
-**Source:** `app/src/renderer/game/flash/Services/Combat.ts:6`
+**Source:** `app/src/renderer/windows/game/flash/Services/Combat.ts:6`
 
 ```ts
 interface CombatKillOptions
