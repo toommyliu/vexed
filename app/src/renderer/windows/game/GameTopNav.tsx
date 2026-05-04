@@ -1,11 +1,4 @@
-import {
-  For,
-  Show,
-  createSignal,
-  type Accessor,
-  type JSX,
-  type Setter,
-} from "solid-js";
+import { For, Show, type Accessor, type JSX, type Setter } from "solid-js";
 import {
   Button,
   Checkbox,
@@ -21,15 +14,19 @@ import {
   MenuTrigger,
   cn,
 } from "@vexed/ui";
+import {
+  getCommandDefinition,
+  type GameCommandId,
+} from "../../../shared/commands";
+import type { HotkeyBindings } from "../../../shared/hotkeys";
+import type { AppPlatform } from "../../../shared/ipc";
 import { gameWindowGroups, type WindowId } from "../../../shared/windows";
-
-type OpenMenu =
-  | "windows"
-  | "scripts"
-  | "options"
-  | "relogin"
-  | "pads"
-  | "cells";
+import { formatGameShortcut } from "./hotkeyDisplay";
+import {
+  getTopNavOptionCommandId,
+  type GameTopNavMenu,
+  type TopNavOptionItem,
+} from "./topNavOptions";
 
 const defaultPads = [
   "Center",
@@ -44,14 +41,11 @@ const defaultPads = [
 
 const placeholderCells = ["Enter"] as const;
 
-export interface TopNavOptionItem {
-  readonly id: string;
-  readonly label: string;
-  readonly checked: boolean;
-  readonly onSelect: () => void;
-}
-
 export interface GameTopNavProps {
+  readonly openMenu: Accessor<GameTopNavMenu | null>;
+  readonly setOpenMenu: Setter<GameTopNavMenu | null>;
+  readonly hotkeyBindings: Accessor<HotkeyBindings>;
+  readonly hotkeyPlatform: AppPlatform;
   readonly autoAttackEnabled: Accessor<boolean>;
   readonly setAutoAttackEnabled: Setter<boolean>;
   readonly scriptLoaded: Accessor<boolean>;
@@ -88,27 +82,33 @@ export interface GameTopNavProps {
   readonly handleSetAutoReloginDelay: () => void;
 }
 
-export function GameTopNav(props: GameTopNavProps): JSX.Element {
-  const [openMenu, setOpenMenu] = createSignal<OpenMenu | null>(null);
+const commandHotkey = (bindings: HotkeyBindings, id: GameCommandId): string =>
+  bindings[id] ?? getCommandDefinition(id).defaultHotkey;
 
+const optionHotkey = (bindings: HotkeyBindings, optionId: string): string => {
+  const commandId = getTopNavOptionCommandId(optionId);
+  return commandId ? commandHotkey(bindings, commandId) : "";
+};
+
+export function GameTopNav(props: GameTopNavProps): JSX.Element {
   const setMenuOpen =
-    (menu: OpenMenu) =>
+    (menu: GameTopNavMenu) =>
     (details: { readonly open: boolean }): void => {
-      setOpenMenu(details.open ? menu : null);
+      props.setOpenMenu(details.open ? menu : null);
     };
 
   const toggleMenu =
-    (menu: OpenMenu): JSX.EventHandler<HTMLButtonElement, MouseEvent> =>
+    (menu: GameTopNavMenu): JSX.EventHandler<HTMLButtonElement, MouseEvent> =>
     (event) => {
       event.preventDefault();
-      setOpenMenu((current) => (current === menu ? null : menu));
+      props.setOpenMenu((current) => (current === menu ? null : menu));
     };
 
   const openWindow = (id: WindowId) => {
     void window.ipc.windows.open(id).catch((error: unknown) => {
       console.error(`Failed to open window ${id}:`, error);
     });
-    setOpenMenu(null);
+    props.setOpenMenu(null);
   };
 
   return (
@@ -116,12 +116,12 @@ export function GameTopNav(props: GameTopNavProps): JSX.Element {
       <nav id="topnav" class="game-topnav" aria-label="Game controls">
         <div class="game-topnav__left">
           <Menu
-            open={openMenu() === "windows"}
+            open={props.openMenu() === "windows"}
             onOpenChange={setMenuOpen("windows")}
           >
             <MenuTrigger
               class="game-topnav__trigger"
-              data-expanded={openMenu() === "windows" ? "" : undefined}
+              data-expanded={props.openMenu() === "windows" ? "" : undefined}
               onClick={toggleMenu("windows")}
             >
               Windows
@@ -155,12 +155,12 @@ export function GameTopNav(props: GameTopNavProps): JSX.Element {
           <div class="game-topnav__divider" />
 
           <Menu
-            open={openMenu() === "scripts"}
+            open={props.openMenu() === "scripts"}
             onOpenChange={setMenuOpen("scripts")}
           >
             <MenuTrigger
               class="game-topnav__trigger"
-              data-expanded={openMenu() === "scripts" ? "" : undefined}
+              data-expanded={props.openMenu() === "scripts" ? "" : undefined}
               onClick={toggleMenu("scripts")}
             >
               Scripts
@@ -173,7 +173,14 @@ export function GameTopNav(props: GameTopNavProps): JSX.Element {
                   value="load-script"
                 >
                   <span class="game-menu__item-label">Load Script</span>
-                  <Kbd>Cmd/Ctrl+O</Kbd>
+                  <Show
+                    when={formatGameShortcut(
+                      commandHotkey(props.hotkeyBindings(), "load-script"),
+                      props.hotkeyPlatform,
+                    )}
+                  >
+                    {(shortcut) => <Kbd>{shortcut()}</Kbd>}
+                  </Show>
                 </MenuItem>
                 <MenuItem
                   class="game-menu__item"
@@ -191,7 +198,14 @@ export function GameTopNav(props: GameTopNavProps): JSX.Element {
                   variant="destructive"
                 >
                   <span class="game-menu__item-label">Stop</span>
-                  <Kbd>Cmd/Ctrl+Shift+X</Kbd>
+                  <Show
+                    when={formatGameShortcut(
+                      commandHotkey(props.hotkeyBindings(), "stop-script"),
+                      props.hotkeyPlatform,
+                    )}
+                  >
+                    {(shortcut) => <Kbd>{shortcut()}</Kbd>}
+                  </Show>
                 </MenuItem>
               </MenuGroup>
               <MenuSeparator />
@@ -206,12 +220,12 @@ export function GameTopNav(props: GameTopNavProps): JSX.Element {
           </Menu>
 
           <Menu
-            open={openMenu() === "options"}
+            open={props.openMenu() === "options"}
             onOpenChange={setMenuOpen("options")}
           >
             <MenuTrigger
               class="game-topnav__trigger"
-              data-expanded={openMenu() === "options" ? "" : undefined}
+              data-expanded={props.openMenu() === "options" ? "" : undefined}
               onClick={toggleMenu("options")}
             >
               Options
@@ -226,7 +240,19 @@ export function GameTopNav(props: GameTopNavProps): JSX.Element {
                       onClick={option.onSelect}
                       value={option.id}
                     >
-                      {option.label}
+                      <span class="game-menu__option-content">
+                        <span class="game-menu__item-label">
+                          {option.label}
+                        </span>
+                        <Show
+                          when={formatGameShortcut(
+                            optionHotkey(props.hotkeyBindings(), option.id),
+                            props.hotkeyPlatform,
+                          )}
+                        >
+                          {(shortcut) => <Kbd>{shortcut()}</Kbd>}
+                        </Show>
+                      </span>
                     </MenuCheckboxItem>
                   )}
                 </For>
@@ -282,7 +308,7 @@ export function GameTopNav(props: GameTopNavProps): JSX.Element {
           </Menu>
 
           <Menu
-            open={openMenu() === "relogin"}
+            open={props.openMenu() === "relogin"}
             onOpenChange={setMenuOpen("relogin")}
           >
             <MenuTrigger
@@ -290,7 +316,7 @@ export function GameTopNav(props: GameTopNavProps): JSX.Element {
                 "game-topnav__trigger",
                 props.autoReloginEnabled() && "game-topnav__trigger--success",
               )}
-              data-expanded={openMenu() === "relogin" ? "" : undefined}
+              data-expanded={props.openMenu() === "relogin" ? "" : undefined}
               onClick={toggleMenu("relogin")}
             >
               Auto Relogin
@@ -378,7 +404,10 @@ export function GameTopNav(props: GameTopNavProps): JSX.Element {
 
           <div class="game-topnav__divider" />
 
-          <Menu open={openMenu() === "pads"} onOpenChange={setMenuOpen("pads")}>
+          <Menu
+            open={props.openMenu() === "pads"}
+            onOpenChange={setMenuOpen("pads")}
+          >
             <MenuTrigger class="game-topnav__select-trigger" disabled>
               Spawn
             </MenuTrigger>
@@ -394,7 +423,7 @@ export function GameTopNav(props: GameTopNavProps): JSX.Element {
           </Menu>
 
           <Menu
-            open={openMenu() === "cells"}
+            open={props.openMenu() === "cells"}
             onOpenChange={setMenuOpen("cells")}
           >
             <MenuTrigger

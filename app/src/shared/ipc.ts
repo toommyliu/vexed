@@ -128,7 +128,14 @@ export interface SettingsBridge {
   onChanged(listener: (settings: AppSettings) => void): () => void;
 }
 
+export type AppPlatform = "mac" | "windows" | "linux";
+
+export interface PlatformBridge {
+  readonly os: AppPlatform;
+}
+
 export interface AppBridge {
+  readonly platform: PlatformBridge;
   readonly scripting: ScriptingBridge;
   readonly settings: SettingsBridge;
   readonly windows: WindowsBridge;

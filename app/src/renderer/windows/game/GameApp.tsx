@@ -17,10 +17,11 @@ import type { WindowId } from "../../../shared/windows";
 import { runtime } from "./Runtime";
 import { Settings, type SettingsShape } from "./flash/Services/Settings";
 import { AutoRelogin } from "./features/Services/AutoRelogin";
-import { GameTopNav, type TopNavOptionItem } from "./GameTopNav";
+import { GameTopNav } from "./GameTopNav";
 import { createGameCommands } from "./commands";
 import { GameHotkeys } from "./hotkeys";
 import { getGameLoadState, subscribeGameLoadState } from "./loadState";
+import type { GameTopNavMenu, TopNavOptionItem } from "./topNavOptions";
 
 const formatScriptStatus = (
   loaded: boolean,
@@ -81,6 +82,8 @@ export default function App(props: {
   const [autoReloginUsername, setAutoReloginUsername] = createSignal("");
   const [autoReloginServer, setAutoReloginServer] = createSignal("");
   const [autoReloginLastError, setAutoReloginLastError] = createSignal("");
+  const [openTopNavMenu, setOpenTopNavMenu] =
+    createSignal<GameTopNavMenu | null>(null);
 
   let settingsStateDisposer: (() => void) | undefined;
   let autoReloginStateDisposer: (() => void) | undefined;
@@ -464,6 +467,7 @@ export default function App(props: {
     autoAttackEnabled,
     optionItems,
     openWindow,
+    openTopNavMenu: (menu) => setOpenTopNavMenu(menu),
   });
 
   onMount(() => {
@@ -556,6 +560,10 @@ export default function App(props: {
         commands={() => gameCommands}
       />
       <GameTopNav
+        openMenu={openTopNavMenu}
+        setOpenMenu={setOpenTopNavMenu}
+        hotkeyBindings={() => settings().hotkeys.bindings}
+        hotkeyPlatform={window.ipc.platform.os}
         autoAttackEnabled={autoAttackEnabled}
         setAutoAttackEnabled={setAutoAttackEnabled}
         scriptLoaded={scriptLoaded}

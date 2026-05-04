@@ -5,6 +5,7 @@ import {
   WindowIpcChannels,
   type AppBridge,
   type AppSettings,
+  type AppPlatform,
   type AppearancePatch,
   type HotkeysPatch,
   type PreferencesPatch,
@@ -12,7 +13,17 @@ import {
 } from "../shared/ipc";
 import type { WindowId } from "../shared/windows";
 
+const platform: AppPlatform =
+  process.platform === "darwin"
+    ? "mac"
+    : process.platform === "win32"
+      ? "windows"
+      : "linux";
+
 const bridge: AppBridge = {
+  platform: {
+    os: platform,
+  },
   scripting: {
     openFile: async () => {
       return (await ipcRenderer.invoke(

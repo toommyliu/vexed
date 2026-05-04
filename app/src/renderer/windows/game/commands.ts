@@ -6,7 +6,12 @@ import {
 } from "../../../shared/commands";
 import { WindowIds, type WindowId } from "../../../shared/windows";
 import type { HotkeyBindings } from "../../../shared/hotkeys";
-import type { TopNavOptionItem } from "./GameTopNav";
+import {
+  findTopNavOption,
+  topNavOptionCommandIds,
+  type GameTopNavMenu,
+  type TopNavOptionItem,
+} from "./topNavOptions";
 
 export interface GameCommandRuntime {
   readonly bindings: Accessor<HotkeyBindings>;
@@ -19,6 +24,7 @@ export interface GameCommandRuntime {
   readonly autoAttackEnabled: Accessor<boolean>;
   readonly optionItems: Accessor<readonly TopNavOptionItem[]>;
   readonly openWindow: (id: WindowId) => void;
+  readonly openTopNavMenu: (menu: GameTopNavMenu) => void;
 }
 
 export interface GameCommand {
@@ -30,18 +36,6 @@ export interface GameCommand {
   readonly enabled: Accessor<boolean>;
   readonly run: () => void;
 }
-
-const optionCommandIds: Partial<Record<GameCommandId, string>> = {
-  "toggle-infinite-range": "infinite-range",
-  "toggle-provoke-cell": "provoke-cell",
-  "toggle-enemy-magnet": "enemy-magnet",
-  "toggle-lag-killer": "lag-killer",
-  "toggle-hide-players": "hide-players",
-  "toggle-skip-cutscenes": "skip-cutscenes",
-  "toggle-disable-fx": "disable-fx",
-  "toggle-collisions": "collisions",
-  "toggle-death-ads": "death-ads",
-};
 
 const windowCommandIds: Partial<Record<GameCommandId, WindowId>> = {
   "open-environment": WindowIds.Environment,
@@ -56,10 +50,7 @@ const findOption = (
   runtime: GameCommandRuntime,
   id: GameCommandId,
 ): TopNavOptionItem | undefined => {
-  const optionId = optionCommandIds[id];
-  return optionId
-    ? runtime.optionItems().find((option) => option.id === optionId)
-    : undefined;
+  return findTopNavOption(runtime.optionItems(), id);
 };
 
 const createCommandLabel = (
@@ -76,7 +67,7 @@ const createCommandLabel = (
       runtime.autoAttackEnabled() ? "Disable Autoattack" : "Enable Autoattack";
   }
 
-  if (id in optionCommandIds) {
+  if (id in topNavOptionCommandIds) {
     return () => findOption(runtime, id)?.label ?? fallback;
   }
 
@@ -136,12 +127,16 @@ const createCommandRunner = (
     };
   }
 
+  if (id === "open-options-menu") {
+    return () => runtime.openTopNavMenu("options");
+  }
+
   const windowId = windowCommandIds[id];
   if (windowId) {
     return () => runtime.openWindow(windowId);
   }
 
-  if (id in optionCommandIds) {
+  if (id in topNavOptionCommandIds) {
     return () => {
       findOption(runtime, id)?.onSelect();
     };

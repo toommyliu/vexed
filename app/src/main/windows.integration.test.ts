@@ -22,6 +22,8 @@ describe("app window wiring", () => {
   it("exposes the window IPC bridge to renderers", () => {
     const source = readSource("preload.ts");
 
+    expect(source).toContain("platform: {");
+    expect(source).toContain("os: platform");
     expect(source).toContain("WindowIpcChannels.open");
     expect(source).toContain("windows: {");
     expect(source).toContain("open: async (id: WindowId)");
@@ -40,10 +42,22 @@ describe("app window wiring", () => {
 
   it("uses the game catalog for the game topnav window menu", () => {
     const source = readSource("../renderer/windows/game/GameTopNav.tsx");
+    const gameAppSource = readSource("../renderer/windows/game/GameApp.tsx");
+    const hotkeyDisplaySource = readSource(
+      "../renderer/windows/game/hotkeyDisplay.ts",
+    );
 
     expect(source).toContain("gameWindowGroups");
     expect(source).toContain("window.ipc.windows.open(id)");
     expect(source).toContain("onSelect={() => openWindow(item.id)}");
+    expect(source).toContain("formatGameShortcut");
+    expect(source).toContain("optionHotkey");
+    expect(hotkeyDisplaySource).toContain("formatForDisplay");
+    expect(source).not.toContain("Cmd/Ctrl");
+    expect(gameAppSource).toContain(
+      "hotkeyBindings={() => settings().hotkeys.bindings}",
+    );
+    expect(gameAppSource).toContain("hotkeyPlatform={window.ipc.platform.os}");
   });
 
   it("mounts the game renderer through the shared window mount", () => {
