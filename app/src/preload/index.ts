@@ -1,9 +1,11 @@
 import { contextBridge, ipcRenderer } from "electron";
 import {
   ScriptingIpcChannels,
+  WindowIpcChannels,
   type AppBridge,
   type ScriptExecutePayload,
 } from "../shared/ipc";
+import type { WindowId } from "../shared/windows";
 
 const bridge: AppBridge = {
   scripting: {
@@ -39,6 +41,11 @@ const bridge: AppBridge = {
       return () => {
         ipcRenderer.removeListener(ScriptingIpcChannels.stop, subscription);
       };
+    },
+  },
+  windows: {
+    open: async (id: WindowId) => {
+      await ipcRenderer.invoke(WindowIpcChannels.open, id);
     },
   },
 };

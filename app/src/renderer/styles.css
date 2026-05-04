@@ -283,6 +283,63 @@ body {
   }
 }
 
+.app-window-shell {
+  background: rgb(var(--background));
+  color: rgb(var(--foreground));
+  display: grid;
+  gap: 1rem;
+  min-height: 100vh;
+  overflow: auto;
+  padding: 1rem;
+}
+
+.app-window-header {
+  align-items: start;
+  display: flex;
+  gap: 1rem;
+  justify-content: space-between;
+}
+
+.app-window-header h1 {
+  font-size: 1.5rem;
+  font-weight: 700;
+  line-height: 1.2;
+  margin: 0;
+}
+
+.app-window-header p,
+.app-window-panel p {
+  color: rgb(var(--muted-foreground));
+  line-height: 1.5;
+  margin: 0.25rem 0 0;
+}
+
+.app-window-panel h2 {
+  font-size: 1rem;
+  margin: 0;
+}
+
+.app-window-grid {
+  display: grid;
+  gap: 1rem;
+  grid-template-columns: repeat(auto-fit, minmax(10rem, 1fr));
+  margin-top: 1rem;
+}
+
+.app-window-grid h3 {
+  color: rgb(var(--muted-foreground));
+  font-size: 0.75rem;
+  font-weight: 700;
+  margin: 0 0 0.5rem;
+  text-transform: uppercase;
+}
+
+.app-window-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
 @media (max-width: 720px) {
   .game-topnav {
     overflow-x: auto;

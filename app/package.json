@@ -28,6 +28,7 @@
     "@vexed/game": "workspace:*",
     "@vexed/shared": "workspace:*",
     "@vexed/ui": "workspace:*",
+    "abort-controller": "^3.0.0",
     "core-js": "^3.49.0",
     "effect": "4.0.0-beta.43",
     "nw-flash-trust": "^0.3.0",

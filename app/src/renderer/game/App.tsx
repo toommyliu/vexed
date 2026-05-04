@@ -28,6 +28,7 @@ import { runtime } from "./Runtime";
 import { Settings, type SettingsShape } from "./flash/Services/Settings";
 import { AutoRelogin } from "./features/Services/AutoRelogin";
 import { getGameLoadState, subscribeGameLoadState } from "./loadState";
+import { gameWindowGroups, type WindowId } from "../../shared/windows";
 
 type OpenMenu =
   | "windows"
@@ -36,43 +37,6 @@ type OpenMenu =
   | "relogin"
   | "pads"
   | "cells";
-
-interface WindowMenuItem {
-  readonly id: string;
-  readonly label: string;
-  readonly shortcut?: string;
-  readonly disabled?: boolean;
-}
-
-interface WindowMenuGroup {
-  readonly name: string;
-  readonly items: readonly WindowMenuItem[];
-}
-
-const windowMenuGroups: readonly WindowMenuGroup[] = [
-  {
-    name: "Application",
-    items: [
-      { id: "environment", label: "Environment", disabled: true },
-      { id: "hotkeys", label: "Hotkeys", disabled: true },
-    ],
-  },
-  {
-    name: "Tools",
-    items: [
-      { id: "fast-travels", label: "Fast travels", disabled: true },
-      { id: "loader-grabber", label: "Loader/grabber", disabled: true },
-      { id: "follower", label: "Follower", disabled: true },
-    ],
-  },
-  {
-    name: "Packets",
-    items: [
-      { id: "packet-logger", label: "Logger", disabled: true },
-      { id: "packet-spammer", label: "Spammer", disabled: true },
-    ],
-  },
-] as const;
 
 const defaultPads = [
   "Center",
@@ -152,6 +116,13 @@ export default function App(): JSX.Element {
       event.preventDefault();
       setOpenMenu((current) => (current === menu ? null : menu));
     };
+
+  const openWindow = (id: WindowId) => {
+    void window.ipc.windows.open(id).catch((error: unknown) => {
+      console.error(`Failed to open window ${id}:`, error);
+    });
+    setOpenMenu(null);
+  };
 
   const refreshScriptMeta = async () => {
     if (!window.cmd) {
@@ -604,7 +575,7 @@ export default function App(): JSX.Element {
               </MenuTrigger>
               <MenuContent class="game-menu game-menu--mega" portal={false}>
                 <div class="game-menu__mega-grid">
-                  <For each={windowMenuGroups}>
+                  <For each={gameWindowGroups}>
                     {(group) => (
                       <MenuGroup class="game-menu__group">
                         <MenuLabel>{group.name}</MenuLabel>
@@ -612,15 +583,12 @@ export default function App(): JSX.Element {
                           {(item) => (
                             <MenuItem
                               class="game-menu__item"
-                              disabled={item.disabled}
+                              onSelect={() => openWindow(item.id)}
                               value={item.id}
                             >
                               <span class="game-menu__item-label">
                                 {item.label}
                               </span>
-                              <Show when={item.shortcut}>
-                                {(shortcut) => <Kbd>{shortcut()}</Kbd>}
-                              </Show>
                             </MenuItem>
                           )}
                         </For>

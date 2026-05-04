@@ -1,8 +1,14 @@
+import type { WindowId } from "./windows";
+
 export const ScriptingIpcChannels = {
   execute: "scripting:execute",
   stop: "scripting:stop",
   openFile: "scripting:open-file",
   readFile: "scripting:read-file",
+} as const;
+
+export const WindowIpcChannels = {
+  open: "windows:open",
 } as const;
 
 export interface ScriptExecutePayload {
@@ -42,6 +48,15 @@ export interface ScriptingBridge {
   onStop(listener: () => void): () => void;
 }
 
+export interface WindowInvokeChannels {
+  readonly [WindowIpcChannels.open]: IpcInvokeDefinition<[id: WindowId], void>;
+}
+
+export interface WindowsBridge {
+  open(id: WindowId): Promise<void>;
+}
+
 export interface AppBridge {
   readonly scripting: ScriptingBridge;
+  readonly windows: WindowsBridge;
 }
