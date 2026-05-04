@@ -112,7 +112,7 @@ body::-webkit-scrollbar-corner,
   display: inline-flex;
   flex-shrink: 0;
   font-family: var(--font-sans);
-  font-size: 0.8125rem;
+  font-size: var(--text-base);
   font-weight: 500;
   gap: 0.375rem;
   justify-content: center;
@@ -194,7 +194,7 @@ body::-webkit-scrollbar-corner,
 
 .button--xs {
   border-radius: var(--radius-sm);
-  font-size: 0.75rem;
+  font-size: var(--text-sm);
   gap: 0.25rem;
   height: var(--control-height-xs);
   padding: 0 0.375rem;
@@ -217,7 +217,7 @@ body::-webkit-scrollbar-corner,
 }
 
 .button--xl {
-  font-size: 0.875rem;
+  font-size: var(--text-md);
   height: var(--control-height-xl);
   padding: 0 0.875rem;
 }
@@ -379,7 +379,7 @@ body::-webkit-scrollbar-corner,
   box-shadow: var(--shadow-xs);
   color: rgb(var(--foreground));
   font-family: var(--font-sans);
-  font-size: 0.8125rem;
+  font-size: var(--text-base);
   outline: none;
   width: auto;
 }
@@ -516,7 +516,7 @@ body::-webkit-scrollbar-corner,
   color: rgb(var(--foreground));
   display: inline-flex;
   font-family: var(--font-sans);
-  font-size: 0.8125rem;
+  font-size: var(--text-base);
   min-height: var(--control-height-md);
   min-width: 0;
   position: relative;
@@ -684,7 +684,7 @@ body::-webkit-scrollbar-corner,
   cursor: pointer;
   display: inline-flex;
   font-family: var(--font-sans);
-  font-size: 0.8125rem;
+  font-size: var(--text-base);
   gap: 0.5rem;
   user-select: none;
 }
@@ -764,7 +764,7 @@ body::-webkit-scrollbar-corner,
   color: rgb(var(--foreground));
   display: inline-flex;
   font-family: var(--font-sans);
-  font-size: 0.8125rem;
+  font-size: var(--text-base);
   gap: 0.5rem;
   min-width: 0;
   touch-action: none;
@@ -905,7 +905,7 @@ body::-webkit-scrollbar-corner,
 .slider__value {
   color: rgb(var(--muted-foreground));
   display: flex;
-  font-size: 0.8125rem;
+  font-size: var(--text-base);
   justify-content: flex-end;
   line-height: 1.2;
   min-width: 0;
@@ -937,7 +937,7 @@ body::-webkit-scrollbar-corner,
   color: rgb(var(--foreground));
   display: inline-flex;
   font-family: var(--font-sans);
-  font-size: 0.8125rem;
+  font-size: var(--text-base);
   font-weight: 500;
   gap: 0.5rem;
   line-height: 1.15;
@@ -997,21 +997,21 @@ a.badge {
 
 .badge--sm {
   border-radius: var(--radius-xs);
-  font-size: 0.75rem;
+  font-size: var(--text-sm);
   height: 1.25rem;
   min-width: 1.25rem;
   padding: 0 0.1875rem;
 }
 
 .badge--size-default {
-  font-size: 0.875rem;
+  font-size: var(--text-md);
   height: 1.375rem;
   min-width: 1.375rem;
   padding: 0 0.1875rem;
 }
 
 .badge--lg {
-  font-size: 1rem;
+  font-size: var(--text-xl);
   height: 1.625rem;
   min-width: 1.625rem;
   padding: 0 0.3125rem;
@@ -1117,19 +1117,19 @@ a.badge--destructive:hover {
   }
 
   .badge--sm {
-    font-size: 0.625rem;
+    font-size: var(--text-2xs);
     height: 1rem;
     min-width: 1rem;
   }
 
   .badge--size-default {
-    font-size: 0.75rem;
+    font-size: var(--text-sm);
     height: 1.125rem;
     min-width: 1.125rem;
   }
 
   .badge--lg {
-    font-size: 0.875rem;
+    font-size: var(--text-md);
     height: 1.375rem;
     min-width: 1.375rem;
   }
@@ -1232,7 +1232,7 @@ a.badge--destructive:hover {
   align-items: center;
   color: rgb(var(--foreground));
   display: flex;
-  font-size: 0.9375rem;
+  font-size: var(--text-lg);
   font-weight: 600;
   line-height: 1.2;
   margin: 0;
@@ -1380,7 +1380,7 @@ a.badge--destructive:hover {
 
 .card__title {
   color: rgb(var(--foreground));
-  font-size: 0.9375rem;
+  font-size: var(--text-lg);
   font-weight: 600;
   line-height: 1.15;
   margin: 0;
@@ -1388,7 +1388,7 @@ a.badge--destructive:hover {
 
 .card__description {
   color: rgb(var(--muted-foreground));
-  font-size: 0.8125rem;
+  font-size: var(--text-base);
   line-height: 1.35;
   margin: 0.25rem 0 0;
 }
@@ -1437,14 +1437,14 @@ a.badge--destructive:hover {
 
 .card-frame__title {
   color: rgb(var(--foreground));
-  font-size: 0.875rem;
+  font-size: var(--text-md);
   font-weight: 600;
   line-height: 1.2;
 }
 
 .card-frame__description {
   color: rgb(var(--muted-foreground));
-  font-size: 0.8125rem;
+  font-size: var(--text-base);
   line-height: 1.35;
 }
 
@@ -1475,7 +1475,7 @@ a.badge--destructive:hover {
   color: rgb(var(--muted-foreground));
   display: inline-flex;
   font-family: var(--font-sans);
-  font-size: 0.6875rem;
+  font-size: var(--text-xs);
   font-weight: 500;
   gap: 0.25rem;
   height: 1.25rem;
@@ -1496,7 +1496,7 @@ a.badge--destructive:hover {
   align-items: center;
   display: inline-flex;
   font-family: var(--font-sans);
-  font-size: 0.6875rem;
+  font-size: var(--text-xs);
   gap: 0.25rem;
 }
 
@@ -1579,7 +1579,7 @@ a.badge--destructive:hover {
 }
 
 .alert__title {
-  font-size: 0.875rem;
+  font-size: var(--text-md);
   font-weight: 600;
   grid-column: 1;
   line-height: 1.2;
@@ -1587,7 +1587,7 @@ a.badge--destructive:hover {
 
 .alert__description {
   color: rgb(var(--muted-foreground));
-  font-size: 0.8125rem;
+  font-size: var(--text-base);
   grid-column: 1;
   line-height: 1.4;
 }
@@ -1672,7 +1672,7 @@ a.badge--destructive:hover {
 
 .dialog__title {
   color: rgb(var(--foreground));
-  font-size: 1.125rem;
+  font-size: var(--text-2xl);
   font-weight: 600;
   line-height: 1.15;
   margin: 0;
@@ -1680,7 +1680,7 @@ a.badge--destructive:hover {
 
 .dialog__description {
   color: rgb(var(--muted-foreground));
-  font-size: 0.875rem;
+  font-size: var(--text-md);
   line-height: 1.4;
   margin: 0;
 }
@@ -1710,7 +1710,7 @@ a.badge--destructive:hover {
   color: rgb(var(--foreground));
   display: inline-flex;
   font-family: var(--font-sans);
-  font-size: 0.8125rem;
+  font-size: var(--text-base);
   gap: 0.5rem;
   justify-content: space-between;
   min-width: 9rem;
@@ -1818,7 +1818,7 @@ a.badge--destructive:hover {
   cursor: default;
   display: grid;
   font-family: var(--font-sans);
-  font-size: 0.8125rem;
+  font-size: var(--text-base);
   gap: 0.5rem;
   grid-template-columns: 1rem minmax(0, 1fr);
   line-height: 1.2;
@@ -1875,7 +1875,7 @@ a.badge--destructive:hover {
 .command__group-heading {
   color: rgb(var(--muted-foreground));
   font-family: var(--font-sans);
-  font-size: 0.75rem;
+  font-size: var(--text-sm);
   font-weight: 600;
   padding: 0.375rem 0.5rem;
 }
@@ -1918,7 +1918,7 @@ a.badge--destructive:hover {
 .combobox__empty {
   color: rgb(var(--muted-foreground));
   font-family: var(--font-sans);
-  font-size: 0.8125rem;
+  font-size: var(--text-base);
   padding: 0.75rem;
   text-align: center;
 }
@@ -1966,7 +1966,7 @@ a.badge--destructive:hover {
   cursor: default;
   display: flex;
   font-family: var(--font-sans);
-  font-size: 0.8125rem;
+  font-size: var(--text-base);
   gap: 0.5rem;
   line-height: 1.2;
   min-height: 1.75rem;
@@ -2030,7 +2030,7 @@ a.badge--destructive:hover {
 .menu__label {
   color: rgb(var(--muted-foreground));
   font-family: var(--font-sans);
-  font-size: 0.75rem;
+  font-size: var(--text-sm);
   font-weight: 600;
   padding: 0.375rem 0.5rem;
 }
@@ -2049,7 +2049,7 @@ a.badge--destructive:hover {
 .menu__shortcut {
   color: rgba(var(--muted-foreground), 0.72);
   font-family: var(--font-sans);
-  font-size: 0.6875rem;
+  font-size: var(--text-xs);
   font-weight: 600;
   margin-left: auto;
 }
@@ -2117,7 +2117,7 @@ a.badge--destructive:hover {
   cursor: pointer;
   display: inline-flex;
   font-family: var(--font-sans);
-  font-size: 0.8125rem;
+  font-size: var(--text-base);
   font-weight: 500;
   gap: 0.375rem;
   height: var(--control-height-md);
@@ -2213,7 +2213,7 @@ a.badge--destructive:hover {
   box-shadow: var(--shadow-sm);
   color: rgb(var(--popover-foreground));
   font-family: var(--font-sans);
-  font-size: 0.75rem;
+  font-size: var(--text-sm);
   line-height: 1.25;
   max-width: 18rem;
   outline: none;
@@ -2305,7 +2305,7 @@ a.badge--destructive:hover {
   color: rgb(var(--muted-foreground));
   display: flex;
   font-family: var(--font-sans);
-  font-size: 0.8125rem;
+  font-size: var(--text-base);
   gap: 0.5rem;
   justify-content: center;
   padding: 1.5rem;
@@ -2314,7 +2314,7 @@ a.badge--destructive:hover {
 .command__shortcut {
   color: rgb(var(--muted-foreground));
   font-family: var(--font-sans);
-  font-size: 0.6875rem;
+  font-size: var(--text-xs);
   font-weight: 600;
   letter-spacing: 0;
   margin-left: auto;
@@ -2326,7 +2326,7 @@ a.badge--destructive:hover {
   color: rgb(var(--muted-foreground));
   display: flex;
   font-family: var(--font-sans);
-  font-size: 0.75rem;
+  font-size: var(--text-sm);
   gap: 0.5rem;
   justify-content: space-between;
   padding: 0.75rem 1rem;
@@ -2454,14 +2454,14 @@ a.badge--destructive:hover {
 
 .empty__title {
   color: rgb(var(--foreground));
-  font-size: 1.25rem;
+  font-size: var(--text-3xl);
   font-weight: 600;
   line-height: 1.2;
 }
 
 .empty__description {
   color: rgb(var(--muted-foreground));
-  font-size: 0.875rem;
+  font-size: var(--text-md);
   line-height: 1.45;
   margin: 0.25rem 0 0;
 }
@@ -2483,7 +2483,7 @@ a.badge--destructive:hover {
   gap: 1rem;
   max-width: 24rem;
   min-width: 0;
-  font-size: 0.875rem;
+  font-size: var(--text-md);
   text-wrap: balance;
   width: 100%;
 }

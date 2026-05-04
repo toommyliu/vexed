@@ -71,6 +71,19 @@
   --font-mono: "JetBrains Mono Variable", "JetBrains Mono", ui-monospace,
     SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New",
     monospace;
+  --font-sans-size-base: 13px;
+  --font-mono-size: 12px;
+  --text-2xs: calc(var(--font-sans-size-base) * 0.7692307692);
+  --text-xs: calc(var(--font-sans-size-base) * 0.8461538462);
+  --text-sm: calc(var(--font-sans-size-base) * 0.9230769231);
+  --text-base: var(--font-sans-size-base);
+  --text-md: calc(var(--font-sans-size-base) * 1.0769230769);
+  --text-lg: calc(var(--font-sans-size-base) * 1.1538461538);
+  --text-xl: calc(var(--font-sans-size-base) * 1.2307692308);
+  --text-2xl: calc(var(--font-sans-size-base) * 1.3846153846);
+  --text-3xl: calc(var(--font-sans-size-base) * 1.5384615385);
+  --text-4xl: calc(var(--font-sans-size-base) * 1.8461538462);
+  --text-5xl: calc(var(--font-sans-size-base) * 2.1538461538);
   --radius: 0.625rem;
   --radius-xs: 0.25rem;
   --radius-sm: 0.375rem;

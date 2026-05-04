@@ -76,6 +76,8 @@ export const applyAppearance = (appearance: Appearance): void => {
 
   style.setProperty("--font-sans", profile.sansFont);
   style.setProperty("--font-mono", profile.monoFont);
+  style.setProperty("--font-sans-size-base", `${profile.sansFontSize}px`);
+  style.setProperty("--font-mono-size", `${profile.monoFontSize}px`);
   applyRounding(style, profile.rounding);
 };
 
