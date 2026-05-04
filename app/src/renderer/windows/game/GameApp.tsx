@@ -440,15 +440,15 @@ export default function App(props: {
       onSelect: handleToggleEffects,
     },
     {
-      id: "disable-collisions",
-      label: "Disable Collisions",
-      checked: !collisionsEnabled(),
+      id: "collisions",
+      label: "Collisions",
+      checked: collisionsEnabled(),
       onSelect: handleToggleCollisions,
     },
     {
-      id: "disable-death-ads",
-      label: "Disable Death Ads",
-      checked: !deathAdsVisible(),
+      id: "death-ads",
+      label: "Death Ads",
+      checked: deathAdsVisible(),
       onSelect: handleToggleDeathAds,
     },
   ]);

@@ -25,8 +25,8 @@ export type GameCommandId =
   | "toggle-hide-players"
   | "toggle-skip-cutscenes"
   | "toggle-disable-fx"
-  | "toggle-disable-collisions"
-  | "toggle-disable-death-ads";
+  | "toggle-collisions"
+  | "toggle-death-ads";
 
 export interface CommandDefinition {
   readonly id: GameCommandId;
@@ -177,18 +177,18 @@ export const GAME_COMMANDS: readonly CommandDefinition[] = [
     defaultHotkey: "",
   },
   {
-    id: "toggle-disable-collisions",
+    id: "toggle-collisions",
     scope: "game",
     category: "Options",
-    label: "Toggle Disable Collisions",
+    label: "Toggle Collisions",
     keywords: ["collision"],
     defaultHotkey: "",
   },
   {
-    id: "toggle-disable-death-ads",
+    id: "toggle-death-ads",
     scope: "game",
     category: "Options",
-    label: "Toggle Disable Death Ads",
+    label: "Toggle Death Ads",
     keywords: ["death", "ads"],
     defaultHotkey: "",
   },

@@ -39,8 +39,8 @@ const optionCommandIds: Partial<Record<GameCommandId, string>> = {
   "toggle-hide-players": "hide-players",
   "toggle-skip-cutscenes": "skip-cutscenes",
   "toggle-disable-fx": "disable-fx",
-  "toggle-disable-collisions": "disable-collisions",
-  "toggle-disable-death-ads": "disable-death-ads",
+  "toggle-collisions": "collisions",
+  "toggle-death-ads": "death-ads",
 };
 
 const windowCommandIds: Partial<Record<GameCommandId, WindowId>> = {
