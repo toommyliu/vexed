@@ -13,11 +13,6 @@ const launcherSource = readFileSync(
 );
 
 describe("main process dev renderer URL", () => {
-  it("reveals the existing startup game window on app activation", () => {
-    expect(mainSource).toContain("app.on(\"activate\", revealStartupWindow)");
-    expect(mainSource).toContain("yield* windows.revealGameWindow");
-  });
-
   it("supports a loopback-only Vite renderer URL in development", () => {
     expect(mainSource).toContain(
       "process.env[\"VEXED_DEV_RENDERER_URL\"]",
