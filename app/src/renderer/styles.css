@@ -21,3 +21,7 @@ body {
 .no-scrollbar::-webkit-scrollbar {
   display: none !important;
 }
+
+#root {
+  min-height: 100vh;
+}

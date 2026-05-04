@@ -1,4 +1,4 @@
-import type { AppBridge, ScriptExecutePayload } from "../../shared/ipc";
+import type { AppBridge, ScriptExecutePayload } from "../../../shared/ipc";
 import type { ScriptDiagnostic } from "./scripting/Types";
 
 declare global {
@@ -37,6 +37,10 @@ declare global {
   interface Window {
     readonly ipc: AppBridge;
     cmd?: ScriptGlobalApi;
+    __vexedLoaderState?: {
+      loaded: boolean;
+      progress?: number;
+    };
   }
 }
 

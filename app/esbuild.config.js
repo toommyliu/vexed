@@ -18,9 +18,72 @@ const base = {
   logLevel: "info",
 };
 
-const rendererHtmlSource = "src/renderer/game/index.html";
-const rendererHtmlOutDir = "dist/renderer/game";
-const rendererHtmlTarget = `${rendererHtmlOutDir}/index.html`;
+const solidRendererTargets = [
+  {
+    name: "game",
+    entryPoint: "./src/renderer/windows/game/app.tsx",
+    html: "src/renderer/windows/game/index.html",
+  },
+  {
+    name: "account-manager",
+    entryPoint: "./src/renderer/windows/account-manager/app.tsx",
+    html: "src/renderer/windows/index.html",
+  },
+  {
+    name: "settings",
+    entryPoint: "./src/renderer/windows/settings/app.tsx",
+    html: "src/renderer/windows/index.html",
+  },
+  {
+    name: "environment",
+    entryPoint: "./src/renderer/windows/environment/app.tsx",
+    html: "src/renderer/windows/index.html",
+  },
+  {
+    name: "hotkeys",
+    entryPoint: "./src/renderer/windows/hotkeys/app.tsx",
+    html: "src/renderer/windows/index.html",
+  },
+  {
+    name: "fast-travels",
+    entryPoint: "./src/renderer/windows/fast-travels/app.tsx",
+    html: "src/renderer/windows/index.html",
+  },
+  {
+    name: "loader-grabber",
+    entryPoint: "./src/renderer/windows/loader-grabber/app.tsx",
+    html: "src/renderer/windows/index.html",
+  },
+  {
+    name: "follower",
+    entryPoint: "./src/renderer/windows/follower/app.tsx",
+    html: "src/renderer/windows/index.html",
+  },
+  {
+    name: "packet-logger",
+    entryPoint: "./src/renderer/windows/packet-logger/app.tsx",
+    html: "src/renderer/windows/index.html",
+  },
+  {
+    name: "packet-spammer",
+    entryPoint: "./src/renderer/windows/packet-spammer/app.tsx",
+    html: "src/renderer/windows/index.html",
+  },
+];
+const rendererEntryPoints = Object.fromEntries(
+  solidRendererTargets.map((target) => [
+    `${target.name}/index`,
+    target.entryPoint,
+  ]),
+);
+const rendererHtmlFiles = solidRendererTargets.map((target) => ({
+  source: target.html,
+  outDir: `dist/renderer/${target.name}`,
+  target: `dist/renderer/${target.name}/index.html`,
+}));
+const rendererHtmlSources = [
+  ...new Set(rendererHtmlFiles.map((file) => file.source)),
+];
 const electronExternals = ["electron", "nw-flash-trust"];
 const devBuildNotifyPath = process.env.VEXED_DEV_BUILD_NOTIFY;
 const skipInitialDevBuildNotify =
@@ -81,7 +144,7 @@ function createMainBuildOptions() {
 function createPreloadBuildOptions() {
   return {
     ...base,
-    entryPoints: ["./src/preload/index.ts"],
+    entryPoints: ["./src/main/preload.ts"],
     bundle: true,
     external: ["electron"],
     platform: "node",
@@ -95,12 +158,13 @@ function createPreloadBuildOptions() {
 function createRendererBuildOptions() {
   return {
     ...base,
-    entryPoints: ["./src/renderer/game/index.tsx"],
+    entryPoints: rendererEntryPoints,
     bundle: true,
     platform: "browser",
     target: "chrome87",
     conditions: ["solid", "browser"],
-    outdir: rendererHtmlOutDir,
+    outdir: "dist/renderer",
+    entryNames: "[dir]/[name]",
     assetNames: "assets/[name]-[hash]",
     loader: {
       ".woff2": "file",
@@ -116,8 +180,11 @@ function createRendererBuildOptions() {
 }
 
 function copyRendererHtml({ notify = false } = {}) {
-  mkdirSync(rendererHtmlOutDir, { recursive: true });
-  copyFileSync(rendererHtmlSource, rendererHtmlTarget);
+  for (const file of rendererHtmlFiles) {
+    mkdirSync(file.outDir, { recursive: true });
+    copyFileSync(file.source, file.target);
+  }
+
   if (notify) {
     notifyDevBuild("renderer-html");
   }
@@ -153,7 +220,9 @@ async function watchBuild() {
     }
   };
 
-  watchFile(rendererHtmlSource, { interval: 250 }, syncRendererHtml);
+  for (const source of rendererHtmlSources) {
+    watchFile(source, { interval: 250 }, syncRendererHtml);
+  }
 
   let shuttingDown = false;
   const shutdown = async () => {
@@ -162,7 +231,9 @@ async function watchBuild() {
     }
 
     shuttingDown = true;
-    unwatchFile(rendererHtmlSource);
+    for (const source of rendererHtmlSources) {
+      unwatchFile(source);
+    }
 
     await Promise.allSettled([
       mainContext.dispose(),

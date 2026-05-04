@@ -49,7 +49,7 @@ tableOfContents:
 
 Buys an item from a shop.
 
-**Source:** `app/src/renderer/game/scripting/Commands/item.ts:602`
+**Source:** `app/src/renderer/windows/game/scripting/Commands/item.ts:602`
 
 ```ts
 cmd.buy_item(shopId: number, item: ScriptItemIdentifier, quantity: number, auto: boolean = false): void
@@ -74,7 +74,7 @@ cmd.buy_item(147, "Health Potion", 5)
 
 Deposits one or more items into the bank.
 
-**Source:** `app/src/renderer/game/scripting/Commands/item.ts:626`
+**Source:** `app/src/renderer/windows/game/scripting/Commands/item.ts:626`
 
 ```ts
 cmd.deposit(item: ScriptItemIdentifierList): void
@@ -100,7 +100,7 @@ cmd.deposit(["Voucher", "Merge Token"])
 
 Enhances an inventory item using a matching enhancement shop entry.
 
-**Source:** `app/src/renderer/game/scripting/Commands/item.ts:776`
+**Source:** `app/src/renderer/windows/game/scripting/Commands/item.ts:776`
 
 ```ts
 cmd.enhance_item(item: string, options: EnhanceItemOptions): void
@@ -133,7 +133,7 @@ cmd.enhance_item("Necrotic Sword", { enhancement: "Forge", special: "Valiance" }
 
 Equips an inventory item by name.
 
-**Source:** `app/src/renderer/game/scripting/Commands/item.ts:718`
+**Source:** `app/src/renderer/windows/game/scripting/Commands/item.ts:718`
 
 ```ts
 cmd.equip_item(item: string): void
@@ -149,7 +149,7 @@ cmd.equip_item(item: string): void
 
 Equips the first inventory item matching an enhancement rule.
 
-**Source:** `app/src/renderer/game/scripting/Commands/item.ts:743`
+**Source:** `app/src/renderer/windows/game/scripting/Commands/item.ts:743`
 
 ```ts
 cmd.equip_item_by_enhancement(options: EquipItemByEnhancementOptions): void
@@ -190,7 +190,7 @@ cmd.equip_item_by_enhancement({ enhancement: "Lucky", special: "Awe Blast" })
 
 Picks up a map item by id.
 
-**Source:** `app/src/renderer/game/scripting/Commands/item.ts:638`
+**Source:** `app/src/renderer/windows/game/scripting/Commands/item.ts:638`
 
 ```ts
 cmd.get_map_item(itemId: number): void
@@ -206,7 +206,7 @@ cmd.get_map_item(itemId: number): void
 
 Loads a shop.
 
-**Source:** `app/src/renderer/game/scripting/Commands/item.ts:755`
+**Source:** `app/src/renderer/windows/game/scripting/Commands/item.ts:755`
 
 ```ts
 cmd.load_shop(shopId: number): void
@@ -222,7 +222,7 @@ cmd.load_shop(shopId: number): void
 
 Accepts a dropped item.
 
-**Source:** `app/src/renderer/game/scripting/Commands/item.ts:650`
+**Source:** `app/src/renderer/windows/game/scripting/Commands/item.ts:650`
 
 ```ts
 cmd.pickup(item: ScriptItemIdentifier): void
@@ -238,7 +238,7 @@ cmd.pickup(item: ScriptItemIdentifier): void
 
 Rejects a dropped item.
 
-**Source:** `app/src/renderer/game/scripting/Commands/item.ts:662`
+**Source:** `app/src/renderer/windows/game/scripting/Commands/item.ts:662`
 
 ```ts
 cmd.reject(item: ScriptItemIdentifier): void
@@ -254,7 +254,7 @@ cmd.reject(item: ScriptItemIdentifier): void
 
 Sells an inventory item by name.
 
-**Source:** `app/src/renderer/game/scripting/Commands/item.ts:674`
+**Source:** `app/src/renderer/windows/game/scripting/Commands/item.ts:674`
 
 ```ts
 cmd.sell_item(item: string): void
@@ -270,7 +270,7 @@ cmd.sell_item(item: string): void
 
 Swaps a bank item with an inventory item.
 
-**Source:** `app/src/renderer/game/scripting/Commands/item.ts:689`
+**Source:** `app/src/renderer/windows/game/scripting/Commands/item.ts:689`
 
 ```ts
 cmd.swap(bankItem: ScriptItemIdentifier, invItem: ScriptItemIdentifier): void
@@ -293,7 +293,7 @@ cmd.swap("Farming Class", "Combat Class")
 
 Withdraws one or more items from the bank.
 
-**Source:** `app/src/renderer/game/scripting/Commands/item.ts:706`
+**Source:** `app/src/renderer/windows/game/scripting/Commands/item.ts:706`
 
 ```ts
 cmd.withdraw(item: ScriptItemIdentifierList): void
@@ -319,7 +319,7 @@ cmd.withdraw(["Voucher", "Merge Token"])
 
 ### `EnhanceItemOptions`
 
-**Source:** `app/src/renderer/game/scripting/Commands/itemOperations.ts:316`
+**Source:** `app/src/renderer/windows/game/scripting/Commands/itemOperations.ts:316`
 
 ```ts
 type EnhanceItemOptions = {
@@ -369,7 +369,7 @@ type EquipEnhancementSelectorSlot =
 
 ### `EquipItemByEnhancementOptions`
 
-**Source:** `app/src/renderer/game/scripting/Commands/item.ts:41`
+**Source:** `app/src/renderer/windows/game/scripting/Commands/item.ts:41`
 
 ```ts
 type EquipItemByEnhancementOptions = EquipEnhancementSelector
@@ -393,7 +393,7 @@ type EquipItemTypeFilter =
 
 ### `ScriptItemIdentifier`
 
-**Source:** `app/src/renderer/game/scripting/Commands/item.ts:37`
+**Source:** `app/src/renderer/windows/game/scripting/Commands/item.ts:37`
 
 ```ts
 type ScriptItemIdentifier =
@@ -405,7 +405,7 @@ type ScriptItemIdentifier =
 
 ### `ScriptItemIdentifierList`
 
-**Source:** `app/src/renderer/game/scripting/Commands/item.ts:38`
+**Source:** `app/src/renderer/windows/game/scripting/Commands/item.ts:38`
 
 ```ts
 type ScriptItemIdentifierList =

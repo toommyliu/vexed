@@ -1,3 +1,4 @@
+import "abort-controller/polyfill";
 import { existsSync, promises, unwatchFile, watchFile, type Stats } from "fs";
 import {
   app,
@@ -10,8 +11,19 @@ import {
 import { basename, join, sep } from "path";
 import process from "process";
 import { homedir } from "os";
+import { Effect } from "effect";
 import appBranding from "../../appBranding.json";
 import { ScriptingIpcChannels, type ScriptExecutePayload } from "../shared/ipc";
+import { createApplicationMenu } from "./menu";
+import { registerWindowIpcHandlers } from "./window-ipc";
+import {
+  getRendererGameWindowPath,
+  getRendererWindowPath,
+  WindowManagerError,
+  WindowService,
+  WindowServiceLive,
+  type WindowEffectRunner,
+} from "./windows";
 
 const { mkdir, readFile, realpath } = promises;
 
@@ -35,7 +47,7 @@ const resolveAppDataBasePath = (): string =>
 const resolveUserDataPath = (): string => {
   const appDataBase = resolveAppDataBasePath();
 
-  // If the legacy directory exists, prefer that over the new one to avoid losing session data. 
+  // If the legacy directory exists, prefer that over the new one to avoid losing session data.
   for (const dirName of activeBranding.legacyUserDataDirNames) {
     const legacyPath = join(appDataBase, dirName);
     if (existsSync(legacyPath)) {
@@ -54,6 +66,7 @@ if (isWin) {
 }
 
 const assetsPath = join(app.getAppPath(), "..", "assets");
+const rendererPath = join(__dirname, "../renderer");
 const documentsPath = join(app.getPath("documents"), "vexed");
 const scriptsPath = join(documentsPath, "scripts");
 const devRendererReloadPath = process.env["VEXED_DEV_RENDERER_RELOAD"];
@@ -220,6 +233,34 @@ const bindScriptingShortcuts = (win: BrowserWindow) => {
   });
 };
 
+const getGameUserAgent = (): string =>
+  isDarwin
+    ? "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_16_0) AppleWebKit/537.36 (KHTML, like Gecko) ArtixGameLauncher/2.2.0 Chrome/80.0.3987.163 Electron/8.5.5 Safari/537.36"
+    : isLinux
+      ? "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) ArtixGameLauncher/2.2.0 Chrome/80.0.3987.163 Electron/8.5.5 Safari/537.36"
+      : "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) ArtixGameLauncher/2.2.0 Chrome/80.0.3987.163 Electron/8.5.5 Safari/537.36";
+
+const gameUserAgent = getGameUserAgent();
+
+const configureGameWindow = (win: BrowserWindow): void => {
+  bindScriptingShortcuts(win);
+  win.webContents.setUserAgent(gameUserAgent);
+};
+
+const installGameRequestHeaders = (): void => {
+  session.defaultSession.webRequest.onBeforeSendHeaders((details, callback) => {
+    const requestHeaders = details.requestHeaders;
+    Object.defineProperty(requestHeaders, "User-Agent", {
+      value: gameUserAgent,
+    });
+    Object.defineProperty(requestHeaders, "artixmode", { value: "launcher" });
+    Object.defineProperty(requestHeaders, "X-Requested-With", {
+      value: "ShockwaveFlash/32.0.0.371",
+    });
+    callback({ requestHeaders, cancel: false });
+  });
+};
+
 const installDevRendererReloadWatcher = () => {
   if (!devRendererReloadPath) {
     return;
@@ -273,54 +314,63 @@ const resolveDevRendererUrl = (): string | null => {
   }
 };
 
-function createWindow() {
-  const win = new BrowserWindow({
-    width: 1024,
-    height: 768,
-    webPreferences: {
-      plugins: true,
-      preload: join(__dirname, "../preload/index.js"),
-      nodeIntegration: false,
-      contextIsolation: true,
-    },
+let runWindowEffect: WindowEffectRunner | null = null;
+
+const runConfiguredWindowEffect: WindowEffectRunner = (effect) => {
+  if (!runWindowEffect) {
+    return Promise.reject(
+      new WindowManagerError({
+        message: "Window service has not been configured",
+      }),
+    );
+  }
+
+  return runWindowEffect(effect);
+};
+
+const openGameWindow = (): void => {
+  void runConfiguredWindowEffect(
+    Effect.gen(function* () {
+      const windows = yield* WindowService;
+      return yield* windows.openGameWindow;
+    }),
+  ).catch((error) => {
+    console.error("Failed to open game window:", error);
   });
-
-  bindScriptingShortcuts(win);
-
-  win.webContents.openDevTools({ mode: "right" });
-
-  const userAgent = isDarwin
-    ? "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_16_0) AppleWebKit/537.36 (KHTML, like Gecko) ArtixGameLauncher/2.2.0 Chrome/80.0.3987.163 Electron/8.5.5 Safari/537.36"
-    : isLinux
-      ? "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) ArtixGameLauncher/2.2.0 Chrome/80.0.3987.163 Electron/8.5.5 Safari/537.36"
-      : "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) ArtixGameLauncher/2.2.0 Chrome/80.0.3987.163 Electron/8.5.5 Safari/537.36";
-
-  win.webContents.setUserAgent(userAgent);
-  session.defaultSession.webRequest.onBeforeSendHeaders((details, callback) => {
-    const requestHeaders = details.requestHeaders;
-    Object.defineProperty(requestHeaders, "User-Agent", { value: userAgent });
-    Object.defineProperty(requestHeaders, "artixmode", { value: "launcher" });
-    Object.defineProperty(requestHeaders, "X-Requested-With", {
-      value: "ShockwaveFlash/32.0.0.371",
-    });
-    callback({ requestHeaders, cancel: false });
-  });
-
-  const rendererUrl = resolveDevRendererUrl();
-  const rendererLoad = rendererUrl
-    ? win.loadURL(rendererUrl)
-    : win.loadFile(join(__dirname, "../renderer/game/index.html"));
-
-  rendererLoad.catch((err) =>
-    console.error("Failed to load renderer HTML:", err),
-  );
-}
+};
 
 app.whenReady().then(() => {
+  const windowLayer = WindowServiceLive({
+    gameWindowHtmlPath: getRendererGameWindowPath(rendererPath),
+    isDev: isDevApp,
+    preloadPath: join(__dirname, "../preload/index.js"),
+    rendererUrl: resolveDevRendererUrl(),
+    windowHtmlPath: (id) => getRendererWindowPath(rendererPath, id),
+    onGameWindowCreated: configureGameWindow,
+  });
+
+  runWindowEffect = <A>(
+    effect: Effect.Effect<A, WindowManagerError, WindowService>,
+  ): Promise<A> => Effect.runPromise(effect.pipe(Effect.provide(windowLayer)));
+
   registerScriptingIpcHandlers();
+  registerWindowIpcHandlers(runConfiguredWindowEffect);
+  installGameRequestHeaders();
   installDevRendererReloadWatcher();
   installDevDockIcon();
-  createWindow();
+  createApplicationMenu(runConfiguredWindowEffect);
+  openGameWindow();
+});
+
+app.on("before-quit", () => {
+  void runConfiguredWindowEffect(
+    Effect.gen(function* () {
+      const windows = yield* WindowService;
+      yield* windows.setQuitting(true);
+    }),
+  ).catch((error) => {
+    console.error("Failed to mark window service as quitting:", error);
+  });
 });
 
 app.on("window-all-closed", () => {
@@ -328,5 +378,12 @@ app.on("window-all-closed", () => {
 });
 
 app.on("activate", () => {
-  if (BrowserWindow.getAllWindows().length === 0) createWindow();
+  void runConfiguredWindowEffect(
+    Effect.gen(function* () {
+      const windows = yield* WindowService;
+      yield* windows.revealGameWindow;
+    }),
+  ).catch((error) => {
+    console.error("Failed to reveal game window:", error);
+  });
 });
