@@ -14,7 +14,10 @@ import { homedir } from "os";
 import { Effect } from "effect";
 import appBranding from "../../appBranding.json";
 import { ScriptingIpcChannels, type ScriptExecutePayload } from "../shared/ipc";
+import { WindowIds } from "../shared/windows";
 import { createApplicationMenu } from "./menu";
+import * as Appearance from "./settings/Appearance";
+import * as Preferences from "./settings/Preferences";
 import { registerWindowIpcHandlers } from "./window-ipc";
 import {
   getRendererGameWindowPath,
@@ -339,7 +342,30 @@ const openGameWindow = (): void => {
   });
 };
 
+const openStartupWindow = (launchMode: Preferences.AppLaunchMode): void => {
+  if (launchMode === "game") {
+    openGameWindow();
+    return;
+  }
+
+  void runConfiguredWindowEffect(
+    Effect.gen(function* () {
+      const windows = yield* WindowService;
+      yield* windows.openWindow(WindowIds.AccountManager);
+    }),
+  ).catch((error) => {
+    console.error("Failed to open startup window:", error);
+  });
+};
+
+const loadMainSettings = () => {
+  const preferences = Preferences.ensure();
+  Appearance.ensure();
+  return { preferences };
+};
+
 app.whenReady().then(() => {
+  const { preferences } = loadMainSettings();
   const windowLayer = WindowServiceLive({
     gameWindowHtmlPath: getRendererGameWindowPath(rendererPath),
     isDev: isDevApp,
@@ -359,7 +385,7 @@ app.whenReady().then(() => {
   installDevRendererReloadWatcher();
   installDevDockIcon();
   createApplicationMenu(runConfiguredWindowEffect);
-  openGameWindow();
+  openStartupWindow(preferences.launchMode);
 });
 
 app.on("before-quit", () => {
