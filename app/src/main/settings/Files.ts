@@ -69,7 +69,10 @@ export const ensureJson = <T>(
     const value = readJson(path);
     const normalized = normalize(value);
 
-    if (value === undefined) {
+    if (
+      value === undefined ||
+      JSON.stringify(value) !== JSON.stringify(normalized)
+    ) {
       writeJson(path, normalized);
     }
 

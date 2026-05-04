@@ -66,6 +66,24 @@ describe("Files", () => {
     expect(JSON.parse(await readFile(path, "utf8"))).toEqual(existing);
   });
 
+  it("rewrites existing JSON after normalization", async () => {
+    const path = join(testDir, "settings.json");
+    await writeFile(
+      path,
+      JSON.stringify({ enabled: false, count: "bad", extra: true }),
+      "utf8",
+    );
+
+    expect(Files.ensureJson(path, defaults, normalize)).toEqual({
+      enabled: false,
+      count: 1,
+    });
+    expect(JSON.parse(await readFile(path, "utf8"))).toEqual({
+      enabled: false,
+      count: 1,
+    });
+  });
+
   it("reads and normalizes existing JSON", async () => {
     const path = join(testDir, "settings.json");
     await writeFile(
