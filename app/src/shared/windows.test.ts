@@ -55,16 +55,6 @@ describe("window catalog", () => {
               height: 593,
             },
           }),
-          expect.objectContaining({
-            id: WindowIds.Hotkeys,
-            label: "Hotkeys",
-            scope: "game-child",
-            closeBehavior: "hide",
-            dimensions: {
-              width: 517,
-              height: 528,
-            },
-          }),
         ],
       },
       {
@@ -148,6 +138,8 @@ describe("window catalog", () => {
 
     expect(settings && isAppWindowDefinition(settings)).toBe(true);
     expect(environment && isGameChildWindowDefinition(environment)).toBe(true);
-    expect(packetLogger && isGameChildWindowDefinition(packetLogger)).toBe(true);
+    expect(packetLogger && isGameChildWindowDefinition(packetLogger)).toBe(
+      true,
+    );
   });
 });

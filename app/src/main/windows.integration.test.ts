@@ -50,7 +50,8 @@ describe("app window wiring", () => {
     const source = readSource("../renderer/windows/game/app.tsx");
 
     expect(source).toContain('import { mountWindow } from "../mount"');
-    expect(source).toContain("mountWindow(() => <GameApp />)");
+    expect(source).toContain("mountWindow(({ initialSettings }) =>");
+    expect(source).toContain("<GameApp initialSettings={initialSettings} />");
     expect(source).not.toContain("installSettingsSync");
   });
 

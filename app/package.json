@@ -24,6 +24,7 @@
     "electron-builder": "electron-builder"
   },
   "dependencies": {
+    "@tanstack/solid-hotkeys": "^0.10.0",
     "@vexed/collection": "workspace:*",
     "@vexed/game": "workspace:*",
     "@vexed/shared": "workspace:*",

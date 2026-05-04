@@ -133,6 +133,117 @@
   flex: 0 0 auto;
 }
 
+.hotkey-groups {
+  display: grid;
+  gap: 1.5rem;
+  min-width: 0;
+}
+
+.hotkey-group {
+  display: grid;
+  gap: 0.5rem;
+  min-width: 0;
+}
+
+.hotkey-group h3 {
+  color: rgb(var(--muted-foreground));
+  font-size: var(--text-sm);
+  font-weight: 600;
+  line-height: 1.2;
+  margin: 0;
+  text-transform: uppercase;
+}
+
+.hotkey-list {
+  border-top: 1px solid rgb(var(--border));
+  display: grid;
+  min-width: 0;
+}
+
+.hotkey-row {
+  align-items: center;
+  border-bottom: 1px solid rgb(var(--border));
+  display: grid;
+  gap: 1rem;
+  grid-template-columns: minmax(12rem, 1fr) auto;
+  min-height: 3.25rem;
+  min-width: 0;
+  padding: 0.75rem 0;
+}
+
+.hotkey-row[data-conflict] {
+  border-bottom-color: rgba(var(--destructive), 0.45);
+}
+
+.hotkey-row__content {
+  display: grid;
+  gap: 0.25rem;
+  min-width: 0;
+}
+
+.hotkey-row__title {
+  color: rgb(var(--foreground));
+  font-size: var(--text-md);
+  font-weight: 500;
+  line-height: 1.25;
+}
+
+.hotkey-row__conflict {
+  color: rgb(var(--destructive));
+  font-size: var(--text-base);
+  line-height: 1.35;
+}
+
+.hotkey-row__controls {
+  align-items: center;
+  display: grid;
+  gap: 0.5rem;
+  grid-template-columns: 8.5rem repeat(3, auto);
+  min-width: 0;
+}
+
+.hotkey-row__value {
+  align-items: center;
+  display: flex;
+  font-family: var(--font-mono);
+  font-size: var(--font-mono-size);
+  height: 2rem;
+  gap: 0.25rem;
+  justify-content: flex-end;
+  min-width: 0;
+  overflow: hidden;
+  white-space: nowrap;
+}
+
+.hotkey-row__key {
+  align-items: center;
+  background: linear-gradient(
+    180deg,
+    rgba(var(--card), 0.98),
+    rgba(var(--muted), 0.92)
+  );
+  border: 1px solid rgba(var(--border), 0.92);
+  border-bottom-color: rgba(var(--foreground), 0.18);
+  border-radius: var(--radius-sm);
+  box-shadow:
+    inset 0 1px 0 rgba(var(--background), 0.65),
+    0 1px 1px rgba(0, 0, 0, 0.12);
+  color: rgb(var(--foreground));
+  display: inline-flex;
+  height: 1.75rem;
+  justify-content: center;
+  line-height: 1;
+  min-width: 1.75rem;
+  overflow: hidden;
+  padding: 0 0.5rem;
+  text-overflow: ellipsis;
+}
+
+.hotkey-row__key[data-empty] {
+  color: rgb(var(--muted-foreground));
+  min-width: 5.5rem;
+}
+
 
 
 .theme-profile-grid {
@@ -310,6 +421,16 @@
   .settings-row__action {
     width: 100%;
     justify-content: flex-start;
+  }
+
+  .hotkey-row {
+    align-items: flex-start;
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .hotkey-row__controls {
+    grid-template-columns: minmax(7rem, 1fr) repeat(3, auto);
+    width: 100%;
   }
 
   .theme-token-row {

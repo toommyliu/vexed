@@ -1,6 +1,10 @@
 /* @refresh reload */
 import "./style.css";
 import {
+  formatForDisplay,
+  normalizeHotkeyFromEvent,
+} from "@tanstack/solid-hotkeys";
+import {
   Button,
   Input,
   Slider,
@@ -22,12 +26,23 @@ import {
   type JSX,
 } from "solid-js";
 import {
+  GAME_COMMANDS,
+  type CommandCategory,
+  type GameCommandId,
+} from "../../../shared/commands";
+import {
+  normalizeHotkeyBinding,
+  type HotkeyBindings,
+} from "../../../shared/hotkeys";
+import {
   DEFAULT_APPEARANCE,
+  DEFAULT_HOTKEYS,
   DEFAULT_PREFERENCES,
   DEFAULT_THEME_TOKENS,
   THEME_TOKEN_NAMES,
   type AppSettings,
   type AppearancePatch,
+  type HotkeysPatch,
   type PreferencesPatch,
   type ThemeMode,
   type ThemeRgb,
@@ -39,6 +54,7 @@ import { mountWindow } from "../mount";
 const defaultSettings: AppSettings = {
   preferences: DEFAULT_PREFERENCES,
   appearance: DEFAULT_APPEARANCE,
+  hotkeys: DEFAULT_HOTKEYS,
 };
 
 const themeModes: ReadonlyArray<{
@@ -54,6 +70,14 @@ const launchModes = [
   { label: "Game", value: "game" },
   { label: "Account Manager", value: "account-manager" },
 ] as const;
+
+const commandCategories: readonly CommandCategory[] = [
+  "Application",
+  "Scripts",
+  "Options",
+  "Tools",
+  "Packets",
+];
 
 const clampFontSize = (value: number): number =>
   Math.min(24, Math.max(10, Math.round(value)));
@@ -335,6 +359,282 @@ function GeneralSettings(props: {
   );
 }
 
+const readHotkey = (bindings: HotkeyBindings, id: GameCommandId): string => {
+  const definition = GAME_COMMANDS.find((command) => command.id === id);
+  return bindings[id] ?? definition?.defaultHotkey ?? "";
+};
+
+const displayHotkey = (value: string): string => {
+  if (value === "") {
+    return "Unbound";
+  }
+
+  try {
+    return formatForDisplay(value);
+  } catch {
+    return value;
+  }
+};
+
+const displayHotkeyParts = (value: string): readonly string[] => {
+  const display = displayHotkey(value);
+  if (display === "Unbound") {
+    return [display];
+  }
+
+  const separator = display.includes("+") ? "+" : /\s+/;
+  return display
+    .split(separator)
+    .map((part) => part.trim())
+    .filter((part) => part.length > 0);
+};
+
+const getConflictingLabels = (
+  bindings: HotkeyBindings,
+  id: GameCommandId,
+  value: string,
+): readonly string[] => {
+  if (value === "") {
+    return [];
+  }
+
+  return GAME_COMMANDS.filter(
+    (command) =>
+      command.id !== id && readHotkey(bindings, command.id) === value,
+  ).map((command) => command.label);
+};
+
+function HotkeySettingsSection(props: {
+  readonly settings: AppSettings;
+  readonly onHotkeysPatch: (patch: HotkeysPatch) => Promise<void>;
+  readonly onResetHotkeys: () => Promise<void>;
+}): JSX.Element {
+  const [recordingId, setRecordingId] = createSignal<GameCommandId | null>(
+    null,
+  );
+  const [localError, setLocalError] = createSignal<string | null>(null);
+
+  const commitBinding = async (
+    id: GameCommandId,
+    value: string | null,
+  ): Promise<void> => {
+    setLocalError(null);
+    const definition = GAME_COMMANDS.find((command) => command.id === id);
+
+    if (value !== null) {
+      const normalized = normalizeHotkeyBinding(value);
+      if (normalized === undefined) {
+        setLocalError("That shortcut is not valid.");
+        return;
+      }
+
+      const conflicts = getConflictingLabels(
+        props.settings.hotkeys.bindings,
+        id,
+        normalized,
+      );
+      if (conflicts.length > 0) {
+        setLocalError(`Shortcut already used by ${conflicts.join(", ")}.`);
+        return;
+      }
+
+      await props.onHotkeysPatch({
+        bindings: {
+          [id]: normalized,
+        },
+      });
+      return;
+    }
+
+    const defaultValue = definition?.defaultHotkey ?? "";
+    const conflicts = getConflictingLabels(
+      props.settings.hotkeys.bindings,
+      id,
+      defaultValue,
+    );
+    if (conflicts.length > 0) {
+      setLocalError(
+        `Default shortcut already used by ${conflicts.join(", ")}.`,
+      );
+      return;
+    }
+
+    await props.onHotkeysPatch({
+      bindings: {
+        [id]: null,
+      },
+    });
+  };
+
+  createEffect(() => {
+    const activeId = recordingId();
+    if (activeId === null) {
+      return;
+    }
+
+    const handleKeyDown = (event: KeyboardEvent) => {
+      event.preventDefault();
+      event.stopPropagation();
+
+      if (event.key === "Escape") {
+        setRecordingId(null);
+        return;
+      }
+
+      if (event.key === "Backspace" || event.key === "Delete") {
+        setRecordingId(null);
+        void commitBinding(activeId, "");
+        return;
+      }
+
+      const normalized = normalizeHotkeyBinding(
+        normalizeHotkeyFromEvent(event),
+      );
+      if (normalized === undefined) {
+        setLocalError("Press a complete shortcut.");
+        return;
+      }
+
+      setRecordingId(null);
+      void commitBinding(activeId, normalized);
+    };
+
+    window.addEventListener("keydown", handleKeyDown, { capture: true });
+
+    onCleanup(() => {
+      window.removeEventListener("keydown", handleKeyDown, { capture: true });
+    });
+  });
+
+  return (
+    <SettingsSection
+      description="Game-window shortcuts. App-wide shortcuts stay in the native application menu."
+      id="hotkeys"
+      title="Hotkeys"
+    >
+      <div class="settings-section__actions">
+        <Button
+          onClick={() => void props.onResetHotkeys()}
+          size="sm"
+          type="button"
+          variant="outline"
+        >
+          Reset hotkeys
+        </Button>
+      </div>
+      <Show when={localError()}>
+        {(message) => <div class="settings-error">{message()}</div>}
+      </Show>
+      <div class="hotkey-groups">
+        <For each={commandCategories}>
+          {(category) => {
+            const commands = GAME_COMMANDS.filter(
+              (command) => command.category === category,
+            );
+
+            return (
+              <section class="hotkey-group">
+                <h3>{category}</h3>
+                <div class="hotkey-list">
+                  <For each={commands}>
+                    {(command) => {
+                      const value = () =>
+                        readHotkey(props.settings.hotkeys.bindings, command.id);
+                      const conflicts = () =>
+                        getConflictingLabels(
+                          props.settings.hotkeys.bindings,
+                          command.id,
+                          value(),
+                        );
+                      const isRecording = () => recordingId() === command.id;
+
+                      return (
+                        <div
+                          class="hotkey-row"
+                          data-conflict={
+                            conflicts().length > 0 ? "" : undefined
+                          }
+                        >
+                          <div class="hotkey-row__content">
+                            <div class="hotkey-row__title">{command.label}</div>
+                            <Show when={conflicts().length > 0}>
+                              <div class="hotkey-row__conflict">
+                                Also used by {conflicts().join(", ")}
+                              </div>
+                            </Show>
+                          </div>
+                          <div class="hotkey-row__controls">
+                            <kbd class="hotkey-row__value">
+                              <For
+                                each={
+                                  isRecording()
+                                    ? ["Press keys"]
+                                    : displayHotkeyParts(value())
+                                }
+                              >
+                                {(part) => (
+                                  <span
+                                    class="hotkey-row__key"
+                                    data-empty={
+                                      value() === "" && !isRecording()
+                                        ? ""
+                                        : undefined
+                                    }
+                                  >
+                                    {part}
+                                  </span>
+                                )}
+                              </For>
+                            </kbd>
+                            <Button
+                              disabled={
+                                recordingId() !== null && !isRecording()
+                              }
+                              onClick={() => {
+                                setLocalError(null);
+                                setRecordingId(command.id);
+                              }}
+                              size="sm"
+                              type="button"
+                              variant={isRecording() ? "secondary" : "outline"}
+                            >
+                              Record
+                            </Button>
+                            <Button
+                              disabled={value() === ""}
+                              onClick={() => void commitBinding(command.id, "")}
+                              size="sm"
+                              type="button"
+                              variant="ghost"
+                            >
+                              Clear
+                            </Button>
+                            <Button
+                              disabled={value() === command.defaultHotkey}
+                              onClick={() =>
+                                void commitBinding(command.id, null)
+                              }
+                              size="sm"
+                              type="button"
+                              variant="ghost"
+                            >
+                              Reset
+                            </Button>
+                          </div>
+                        </div>
+                      );
+                    }}
+                  </For>
+                </div>
+              </section>
+            );
+          }}
+        </For>
+      </div>
+    </SettingsSection>
+  );
+}
+
 function AppearanceSettings(props: {
   readonly settings: AppSettings;
   readonly onAppearancePatch: (patch: AppearancePatch) => void;
@@ -559,6 +859,15 @@ function SettingsApp(props: {
                 void runSettingsUpdate(
                   window.ipc.settings.updatePreferences(patch),
                 )
+              }
+              settings={settings()}
+            />
+            <HotkeySettingsSection
+              onHotkeysPatch={(patch) =>
+                runSettingsUpdate(window.ipc.settings.updateHotkeys(patch))
+              }
+              onResetHotkeys={() =>
+                runSettingsUpdate(window.ipc.settings.resetHotkeys())
               }
               settings={settings()}
             />

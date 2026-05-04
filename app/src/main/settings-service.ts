@@ -5,6 +5,7 @@ import {
   type AppSettings,
   type Appearance,
   type AppearancePatch,
+  type HotkeysPatch,
   type Preferences,
   type PreferencesPatch,
   type ThemeMode,
@@ -15,6 +16,7 @@ import {
   type ThemeVariant,
 } from "../shared/settings";
 import * as AppearanceSettings from "./settings/Appearance";
+import * as HotkeysSettings from "./settings/Hotkeys";
 import * as PreferencesSettings from "./settings/Preferences";
 
 type SettingsChangeListener = (settings: AppSettings) => void;
@@ -80,6 +82,7 @@ const applyThemeProfilePatch = (
 export const readSettings = (): AppSettings => ({
   preferences: PreferencesSettings.ensure(),
   appearance: AppearanceSettings.ensure(),
+  hotkeys: HotkeysSettings.ensure(),
 });
 
 export const syncNativeTheme = (appearance: Appearance): void => {
@@ -168,6 +171,21 @@ export const updateAppearance = (patch: AppearancePatch): AppSettings => {
 
 export const resetAppearance = (): AppSettings => {
   AppearanceSettings.write(AppearanceSettings.DEFAULT);
+  return publishSettings(readSettings());
+};
+
+export const updateHotkeys = (patch: HotkeysPatch): AppSettings => {
+  const current = HotkeysSettings.read();
+  const next = isRecord(patch.bindings)
+    ? HotkeysSettings.applyPatch(current, patch.bindings)
+    : current;
+
+  HotkeysSettings.write(next);
+  return publishSettings(readSettings());
+};
+
+export const resetHotkeys = (): AppSettings => {
+  HotkeysSettings.write(HotkeysSettings.DEFAULT);
   return publishSettings(readSettings());
 };
 

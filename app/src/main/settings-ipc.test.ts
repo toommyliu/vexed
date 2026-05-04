@@ -15,9 +15,11 @@ describe("settings IPC and appearance wiring", () => {
     expect(SettingsIpcChannels.updateAppearance).toBe(
       "settings:update-appearance",
     );
+    expect(SettingsIpcChannels.updateHotkeys).toBe("settings:update-hotkeys");
     expect(SettingsIpcChannels.resetAppearance).toBe(
       "settings:reset-appearance",
     );
+    expect(SettingsIpcChannels.resetHotkeys).toBe("settings:reset-hotkeys");
     expect(SettingsIpcChannels.changed).toBe("settings:changed");
   });
 
@@ -28,7 +30,9 @@ describe("settings IPC and appearance wiring", () => {
     expect(source).toContain("settings: {");
     expect(source).toContain("updatePreferences: async");
     expect(source).toContain("updateAppearance: async");
+    expect(source).toContain("updateHotkeys: async");
     expect(source).toContain("resetAppearance: async");
+    expect(source).toContain("resetHotkeys: async");
     expect(source).toContain("ipcRenderer.on(SettingsIpcChannels.changed");
   });
 
@@ -45,7 +49,13 @@ describe("settings IPC and appearance wiring", () => {
       "ipcMain.handle(SettingsIpcChannels.updateAppearance",
     );
     expect(ipcSource).toContain(
+      "ipcMain.handle(SettingsIpcChannels.updateHotkeys",
+    );
+    expect(ipcSource).toContain(
       "ipcMain.handle(SettingsIpcChannels.resetAppearance",
+    );
+    expect(ipcSource).toContain(
+      "ipcMain.handle(SettingsIpcChannels.resetHotkeys",
     );
   });
 

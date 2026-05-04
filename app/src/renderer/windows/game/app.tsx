@@ -3,4 +3,6 @@ import "./entrypoint";
 import GameApp from "./GameApp";
 import { mountWindow } from "../mount";
 
-mountWindow(() => <GameApp />);
+mountWindow(({ initialSettings }) => (
+  <GameApp initialSettings={initialSettings} />
+));

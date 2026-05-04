@@ -1,3 +1,5 @@
+import type { HotkeysSettings } from "./hotkeys";
+
 export type AppLaunchMode = "game" | "account-manager";
 
 export interface Preferences {
@@ -148,6 +150,7 @@ export const DEFAULT_APPEARANCE: Appearance = {
 export interface AppSettings {
   readonly preferences: Preferences;
   readonly appearance: Appearance;
+  readonly hotkeys: HotkeysSettings;
 }
 
 export interface PreferencesPatch {
@@ -168,3 +171,6 @@ export interface AppearancePatch {
   readonly themeMode?: ThemeMode;
   readonly themes?: Partial<Record<ThemeVariant, ThemeProfilePatch>>;
 }
+
+export type { HotkeyBindings, HotkeysPatch, HotkeysSettings } from "./hotkeys";
+export { DEFAULT_HOTKEYS } from "./hotkeys";

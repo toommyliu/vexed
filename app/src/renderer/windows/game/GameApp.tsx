@@ -7,10 +7,19 @@ import {
   onMount,
   type JSX,
 } from "solid-js";
+import {
+  DEFAULT_APPEARANCE,
+  DEFAULT_HOTKEYS,
+  DEFAULT_PREFERENCES,
+  type AppSettings,
+} from "../../../shared/settings";
+import type { WindowId } from "../../../shared/windows";
 import { runtime } from "./Runtime";
 import { Settings, type SettingsShape } from "./flash/Services/Settings";
 import { AutoRelogin } from "./features/Services/AutoRelogin";
 import { GameTopNav, type TopNavOptionItem } from "./GameTopNav";
+import { createGameCommands } from "./commands";
+import { GameHotkeys } from "./hotkeys";
 import { getGameLoadState, subscribeGameLoadState } from "./loadState";
 
 const formatScriptStatus = (
@@ -29,7 +38,18 @@ const formatScriptStatus = (
   return loaded ? "Loaded" : "No script loaded";
 };
 
-export default function App(): JSX.Element {
+const defaultSettings: AppSettings = {
+  preferences: DEFAULT_PREFERENCES,
+  appearance: DEFAULT_APPEARANCE,
+  hotkeys: DEFAULT_HOTKEYS,
+};
+
+export default function App(props: {
+  readonly initialSettings?: AppSettings | null;
+}): JSX.Element {
+  const [settings, setSettings] = createSignal<AppSettings>(
+    props.initialSettings ?? defaultSettings,
+  );
   const [gameLoaded, setGameLoaded] = createSignal(getGameLoadState().loaded);
   const [autoAttackEnabled, setAutoAttackEnabled] = createSignal(false);
   const [scriptName, setScriptName] = createSignal("");
@@ -64,6 +84,12 @@ export default function App(): JSX.Element {
 
   let settingsStateDisposer: (() => void) | undefined;
   let autoReloginStateDisposer: (() => void) | undefined;
+
+  const openWindow = (id: WindowId) => {
+    void window.ipc.windows.open(id).catch((error: unknown) => {
+      console.error(`Failed to open window ${id}:`, error);
+    });
+  };
 
   const refreshScriptMeta = async () => {
     if (!window.cmd) {
@@ -427,7 +453,31 @@ export default function App(): JSX.Element {
     },
   ]);
 
+  const gameCommands = createGameCommands({
+    bindings: () => settings().hotkeys.bindings,
+    loadScript,
+    startScript,
+    stopScript,
+    scriptLoaded,
+    scriptRunning,
+    setAutoAttackEnabled,
+    autoAttackEnabled,
+    optionItems,
+    openWindow,
+  });
+
   onMount(() => {
+    const unsubscribeAppSettings = window.ipc.settings.onChanged(setSettings);
+
+    if (props.initialSettings === undefined || props.initialSettings === null) {
+      void window.ipc.settings
+        .get()
+        .then(setSettings)
+        .catch((error) => {
+          console.error("Failed to load app settings:", error);
+        });
+    }
+
     const disposeGameLoadState = subscribeGameLoadState((state) => {
       setGameLoaded(state.loaded);
     });
@@ -488,6 +538,7 @@ export default function App(): JSX.Element {
       });
 
     onCleanup(() => {
+      unsubscribeAppSettings();
       disposeGameLoadState();
       clearInterval(scriptMetaInterval);
     });
@@ -500,6 +551,10 @@ export default function App(): JSX.Element {
 
   return (
     <main class="game-shell">
+      <GameHotkeys
+        bindings={() => settings().hotkeys.bindings}
+        commands={() => gameCommands}
+      />
       <GameTopNav
         autoAttackEnabled={autoAttackEnabled}
         setAutoAttackEnabled={setAutoAttackEnabled}

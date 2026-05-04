@@ -206,41 +206,6 @@ const registerScriptingIpcHandlers = () => {
   scriptingIpcRegistered = true;
 };
 
-const openScriptAndSendToRenderer = async (win: BrowserWindow) => {
-  const payload = await openScriptDialog(win);
-  if (!payload) {
-    return;
-  }
-
-  win.webContents.send(ScriptingIpcChannels.execute, payload);
-};
-
-const stopActiveScript = (win: BrowserWindow) => {
-  win.webContents.send(ScriptingIpcChannels.stop);
-};
-
-const bindScriptingShortcuts = (win: BrowserWindow) => {
-  win.webContents.on("before-input-event", (event, input) => {
-    if (input.type !== "keyDown") {
-      return;
-    }
-
-    const key = input.key.toLowerCase();
-    const hasPrimaryModifier = isDarwin ? input.meta : input.control;
-
-    if (hasPrimaryModifier && key === "o") {
-      event.preventDefault();
-      void openScriptAndSendToRenderer(win);
-      return;
-    }
-
-    if (hasPrimaryModifier && input.shift && key === "x") {
-      event.preventDefault();
-      stopActiveScript(win);
-    }
-  });
-};
-
 const getGameUserAgent = (): string =>
   isDarwin
     ? "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_16_0) AppleWebKit/537.36 (KHTML, like Gecko) ArtixGameLauncher/2.2.0 Chrome/80.0.3987.163 Electron/8.5.5 Safari/537.36"
@@ -251,7 +216,6 @@ const getGameUserAgent = (): string =>
 const gameUserAgent = getGameUserAgent();
 
 const configureGameWindow = (win: BrowserWindow): void => {
-  bindScriptingShortcuts(win);
   win.webContents.setUserAgent(gameUserAgent);
 };
 

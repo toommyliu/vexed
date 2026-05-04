@@ -180,9 +180,8 @@ describe("window reveal", () => {
     const window = new EventEmitter();
     const revealCalls: string[] = [];
 
-    bindFirstRevealTrigger(
-      [(fire) => window.once("ready-to-show", fire)],
-      () => revealCalls.push("revealed"),
+    bindFirstRevealTrigger([(fire) => window.once("ready-to-show", fire)], () =>
+      revealCalls.push("revealed"),
     );
 
     window.emit("ready-to-show");
@@ -387,11 +386,13 @@ describe("window service", () => {
     destroyedGame.destroy();
 
     const child = (await run(
-      harness.service.openWindow(WindowIds.Hotkeys),
+      harness.service.openWindow(WindowIds.Environment),
     )) as unknown as FakeWindow;
 
     expect(child.options.parent).not.toBe(destroyedGame);
-    expect(harness.windows.filter((window) => !window.destroyed)).toHaveLength(2);
+    expect(harness.windows.filter((window) => !window.destroyed)).toHaveLength(
+      2,
+    );
   });
 
   it("returns typed errors for unknown window ids", async () => {

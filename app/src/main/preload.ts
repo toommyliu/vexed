@@ -6,6 +6,7 @@ import {
   type AppBridge,
   type AppSettings,
   type AppearancePatch,
+  type HotkeysPatch,
   type PreferencesPatch,
   type ScriptExecutePayload,
 } from "../shared/ipc";
@@ -63,9 +64,20 @@ const bridge: AppBridge = {
         patch,
       )) as AppSettings;
     },
+    updateHotkeys: async (patch: HotkeysPatch) => {
+      return (await ipcRenderer.invoke(
+        SettingsIpcChannels.updateHotkeys,
+        patch,
+      )) as AppSettings;
+    },
     resetAppearance: async () => {
       return (await ipcRenderer.invoke(
         SettingsIpcChannels.resetAppearance,
+      )) as AppSettings;
+    },
+    resetHotkeys: async () => {
+      return (await ipcRenderer.invoke(
+        SettingsIpcChannels.resetHotkeys,
       )) as AppSettings;
     },
     onChanged: (listener) => {
