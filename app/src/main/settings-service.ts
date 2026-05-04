@@ -66,6 +66,12 @@ const applyThemeProfilePatch = (
       AppearanceSettings.normalizeFont(patch.sansFont) ?? profile.sansFont,
     monoFont:
       AppearanceSettings.normalizeFont(patch.monoFont) ?? profile.monoFont,
+    sansFontSize:
+      AppearanceSettings.normalizeFontSize(patch.sansFontSize) ??
+      profile.sansFontSize,
+    monoFontSize:
+      AppearanceSettings.normalizeFontSize(patch.monoFontSize) ??
+      profile.monoFontSize,
     rounding:
       AppearanceSettings.normalizeRounding(patch.rounding) ?? profile.rounding,
   };

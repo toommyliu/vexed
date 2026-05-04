@@ -283,6 +283,25 @@ describe("window service", () => {
     expect(packetSpammer.options.parent).not.toBe(secondGame);
   });
 
+  it("reveals an existing game window instead of creating another one", async () => {
+    const harness = createHarness();
+    const gameWindow = (await run(
+      harness.service.openGameWindow,
+    )) as unknown as FakeWindow;
+
+    gameWindow.emit("ready-to-show");
+    gameWindow.hide();
+    gameWindow.minimized = true;
+    gameWindow.focused = false;
+
+    await run(harness.service.revealGameWindow);
+
+    expect(gameWindow.visible).toBe(true);
+    expect(gameWindow.minimized).toBe(false);
+    expect(gameWindow.focused).toBe(true);
+    expect(harness.windows).toHaveLength(1);
+  });
+
   it("destroys game children when their owning game window closes", async () => {
     const harness = createHarness();
     const gameWindow = (await run(

@@ -12,6 +12,7 @@ body {
   background: rgb(var(--background));
   color: rgb(var(--foreground));
   font-family: var(--font-sans);
+  font-size: var(--text-base);
   min-height: 100vh;
 }
 
@@ -37,7 +38,7 @@ body {
 }
 
 .demo-header h1 {
-  font-size: 28px;
+  font-size: var(--text-5xl);
   line-height: 1.1;
   margin: 0;
 }
@@ -73,7 +74,7 @@ body {
 
 .demo-matrix__label {
   color: rgb(var(--muted-foreground));
-  font-size: 0.75rem;
+  font-size: var(--text-sm);
   font-weight: 600;
   line-height: 1.4;
   padding-top: 0.25rem;
@@ -89,7 +90,7 @@ body {
   align-items: center;
   color: rgb(var(--muted-foreground));
   display: flex;
-  font-size: 0.8125rem;
+  font-size: var(--text-base);
   gap: 0.5rem;
   min-height: 2rem;
   padding: 0.25rem 0;
@@ -135,7 +136,7 @@ body {
 
 .demo-muted {
   color: rgb(var(--muted-foreground));
-  font-size: 0.875rem;
+  font-size: var(--text-md);
 }
 
 .demo-custom-theme {
@@ -179,12 +180,12 @@ body {
 
 .demo-app-shell-stat span {
   color: rgb(var(--muted-foreground));
-  font-size: 0.75rem;
+  font-size: var(--text-sm);
   font-weight: 600;
 }
 
 .demo-app-shell-stat strong {
-  font-size: 1rem;
+  font-size: var(--text-xl);
   line-height: 1.1;
 }
 
@@ -201,7 +202,7 @@ body {
 .demo-app-shell-log span {
   color: rgb(var(--muted-foreground));
   font-family: var(--font-mono);
-  font-size: 0.75rem;
+  font-size: var(--font-mono-size);
 }
 
 .demo-app-shell-nav {
@@ -213,7 +214,7 @@ body {
 }
 
 .demo-app-shell-nav__brand {
-  font-size: 0.875rem;
+  font-size: var(--text-md);
   font-weight: 700;
   line-height: 1;
   padding: 0.375rem 0.5rem 0.75rem;
@@ -226,7 +227,7 @@ body {
   color: rgb(var(--foreground));
   cursor: pointer;
   font-family: var(--font-sans);
-  font-size: 0.8125rem;
+  font-size: var(--text-base);
   font-weight: 500;
   outline: none;
   padding: 0.5rem;

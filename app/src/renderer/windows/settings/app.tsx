@@ -55,6 +55,9 @@ const launchModes = [
   { label: "Account Manager", value: "account-manager" },
 ] as const;
 
+const clampFontSize = (value: number): number =>
+  Math.min(24, Math.max(10, Math.round(value)));
+
 const rgbToHex = (rgb: ThemeRgb): string =>
   `#${rgb.map((part) => part.toString(16).padStart(2, "0")).join("")}`;
 
@@ -184,6 +187,59 @@ function RoundingSlider(props: {
   );
 }
 
+function FontSizeInput(props: {
+  readonly "aria-label": string;
+  readonly value: number;
+  readonly onCommit: (value: number) => void;
+}): JSX.Element {
+  const [draft, setDraft] = createSignal(String(props.value));
+  const [focused, setFocused] = createSignal(false);
+
+  createEffect(() => {
+    const value = props.value;
+    if (!untrack(focused)) {
+      setDraft(String(value));
+    }
+  });
+
+  const commit = () => {
+    const parsed = Number(draft());
+    const value = Number.isFinite(parsed) ? clampFontSize(parsed) : props.value;
+    setDraft(String(value));
+    props.onCommit(value);
+  };
+
+  return (
+    <Input
+      aria-label={props["aria-label"]}
+      class="settings-number-input"
+      max={24}
+      min={10}
+      onBlur={() => {
+        setFocused(false);
+        commit();
+      }}
+      onFocus={() => {
+        setFocused(true);
+      }}
+      onInput={(event: InputEvent & { currentTarget: HTMLInputElement }) =>
+        setDraft(event.currentTarget.value)
+      }
+      onKeyDown={(
+        event: KeyboardEvent & { currentTarget: HTMLInputElement },
+      ) => {
+        if (event.key === "Enter") {
+          commit();
+        }
+      }}
+      size="sm"
+      step={1}
+      type="number"
+      value={draft()}
+    />
+  );
+}
+
 function ThemeTokenRow(props: {
   readonly defaultValue: ThemeRgb;
   readonly name: ThemeTokenName;
@@ -290,6 +346,8 @@ function AppearanceSettings(props: {
       readonly tokens?: Partial<Record<ThemeTokenName, ThemeRgb | null>>;
       readonly sansFont?: string;
       readonly monoFont?: string;
+      readonly sansFontSize?: number;
+      readonly monoFontSize?: number;
       readonly rounding?: number;
     },
   ) => {
@@ -329,6 +387,20 @@ function AppearanceSettings(props: {
           />
           <SettingsRow
             action={
+              <FontSizeInput
+                aria-label={`${variant} theme sans font size`}
+                onCommit={(sansFontSize) =>
+                  updateThemeProfile(variant, {
+                    sansFontSize,
+                  })
+                }
+                value={profile().sansFontSize}
+              />
+            }
+            title="Sans size"
+          />
+          <SettingsRow
+            action={
               <Input
                 class="settings-text-input"
                 fullWidth
@@ -342,6 +414,20 @@ function AppearanceSettings(props: {
               />
             }
             title="Mono font"
+          />
+          <SettingsRow
+            action={
+              <FontSizeInput
+                aria-label={`${variant} theme mono font size`}
+                onCommit={(monoFontSize) =>
+                  updateThemeProfile(variant, {
+                    monoFontSize,
+                  })
+                }
+                value={profile().monoFontSize}
+              />
+            }
+            title="Mono size"
           />
           <SettingsRow
             action={
@@ -421,8 +507,12 @@ function AppearanceSettings(props: {
   );
 }
 
-function SettingsApp(): JSX.Element {
-  const [settings, setSettings] = createSignal<AppSettings>(defaultSettings);
+function SettingsApp(props: {
+  readonly initialSettings: AppSettings | null;
+}): JSX.Element {
+  const [settings, setSettings] = createSignal<AppSettings>(
+    props.initialSettings ?? defaultSettings,
+  );
   const [error, setError] = createSignal<string | null>(null);
 
   const runSettingsUpdate = async (
@@ -440,15 +530,17 @@ function SettingsApp(): JSX.Element {
   };
 
   onMount(() => {
-    void window.ipc.settings
-      .get()
-      .then(setSettings)
-      .catch((cause: unknown) => {
-        console.error("Failed to load settings:", cause);
-        setError(
-          cause instanceof Error ? cause.message : "Settings unavailable",
-        );
-      });
+    if (props.initialSettings === null) {
+      void window.ipc.settings
+        .get()
+        .then(setSettings)
+        .catch((cause: unknown) => {
+          console.error("Failed to load settings:", cause);
+          setError(
+            cause instanceof Error ? cause.message : "Settings unavailable",
+          );
+        });
+    }
 
     const unsubscribe = window.ipc.settings.onChanged(setSettings);
     onCleanup(unsubscribe);
@@ -488,4 +580,6 @@ function SettingsApp(): JSX.Element {
   );
 }
 
-mountWindow(() => <SettingsApp />);
+mountWindow(({ initialSettings }) => (
+  <SettingsApp initialSettings={initialSettings} />
+));

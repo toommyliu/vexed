@@ -49,6 +49,8 @@ export interface ThemeProfile {
   readonly tokens: Partial<Record<ThemeTokenName, ThemeRgb>>;
   readonly sansFont: string;
   readonly monoFont: string;
+  readonly sansFontSize: number;
+  readonly monoFontSize: number;
   readonly rounding: number;
 }
 
@@ -65,6 +67,9 @@ export const DEFAULT_SANS_FONT =
 
 export const DEFAULT_MONO_FONT =
   '"JetBrains Mono Variable", "JetBrains Mono", ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace';
+
+export const DEFAULT_SANS_FONT_SIZE = 13;
+export const DEFAULT_MONO_FONT_SIZE = 12;
 
 export const DEFAULT_THEME_TOKENS: Record<ThemeVariant, ThemeTokenValues> = {
   light: {
@@ -127,6 +132,8 @@ export const DEFAULT_THEME_PROFILE: ThemeProfile = {
   tokens: {},
   sansFont: DEFAULT_SANS_FONT,
   monoFont: DEFAULT_MONO_FONT,
+  sansFontSize: DEFAULT_SANS_FONT_SIZE,
+  monoFontSize: DEFAULT_MONO_FONT_SIZE,
   rounding: 1,
 };
 
@@ -152,6 +159,8 @@ export interface ThemeProfilePatch {
   readonly tokens?: Partial<Record<ThemeTokenName, ThemeRgb | null>>;
   readonly sansFont?: string;
   readonly monoFont?: string;
+  readonly sansFontSize?: number;
+  readonly monoFontSize?: number;
   readonly rounding?: number;
 }
 

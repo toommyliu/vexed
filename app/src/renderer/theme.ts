@@ -16,6 +16,22 @@ const radiusBaseRem = {
   "--radius-xl": 0.75,
 } as const;
 
+const textSizeRatios = {
+  "--text-2xs": 10 / 13,
+  "--text-xs": 11 / 13,
+  "--text-sm": 12 / 13,
+  "--text-base": 1,
+  "--text-md": 14 / 13,
+  "--text-lg": 15 / 13,
+  "--text-xl": 16 / 13,
+  "--text-2xl": 18 / 13,
+  "--text-3xl": 20 / 13,
+  "--text-4xl": 24 / 13,
+  "--text-5xl": 28 / 13,
+} as const;
+
+type TextSizeTokenName = keyof typeof textSizeRatios;
+
 const tokenCssNames = new Map<ThemeTokenName, string>(
   THEME_TOKEN_NAMES.map((name) => [
     name,
@@ -25,7 +41,28 @@ const tokenCssNames = new Map<ThemeTokenName, string>(
 
 let activeAppearance: Appearance | null = null;
 
+export interface RendererSettingsSync {
+  readonly ready: Promise<AppSettings | null>;
+  readonly dispose: () => void;
+}
+
 export const rgbToCssValue = (rgb: ThemeRgb): string => rgb.join(", ");
+
+const formatPx = (value: number): string => `${Number(value.toFixed(4))}px`;
+
+export const getTextSizeTokens = (
+  baseSize: number,
+): Record<TextSizeTokenName, string> => {
+  const tokens = {} as Record<TextSizeTokenName, string>;
+
+  for (const [name, ratio] of Object.entries(textSizeRatios) as Array<
+    [TextSizeTokenName, number]
+  >) {
+    tokens[name] = formatPx(baseSize * ratio);
+  }
+
+  return tokens;
+};
 
 export const resolveActiveThemeVariant = (
   appearance: Appearance,
@@ -54,6 +91,22 @@ const applyRounding = (
   }
 };
 
+const applyTypography = (
+  style: CSSStyleDeclaration,
+  profile: Appearance["themes"][ThemeVariant],
+): void => {
+  style.setProperty("--font-sans", profile.sansFont);
+  style.setProperty("--font-mono", profile.monoFont);
+  style.setProperty("--font-sans-size-base", formatPx(profile.sansFontSize));
+  style.setProperty("--font-mono-size", formatPx(profile.monoFontSize));
+
+  for (const [name, value] of Object.entries(
+    getTextSizeTokens(profile.sansFontSize),
+  ) as Array<[TextSizeTokenName, string]>) {
+    style.setProperty(name, value);
+  }
+};
+
 export const applyAppearance = (appearance: Appearance): void => {
   activeAppearance = appearance;
 
@@ -74,8 +127,7 @@ export const applyAppearance = (appearance: Appearance): void => {
     }
   }
 
-  style.setProperty("--font-sans", profile.sansFont);
-  style.setProperty("--font-mono", profile.monoFont);
+  applyTypography(style, profile);
   applyRounding(style, profile.rounding);
 };
 
@@ -83,12 +135,19 @@ export const applySettings = (settings: AppSettings): void => {
   applyAppearance(settings.appearance);
 };
 
-export const installSettingsSync = (): (() => void) => {
+export const installSettingsSync = (): RendererSettingsSync => {
   const bridge = window.ipc?.settings;
   if (!bridge) {
-    return () => {};
+    return {
+      ready: Promise.resolve(null),
+      dispose: () => {},
+    };
   }
 
+  let disposed = false;
+  let initialSettled = false;
+  let changedDuringInitialLoad = false;
+  let latestSettings: AppSettings | null = null;
   const media = globalThis.matchMedia?.("(prefers-color-scheme: dark)") ?? null;
   const mediaListener = () => {
     if (activeAppearance?.themeMode === "system") {
@@ -104,16 +163,38 @@ export const installSettingsSync = (): (() => void) => {
     }
   }
 
-  void bridge
+  const unsubscribeSettings = bridge.onChanged((settings) => {
+    latestSettings = settings;
+    if (!initialSettled) {
+      changedDuringInitialLoad = true;
+    }
+    applySettings(settings);
+  });
+
+  const ready = bridge
     .get()
-    .then(applySettings)
+    .then((settings) => {
+      latestSettings = changedDuringInitialLoad ? latestSettings : settings;
+
+      if (!changedDuringInitialLoad && !disposed) {
+        applySettings(settings);
+      }
+
+      initialSettled = true;
+      return latestSettings;
+    })
     .catch((error: unknown) => {
+      initialSettled = true;
       console.error("Failed to load settings:", error);
+      return null;
     });
 
-  const unsubscribeSettings = bridge.onChanged(applySettings);
+  const dispose = () => {
+    if (disposed) {
+      return;
+    }
 
-  return () => {
+    disposed = true;
     unsubscribeSettings();
 
     if (!media) {
@@ -126,4 +207,6 @@ export const installSettingsSync = (): (() => void) => {
       media.removeListener(mediaListener);
     }
   };
+
+  return { ready, dispose };
 };

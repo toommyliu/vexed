@@ -63,7 +63,7 @@
 }
 
 .settings-section__header h2 {
-  font-size: 1.5rem;
+  font-size: var(--text-4xl);
   font-weight: 600;
   line-height: 1.2;
   margin: 0;
@@ -73,7 +73,7 @@
 .settings-section__header p,
 .theme-profile__header p {
   color: rgb(var(--muted-foreground));
-  font-size: 0.875rem;
+  font-size: var(--text-md);
   line-height: 1.5;
   margin: 0;
 }
@@ -113,14 +113,14 @@
 
 .settings-row__title {
   color: rgb(var(--foreground));
-  font-size: 0.875rem;
+  font-size: var(--text-md);
   font-weight: 500;
   line-height: 1.25;
 }
 
 .settings-row__description {
   color: rgb(var(--muted-foreground));
-  font-size: 0.8125rem;
+  font-size: var(--text-base);
   line-height: 1.4;
   max-width: 28rem;
 }
@@ -160,7 +160,7 @@
 }
 
 .theme-profile__header h3 {
-  font-size: 0.9375rem;
+  font-size: var(--text-lg);
   font-weight: 600;
   line-height: 1.2;
   margin: 0 0 0.25rem;
@@ -191,6 +191,10 @@
 
 .settings-text-input {
   width: 100%;
+}
+
+.settings-number-input {
+  width: 6rem;
 }
 
 .rounding-control {
@@ -225,7 +229,7 @@
 
 .theme-token-row__name {
   color: rgb(var(--foreground));
-  font-size: 0.8125rem;
+  font-size: var(--text-base);
   min-width: 0;
 }
 
@@ -266,6 +270,7 @@
 
 .theme-token-row__input {
   font-family: var(--font-mono);
+  font-size: var(--font-mono-size);
   width: 100%;
 }
 
@@ -274,7 +279,7 @@
   border: 1px solid rgba(var(--destructive), 0.45);
   border-radius: var(--radius-md);
   color: rgb(var(--destructive));
-  font-size: 0.8125rem;
+  font-size: var(--text-base);
   margin: 0 auto 1rem;
   max-width: 52rem;
   padding: 0.75rem 1rem;

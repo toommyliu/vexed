@@ -46,26 +46,29 @@ describe("app window wiring", () => {
     expect(source).toContain("onSelect={() => openWindow(item.id)}");
   });
 
-  it("installs settings sync in the game renderer", () => {
+  it("mounts the game renderer through the shared window mount", () => {
     const source = readSource("../renderer/windows/game/app.tsx");
 
-    expect(source).toContain("import { installSettingsSync }");
-    expect(source).toContain(
-      "const disposeSettingsSync = installSettingsSync()",
-    );
+    expect(source).toContain('import { mountWindow } from "../mount"');
+    expect(source).toContain("mountWindow(() => <GameApp />)");
+    expect(source).not.toContain("installSettingsSync");
   });
 
-  it("tears down shared window settings sync during renderer HMR disposal", () => {
+  it("waits for settings sync and tears down shared window mount resources", () => {
     const mountSource = readSource("../renderer/windows/mount.tsx");
     const themeSource = readSource("../renderer/theme.ts");
     const preloadSource = readSource("preload.ts");
 
     expect(mountSource).toContain("import { installSettingsSync }");
-    expect(mountSource).toContain("const teardown = installSettingsSync()");
+    expect(mountSource).toContain("const settingsSync = installSettingsSync()");
+    expect(mountSource).toContain("settingsSync.ready");
+    expect(mountSource).toContain("App({ initialSettings })");
+    expect(mountSource).toContain('dataset["ready"] = "true"');
     expect(mountSource).toContain("import.meta.hot");
     expect(mountSource).toContain("import.meta.hot.dispose");
-    expect(mountSource).toContain('typeof teardown === "function"');
-    expect(mountSource).toContain("teardown()");
+    expect(mountSource).toContain("settingsSync.dispose()");
+    expect(themeSource).toContain("interface RendererSettingsSync");
+    expect(themeSource).toContain("ready: Promise<AppSettings | null>");
     expect(themeSource).toContain("globalThis.matchMedia");
     expect(preloadSource).toContain(
       "ipcRenderer.removeListener(SettingsIpcChannels.changed",
@@ -118,6 +121,7 @@ describe("app window wiring", () => {
       "utf8",
     );
     const windowHtml = readSource("../renderer/windows/index.html");
+    const gameHtml = readSource("../renderer/windows/game/index.html");
     const windowIds = Object.values(WindowIds);
 
     expect(source).toContain("const solidRendererTargets");
@@ -149,6 +153,20 @@ describe("app window wiring", () => {
     expect(source).toContain("entryPoints: rendererEntryPoints");
     expect(windowHtml).toContain(
       '<link rel="stylesheet" href="./index.css" />',
+    );
+    expect(windowHtml).toContain('data-ready="false"');
+    expect(gameHtml).toContain('data-ready="false"');
+    expect(gameHtml).toContain("background: rgb(var(--background));");
+  });
+
+  it("seeds the settings renderer from shared mount settings", () => {
+    const source = readSource("../renderer/windows/settings/app.tsx");
+
+    expect(source).toContain("readonly initialSettings: AppSettings | null");
+    expect(source).toContain("props.initialSettings ?? defaultSettings");
+    expect(source).toContain("props.initialSettings === null");
+    expect(source).toContain(
+      "<SettingsApp initialSettings={initialSettings} />",
     );
   });
 });

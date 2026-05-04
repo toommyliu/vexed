@@ -1,2 +1,10 @@
 @import "./tokens.css";
 @import "./components.css";
+
+html[data-ready="false"] #root {
+  visibility: hidden;
+}
+
+html[data-ready="false"] body {
+  background: rgb(var(--background));
+}

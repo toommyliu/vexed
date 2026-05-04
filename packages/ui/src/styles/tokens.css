@@ -71,6 +71,19 @@
   --font-mono: "JetBrains Mono Variable", "JetBrains Mono", ui-monospace,
     SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New",
     monospace;
+  --font-sans-size-base: 13px;
+  --font-mono-size: 12px;
+  --text-2xs: 10px;
+  --text-xs: 11px;
+  --text-sm: 12px;
+  --text-base: var(--font-sans-size-base);
+  --text-md: 14px;
+  --text-lg: 15px;
+  --text-xl: 16px;
+  --text-2xl: 18px;
+  --text-3xl: 20px;
+  --text-4xl: 24px;
+  --text-5xl: 28px;
   --radius: 0.625rem;
   --radius-xs: 0.25rem;
   --radius-sm: 0.375rem;

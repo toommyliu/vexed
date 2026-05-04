@@ -81,6 +81,14 @@ export const normalizeFont = (value: unknown): string | undefined => {
   return font.length > 0 && font.length <= 256 ? font : undefined;
 };
 
+export const normalizeFontSize = (value: unknown): number | undefined => {
+  if (typeof value !== "number" || !Number.isFinite(value)) {
+    return undefined;
+  }
+
+  return Math.min(24, Math.max(10, Math.round(value)));
+};
+
 export const normalizeRounding = (value: unknown): number | undefined => {
   if (typeof value !== "number" || !Number.isFinite(value)) {
     return undefined;
@@ -102,6 +110,12 @@ const normalizeThemeProfile = (value: unknown): ThemeProfile => {
       normalizeFont(record["sansFont"]) ?? DEFAULT_THEME_PROFILE.sansFont,
     monoFont:
       normalizeFont(record["monoFont"]) ?? DEFAULT_THEME_PROFILE.monoFont,
+    sansFontSize:
+      normalizeFontSize(record["sansFontSize"]) ??
+      DEFAULT_THEME_PROFILE.sansFontSize,
+    monoFontSize:
+      normalizeFontSize(record["monoFontSize"]) ??
+      DEFAULT_THEME_PROFILE.monoFontSize,
     rounding:
       normalizeRounding(record["rounding"]) ?? DEFAULT_THEME_PROFILE.rounding,
   };

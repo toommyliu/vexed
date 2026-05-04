@@ -30,6 +30,8 @@ describe("appearance settings", () => {
             },
             sansFont: "  Inter  ",
             monoFont: "",
+            sansFontSize: 9,
+            monoFontSize: "large",
             rounding: -1,
           },
           dark: {
@@ -40,6 +42,8 @@ describe("appearance settings", () => {
             },
             sansFont: "System",
             monoFont: "Mono",
+            sansFontSize: 30,
+            monoFontSize: 12.4,
             rounding: 3,
           },
         },
@@ -53,6 +57,8 @@ describe("appearance settings", () => {
           },
           sansFont: "Inter",
           monoFont: Appearance.DEFAULT.themes.light.monoFont,
+          sansFontSize: 10,
+          monoFontSize: Appearance.DEFAULT.themes.light.monoFontSize,
           rounding: 0,
         },
         dark: {
@@ -62,6 +68,8 @@ describe("appearance settings", () => {
           },
           sansFont: "System",
           monoFont: "Mono",
+          sansFontSize: 24,
+          monoFontSize: 12,
           rounding: 2,
         },
       },
@@ -80,6 +88,8 @@ describe("appearance settings", () => {
             tokens: {
               primary: [1, 2],
             },
+            sansFontSize: Number.NaN,
+            monoFontSize: Number.POSITIVE_INFINITY,
           },
         },
       }),
@@ -88,6 +98,33 @@ describe("appearance settings", () => {
       themes: {
         light: Appearance.DEFAULT.themes.light,
         dark: Appearance.DEFAULT.themes.dark,
+      },
+    });
+  });
+
+  it("preserves valid font sizes", () => {
+    expect(
+      Appearance.normalize({
+        themeMode: "dark",
+        themes: {
+          light: {
+            sansFontSize: 14,
+            monoFontSize: 11,
+          },
+          dark: {
+            sansFontSize: 18,
+            monoFontSize: 16,
+          },
+        },
+      }).themes,
+    ).toMatchObject({
+      light: {
+        sansFontSize: 14,
+        monoFontSize: 11,
+      },
+      dark: {
+        sansFontSize: 18,
+        monoFontSize: 16,
       },
     });
   });
