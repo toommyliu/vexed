@@ -3,10 +3,6 @@ dist/
 build/
 app/.electron-runtime/
 .astro/
-docs-fumadocs/.next/
-docs-fumadocs/.source/
-docs-fumadocs/out/
-docs-fumadocs/content/docs/
 
 public/output.css
 
@@ -21,5 +17,3 @@ api-types.json
 
 .yarnrc
 .yarn/
-
-ui-references/
