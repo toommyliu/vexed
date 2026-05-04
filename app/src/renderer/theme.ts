@@ -16,6 +16,22 @@ const radiusBaseRem = {
   "--radius-xl": 0.75,
 } as const;
 
+const textSizeRatios = {
+  "--text-2xs": 10 / 13,
+  "--text-xs": 11 / 13,
+  "--text-sm": 12 / 13,
+  "--text-base": 1,
+  "--text-md": 14 / 13,
+  "--text-lg": 15 / 13,
+  "--text-xl": 16 / 13,
+  "--text-2xl": 18 / 13,
+  "--text-3xl": 20 / 13,
+  "--text-4xl": 24 / 13,
+  "--text-5xl": 28 / 13,
+} as const;
+
+type TextSizeTokenName = keyof typeof textSizeRatios;
+
 const tokenCssNames = new Map<ThemeTokenName, string>(
   THEME_TOKEN_NAMES.map((name) => [
     name,
@@ -26,6 +42,22 @@ const tokenCssNames = new Map<ThemeTokenName, string>(
 let activeAppearance: Appearance | null = null;
 
 export const rgbToCssValue = (rgb: ThemeRgb): string => rgb.join(", ");
+
+const formatPx = (value: number): string => `${Number(value.toFixed(4))}px`;
+
+export const getTextSizeTokens = (
+  baseSize: number,
+): Record<TextSizeTokenName, string> => {
+  const tokens = {} as Record<TextSizeTokenName, string>;
+
+  for (const [name, ratio] of Object.entries(textSizeRatios) as Array<
+    [TextSizeTokenName, number]
+  >) {
+    tokens[name] = formatPx(baseSize * ratio);
+  }
+
+  return tokens;
+};
 
 export const resolveActiveThemeVariant = (
   appearance: Appearance,
@@ -54,6 +86,22 @@ const applyRounding = (
   }
 };
 
+const applyTypography = (
+  style: CSSStyleDeclaration,
+  profile: Appearance["themes"][ThemeVariant],
+): void => {
+  style.setProperty("--font-sans", profile.sansFont);
+  style.setProperty("--font-mono", profile.monoFont);
+  style.setProperty("--font-sans-size-base", formatPx(profile.sansFontSize));
+  style.setProperty("--font-mono-size", formatPx(profile.monoFontSize));
+
+  for (const [name, value] of Object.entries(
+    getTextSizeTokens(profile.sansFontSize),
+  ) as Array<[TextSizeTokenName, string]>) {
+    style.setProperty(name, value);
+  }
+};
+
 export const applyAppearance = (appearance: Appearance): void => {
   activeAppearance = appearance;
 
@@ -74,10 +122,7 @@ export const applyAppearance = (appearance: Appearance): void => {
     }
   }
 
-  style.setProperty("--font-sans", profile.sansFont);
-  style.setProperty("--font-mono", profile.monoFont);
-  style.setProperty("--font-sans-size-base", `${profile.sansFontSize}px`);
-  style.setProperty("--font-mono-size", `${profile.monoFontSize}px`);
+  applyTypography(style, profile);
   applyRounding(style, profile.rounding);
 };
 

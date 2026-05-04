@@ -49,9 +49,10 @@ describe("CSS color tokens", () => {
 
     expect(tokens).toContain("--font-sans-size-base: 13px;");
     expect(tokens).toContain("--font-mono-size: 12px;");
-    expect(tokens).toContain("--text-xs:");
+    expect(tokens).toContain("--text-xs: 11px;");
     expect(tokens).toContain("--text-base: var(--font-sans-size-base);");
-    expect(tokens).toContain("--text-5xl:");
+    expect(tokens).toContain("--text-5xl: 28px;");
+    expect(tokens).not.toMatch(/--text-[\w-]+:\s*calc\([^;]*\*/);
   });
 });
 

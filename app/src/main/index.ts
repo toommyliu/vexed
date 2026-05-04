@@ -336,20 +336,16 @@ const runConfiguredWindowEffect: WindowEffectRunner = (effect) => {
   return runWindowEffect(effect);
 };
 
-const openGameWindow = (): void => {
-  void runConfiguredWindowEffect(
-    Effect.gen(function* () {
-      const windows = yield* WindowService;
-      return yield* windows.openGameWindow;
-    }),
-  ).catch((error) => {
-    console.error("Failed to open game window:", error);
-  });
-};
-
 const openStartupWindow = (launchMode: Preferences.AppLaunchMode): void => {
   if (launchMode === "game") {
-    openGameWindow();
+    void runConfiguredWindowEffect(
+      Effect.gen(function* () {
+        const windows = yield* WindowService;
+        yield* windows.revealGameWindow;
+      }),
+    ).catch((error) => {
+      console.error("Failed to reveal game window:", error);
+    });
     return;
   }
 
@@ -368,6 +364,11 @@ const loadMainSettings = () => {
   const appearance = Appearance.ensure();
   syncNativeTheme(appearance);
   return { appearance, preferences };
+};
+
+const revealStartupWindow = (): void => {
+  const preferences = Preferences.read();
+  openStartupWindow(preferences.launchMode);
 };
 
 app.whenReady().then(() => {
@@ -411,7 +412,4 @@ app.on("window-all-closed", () => {
   if (process.platform !== "darwin") app.quit();
 });
 
-app.on("activate", () => {
-  const preferences = Preferences.read();
-  openStartupWindow(preferences.launchMode);
-});
+app.on("activate", revealStartupWindow);
