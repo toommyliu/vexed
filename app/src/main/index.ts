@@ -14,7 +14,15 @@ import { homedir } from "os";
 import { Effect } from "effect";
 import appBranding from "../../appBranding.json";
 import { ScriptingIpcChannels, type ScriptExecutePayload } from "../shared/ipc";
+import { WindowIds } from "../shared/windows";
 import { createApplicationMenu } from "./menu";
+import * as Appearance from "./settings/Appearance";
+import * as Preferences from "./settings/Preferences";
+import { registerSettingsIpcHandlers } from "./settings-ipc";
+import {
+  installNativeThemeChangeBroadcast,
+  syncNativeTheme,
+} from "./settings-service";
 import { registerWindowIpcHandlers } from "./window-ipc";
 import {
   getRendererGameWindowPath,
@@ -339,7 +347,31 @@ const openGameWindow = (): void => {
   });
 };
 
+const openStartupWindow = (launchMode: Preferences.AppLaunchMode): void => {
+  if (launchMode === "game") {
+    openGameWindow();
+    return;
+  }
+
+  void runConfiguredWindowEffect(
+    Effect.gen(function* () {
+      const windows = yield* WindowService;
+      yield* windows.openWindow(WindowIds.AccountManager);
+    }),
+  ).catch((error) => {
+    console.error("Failed to open startup window:", error);
+  });
+};
+
+const loadMainSettings = () => {
+  const preferences = Preferences.ensure();
+  const appearance = Appearance.ensure();
+  syncNativeTheme(appearance);
+  return { appearance, preferences };
+};
+
 app.whenReady().then(() => {
+  const { preferences } = loadMainSettings();
   const windowLayer = WindowServiceLive({
     gameWindowHtmlPath: getRendererGameWindowPath(rendererPath),
     isDev: isDevApp,
@@ -354,12 +386,14 @@ app.whenReady().then(() => {
   ): Promise<A> => Effect.runPromise(effect.pipe(Effect.provide(windowLayer)));
 
   registerScriptingIpcHandlers();
+  registerSettingsIpcHandlers();
   registerWindowIpcHandlers(runConfiguredWindowEffect);
+  installNativeThemeChangeBroadcast();
   installGameRequestHeaders();
   installDevRendererReloadWatcher();
   installDevDockIcon();
   createApplicationMenu(runConfiguredWindowEffect);
-  openGameWindow();
+  openStartupWindow(preferences.launchMode);
 });
 
 app.on("before-quit", () => {
@@ -378,12 +412,6 @@ app.on("window-all-closed", () => {
 });
 
 app.on("activate", () => {
-  void runConfiguredWindowEffect(
-    Effect.gen(function* () {
-      const windows = yield* WindowService;
-      yield* windows.revealGameWindow;
-    }),
-  ).catch((error) => {
-    console.error("Failed to reveal game window:", error);
-  });
+  const preferences = Preferences.read();
+  openStartupWindow(preferences.launchMode);
 });

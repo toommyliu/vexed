@@ -163,6 +163,7 @@ const createWebPreferences = (
 const createGameWindowOptions = (
   config: WindowManagerConfig,
 ): BrowserWindowConstructorOptions => ({
+  backgroundColor: "#0e0e0f",
   width: 1024,
   height: 768,
   show: false,
@@ -176,6 +177,7 @@ const createCatalogWindowOptions = (
 ): BrowserWindowConstructorOptions => {
   const dimensions = getWindowDimensions(definition);
   const options: BrowserWindowConstructorOptions = {
+    backgroundColor: "#0e0e0f",
     title: definition.label,
     width: dimensions.width,
     height: dimensions.height,
@@ -205,7 +207,9 @@ export const makeElectronWindowRuntime = (): ElectronWindowRuntime => ({
   getAllWindows: () => BrowserWindow.getAllWindows(),
   getFocusedWindow: () => BrowserWindow.getFocusedWindow(),
   getCenteredPosition: (width, height) => {
-    const display = screen.getDisplayNearestPoint(screen.getCursorScreenPoint());
+    const display = screen.getDisplayNearestPoint(
+      screen.getCursorScreenPoint(),
+    );
     const workArea = display.workArea;
     return {
       x: Math.floor(workArea.x + (workArea.width - width) / 2),
@@ -242,7 +246,8 @@ export const makeWindowService = (
     Effect.try({
       try: () => {
         const position =
-          typeof options.width === "number" && typeof options.height === "number"
+          typeof options.width === "number" &&
+          typeof options.height === "number"
             ? runtime.getCenteredPosition(options.width, options.height)
             : {};
 
@@ -285,7 +290,9 @@ export const makeWindowService = (
     ];
 
     if (runtime.platform === "linux") {
-      subscribers.push((fire) => window.webContents.once("did-finish-load", fire));
+      subscribers.push((fire) =>
+        window.webContents.once("did-finish-load", fire),
+      );
     }
 
     bindFirstRevealTrigger(subscribers, () => revealWindow(runtime, window));
@@ -343,6 +350,7 @@ export const makeWindowService = (
     });
 
     window.on("closed", () => {
+      destroyChildWindows(entry);
       gameWindows.delete(gameWindowId);
       if (lastFocusedGameWindowId === gameWindowId) {
         lastFocusedGameWindowId = null;
@@ -447,7 +455,9 @@ export const makeWindowService = (
 
   const openGameWindow: WindowServiceShape["openGameWindow"] = Effect.gen(
     function* () {
-      const window = yield* createManagedWindow(createGameWindowOptions(config));
+      const window = yield* createManagedWindow(
+        createGameWindowOptions(config),
+      );
 
       config.onGameWindowCreated?.(window);
       registerGameWindow(window);
@@ -544,7 +554,6 @@ export const makeWindowService = (
       const appWindow = yield* createManagedWindow(
         createCatalogWindowOptions(config, definition),
       );
-      const appWindowId = appWindow.id;
 
       appWindows.set(definition.id, appWindow);
       revealWhenReady(appWindow);
@@ -562,7 +571,7 @@ export const makeWindowService = (
 
       appWindow.on("closed", () => {
         const current = appWindows.get(definition.id);
-        if (current?.id === appWindowId) {
+        if (current === appWindow) {
           appWindows.delete(definition.id);
         }
       });
@@ -613,7 +622,8 @@ export const makeWindowService = (
     openGameWindow,
     openWindow,
     revealGameWindow,
-    getGameWindowId: (windowId) => Effect.succeed(getGameWindowIdSync(windowId)),
+    getGameWindowId: (windowId) =>
+      Effect.succeed(getGameWindowIdSync(windowId)),
     setQuitting: (quitting) =>
       Effect.sync(() => {
         isQuitting = quitting;

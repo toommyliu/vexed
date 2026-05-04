@@ -88,20 +88,72 @@ const electronExternals = ["electron", "nw-flash-trust"];
 const devBuildNotifyPath = process.env.VEXED_DEV_BUILD_NOTIFY;
 const skipInitialDevBuildNotify =
   process.env.VEXED_DEV_BUILD_NOTIFY_SKIP_INITIAL === "1";
+const DEV_BUILD_NOTIFY_DEBOUNCE_MS = 150;
+const pendingDevBuildLabels = new Set();
+let devBuildNotifyTimer;
 
-function notifyDevBuild(label) {
+function selectDevBuildNotifyLabel(labels) {
+  if (labels.includes("main")) {
+    return "main";
+  }
+
+  if (labels.includes("preload")) {
+    return "preload";
+  }
+
+  if (
+    labels.length > 0 &&
+    labels.every((label) => label === "renderer" || label === "renderer-html")
+  ) {
+    return "renderer";
+  }
+
+  return "unknown";
+}
+
+function flushDevBuildNotify() {
   if (!devBuildNotifyPath) {
     return;
   }
+
+  if (devBuildNotifyTimer) {
+    clearTimeout(devBuildNotifyTimer);
+    devBuildNotifyTimer = undefined;
+  }
+
+  if (pendingDevBuildLabels.size === 0) {
+    return;
+  }
+
+  const labels = [...pendingDevBuildLabels];
+  pendingDevBuildLabels.clear();
 
   mkdirSync(dirname(devBuildNotifyPath), { recursive: true });
   appendFileSync(
     devBuildNotifyPath,
     `${JSON.stringify({
-      label,
+      label: selectDevBuildNotifyLabel(labels),
+      labels,
       pid: process.pid,
       time: Date.now(),
     })}\n`,
+  );
+}
+
+function queueDevBuildNotify(label) {
+  if (!devBuildNotifyPath) {
+    return;
+  }
+
+  pendingDevBuildLabels.add(label);
+
+  if (devBuildNotifyTimer) {
+    clearTimeout(devBuildNotifyTimer);
+  }
+
+  devBuildNotifyTimer = setTimeout(
+    flushDevBuildNotify,
+    DEV_BUILD_NOTIFY_DEBOUNCE_MS,
   );
 }
 
@@ -121,7 +173,7 @@ function createDevBuildNotifyPlugin(label) {
           return;
         }
 
-        notifyDevBuild(label);
+        queueDevBuildNotify(label);
       });
     },
   };
@@ -186,7 +238,7 @@ function copyRendererHtml({ notify = false } = {}) {
   }
 
   if (notify) {
-    notifyDevBuild("renderer-html");
+    queueDevBuildNotify("renderer-html");
   }
 }
 
@@ -234,6 +286,7 @@ async function watchBuild() {
     for (const source of rendererHtmlSources) {
       unwatchFile(source);
     }
+    flushDevBuildNotify();
 
     await Promise.allSettled([
       mainContext.dispose(),

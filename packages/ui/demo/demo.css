@@ -103,6 +103,20 @@ body {
   height: 1.5rem;
 }
 
+.demo-slider-stack {
+  display: grid;
+  gap: 14px;
+  min-width: 0;
+}
+
+.demo-slider-row {
+  min-width: 0;
+}
+
+.demo-slider-vertical {
+  height: 11rem;
+}
+
 .demo-grid {
   display: grid;
   gap: 16px;

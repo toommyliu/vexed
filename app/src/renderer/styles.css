@@ -2,9 +2,13 @@
 
 html,
 body {
-  user-select: none;
+  background: rgb(var(--background));
   font-family: var(--font-sans);
   font-feature-settings: "cv01", "cv02", "cv03", "cv04", "ss01";
+  height: 100%;
+  margin: 0;
+  min-height: 100%;
+  user-select: none;
   -webkit-font-smoothing: antialiased;
 }
 
@@ -14,14 +18,12 @@ body {
 }
 
 :focus-visible {
-  outline: 2px solid rgba(var(--ring), 0.72);
-  outline-offset: 2px;
+  box-shadow:
+    0 0 0 1px rgb(var(--background)),
+    0 0 0 3px rgba(var(--ring), 0.42);
+  outline: none;
 }
 
 .no-scrollbar::-webkit-scrollbar {
   display: none !important;
-}
-
-#root {
-  min-height: 100vh;
 }

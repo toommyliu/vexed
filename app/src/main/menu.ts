@@ -6,11 +6,14 @@ import {
   type MenuItemConstructorOptions,
 } from "electron";
 import { Effect } from "effect";
+import type { ThemeMode } from "../shared/settings";
 import { WindowIds, type WindowId } from "../shared/windows";
 import {
-  WindowService,
-  type WindowEffectRunner,
-} from "./windows";
+  onSettingsChanged,
+  readSettings,
+  updateAppearance,
+} from "./settings-service";
+import { WindowService, type WindowEffectRunner } from "./windows";
 
 const isDarwin = process.platform === "darwin";
 
@@ -43,7 +46,11 @@ const createAccountManagerMenuItem = (
 ): MenuItemConstructorOptions => ({
   label: "Account Manager...",
   click: (_menuItem, browserWindow) => {
-    openWindowFromMenu(WindowIds.AccountManager, browserWindow, runWindowEffect);
+    openWindowFromMenu(
+      WindowIds.AccountManager,
+      browserWindow,
+      runWindowEffect,
+    );
   },
 });
 
@@ -57,9 +64,43 @@ const createSettingsMenuItem = (
   },
 });
 
-export const createApplicationMenu = (
-  runWindowEffect: WindowEffectRunner,
-): void => {
+const createAppearanceMenuItem = (
+  mode: ThemeMode,
+  label: string,
+  currentMode: ThemeMode,
+): MenuItemConstructorOptions => ({
+  label,
+  type: "radio",
+  checked: currentMode === mode,
+  click: () => {
+    updateAppearance({ themeMode: mode });
+  },
+});
+
+let activeWindowEffectRunner: WindowEffectRunner | null = null;
+let settingsMenuListenerRegistered = false;
+
+const rebuildApplicationMenu = (): void => {
+  if (!activeWindowEffectRunner) {
+    return;
+  }
+
+  installApplicationMenu(activeWindowEffectRunner);
+};
+
+const registerSettingsMenuListener = (): void => {
+  if (settingsMenuListenerRegistered) {
+    return;
+  }
+
+  onSettingsChanged(() => {
+    rebuildApplicationMenu();
+  });
+  settingsMenuListenerRegistered = true;
+};
+
+const installApplicationMenu = (runWindowEffect: WindowEffectRunner): void => {
+  const appearance = readSettings().appearance;
   const appSubmenu: MenuItemConstructorOptions[] = [
     { role: "about" },
     {
@@ -110,6 +151,15 @@ export const createApplicationMenu = (
     { role: "zoomIn" },
     { role: "zoomOut" },
     { type: "separator" },
+    {
+      label: "Appearance",
+      submenu: [
+        createAppearanceMenuItem("light", "Light", appearance.themeMode),
+        createAppearanceMenuItem("dark", "Dark", appearance.themeMode),
+        createAppearanceMenuItem("system", "System", appearance.themeMode),
+      ],
+    },
+    { type: "separator" },
     { role: "togglefullscreen" },
   ];
   const template: MenuItemConstructorOptions[] = [
@@ -151,4 +201,12 @@ export const createApplicationMenu = (
   }
 
   Menu.setApplicationMenu(Menu.buildFromTemplate(template));
+};
+
+export const createApplicationMenu = (
+  runWindowEffect: WindowEffectRunner,
+): void => {
+  activeWindowEffectRunner = runWindowEffect;
+  registerSettingsMenuListener();
+  installApplicationMenu(runWindowEffect);
 };

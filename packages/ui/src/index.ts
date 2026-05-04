@@ -263,6 +263,13 @@ export {
   type SelectTriggerProps,
   type SelectValueProps,
 } from "./components/Select";
+export {
+  Slider,
+  SliderPrimitive,
+  SliderValue,
+  type SliderProps,
+  type SliderValueProps,
+} from "./components/Slider";
 export { Spinner, type SpinnerProps } from "./components/Spinner";
 export { Switch, type SwitchProps } from "./components/Switch";
 export {

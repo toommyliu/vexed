@@ -1,8 +1,12 @@
 import { contextBridge, ipcRenderer } from "electron";
 import {
+  SettingsIpcChannels,
   ScriptingIpcChannels,
   WindowIpcChannels,
   type AppBridge,
+  type AppSettings,
+  type AppearancePatch,
+  type PreferencesPatch,
   type ScriptExecutePayload,
 } from "../shared/ipc";
 import type { WindowId } from "../shared/windows";
@@ -40,6 +44,39 @@ const bridge: AppBridge = {
 
       return () => {
         ipcRenderer.removeListener(ScriptingIpcChannels.stop, subscription);
+      };
+    },
+  },
+  settings: {
+    get: async () => {
+      return (await ipcRenderer.invoke(SettingsIpcChannels.get)) as AppSettings;
+    },
+    updatePreferences: async (patch: PreferencesPatch) => {
+      return (await ipcRenderer.invoke(
+        SettingsIpcChannels.updatePreferences,
+        patch,
+      )) as AppSettings;
+    },
+    updateAppearance: async (patch: AppearancePatch) => {
+      return (await ipcRenderer.invoke(
+        SettingsIpcChannels.updateAppearance,
+        patch,
+      )) as AppSettings;
+    },
+    resetAppearance: async () => {
+      return (await ipcRenderer.invoke(
+        SettingsIpcChannels.resetAppearance,
+      )) as AppSettings;
+    },
+    onChanged: (listener) => {
+      const subscription = (_event: unknown, settings: AppSettings) => {
+        listener(settings);
+      };
+
+      ipcRenderer.on(SettingsIpcChannels.changed, subscription);
+
+      return () => {
+        ipcRenderer.removeListener(SettingsIpcChannels.changed, subscription);
       };
     },
   },

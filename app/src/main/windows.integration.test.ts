@@ -32,18 +32,44 @@ describe("app window wiring", () => {
     const source = readSource("menu.ts");
 
     expect(source).toContain("label: app.name");
-    expect(source).toContain("label: \"Check for Updates...\"");
+    expect(source).toContain('label: "Check for Updates..."');
     expect(source).toContain("WindowIds.AccountManager");
     expect(source).toContain("WindowIds.Settings");
     expect(source).toContain("Menu.setApplicationMenu");
   });
 
   it("uses the game catalog for the game topnav window menu", () => {
-    const source = readSource("../renderer/windows/game/GameApp.tsx");
+    const source = readSource("../renderer/windows/game/GameTopNav.tsx");
 
     expect(source).toContain("gameWindowGroups");
     expect(source).toContain("window.ipc.windows.open(id)");
     expect(source).toContain("onSelect={() => openWindow(item.id)}");
+  });
+
+  it("installs settings sync in the game renderer", () => {
+    const source = readSource("../renderer/windows/game/app.tsx");
+
+    expect(source).toContain("import { installSettingsSync }");
+    expect(source).toContain(
+      "const disposeSettingsSync = installSettingsSync()",
+    );
+  });
+
+  it("tears down shared window settings sync during renderer HMR disposal", () => {
+    const mountSource = readSource("../renderer/windows/mount.tsx");
+    const themeSource = readSource("../renderer/theme.ts");
+    const preloadSource = readSource("preload.ts");
+
+    expect(mountSource).toContain("import { installSettingsSync }");
+    expect(mountSource).toContain("const teardown = installSettingsSync()");
+    expect(mountSource).toContain("import.meta.hot");
+    expect(mountSource).toContain("import.meta.hot.dispose");
+    expect(mountSource).toContain('typeof teardown === "function"');
+    expect(mountSource).toContain("teardown()");
+    expect(themeSource).toContain("globalThis.matchMedia");
+    expect(preloadSource).toContain(
+      "ipcRenderer.removeListener(SettingsIpcChannels.changed",
+    );
   });
 
   it("loads child windows with their window id in the renderer URL", () => {
@@ -66,7 +92,7 @@ describe("app window wiring", () => {
   it("destroys game child windows when the game window closes", () => {
     const source = readSource("windows.ts");
 
-    expect(source).toContain("window.on(\"close\", () => {");
+    expect(source).toContain('window.on("close", () => {');
     expect(source).toContain("destroyChildWindows(entry)");
     expect(source).toContain("forceClosingWindowIds");
     expect(source).toContain("childWindow.destroy()");
@@ -82,7 +108,7 @@ describe("app window wiring", () => {
     expect(windowSource).toContain("let isQuitting = false");
     expect(windowSource).toContain("setQuitting: (quitting)");
     expect(windowSource).toContain("if (isQuitting)");
-    expect(indexSource).toContain("app.on(\"before-quit\"");
+    expect(indexSource).toContain('app.on("before-quit"');
     expect(indexSource).toContain("windows.setQuitting(true)");
   });
 
@@ -95,15 +121,17 @@ describe("app window wiring", () => {
     const windowIds = Object.values(WindowIds);
 
     expect(source).toContain("const solidRendererTargets");
-    expect(source).toContain("name: \"game\"");
+    expect(source).toContain('name: "game"');
     expect(source).toContain(
-      "entryPoint: \"./src/renderer/windows/game/app.tsx\"",
+      'entryPoint: "./src/renderer/windows/game/app.tsx"',
     );
-    expect(source).toContain("html: \"src/renderer/windows/game/index.html\"");
+    expect(source).toContain('html: "src/renderer/windows/game/index.html"');
     expect(source).not.toContain("window-view");
-    expect(source).toContain("html: \"src/renderer/windows/index.html\"");
+    expect(source).toContain('html: "src/renderer/windows/index.html"');
     expect(source).toContain("outDir: `dist/renderer/${target.name}`");
-    expect(source).toContain("target: `dist/renderer/${target.name}/index.html`");
+    expect(source).toContain(
+      "target: `dist/renderer/${target.name}/index.html`",
+    );
 
     for (const id of windowIds) {
       expect(source).toContain(`name: "${id}"`);
