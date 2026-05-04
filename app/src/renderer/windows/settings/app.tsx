@@ -193,9 +193,13 @@ function FontSizeInput(props: {
   readonly onCommit: (value: number) => void;
 }): JSX.Element {
   const [draft, setDraft] = createSignal(String(props.value));
+  const [focused, setFocused] = createSignal(false);
 
   createEffect(() => {
-    setDraft(String(props.value));
+    const value = props.value;
+    if (!untrack(focused)) {
+      setDraft(String(value));
+    }
   });
 
   const commit = () => {
@@ -211,7 +215,13 @@ function FontSizeInput(props: {
       class="settings-number-input"
       max={24}
       min={10}
-      onBlur={commit}
+      onBlur={() => {
+        setFocused(false);
+        commit();
+      }}
+      onFocus={() => {
+        setFocused(true);
+      }}
       onInput={(event: InputEvent & { currentTarget: HTMLInputElement }) =>
         setDraft(event.currentTarget.value)
       }
