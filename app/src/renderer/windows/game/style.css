@@ -2,7 +2,7 @@
 
 .game-shell {
   background: transparent;
-  color: rgb(var(--foreground));
+  color: var(--color-foreground);
   display: flex;
   flex-direction: column;
   height: 100vh;
@@ -13,8 +13,8 @@
 }
 
 .game-topnav-container {
-  background: rgba(var(--background), 0.96);
-  border-bottom: 1px solid rgba(var(--border), 0.8);
+  background: var(--color-background);
+  border-bottom: 1px solid var(--color-border);
   flex: 0 0 var(--topnav-height, 28px);
   pointer-events: auto;
   position: relative;
@@ -55,7 +55,7 @@
   background: transparent;
   border: 0;
   border-radius: var(--radius-sm);
-  color: rgba(var(--foreground), 0.78);
+  color: var(--color-muted-foreground);
   cursor: default;
   display: inline-flex;
   flex: 0 0 auto;
@@ -74,8 +74,8 @@
 .game-topnav__trigger[data-expanded],
 .game-topnav__button:not(:disabled):hover,
 .game-topnav__select-trigger:not(:disabled):hover {
-  background: rgb(var(--accent));
-  color: rgb(var(--foreground));
+  background: var(--color-accent);
+  color: var(--color-foreground);
 }
 
 .game-topnav__left .game-topnav__trigger:focus,
@@ -86,15 +86,15 @@
 
 .game-topnav__trigger--success,
 .game-topnav__button--success {
-  color: rgb(var(--success-foreground));
+  color: var(--color-success-foreground);
 }
 
 .game-topnav__button--danger {
-  color: rgb(var(--destructive-foreground));
+  color: var(--color-destructive-foreground);
 }
 
 .game-topnav__select-trigger {
-  border: 1px solid rgba(var(--border), 0.8);
+  border: 1px solid var(--color-border);
   font-size: 0.6875rem;
   justify-content: flex-start;
   width: 4rem;
@@ -112,7 +112,7 @@
 }
 
 .game-topnav__divider {
-  background: rgba(var(--border), 0.9);
+  background: var(--color-border);
   flex: 0 0 1px;
   height: 0.875rem;
   margin: 0 0.25rem;
@@ -165,7 +165,7 @@
 }
 
 .game-menu__status {
-  color: rgb(var(--muted-foreground));
+  color: var(--color-muted-foreground);
   display: grid;
   gap: 0.25rem;
   font-size: 0.75rem;
@@ -174,7 +174,7 @@
 }
 
 .game-menu__error {
-  color: rgb(var(--destructive-foreground));
+  color: var(--color-destructive-foreground);
 }
 
 .game-options-grid {
@@ -191,7 +191,7 @@
 }
 
 .game-menu__field {
-  color: rgb(var(--muted-foreground));
+  color: var(--color-muted-foreground);
   display: grid;
   gap: 0.25rem;
   font-size: 0.6875rem;
@@ -205,7 +205,7 @@
 
 .game-loader {
   align-items: center;
-  background: rgb(var(--background));
+  background: var(--color-background);
   display: flex;
   flex: 1 0 auto;
   justify-content: center;
