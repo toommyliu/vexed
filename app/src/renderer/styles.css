@@ -27,17 +27,3 @@ body {
 .no-scrollbar::-webkit-scrollbar {
   display: none !important;
 }
-
-#root {
-  background: rgb(var(--background));
-  display: flex;
-  height: 100dvh;
-  min-height: 0;
-  min-width: 0;
-  overflow: hidden;
-  width: 100dvw;
-}
-
-#root > .app-shell {
-  flex: 1 1 auto;
-}
