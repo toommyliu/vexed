@@ -390,6 +390,38 @@ body::-webkit-scrollbar-corner,
   opacity: 0.72;
 }
 
+.input[type="number"]::-webkit-inner-spin-button,
+.input[type="number"]::-webkit-outer-spin-button {
+  margin-left: 0.25rem;
+  opacity: 0;
+}
+
+.input[type="number"]:hover::-webkit-inner-spin-button,
+.input[type="number"]:hover::-webkit-outer-spin-button,
+.input[type="number"]:focus::-webkit-inner-spin-button,
+.input[type="number"]:focus::-webkit-outer-spin-button {
+  opacity: 0.9;
+}
+
+.dark .input[type="number"]::-webkit-inner-spin-button,
+.dark .input[type="number"]::-webkit-outer-spin-button,
+[data-theme="dark"] .input[type="number"]::-webkit-inner-spin-button,
+[data-theme="dark"] .input[type="number"]::-webkit-outer-spin-button {
+  filter: invert(1) grayscale(1) brightness(1.16);
+  opacity: 0;
+}
+
+.dark .input[type="number"]:hover::-webkit-inner-spin-button,
+.dark .input[type="number"]:hover::-webkit-outer-spin-button,
+.dark .input[type="number"]:focus::-webkit-inner-spin-button,
+.dark .input[type="number"]:focus::-webkit-outer-spin-button,
+[data-theme="dark"] .input[type="number"]:hover::-webkit-inner-spin-button,
+[data-theme="dark"] .input[type="number"]:hover::-webkit-outer-spin-button,
+[data-theme="dark"] .input[type="number"]:focus::-webkit-inner-spin-button,
+[data-theme="dark"] .input[type="number"]:focus::-webkit-outer-spin-button {
+  opacity: 0.88;
+}
+
 .input--sm {
   height: var(--control-height-sm);
   padding: 0 0.5625rem;

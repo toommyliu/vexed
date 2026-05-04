@@ -86,6 +86,9 @@ describe("component color usage", () => {
     expect(components).toContain(".combobox__control");
     expect(components).toContain(".command__item");
     expect(components).toContain(".empty__media");
+    expect(components).toContain(
+      '.dark .input[type="number"]::-webkit-inner-spin-button',
+    );
     expect(components).toContain(".textarea-control--invalid");
   });
 
