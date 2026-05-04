@@ -20,7 +20,7 @@ describe("app window wiring", () => {
   });
 
   it("exposes the window IPC bridge to renderers", () => {
-    const source = readSource("../preload/index.ts");
+    const source = readSource("preload.ts");
 
     expect(source).toContain("WindowIpcChannels.open");
     expect(source).toContain("windows: {");

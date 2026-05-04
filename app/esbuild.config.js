@@ -144,7 +144,7 @@ function createMainBuildOptions() {
 function createPreloadBuildOptions() {
   return {
     ...base,
-    entryPoints: ["./src/preload/index.ts"],
+    entryPoints: ["./src/main/preload.ts"],
     bundle: true,
     external: ["electron"],
     platform: "node",
