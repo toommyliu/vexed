@@ -104,6 +104,8 @@ import {
   SelectTrigger,
   SelectValue,
   Separator,
+  Slider,
+  SliderValue,
   Spinner,
   Switch,
   Tabs,
@@ -228,7 +230,9 @@ function DemoApp() {
   const [dropdownTarget, setDropdownTarget] = createSignal("");
   const [framework, setFramework] = createSignal("solid");
   const [menuMode, setMenuMode] = createSignal("safe");
+  const [range, setRange] = createSignal([25, 75]);
   const [target, setTarget] = createSignal("");
+  const [volume, setVolume] = createSignal([42]);
 
   createEffect(() => {
     const theme = dark() ? "dark" : "light";
@@ -395,6 +399,54 @@ function DemoApp() {
                 <Switch checked>On</Switch>
                 <Switch invalid>Invalid</Switch>
                 <Switch disabled>Disabled</Switch>
+              </div>
+              <Separator />
+              <div class="demo-matrix">
+                <div class="demo-matrix__row">
+                  <span class="demo-matrix__label">slider</span>
+                  <div class="demo-slider-stack">
+                    <div class="demo-slider-row">
+                      <Slider
+                        aria-label={["Volume"]}
+                        value={volume()}
+                        onValueChange={(details) => setVolume(details.value)}
+                      >
+                        <SliderValue />
+                      </Slider>
+                    </div>
+                    <Slider
+                      aria-label={["Minimum level", "Maximum level"]}
+                      minStepsBetweenThumbs={8}
+                      value={range()}
+                      onValueChange={(details) => setRange(details.value)}
+                    />
+                  </div>
+                </div>
+                <div class="demo-matrix__row">
+                  <span class="demo-matrix__label">states</span>
+                  <div class="demo-slider-stack">
+                    <Slider
+                      aria-label={["Disabled slider"]}
+                      defaultValue={[35]}
+                      disabled
+                    />
+                    <Slider
+                      aria-label={["Invalid slider"]}
+                      defaultValue={[68]}
+                      invalid
+                    />
+                  </div>
+                </div>
+                <div class="demo-matrix__row">
+                  <span class="demo-matrix__label">vertical</span>
+                  <div class="demo-slider-vertical">
+                    <Slider
+                      aria-label={["Vertical slider"]}
+                      defaultValue={[62]}
+                      orientation="vertical"
+                    />
+                  </div>
+                </div>
               </div>
             </CardContent>
           </Card>

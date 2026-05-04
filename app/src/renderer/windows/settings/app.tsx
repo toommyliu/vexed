@@ -3,6 +3,8 @@ import "./style.css";
 import {
   Button,
   Input,
+  Slider,
+  SliderValue,
   Switch,
   Tabs,
   TabsList,
@@ -16,6 +18,7 @@ import {
   createSignal,
   onCleanup,
   onMount,
+  untrack,
   type JSX,
 } from "solid-js";
 import {
@@ -31,8 +34,6 @@ import {
   type ThemeVariant,
 } from "../../../shared/settings";
 import { mountWindow } from "../mount";
-
-type SettingsPage = "general" | "appearance";
 
 type ThemeTokenValues = Record<ThemeTokenName, ThemeRgb>;
 
@@ -138,11 +139,6 @@ const tokenLabel = (name: ThemeTokenName): string =>
     .replace(/[A-Z]/g, (match) => ` ${match}`)
     .replace(/^./, (match) => match.toUpperCase());
 
-const isSettingsPage = (value: string | null): value is SettingsPage =>
-  value === "general" || value === "appearance";
-
-
-
 function SettingsSection(props: {
   readonly children: JSX.Element;
   readonly description?: string;
@@ -208,6 +204,44 @@ function SegmentedControl<T extends string>(props: {
   );
 }
 
+function RoundingSlider(props: {
+  readonly "aria-label": string;
+  readonly value: number;
+  readonly onCommit: (value: number) => void;
+}): JSX.Element {
+  const [draft, setDraft] = createSignal(props.value);
+  const [dragging, setDragging] = createSignal(false);
+
+  createEffect(() => {
+    const value = props.value;
+    if (!untrack(dragging)) {
+      setDraft(value);
+    }
+  });
+
+  return (
+    <Slider
+      aria-label={[props["aria-label"]]}
+      max={2}
+      min={0}
+      onValueChange={(details) => {
+        setDragging(true);
+        setDraft(details.value[0] ?? draft());
+      }}
+      onValueChangeEnd={(details) => {
+        const value = details.value[0] ?? draft();
+        setDraft(value);
+        setDragging(false);
+        props.onCommit(value);
+      }}
+      step={0.05}
+      value={[draft()]}
+    >
+      <SliderValue>{draft().toFixed(2)}</SliderValue>
+    </Slider>
+  );
+}
+
 function ThemeTokenRow(props: {
   readonly defaultValue: ThemeRgb;
   readonly name: ThemeTokenName;
@@ -239,9 +273,10 @@ function ThemeTokenRow(props: {
         <input
           aria-label={`${tokenLabel(props.name)} color`}
           class="theme-token-row__swatch"
-          onInput={(event) => commit(event.currentTarget.value)}
+          onChange={(event) => commit(event.currentTarget.value)}
+          onInput={(event) => setDraft(event.currentTarget.value)}
           type="color"
-          value={hexValue()}
+          value={draft()}
         />
         <Input
           aria-label={`${tokenLabel(props.name)} hex value`}
@@ -369,19 +404,15 @@ function AppearanceSettings(props: {
           <SettingsRow
             action={
               <div class="rounding-control">
-                <input
-                  max="2"
-                  min="0"
-                  onChange={(event) =>
+                <RoundingSlider
+                  aria-label={`${variant} theme rounding`}
+                  onCommit={(rounding) =>
                     updateThemeProfile(variant, {
-                      rounding: event.currentTarget.valueAsNumber,
+                      rounding,
                     })
                   }
-                  step="0.05"
-                  type="range"
                   value={profile().rounding}
                 />
-                <span>{profile().rounding.toFixed(2)}</span>
               </div>
             }
             title="Rounding"
