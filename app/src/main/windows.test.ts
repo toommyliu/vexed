@@ -83,7 +83,6 @@ class FakeWindow extends EventEmitter {
       return;
     }
 
-    this.emit("close", { preventDefault() {} });
     this.destroyed = true;
     this.webContents.destroyed = true;
     this.emit("closed");
@@ -285,6 +284,24 @@ describe("window service", () => {
   });
 
   it("destroys game children when their owning game window closes", async () => {
+    const harness = createHarness();
+    const gameWindow = (await run(
+      harness.service.openGameWindow,
+    )) as unknown as FakeWindow;
+    const environment = (await run(
+      harness.service.openWindow(WindowIds.Environment, gameWindow.id),
+    )) as unknown as FakeWindow;
+    const logger = (await run(
+      harness.service.openWindow(WindowIds.PacketLogger, gameWindow.id),
+    )) as unknown as FakeWindow;
+
+    expect(gameWindow.close()).toBe(false);
+
+    expect(environment.destroyed).toBe(true);
+    expect(logger.destroyed).toBe(true);
+  });
+
+  it("destroys game children when their owning game window is destroyed", async () => {
     const harness = createHarness();
     const gameWindow = (await run(
       harness.service.openGameWindow,

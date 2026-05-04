@@ -343,7 +343,6 @@ export const makeWindowService = (
     });
 
     window.on("closed", () => {
-      destroyChildWindows(entry);
       gameWindows.delete(gameWindowId);
       if (lastFocusedGameWindowId === gameWindowId) {
         lastFocusedGameWindowId = null;
