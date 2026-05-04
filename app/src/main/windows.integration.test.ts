@@ -91,6 +91,7 @@ describe("app window wiring", () => {
       resolve(import.meta.dirname, "../../esbuild.config.js"),
       "utf8",
     );
+    const windowHtml = readSource("../renderer/windows/index.html");
     const windowIds = Object.values(WindowIds);
 
     expect(source).toContain("const solidRendererTargets");
@@ -118,5 +119,8 @@ describe("app window wiring", () => {
 
     expect(source).toContain("createRendererBuildOptions()");
     expect(source).toContain("entryPoints: rendererEntryPoints");
+    expect(windowHtml).toContain(
+      '<link rel="stylesheet" href="./index.css" />',
+    );
   });
 });

@@ -1,8 +1,5 @@
 /* @refresh reload */
-import { mountWindow } from "../mount";
+import { WindowIds } from "../../../shared/windows";
+import { mountWindowApp } from "../windowApp";
 
-function App() {
-  return <main>Settings</main>;
-}
-
-mountWindow(App);
+mountWindowApp(WindowIds.Settings);

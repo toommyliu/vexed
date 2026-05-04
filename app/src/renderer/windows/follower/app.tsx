@@ -1,8 +1,5 @@
 /* @refresh reload */
-import { mountWindow } from "../mount";
+import { WindowIds } from "../../../shared/windows";
+import { mountWindowApp } from "../windowApp";
 
-function App() {
-  return <main>Follower</main>;
-}
-
-mountWindow(App);
+mountWindowApp(WindowIds.Follower);

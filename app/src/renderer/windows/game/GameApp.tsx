@@ -1,4 +1,4 @@
-import "../../styles.css";
+import "./style.css";
 import { Effect } from "effect";
 import {
   For,
