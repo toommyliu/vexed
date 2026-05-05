@@ -431,6 +431,33 @@ describe("Kbd", () => {
     expect(root.querySelector("[data-slot='kbd-group']")).not.toBeNull();
     expect(root.querySelectorAll("[data-slot='kbd']")).toHaveLength(2);
   });
+
+  it("normalizes modifier glyphs and aliases", () => {
+    const root = renderUi(() => (
+      <>
+        <Kbd>⌘</Kbd>
+        <Kbd>⇧</Kbd>
+        <Kbd>⌃</Kbd>
+        <Kbd>⌥</Kbd>
+        <Kbd>Ctrl</Kbd>
+        <Kbd>K</Kbd>
+      </>
+    ));
+    const keys = [...root.querySelectorAll("[data-slot='kbd']")];
+
+    expect(keys[0]?.getAttribute("data-key")).toBe("command");
+    expect(keys[0]?.getAttribute("aria-label")).toBe("Command");
+    expect(keys[1]?.getAttribute("data-key")).toBe("shift");
+    expect(keys[1]?.getAttribute("aria-label")).toBe("Shift");
+    expect(keys[2]?.getAttribute("data-key")).toBe("control");
+    expect(keys[2]?.getAttribute("aria-label")).toBe("Control");
+    expect(keys[3]?.getAttribute("data-key")).toBe("option");
+    expect(keys[3]?.getAttribute("aria-label")).toBe("Option");
+    expect(keys[4]?.getAttribute("data-key")).toBe("control");
+    expect(keys[4]?.getAttribute("aria-label")).toBe("Control");
+    expect(keys[5]?.hasAttribute("data-key")).toBe(false);
+    expect(keys[5]?.hasAttribute("aria-label")).toBe(false);
+  });
 });
 
 describe("Checkbox", () => {

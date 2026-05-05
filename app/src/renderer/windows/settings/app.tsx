@@ -1,9 +1,6 @@
 /* @refresh reload */
 import "./style.css";
-import {
-  formatForDisplay,
-  normalizeHotkeyFromEvent,
-} from "@tanstack/solid-hotkeys";
+import { normalizeHotkeyFromEvent } from "@tanstack/solid-hotkeys";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -37,7 +34,7 @@ import {
   TooltipTrigger,
   type ButtonProps,
 } from "@vexed/ui";
-import { RotateCcw } from "lucide-solid";
+import { RotateCcw, X } from "lucide-solid";
 import {
   For,
   Show,
@@ -75,6 +72,7 @@ import {
   type ThemeVariant,
 } from "../../../shared/settings";
 import { mountWindow } from "../mount";
+import { displayHotkey, displayHotkeyParts } from "./hotkeyDisplay";
 
 const defaultSettings: AppSettings = {
   preferences: DEFAULT_PREFERENCES,
@@ -256,6 +254,45 @@ function ResetButton(props: {
         </AlertDialogFooter>
       </AlertDialogContent>
     </AlertDialog>
+  );
+}
+
+function HotkeyIconButton(props: {
+  readonly "aria-label": string;
+  readonly children: JSX.Element;
+  readonly class?: string;
+  readonly disabled?: boolean;
+  readonly tooltip: string;
+  readonly onClick: () => void;
+}): JSX.Element {
+  const className = () =>
+    props.class === undefined
+      ? "hotkey-row__icon-action"
+      : `hotkey-row__icon-action ${props.class}`;
+
+  return (
+    <Tooltip closeDelay={0} openDelay={200} positioning={{ placement: "top" }}>
+      <TooltipTrigger
+        asChild={(tooltipTriggerProps) => (
+          <Button
+            {...(tooltipTriggerProps({
+              "aria-label": props["aria-label"],
+              children: props.children,
+              class: className(),
+              disabled: props.disabled,
+              onClick: props.onClick,
+              size: "icon-sm",
+              type: "button",
+              variant: "ghost",
+            } as ButtonProps) as ButtonProps)}
+          />
+        )}
+      />
+      <TooltipContent>
+        {props.tooltip}
+        <TooltipArrow />
+      </TooltipContent>
+    </Tooltip>
   );
 }
 
@@ -478,31 +515,6 @@ const readHotkey = (bindings: HotkeyBindings, id: GameCommandId): string => {
   return bindings[id] ?? definition?.defaultHotkey ?? "";
 };
 
-const displayHotkey = (value: string): string => {
-  if (value === "") {
-    return "Unbound";
-  }
-
-  try {
-    return formatForDisplay(value);
-  } catch {
-    return value;
-  }
-};
-
-const displayHotkeyParts = (value: string): readonly string[] => {
-  const display = displayHotkey(value);
-  if (display === "Unbound") {
-    return [display];
-  }
-
-  const separator = display.includes("+") ? "+" : /\s+/;
-  return display
-    .split(separator)
-    .map((part) => part.trim())
-    .filter((part) => part.length > 0);
-};
-
 const getConflictingLabels = (
   bindings: HotkeyBindings,
   id: GameCommandId,
@@ -671,7 +683,9 @@ function HotkeySettingsSection(props: {
                 );
               const isRecording = () => recordingId() === command.id;
               const displayParts = () =>
-                isRecording() ? ["Press keys"] : displayHotkeyParts(value());
+                isRecording()
+                  ? ["Press keys"]
+                  : displayHotkeyParts(value(), window.ipc.platform.os);
 
               return (
                 <div
@@ -687,26 +701,44 @@ function HotkeySettingsSection(props: {
                     </Show>
                   </div>
                   <div class="hotkey-row__controls">
-                    <KbdGroup
-                      aria-label={
-                        isRecording() ? "Press keys" : displayHotkey(value())
-                      }
-                      class="hotkey-row__value"
-                    >
-                      <For each={displayParts()}>
-                        {(part) => (
-                          <Kbd
-                            class="hotkey-row__key"
-                            data-empty={
-                              value() === "" && !isRecording() ? "" : undefined
-                            }
-                          >
-                            {part}
-                          </Kbd>
-                        )}
-                      </For>
-                    </KbdGroup>
+                    <div class="hotkey-row__binding">
+                      <Show when={command.defaultHotkey !== ""}>
+                        <HotkeyIconButton
+                          aria-label={`Restore default shortcut for ${command.label}`}
+                          class="hotkey-row__default-action"
+                          disabled={value() === command.defaultHotkey}
+                          onClick={() => void commitBinding(command.id, null)}
+                          tooltip="Restore default shortcut"
+                        >
+                          <RotateCcw class="button__icon" />
+                        </HotkeyIconButton>
+                      </Show>
+                      <KbdGroup
+                        aria-label={
+                          isRecording()
+                            ? "Press keys"
+                            : displayHotkey(value(), window.ipc.platform.os)
+                        }
+                        class="hotkey-row__value"
+                      >
+                        <For each={displayParts()}>
+                          {(part) => (
+                            <Kbd
+                              class="hotkey-row__key"
+                              data-empty={
+                                value() === "" && !isRecording()
+                                  ? ""
+                                  : undefined
+                              }
+                            >
+                              {part}
+                            </Kbd>
+                          )}
+                        </For>
+                      </KbdGroup>
+                    </div>
                     <Button
+                      class="hotkey-row__record-action"
                       disabled={recordingId() !== null && !isRecording()}
                       onClick={() => {
                         setLocalError(null);
@@ -718,26 +750,15 @@ function HotkeySettingsSection(props: {
                     >
                       Record
                     </Button>
-                    <Button
+                    <HotkeyIconButton
+                      aria-label={`Clear shortcut for ${command.label}`}
+                      class="hotkey-row__clear-action"
                       disabled={value() === ""}
                       onClick={() => void commitBinding(command.id, "")}
-                      size="sm"
-                      type="button"
-                      variant="ghost"
+                      tooltip="Clear shortcut"
                     >
-                      Clear
-                    </Button>
-                    <Show when={command.defaultHotkey !== ""}>
-                      <Button
-                        disabled={value() === command.defaultHotkey}
-                        onClick={() => void commitBinding(command.id, null)}
-                        size="sm"
-                        type="button"
-                        variant="ghost"
-                      >
-                        Default
-                      </Button>
-                    </Show>
+                      <X class="button__icon" />
+                    </HotkeyIconButton>
                   </div>
                 </div>
               );

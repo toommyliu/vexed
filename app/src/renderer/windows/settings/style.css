@@ -45,7 +45,7 @@
   flex: 0 0 auto;
   justify-content: center;
   min-height: 3.5rem;
-  overflow-y: hidden;
+  overflow-y: visible;
   padding: 0 1.5rem;
   position: relative;
   z-index: 1;
@@ -54,6 +54,7 @@
 .settings-tabs__list.tabs__list,
 .hotkey-category-tabs__list.tabs__list {
   justify-content: flex-start;
+  padding: 0.25rem;
 }
 
 .settings-tabs__list.tabs__list {
@@ -191,6 +192,11 @@
   max-width: 100%;
   overflow-x: auto;
   overflow-y: hidden;
+  scrollbar-width: none;
+}
+
+.hotkey-category-tabs__list::-webkit-scrollbar {
+  display: none;
 }
 
 .reset-settings-button {
@@ -254,8 +260,33 @@
   align-items: center;
   display: grid;
   gap: 0.5rem;
-  grid-template-columns: 8.5rem repeat(3, auto);
+  grid-template-columns: 10.5rem auto 2rem;
   min-width: 0;
+}
+
+.hotkey-row__icon-action {
+  justify-self: center;
+}
+
+.hotkey-row__binding {
+  align-items: center;
+  display: flex;
+  gap: 0.375rem;
+  grid-column: 1;
+  justify-content: flex-end;
+  min-width: 0;
+}
+
+.hotkey-row__default-action {
+  flex: 0 0 auto;
+}
+
+.hotkey-row__record-action {
+  grid-column: 2;
+}
+
+.hotkey-row__clear-action {
+  grid-column: 3;
 }
 
 .hotkey-row__value {
@@ -294,15 +325,22 @@
 }
 
 .hotkey-row__key.kbd[data-key] {
+  font-family: var(--font-sans);
   padding: 0;
 }
 
-.hotkey-row__key.kbd[data-key="shift"] {
-  min-width: 3rem;
-  width: 3rem;
+.hotkey-row__key.kbd[data-key="command"],
+.hotkey-row__key.kbd[data-key="shift"],
+.hotkey-row__key.kbd[data-key="control"],
+.hotkey-row__key.kbd[data-key="option"] {
+  width: 1.75rem;
 }
 
-.hotkey-row__key.kbd[data-key="shift"] .kbd__label {
+.hotkey-row__key.kbd[data-key="alt"] {
+  min-width: 2.25rem;
+}
+
+.hotkey-row__key.kbd[data-key] .kbd__label {
   font-size: var(--text-sm);
   font-weight: 600;
 }
@@ -484,6 +522,11 @@
     overflow-x: auto;
     overflow-y: hidden;
     padding: 0 1.25rem;
+    scrollbar-width: none;
+  }
+
+  .settings-tabs__bar::-webkit-scrollbar {
+    display: none;
   }
 
   .settings-content-wrapper {
@@ -524,7 +567,7 @@
   }
 
   .hotkey-row__controls {
-    grid-template-columns: minmax(7rem, 1fr) repeat(3, auto);
+    grid-template-columns: minmax(9rem, 1fr) auto 2rem;
     width: 100%;
   }
 

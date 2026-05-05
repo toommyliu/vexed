@@ -1537,6 +1537,7 @@ a.badge--destructive:hover {
 }
 
 .kbd[data-key] {
+  font-family: var(--font-sans);
   padding: 0;
 }
 
@@ -1551,11 +1552,18 @@ a.badge--destructive:hover {
   width: 0.75rem;
 }
 
-.kbd[data-key="shift"] {
-  min-width: 2.375rem;
+.kbd[data-key="command"],
+.kbd[data-key="shift"],
+.kbd[data-key="control"],
+.kbd[data-key="option"] {
+  width: 1.25rem;
 }
 
-.kbd[data-key="shift"] .kbd__label {
+.kbd[data-key="alt"] {
+  min-width: 1.625rem;
+}
+
+.kbd[data-key] .kbd__label {
   font-size: var(--text-xs);
   font-weight: 600;
 }
