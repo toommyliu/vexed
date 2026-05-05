@@ -395,6 +395,11 @@ function DemoApp() {
                 <Checkbox disabled>Disabled</Checkbox>
               </div>
               <div class="demo-row">
+                <Switch size="sm">Small</Switch>
+                <Switch>Default</Switch>
+                <Switch size="lg">Large</Switch>
+              </div>
+              <div class="demo-row">
                 <Switch>Off</Switch>
                 <Switch checked>On</Switch>
                 <Switch invalid>Invalid</Switch>

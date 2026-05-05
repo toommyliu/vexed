@@ -5,15 +5,39 @@ import {
   normalizeHotkeyFromEvent,
 } from "@tanstack/solid-hotkeys";
 import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
   Button,
+  Card,
+  CardAction,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
   Input,
+  Kbd,
+  KbdGroup,
   Slider,
   SliderValue,
   Switch,
   Tabs,
+  TabsContent,
   TabsList,
   TabsTrigger,
+  Tooltip,
+  TooltipArrow,
+  TooltipContent,
+  TooltipTrigger,
+  type ButtonProps,
 } from "@vexed/ui";
+import { RotateCcw } from "lucide-solid";
 import {
   For,
   Show,
@@ -38,6 +62,7 @@ import {
   DEFAULT_APPEARANCE,
   DEFAULT_HOTKEYS,
   DEFAULT_PREFERENCES,
+  DEFAULT_THEME_PROFILE,
   DEFAULT_THEME_TOKENS,
   THEME_TOKEN_NAMES,
   type AppSettings,
@@ -56,6 +81,17 @@ const defaultSettings: AppSettings = {
   appearance: DEFAULT_APPEARANCE,
   hotkeys: DEFAULT_HOTKEYS,
 };
+
+type SettingsTabId = "general" | "hotkeys" | "appearance";
+
+const settingsTabs: ReadonlyArray<{
+  readonly label: string;
+  readonly value: SettingsTabId;
+}> = [
+  { label: "General", value: "general" },
+  { label: "Hotkeys", value: "hotkeys" },
+  { label: "Appearance", value: "appearance" },
+];
 
 const themeModes: ReadonlyArray<{
   readonly label: string;
@@ -109,19 +145,29 @@ const tokenLabel = (name: ThemeTokenName): string =>
     .replace(/^./, (match) => match.toUpperCase());
 
 function SettingsSection(props: {
+  readonly action?: JSX.Element;
   readonly children: JSX.Element;
   readonly description?: string;
   readonly id: string;
   readonly title: string;
 }): JSX.Element {
+  const hasHeader = () =>
+    props.description !== undefined || props.action !== undefined;
+
   return (
-    <section class="settings-section" id={props.id}>
-      <header class="settings-section__header">
-        <h2>{props.title}</h2>
-        <Show when={props.description}>
-          {(description) => <p>{description()}</p>}
-        </Show>
-      </header>
+    <section aria-label={props.title} class="settings-section" id={props.id}>
+      <Show when={hasHeader()}>
+        <header class="settings-section__header">
+          <Show when={props.description}>
+            {(description) => <p>{description()}</p>}
+          </Show>
+          <Show when={props.action}>
+            {(action) => (
+              <div class="settings-section__header-action">{action()}</div>
+            )}
+          </Show>
+        </header>
+      </Show>
       <div class="settings-section__content">{props.children}</div>
     </section>
   );
@@ -144,6 +190,72 @@ function SettingsRow(props: {
       </div>
       <div class="settings-row__action">{props.action}</div>
     </div>
+  );
+}
+
+function ResetButton(props: {
+  readonly confirmLabel: string;
+  readonly description: string;
+  readonly iconOnly?: boolean;
+  readonly label: string;
+  readonly title: string;
+  readonly onConfirm: () => void;
+}): JSX.Element {
+  return (
+    <AlertDialog>
+      {props.iconOnly ? (
+        <Tooltip
+          closeDelay={0}
+          openDelay={200}
+          positioning={{ placement: "top" }}
+        >
+          <AlertDialogTrigger
+            asChild={(dialogTriggerProps) => (
+              <TooltipTrigger
+                asChild={(tooltipTriggerProps) => (
+                  <Button
+                    {...(dialogTriggerProps(
+                      tooltipTriggerProps({
+                        "aria-label": props.label,
+                        children: <RotateCcw class="button__icon" />,
+                        class: "reset-settings-button",
+                        size: "icon-sm",
+                        type: "button",
+                        variant: "destructive-outline",
+                      } as ButtonProps),
+                    ) as ButtonProps)}
+                  />
+                )}
+              />
+            )}
+          />
+          <TooltipContent>
+            {props.label}
+            <TooltipArrow />
+          </TooltipContent>
+        </Tooltip>
+      ) : (
+        <AlertDialogTrigger class="button button--destructive-outline button--sm reset-settings-button">
+          {props.label}
+        </AlertDialogTrigger>
+      )}
+      <AlertDialogContent>
+        <AlertDialogHeader>
+          <AlertDialogTitle>{props.title}</AlertDialogTitle>
+          <AlertDialogDescription>{props.description}</AlertDialogDescription>
+        </AlertDialogHeader>
+        <AlertDialogFooter>
+          <AlertDialogCancel size="sm">Cancel</AlertDialogCancel>
+          <AlertDialogAction
+            onClick={props.onConfirm}
+            size="sm"
+            variant="destructive"
+          >
+            {props.confirmLabel}
+          </AlertDialogAction>
+        </AlertDialogFooter>
+      </AlertDialogContent>
+    </AlertDialog>
   );
 }
 
@@ -332,6 +444,8 @@ function GeneralSettings(props: {
       <SettingsRow
         action={
           <Switch
+            aria-label="Check for updates"
+            size="default"
             checked={props.settings.preferences.checkForUpdates}
             onChange={(event) =>
               props.onPreferencesPatch({
@@ -409,10 +523,17 @@ function HotkeySettingsSection(props: {
   readonly onHotkeysPatch: (patch: HotkeysPatch) => Promise<void>;
   readonly onResetHotkeys: () => Promise<void>;
 }): JSX.Element {
+  const [activeHotkeyCategory, setActiveHotkeyCategory] =
+    createSignal<CommandCategory>("Options");
   const [recordingId, setRecordingId] = createSignal<GameCommandId | null>(
     null,
   );
   const [localError, setLocalError] = createSignal<string | null>(null);
+  const activeCommands = createMemo(() =>
+    GAME_COMMANDS.filter(
+      (command) => command.category === activeHotkeyCategory(),
+    ),
+  );
 
   const commitBinding = async (
     id: GameCommandId,
@@ -507,130 +628,123 @@ function HotkeySettingsSection(props: {
   });
 
   return (
-    <SettingsSection
-      description="Game-window shortcuts. App-wide shortcuts stay in the native application menu."
-      id="hotkeys"
-      title="Hotkeys"
-    >
-      <div class="settings-section__actions">
-        <Button
-          onClick={() => void props.onResetHotkeys()}
-          size="sm"
-          type="button"
-          variant="outline"
-        >
-          Reset hotkeys
-        </Button>
-      </div>
+    <SettingsSection id="hotkeys" title="Hotkeys">
       <Show when={localError()}>
         {(message) => <div class="settings-error">{message()}</div>}
       </Show>
-      <div class="hotkey-groups">
-        <For each={commandCategories}>
-          {(category) => {
-            const commands = GAME_COMMANDS.filter(
-              (command) => command.category === category,
-            );
-
-            return (
-              <section class="hotkey-group">
-                <h3>{category}</h3>
-                <div class="hotkey-list">
-                  <For each={commands}>
-                    {(command) => {
-                      const value = () =>
-                        readHotkey(props.settings.hotkeys.bindings, command.id);
-                      const conflicts = () =>
-                        getConflictingLabels(
-                          props.settings.hotkeys.bindings,
-                          command.id,
-                          value(),
-                        );
-                      const isRecording = () => recordingId() === command.id;
-
-                      return (
-                        <div
-                          class="hotkey-row"
-                          data-conflict={
-                            conflicts().length > 0 ? "" : undefined
-                          }
-                        >
-                          <div class="hotkey-row__content">
-                            <div class="hotkey-row__title">{command.label}</div>
-                            <Show when={conflicts().length > 0}>
-                              <div class="hotkey-row__conflict">
-                                Also used by {conflicts().join(", ")}
-                              </div>
-                            </Show>
-                          </div>
-                          <div class="hotkey-row__controls">
-                            <kbd class="hotkey-row__value">
-                              <For
-                                each={
-                                  isRecording()
-                                    ? ["Press keys"]
-                                    : displayHotkeyParts(value())
-                                }
-                              >
-                                {(part) => (
-                                  <span
-                                    class="hotkey-row__key"
-                                    data-empty={
-                                      value() === "" && !isRecording()
-                                        ? ""
-                                        : undefined
-                                    }
-                                  >
-                                    {part}
-                                  </span>
-                                )}
-                              </For>
-                            </kbd>
-                            <Button
-                              disabled={
-                                recordingId() !== null && !isRecording()
-                              }
-                              onClick={() => {
-                                setLocalError(null);
-                                setRecordingId(command.id);
-                              }}
-                              size="sm"
-                              type="button"
-                              variant={isRecording() ? "secondary" : "outline"}
-                            >
-                              Record
-                            </Button>
-                            <Button
-                              disabled={value() === ""}
-                              onClick={() => void commitBinding(command.id, "")}
-                              size="sm"
-                              type="button"
-                              variant="ghost"
-                            >
-                              Clear
-                            </Button>
-                            <Button
-                              disabled={value() === command.defaultHotkey}
-                              onClick={() =>
-                                void commitBinding(command.id, null)
-                              }
-                              size="sm"
-                              type="button"
-                              variant="ghost"
-                            >
-                              Reset
-                            </Button>
-                          </div>
-                        </div>
-                      );
-                    }}
-                  </For>
-                </div>
-              </section>
-            );
-          }}
-        </For>
+      <div class="hotkey-category-toolbar">
+        <Tabs
+          aria-label="Hotkey categories"
+          class="hotkey-category-tabs"
+          onValueChange={(details) =>
+            setActiveHotkeyCategory(details.value as CommandCategory)
+          }
+          value={activeHotkeyCategory()}
+        >
+          <TabsList class="hotkey-category-tabs__list" variant="underline">
+            <For each={commandCategories}>
+              {(category) => (
+                <TabsTrigger value={category}>{category}</TabsTrigger>
+              )}
+            </For>
+          </TabsList>
+        </Tabs>
+        <ResetButton
+          confirmLabel="Reset hotkeys"
+          description="This restores every game-window shortcut to its default binding."
+          label="Reset hotkeys"
+          onConfirm={() => void props.onResetHotkeys()}
+          title="Reset all hotkeys?"
+        />
       </div>
+      <Card class="hotkey-group">
+        <CardContent class="hotkey-list">
+          <For each={activeCommands()}>
+            {(command) => {
+              const value = () =>
+                readHotkey(props.settings.hotkeys.bindings, command.id);
+              const conflicts = () =>
+                getConflictingLabels(
+                  props.settings.hotkeys.bindings,
+                  command.id,
+                  value(),
+                );
+              const isRecording = () => recordingId() === command.id;
+              const displayParts = () =>
+                isRecording() ? ["Press keys"] : displayHotkeyParts(value());
+
+              return (
+                <div
+                  class="hotkey-row"
+                  data-conflict={conflicts().length > 0 ? "" : undefined}
+                >
+                  <div class="hotkey-row__content">
+                    <div class="hotkey-row__title">{command.label}</div>
+                    <Show when={conflicts().length > 0}>
+                      <div class="hotkey-row__conflict">
+                        Also used by {conflicts().join(", ")}
+                      </div>
+                    </Show>
+                  </div>
+                  <div class="hotkey-row__controls">
+                    <KbdGroup
+                      aria-label={
+                        isRecording() ? "Press keys" : displayHotkey(value())
+                      }
+                      class="hotkey-row__value"
+                    >
+                      <For each={displayParts()}>
+                        {(part) => (
+                          <Kbd
+                            class="hotkey-row__key"
+                            data-empty={
+                              value() === "" && !isRecording() ? "" : undefined
+                            }
+                          >
+                            {part}
+                          </Kbd>
+                        )}
+                      </For>
+                    </KbdGroup>
+                    <Button
+                      disabled={recordingId() !== null && !isRecording()}
+                      onClick={() => {
+                        setLocalError(null);
+                        setRecordingId(command.id);
+                      }}
+                      size="sm"
+                      type="button"
+                      variant={isRecording() ? "secondary" : "outline"}
+                    >
+                      Record
+                    </Button>
+                    <Button
+                      disabled={value() === ""}
+                      onClick={() => void commitBinding(command.id, "")}
+                      size="sm"
+                      type="button"
+                      variant="ghost"
+                    >
+                      Clear
+                    </Button>
+                    <Show when={command.defaultHotkey !== ""}>
+                      <Button
+                        disabled={value() === command.defaultHotkey}
+                        onClick={() => void commitBinding(command.id, null)}
+                        size="sm"
+                        type="button"
+                        variant="ghost"
+                      >
+                        Default
+                      </Button>
+                    </Show>
+                  </div>
+                </div>
+              );
+            }}
+          </For>
+        </CardContent>
+      </Card>
     </SettingsSection>
   );
 }
@@ -638,8 +752,25 @@ function HotkeySettingsSection(props: {
 function AppearanceSettings(props: {
   readonly settings: AppSettings;
   readonly onAppearancePatch: (patch: AppearancePatch) => void;
-  readonly onResetAppearance: () => void;
 }): JSX.Element {
+  const [activeThemeVariant, setActiveThemeVariant] =
+    createSignal<ThemeVariant>("dark");
+  const resetThemeProfile = (variant: ThemeVariant) => {
+    props.onAppearancePatch({
+      themes: {
+        [variant]: {
+          tokens: Object.fromEntries(
+            THEME_TOKEN_NAMES.map((name) => [name, null]),
+          ) as Partial<Record<ThemeTokenName, null>>,
+          sansFont: DEFAULT_THEME_PROFILE.sansFont,
+          monoFont: DEFAULT_THEME_PROFILE.monoFont,
+          sansFontSize: DEFAULT_THEME_PROFILE.sansFontSize,
+          monoFontSize: DEFAULT_THEME_PROFILE.monoFontSize,
+          rounding: DEFAULT_THEME_PROFILE.rounding,
+        },
+      },
+    });
+  };
   const updateThemeProfile = (
     variant: ThemeVariant,
     patch: {
@@ -662,89 +793,118 @@ function AppearanceSettings(props: {
     const profile = () => props.settings.appearance.themes[variant];
 
     return (
-      <section class="theme-profile">
-        <header class="theme-profile__header">
-          <div>
-            <h3>{variant === "light" ? "Light theme" : "Dark theme"}</h3>
-          </div>
-        </header>
-        <div class="theme-profile__rows">
-          <SettingsRow
-            action={
-              <Input
-                class="settings-text-input"
-                fullWidth
-                onChange={(event) =>
-                  updateThemeProfile(variant, {
-                    sansFont: event.currentTarget.value,
-                  })
+      <Card class="theme-profile">
+        <CardHeader>
+          <CardTitle>
+            {variant === "light" ? "Light theme" : "Dark theme"}
+          </CardTitle>
+          <CardDescription>
+            Fonts, rounding, and color tokens for this theme.
+          </CardDescription>
+          <CardAction>
+            <div class="theme-profile__actions">
+              <Tabs
+                aria-label="Theme profile"
+                onValueChange={(details) =>
+                  setActiveThemeVariant(details.value as ThemeVariant)
                 }
-                size="sm"
-                value={profile().sansFont}
+                value={activeThemeVariant()}
+              >
+                <TabsList variant="underline">
+                  <TabsTrigger value="light">Light</TabsTrigger>
+                  <TabsTrigger value="dark">Dark</TabsTrigger>
+                </TabsList>
+              </Tabs>
+              <ResetButton
+                confirmLabel="Reset"
+                description={`This restores the ${variant} theme fonts, font sizes, rounding, and color token overrides.`}
+                iconOnly
+                label={`Reset ${variant} theme`}
+                onConfirm={() => resetThemeProfile(variant)}
+                title={`Reset ${variant} theme customizations?`}
               />
-            }
-            title="Sans font"
-          />
-          <SettingsRow
-            action={
-              <FontSizeInput
-                aria-label={`${variant} theme sans font size`}
-                onCommit={(sansFontSize) =>
-                  updateThemeProfile(variant, {
-                    sansFontSize,
-                  })
-                }
-                value={profile().sansFontSize}
-              />
-            }
-            title="Sans size"
-          />
-          <SettingsRow
-            action={
-              <Input
-                class="settings-text-input"
-                fullWidth
-                onChange={(event) =>
-                  updateThemeProfile(variant, {
-                    monoFont: event.currentTarget.value,
-                  })
-                }
-                size="sm"
-                value={profile().monoFont}
-              />
-            }
-            title="Mono font"
-          />
-          <SettingsRow
-            action={
-              <FontSizeInput
-                aria-label={`${variant} theme mono font size`}
-                onCommit={(monoFontSize) =>
-                  updateThemeProfile(variant, {
-                    monoFontSize,
-                  })
-                }
-                value={profile().monoFontSize}
-              />
-            }
-            title="Mono size"
-          />
-          <SettingsRow
-            action={
-              <div class="rounding-control">
-                <RoundingSlider
-                  aria-label={`${variant} theme rounding`}
-                  onCommit={(rounding) =>
+            </div>
+          </CardAction>
+        </CardHeader>
+        <CardContent class="theme-profile__rows">
+          <div class="theme-profile__typography">
+            <SettingsRow
+              action={
+                <Input
+                  class="settings-text-input"
+                  fullWidth
+                  onChange={(event) =>
                     updateThemeProfile(variant, {
-                      rounding,
+                      sansFont: event.currentTarget.value,
                     })
                   }
-                  value={profile().rounding}
+                  size="sm"
+                  value={profile().sansFont}
                 />
-              </div>
-            }
-            title="Rounding"
-          />
+              }
+              title="Sans font"
+            />
+            <SettingsRow
+              action={
+                <FontSizeInput
+                  aria-label={`${variant} theme sans font size`}
+                  onCommit={(sansFontSize) =>
+                    updateThemeProfile(variant, {
+                      sansFontSize,
+                    })
+                  }
+                  value={profile().sansFontSize}
+                />
+              }
+              title="Sans size"
+            />
+            <SettingsRow
+              action={
+                <Input
+                  class="settings-text-input"
+                  fullWidth
+                  onChange={(event) =>
+                    updateThemeProfile(variant, {
+                      monoFont: event.currentTarget.value,
+                    })
+                  }
+                  size="sm"
+                  value={profile().monoFont}
+                />
+              }
+              title="Mono font"
+            />
+            <SettingsRow
+              action={
+                <FontSizeInput
+                  aria-label={`${variant} theme mono font size`}
+                  onCommit={(monoFontSize) =>
+                    updateThemeProfile(variant, {
+                      monoFontSize,
+                    })
+                  }
+                  value={profile().monoFontSize}
+                />
+              }
+              title="Mono size"
+            />
+            <SettingsRow
+              action={
+                <div class="rounding-control">
+                  <RoundingSlider
+                    aria-label={`${variant} theme rounding`}
+                    onCommit={(rounding) =>
+                      updateThemeProfile(variant, {
+                        rounding,
+                      })
+                    }
+                    value={profile().rounding}
+                  />
+                </div>
+              }
+              title="Rounding"
+            />
+          </div>
           <div class="theme-token-list">
             <For each={THEME_TOKEN_NAMES}>
               {(name) => (
@@ -770,8 +930,8 @@ function AppearanceSettings(props: {
               )}
             </For>
           </div>
-        </div>
-      </section>
+        </CardContent>
+      </Card>
     );
   };
 
@@ -789,19 +949,8 @@ function AppearanceSettings(props: {
         description="Use light, dark, or match your system appearance."
         title="Theme"
       />
-      <div class="settings-section__actions">
-        <Button
-          onClick={props.onResetAppearance}
-          size="sm"
-          type="button"
-          variant="outline"
-        >
-          Reset appearance
-        </Button>
-      </div>
-      <div class="theme-profile-grid">
-        {renderProfileEditor("light")}
-        {renderProfileEditor("dark")}
+      <div class="theme-profile-panel">
+        {renderProfileEditor(activeThemeVariant())}
       </div>
     </SettingsSection>
   );
@@ -814,6 +963,7 @@ function SettingsApp(props: {
     props.initialSettings ?? defaultSettings,
   );
   const [error, setError] = createSignal<string | null>(null);
+  const [activeTab, setActiveTab] = createSignal<SettingsTabId>("general");
 
   const runSettingsUpdate = async (
     update: Promise<AppSettings>,
@@ -850,39 +1000,60 @@ function SettingsApp(props: {
     <div class="settings-app">
       <div class="settings-layout">
         <main class="settings-main">
-          <div class="settings-content-wrapper">
-            <Show when={error()}>
-              {(message) => <div class="settings-error">{message()}</div>}
-            </Show>
-            <GeneralSettings
-              onPreferencesPatch={(patch) =>
-                void runSettingsUpdate(
-                  window.ipc.settings.updatePreferences(patch),
-                )
-              }
-              settings={settings()}
-            />
-            <HotkeySettingsSection
-              onHotkeysPatch={(patch) =>
-                runSettingsUpdate(window.ipc.settings.updateHotkeys(patch))
-              }
-              onResetHotkeys={() =>
-                runSettingsUpdate(window.ipc.settings.resetHotkeys())
-              }
-              settings={settings()}
-            />
-            <AppearanceSettings
-              onAppearancePatch={(patch) =>
-                void runSettingsUpdate(
-                  window.ipc.settings.updateAppearance(patch),
-                )
-              }
-              onResetAppearance={() =>
-                void runSettingsUpdate(window.ipc.settings.resetAppearance())
-              }
-              settings={settings()}
-            />
-          </div>
+          <Tabs
+            aria-label="Settings sections"
+            class="settings-tabs"
+            onValueChange={(details) =>
+              setActiveTab(details.value as SettingsTabId)
+            }
+            value={activeTab()}
+          >
+            <div class="settings-tabs__bar">
+              <TabsList class="settings-tabs__list" variant="underline">
+                <For each={settingsTabs}>
+                  {(tab) => (
+                    <TabsTrigger value={tab.value}>{tab.label}</TabsTrigger>
+                  )}
+                </For>
+              </TabsList>
+            </div>
+            <div class="settings-content-wrapper">
+              <Show when={error()}>
+                {(message) => <div class="settings-error">{message()}</div>}
+              </Show>
+              <TabsContent value="general">
+                <GeneralSettings
+                  onPreferencesPatch={(patch) =>
+                    void runSettingsUpdate(
+                      window.ipc.settings.updatePreferences(patch),
+                    )
+                  }
+                  settings={settings()}
+                />
+              </TabsContent>
+              <TabsContent value="hotkeys">
+                <HotkeySettingsSection
+                  onHotkeysPatch={(patch) =>
+                    runSettingsUpdate(window.ipc.settings.updateHotkeys(patch))
+                  }
+                  onResetHotkeys={() =>
+                    runSettingsUpdate(window.ipc.settings.resetHotkeys())
+                  }
+                  settings={settings()}
+                />
+              </TabsContent>
+              <TabsContent value="appearance">
+                <AppearanceSettings
+                  onAppearancePatch={(patch) =>
+                    void runSettingsUpdate(
+                      window.ipc.settings.updateAppearance(patch),
+                    )
+                  }
+                  settings={settings()}
+                />
+              </TabsContent>
+            </div>
+          </Tabs>
         </main>
       </div>
     </div>

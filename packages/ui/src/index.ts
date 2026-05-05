@@ -271,7 +271,7 @@ export {
   type SliderValueProps,
 } from "./components/Slider";
 export { Spinner, type SpinnerProps } from "./components/Spinner";
-export { Switch, type SwitchProps } from "./components/Switch";
+export { Switch, type SwitchProps, type SwitchSize } from "./components/Switch";
 export {
   Tabs,
   TabsContent,

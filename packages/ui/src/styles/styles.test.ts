@@ -88,6 +88,7 @@ describe("component color usage", () => {
     expect(components).toContain(".card__action");
     expect(components).toContain(".card__panel");
     expect(components).toContain(".checkbox--disabled");
+    expect(components).toContain(".switch--lg");
     expect(components).toContain(".alert--warning");
     expect(components).toContain(".dialog__content");
     expect(components).toContain(".select__trigger");
@@ -98,6 +99,18 @@ describe("component color usage", () => {
       '.dark .input[type="number"]::-webkit-inner-spin-button',
     );
     expect(components).toContain(".textarea-control--invalid");
+  });
+
+  it("sizes switches through Chrome 87-compatible variables", () => {
+    const components = readStyle("components.css");
+
+    expect(components).toContain("--switch-thumb-size");
+    expect(components).toContain("--switch-track-height");
+    expect(components).toContain("--switch-track-width");
+    expect(components).toContain("--switch-thumb-translate");
+    expect(components).toContain(
+      "transform: translateX(var(--switch-thumb-translate));",
+    );
   });
 
   it("does not translate filled buttons on active press", () => {
