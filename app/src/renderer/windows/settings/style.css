@@ -302,49 +302,6 @@
   white-space: nowrap;
 }
 
-.hotkey-row__key.kbd {
-  background: linear-gradient(
-    180deg,
-    rgba(var(--card), 0.98),
-    rgba(var(--muted), 0.92)
-  );
-  border: 1px solid rgba(var(--border), 0.92);
-  border-bottom-color: rgba(var(--foreground), 0.18);
-  border-radius: var(--radius-sm);
-  box-shadow:
-    inset 0 1px 0 rgba(var(--background), 0.65),
-    0 1px 1px rgba(0, 0, 0, 0.12);
-  color: rgb(var(--foreground));
-  font-family: var(--font-mono);
-  font-size: var(--font-mono-size);
-  height: 1.75rem;
-  min-width: 1.75rem;
-  overflow: hidden;
-  padding: 0 0.5rem;
-  text-overflow: ellipsis;
-}
-
-.hotkey-row__key.kbd[data-key] {
-  font-family: var(--font-sans);
-  padding: 0;
-}
-
-.hotkey-row__key.kbd[data-key="command"],
-.hotkey-row__key.kbd[data-key="shift"],
-.hotkey-row__key.kbd[data-key="control"],
-.hotkey-row__key.kbd[data-key="option"] {
-  width: 1.75rem;
-}
-
-.hotkey-row__key.kbd[data-key="alt"] {
-  min-width: 2.25rem;
-}
-
-.hotkey-row__key.kbd[data-key] .kbd__label {
-  font-size: var(--text-sm);
-  font-weight: 600;
-}
-
 .hotkey-row__key[data-empty] {
   color: rgb(var(--muted-foreground));
   min-width: 5.5rem;
