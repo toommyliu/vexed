@@ -7,6 +7,7 @@ import {
   normalizeHotkeyValue,
   path,
 } from "./Hotkeys";
+import { normalizeHotkeyBinding } from "../../shared/hotkeys";
 
 describe("hotkey settings", () => {
   it("normalizes valid bindings", () => {
@@ -21,6 +22,11 @@ describe("hotkey settings", () => {
       "load-script": "Mod+O",
       "toggle-lag-killer": "Alt+L",
     });
+  });
+
+  it("supports platform-explicit macOS Control bindings", () => {
+    expect(normalizeHotkeyBinding("Control+Z", "mac")).toBe("Control+Z");
+    expect(normalizeHotkeyBinding("Command+Z", "mac")).toBe("Mod+Z");
   });
 
   it("discards unknown command ids", () => {

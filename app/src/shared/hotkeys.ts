@@ -11,6 +11,7 @@ import {
 } from "./commands";
 
 export type HotkeyBindings = Partial<Record<GameCommandId, string>>;
+export type HotkeyPlatform = "mac" | "windows" | "linux";
 
 export interface HotkeysSettings {
   readonly bindings: HotkeyBindings;
@@ -24,7 +25,10 @@ export const DEFAULT_HOTKEYS: HotkeysSettings = {
   bindings: getDefaultHotkeys(),
 };
 
-export const normalizeHotkeyBinding = (value: unknown): string | undefined => {
+export const normalizeHotkeyBinding = (
+  value: unknown,
+  platform?: HotkeyPlatform,
+): string | undefined => {
   if (typeof value !== "string") {
     return undefined;
   }
@@ -37,9 +41,10 @@ export const normalizeHotkeyBinding = (value: unknown): string | undefined => {
   try {
     const normalized = normalizeRegisterableHotkey(
       trimmed as RegisterableHotkey,
+      platform,
     );
     const validation = validateHotkey(normalized);
-    return validation.valid && hasNonModifierKey(normalized)
+    return validation.valid && hasNonModifierKey(normalized, platform)
       ? normalized
       : undefined;
   } catch {

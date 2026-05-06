@@ -5,6 +5,7 @@ import {
   createDefaultHotkeyBindings,
   normalizeHotkeyBinding,
   type HotkeyBindings,
+  type HotkeyPlatform,
   type HotkeysSettings,
 } from "../../shared/hotkeys";
 
@@ -12,7 +13,15 @@ export type { HotkeyBindings, HotkeysSettings };
 
 export const DEFAULT: HotkeysSettings = DEFAULT_HOTKEYS;
 
-export const normalizeHotkeyValue = normalizeHotkeyBinding;
+const platform: HotkeyPlatform =
+  process.platform === "darwin"
+    ? "mac"
+    : process.platform === "win32"
+      ? "windows"
+      : "linux";
+
+export const normalizeHotkeyValue = (value: unknown): string | undefined =>
+  normalizeHotkeyBinding(value, platform);
 
 export const normalize = (value: unknown): HotkeysSettings => {
   const defaults = createDefaultHotkeyBindings();

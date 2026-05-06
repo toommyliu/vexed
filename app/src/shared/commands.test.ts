@@ -25,6 +25,16 @@ describe("game command registry", () => {
     }
   });
 
+  it("keeps macOS Control distinct from Mod", () => {
+    expect(normalizeHotkeyBinding("Control+Z", "mac")).toBe("Control+Z");
+    expect(normalizeHotkeyBinding("Meta+Z", "mac")).toBe("Mod+Z");
+  });
+
+  it("maps Control to Mod on Windows and Linux", () => {
+    expect(normalizeHotkeyBinding("Control+Z", "windows")).toBe("Mod+Z");
+    expect(normalizeHotkeyBinding("Control+Z", "linux")).toBe("Mod+Z");
+  });
+
   it("creates defaults for every command", () => {
     const defaults = getDefaultHotkeys();
 

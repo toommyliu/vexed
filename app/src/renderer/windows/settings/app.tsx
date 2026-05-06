@@ -1,6 +1,7 @@
 /* @refresh reload */
 import "./style.css";
-import { normalizeHotkeyFromEvent } from "@tanstack/solid-hotkeys";
+import { TanStackDevtools } from "@tanstack/solid-devtools";
+import { hotkeysDevtoolsPlugin } from "@tanstack/solid-hotkeys-devtools";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -55,6 +56,7 @@ import {
   normalizeHotkeyBinding,
   type HotkeyBindings,
 } from "../../../shared/hotkeys";
+import type { AppPlatform } from "../../../shared/ipc";
 import {
   DEFAULT_APPEARANCE,
   DEFAULT_HOTKEYS,
@@ -73,6 +75,7 @@ import {
 } from "../../../shared/settings";
 import { mountWindow } from "../mount";
 import { displayHotkey, displayHotkeyParts } from "./hotkeyDisplay";
+import { readRecordedHotkeyFromEvent } from "./hotkeyRecording";
 
 const defaultSettings: AppSettings = {
   preferences: DEFAULT_PREFERENCES,
@@ -531,6 +534,7 @@ const getConflictingLabels = (
 };
 
 function HotkeySettingsSection(props: {
+  readonly platform: AppPlatform;
   readonly settings: AppSettings;
   readonly onHotkeysPatch: (patch: HotkeysPatch) => Promise<void>;
   readonly onResetHotkeys: () => Promise<void>;
@@ -555,7 +559,7 @@ function HotkeySettingsSection(props: {
     const definition = GAME_COMMANDS.find((command) => command.id === id);
 
     if (value !== null) {
-      const normalized = normalizeHotkeyBinding(value);
+      const normalized = normalizeHotkeyBinding(value, props.platform);
       if (normalized === undefined) {
         setLocalError("That shortcut is not valid.");
         return;
@@ -621,7 +625,8 @@ function HotkeySettingsSection(props: {
       }
 
       const normalized = normalizeHotkeyBinding(
-        normalizeHotkeyFromEvent(event),
+        readRecordedHotkeyFromEvent(event),
+        props.platform,
       );
       if (normalized === undefined) {
         setLocalError("Press a complete shortcut.");
@@ -685,7 +690,7 @@ function HotkeySettingsSection(props: {
               const displayParts = () =>
                 isRecording()
                   ? ["Press keys"]
-                  : displayHotkeyParts(value(), window.ipc.platform.os);
+                  : displayHotkeyParts(value(), props.platform);
 
               return (
                 <div
@@ -717,7 +722,7 @@ function HotkeySettingsSection(props: {
                         aria-label={
                           isRecording()
                             ? "Press keys"
-                            : displayHotkey(value(), window.ipc.platform.os)
+                            : displayHotkey(value(), props.platform)
                         }
                         class="hotkey-row__value"
                       >
@@ -979,7 +984,10 @@ function AppearanceSettings(props: {
 
 function SettingsApp(props: {
   readonly initialSettings: AppSettings | null;
+  readonly platform: AppPlatform;
 }): JSX.Element {
+  console.log("Initial settings:", props.initialSettings);
+  console.log("Platform:", props.platform);
   const [settings, setSettings] = createSignal<AppSettings>(
     props.initialSettings ?? defaultSettings,
   );
@@ -1060,6 +1068,7 @@ function SettingsApp(props: {
                   onResetHotkeys={() =>
                     runSettingsUpdate(window.ipc.settings.resetHotkeys())
                   }
+                  platform={props.platform}
                   settings={settings()}
                 />
               </TabsContent>
@@ -1081,6 +1090,9 @@ function SettingsApp(props: {
   );
 }
 
-mountWindow(({ initialSettings }) => (
-  <SettingsApp initialSettings={initialSettings} />
+mountWindow(({ initialSettings, platform }) => (
+  <>
+    <SettingsApp initialSettings={initialSettings} platform={platform} />
+    <TanStackDevtools plugins={[hotkeysDevtoolsPlugin()]} />
+  </>
 ));

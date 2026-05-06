@@ -77,7 +77,9 @@ describe("app window wiring", () => {
     expect(mountSource).toContain("import { installSettingsSync }");
     expect(mountSource).toContain("const settingsSync = installSettingsSync()");
     expect(mountSource).toContain("settingsSync.ready");
-    expect(mountSource).toContain("App({ initialSettings })");
+    expect(mountSource).toContain(
+      "App({ initialSettings, platform: window.ipc.platform.os })",
+    );
     expect(mountSource).toContain('dataset["ready"] = "true"');
     expect(mountSource).toContain("import.meta.hot");
     expect(mountSource).toContain("import.meta.hot.dispose");
@@ -87,6 +89,22 @@ describe("app window wiring", () => {
     expect(themeSource).toContain("globalThis.matchMedia");
     expect(preloadSource).toContain(
       "ipcRenderer.removeListener(SettingsIpcChannels.changed",
+    );
+  });
+
+  it("mounts TanStack hotkeys devtools only in settings", () => {
+    const mountSource = readSource("../renderer/windows/mount.tsx");
+    const settingsSource = readSource("../renderer/windows/settings/app.tsx");
+
+    expect(mountSource).not.toContain("TanStackDevtools");
+    expect(settingsSource).toContain(
+      'import { TanStackDevtools } from "@tanstack/solid-devtools"',
+    );
+    expect(settingsSource).toContain(
+      'import { hotkeysDevtoolsPlugin } from "@tanstack/solid-hotkeys-devtools"',
+    );
+    expect(settingsSource).toContain(
+      "<TanStackDevtools plugins={[hotkeysDevtoolsPlugin()]} />",
     );
   });
 
@@ -178,10 +196,12 @@ describe("app window wiring", () => {
     const source = readSource("../renderer/windows/settings/app.tsx");
 
     expect(source).toContain("readonly initialSettings: AppSettings | null");
+    expect(source).toContain("readonly platform: AppPlatform");
     expect(source).toContain("props.initialSettings ?? defaultSettings");
     expect(source).toContain("props.initialSettings === null");
+    expect(source).toContain("platform={props.platform}");
     expect(source).toContain(
-      "<SettingsApp initialSettings={initialSettings} />",
+      "<SettingsApp initialSettings={initialSettings} platform={platform} />",
     );
   });
 });
