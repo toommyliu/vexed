@@ -66,7 +66,7 @@ export const appWindowGroups: readonly WindowGroup[] = [
 
 export const gameWindowGroups: readonly WindowGroup[] = [
   {
-    name: "Application",
+    name: "Tools",
     items: [
       {
         id: WindowIds.Environment,
@@ -79,11 +79,6 @@ export const gameWindowGroups: readonly WindowGroup[] = [
           height: 593,
         },
       },
-    ],
-  },
-  {
-    name: "Tools",
-    items: [
       {
         id: WindowIds.FastTravels,
         label: "Fast travels",

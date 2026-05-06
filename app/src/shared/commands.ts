@@ -76,7 +76,7 @@ export const GAME_COMMANDS: readonly CommandDefinition[] = [
   {
     id: "open-environment",
     scope: "game",
-    category: "Application",
+    category: "Tools",
     label: "Open Environment",
     keywords: ["window", "runtime", "state"],
     defaultHotkey: "Mod+E",

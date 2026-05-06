@@ -41,6 +41,12 @@ describe("game command registry", () => {
     expect(Object.keys(defaults).sort()).toEqual([...GAME_COMMAND_IDS].sort());
   });
 
+  it("groups environment with tool commands", () => {
+    expect(
+      GAME_COMMANDS.find((command) => command.id === "open-environment"),
+    ).toEqual(expect.objectContaining({ category: "Tools" }));
+  });
+
   it("validates command ids", () => {
     expect(isGameCommandId("load-script")).toBe(true);
     expect(isGameCommandId("missing-command")).toBe(false);

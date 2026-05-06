@@ -43,7 +43,7 @@ describe("window catalog", () => {
   it("contains the game and tool windows exposed by the game menu", () => {
     expect(gameWindowGroups).toEqual([
       {
-        name: "Application",
+        name: "Tools",
         items: [
           expect.objectContaining({
             id: WindowIds.Environment,
@@ -55,11 +55,6 @@ describe("window catalog", () => {
               height: 593,
             },
           }),
-        ],
-      },
-      {
-        name: "Tools",
-        items: [
           expect.objectContaining({
             id: WindowIds.FastTravels,
             label: "Fast travels",
