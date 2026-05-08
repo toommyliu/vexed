@@ -1735,6 +1735,7 @@ a.badge--destructive:hover {
   display: inline-flex;
   font-family: var(--font-sans);
   font-size: var(--text-xs);
+  flex: 0 0 auto;
   font-weight: 500;
   gap: 0.25rem;
   height: 1.375rem;
@@ -1744,11 +1745,12 @@ a.badge--destructive:hover {
   padding: 0 0.3125rem;
   pointer-events: none;
   user-select: none;
+  white-space: nowrap;
 }
 
 .kbd[data-key] {
   font-family: var(--font-sans);
-  padding: 0;
+  padding: 0 0.3125rem;
 }
 
 .kbd__label {
@@ -1766,7 +1768,7 @@ a.badge--destructive:hover {
 .kbd[data-key="shift"],
 .kbd[data-key="control"],
 .kbd[data-key="option"] {
-  width: 1.375rem;
+  min-width: 1.375rem;
 }
 
 .kbd[data-key="alt"] {
