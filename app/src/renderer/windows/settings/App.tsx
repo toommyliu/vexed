@@ -1,5 +1,9 @@
 /* @refresh reload */
 import "./style.css";
+import {
+  formatHotkeyDisplay as displayHotkey,
+  formatHotkeyDisplayParts as displayHotkeyParts,
+} from "@vexed/shared/hotkeyDisplay";
 import { TanStackDevtools } from "@tanstack/solid-devtools";
 import { hotkeysDevtoolsPlugin } from "@tanstack/solid-hotkeys-devtools";
 import {
@@ -76,7 +80,6 @@ import {
   type ThemeVariant,
 } from "../../../shared/settings";
 import { mountWindow } from "../mount";
-import { displayHotkey, displayHotkeyParts } from "./hotkeyDisplay";
 import { readRecordedHotkeyFromEvent } from "./hotkeyRecording";
 
 const defaultSettings: AppSettings = {

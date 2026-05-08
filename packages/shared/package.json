@@ -3,7 +3,7 @@
   "private": true,
   "scripts": {
     "typecheck": "tsc --noEmit",
-    "build": "tsdown --format cjs --dts --outDir dist src/index.ts src/string.ts src/csv.ts src/number.ts",
+    "build": "tsdown --format cjs --dts --outDir dist \"src/*.ts\"",
     "postinstall": "npm run build"
   },
   "devDependencies": {
@@ -13,10 +13,14 @@
   "main": "./dist/index.cjs",
   "types": "./dist/index.d.cts",
   "exports": {
-    ".": "./dist/index.cjs",
-    "./string": "./dist/string.cjs",
-    "./csv": "./dist/csv.cjs",
-    "./number": "./dist/number.cjs",
+    ".": {
+      "types": "./dist/index.d.cts",
+      "default": "./dist/index.cjs"
+    },
+    "./*": {
+      "types": "./dist/*.d.cts",
+      "default": "./dist/*.cjs"
+    },
     "./package.json": "./package.json"
   }
 }

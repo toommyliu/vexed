@@ -1,4 +1,5 @@
 import { For, Show, type Accessor, type JSX, type Setter } from "solid-js";
+import { formatOptionalHotkeyDisplay } from "@vexed/shared/hotkeyDisplay";
 import {
   Button,
   Checkbox,
@@ -21,7 +22,6 @@ import {
 import type { HotkeyBindings } from "../../../shared/hotkeys";
 import type { AppPlatform } from "../../../shared/ipc";
 import { gameWindowGroups, type WindowId } from "../../../shared/windows";
-import { formatGameShortcut } from "./hotkeyDisplay";
 import {
   getTopNavOptionCommandId,
   type GameTopNavMenu,
@@ -174,7 +174,7 @@ export function GameTopNav(props: GameTopNavProps): JSX.Element {
                 >
                   <span class="game-menu__item-label">Load Script</span>
                   <Show
-                    when={formatGameShortcut(
+                    when={formatOptionalHotkeyDisplay(
                       commandHotkey(props.hotkeyBindings(), "load-script"),
                       props.hotkeyPlatform,
                     )}
@@ -199,7 +199,7 @@ export function GameTopNav(props: GameTopNavProps): JSX.Element {
                 >
                   <span class="game-menu__item-label">Stop</span>
                   <Show
-                    when={formatGameShortcut(
+                    when={formatOptionalHotkeyDisplay(
                       commandHotkey(props.hotkeyBindings(), "stop-script"),
                       props.hotkeyPlatform,
                     )}
@@ -245,7 +245,7 @@ export function GameTopNav(props: GameTopNavProps): JSX.Element {
                           {option.label}
                         </span>
                         <Show
-                          when={formatGameShortcut(
+                          when={formatOptionalHotkeyDisplay(
                             optionHotkey(props.hotkeyBindings(), option.id),
                             props.hotkeyPlatform,
                           )}

@@ -1,4 +1,4 @@
-import type { AppPlatform } from "../../../shared/ipc";
+export type HotkeyDisplayPlatform = "mac" | "windows" | "linux";
 
 const macDisplayAliases: Readonly<Record<string, string>> = {
   alt: "⌥",
@@ -27,13 +27,14 @@ const nonMacDisplayAliases: Readonly<Record<string, string>> = {
 };
 
 const splitHotkeyParts = (value: string): readonly string[] => {
-  // Settings persist canonical accelerator strings, but reload paths can hand
-  // this formatter either "Alt+B" or already split display text like "Alt B".
   const trimmed = value.trim();
   return trimmed.includes("+") ? trimmed.split("+") : trimmed.split(/\s+/);
 };
 
-const displayKeyPart = (part: string, platform: AppPlatform): string => {
+const displayKeyPart = (
+  part: string,
+  platform: HotkeyDisplayPlatform,
+): string => {
   const trimmedPart = part.trim();
   const aliases = platform === "mac" ? macDisplayAliases : nonMacDisplayAliases;
   const displayPart = aliases[trimmedPart.toLowerCase()];
@@ -44,21 +45,13 @@ const displayKeyPart = (part: string, platform: AppPlatform): string => {
   return /^[a-z]$/i.test(trimmedPart) ? trimmedPart.toUpperCase() : trimmedPart;
 };
 
-export const displayHotkey = (value: string, platform: AppPlatform): string => {
-  if (value === "") {
-    return "Unbound";
-  }
-
-  const separator = platform === "mac" ? " " : "+";
-  return displayHotkeyParts(value, platform).join(separator);
-};
-
-export const displayHotkeyParts = (
+export const formatHotkeyDisplayParts = (
   value: string,
-  platform: AppPlatform,
+  platform: HotkeyDisplayPlatform,
+  emptyLabel = "Unbound",
 ): readonly string[] => {
   if (value === "") {
-    return ["Unbound"];
+    return [emptyLabel];
   }
 
   return splitHotkeyParts(value)
@@ -66,3 +59,21 @@ export const displayHotkeyParts = (
     .filter((part) => part.length > 0)
     .map((part) => displayKeyPart(part, platform));
 };
+
+export const formatHotkeyDisplay = (
+  value: string,
+  platform: HotkeyDisplayPlatform,
+  emptyLabel = "Unbound",
+): string => {
+  if (value === "") {
+    return emptyLabel;
+  }
+
+  const separator = platform === "mac" ? " " : "+";
+  return formatHotkeyDisplayParts(value, platform, emptyLabel).join(separator);
+};
+
+export const formatOptionalHotkeyDisplay = (
+  value: string,
+  platform: HotkeyDisplayPlatform,
+): string | null => (value === "" ? null : formatHotkeyDisplay(value, platform));
