@@ -21,47 +21,47 @@ const base = {
 const solidRendererTargets = [
   {
     name: "game",
-    entryPoint: "./src/renderer/windows/game/app.tsx",
+    entryPoint: "./src/renderer/windows/game/App.tsx",
     html: "src/renderer/windows/game/index.html",
   },
   {
     name: "account-manager",
-    entryPoint: "./src/renderer/windows/account-manager/app.tsx",
+    entryPoint: "./src/renderer/windows/account-manager/App.tsx",
     html: "src/renderer/windows/index.html",
   },
   {
     name: "settings",
-    entryPoint: "./src/renderer/windows/settings/app.tsx",
+    entryPoint: "./src/renderer/windows/settings/App.tsx",
     html: "src/renderer/windows/index.html",
   },
   {
     name: "environment",
-    entryPoint: "./src/renderer/windows/environment/app.tsx",
+    entryPoint: "./src/renderer/windows/environment/App.tsx",
     html: "src/renderer/windows/index.html",
   },
   {
     name: "fast-travels",
-    entryPoint: "./src/renderer/windows/fast-travels/app.tsx",
+    entryPoint: "./src/renderer/windows/fast-travels/App.tsx",
     html: "src/renderer/windows/index.html",
   },
   {
     name: "loader-grabber",
-    entryPoint: "./src/renderer/windows/loader-grabber/app.tsx",
+    entryPoint: "./src/renderer/windows/loader-grabber/App.tsx",
     html: "src/renderer/windows/index.html",
   },
   {
     name: "follower",
-    entryPoint: "./src/renderer/windows/follower/app.tsx",
+    entryPoint: "./src/renderer/windows/follower/App.tsx",
     html: "src/renderer/windows/index.html",
   },
   {
     name: "packet-logger",
-    entryPoint: "./src/renderer/windows/packet-logger/app.tsx",
+    entryPoint: "./src/renderer/windows/packet-logger/App.tsx",
     html: "src/renderer/windows/index.html",
   },
   {
     name: "packet-spammer",
-    entryPoint: "./src/renderer/windows/packet-spammer/app.tsx",
+    entryPoint: "./src/renderer/windows/packet-spammer/App.tsx",
     html: "src/renderer/windows/index.html",
   },
 ];

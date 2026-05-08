@@ -52,7 +52,7 @@ describe("app window wiring", () => {
     expect(source).toContain("onSelect={() => openWindow(item.id)}");
     expect(source).toContain("formatGameShortcut");
     expect(source).toContain("optionHotkey");
-    expect(hotkeyDisplaySource).toContain("formatForDisplay");
+    expect(hotkeyDisplaySource).toContain("formatOptionalHotkeyDisplay");
     expect(source).not.toContain("Cmd/Ctrl");
     expect(gameAppSource).toContain(
       "hotkeyBindings={() => settings().hotkeys.bindings}",
@@ -61,7 +61,7 @@ describe("app window wiring", () => {
   });
 
   it("mounts the game renderer through the shared window mount", () => {
-    const source = readSource("../renderer/windows/game/app.tsx");
+    const source = readSource("../renderer/windows/game/App.tsx");
 
     expect(source).toContain('import { mountWindow } from "../mount"');
     expect(source).toContain("mountWindow(({ initialSettings }) =>");
@@ -94,7 +94,7 @@ describe("app window wiring", () => {
 
   it("mounts TanStack hotkeys devtools only in settings", () => {
     const mountSource = readSource("../renderer/windows/mount.tsx");
-    const settingsSource = readSource("../renderer/windows/settings/app.tsx");
+    const settingsSource = readSource("../renderer/windows/settings/App.tsx");
 
     expect(mountSource).not.toContain("TanStackDevtools");
     expect(settingsSource).toContain(
@@ -160,7 +160,7 @@ describe("app window wiring", () => {
     expect(source).toContain("const solidRendererTargets");
     expect(source).toContain('name: "game"');
     expect(source).toContain(
-      'entryPoint: "./src/renderer/windows/game/app.tsx"',
+      'entryPoint: "./src/renderer/windows/game/App.tsx"',
     );
     expect(source).toContain('html: "src/renderer/windows/game/index.html"');
     expect(source).not.toContain("window-view");
@@ -173,11 +173,11 @@ describe("app window wiring", () => {
     for (const id of windowIds) {
       expect(source).toContain(`name: "${id}"`);
       expect(source).toContain(
-        `entryPoint: "./src/renderer/windows/${id}/app.tsx"`,
+        `entryPoint: "./src/renderer/windows/${id}/App.tsx"`,
       );
       expect(
         existsSync(
-          resolve(import.meta.dirname, `../renderer/windows/${id}/app.tsx`),
+          resolve(import.meta.dirname, `../renderer/windows/${id}/App.tsx`),
         ),
       ).toBe(true);
     }
@@ -193,7 +193,7 @@ describe("app window wiring", () => {
   });
 
   it("seeds the settings renderer from shared mount settings", () => {
-    const source = readSource("../renderer/windows/settings/app.tsx");
+    const source = readSource("../renderer/windows/settings/App.tsx");
 
     expect(source).toContain("readonly initialSettings: AppSettings | null");
     expect(source).toContain("readonly platform: AppPlatform");
