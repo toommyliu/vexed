@@ -8,10 +8,10 @@
   },
   "mac": {
     "files": ["dist/**/*"],
-    "extraFiles": [
+    "extraResources": [
       {
         "from": "../assets",
-        "to": "Resources/app/assets",
+        "to": "assets",
         "filter": ["**/*", "!pepflashplayer.dll"]
       }
     ],
@@ -25,7 +25,7 @@
   },
   "win": {
     "files": ["dist/**/*"],
-    "extraFiles": [
+    "extraResources": [
       {
         "from": "../assets",
         "to": "assets",
@@ -42,7 +42,7 @@
   },
   "linux": {
     "files": ["dist/**/*"],
-    "extraFiles": [
+    "extraResources": [
       {
         "from": "../assets",
         "to": "assets",
