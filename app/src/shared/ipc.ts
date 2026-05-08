@@ -2,6 +2,7 @@ import type { WindowId } from "./windows";
 import type {
   AppSettings,
   AppearancePatch,
+  HotkeysPatch,
   PreferencesPatch,
 } from "./settings";
 
@@ -12,6 +13,9 @@ export type {
   AppLaunchMode,
   Preferences,
   PreferencesPatch,
+  HotkeyBindings,
+  HotkeysPatch,
+  HotkeysSettings,
   ThemeMode,
   ThemeProfile,
   ThemeProfilePatch,
@@ -35,7 +39,9 @@ export const SettingsIpcChannels = {
   get: "settings:get",
   updatePreferences: "settings:update-preferences",
   updateAppearance: "settings:update-appearance",
+  updateHotkeys: "settings:update-hotkeys",
   resetAppearance: "settings:reset-appearance",
+  resetHotkeys: "settings:reset-hotkeys",
   changed: "settings:changed",
 } as const;
 
@@ -94,7 +100,15 @@ export interface SettingsInvokeChannels {
     [patch: AppearancePatch],
     AppSettings
   >;
+  readonly [SettingsIpcChannels.updateHotkeys]: IpcInvokeDefinition<
+    [patch: HotkeysPatch],
+    AppSettings
+  >;
   readonly [SettingsIpcChannels.resetAppearance]: IpcInvokeDefinition<
+    [],
+    AppSettings
+  >;
+  readonly [SettingsIpcChannels.resetHotkeys]: IpcInvokeDefinition<
     [],
     AppSettings
   >;
@@ -108,11 +122,20 @@ export interface SettingsBridge {
   get(): Promise<AppSettings>;
   updatePreferences(patch: PreferencesPatch): Promise<AppSettings>;
   updateAppearance(patch: AppearancePatch): Promise<AppSettings>;
+  updateHotkeys(patch: HotkeysPatch): Promise<AppSettings>;
   resetAppearance(): Promise<AppSettings>;
+  resetHotkeys(): Promise<AppSettings>;
   onChanged(listener: (settings: AppSettings) => void): () => void;
 }
 
+export type AppPlatform = "mac" | "windows" | "linux";
+
+export interface PlatformBridge {
+  readonly os: AppPlatform;
+}
+
 export interface AppBridge {
+  readonly platform: PlatformBridge;
   readonly scripting: ScriptingBridge;
   readonly settings: SettingsBridge;
   readonly windows: WindowsBridge;

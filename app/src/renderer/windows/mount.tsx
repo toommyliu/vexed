@@ -2,6 +2,7 @@ import "../styles.css";
 import { render } from "solid-js/web";
 import type { JSX } from "solid-js";
 import { installSettingsSync } from "../theme";
+import type { AppPlatform } from "../../shared/ipc";
 import type { AppSettings } from "../../shared/settings";
 
 declare global {
@@ -14,6 +15,7 @@ declare global {
 
 export interface WindowMountContext {
   readonly initialSettings: AppSettings | null;
+  readonly platform: AppPlatform;
 }
 
 const markReady = (): void => {
@@ -57,7 +59,10 @@ export function mountWindow(
         return;
       }
 
-      disposeRender = render(() => App({ initialSettings }), root);
+      disposeRender = render(
+        () => App({ initialSettings, platform: window.ipc.platform.os }),
+        root,
+      );
       markReady();
     })
     .catch((error: unknown) => {

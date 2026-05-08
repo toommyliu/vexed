@@ -2,7 +2,6 @@ export const WindowIds = {
   AccountManager: "account-manager",
   Settings: "settings",
   Environment: "environment",
-  Hotkeys: "hotkeys",
   FastTravels: "fast-travels",
   LoaderGrabber: "loader-grabber",
   Follower: "follower",
@@ -67,7 +66,7 @@ export const appWindowGroups: readonly WindowGroup[] = [
 
 export const gameWindowGroups: readonly WindowGroup[] = [
   {
-    name: "Application",
+    name: "Tools",
     items: [
       {
         id: WindowIds.Environment,
@@ -80,22 +79,6 @@ export const gameWindowGroups: readonly WindowGroup[] = [
           height: 593,
         },
       },
-      {
-        id: WindowIds.Hotkeys,
-        label: "Hotkeys",
-        description: "Configure game and scripting shortcuts.",
-        scope: "game-child",
-        closeBehavior: "hide",
-        dimensions: {
-          width: 517,
-          height: 528,
-        },
-      },
-    ],
-  },
-  {
-    name: "Tools",
-    items: [
       {
         id: WindowIds.FastTravels,
         label: "Fast travels",
@@ -166,7 +149,9 @@ export const allWindowGroups: readonly WindowGroup[] = [
 ];
 
 const windowDefinitions = new Map<WindowId, WindowDefinition>(
-  allWindowGroups.flatMap((group) => group.items.map((item) => [item.id, item])),
+  allWindowGroups.flatMap((group) =>
+    group.items.map((item) => [item.id, item]),
+  ),
 );
 
 export const getWindowDefinition = (
@@ -176,9 +161,8 @@ export const getWindowDefinition = (
 export const isWindowId = (value: unknown): value is WindowId =>
   typeof value === "string" && windowDefinitions.has(value as WindowId);
 
-export const isAppWindowDefinition = (
-  definition: WindowDefinition,
-): boolean => definition.scope === "app";
+export const isAppWindowDefinition = (definition: WindowDefinition): boolean =>
+  definition.scope === "app";
 
 export const isGameChildWindowDefinition = (
   definition: WindowDefinition,

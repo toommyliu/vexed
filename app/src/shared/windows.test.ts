@@ -43,7 +43,7 @@ describe("window catalog", () => {
   it("contains the game and tool windows exposed by the game menu", () => {
     expect(gameWindowGroups).toEqual([
       {
-        name: "Application",
+        name: "Tools",
         items: [
           expect.objectContaining({
             id: WindowIds.Environment,
@@ -55,21 +55,6 @@ describe("window catalog", () => {
               height: 593,
             },
           }),
-          expect.objectContaining({
-            id: WindowIds.Hotkeys,
-            label: "Hotkeys",
-            scope: "game-child",
-            closeBehavior: "hide",
-            dimensions: {
-              width: 517,
-              height: 528,
-            },
-          }),
-        ],
-      },
-      {
-        name: "Tools",
-        items: [
           expect.objectContaining({
             id: WindowIds.FastTravels,
             label: "Fast travels",
@@ -148,6 +133,8 @@ describe("window catalog", () => {
 
     expect(settings && isAppWindowDefinition(settings)).toBe(true);
     expect(environment && isGameChildWindowDefinition(environment)).toBe(true);
-    expect(packetLogger && isGameChildWindowDefinition(packetLogger)).toBe(true);
+    expect(packetLogger && isGameChildWindowDefinition(packetLogger)).toBe(
+      true,
+    );
   });
 });

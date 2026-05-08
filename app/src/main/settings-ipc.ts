@@ -1,10 +1,16 @@
 import { ipcMain } from "electron";
 import { SettingsIpcChannels } from "../shared/ipc";
-import type { AppearancePatch, PreferencesPatch } from "../shared/settings";
+import type {
+  AppearancePatch,
+  HotkeysPatch,
+  PreferencesPatch,
+} from "../shared/settings";
 import {
   readSettings,
   resetAppearance,
+  resetHotkeys,
   updateAppearance,
+  updateHotkeys,
   updatePreferences,
 } from "./settings-service";
 
@@ -45,7 +51,12 @@ export const registerSettingsIpcHandlers = (): void => {
     ),
   );
 
+  ipcMain.handle(SettingsIpcChannels.updateHotkeys, (_event, patch) =>
+    updateHotkeys(requireRecord(patch, "hotkeys patch") as HotkeysPatch),
+  );
+
   ipcMain.handle(SettingsIpcChannels.resetAppearance, () => resetAppearance());
+  ipcMain.handle(SettingsIpcChannels.resetHotkeys, () => resetHotkeys());
 
   settingsIpcRegistered = true;
 };

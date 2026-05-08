@@ -2,10 +2,16 @@ import { splitProps, type JSX } from "solid-js";
 import { cn } from "../lib/cn";
 import { isAriaInvalid } from "../lib/domState";
 
+export type SwitchSize = "sm" | "default" | "lg";
+
 export interface SwitchProps
-  extends Omit<JSX.InputHTMLAttributes<HTMLInputElement>, "class" | "type"> {
+  extends Omit<
+    JSX.InputHTMLAttributes<HTMLInputElement>,
+    "class" | "size" | "type"
+  > {
   readonly class?: string;
   readonly invalid?: boolean;
+  readonly size?: SwitchSize;
 }
 
 export function Switch(props: SwitchProps): JSX.Element {
@@ -15,7 +21,11 @@ export function Switch(props: SwitchProps): JSX.Element {
     "class",
     "disabled",
     "invalid",
+    "size",
   ]);
+  const size = () => local.size ?? "default";
+  const sizeClass = () =>
+    size() === "default" ? "switch--size-default" : `switch--${size()}`;
   const invalid = () =>
     Boolean(local.invalid || isAriaInvalid(local["aria-invalid"]));
 
@@ -23,6 +33,7 @@ export function Switch(props: SwitchProps): JSX.Element {
     <label
       class={cn(
         "switch",
+        sizeClass(),
         invalid() && "switch--invalid",
         local.disabled && "switch--disabled",
         local.class,
