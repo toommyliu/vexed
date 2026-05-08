@@ -13,6 +13,7 @@ import {
   DEFAULT_PREFERENCES,
   type AppSettings,
 } from "../../../shared/settings";
+import type { AccountGameLaunchPayload } from "../../../shared/ipc";
 import type { WindowId } from "../../../shared/windows";
 import { runtime } from "./Runtime";
 import { Settings, type SettingsShape } from "./flash/Services/Settings";
@@ -20,8 +21,14 @@ import { AutoRelogin } from "./features/Services/AutoRelogin";
 import { GameTopNav } from "./GameTopNav";
 import { createGameCommands } from "./commands";
 import { GameHotkeys } from "./hotkeys";
-import { getGameLoadState, subscribeGameLoadState } from "./loadState";
+import {
+  getGameLoadState,
+  onGameLoaded,
+  subscribeGameLoadState,
+} from "./loadState";
 import type { GameTopNavMenu, TopNavOptionItem } from "./topNavOptions";
+
+const ACCOUNT_SCRIPT_STATUS_POLL_MS = 1000;
 
 const formatScriptStatus = (
   loaded: boolean,
@@ -92,6 +99,142 @@ export default function App(props: {
     void window.ipc.windows.open(id).catch((error: unknown) => {
       console.error(`Failed to open window ${id}:`, error);
     });
+  };
+
+  const updateAccountLaunchStatus = (
+    payload: AccountGameLaunchPayload,
+    status: "starting" | "running" | "stopped" | "failed",
+    message: string,
+  ) => {
+    void window.ipc.accounts
+      .updateScriptStatus({
+        username: payload.account.username,
+        gameWindowId: payload.gameWindowId,
+        status,
+        message,
+        ...(payload.script === undefined
+          ? {}
+          : { scriptName: payload.script.name ?? payload.script.path }),
+      })
+      .catch((error: unknown) => {
+        console.error("Failed to update account launch status:", error);
+      });
+  };
+
+  const waitForAccountScriptStop = async (
+    payload: AccountGameLaunchPayload,
+    name: string,
+  ): Promise<void> => {
+    let lastMessage = "";
+
+    while (true) {
+      await new Promise((resolve) =>
+        setTimeout(resolve, ACCOUNT_SCRIPT_STATUS_POLL_MS),
+      );
+
+      if (!window.cmd) {
+        throw new Error("Script bridge is not ready");
+      }
+
+      const [isRunning, currentCommand] = await Promise.all([
+        window.cmd.isRunning(),
+        window.cmd.currentCommand(),
+      ]);
+
+      if (!isRunning) {
+        setScriptRunning(false);
+        setScriptStatus(`Stopped ${name}`);
+        updateAccountLaunchStatus(payload, "stopped", `Stopped ${name}`);
+        return;
+      }
+
+      const nextMessage = formatScriptStatus(true, true, currentCommand);
+      setScriptRunning(true);
+      setScriptStatus(nextMessage);
+
+      if (nextMessage !== lastMessage) {
+        updateAccountLaunchStatus(payload, "running", nextMessage);
+        lastMessage = nextMessage;
+      }
+    }
+  };
+
+  const waitForLoadedGame = (): Promise<void> => {
+    if (getGameLoadState().loaded) {
+      return Promise.resolve();
+    }
+
+    return new Promise((resolve) => {
+      const dispose = onGameLoaded(
+        () => {
+          dispose();
+          resolve();
+        },
+        { emitCurrent: true },
+      );
+    });
+  };
+
+  const handleAccountLaunch = (payload: AccountGameLaunchPayload) => {
+    updateAccountLaunchStatus(payload, "starting", "Waiting for game loader");
+
+    void waitForLoadedGame()
+      .then(() =>
+        runtime.runPromise(
+          Effect.gen(function* () {
+            const autoRelogin = yield* AutoRelogin;
+            return yield* autoRelogin.login({
+              username: payload.account.username,
+              password: payload.account.password,
+              ...(payload.server === undefined
+                ? {}
+                : { server: payload.server }),
+            });
+          }),
+        ),
+      )
+      .then(async (outcome) => {
+        if (outcome.stage === "server-select") {
+          updateAccountLaunchStatus(
+            payload,
+            "stopped",
+            payload.script
+              ? "Select a server to run the script"
+              : "Waiting for server selection",
+          );
+          return;
+        }
+
+        if (!payload.script) {
+          setScriptRunning(false);
+          setScriptStatus("Player ready");
+          updateAccountLaunchStatus(payload, "running", "Player ready");
+          return;
+        }
+
+        if (!window.cmd) {
+          throw new Error("Script bridge is not ready");
+        }
+
+        const name = payload.script.name ?? payload.script.path ?? "script";
+        updateAccountLaunchStatus(payload, "running", `Running ${name}`);
+        await window.cmd.run(payload.script.source, name);
+        setScriptRunning(true);
+        setScriptStatus(`Running ${name}`);
+        updateAccountLaunchStatus(payload, "running", `Running ${name}`);
+        await waitForAccountScriptStop(payload, name);
+      })
+      .catch((error: unknown) => {
+        console.error("Failed to run account launch:", error);
+        updateAccountLaunchStatus(
+          payload,
+          "failed",
+          error instanceof Error ? error.message : "Account launch failed",
+        );
+      })
+      .finally(() => {
+        void refreshScriptMeta();
+      });
   };
 
   const refreshScriptMeta = async () => {
@@ -472,6 +615,8 @@ export default function App(props: {
 
   onMount(() => {
     const unsubscribeAppSettings = window.ipc.settings.onChanged(setSettings);
+    const unsubscribeAccountLaunch =
+      window.ipc.accounts.onGameLaunch(handleAccountLaunch);
 
     if (props.initialSettings === undefined || props.initialSettings === null) {
       void window.ipc.settings
@@ -543,6 +688,7 @@ export default function App(props: {
 
     onCleanup(() => {
       unsubscribeAppSettings();
+      unsubscribeAccountLaunch();
       disposeGameLoadState();
       clearInterval(scriptMetaInterval);
     });

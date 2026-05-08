@@ -4,14 +4,23 @@ import {
   readAppearanceSnapshotArgument,
 } from "../shared/appearance-snapshot";
 import {
+  AccountManagerIpcChannels,
   SettingsIpcChannels,
   ScriptingIpcChannels,
   WindowIpcChannels,
+  type AccountGameLaunchPayload,
+  type AccountGameServersResult,
+  type AccountLaunchRequest,
+  type AccountLaunchResult,
+  type AccountManagerState,
+  type AccountScriptStatusUpdate,
   type AppBridge,
   type AppSettings,
   type AppPlatform,
   type AppearancePatch,
   type HotkeysPatch,
+  type ManagedAccountDraft,
+  type ManagedAccountPatch,
   type PreferencesPatch,
   type ScriptExecutePayload,
 } from "../shared/ipc";
@@ -35,7 +44,137 @@ const platform: AppPlatform =
       ? "windows"
       : "linux";
 
+const accountGameLaunchListeners = new Set<
+  (payload: AccountGameLaunchPayload) => void
+>();
+const pendingAccountGameLaunchPayloads: AccountGameLaunchPayload[] = [];
+let lastDeliveredAccountGameLaunchKey = "";
+
+const accountGameLaunchKey = (payload: AccountGameLaunchPayload): string =>
+  `${payload.gameWindowId}:${payload.requestedAt}`;
+
+const deliverAccountGameLaunchPayload = (
+  payload: AccountGameLaunchPayload,
+): void => {
+  const key = accountGameLaunchKey(payload);
+  if (key === lastDeliveredAccountGameLaunchKey) {
+    return;
+  }
+
+  lastDeliveredAccountGameLaunchKey = key;
+
+  if (accountGameLaunchListeners.size === 0) {
+    pendingAccountGameLaunchPayloads.push(payload);
+    return;
+  }
+
+  for (const listener of accountGameLaunchListeners) {
+    listener(payload);
+  }
+};
+
+ipcRenderer.on(
+  AccountManagerIpcChannels.gameLaunch,
+  (_event, payload: AccountGameLaunchPayload) => {
+    deliverAccountGameLaunchPayload(payload);
+  },
+);
+
 const bridge: AppBridge = {
+  accounts: {
+    getState: async () => {
+      return (await ipcRenderer.invoke(
+        AccountManagerIpcChannels.getState,
+      )) as AccountManagerState;
+    },
+    getServers: async () => {
+      return (await ipcRenderer.invoke(
+        AccountManagerIpcChannels.getServers,
+      )) as AccountGameServersResult;
+    },
+    refreshServers: async () => {
+      return (await ipcRenderer.invoke(
+        AccountManagerIpcChannels.refreshServers,
+      )) as AccountGameServersResult;
+    },
+    getGameLaunch: async () => {
+      return (await ipcRenderer.invoke(
+        AccountManagerIpcChannels.getGameLaunch,
+      )) as AccountGameLaunchPayload | null;
+    },
+    createAccount: async (draft: ManagedAccountDraft) => {
+      return (await ipcRenderer.invoke(
+        AccountManagerIpcChannels.createAccount,
+        draft,
+      )) as AccountManagerState;
+    },
+    updateAccount: async (username: string, patch: ManagedAccountPatch) => {
+      return (await ipcRenderer.invoke(
+        AccountManagerIpcChannels.updateAccount,
+        username,
+        patch,
+      )) as AccountManagerState;
+    },
+    deleteAccount: async (username: string) => {
+      return (await ipcRenderer.invoke(
+        AccountManagerIpcChannels.deleteAccount,
+        username,
+      )) as AccountManagerState;
+    },
+    launch: async (request: AccountLaunchRequest) => {
+      return (await ipcRenderer.invoke(
+        AccountManagerIpcChannels.launch,
+        request,
+      )) as AccountLaunchResult;
+    },
+    updateScriptStatus: async (update: AccountScriptStatusUpdate) => {
+      await ipcRenderer.invoke(
+        AccountManagerIpcChannels.updateScriptStatus,
+        update,
+      );
+    },
+    onChanged: (listener) => {
+      const subscription = (_event: unknown, state: AccountManagerState) => {
+        listener(state);
+      };
+
+      ipcRenderer.on(AccountManagerIpcChannels.changed, subscription);
+
+      return () => {
+        ipcRenderer.removeListener(
+          AccountManagerIpcChannels.changed,
+          subscription,
+        );
+      };
+    },
+    onGameLaunch: (listener) => {
+      accountGameLaunchListeners.add(listener);
+
+      while (pendingAccountGameLaunchPayloads.length > 0) {
+        const payload = pendingAccountGameLaunchPayloads.shift();
+        if (payload) {
+          listener(payload);
+        }
+      }
+
+      void ipcRenderer
+        .invoke(AccountManagerIpcChannels.getGameLaunch)
+        .then((payload: unknown) => {
+          if (payload) {
+            deliverAccountGameLaunchPayload(
+              payload as AccountGameLaunchPayload,
+            );
+          }
+        })
+        .catch((error: unknown) => {
+          console.error("Failed to get account game launch:", error);
+        });
+
+      return () => {
+        accountGameLaunchListeners.delete(listener);
+      };
+    },
+  },
   platform: {
     os: platform,
   },

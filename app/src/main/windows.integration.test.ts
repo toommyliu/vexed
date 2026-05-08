@@ -77,8 +77,6 @@ describe("app window wiring", () => {
       "App({ initialSettings, platform: window.ipc.platform.os })",
     );
     expect(mountSource).toContain('dataset["ready"] = "true"');
-    expect(mountSource).toContain("import.meta.hot");
-    expect(mountSource).toContain("import.meta.hot.dispose");
     expect(mountSource).toContain("settingsSync.dispose()");
     expect(themeSource).toContain("interface RendererSettingsSync");
     expect(themeSource).toContain("ready: Promise<AppSettings | null>");

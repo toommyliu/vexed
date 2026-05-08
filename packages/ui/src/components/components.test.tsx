@@ -627,6 +627,39 @@ describe("Dialog", () => {
       document.body.querySelector("[data-slot='dialog-close']"),
     ).not.toBeNull();
   });
+
+  it("layers nested dialogs above their parent dialog", () => {
+    renderUi(() => (
+      <Dialog open>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Account</DialogTitle>
+          </DialogHeader>
+          <Dialog open>
+            <DialogContent>
+              <DialogHeader>
+                <DialogTitle>Delete account</DialogTitle>
+              </DialogHeader>
+            </DialogContent>
+          </Dialog>
+        </DialogContent>
+      </Dialog>
+    ));
+
+    const overlays = document.body.querySelectorAll<HTMLElement>(
+      "[data-slot='dialog-overlay']",
+    );
+    const positioners = document.body.querySelectorAll<HTMLElement>(
+      "[data-slot='dialog-positioner']",
+    );
+
+    expect(overlays).toHaveLength(2);
+    expect(positioners).toHaveLength(2);
+    expect(overlays[0]?.style.zIndex).toBe("50");
+    expect(positioners[0]?.style.zIndex).toBe("51");
+    expect(overlays[1]?.style.zIndex).toBe("52");
+    expect(positioners[1]?.style.zIndex).toBe("53");
+  });
 });
 
 describe("AlertDialog", () => {

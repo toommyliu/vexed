@@ -26,6 +26,8 @@ import {
   type AutoReloginShape,
   type AutoReloginState,
   type AutoReloginStateListener,
+  type AutoLoginCredentials,
+  type AutoLoginOutcome,
 } from "../Services/AutoRelogin";
 
 const JOB_KEY = "features/autorelogin";
@@ -247,6 +249,24 @@ const findCapturedServer = (
 
   return servers.find((server) =>
     server.name.toLowerCase().includes(capturedName),
+  );
+};
+
+const findServerByName = (
+  servers: readonly Server[],
+  name: string,
+): Server | undefined => {
+  const normalizedName = name.trim().toLowerCase();
+  const exact = servers.find(
+    (server) => server.name.toLowerCase() === normalizedName,
+  );
+
+  if (exact !== undefined) {
+    return exact;
+  }
+
+  return servers.find((server) =>
+    server.name.toLowerCase().includes(normalizedName),
   );
 };
 
@@ -561,11 +581,7 @@ const make = Effect.gen(function* () {
 
       // Treat visible connect errors as terminal so the caller can inspect success.
       const normalizedConnText = connText.toLowerCase();
-      if (
-        connText === "null" ||
-        normalizedConnText.includes("server is full") ||
-        backButtonVisible
-      ) {
+      if (normalizedConnText.includes("server is full") || backButtonVisible) {
         return true;
       }
 
@@ -659,6 +675,99 @@ const make = Effect.gen(function* () {
       );
     });
 
+  const waitForReadyPlayer = () =>
+    Effect.gen(function* () {
+      yield* logStage("waiting for game entry");
+      if (!(yield* waitForGameEntry) || !(yield* isGameEntrySuccessful)) {
+        return yield* failAttempt("game entry failed", true);
+      }
+
+      yield* logStage("waiting for player ready");
+      const ready = yield* waitFor(isPlayerReady(), {
+        timeout: PLAYER_READY_TIMEOUT,
+        schedule: Schedule.spaced("250 millis"),
+      });
+      if (!ready) {
+        return yield* failAttempt("player did not become ready", true);
+      }
+    });
+
+  const login = (
+    credentials: AutoLoginCredentials,
+  ): Effect.Effect<AutoLoginOutcome, unknown> =>
+    withTemporaryLoginSettings(
+      Effect.gen(function* () {
+        yield* logStage("login start");
+        const loginCompleted = yield* auth
+          .login(credentials.username, credentials.password)
+          .pipe(Effect.timeoutOption("15 seconds"));
+        if (Option.isNone(loginCompleted)) {
+          return yield* failAttempt("login timed out", true);
+        }
+
+        yield* logStage("waiting for server select");
+        if (!(yield* waitForServerSelect)) {
+          return yield* failAttempt("server select did not load", true);
+        }
+
+        yield* logStage("waiting for server list");
+        if (!(yield* waitForServers)) {
+          return yield* failAttempt("servers did not load", true);
+        }
+
+        const requestedServer = credentials.server?.trim() ?? "";
+        if (requestedServer !== "") {
+          const servers = yield* auth.getServers();
+          yield* logStage("server list loaded", { count: servers.length });
+          const targetServer = findServerByName(servers, requestedServer);
+          if (targetServer === undefined) {
+            return yield* failAttempt(
+              `server is unavailable: ${requestedServer}`,
+              false,
+            );
+          }
+
+          const loginSession = yield* auth
+            .getLoginSession()
+            .pipe(Effect.catchCause(() => Effect.succeed(null)));
+          if (!isServerEligible(targetServer, loginSession)) {
+            return yield* failAttempt(
+              `server is not eligible: ${requestedServer}`,
+              false,
+            );
+          }
+
+          // Let Flash finish server-list click handlers before invoking connectTo.
+          yield* Effect.sleep("1 second");
+
+          yield* logStage("connect start", { server: targetServer.name });
+          const didConnect = yield* auth.connectTo(targetServer.name);
+          if (!didConnect) {
+            return yield* failAttempt(
+              `failed to select server: ${requestedServer}`,
+              true,
+            );
+          }
+        } else {
+          yield* logStage("waiting for server selection");
+          return { stage: "server-select" } as const;
+        }
+
+        yield* waitForReadyPlayer();
+        return { stage: "player-ready" } as const;
+      }),
+    );
+
+  const loginAndWaitReady = (
+    credentials: AutoLoginCredentials,
+  ): Effect.Effect<void, unknown> =>
+    Effect.gen(function* () {
+      const outcome = yield* login(credentials);
+      if (outcome.stage !== "player-ready") {
+        return yield* failAttempt("server selection required", false);
+      }
+    });
+
   const performRelogin = (attempt: ReservedAttempt) =>
     withTemporaryLoginSettings(
       interruptible(
@@ -735,22 +844,7 @@ const make = Effect.gen(function* () {
               );
             }
 
-            yield* logStage("waiting for game entry");
-            if (
-              !(yield* waitForGameEntry) ||
-              !(yield* isGameEntrySuccessful)
-            ) {
-              return yield* failAttempt("game entry failed", true);
-            }
-
-            yield* logStage("waiting for player ready");
-            const ready = yield* waitFor(isPlayerReady(), {
-              timeout: PLAYER_READY_TIMEOUT,
-              schedule: Schedule.spaced("250 millis"),
-            });
-            if (!ready) {
-              return yield* failAttempt("player did not become ready", true);
-            }
+            yield* waitForReadyPlayer();
           }).pipe(Effect.ensuring(setOwnedConnectionServerName(undefined)));
         }),
       ),
@@ -1015,6 +1109,8 @@ const make = Effect.gen(function* () {
     disable,
     setDelayMs,
     captureCurrentSession,
+    login,
+    loginAndWaitReady,
   } satisfies AutoReloginShape;
 });
 

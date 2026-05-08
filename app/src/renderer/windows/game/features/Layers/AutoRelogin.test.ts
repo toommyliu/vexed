@@ -403,6 +403,51 @@ test("successful task logs in and connects to captured server", async () => {
   ]);
 });
 
+test("direct login without a server stops at server selection", async () => {
+  const result = await withAutoRelogin({}, (autoRelogin, harness) =>
+    Effect.gen(function* () {
+      const outcome = yield* autoRelogin.login({
+        username: "Hero",
+        password: "secret-password",
+      });
+      return {
+        calls: harness.authCalls,
+        outcome,
+        patches: harness.settingsPatches,
+      };
+    }),
+  );
+
+  expect(result.outcome).toEqual({ stage: "server-select" });
+  expect(result.calls).toEqual(["login:Hero:secret-password"]);
+  expect(result.patches).toEqual([
+    { lagKillerEnabled: false, skipCutscenesEnabled: false },
+    { lagKillerEnabled: true, skipCutscenesEnabled: true },
+  ]);
+});
+
+test("direct login with a server waits for player readiness", async () => {
+  const result = await withAutoRelogin({}, (autoRelogin, harness) =>
+    Effect.gen(function* () {
+      const outcome = yield* autoRelogin.login({
+        username: "Hero",
+        password: "secret-password",
+        server: "Twig",
+      });
+      return {
+        calls: harness.authCalls,
+        outcome,
+      };
+    }),
+  );
+
+  expect(result.outcome).toEqual({ stage: "player-ready" });
+  expect(result.calls).toEqual([
+    "login:Hero:secret-password",
+    "connectTo:Twig",
+  ]);
+});
+
 test("socket connection during relogin does not interrupt before player ready", async () => {
   const result = await withAutoRelogin(
     {

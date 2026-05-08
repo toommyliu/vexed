@@ -797,10 +797,19 @@ body::-webkit-scrollbar-corner,
 }
 
 .input-group .input--unstyled {
+  appearance: none;
+  border-radius: 0;
   flex: 1 1 auto;
   height: calc(var(--control-height-md) - 2px);
   min-width: 3rem;
   padding: 0 0.6875rem;
+}
+
+.input-group .input--unstyled:focus,
+.input-group .input--unstyled:focus-visible,
+.input-group .input--unstyled.input--invalid:focus-visible {
+  box-shadow: none;
+  outline: none;
 }
 
 .input-group--sm {

@@ -1,18 +1,37 @@
 import { Dialog as DialogPrimitive } from "@ark-ui/solid/dialog";
 import { X } from "lucide-solid";
-import { Show, splitProps, type JSX } from "solid-js";
+import {
+  Show,
+  createContext,
+  splitProps,
+  useContext,
+  type JSX,
+} from "solid-js";
 import { Portal } from "solid-js/web";
 import { cn } from "../lib/cn";
+
+const DialogLayerContext = createContext(0);
 
 function dataSlot(props: unknown, fallback: string): string {
   const value = (props as { readonly "data-slot"?: string })["data-slot"];
   return value ?? fallback;
 }
 
+const overlayZIndex = (layer: number): number =>
+  50 + Math.max(0, layer - 1) * 2;
+const positionerZIndex = (layer: number): number => overlayZIndex(layer) + 1;
+
 export type DialogProps = Parameters<typeof DialogPrimitive.Root>[0];
 
 export function Dialog(props: DialogProps): JSX.Element {
-  return <DialogPrimitive.Root {...props} />;
+  const parentLayer = useContext(DialogLayerContext);
+  const layer = parentLayer + 1;
+
+  return (
+    <DialogLayerContext.Provider value={layer}>
+      <DialogPrimitive.Root {...props} />
+    </DialogLayerContext.Provider>
+  );
 }
 
 export type DialogTriggerProps = Parameters<typeof DialogPrimitive.Trigger>[0];
@@ -54,6 +73,7 @@ export function DialogOverlay(
 }
 
 export function DialogContent(props: DialogContentProps): JSX.Element {
+  const layer = useContext(DialogLayerContext) || 1;
   const slot = dataSlot(props, "dialog-content");
   const [local, rest] = splitProps(props, [
     "bottomStickOnMobile",
@@ -68,10 +88,11 @@ export function DialogContent(props: DialogContentProps): JSX.Element {
       {(context) => (
         <Show when={context().open}>
           <Portal>
-            <DialogOverlay />
+            <DialogOverlay style={{ "z-index": overlayZIndex(layer) }} />
             <DialogPrimitive.Positioner
               class="dialog__positioner"
               data-slot="dialog-positioner"
+              style={{ "z-index": positionerZIndex(layer) }}
             >
               <DialogPrimitive.Content
                 {...rest}
@@ -113,11 +134,7 @@ export function DialogHeader(props: DialogHeaderProps): JSX.Element {
   const slot = dataSlot(props, "dialog-header");
   const [local, rest] = splitProps(props, ["class"]);
   return (
-    <div
-      {...rest}
-      class={cn("dialog__header", local.class)}
-      data-slot={slot}
-    />
+    <div {...rest} class={cn("dialog__header", local.class)} data-slot={slot} />
   );
 }
 
@@ -155,7 +172,9 @@ export function DialogTitle(props: DialogTitleProps): JSX.Element {
   );
 }
 
-export type DialogDescriptionProps = Parameters<typeof DialogPrimitive.Description>[0];
+export type DialogDescriptionProps = Parameters<
+  typeof DialogPrimitive.Description
+>[0];
 
 export function DialogDescription(props: DialogDescriptionProps): JSX.Element {
   const slot = dataSlot(props, "dialog-description");
@@ -169,7 +188,9 @@ export function DialogDescription(props: DialogDescriptionProps): JSX.Element {
   );
 }
 
-export type DialogCloseProps = Parameters<typeof DialogPrimitive.CloseTrigger>[0] & {
+export type DialogCloseProps = Parameters<
+  typeof DialogPrimitive.CloseTrigger
+>[0] & {
   readonly size?: "icon-sm" | "sm" | "default";
   readonly variant?: "default" | "outline" | "ghost" | "destructive";
 };
@@ -204,10 +225,6 @@ export function DialogPanel(props: DialogPanelProps): JSX.Element {
   const slot = dataSlot(props, "dialog-panel");
   const [local, rest] = splitProps(props, ["class"]);
   return (
-    <div
-      {...rest}
-      class={cn("dialog__panel", local.class)}
-      data-slot={slot}
-    />
+    <div {...rest} class={cn("dialog__panel", local.class)} data-slot={slot} />
   );
 }

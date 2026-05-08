@@ -1,4 +1,5 @@
 /* @refresh reload */
+import "../../polyfills";
 import "./style.css";
 import {
   formatHotkeyDisplay as displayHotkey,
