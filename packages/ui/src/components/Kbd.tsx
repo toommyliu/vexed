@@ -13,7 +13,6 @@ const modifierKeyAliases = new Map<string, ModifierKey>([
   ["cmd", "command"],
   ["command", "command"],
   ["meta", "command"],
-  ["mod", "command"],
   ["⇧", "shift"],
   ["shift", "shift"],
   ["⌃", "control"],

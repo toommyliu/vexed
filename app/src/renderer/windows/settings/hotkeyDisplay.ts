@@ -1,4 +1,3 @@
-import { formatForDisplay } from "@tanstack/solid-hotkeys";
 import type { AppPlatform } from "../../../shared/ipc";
 
 const macDisplayAliases: Readonly<Record<string, string>> = {
@@ -17,28 +16,31 @@ const macDisplayAliases: Readonly<Record<string, string>> = {
   "⇧": "⇧",
 };
 
-const displayMacHotkey = (value: string): string => {
+const nonMacDisplayAliases: Readonly<Record<string, string>> = {
+  alt: "Alt",
+  option: "Alt",
+  control: "Ctrl",
+  ctrl: "Ctrl",
+  mod: "Ctrl",
+  shift: "Shift",
+};
+
+const splitHotkeyParts = (value: string): readonly string[] => {
   // Settings persist canonical accelerator strings, but reload paths can hand
   // this formatter either "Alt+B" or already split display text like "Alt B".
-  // Parse both forms here so macOS Option always renders as "⌥" without
-  // changing the stored binding format.
   const trimmed = value.trim();
-  const parts = trimmed.includes("+")
-    ? trimmed.split("+")
-    : trimmed.split(/\s+/);
+  return trimmed.includes("+") ? trimmed.split("+") : trimmed.split(/\s+/);
+};
 
-  return parts
-    .filter((part) => part.trim().length > 0)
-    .map((part) => {
-      const trimmedPart = part.trim();
-      const displayPart = macDisplayAliases[trimmedPart.toLowerCase()];
-      if (displayPart !== undefined) {
-        return displayPart;
-      }
+const displayKeyPart = (part: string, platform: AppPlatform): string => {
+  const trimmedPart = part.trim();
+  const aliases = platform === "mac" ? macDisplayAliases : nonMacDisplayAliases;
+  const displayPart = aliases[trimmedPart.toLowerCase()];
+  if (displayPart !== undefined) {
+    return displayPart;
+  }
 
-      return /^[a-z]$/i.test(trimmedPart) ? trimmedPart.toUpperCase() : trimmedPart;
-    })
-    .join(" ");
+  return /^[a-z]$/i.test(trimmedPart) ? trimmedPart.toUpperCase() : trimmedPart;
 };
 
 export const displayHotkey = (value: string, platform: AppPlatform): string => {
@@ -46,29 +48,20 @@ export const displayHotkey = (value: string, platform: AppPlatform): string => {
     return "Unbound";
   }
 
-  try {
-    if (platform === "mac") {
-      return displayMacHotkey(value);
-    }
-
-    return formatForDisplay(value, { platform });
-  } catch {
-    return value;
-  }
+  const separator = platform === "mac" ? " " : "+";
+  return displayHotkeyParts(value, platform).join(separator);
 };
 
 export const displayHotkeyParts = (
   value: string,
   platform: AppPlatform,
 ): readonly string[] => {
-  const display = displayHotkey(value, platform);
-  if (display === "Unbound") {
-    return [display];
+  if (value === "") {
+    return ["Unbound"];
   }
 
-  const separator = display.includes("+") ? "+" : /\s+/;
-  return display
-    .split(separator)
+  return splitHotkeyParts(value)
     .map((part) => part.trim())
-    .filter((part) => part.length > 0);
+    .filter((part) => part.length > 0)
+    .map((part) => displayKeyPart(part, platform));
 };
