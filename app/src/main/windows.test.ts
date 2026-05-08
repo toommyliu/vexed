@@ -2,6 +2,12 @@ import { EventEmitter } from "node:events";
 import type { BrowserWindow, BrowserWindowConstructorOptions } from "electron";
 import { Effect } from "effect";
 import { describe, expect, it } from "vitest";
+import {
+  createAppearanceSnapshot,
+  serializeAppearanceSnapshotArgument,
+  type AppearanceSnapshot,
+} from "../shared/appearance-snapshot";
+import { DEFAULT_APPEARANCE } from "../shared/settings";
 import { WindowIds, type WindowId } from "../shared/windows";
 import {
   WindowManagerError,
@@ -127,7 +133,13 @@ interface Harness {
   failNextLoad(): void;
 }
 
-const createHarness = (platform: NodeJS.Platform = "darwin"): Harness => {
+const createHarness = (
+  platform: NodeJS.Platform = "darwin",
+  appearanceSnapshot: AppearanceSnapshot = createAppearanceSnapshot(
+    DEFAULT_APPEARANCE,
+    true,
+  ),
+): Harness => {
   const windows: FakeWindow[] = [];
   let nextId = 1;
   let focusedWindow: FakeWindow | null = null;
@@ -160,6 +172,7 @@ const createHarness = (platform: NodeJS.Platform = "darwin"): Harness => {
     preloadPath: "/preload/index.js",
     rendererUrl: null,
     windowHtmlPath: (id: WindowId) => `/renderer/${id}/index.html`,
+    getAppearanceSnapshot: () => appearanceSnapshot,
   };
 
   return {
@@ -224,6 +237,42 @@ describe("window reveal", () => {
 });
 
 describe("window service", () => {
+  it("creates game windows with the pre-paint appearance snapshot", async () => {
+    const snapshot = createAppearanceSnapshot(
+      { ...DEFAULT_APPEARANCE, themeMode: "light" },
+      false,
+    );
+    const harness = createHarness("darwin", snapshot);
+
+    const gameWindow = (await run(
+      harness.service.openGameWindow,
+    )) as unknown as FakeWindow;
+
+    expect(gameWindow.options.backgroundColor).toBe(snapshot.backgroundColor);
+    expect(gameWindow.options.webPreferences?.additionalArguments).toEqual([
+      serializeAppearanceSnapshotArgument(snapshot),
+    ]);
+  });
+
+  it("creates catalog windows with the pre-paint appearance snapshot", async () => {
+    const snapshot = createAppearanceSnapshot(
+      { ...DEFAULT_APPEARANCE, themeMode: "light" },
+      false,
+    );
+    const harness = createHarness("darwin", snapshot);
+
+    const settingsWindow = (await run(
+      harness.service.openWindow(WindowIds.Settings),
+    )) as unknown as FakeWindow;
+
+    expect(settingsWindow.options.backgroundColor).toBe(
+      snapshot.backgroundColor,
+    );
+    expect(settingsWindow.options.webPreferences?.additionalArguments).toEqual([
+      serializeAppearanceSnapshotArgument(snapshot),
+    ]);
+  });
+
   it("reuses app windows and hides them on close", async () => {
     const harness = createHarness();
 

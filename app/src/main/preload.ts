@@ -1,5 +1,9 @@
 import { contextBridge, ipcRenderer } from "electron";
 import {
+  applyAppearanceSnapshotToDocument,
+  readAppearanceSnapshotArgument,
+} from "../shared/appearance-snapshot";
+import {
   SettingsIpcChannels,
   ScriptingIpcChannels,
   WindowIpcChannels,
@@ -12,6 +16,17 @@ import {
   type ScriptExecutePayload,
 } from "../shared/ipc";
 import type { WindowId } from "../shared/windows";
+
+const applyInitialAppearanceSnapshot = (): void => {
+  const snapshot = readAppearanceSnapshotArgument(process.argv);
+  if (!snapshot || !document.documentElement) {
+    return;
+  }
+
+  applyAppearanceSnapshotToDocument(document.documentElement, snapshot);
+};
+
+applyInitialAppearanceSnapshot();
 
 const platform: AppPlatform =
   process.platform === "darwin"

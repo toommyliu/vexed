@@ -19,6 +19,7 @@ import {
   CardDescription,
   CardHeader,
   CardTitle,
+  ColorPicker,
   Input,
   Kbd,
   KbdGroup,
@@ -50,6 +51,7 @@ import {
 import {
   GAME_COMMANDS,
   type CommandCategory,
+  type CommandDefinition,
   type GameCommandId,
 } from "../../../shared/commands";
 import {
@@ -175,11 +177,12 @@ function SettingsSection(props: {
 
 function SettingsRow(props: {
   readonly action: JSX.Element;
+  readonly class?: string;
   readonly description?: string;
   readonly title: string;
 }): JSX.Element {
   return (
-    <div class="settings-row">
+    <div class={props.class ? `settings-row ${props.class}` : "settings-row"}>
       <div class="settings-row__content">
         <div class="settings-row__title">{props.title}</div>
         <Show when={props.description}>
@@ -385,33 +388,36 @@ function FontSizeInput(props: {
   };
 
   return (
-    <Input
-      aria-label={props["aria-label"]}
-      class="settings-number-input"
-      max={24}
-      min={10}
-      onBlur={() => {
-        setFocused(false);
-        commit();
-      }}
-      onFocus={() => {
-        setFocused(true);
-      }}
-      onInput={(event: InputEvent & { currentTarget: HTMLInputElement }) =>
-        setDraft(event.currentTarget.value)
-      }
-      onKeyDown={(
-        event: KeyboardEvent & { currentTarget: HTMLInputElement },
-      ) => {
-        if (event.key === "Enter") {
+    <div class="settings-number-wrapper">
+      <Input
+        aria-label={props["aria-label"]}
+        class="settings-number-input"
+        max={24}
+        min={10}
+        onBlur={() => {
+          setFocused(false);
           commit();
+        }}
+        onFocus={() => {
+          setFocused(true);
+        }}
+        onInput={(event: InputEvent & { currentTarget: HTMLInputElement }) =>
+          setDraft(event.currentTarget.value)
         }
-      }}
-      size="sm"
-      step={1}
-      type="number"
-      value={draft()}
-    />
+        onKeyDown={(
+          event: KeyboardEvent & { currentTarget: HTMLInputElement },
+        ) => {
+          if (event.key === "Enter") {
+            commit();
+          }
+        }}
+        size="sm"
+        step={1}
+        type="number"
+        value={draft()}
+      />
+      <span class="settings-number-unit">px</span>
+    </div>
   );
 }
 
@@ -443,21 +449,10 @@ function ThemeTokenRow(props: {
     <div class="theme-token-row">
       <div class="theme-token-row__name">{tokenLabel(props.name)}</div>
       <div class="theme-token-row__controls">
-        <input
+        <ColorPicker
           aria-label={`${tokenLabel(props.name)} color`}
-          class="theme-token-row__swatch"
           onChange={(event) => commit(event.currentTarget.value)}
           onInput={(event) => setDraft(event.currentTarget.value)}
-          type="color"
-          value={draft()}
-        />
-        <Input
-          aria-label={`${tokenLabel(props.name)} hex value`}
-          class="theme-token-row__input"
-          onChange={(event) => commit(event.currentTarget.value)}
-          onInput={(event) => setDraft(event.currentTarget.value)}
-          placeholder="Default"
-          size="sm"
           value={draft()}
         />
         <Button
@@ -493,6 +488,7 @@ function GeneralSettings(props: {
             }
           />
         }
+        class="settings-row--switch"
         description="Check for updates when the app starts."
         title="Check for updates"
       />
@@ -538,17 +534,10 @@ function HotkeySettingsSection(props: {
   readonly onHotkeysPatch: (patch: HotkeysPatch) => Promise<void>;
   readonly onResetHotkeys: () => Promise<void>;
 }): JSX.Element {
-  const [activeHotkeyCategory, setActiveHotkeyCategory] =
-    createSignal<CommandCategory>("Options");
   const [recordingId, setRecordingId] = createSignal<GameCommandId | null>(
     null,
   );
   const [localError, setLocalError] = createSignal<string | null>(null);
-  const activeCommands = createMemo(() =>
-    GAME_COMMANDS.filter(
-      (command) => command.category === activeHotkeyCategory(),
-    ),
-  );
 
   const commitBinding = async (
     id: GameCommandId,
@@ -643,133 +632,142 @@ function HotkeySettingsSection(props: {
     });
   });
 
+  const renderHotkeysList = (commands: readonly CommandDefinition[]) => (
+    <CardContent class="hotkey-list">
+      <For each={commands}>
+        {(command) => {
+          const value = () =>
+            readHotkey(props.settings.hotkeys.bindings, command.id);
+          const conflicts = () =>
+            getConflictingLabels(
+              props.settings.hotkeys.bindings,
+              command.id,
+              value(),
+            );
+          const isRecording = () => recordingId() === command.id;
+          const displayParts = () =>
+            isRecording()
+              ? ["Press keys"]
+              : displayHotkeyParts(value(), props.platform);
+
+          return (
+            <div
+              class="hotkey-row"
+              data-conflict={conflicts().length > 0 ? "" : undefined}
+            >
+              <div class="hotkey-row__content">
+                <div class="hotkey-row__title">{command.label}</div>
+                <Show when={conflicts().length > 0}>
+                  <div class="hotkey-row__conflict">
+                    Also used by {conflicts().join(", ")}
+                  </div>
+                </Show>
+              </div>
+              <div class="hotkey-row__controls">
+                <div class="hotkey-row__binding">
+                  <Show when={command.defaultHotkey !== ""}>
+                    <HotkeyIconButton
+                      aria-label={`Restore default shortcut for ${command.label}`}
+                      class="hotkey-row__default-action"
+                      disabled={value() === command.defaultHotkey}
+                      onClick={() => void commitBinding(command.id, null)}
+                      tooltip="Restore default shortcut"
+                    >
+                      <RotateCcw class="button__icon" />
+                    </HotkeyIconButton>
+                  </Show>
+                  <KbdGroup
+                    aria-label={
+                      isRecording()
+                        ? "Press keys"
+                        : displayHotkey(value(), props.platform)
+                    }
+                    class="hotkey-row__value"
+                  >
+                    <For each={displayParts()}>
+                      {(part) => (
+                        <Kbd
+                          class="hotkey-row__key"
+                          data-empty={
+                            value() === "" && !isRecording()
+                              ? ""
+                              : undefined
+                          }
+                        >
+                          {part}
+                        </Kbd>
+                      )}
+                    </For>
+                  </KbdGroup>
+                </div>
+                <Button
+                  class={
+                    isRecording()
+                      ? "hotkey-row__record-action hotkey-row__record-action--recording"
+                      : "hotkey-row__record-action"
+                  }
+                  disabled={recordingId() !== null && !isRecording()}
+                  onClick={() => {
+                    setLocalError(null);
+                    setRecordingId(isRecording() ? null : command.id);
+                  }}
+                  size="sm"
+                  type="button"
+                  variant={isRecording() ? "secondary" : "ghost"}
+                >
+                  {isRecording() ? "Cancel" : "Record"}
+                </Button>
+                <HotkeyIconButton
+                  aria-label={`Clear shortcut for ${command.label}`}
+                  class="hotkey-row__clear-action"
+                  disabled={value() === ""}
+                  onClick={() => void commitBinding(command.id, "")}
+                  tooltip="Clear shortcut"
+                >
+                  <X class="button__icon" />
+                </HotkeyIconButton>
+              </div>
+            </div>
+          );
+        }}
+      </For>
+    </CardContent>
+  );
+
   return (
-    <SettingsSection id="hotkeys" title="Hotkeys">
+    <SettingsSection
+      id="hotkeys"
+      title="Hotkeys"
+      action={
+        <div class="hotkey-settings-header-actions">
+          <ResetButton
+            confirmLabel="Reset hotkeys"
+            description="This restores every game-window shortcut to its default binding."
+            label="Reset hotkeys"
+            onConfirm={() => void props.onResetHotkeys()}
+            title="Reset all hotkeys?"
+          />
+        </div>
+      }
+    >
       <Show when={localError()}>
         {(message) => <div class="settings-error">{message()}</div>}
       </Show>
-      <div class="hotkey-category-toolbar">
-        <Tabs
-          aria-label="Hotkey categories"
-          class="hotkey-category-tabs"
-          onValueChange={(details) =>
-            setActiveHotkeyCategory(details.value as CommandCategory)
-          }
-          value={activeHotkeyCategory()}
-        >
-          <TabsList class="hotkey-category-tabs__list" variant="underline">
-            <For each={commandCategories}>
-              {(category) => (
-                <TabsTrigger value={category}>{category}</TabsTrigger>
-              )}
-            </For>
-          </TabsList>
-        </Tabs>
-        <ResetButton
-          confirmLabel="Reset hotkeys"
-          description="This restores every game-window shortcut to its default binding."
-          label="Reset hotkeys"
-          onConfirm={() => void props.onResetHotkeys()}
-          title="Reset all hotkeys?"
-        />
-      </div>
-      <Card class="hotkey-group">
-        <CardContent class="hotkey-list">
-          <For each={activeCommands()}>
-            {(command) => {
-              const value = () =>
-                readHotkey(props.settings.hotkeys.bindings, command.id);
-              const conflicts = () =>
-                getConflictingLabels(
-                  props.settings.hotkeys.bindings,
-                  command.id,
-                  value(),
-                );
-              const isRecording = () => recordingId() === command.id;
-              const displayParts = () =>
-                isRecording()
-                  ? ["Press keys"]
-                  : displayHotkeyParts(value(), props.platform);
 
-              return (
-                <div
-                  class="hotkey-row"
-                  data-conflict={conflicts().length > 0 ? "" : undefined}
-                >
-                  <div class="hotkey-row__content">
-                    <div class="hotkey-row__title">{command.label}</div>
-                    <Show when={conflicts().length > 0}>
-                      <div class="hotkey-row__conflict">
-                        Also used by {conflicts().join(", ")}
-                      </div>
-                    </Show>
-                  </div>
-                  <div class="hotkey-row__controls">
-                    <div class="hotkey-row__binding">
-                      <Show when={command.defaultHotkey !== ""}>
-                        <HotkeyIconButton
-                          aria-label={`Restore default shortcut for ${command.label}`}
-                          class="hotkey-row__default-action"
-                          disabled={value() === command.defaultHotkey}
-                          onClick={() => void commitBinding(command.id, null)}
-                          tooltip="Restore default shortcut"
-                        >
-                          <RotateCcw class="button__icon" />
-                        </HotkeyIconButton>
-                      </Show>
-                      <KbdGroup
-                        aria-label={
-                          isRecording()
-                            ? "Press keys"
-                            : displayHotkey(value(), props.platform)
-                        }
-                        class="hotkey-row__value"
-                      >
-                        <For each={displayParts()}>
-                          {(part) => (
-                            <Kbd
-                              class="hotkey-row__key"
-                              data-empty={
-                                value() === "" && !isRecording()
-                                  ? ""
-                                  : undefined
-                              }
-                            >
-                              {part}
-                            </Kbd>
-                          )}
-                        </For>
-                      </KbdGroup>
-                    </div>
-                    <Button
-                      class="hotkey-row__record-action"
-                      disabled={recordingId() !== null && !isRecording()}
-                      onClick={() => {
-                        setLocalError(null);
-                        setRecordingId(command.id);
-                      }}
-                      size="sm"
-                      type="button"
-                      variant={isRecording() ? "secondary" : "outline"}
-                    >
-                      Record
-                    </Button>
-                    <HotkeyIconButton
-                      aria-label={`Clear shortcut for ${command.label}`}
-                      class="hotkey-row__clear-action"
-                      disabled={value() === ""}
-                      onClick={() => void commitBinding(command.id, "")}
-                      tooltip="Clear shortcut"
-                    >
-                      <X class="button__icon" />
-                    </HotkeyIconButton>
-                  </div>
-                </div>
-              );
-            }}
-          </For>
-        </CardContent>
-      </Card>
+      <div class="hotkey-layouts--continuous">
+        <For each={commandCategories}>
+          {(category) => (
+            <div class="hotkey-category-section">
+              <h3 class="hotkey-category-title">{category}</h3>
+              <Card class="hotkey-group">
+                {renderHotkeysList(
+                  GAME_COMMANDS.filter((c) => c.category === category),
+                )}
+              </Card>
+            </div>
+          )}
+        </For>
+      </div>
     </SettingsSection>
   );
 }

@@ -5,6 +5,7 @@ import {
   BrowserWindow,
   dialog,
   ipcMain,
+  nativeTheme,
   session,
   type OpenDialogOptions,
 } from "electron";
@@ -13,6 +14,7 @@ import process from "process";
 import { homedir } from "os";
 import { Effect } from "effect";
 import appBranding from "../../appBranding.json";
+import { createAppearanceSnapshot } from "../shared/appearance-snapshot";
 import { ScriptingIpcChannels, type ScriptExecutePayload } from "../shared/ipc";
 import { WindowIds } from "../shared/windows";
 import { createApplicationMenu } from "./menu";
@@ -343,6 +345,11 @@ app.whenReady().then(() => {
     preloadPath: join(__dirname, "../preload/index.js"),
     rendererUrl: resolveDevRendererUrl(),
     windowHtmlPath: (id) => getRendererWindowPath(rendererPath, id),
+    getAppearanceSnapshot: () =>
+      createAppearanceSnapshot(
+        Appearance.read(),
+        nativeTheme.shouldUseDarkColors,
+      ),
     onGameWindowCreated: configureGameWindow,
   });
 

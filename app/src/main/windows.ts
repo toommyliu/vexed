@@ -9,6 +9,10 @@ import { join } from "path";
 import { pathToFileURL } from "url";
 import { Data, Effect, Layer, ServiceMap } from "effect";
 import {
+  serializeAppearanceSnapshotArgument,
+  type AppearanceSnapshot,
+} from "../shared/appearance-snapshot";
+import {
   getWindowDefinition,
   isAppWindowDefinition,
   isGameChildWindowDefinition,
@@ -28,6 +32,7 @@ export interface WindowManagerConfig {
   readonly preloadPath: string;
   readonly rendererUrl: string | null;
   readonly windowHtmlPath: (id: WindowId) => string;
+  readonly getAppearanceSnapshot: () => AppearanceSnapshot;
   readonly onGameWindowCreated?: (window: BrowserWindow) => void;
 }
 
@@ -152,23 +157,33 @@ const getWindowDimensions = (definition: WindowDefinition) =>
 
 const createWebPreferences = (
   config: WindowManagerConfig,
+  appearanceSnapshot: AppearanceSnapshot,
   options?: { readonly plugins?: boolean },
 ): NonNullable<BrowserWindowConstructorOptions["webPreferences"]> => ({
   preload: config.preloadPath,
   nodeIntegration: false,
   contextIsolation: true,
+  additionalArguments: [
+    serializeAppearanceSnapshotArgument(appearanceSnapshot),
+  ],
   ...(options?.plugins ? { plugins: true } : {}),
 });
 
 const createGameWindowOptions = (
   config: WindowManagerConfig,
-): BrowserWindowConstructorOptions => ({
-  backgroundColor: "#0e0e0f",
-  width: 1024,
-  height: 768,
-  show: false,
-  webPreferences: createWebPreferences(config, { plugins: true }),
-});
+): BrowserWindowConstructorOptions => {
+  const appearanceSnapshot = config.getAppearanceSnapshot();
+
+  return {
+    backgroundColor: appearanceSnapshot.backgroundColor,
+    width: 1024,
+    height: 768,
+    show: false,
+    webPreferences: createWebPreferences(config, appearanceSnapshot, {
+      plugins: true,
+    }),
+  };
+};
 
 const createCatalogWindowOptions = (
   config: WindowManagerConfig,
@@ -176,13 +191,14 @@ const createCatalogWindowOptions = (
   parent?: BrowserWindow,
 ): BrowserWindowConstructorOptions => {
   const dimensions = getWindowDimensions(definition);
+  const appearanceSnapshot = config.getAppearanceSnapshot();
   const options: BrowserWindowConstructorOptions = {
-    backgroundColor: "#0e0e0f",
+    backgroundColor: appearanceSnapshot.backgroundColor,
     title: definition.label,
     width: dimensions.width,
     height: dimensions.height,
     show: false,
-    webPreferences: createWebPreferences(config),
+    webPreferences: createWebPreferences(config, appearanceSnapshot),
   };
 
   if (parent) {
