@@ -1767,7 +1767,8 @@ a.badge--destructive:hover {
 .kbd[data-key="command"],
 .kbd[data-key="shift"],
 .kbd[data-key="control"],
-.kbd[data-key="option"] {
+.kbd[data-key="option"],
+.kbd[data-key="windows"] {
   min-width: 1.375rem;
 }
 

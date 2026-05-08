@@ -12,6 +12,11 @@ describe("settings hotkey display", () => {
 
   it("formats modifier parts for Windows", () => {
     expect(displayHotkeyParts("Alt+B", "windows")).toEqual(["Alt", "B"]);
+    expect(displayHotkeyParts("Shift+Meta+D", "windows")).toEqual([
+      "Shift",
+      "Win",
+      "D",
+    ]);
     expect(displayHotkeyParts("Mod+O", "windows")).toEqual(["Ctrl", "O"]);
     expect(displayHotkeyParts("Mod+Shift+X", "windows")).toEqual([
       "Ctrl",

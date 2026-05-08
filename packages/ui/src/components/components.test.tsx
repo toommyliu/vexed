@@ -440,6 +440,7 @@ describe("Kbd", () => {
         <Kbd>⌃</Kbd>
         <Kbd>⌥</Kbd>
         <Kbd>Ctrl</Kbd>
+        <Kbd>Win</Kbd>
         <Kbd>Mod</Kbd>
         <Kbd>K</Kbd>
       </>
@@ -456,11 +457,13 @@ describe("Kbd", () => {
     expect(keys[3]?.getAttribute("aria-label")).toBe("Option");
     expect(keys[4]?.getAttribute("data-key")).toBe("control");
     expect(keys[4]?.getAttribute("aria-label")).toBe("Control");
-    expect(keys[5]?.textContent).toBe("Mod");
-    expect(keys[5]?.hasAttribute("data-key")).toBe(false);
-    expect(keys[5]?.hasAttribute("aria-label")).toBe(false);
+    expect(keys[5]?.getAttribute("data-key")).toBe("windows");
+    expect(keys[5]?.getAttribute("aria-label")).toBe("Windows");
+    expect(keys[6]?.textContent).toBe("Mod");
     expect(keys[6]?.hasAttribute("data-key")).toBe(false);
     expect(keys[6]?.hasAttribute("aria-label")).toBe(false);
+    expect(keys[7]?.hasAttribute("data-key")).toBe(false);
+    expect(keys[7]?.hasAttribute("aria-label")).toBe(false);
   });
 });
 

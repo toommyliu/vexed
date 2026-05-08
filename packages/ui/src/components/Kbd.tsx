@@ -6,7 +6,13 @@ export interface KbdProps
   readonly class?: string;
 }
 
-type ModifierKey = "command" | "shift" | "control" | "alt" | "option";
+type ModifierKey =
+  | "command"
+  | "shift"
+  | "control"
+  | "alt"
+  | "option"
+  | "windows";
 
 const modifierKeyAliases = new Map<string, ModifierKey>([
   ["⌘", "command"],
@@ -21,6 +27,8 @@ const modifierKeyAliases = new Map<string, ModifierKey>([
   ["alt", "alt"],
   ["⌥", "option"],
   ["option", "option"],
+  ["win", "windows"],
+  ["windows", "windows"],
 ]);
 
 const readModifierKey = (children: JSX.Element): ModifierKey | undefined => {
@@ -43,6 +51,8 @@ const modifierKeyLabel = (key: ModifierKey): string => {
       return "Alt";
     case "option":
       return "Option";
+    case "windows":
+      return "Windows";
   }
 };
 

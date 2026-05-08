@@ -18,6 +18,7 @@ const macDisplayAliases: Readonly<Record<string, string>> = {
 
 const nonMacDisplayAliases: Readonly<Record<string, string>> = {
   alt: "Alt",
+  meta: "Win",
   option: "Alt",
   control: "Ctrl",
   ctrl: "Ctrl",
