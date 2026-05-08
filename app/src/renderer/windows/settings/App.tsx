@@ -4,8 +4,6 @@ import {
   formatHotkeyDisplay as displayHotkey,
   formatHotkeyDisplayParts as displayHotkeyParts,
 } from "@vexed/shared/hotkeyDisplay";
-import { TanStackDevtools } from "@tanstack/solid-devtools";
-import { hotkeysDevtoolsPlugin } from "@tanstack/solid-hotkeys-devtools";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -45,6 +43,7 @@ import {
   For,
   Show,
   createEffect,
+  lazy,
   createMemo,
   createSignal,
   onCleanup,
@@ -81,6 +80,19 @@ import {
 } from "../../../shared/settings";
 import { mountWindow } from "../mount";
 import { readRecordedHotkeyFromEvent } from "./hotkeyRecording";
+
+declare global {
+  namespace NodeJS {
+    interface ProcessEnv {
+      readonly NODE_ENV?: string;
+    }
+  }
+}
+
+const SettingsDevtools =
+  process.env.NODE_ENV === "production"
+    ? () => null
+    : lazy(() => import("./SettingsDevtools"));
 
 const defaultSettings: AppSettings = {
   preferences: DEFAULT_PREFERENCES,
@@ -692,9 +704,7 @@ function HotkeySettingsSection(props: {
                         <Kbd
                           class="hotkey-row__key"
                           data-empty={
-                            value() === "" && !isRecording()
-                              ? ""
-                              : undefined
+                            value() === "" && !isRecording() ? "" : undefined
                           }
                         >
                           {part}
@@ -1091,6 +1101,6 @@ function SettingsApp(props: {
 mountWindow(({ initialSettings, platform }) => (
   <>
     <SettingsApp initialSettings={initialSettings} platform={platform} />
-    <TanStackDevtools plugins={[hotkeysDevtoolsPlugin()]} />
+    <SettingsDevtools />
   </>
 ));

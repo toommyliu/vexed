@@ -88,18 +88,33 @@ describe("app window wiring", () => {
     );
   });
 
-  it("mounts TanStack hotkeys devtools only in settings", () => {
+  it("mounts TanStack hotkeys devtools only in settings dev builds", () => {
     const mountSource = readSource("../renderer/windows/mount.tsx");
     const settingsSource = readSource("../renderer/windows/settings/App.tsx");
+    const settingsDevtoolsSource = readSource(
+      "../renderer/windows/settings/SettingsDevtools.tsx",
+    );
 
     expect(mountSource).not.toContain("TanStackDevtools");
-    expect(settingsSource).toContain(
+    expect(settingsSource).not.toContain(
       'import { TanStackDevtools } from "@tanstack/solid-devtools"',
     );
-    expect(settingsSource).toContain(
+    expect(settingsSource).not.toContain(
       'import { hotkeysDevtoolsPlugin } from "@tanstack/solid-hotkeys-devtools"',
     );
+    expect(settingsSource).toContain('process.env.NODE_ENV === "production"');
+    expect(settingsSource).toContain("? () => null");
     expect(settingsSource).toContain(
+      'lazy(() => import("./SettingsDevtools"))',
+    );
+    expect(settingsSource).toContain("<SettingsDevtools />");
+    expect(settingsDevtoolsSource).toContain(
+      'import { TanStackDevtools } from "@tanstack/solid-devtools"',
+    );
+    expect(settingsDevtoolsSource).toContain(
+      'import { hotkeysDevtoolsPlugin } from "@tanstack/solid-hotkeys-devtools"',
+    );
+    expect(settingsDevtoolsSource).toContain(
       "<TanStackDevtools plugins={[hotkeysDevtoolsPlugin()]} />",
     );
   });
