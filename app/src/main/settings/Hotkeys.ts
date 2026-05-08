@@ -45,15 +45,6 @@ export const normalize = (value: unknown): HotkeysSettings => {
       normalized === undefined ? (defaults[command.id] ?? "") : normalized;
   }
 
-  for (const [id, rawValue] of Object.entries(rawBindings)) {
-    if (!isGameCommandId(id)) {
-      continue;
-    }
-
-    const normalized = normalizeHotkeyValue(rawValue);
-    bindings[id] = normalized === undefined ? (defaults[id] ?? "") : normalized;
-  }
-
   return { bindings };
 };
 
