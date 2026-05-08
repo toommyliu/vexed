@@ -226,4 +226,54 @@ describe("ColorPicker", () => {
     expect(inputs).toContain("#ff0000");
     expect(changes).toContain("#ff0000");
   });
+
+  it("preserves hue while dragging saturation and brightness", async () => {
+    const root = renderUi(() => {
+      const [color, setColor] = createSignal("#0000ff");
+      return (
+        <ColorPicker
+          onInput={(event) => {
+            setColor(event.currentTarget.value);
+          }}
+          value={color()}
+        />
+      );
+    });
+
+    root.querySelector<HTMLButtonElement>(".color-picker__trigger")?.click();
+    await flush();
+
+    const area = document.querySelector<HTMLElement>(".color-picker__area");
+    const hueThumb = document.querySelector<HTMLElement>(
+      ".color-picker__thumb--hue",
+    );
+    expect(area).not.toBeNull();
+    expect(hueThumb?.getAttribute("aria-valuenow")).toBe("240");
+
+    Object.defineProperty(area, "getBoundingClientRect", {
+      configurable: true,
+      value: () => ({
+        bottom: 100,
+        height: 100,
+        left: 0,
+        right: 100,
+        top: 0,
+        width: 100,
+        x: 0,
+        y: 0,
+      }),
+    });
+
+    area?.dispatchEvent(
+      new MouseEvent("pointerdown", {
+        bubbles: true,
+        button: 0,
+        clientX: 0,
+        clientY: 100,
+      }),
+    );
+    await flush();
+
+    expect(hueThumb?.getAttribute("aria-valuenow")).toBe("240");
+  });
 });

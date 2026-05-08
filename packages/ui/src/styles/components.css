@@ -574,7 +574,7 @@ body::-webkit-scrollbar-corner,
   width: 4.5rem;
 }
 
-.color-picker:has(.color-picker__value:focus-visible) {
+.color-picker--value-focused {
   box-shadow: var(--shadow-sm);
 }
 

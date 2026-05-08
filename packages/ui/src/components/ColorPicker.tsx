@@ -4,7 +4,13 @@ import {
   type ColorPickerOpenChangeDetails,
   type ColorPickerValueChangeDetails,
 } from "@ark-ui/solid/color-picker";
-import { createMemo, splitProps, type JSX } from "solid-js";
+import {
+  createEffect,
+  createMemo,
+  createSignal,
+  splitProps,
+  type JSX,
+} from "solid-js";
 import { Portal } from "solid-js/web";
 import { cn } from "../lib/cn";
 
@@ -90,10 +96,11 @@ export function ColorPicker(props: ColorPickerProps): JSX.Element {
     "value",
   ]);
 
+  const [isValueFocused, setIsValueFocused] = createSignal(false);
   const value = createMemo(
     () => normalizeHexColor(local.value) ?? DEFAULT_COLOR,
   );
-  const pickerValue = createMemo(() => parseColor(value()));
+  const [pickerValue, setPickerValue] = createSignal(parseColor(value()));
   const displayValue = createMemo(() => value().toUpperCase());
   const contrastColor = createMemo(() => getContrastColor(value()));
   const contrastBorderColor = createMemo(() =>
@@ -101,6 +108,15 @@ export function ColorPicker(props: ColorPickerProps): JSX.Element {
       ? "rgba(255, 255, 255, 0.42)"
       : "rgba(0, 0, 0, 0.28)",
   );
+
+  createEffect(() => {
+    const hex = value();
+    if (hex === pendingHex) {
+      return;
+    }
+
+    setPickerValue(parseColor(hex));
+  });
 
   const emitColorInputEvent = (eventName: "change" | "input", hex: string) => {
     if (!eventInput) {
@@ -136,6 +152,7 @@ export function ColorPicker(props: ColorPickerProps): JSX.Element {
 
       const hex = normalizeHexColor(event.currentTarget.value);
       if (hex) {
+        setPickerValue(parseColor(hex));
         if (eventName === "change") {
           emitChangeOnce(hex);
           return;
@@ -199,6 +216,7 @@ export function ColorPicker(props: ColorPickerProps): JSX.Element {
     details: ColorPickerValueChangeDetails,
   ) => {
     const hex = hexFromPickerDetails(details);
+    setPickerValue(details.value);
     pendingHex = hex;
     emitColorInputEvent("input", hex);
   };
@@ -207,6 +225,7 @@ export function ColorPicker(props: ColorPickerProps): JSX.Element {
     details: ColorPickerValueChangeDetails,
   ) => {
     const hex = hexFromPickerDetails(details);
+    setPickerValue(details.value);
     pendingHex = hex;
     emitChangeOnce(hex);
   };
@@ -231,6 +250,7 @@ export function ColorPicker(props: ColorPickerProps): JSX.Element {
         "color-picker",
         disabled() && "color-picker--disabled",
         readOnly() && "color-picker--readonly",
+        isValueFocused() && "color-picker--value-focused",
         local.class,
       )}
       data-slot="color-picker"
@@ -264,6 +284,12 @@ export function ColorPicker(props: ColorPickerProps): JSX.Element {
         data-slot="color-picker-value"
         disabled={disabled()}
         onChange={handleTextEvent("change")}
+        onBlur={() => {
+          setIsValueFocused(false);
+        }}
+        onFocus={() => {
+          setIsValueFocused(true);
+        }}
         onInput={handleTextEvent("input")}
         readonly={readOnly()}
         spellcheck={false}
