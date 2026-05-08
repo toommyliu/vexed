@@ -983,8 +983,6 @@ function SettingsApp(props: {
   readonly initialSettings: AppSettings | null;
   readonly platform: AppPlatform;
 }): JSX.Element {
-  console.log("Initial settings:", props.initialSettings);
-  console.log("Platform:", props.platform);
   const [settings, setSettings] = createSignal<AppSettings>(
     props.initialSettings ?? defaultSettings,
   );
