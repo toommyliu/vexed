@@ -2,6 +2,7 @@
   "appId": "com.app.vexed",
   "productName": "Vexed",
   "electronVersion": "11.5.0",
+  "npmRebuild": false,
   "directories": {
     "output": "build"
   },
