@@ -96,7 +96,7 @@ export default function App(props: {
     props.initialSettings ?? defaultSettings,
   );
   const [gameLoaded, setGameLoaded] = createSignal(getGameLoadState().loaded);
-  const [playerLoggedIn, setPlayerLoggedIn] = createSignal(false);
+  const [playerReady, setPlayerReady] = createSignal(false);
   const [autoAttackEnabled, setAutoAttackEnabled] = createSignal(false);
   const [scriptName, setScriptName] = createSignal("");
   const [scriptSource, setScriptSource] = createSignal("");
@@ -378,10 +378,16 @@ export default function App(props: {
     void refreshScriptMeta();
   };
 
+  const canApplyGameSettings = () => gameLoaded() && playerReady();
+
   const runSettingsEffect = (
     label: string,
     effect: (settings: SettingsShape) => Effect.Effect<void, unknown>,
   ) => {
+    if (!canApplyGameSettings()) {
+      return;
+    }
+
     void runtime
       .runPromise(
         Effect.gen(function* () {
@@ -394,48 +400,47 @@ export default function App(props: {
       });
   };
 
-  const refreshPlayerLoginState = () => {
+  const refreshPlayerReadyState = () => {
     if (!getGameLoadState().loaded) {
-      setPlayerLoggedIn(false);
+      setPlayerReady(false);
       return;
     }
 
     void runtime
       .runPromise(
         Effect.gen(function* () {
-          const auth = yield* Auth;
-          return yield* auth.isLoggedIn();
+          const player = yield* Player;
+          return yield* player.isReady();
         }),
       )
-      .then((isLoggedIn) => {
-        const wasLoggedIn = playerLoggedIn();
-        setPlayerLoggedIn(isLoggedIn);
-        if (isLoggedIn && !wasLoggedIn) {
+      .then((isReady) => {
+        const wasReady = playerReady();
+        setPlayerReady(isReady);
+        if (isReady && !wasReady) {
           refreshTravelOptions();
         }
       })
       .catch((error) => {
-        setPlayerLoggedIn(false);
-        console.error("Refresh login state error:", error);
+        setPlayerReady(false);
+        console.error("Refresh player ready state error:", error);
       });
   };
 
   const refreshTravelOptions = () => {
-    if (!getGameLoadState().loaded || !playerLoggedIn()) {
+    if (!getGameLoadState().loaded || !playerReady()) {
       return;
     }
 
     void runtime
       .runPromise(
         Effect.gen(function* () {
-          const auth = yield* Auth;
-          const isLoggedIn = yield* auth.isLoggedIn();
-          if (!isLoggedIn) {
+          const player = yield* Player;
+          const isReady = yield* player.isReady();
+          if (!isReady) {
             return null;
           }
 
           const world = yield* World;
-          const player = yield* Player;
           const [mapCells, mapPads, currentCell, currentPad] =
             yield* Effect.all([
               world.map.getCells(),
