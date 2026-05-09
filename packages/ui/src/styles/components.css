@@ -2558,7 +2558,7 @@ a.badge--destructive:hover {
   overflow-wrap: anywhere;
   padding: 0.3125rem 0.5rem;
   white-space: normal;
-  word-break: break-word;
+  word-break: normal;
 }
 
 .tooltip__arrow {
