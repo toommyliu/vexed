@@ -24,12 +24,12 @@
 }
 
 .account-search {
-  height: 2rem;
+  height: var(--control-height-lg);
   width: 100%;
 }
 
 .account-search .input--unstyled {
-  font-size: var(--text-sm);
+  font-size: var(--text-base);
 }
 
 .account-manager__launch-row {
@@ -54,9 +54,9 @@
   font-size: var(--text-base);
   font-weight: 500;
   gap: 0.5rem;
-  height: var(--control-height-sm);
+  height: var(--control-height-md);
   line-height: 1;
-  min-height: var(--control-height-sm);
+  min-height: var(--control-height-md);
 }
 
 .account-manager__script-toggle {
@@ -68,7 +68,7 @@
 
 .account-manager__server-field,
 .account-manager__script-field {
-  height: var(--control-height-md);
+  height: var(--control-height-lg);
   min-width: 0;
 }
 
@@ -137,7 +137,7 @@
   flex: 1 1 0;
   font-size: var(--text-base);
   font-weight: 400;
-  height: calc(var(--control-height-md) - 2px);
+  height: calc(var(--control-height-lg) - 2px);
   justify-content: flex-start;
   line-height: 1.25;
   max-width: 100%;

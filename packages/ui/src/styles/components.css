@@ -1530,6 +1530,7 @@ a.badge--destructive:hover {
 
 .app-shell__header-left,
 .app-shell__header-right {
+  -webkit-app-region: no-drag;
   align-items: center;
   display: flex;
   gap: 0.5rem;

@@ -745,7 +745,7 @@ function App(): JSX.Element {
       <AppShellBody class="account-manager" maxWidth={false} scroll={false}>
         <section class="account-manager__surface" aria-label="Accounts">
           <div class="account-manager__controls">
-            <InputGroup class="account-search" size="sm">
+            <InputGroup class="account-search">
               <InputGroupAddon>
                 <Search aria-hidden="true" />
               </InputGroupAddon>
@@ -879,6 +879,7 @@ function App(): JSX.Element {
                       checked={launchScript().enabled}
                       disabled={busy()}
                       id={LAUNCH_WITH_SCRIPT_CHECKBOX_ID}
+                      size="lg"
                       onChange={(event) =>
                         setLaunchScriptEnabled(event.currentTarget.checked)
                       }
