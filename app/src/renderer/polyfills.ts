@@ -1,7 +1,10 @@
 if (!Array.prototype.at) {
   Object.defineProperty(Array.prototype, "at", {
     configurable: true,
-    value(index: number) {
+    value(
+      this: readonly unknown[] | { readonly length: number; readonly [n: number]: unknown },
+      index: number,
+    ) {
       const length = this.length;
       const relativeIndex = Math.trunc(index) || 0;
       const resolvedIndex =
