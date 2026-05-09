@@ -718,12 +718,24 @@ export const registerAccountManagerIpcHandlers = (
 
   ipcMain.handle(
     AccountManagerIpcChannels.updateScriptStatus,
-    async (_event, update: unknown) => {
+    async (event, update: unknown) => {
       if (typeof update !== "object" || update === null) {
         throw new Error("Status update must be an object");
       }
 
       const input = update as Partial<AccountScriptStatusUpdate>;
+      const gameWindowId = normalizeGameWindowId(input.gameWindowId);
+      if (getEventWindowId(event) !== gameWindowId) {
+        throw new Error("Status update sender does not match game window");
+      }
+
+      const activeUsername =
+        gameLaunchPayloads.get(gameWindowId)?.account.username ??
+        sessions.get(gameWindowId)?.username;
+      if (typeof input.username !== "string" || input.username !== activeUsername) {
+        throw new Error("Status update is not active for this game window");
+      }
+
       const status = input.status;
       if (
         status !== "idle" &&
@@ -739,7 +751,7 @@ export const registerAccountManagerIpcHandlers = (
         {
           username: normalizeRequiredString(input.username, "username"),
           status,
-          gameWindowId: normalizeGameWindowId(input.gameWindowId),
+          gameWindowId,
           ...(input.scriptName === undefined
             ? {}
             : { scriptName: input.scriptName }),
