@@ -39,6 +39,7 @@ import type { GameTopNavMenu, TopNavOptionItem } from "./topNavOptions";
 
 const ACCOUNT_SCRIPT_STATUS_POLL_MS = 1000;
 const AUTO_RELOGIN_DEFAULT_DELAY_MS = 3000;
+const AUTO_RELOGIN_MAX_DELAY_MS = 300_000;
 const DEFAULT_CELL = "Enter";
 const DEFAULT_PAD = "Spawn";
 const MS_PER_SECOND = 1000;
@@ -63,7 +64,10 @@ const formatDelaySeconds = (delayMs: number): string =>
 const parseDelaySecondsToMs = (value: string): number => {
   const seconds = Number.parseFloat(value);
   return Number.isFinite(seconds)
-    ? Math.max(0, Math.round(seconds * MS_PER_SECOND))
+    ? Math.min(
+        AUTO_RELOGIN_MAX_DELAY_MS,
+        Math.max(0, Math.round(seconds * MS_PER_SECOND)),
+      )
     : Number.NaN;
 };
 

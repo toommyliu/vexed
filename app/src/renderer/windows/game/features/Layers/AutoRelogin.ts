@@ -33,6 +33,7 @@ import {
 const JOB_KEY = "features/autorelogin";
 const JOB_INTERVAL = "1 second";
 const DEFAULT_DELAY_MS = 3_000;
+const MAX_DELAY_MS = 300_000;
 const TEMP_KICK_TIMEOUT = "70 seconds";
 const SERVER_SELECT_TIMEOUT = "10 seconds";
 const SERVERS_LOAD_TIMEOUT = "5 seconds";
@@ -164,7 +165,7 @@ const flashStringEquals = (value: string, expected: string): boolean =>
 
 const normalizeDelayMs = (delayMs: number): number =>
   Number.isFinite(delayMs)
-    ? Math.max(0, Math.trunc(delayMs))
+    ? Math.min(MAX_DELAY_MS, Math.max(0, Math.trunc(delayMs)))
     : DEFAULT_DELAY_MS;
 
 const redacted = (message: string, secret: string | undefined): string =>

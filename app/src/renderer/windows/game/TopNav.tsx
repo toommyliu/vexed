@@ -212,6 +212,16 @@ export function TopNav(props: TopNavProps): JSX.Element {
     }
   };
 
+  const commitAutoReloginDelayOnEnter: JSX.EventHandler<
+    HTMLInputElement,
+    KeyboardEvent
+  > = (event) => {
+    stopMenuInputKeyPropagation(event);
+    if (event.key !== "Enter") return;
+    event.preventDefault();
+    props.handleSetAutoReloginDelay();
+  };
+
   const closeAutoReloginServerMenuToParent: JSX.EventHandler<
     HTMLDivElement,
     KeyboardEvent
@@ -562,13 +572,14 @@ export function TopNav(props: TopNavProps): JSX.Element {
                     <Input
                       class="game-menu__delay-input"
                       inputMode="decimal"
+                      max="300"
                       min="0"
                       size="sm"
                       step="0.1"
                       type="number"
                       value={props.autoReloginDelaySeconds()}
                       onBlur={props.handleSetAutoReloginDelay}
-                      onKeyDown={stopMenuInputKeyPropagation}
+                      onKeyDown={commitAutoReloginDelayOnEnter}
                       onInput={(event) =>
                         props.setAutoReloginDelaySeconds(
                           event.currentTarget.value,
