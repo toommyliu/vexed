@@ -81,7 +81,7 @@ describe("hotkey settings", () => {
     process.env["VEXED_HOME"] = "/tmp/vexed-test";
     try {
       expect(path()).toBe(
-        join("/tmp/vexed-test", "userdata", "keybindings.json"),
+        join("/tmp/vexed-test", "userdata", "keybindings.yaml"),
       );
     } finally {
       if (previous === undefined) {

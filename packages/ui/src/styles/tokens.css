@@ -66,8 +66,8 @@
   --color-scrollbar-thumb-hover: rgb(var(--scrollbar-thumb-hover));
   --color-scrollbar-thumb-active: rgb(var(--scrollbar-thumb-active));
   --color-scrollbar-corner: rgb(var(--scrollbar-corner));
-  --font-sans: Inter;
-  --font-mono: "JetBrains Mono";
+  --font-sans: Inter Variable;
+  --font-mono: "JetBrains Mono Variable";
   --font-sans-size-base: 13px;
   --font-mono-size: 12px;
   --text-2xs: 10px;

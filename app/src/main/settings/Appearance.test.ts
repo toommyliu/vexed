@@ -1,3 +1,5 @@
+import { mkdir, mkdtemp, readFile, rm, writeFile } from "node:fs/promises";
+import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { describe, expect, it } from "vitest";
 import * as Appearance from "./Appearance";
@@ -76,6 +78,25 @@ describe("appearance settings", () => {
     });
   });
 
+  it("normalizes hex color tokens", () => {
+    expect(
+      Appearance.normalize({
+        themeMode: "dark",
+        themes: {
+          light: {
+            tokens: {
+              primary: "#0d9488",
+              ring: "60a5fa",
+            },
+          },
+        },
+      }).themes.light.tokens,
+    ).toEqual({
+      primary: [13, 148, 136],
+      ring: [96, 165, 250],
+    });
+  });
+
   it("falls back to defaults for invalid values", () => {
     expect(Appearance.normalize(null)).toEqual(Appearance.DEFAULT);
 
@@ -129,12 +150,86 @@ describe("appearance settings", () => {
     });
   });
 
+  it("does not rewrite partial hex color config on ensure", async () => {
+    const previous = process.env["VEXED_HOME"];
+    const testDir = await mkdtemp(join(tmpdir(), "vexed-appearance-"));
+    process.env["VEXED_HOME"] = testDir;
+
+    try {
+      const source = [
+        "themeMode: dark",
+        "themes:",
+        "  dark:",
+        "    tokens:",
+        '      primary: "#0d9488"',
+        "",
+      ].join("\n");
+      await mkdir(join(testDir, "userdata"), { recursive: true });
+      await writeFile(Appearance.path(), source, "utf8");
+
+      expect(Appearance.ensure().themes.dark.tokens.primary).toEqual([
+        13, 148, 136,
+      ]);
+      expect(await readFile(Appearance.path(), "utf8")).toBe(source);
+    } finally {
+      if (previous === undefined) {
+        delete process.env["VEXED_HOME"];
+      } else {
+        process.env["VEXED_HOME"] = previous;
+      }
+      await rm(testDir, { recursive: true, force: true });
+    }
+  });
+
+  it("writes color tokens as hex strings", async () => {
+    const previous = process.env["VEXED_HOME"];
+    const testDir = await mkdtemp(join(tmpdir(), "vexed-appearance-"));
+    process.env["VEXED_HOME"] = testDir;
+
+    try {
+      Appearance.write({
+        ...Appearance.DEFAULT,
+        themes: {
+          light: {
+            ...Appearance.DEFAULT.themes.light,
+            tokens: {
+              primary: [13, 148, 136],
+            },
+          },
+          dark: {
+            ...Appearance.DEFAULT.themes.dark,
+            tokens: {
+              ring: [96, 165, 250],
+            },
+          },
+        },
+      });
+
+      expect(await readFile(Appearance.path(), "utf8")).toContain(
+        'primary: "#0d9488"',
+      );
+      expect(await readFile(Appearance.path(), "utf8")).toContain(
+        'ring: "#60a5fa"',
+      );
+      expect(Appearance.read().themes.light.tokens.primary).toEqual([
+        13, 148, 136,
+      ]);
+    } finally {
+      if (previous === undefined) {
+        delete process.env["VEXED_HOME"];
+      } else {
+        process.env["VEXED_HOME"] = previous;
+      }
+      await rm(testDir, { recursive: true, force: true });
+    }
+  });
+
   it("resolves appearance under VEXED_HOME userdata", () => {
     const previous = process.env["VEXED_HOME"];
     process.env["VEXED_HOME"] = "/tmp/vexed-test";
     try {
       expect(Appearance.path()).toBe(
-        join("/tmp/vexed-test", "userdata", "appearance.json"),
+        join("/tmp/vexed-test", "userdata", "appearance.yaml"),
       );
     } finally {
       if (previous === undefined) {

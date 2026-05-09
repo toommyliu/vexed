@@ -1,4 +1,5 @@
 import * as Files from "./Files";
+import { rgbToHex } from "../../shared/appearance-snapshot";
 import {
   DEFAULT_APPEARANCE,
   DEFAULT_THEME_PROFILE,
@@ -8,6 +9,7 @@ import {
   type ThemeProfile,
   type ThemeRgb,
   type ThemeTokenName,
+  type ThemeVariant,
 } from "../../shared/settings";
 
 export {
@@ -27,7 +29,29 @@ const themeTokenNames = new Set<string>(THEME_TOKEN_NAMES);
 const isThemeMode = (value: unknown): value is ThemeMode =>
   value === "light" || value === "dark" || value === "system";
 
+const parseHexRgb = (value: string): ThemeRgb | undefined => {
+  const match = /^#?([0-9a-f]{6})$/i.exec(value.trim());
+  if (match === null) {
+    return undefined;
+  }
+
+  const hex = match[1];
+  if (hex === undefined) {
+    return undefined;
+  }
+
+  return [
+    Number.parseInt(hex.slice(0, 2), 16),
+    Number.parseInt(hex.slice(2, 4), 16),
+    Number.parseInt(hex.slice(4, 6), 16),
+  ];
+};
+
 export const normalizeRgb = (value: unknown): ThemeRgb | undefined => {
+  if (typeof value === "string") {
+    return parseHexRgb(value);
+  }
+
   if (!Array.isArray(value) || value.length !== 3) {
     return undefined;
   }
@@ -143,13 +167,87 @@ export const normalize = (value: unknown): Appearance => {
   };
 };
 
-export const path = (): string => Files.join("appearance.json");
+type PersistedThemeProfile = Omit<ThemeProfile, "tokens"> & {
+  readonly tokens: Partial<Record<ThemeTokenName, string>>;
+};
 
-export const read = (): Appearance => normalize(Files.readJson(path()));
+type PersistedAppearance = Omit<Appearance, "themes"> & {
+  readonly themes: Record<ThemeVariant, PersistedThemeProfile>;
+};
+
+const serializeTokens = (
+  tokens: Partial<Record<ThemeTokenName, ThemeRgb>>,
+): Partial<Record<ThemeTokenName, string>> => {
+  const serialized: Partial<Record<ThemeTokenName, string>> = {};
+  for (const [name, rgb] of Object.entries(tokens)) {
+    const tokenName = name as ThemeTokenName;
+    const token = normalizeRgb(rgb);
+    if (token !== undefined) {
+      serialized[tokenName] = rgbToHex(token);
+    }
+  }
+
+  return serialized;
+};
+
+const serializeThemeProfile = (
+  profile: ThemeProfile,
+): PersistedThemeProfile => ({
+  tokens: serializeTokens(profile.tokens),
+  sansFont: profile.sansFont,
+  monoFont: profile.monoFont,
+  sansFontSize: profile.sansFontSize,
+  monoFontSize: profile.monoFontSize,
+  rounding: profile.rounding,
+});
+
+const serialize = (appearance: Appearance): PersistedAppearance => {
+  const normalized = normalize(appearance);
+  return {
+    themeMode: normalized.themeMode,
+    themes: {
+      light: serializeThemeProfile(normalized.themes.light),
+      dark: serializeThemeProfile(normalized.themes.dark),
+    },
+  };
+};
+
+const hasArrayColorTokens = (value: unknown): boolean => {
+  if (typeof value !== "object" || value === null) {
+    return false;
+  }
+
+  const record = value as Record<string, unknown>;
+  const themes = record["themes"];
+  if (typeof themes !== "object" || themes === null) {
+    return false;
+  }
+
+  for (const profile of Object.values(themes)) {
+    if (typeof profile !== "object" || profile === null) {
+      continue;
+    }
+
+    const tokens = (profile as Record<string, unknown>)["tokens"];
+    if (typeof tokens !== "object" || tokens === null) {
+      continue;
+    }
+
+    if (Object.values(tokens).some((token) => Array.isArray(token))) {
+      return true;
+    }
+  }
+
+  return false;
+};
+
+export const path = (): string => Files.join("appearance.yaml");
+
+export const read = (): Appearance => normalize(Files.readYaml(path()));
 
 export const write = (appearance: Appearance): void => {
-  Files.writeJson(path(), normalize(appearance));
+  Files.writeYaml(path(), serialize(appearance));
 };
 
 export const ensure = (): Appearance =>
-  Files.ensureJson(path(), DEFAULT, normalize);
+  Files.ensureYaml(path(), DEFAULT, normalize, serialize, hasArrayColorTokens);

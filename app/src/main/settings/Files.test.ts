@@ -42,97 +42,97 @@ describe("Files", () => {
   });
 
   it("returns defaults when the file is missing", () => {
-    const path = join(testDir, "missing", "settings.json");
+    const path = join(testDir, "missing", "settings.yaml");
 
-    expect(normalize(Files.readJson(path))).toEqual(defaults);
+    expect(normalize(Files.readYaml(path))).toEqual(defaults);
   });
 
   it("creates a missing file with defaults when ensured", async () => {
-    const path = join(testDir, "missing", "settings.json");
+    const path = join(testDir, "missing", "settings.yaml");
 
-    expect(Files.ensureJson(path, defaults, normalize)).toEqual(defaults);
-    expect(JSON.parse(await readFile(path, "utf8"))).toEqual(defaults);
+    expect(Files.ensureYaml(path, defaults, normalize)).toEqual(defaults);
+    expect(normalize(Files.readYaml(path))).toEqual(defaults);
   });
 
-  it("preserves existing valid JSON when ensured", async () => {
-    const path = join(testDir, "settings.json");
+  it("preserves existing valid YAML when ensured", async () => {
+    const path = join(testDir, "settings.yaml");
     const existing = { enabled: false, count: 7 };
-    await writeFile(path, JSON.stringify(existing), "utf8");
+    await writeFile(path, "enabled: false\ncount: 7\n", "utf8");
 
-    expect(Files.ensureJson(path, defaults, normalize)).toEqual(
+    expect(Files.ensureYaml(path, defaults, normalize)).toEqual(
       normalize(existing),
     );
-    expect(normalize(Files.readJson(path))).toEqual(normalize(existing));
-    expect(JSON.parse(await readFile(path, "utf8"))).toEqual(existing);
+    expect(normalize(Files.readYaml(path))).toEqual(normalize(existing));
+    expect(await readFile(path, "utf8")).toBe("enabled: false\ncount: 7\n");
   });
 
-  it("rewrites existing JSON after normalization", async () => {
-    const path = join(testDir, "settings.json");
-    await writeFile(
-      path,
-      JSON.stringify({ enabled: false, count: "bad", extra: true }),
-      "utf8",
-    );
+  it("rewrites existing YAML after normalization", async () => {
+    const path = join(testDir, "settings.yaml");
+    await writeFile(path, "enabled: false\ncount: bad\nextra: true\n", "utf8");
 
-    expect(Files.ensureJson(path, defaults, normalize)).toEqual({
+    expect(Files.ensureYaml(path, defaults, normalize)).toEqual({
       enabled: false,
       count: 1,
     });
-    expect(JSON.parse(await readFile(path, "utf8"))).toEqual({
+    expect(normalize(Files.readYaml(path))).toEqual({
       enabled: false,
       count: 1,
     });
   });
 
-  it("reads and normalizes existing JSON", async () => {
-    const path = join(testDir, "settings.json");
-    await writeFile(
-      path,
-      JSON.stringify({ enabled: false, count: "bad", extra: true }),
-      "utf8",
-    );
+  it("reads and normalizes existing YAML", async () => {
+    const path = join(testDir, "settings.yaml");
+    await writeFile(path, "enabled: false\ncount: bad\nextra: true\n", "utf8");
 
-    expect(normalize(Files.readJson(path))).toEqual({
+    expect(normalize(Files.readYaml(path))).toEqual({
       enabled: false,
       count: 1,
     });
   });
 
-  it("returns defaults for corrupt JSON", async () => {
-    const path = join(testDir, "settings.json");
-    await writeFile(path, "{ nope", "utf8");
+  it("returns defaults for corrupt YAML", async () => {
+    const path = join(testDir, "settings.yaml");
+    await writeFile(path, "enabled: [nope\n", "utf8");
 
-    expect(normalize(Files.readJson(path))).toEqual(defaults);
+    expect(normalize(Files.readYaml(path))).toEqual(defaults);
   });
 
-  it("replaces corrupt JSON with normalized defaults when ensured", async () => {
-    const path = join(testDir, "settings.json");
-    await writeFile(path, "{ nope", "utf8");
+  it("replaces corrupt YAML with normalized defaults when ensured", async () => {
+    const path = join(testDir, "settings.yaml");
+    await writeFile(path, "enabled: [nope\n", "utf8");
 
-    expect(Files.ensureJson(path, defaults, normalize)).toEqual(defaults);
-    expect(JSON.parse(await readFile(path, "utf8"))).toEqual(defaults);
+    expect(Files.ensureYaml(path, defaults, normalize)).toEqual(defaults);
+    expect(normalize(Files.readYaml(path))).toEqual(defaults);
   });
 
-  it("writes pretty JSON with a trailing newline", async () => {
-    const path = join(testDir, "nested", "settings.json");
+  it("rejects YAML aliases", async () => {
+    const path = join(testDir, "settings.yaml");
+    await writeFile(path, "enabled: &enabled false\ncount: *enabled\n", "utf8");
 
-    Files.writeJson(path, { enabled: false, count: 3 });
+    expect(normalize(Files.readYaml(path))).toEqual(defaults);
+  });
 
-    expect(await readFile(path, "utf8")).toBe(
-      `{
-  "enabled": false,
-  "count": 3
-}
-`,
-    );
+  it("rejects YAML tags", async () => {
+    const path = join(testDir, "settings.yaml");
+    await writeFile(path, "enabled: false\ncount: !custom 1\n", "utf8");
+
+    expect(normalize(Files.readYaml(path))).toEqual(defaults);
+  });
+
+  it("writes pretty YAML with a trailing newline", async () => {
+    const path = join(testDir, "nested", "settings.yaml");
+
+    Files.writeYaml(path, { enabled: false, count: 3 });
+
+    expect(await readFile(path, "utf8")).toBe("enabled: false\ncount: 3\n");
   });
 
   it("wraps write failures and cleans the current temp file when possible", async () => {
-    const path = join(testDir, "settings.json");
+    const path = join(testDir, "settings.yaml");
     const circular: Record<string, unknown> = {};
     circular["self"] = circular;
 
-    expect(() => Files.writeJson(path, circular)).toThrow(Files.WriteError);
+    expect(() => Files.writeYaml(path, circular)).toThrow(Files.WriteError);
 
     expect(await readdir(testDir)).toEqual([]);
   });

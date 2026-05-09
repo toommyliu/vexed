@@ -1,8 +1,5 @@
 import { BrowserWindow, ipcMain, type IpcMainInvokeEvent } from "electron";
-import { promises } from "fs";
 import { get } from "https";
-import { homedir } from "os";
-import { dirname, join } from "path";
 import type { ServerData } from "@vexed/game";
 import { Data, Effect } from "effect";
 import {
@@ -22,12 +19,12 @@ import {
 } from "../shared/ipc";
 import { WindowIds } from "../shared/windows";
 import { getArtixLauncherRequestHeaders } from "./artix-launcher-headers";
+import * as Files from "./settings/Files";
 import { WindowService, type WindowEffectRunner } from "./windows";
 
 const SERVERS_API_URL = "https://game.aq.com/game/api/data/servers";
 const SERVERS_CACHE_TTL_MS = 5 * 60 * 1_000;
 const SERVER_REQUEST_TIMEOUT_MS = 10_000;
-const { mkdir, readFile, rename, writeFile } = promises;
 
 let accountManagerIpcRegistered = false;
 let lastServerRefreshRequestTime = 0;
@@ -39,8 +36,7 @@ const gameLaunchPayloads = new Map<number, AccountGameLaunchPayload>();
 
 const now = (): number => Date.now();
 
-const getAccountsPath = (): string =>
-  join(homedir(), ".vexed", "userdata", "accounts.json");
+const getAccountsPath = (): string => Files.join("accounts.yaml");
 
 class AccountServersFetchError extends Data.TaggedError(
   "AccountServersFetchError",
@@ -131,47 +127,26 @@ const hasAccountUsername = (
   );
 };
 
-const readAccounts = async (): Promise<readonly ManagedAccount[]> => {
-  try {
-    const source = await readFile(getAccountsPath(), "utf8");
-    const parsed = JSON.parse(source) as unknown;
-
-    if (!Array.isArray(parsed)) {
-      return [];
-    }
-
-    return dedupeAccountsByUsername(
-      parsed.filter(isManagedAccount).map(normalizeStoredAccount),
-    );
-  } catch (error) {
-    if (
-      typeof error === "object" &&
-      error !== null &&
-      "code" in error &&
-      error.code === "ENOENT"
-    ) {
-      return [];
-    }
-
-    throw error;
+const normalizeAccounts = (value: unknown): readonly ManagedAccount[] => {
+  if (!Array.isArray(value)) {
+    return [];
   }
+
+  return dedupeAccountsByUsername(
+    value.filter(isManagedAccount).map(normalizeStoredAccount),
+  );
 };
+
+const readAccounts = async (): Promise<readonly ManagedAccount[]> =>
+  Files.ensureYaml(getAccountsPath(), [], normalizeAccounts);
 
 const writeAccounts = async (
   accounts: readonly ManagedAccount[],
 ): Promise<void> => {
-  const targetPath = getAccountsPath();
-  await mkdir(dirname(targetPath), { recursive: true });
-
-  const source = JSON.stringify(
+  Files.writeYaml(
+    getAccountsPath(),
     dedupeAccountsByUsername(accounts).map(normalizeStoredAccount),
-    null,
-    2,
   );
-  const tempPath = `${targetPath}.${process.pid}.${Date.now()}.tmp`;
-
-  await writeFile(tempPath, `${source}\n`, "utf8");
-  await rename(tempPath, targetPath);
 };
 
 const visibleSessions = (): readonly AccountScriptSession[] => {
@@ -354,7 +329,9 @@ const requireAccountManagerSender = async (
 ): Promise<void> => {
   const window = await getOpenAccountManagerWindow(runWindowEffect);
   if (window?.webContents.id !== event.sender.id) {
-    throw new Error("Account credentials are only available to Account Manager");
+    throw new Error(
+      "Account credentials are only available to Account Manager",
+    );
   }
 };
 
@@ -739,7 +716,10 @@ export const registerAccountManagerIpcHandlers = (
       const activeUsername =
         gameLaunchPayloads.get(gameWindowId)?.account.username ??
         sessions.get(gameWindowId)?.username;
-      if (typeof input.username !== "string" || input.username !== activeUsername) {
+      if (
+        typeof input.username !== "string" ||
+        input.username !== activeUsername
+      ) {
         throw new Error("Status update is not active for this game window");
       }
 
