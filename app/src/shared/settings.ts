@@ -64,11 +64,9 @@ export interface Appearance {
   };
 }
 
-export const DEFAULT_SANS_FONT =
-  '"Inter Variable", Inter, -apple-system, BlinkMacSystemFont, "Segoe UI", system-ui, sans-serif';
+export const DEFAULT_SANS_FONT = 'Inter';
 
-export const DEFAULT_MONO_FONT =
-  '"JetBrains Mono Variable", "JetBrains Mono", ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace';
+export const DEFAULT_MONO_FONT = '"JetBrains Mono"';
 
 export const DEFAULT_SANS_FONT_SIZE = 13;
 export const DEFAULT_MONO_FONT_SIZE = 12;
