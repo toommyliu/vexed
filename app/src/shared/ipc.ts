@@ -141,7 +141,7 @@ export interface AccountGameLaunchPayload {
 
 export interface AccountScriptStatusUpdate {
   readonly username: string;
-  readonly gameWindowId?: number;
+  readonly gameWindowId: number;
   readonly scriptName?: string;
   readonly status: AccountScriptStatus;
   readonly message?: string;

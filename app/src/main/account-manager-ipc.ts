@@ -34,7 +34,7 @@ let lastServerRefreshRequestTime = 0;
 let cachedServers: ServerData[] = [];
 let lastServerFetchTime = 0;
 
-const sessions = new Map<string, AccountScriptSession>();
+const sessions = new Map<number, AccountScriptSession>();
 const gameLaunchPayloads = new Map<number, AccountGameLaunchPayload>();
 
 const now = (): number => Date.now();
@@ -174,9 +174,22 @@ const writeAccounts = async (
   await rename(tempPath, targetPath);
 };
 
+const visibleSessions = (): readonly AccountScriptSession[] => {
+  const latestByUsername = new Map<string, AccountScriptSession>();
+
+  for (const session of sessions.values()) {
+    const current = latestByUsername.get(session.username);
+    if (current === undefined || session.updatedAt >= current.updatedAt) {
+      latestByUsername.set(session.username, session);
+    }
+  }
+
+  return [...latestByUsername.values()];
+};
+
 const toState = async (): Promise<AccountManagerState> => ({
   accounts: await readAccounts(),
-  sessions: [...sessions.values()],
+  sessions: visibleSessions(),
   storagePath: getAccountsPath(),
 });
 
@@ -436,17 +449,25 @@ const normalizeLaunchRequest = (request: unknown): AccountLaunchRequest => {
   };
 };
 
+const normalizeGameWindowId = (value: unknown): number => {
+  if (!Number.isInteger(value) || (value as number) <= 0) {
+    throw new Error("gameWindowId is required");
+  }
+
+  return value as number;
+};
+
 const setSession = async (
   update: AccountScriptStatusUpdate,
   runWindowEffect: WindowEffectRunner,
 ): Promise<void> => {
-  sessions.set(update.username, {
+  const gameWindowId = normalizeGameWindowId(update.gameWindowId);
+
+  sessions.set(gameWindowId, {
     username: update.username,
+    gameWindowId,
     status: update.status,
     updatedAt: now(),
-    ...(update.gameWindowId === undefined
-      ? {}
-      : { gameWindowId: update.gameWindowId }),
     ...(update.scriptName === undefined
       ? {}
       : { scriptName: update.scriptName }),
@@ -580,14 +601,14 @@ export const registerAccountManagerIpcHandlers = (
       }
 
       if (currentUsername !== nextUsername) {
-        const session = sessions.get(currentUsername);
-        if (session) {
-          sessions.delete(currentUsername);
-          sessions.set(nextUsername, {
-            ...session,
-            username: nextUsername,
-            updatedAt: now(),
-          });
+        for (const [gameWindowId, session] of sessions) {
+          if (session.username === currentUsername) {
+            sessions.set(gameWindowId, {
+              ...session,
+              username: nextUsername,
+              updatedAt: now(),
+            });
+          }
         }
       }
 
@@ -610,7 +631,11 @@ export const registerAccountManagerIpcHandlers = (
         throw new Error("Account not found");
       }
 
-      sessions.delete(accountUsername);
+      for (const [gameWindowId, session] of sessions) {
+        if (session.username === accountUsername) {
+          sessions.delete(gameWindowId);
+        }
+      }
       await writeAccounts(nextAccounts);
       return await publishStateToAccountManager(runWindowEffect);
     },
@@ -714,9 +739,7 @@ export const registerAccountManagerIpcHandlers = (
         {
           username: normalizeRequiredString(input.username, "username"),
           status,
-          ...(input.gameWindowId === undefined
-            ? {}
-            : { gameWindowId: input.gameWindowId }),
+          gameWindowId: normalizeGameWindowId(input.gameWindowId),
           ...(input.scriptName === undefined
             ? {}
             : { scriptName: input.scriptName }),
