@@ -252,6 +252,8 @@ function App(): JSX.Element {
   const [launchServer, setLaunchServer] = createSignal("");
   const [serverInputValue, setServerInputValue] = createSignal("");
   const [serverSearchQuery, setServerSearchQuery] = createSignal("");
+  const [serverSelectionInitialized, setServerSelectionInitialized] =
+    createSignal(false);
   const [servers, setServers] = createSignal<readonly AccountGameServer[]>([]);
   const [serversLoading, setServersLoading] = createSignal(false);
   const [serverSelectionSettling, setServerSelectionSettling] =
@@ -378,13 +380,14 @@ function App(): JSX.Element {
         : await window.ipc.accounts.getServers();
       setServerRefreshCooldownUntil(nextServers.refreshAvailableAt);
       setServers(nextServers.servers);
-      if (launchServer() === "") {
+      if (!serverSelectionInitialized()) {
         const nextLaunchServer =
           nextServers.servers.find(
             (server) => server.online && server.playerCount < server.maxPlayers,
           )?.name ?? "";
         setLaunchServer(nextLaunchServer);
         setServerInputValue(nextLaunchServer);
+        setServerSelectionInitialized(true);
       }
     } catch (error) {
       console.error("Failed to load servers:", error);
@@ -800,6 +803,7 @@ function App(): JSX.Element {
                       setServerInputValue(nextLaunchServer);
                       setServerSearchQuery("");
                       setLaunchServer(nextLaunchServer);
+                      setServerSelectionInitialized(true);
                     }}
                   >
                     <ComboboxInput
