@@ -41,8 +41,8 @@ describe("app window wiring", () => {
   });
 
   it("uses the game catalog for the game topnav window menu", () => {
-    const source = readSource("../renderer/windows/game/GameTopNav.tsx");
-    const gameAppSource = readSource("../renderer/windows/game/GameApp.tsx");
+    const source = readSource("../renderer/windows/game/TopNav.tsx");
+    const appSource = readSource("../renderer/windows/game/App.tsx");
 
     expect(source).toContain("gameWindowGroups");
     expect(source).toContain("window.ipc.windows.open(id)");
@@ -50,10 +50,10 @@ describe("app window wiring", () => {
     expect(source).toContain("formatOptionalHotkeyDisplay");
     expect(source).toContain("optionHotkey");
     expect(source).not.toContain("Cmd/Ctrl");
-    expect(gameAppSource).toContain(
+    expect(appSource).toContain(
       "hotkeyBindings={() => settings().hotkeys.bindings}",
     );
-    expect(gameAppSource).toContain("hotkeyPlatform={window.ipc.platform.os}");
+    expect(appSource).toContain("hotkeyPlatform={window.ipc.platform.os}");
   });
 
   it("mounts the game renderer through the shared window mount", () => {
@@ -61,7 +61,7 @@ describe("app window wiring", () => {
 
     expect(source).toContain('import { mountWindow } from "../mount"');
     expect(source).toContain("mountWindow(({ initialSettings }) =>");
-    expect(source).toContain("<GameApp initialSettings={initialSettings} />");
+    expect(source).toContain("<App initialSettings={initialSettings} />");
     expect(source).not.toContain("installSettingsSync");
   });
 

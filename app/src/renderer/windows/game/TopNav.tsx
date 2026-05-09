@@ -21,33 +21,22 @@ import {
 } from "../../../shared/commands";
 import type { HotkeyBindings } from "../../../shared/hotkeys";
 import type { AppPlatform } from "../../../shared/ipc";
-import { gameWindowGroups, type WindowId } from "../../../shared/windows";
+import { WindowIds, gameWindowGroups, type WindowId } from "../../../shared/windows";
 import {
   getTopNavOptionCommandId,
   type GameTopNavMenu,
   type TopNavOptionItem,
 } from "./topNavOptions";
 
-const defaultPads = [
-  "Center",
-  "Spawn",
-  "Left",
-  "Right",
-  "Top",
-  "Bottom",
-  "Up",
-  "Down",
-] as const;
-
-const placeholderCells = ["Enter"] as const;
-
-export interface GameTopNavProps {
+export interface TopNavProps {
   readonly openMenu: Accessor<GameTopNavMenu | null>;
   readonly setOpenMenu: Setter<GameTopNavMenu | null>;
   readonly hotkeyBindings: Accessor<HotkeyBindings>;
   readonly hotkeyPlatform: AppPlatform;
   readonly autoAttackEnabled: Accessor<boolean>;
   readonly setAutoAttackEnabled: Setter<boolean>;
+  readonly gameLoaded: Accessor<boolean>;
+  readonly playerLoggedIn: Accessor<boolean>;
   readonly scriptLoaded: Accessor<boolean>;
   readonly scriptRunning: Accessor<boolean>;
   readonly scriptStatus: Accessor<string>;
@@ -80,6 +69,16 @@ export interface GameTopNavProps {
   readonly handleCaptureAutoReloginSession: () => void;
   readonly handleToggleAutoRelogin: () => void;
   readonly handleSetAutoReloginDelay: () => void;
+  readonly cells: Accessor<readonly string[]>;
+  readonly pads: Accessor<readonly string[]>;
+  readonly validPads: Accessor<readonly string[]>;
+  readonly selectedCell: Accessor<string>;
+  readonly selectedPad: Accessor<string>;
+  readonly travelBusy: Accessor<boolean>;
+  readonly handleRefreshTravelOptions: () => void;
+  readonly handleSelectCell: (cell: string) => void;
+  readonly handleSelectPad: (pad: string) => void;
+  readonly handleOpenBank: () => void;
 }
 
 const commandHotkey = (bindings: HotkeyBindings, id: GameCommandId): string =>
@@ -90,7 +89,21 @@ const optionHotkey = (bindings: HotkeyBindings, optionId: string): string => {
   return commandId ? commandHotkey(bindings, commandId) : "";
 };
 
-export function GameTopNav(props: GameTopNavProps): JSX.Element {
+const windowCommandIds: Partial<Record<WindowId, GameCommandId>> = {
+  [WindowIds.Environment]: "open-environment",
+  [WindowIds.FastTravels]: "open-fast-travels",
+  [WindowIds.LoaderGrabber]: "open-loader-grabber",
+  [WindowIds.Follower]: "open-follower",
+  [WindowIds.PacketLogger]: "open-packet-logger",
+  [WindowIds.PacketSpammer]: "open-packet-spammer",
+};
+
+const windowHotkey = (bindings: HotkeyBindings, id: WindowId): string => {
+  const commandId = windowCommandIds[id];
+  return commandId ? commandHotkey(bindings, commandId) : "";
+};
+
+export function TopNav(props: TopNavProps): JSX.Element {
   const setMenuOpen =
     (menu: GameTopNavMenu) =>
     (details: { readonly open: boolean }): void => {
@@ -110,6 +123,21 @@ export function GameTopNav(props: GameTopNavProps): JSX.Element {
     });
     props.setOpenMenu(null);
   };
+
+  const toggleTravelMenu =
+    (menu: "pads" | "cells"): JSX.EventHandler<HTMLButtonElement, MouseEvent> =>
+    (event) => {
+      props.handleRefreshTravelOptions();
+      toggleMenu(menu)(event);
+    };
+
+  const travelDisabled = () =>
+    !props.gameLoaded() || !props.playerLoggedIn() || props.travelBusy();
+
+  const isValidPad = (pad: string) =>
+    props
+      .validPads()
+      .some((validPad) => validPad.toLowerCase() === pad.toLowerCase());
 
   return (
     <div id="topnav-container" class="game-topnav-container">
@@ -142,6 +170,14 @@ export function GameTopNav(props: GameTopNavProps): JSX.Element {
                             <span class="game-menu__item-label">
                               {item.label}
                             </span>
+                            <Show
+                              when={formatOptionalHotkeyDisplay(
+                                windowHotkey(props.hotkeyBindings(), item.id),
+                                props.hotkeyPlatform,
+                              )}
+                            >
+                              {(shortcut) => <Kbd>{shortcut()}</Kbd>}
+                            </Show>
                           </MenuItem>
                         )}
                       </For>
@@ -408,17 +444,42 @@ export function GameTopNav(props: GameTopNavProps): JSX.Element {
             open={props.openMenu() === "pads"}
             onOpenChange={setMenuOpen("pads")}
           >
-            <MenuTrigger class="game-topnav__select-trigger" disabled>
-              Spawn
+            <MenuTrigger
+              class="game-topnav__select-trigger"
+              data-expanded={props.openMenu() === "pads" ? "" : undefined}
+              disabled={travelDisabled()}
+              onClick={toggleTravelMenu("pads")}
+              title="Jump to the selected pad"
+            >
+              {props.selectedPad() || "Pad"}
             </MenuTrigger>
-            <MenuContent class="game-menu game-menu--compact" portal={false}>
-              <For each={defaultPads}>
-                {(pad) => (
-                  <MenuItem class="game-menu__item" disabled value={pad}>
-                    {pad}
+            <MenuContent
+              class="game-menu game-menu--compact game-menu--pads"
+              portal={false}
+            >
+              <Show
+                when={props.pads().length > 0}
+                fallback={
+                  <MenuItem class="game-menu__item" disabled value="no-pads">
+                    No pads found
                   </MenuItem>
-                )}
-              </For>
+                }
+              >
+                <For each={props.pads()}>
+                  {(pad) => (
+                    <MenuItem
+                      class={cn(
+                        "game-menu__item game-menu__pad-option",
+                        isValidPad(pad) && "game-menu__pad-option--valid",
+                      )}
+                      onSelect={() => props.handleSelectPad(pad)}
+                      value={pad}
+                    >
+                      <span class="game-menu__pad-name">{pad}</span>
+                    </MenuItem>
+                  )}
+                </For>
+              </Show>
             </MenuContent>
           </Menu>
 
@@ -428,18 +489,37 @@ export function GameTopNav(props: GameTopNavProps): JSX.Element {
           >
             <MenuTrigger
               class="game-topnav__select-trigger game-topnav__select-trigger--cell"
-              disabled
+              data-expanded={props.openMenu() === "cells" ? "" : undefined}
+              disabled={travelDisabled()}
+              onClick={toggleTravelMenu("cells")}
+              title="Jump to the selected cell"
             >
-              Enter
+              {props.selectedCell() || "Cell"}
             </MenuTrigger>
-            <MenuContent class="game-menu game-menu--compact" portal={false}>
-              <For each={placeholderCells}>
-                {(cell) => (
-                  <MenuItem class="game-menu__item" disabled value={cell}>
-                    {cell}
+            <MenuContent
+              class="game-menu game-menu--compact game-menu--cells"
+              portal={false}
+            >
+              <Show
+                when={props.cells().length > 0}
+                fallback={
+                  <MenuItem class="game-menu__item" disabled value="no-cells">
+                    No cells found
                   </MenuItem>
-                )}
-              </For>
+                }
+              >
+                <For each={props.cells()}>
+                  {(cell) => (
+                    <MenuItem
+                      class="game-menu__item"
+                      onSelect={() => props.handleSelectCell(cell)}
+                      value={cell}
+                    >
+                      {cell}
+                    </MenuItem>
+                  )}
+                </For>
+              </Show>
             </MenuContent>
           </Menu>
 
@@ -447,8 +527,10 @@ export function GameTopNav(props: GameTopNavProps): JSX.Element {
 
           <Button
             class="game-topnav__button"
-            disabled
+            disabled={!props.gameLoaded() || !props.playerLoggedIn()}
+            onClick={props.handleOpenBank}
             size="xs"
+            title="Open bank"
             variant="ghost"
           >
             Bank
