@@ -64,9 +64,9 @@ export interface Appearance {
   };
 }
 
-export const DEFAULT_SANS_FONT = 'Inter Variable';
+export const DEFAULT_SANS_FONT = '"Inter Variable", sans-serif';
 
-export const DEFAULT_MONO_FONT = '"JetBrains Mono Variable"';
+export const DEFAULT_MONO_FONT = '"JetBrains Mono Variable", monospace';
 
 export const DEFAULT_SANS_FONT_SIZE = 13;
 export const DEFAULT_MONO_FONT_SIZE = 12;
