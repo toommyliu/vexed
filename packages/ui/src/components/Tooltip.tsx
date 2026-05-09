@@ -9,7 +9,7 @@ export function Tooltip(props: TooltipProps): JSX.Element {
   const [local, rest] = splitProps(props, ["positioning"]);
   return (
     <TooltipPrimitive.Root
-      positioning={local.positioning ?? { gutter: 4 }}
+      positioning={{ gutter: 4, ...local.positioning }}
       {...rest}
     />
   );
@@ -54,21 +54,6 @@ export function TooltipContent(props: TooltipContentProps): JSX.Element {
   );
 
   return local.portal === false ? content() : <Portal>{content()}</Portal>;
-}
-
-export type TooltipArrowProps = Parameters<typeof TooltipPrimitive.Arrow>[0];
-
-export function TooltipArrow(props: TooltipArrowProps): JSX.Element {
-  const [local, rest] = splitProps(props, ["class"]);
-  return (
-    <TooltipPrimitive.Arrow
-      {...rest}
-      class={cn("tooltip__arrow", local.class)}
-      data-slot="tooltip-arrow"
-    >
-      <TooltipPrimitive.ArrowTip class="tooltip__arrow-tip" />
-    </TooltipPrimitive.Arrow>
-  );
 }
 
 export { TooltipPrimitive };

@@ -1,4 +1,5 @@
 /* @refresh reload */
+import "../../polyfills";
 import "./style.css";
 import {
   formatHotkeyDisplay as displayHotkey,
@@ -33,7 +34,6 @@ import {
   TabsList,
   TabsTrigger,
   Tooltip,
-  TooltipArrow,
   TooltipContent,
   TooltipTrigger,
   type ButtonProps,
@@ -247,10 +247,7 @@ function ResetButton(props: {
               />
             )}
           />
-          <TooltipContent>
-            {props.label}
-            <TooltipArrow />
-          </TooltipContent>
+          <TooltipContent>{props.label}</TooltipContent>
         </Tooltip>
       ) : (
         <AlertDialogTrigger class="button button--destructive-outline button--sm reset-settings-button">
@@ -308,10 +305,7 @@ function HotkeyIconButton(props: {
           />
         )}
       />
-      <TooltipContent>
-        {props.tooltip}
-        <TooltipArrow />
-      </TooltipContent>
+      <TooltipContent>{props.tooltip}</TooltipContent>
     </Tooltip>
   );
 }

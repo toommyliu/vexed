@@ -1,17 +1,9 @@
-import "../styles.css";
 import { render } from "solid-js/web";
 import type { JSX } from "solid-js";
 import { installSettingsSync } from "../theme";
 import type { AppPlatform } from "../../shared/ipc";
 import type { AppSettings } from "../../shared/settings";
-
-declare global {
-  interface ImportMeta {
-    readonly hot?: {
-      dispose(callback: () => void): void;
-    };
-  }
-}
+import "../styles.css";
 
 export interface WindowMountContext {
   readonly initialSettings: AppSettings | null;
@@ -42,10 +34,6 @@ export function mountWindow(
   };
 
   window.addEventListener("beforeunload", cleanup, { once: true });
-
-  if (import.meta.hot) {
-    import.meta.hot.dispose(cleanup);
-  }
 
   if (!root) {
     cleanup();

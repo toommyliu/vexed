@@ -17,6 +17,11 @@ import appBranding from "../../appBranding.json";
 import { createAppearanceSnapshot } from "../shared/appearance-snapshot";
 import { ScriptingIpcChannels, type ScriptExecutePayload } from "../shared/ipc";
 import { WindowIds } from "../shared/windows";
+import { registerAccountManagerIpcHandlers } from "./account-manager-ipc";
+import {
+  getArtixLauncherRequestHeaders,
+  getArtixLauncherUserAgent,
+} from "./artix-launcher-headers";
 import { createApplicationMenu } from "./menu";
 import * as Appearance from "./settings/Appearance";
 import * as Preferences from "./settings/Preferences";
@@ -208,14 +213,7 @@ const registerScriptingIpcHandlers = () => {
   scriptingIpcRegistered = true;
 };
 
-const getGameUserAgent = (): string =>
-  isDarwin
-    ? "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_16_0) AppleWebKit/537.36 (KHTML, like Gecko) ArtixGameLauncher/2.2.0 Chrome/80.0.3987.163 Electron/8.5.5 Safari/537.36"
-    : isLinux
-      ? "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) ArtixGameLauncher/2.2.0 Chrome/80.0.3987.163 Electron/8.5.5 Safari/537.36"
-      : "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) ArtixGameLauncher/2.2.0 Chrome/80.0.3987.163 Electron/8.5.5 Safari/537.36";
-
-const gameUserAgent = getGameUserAgent();
+const gameUserAgent = getArtixLauncherUserAgent();
 
 const configureGameWindow = (win: BrowserWindow): void => {
   win.webContents.setUserAgent(gameUserAgent);
@@ -224,13 +222,11 @@ const configureGameWindow = (win: BrowserWindow): void => {
 const installGameRequestHeaders = (): void => {
   session.defaultSession.webRequest.onBeforeSendHeaders((details, callback) => {
     const requestHeaders = details.requestHeaders;
-    Object.defineProperty(requestHeaders, "User-Agent", {
-      value: gameUserAgent,
-    });
-    Object.defineProperty(requestHeaders, "artixmode", { value: "launcher" });
-    Object.defineProperty(requestHeaders, "X-Requested-With", {
-      value: "ShockwaveFlash/32.0.0.371",
-    });
+    for (const [name, value] of Object.entries(
+      getArtixLauncherRequestHeaders(),
+    )) {
+      Object.defineProperty(requestHeaders, name, { value });
+    }
     callback({ requestHeaders, cancel: false });
   });
 };
@@ -358,6 +354,7 @@ app.whenReady().then(() => {
   ): Promise<A> => Effect.runPromise(effect.pipe(Effect.provide(windowLayer)));
 
   registerScriptingIpcHandlers();
+  registerAccountManagerIpcHandlers(runConfiguredWindowEffect);
   registerSettingsIpcHandlers();
   registerWindowIpcHandlers(runConfiguredWindowEffect);
   installNativeThemeChangeBroadcast();

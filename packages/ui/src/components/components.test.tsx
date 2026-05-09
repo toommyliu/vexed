@@ -96,9 +96,7 @@ import {
   TabsTrigger,
   Textarea,
   Tooltip,
-  TooltipArrow,
   TooltipButton,
-  TooltipButtonArrow,
   TooltipButtonContent,
   TooltipButtonTrigger,
   TooltipContent,
@@ -122,6 +120,66 @@ function pressItem(element: HTMLElement | null) {
   element?.dispatchEvent(new Event("pointerdown", { bubbles: true }));
   element?.dispatchEvent(new Event("pointerup", { bubbles: true }));
   element?.click();
+}
+
+function setElementRect(
+  element: Element | null,
+  rect: Pick<DOMRect, "bottom" | "height" | "left" | "right" | "top" | "width">,
+) {
+  Object.defineProperty(element, "getBoundingClientRect", {
+    configurable: true,
+    value: () => ({
+      x: rect.left,
+      y: rect.top,
+      toJSON: () => rect,
+      ...rect,
+    }),
+  });
+}
+
+function renderOpenComboboxWithItem() {
+  const root = renderUi(() => (
+    <Combobox open inputBehavior="none">
+      <ComboboxInput placeholder="Search" />
+      <ComboboxContent>
+        <ComboboxList>
+          <ComboboxItem value="reports">Reports</ComboboxItem>
+        </ComboboxList>
+      </ComboboxContent>
+    </Combobox>
+  ));
+  const input = root.querySelector<HTMLInputElement>(
+    "[data-slot='combobox-input']",
+  );
+  const list = document.body.querySelector<HTMLElement>(
+    "[data-slot='combobox-list']",
+  );
+  const item = document.body.querySelector<HTMLElement>(
+    "[data-slot='combobox-item']",
+  );
+
+  setElementRect(list, {
+    bottom: 100,
+    height: 100,
+    left: 0,
+    right: 200,
+    top: 0,
+    width: 200,
+  });
+
+  return { input, item, list };
+}
+
+async function highlightFirstComboboxItem(input: HTMLInputElement | null) {
+  input!.focus();
+  input!.dispatchEvent(
+    new KeyboardEvent("keydown", {
+      bubbles: true,
+      cancelable: true,
+      key: "ArrowDown",
+    }),
+  );
+  await new Promise((resolve) => setTimeout(resolve, 0));
 }
 
 afterEach(() => {
@@ -627,6 +685,48 @@ describe("Dialog", () => {
       document.body.querySelector("[data-slot='dialog-close']"),
     ).not.toBeNull();
   });
+
+  it("layers nested dialogs above their parent dialog", () => {
+    renderUi(() => (
+      <Dialog open>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Account</DialogTitle>
+          </DialogHeader>
+          <Dialog open>
+            <DialogContent>
+              <DialogHeader>
+                <DialogTitle>Delete account</DialogTitle>
+              </DialogHeader>
+            </DialogContent>
+          </Dialog>
+        </DialogContent>
+      </Dialog>
+    ));
+
+    const overlays = document.body.querySelectorAll<HTMLElement>(
+      "[data-slot='dialog-overlay']",
+    );
+    const positioners = document.body.querySelectorAll<HTMLElement>(
+      "[data-slot='dialog-positioner']",
+    );
+
+    expect(overlays).toHaveLength(2);
+    expect(positioners).toHaveLength(2);
+    expect(overlays[0]?.style.zIndex).toBe("50");
+    expect(positioners[0]?.style.zIndex).toBe("51");
+    expect(overlays[1]?.style.zIndex).toBe("52");
+    expect(positioners[1]?.style.zIndex).toBe("53");
+    expect(overlays[1]?.hasAttribute("data-nested")).toBe(true);
+
+    const contents = document.body.querySelectorAll<HTMLElement>(
+      "[data-slot='dialog-content']",
+    );
+    expect(contents[0]?.hasAttribute("data-nested-dialog-open")).toBe(true);
+    expect(contents[0]?.style.getPropertyValue("--nested-dialogs")).toBe("1");
+    expect(contents[1]?.hasAttribute("data-nested")).toBe(true);
+    expect(contents[1]?.hasAttribute("data-nested-dialog-open")).toBe(false);
+  });
 });
 
 describe("AlertDialog", () => {
@@ -709,6 +809,68 @@ describe("Combobox", () => {
 
     expect(root.querySelector("[data-slot='combobox-trigger']")).not.toBeNull();
     expect(root.querySelector("[data-slot='combobox-clear']")).toBeNull();
+  });
+
+  it("scrolls a keyboard-highlighted item below the combobox list viewport into view", async () => {
+    const { input, item, list } = renderOpenComboboxWithItem();
+    Object.defineProperty(item, "getBoundingClientRect", {
+      configurable: true,
+      value: () => ({
+        bottom: 124 - list!.scrollTop,
+        height: 24,
+        left: 0,
+        right: 200,
+        top: 100 - list!.scrollTop,
+        width: 200,
+        x: 0,
+        y: 100 - list!.scrollTop,
+        toJSON: () => ({}),
+      }),
+    });
+
+    await highlightFirstComboboxItem(input);
+
+    expect(list?.scrollTop).toBe(24);
+  });
+
+  it("scrolls a keyboard-highlighted item above the combobox list viewport into view", async () => {
+    const { input, item, list } = renderOpenComboboxWithItem();
+    list!.scrollTop = 50;
+    Object.defineProperty(item, "getBoundingClientRect", {
+      configurable: true,
+      value: () => ({
+        bottom: 50 - list!.scrollTop,
+        height: 24,
+        left: 0,
+        right: 200,
+        top: 26 - list!.scrollTop,
+        width: 200,
+        x: 0,
+        y: 26 - list!.scrollTop,
+        toJSON: () => ({}),
+      }),
+    });
+
+    await highlightFirstComboboxItem(input);
+
+    expect(list?.scrollTop).toBe(26);
+  });
+
+  it("keeps the combobox list scroll position when the keyboard-highlighted item is visible", async () => {
+    const { input, item, list } = renderOpenComboboxWithItem();
+    list!.scrollTop = 32;
+    setElementRect(item, {
+      bottom: 64,
+      height: 24,
+      left: 0,
+      right: 200,
+      top: 40,
+      width: 200,
+    });
+
+    await highlightFirstComboboxItem(input);
+
+    expect(list?.scrollTop).toBe(32);
   });
 });
 
@@ -842,14 +1004,11 @@ describe("Tabs", () => {
 });
 
 describe("Tooltip", () => {
-  it("renders open tooltip content, arrow, and trigger attributes", () => {
+  it("renders open tooltip content and trigger attributes", () => {
     renderUi(() => (
       <Tooltip open>
         <TooltipTrigger aria-label="Info">Info</TooltipTrigger>
-        <TooltipContent>
-          Runtime status
-          <TooltipArrow />
-        </TooltipContent>
+        <TooltipContent>Runtime status</TooltipContent>
       </Tooltip>
     ));
 
@@ -858,9 +1017,6 @@ describe("Tooltip", () => {
     ).not.toBeNull();
     expect(
       document.body.querySelector("[data-slot='tooltip-content']"),
-    ).not.toBeNull();
-    expect(
-      document.body.querySelector("[data-slot='tooltip-arrow']"),
     ).not.toBeNull();
   });
 });
@@ -872,10 +1028,7 @@ describe("TooltipButton", () => {
         <TooltipButtonTrigger variant="ghost" size="icon-sm" aria-label="Info">
           Info
         </TooltipButtonTrigger>
-        <TooltipButtonContent>
-          Runtime status
-          <TooltipButtonArrow />
-        </TooltipButtonContent>
+        <TooltipButtonContent>Runtime status</TooltipButtonContent>
       </TooltipButton>
     ));
     const button = root.querySelector("button");
@@ -887,9 +1040,6 @@ describe("TooltipButton", () => {
     expect(root.querySelectorAll("button")).toHaveLength(1);
     expect(
       document.body.querySelector("[data-slot='tooltip-content']"),
-    ).not.toBeNull();
-    expect(
-      document.body.querySelector("[data-slot='tooltip-arrow']"),
     ).not.toBeNull();
   });
 

@@ -115,7 +115,6 @@ import {
   type TabsVariant,
   Textarea,
   TooltipButton,
-  TooltipButtonArrow,
   TooltipButtonContent,
   TooltipButtonTrigger,
   VisuallyHidden,
@@ -854,9 +853,7 @@ function DemoApp() {
           <Card>
             <CardHeader>
               <CardTitle>Tooltip</CardTitle>
-              <CardDescription>
-                Compact positioned hints with optional arrows.
-              </CardDescription>
+              <CardDescription>Compact positioned hints.</CardDescription>
             </CardHeader>
             <CardContent class="demo-stack">
               <div class="demo-row">
@@ -868,7 +865,6 @@ function DemoApp() {
                       </TooltipButtonTrigger>
                       <TooltipButtonContent>
                         Tooltip {placement}
-                        <TooltipButtonArrow />
                       </TooltipButtonContent>
                     </TooltipButton>
                   )}

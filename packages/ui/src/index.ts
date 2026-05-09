@@ -290,20 +290,16 @@ export {
 export { Textarea, type TextareaProps } from "./components/Textarea";
 export {
   Tooltip,
-  TooltipArrow,
   TooltipContent,
   TooltipTrigger,
-  type TooltipArrowProps,
   type TooltipContentProps,
   type TooltipProps,
   type TooltipTriggerProps,
 } from "./components/Tooltip";
 export {
   TooltipButton,
-  TooltipButtonArrow,
   TooltipButtonContent,
   TooltipButtonTrigger,
-  type TooltipButtonArrowProps,
   type TooltipButtonContentProps,
   type TooltipButtonProps,
   type TooltipButtonTriggerProps,

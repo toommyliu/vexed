@@ -18,6 +18,20 @@ export interface AutoReloginStateSubscriptionOptions {
   readonly emitCurrent?: boolean;
 }
 
+export interface AutoLoginCredentials {
+  readonly username: string;
+  readonly password: string;
+  readonly server?: string;
+}
+
+export type AutoLoginOutcome =
+  | {
+      readonly stage: "server-select";
+    }
+  | {
+      readonly stage: "player-ready";
+    };
+
 export interface AutoReloginShape {
   getState(): Effect.Effect<AutoReloginState>;
   onState(
@@ -28,6 +42,12 @@ export interface AutoReloginShape {
   disable(): Effect.Effect<AutoReloginState>;
   setDelayMs(delayMs: number): Effect.Effect<AutoReloginState>;
   captureCurrentSession(): Effect.Effect<boolean>;
+  login(
+    credentials: AutoLoginCredentials,
+  ): Effect.Effect<AutoLoginOutcome, unknown>;
+  loginAndWaitReady(
+    credentials: AutoLoginCredentials,
+  ): Effect.Effect<void, unknown>;
 }
 
 export class AutoRelogin extends ServiceMap.Service<

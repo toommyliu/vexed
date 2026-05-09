@@ -250,12 +250,7 @@
 }
 
 .game-loader__spinner {
-  animation: game-loader-spin 900ms linear infinite;
-  border: 2px solid rgba(var(--muted-foreground), 0.24);
-  border-radius: 999px;
-  border-top-color: rgb(var(--muted-foreground));
-  height: 1.75rem;
-  width: 1.75rem;
+  color: rgb(var(--muted-foreground));
 }
 
 .game-viewport {
@@ -268,12 +263,6 @@
 
 .game-viewport--loaded {
   display: block;
-}
-
-@keyframes game-loader-spin {
-  to {
-    transform: rotate(360deg);
-  }
 }
 
 @media (max-width: 720px) {
