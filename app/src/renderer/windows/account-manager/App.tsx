@@ -783,7 +783,7 @@ function App(): JSX.Element {
                   <Combobox
                     class="account-manager__server-combobox"
                     value={[launchServer() || NO_SERVER_VALUE]}
-                    disabled={serversLoading()}
+                    disabled={serversLoading() || serverError() !== ""}
                     inputBehavior="autohighlight"
                     openOnClick
                     positioning={{ fitViewport: true, sameWidth: false }}

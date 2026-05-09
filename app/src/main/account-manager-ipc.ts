@@ -491,6 +491,15 @@ const sendGameLaunchPayload = (
   window.webContents.send(AccountManagerIpcChannels.gameLaunch, payload);
 };
 
+const serverLoadErrorMessage = (error: unknown): string => {
+  const message = error instanceof Error ? error.message : "";
+  const statusCode = /Failed to fetch servers: (\d{3})/.exec(message)?.[1];
+
+  return statusCode === undefined
+    ? message || "Unable to load servers"
+    : `Unable to load login servers (HTTP ${statusCode})`;
+};
+
 const runAccountServersEffect = async (
   effect: Effect.Effect<readonly ServerData[], unknown>,
 ): Promise<AccountGameServersResult> => {
@@ -504,9 +513,7 @@ const runAccountServersEffect = async (
       servers: servers.map(toAccountGameServer),
     };
   } catch (error) {
-    throw new Error(
-      error instanceof Error ? error.message : "Failed to load game servers",
-    );
+    throw new Error(serverLoadErrorMessage(error));
   }
 };
 
