@@ -134,7 +134,7 @@ describe("appearance settings", () => {
     process.env["VEXED_HOME"] = "/tmp/vexed-test";
     try {
       expect(Appearance.path()).toBe(
-        join("/tmp/vexed-test", "userdata", "appearance.json"),
+        join("/tmp/vexed-test", "userdata", "appearance.yaml"),
       );
     } finally {
       if (previous === undefined) {

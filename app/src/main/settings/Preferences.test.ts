@@ -32,7 +32,7 @@ describe("preferences", () => {
     process.env["VEXED_HOME"] = "/tmp/vexed-test";
     try {
       expect(Preferences.path()).toBe(
-        join("/tmp/vexed-test", "userdata", "preferences.json"),
+        join("/tmp/vexed-test", "userdata", "preferences.yaml"),
       );
     } finally {
       if (previous === undefined) {

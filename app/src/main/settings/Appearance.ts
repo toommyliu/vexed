@@ -143,13 +143,13 @@ export const normalize = (value: unknown): Appearance => {
   };
 };
 
-export const path = (): string => Files.join("appearance.json");
+export const path = (): string => Files.join("appearance.yaml");
 
-export const read = (): Appearance => normalize(Files.readJson(path()));
+export const read = (): Appearance => normalize(Files.readYaml(path()));
 
 export const write = (appearance: Appearance): void => {
-  Files.writeJson(path(), normalize(appearance));
+  Files.writeYaml(path(), normalize(appearance));
 };
 
 export const ensure = (): Appearance =>
-  Files.ensureJson(path(), DEFAULT, normalize);
+  Files.ensureYaml(path(), DEFAULT, normalize);
