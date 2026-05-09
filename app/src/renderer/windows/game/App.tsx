@@ -111,9 +111,11 @@ export default function App(props: {
   const [autoReloginEnabled, setAutoReloginEnabled] = createSignal(false);
   const [autoReloginCaptured, setAutoReloginCaptured] = createSignal(false);
   const [autoReloginAttempting, setAutoReloginAttempting] = createSignal(false);
+  const [autoReloginToggling, setAutoReloginToggling] = createSignal(false);
   const [autoReloginDelayMs, setAutoReloginDelayMs] = createSignal("3000");
   const [autoReloginUsername, setAutoReloginUsername] = createSignal("");
   const [autoReloginServer, setAutoReloginServer] = createSignal("");
+  const [autoReloginServers, setAutoReloginServers] = createSignal<string[]>([]);
   const [autoReloginLastError, setAutoReloginLastError] = createSignal("");
   const [openTopNavMenu, setOpenTopNavMenu] =
     createSignal<GameTopNavMenu | null>(null);
@@ -642,7 +644,12 @@ export default function App(props: {
   };
 
   const handleToggleAutoRelogin = () => {
+    if (autoReloginToggling()) {
+      return;
+    }
+
     const nextEnabled = !autoReloginEnabled();
+    setAutoReloginToggling(true);
     setAutoReloginEnabled(nextEnabled);
 
     void runtime
@@ -666,6 +673,29 @@ export default function App(props: {
       .catch((error) => {
         console.error("Toggle autorelogin error:", error);
         refreshAutoReloginState();
+      })
+      .finally(() => {
+        setAutoReloginToggling(false);
+      });
+  };
+
+  const refreshAutoReloginServers = () => {
+    void runtime
+      .runPromise(
+        Effect.gen(function* () {
+          const auth = yield* Auth;
+          return yield* auth.getServers();
+        }),
+      )
+      .then((servers) => {
+        setAutoReloginServers(
+          servers
+            .map((server) => server.name)
+            .filter((serverName) => serverName.trim() !== ""),
+        );
+      })
+      .catch((error) => {
+        console.error("Refresh autorelogin servers error:", error);
       });
   };
 
@@ -677,9 +707,32 @@ export default function App(props: {
           return yield* autoRelogin.captureCurrentSession();
         }),
       )
-      .then(() => refreshAutoReloginState())
+      .then(() => {
+        refreshAutoReloginState();
+        refreshAutoReloginServers();
+      })
       .catch((error) => {
         console.error("Capture autorelogin session error:", error);
+        refreshAutoReloginState();
+      });
+  };
+
+  const handleSelectAutoReloginServer = (serverName: string) => {
+    setAutoReloginServer(serverName);
+
+    void runtime
+      .runPromise(
+        Effect.gen(function* () {
+          const autoRelogin = yield* AutoRelogin;
+          return yield* autoRelogin.setServer(serverName);
+        }),
+      )
+      .then((state) => {
+        setAutoReloginServer(state.server ?? "");
+        setAutoReloginLastError(state.lastError ?? "");
+      })
+      .catch((error) => {
+        console.error("Set autorelogin server error:", error);
         refreshAutoReloginState();
       });
   };
@@ -911,13 +964,17 @@ export default function App(props: {
         autoReloginEnabled={autoReloginEnabled}
         autoReloginCaptured={autoReloginCaptured}
         autoReloginAttempting={autoReloginAttempting}
+        autoReloginToggling={autoReloginToggling}
         autoReloginDelayMs={autoReloginDelayMs}
         setAutoReloginDelayMs={setAutoReloginDelayMs}
         autoReloginUsername={autoReloginUsername}
         autoReloginServer={autoReloginServer}
+        autoReloginServers={autoReloginServers}
         autoReloginLastError={autoReloginLastError}
         handleCaptureAutoReloginSession={handleCaptureAutoReloginSession}
         handleToggleAutoRelogin={handleToggleAutoRelogin}
+        handleRefreshAutoReloginServers={refreshAutoReloginServers}
+        handleSelectAutoReloginServer={handleSelectAutoReloginServer}
         handleSetAutoReloginDelay={handleSetAutoReloginDelay}
         cells={cells}
         pads={pads}

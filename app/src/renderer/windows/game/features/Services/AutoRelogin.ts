@@ -41,6 +41,7 @@ export interface AutoReloginShape {
   enable(): Effect.Effect<AutoReloginState>;
   disable(): Effect.Effect<AutoReloginState>;
   setDelayMs(delayMs: number): Effect.Effect<AutoReloginState>;
+  setServer(serverName: string): Effect.Effect<AutoReloginState>;
   captureCurrentSession(): Effect.Effect<boolean>;
   login(
     credentials: AutoLoginCredentials,

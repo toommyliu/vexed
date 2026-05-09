@@ -12,6 +12,9 @@ import {
   MenuItem,
   MenuLabel,
   MenuSeparator,
+  MenuSub,
+  MenuSubContent,
+  MenuSubTrigger,
   MenuTrigger,
   cn,
 } from "@vexed/ui";
@@ -65,13 +68,17 @@ export interface TopNavProps {
   readonly autoReloginEnabled: Accessor<boolean>;
   readonly autoReloginCaptured: Accessor<boolean>;
   readonly autoReloginAttempting: Accessor<boolean>;
+  readonly autoReloginToggling: Accessor<boolean>;
   readonly autoReloginDelayMs: Accessor<string>;
   readonly setAutoReloginDelayMs: Setter<string>;
   readonly autoReloginUsername: Accessor<string>;
   readonly autoReloginServer: Accessor<string>;
+  readonly autoReloginServers: Accessor<readonly string[]>;
   readonly autoReloginLastError: Accessor<string>;
   readonly handleCaptureAutoReloginSession: () => void;
   readonly handleToggleAutoRelogin: () => void;
+  readonly handleRefreshAutoReloginServers: () => void;
+  readonly handleSelectAutoReloginServer: (serverName: string) => void;
   readonly handleSetAutoReloginDelay: () => void;
   readonly cells: Accessor<readonly string[]>;
   readonly pads: Accessor<readonly string[]>;
@@ -364,7 +371,10 @@ export function TopNav(props: TopNavProps): JSX.Element {
                 props.autoReloginEnabled() && "game-topnav__trigger--success",
               )}
               data-expanded={props.openMenu() === "relogin" ? "" : undefined}
-              onClick={toggleMenu("relogin")}
+              onClick={(event) => {
+                props.handleRefreshAutoReloginServers();
+                toggleMenu("relogin")(event);
+              }}
             >
               Auto Relogin
             </MenuTrigger>
@@ -379,6 +389,11 @@ export function TopNav(props: TopNavProps): JSX.Element {
                       }`
                     : "No captured session"}
                 </span>
+                <Show when={props.autoReloginToggling()}>
+                  <span>
+                    {props.autoReloginEnabled() ? "Enabling" : "Disabling"}
+                  </span>
+                </Show>
                 <Show when={props.autoReloginAttempting()}>
                   <span>Attempting reconnect</span>
                 </Show>
@@ -397,14 +412,68 @@ export function TopNav(props: TopNavProps): JSX.Element {
               <MenuItem
                 class="game-menu__item"
                 disabled={
-                  !props.autoReloginCaptured() && !props.autoReloginEnabled()
+                  props.autoReloginToggling() ||
+                  (!props.autoReloginCaptured() && !props.autoReloginEnabled())
                 }
                 onSelect={props.handleToggleAutoRelogin}
                 value="toggle-autorelogin"
                 variant={props.autoReloginEnabled() ? "destructive" : "default"}
               >
-                {props.autoReloginEnabled() ? "Disable" : "Enable"}
+                {props.autoReloginToggling()
+                  ? props.autoReloginEnabled()
+                    ? "Enabling…"
+                    : "Disabling…"
+                  : props.autoReloginEnabled()
+                    ? "Disable"
+                    : "Enable"}
               </MenuItem>
+              <MenuSeparator />
+              <MenuSub positioning={{ gutter: 4, placement: "right-start" }}>
+                <MenuSubTrigger
+                  class="game-menu__item"
+                  value="autorelogin-server-menu"
+                >
+                  <span class="game-menu__item-label">Target Server</span>
+                  <span>{props.autoReloginServer() || "None"}</span>
+                </MenuSubTrigger>
+                <MenuSubContent
+                  class="game-menu game-menu--compact"
+                  portal={false}
+                >
+                  <Show
+                    when={props.autoReloginServers().length > 0}
+                    fallback={
+                      <MenuItem
+                        class="game-menu__item"
+                        disabled
+                        value="no-servers"
+                      >
+                        No servers found
+                      </MenuItem>
+                    }
+                  >
+                    <For each={props.autoReloginServers()}>
+                      {(serverName) => (
+                        <MenuItem
+                          class="game-menu__item"
+                          disabled={!props.autoReloginCaptured()}
+                          onSelect={() =>
+                            props.handleSelectAutoReloginServer(serverName)
+                          }
+                          value={`autorelogin-server-${serverName}`}
+                        >
+                          <span class="game-menu__item-label">
+                            {serverName}
+                          </span>
+                          <Show when={props.autoReloginServer() === serverName}>
+                            <span>Current</span>
+                          </Show>
+                        </MenuItem>
+                      )}
+                    </For>
+                  </Show>
+                </MenuSubContent>
+              </MenuSub>
               <MenuSeparator />
               <label class="game-menu__field">
                 <span>Delay ms</span>

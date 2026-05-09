@@ -1031,6 +1031,41 @@ const make = Effect.gen(function* () {
       });
     });
 
+  const setServer: AutoReloginShape["setServer"] = (serverName) =>
+    Effect.gen(function* () {
+      const normalizedServerName = serverName.trim();
+      yield* logStage("set server", { server: normalizedServerName });
+
+      if (normalizedServerName === "") {
+        return yield* updateState((state) => {
+          state.lastError = "server is required";
+        });
+      }
+
+      const servers = yield* auth
+        .getServers()
+        .pipe(Effect.catchCause(() => Effect.succeed([])));
+      const server = findServerByName(servers, normalizedServerName);
+      if (server === undefined) {
+        return yield* updateState((state) => {
+          state.lastError = `server is unavailable: ${normalizedServerName}`;
+        });
+      }
+
+      return yield* updateState((state) => {
+        if (state.captured === null) {
+          state.lastError = "capture a session before selecting a server";
+          return;
+        }
+
+        state.captured = {
+          ...state.captured,
+          server: server.data,
+        };
+        state.lastError = undefined;
+      });
+    });
+
   const onState: AutoReloginShape["onState"] = (listener, options) =>
     Effect.gen(function* () {
       yield* addStateListener(listener);
@@ -1108,6 +1143,7 @@ const make = Effect.gen(function* () {
     enable,
     disable,
     setDelayMs,
+    setServer,
     captureCurrentSession,
     login,
     loginAndWaitReady,
