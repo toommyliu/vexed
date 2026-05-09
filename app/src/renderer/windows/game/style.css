@@ -328,6 +328,7 @@
   font-size: var(--text-sm);
   gap: 0.5rem;
   justify-content: space-between;
+  padding: 0 0.25rem;
 }
 
 .game-menu__delay-control {

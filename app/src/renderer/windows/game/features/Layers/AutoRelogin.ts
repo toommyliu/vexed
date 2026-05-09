@@ -90,6 +90,10 @@ type LogoutObservation = {
   readonly loggedOutSince: number;
 };
 
+type CaptureCurrentSessionOptions = {
+  readonly preserveTargetServer?: boolean;
+};
+
 const initialState = (): RuntimeState => ({
   enabled: false,
   captured: null,
@@ -498,7 +502,9 @@ const make = Effect.gen(function* () {
           return state;
         });
 
-  const captureCurrentSession: AutoReloginShape["captureCurrentSession"] = () =>
+  const captureCurrentSession = (
+    options: CaptureCurrentSessionOptions = {},
+  ): Effect.Effect<boolean> =>
     Effect.gen(function* () {
       yield* logStage("capture start");
       const loggedIn = yield* bridge
@@ -536,10 +542,14 @@ const make = Effect.gen(function* () {
       }
 
       yield* updateState((state) => {
+        const targetServer =
+          options.preserveTargetServer === true
+            ? (state.captured?.server ?? server)
+            : server;
         state.captured = {
           username,
           password,
-          server,
+          server: targetServer,
         };
         state.lastError = undefined;
       });
@@ -1003,8 +1013,7 @@ const make = Effect.gen(function* () {
   const startJob = jobs.startPeriodicJob({
     key: JOB_KEY,
     interval: JOB_INTERVAL,
-    // Internal connection tracking filters out false positives from player readiness.
-    runWhen: "loggedOut",
+    runWhen: "always",
     runOnStart: false,
     replace: false,
     task: runAttemptCycle,
@@ -1019,7 +1028,7 @@ const make = Effect.gen(function* () {
         state.enabled = true;
         state.lastError = undefined;
       });
-      yield* captureCurrentSession();
+      yield* captureCurrentSession({ preserveTargetServer: true });
       yield* startJob;
       return yield* getState();
     });

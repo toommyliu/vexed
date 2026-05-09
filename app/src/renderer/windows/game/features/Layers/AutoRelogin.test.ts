@@ -330,6 +330,35 @@ test("captures current session from objServerInfo without exposing password", as
   expect(JSON.stringify(state)).not.toContain("secret-password");
 });
 
+test("enabling preserves a selected target server", async () => {
+  const result = await withAutoRelogin(
+    { servers: [twigServer, yorumiServer] },
+    (autoRelogin, harness) =>
+      Effect.gen(function* () {
+        yield* autoRelogin.captureCurrentSession();
+        yield* autoRelogin.setServer("Yorumi");
+        yield* autoRelogin.enable();
+        yield* autoRelogin.setDelayMs(0);
+        yield* harness.jobsState.task!;
+        return {
+          calls: harness.authCalls,
+          state: yield* autoRelogin.getState(),
+        };
+      }),
+  );
+
+  expect(result.state).toMatchObject({
+    captured: true,
+    enabled: true,
+    server: "Yorumi",
+    username: "Hero",
+  });
+  expect(result.calls).toEqual([
+    "login:Hero:secret-password",
+    "connectTo:Yorumi",
+  ]);
+});
+
 test("ignores null objServerInfo", async () => {
   const state = await withAutoRelogin({ serverInfo: "null" }, (autoRelogin) =>
     Effect.gen(function* () {
