@@ -42,6 +42,9 @@ export interface WindowServiceShape {
     id: WindowId,
     senderWindowId?: number,
   ) => Effect.Effect<BrowserWindow, WindowManagerError>;
+  readonly getOpenWindow: (
+    id: WindowId,
+  ) => Effect.Effect<BrowserWindow | null>;
   readonly revealGameWindow: Effect.Effect<void, WindowManagerError>;
   readonly getGameWindowId: (
     windowId: number,
@@ -622,6 +625,23 @@ export const makeWindowService = (
       });
     });
 
+  const getOpenWindow: WindowServiceShape["getOpenWindow"] = (id) =>
+    Effect.sync(() => {
+      const appWindow = appWindows.get(id);
+      if (isWindowUsable(appWindow)) {
+        return appWindow;
+      }
+
+      for (const entry of gameWindows.values()) {
+        const childWindow = entry.childWindows.get(id);
+        if (isWindowUsable(childWindow)) {
+          return childWindow;
+        }
+      }
+
+      return null;
+    });
+
   const revealGameWindow: WindowServiceShape["revealGameWindow"] = Effect.gen(
     function* () {
       const gameWindow = resolveGameWindow();
@@ -637,6 +657,7 @@ export const makeWindowService = (
   return {
     openGameWindow,
     openWindow,
+    getOpenWindow,
     revealGameWindow,
     getGameWindowId: (windowId) =>
       Effect.succeed(getGameWindowIdSync(windowId)),

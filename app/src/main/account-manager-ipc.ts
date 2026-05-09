@@ -20,6 +20,7 @@ import {
   type ManagedAccountPatch,
   type ScriptExecutePayload,
 } from "../shared/ipc";
+import { WindowIds } from "../shared/windows";
 import { getArtixLauncherRequestHeaders } from "./artix-launcher-headers";
 import { WindowService, type WindowEffectRunner } from "./windows";
 
@@ -324,14 +325,33 @@ const refreshAccountServers = (): Effect.Effect<
     lastServerFetchTime = 0;
   }).pipe(Effect.flatMap(() => getCachedAccountServers()));
 
-const broadcastState = async (): Promise<AccountManagerState> => {
+const getOpenAccountManagerWindow = (
+  runWindowEffect: WindowEffectRunner,
+): Promise<BrowserWindow | null> =>
+  runWindowEffect(
+    Effect.gen(function* () {
+      const windows = yield* WindowService;
+      return yield* windows.getOpenWindow(WindowIds.AccountManager);
+    }),
+  );
+
+const requireAccountManagerSender = async (
+  event: IpcMainInvokeEvent,
+  runWindowEffect: WindowEffectRunner,
+): Promise<void> => {
+  const window = await getOpenAccountManagerWindow(runWindowEffect);
+  if (window?.webContents.id !== event.sender.id) {
+    throw new Error("Account credentials are only available to Account Manager");
+  }
+};
+
+const publishStateToAccountManager = async (
+  runWindowEffect: WindowEffectRunner,
+): Promise<AccountManagerState> => {
   const state = await toState();
+  const window = await getOpenAccountManagerWindow(runWindowEffect);
 
-  for (const window of BrowserWindow.getAllWindows()) {
-    if (window.isDestroyed() || window.webContents.isDestroyed()) {
-      continue;
-    }
-
+  if (window && !window.isDestroyed() && !window.webContents.isDestroyed()) {
     window.webContents.send(AccountManagerIpcChannels.changed, state);
   }
 
@@ -416,7 +436,10 @@ const normalizeLaunchRequest = (request: unknown): AccountLaunchRequest => {
   };
 };
 
-const setSession = async (update: AccountScriptStatusUpdate): Promise<void> => {
+const setSession = async (
+  update: AccountScriptStatusUpdate,
+  runWindowEffect: WindowEffectRunner,
+): Promise<void> => {
   sessions.set(update.username, {
     username: update.username,
     status: update.status,
@@ -430,7 +453,7 @@ const setSession = async (update: AccountScriptStatusUpdate): Promise<void> => {
     ...(update.message === undefined ? {} : { message: update.message }),
   });
 
-  await broadcastState();
+  await publishStateToAccountManager(runWindowEffect);
 };
 
 const getEventWindowId = (event: IpcMainInvokeEvent): number | null =>
@@ -473,7 +496,9 @@ export const registerAccountManagerIpcHandlers = (
     return;
   }
 
-  ipcMain.handle(AccountManagerIpcChannels.getState, async () => {
+  ipcMain.handle(AccountManagerIpcChannels.getState, async (event) => {
+    // Full account state includes passwords; only Account Manager can request it.
+    await requireAccountManagerSender(event, runWindowEffect);
     return await toState();
   });
 
@@ -506,7 +531,8 @@ export const registerAccountManagerIpcHandlers = (
 
   ipcMain.handle(
     AccountManagerIpcChannels.createAccount,
-    async (_event, draft: unknown) => {
+    async (event, draft: unknown) => {
+      await requireAccountManagerSender(event, runWindowEffect);
       const accountDraft = normalizeDraft(draft);
       const accounts = await readAccounts();
       if (hasAccountUsername(accounts, accountDraft.username)) {
@@ -515,13 +541,14 @@ export const registerAccountManagerIpcHandlers = (
 
       await writeAccounts([...accounts, accountDraft]);
 
-      return await broadcastState();
+      return await publishStateToAccountManager(runWindowEffect);
     },
   );
 
   ipcMain.handle(
     AccountManagerIpcChannels.updateAccount,
-    async (_event, username: unknown, patch: unknown) => {
+    async (event, username: unknown, patch: unknown) => {
+      await requireAccountManagerSender(event, runWindowEffect);
       const currentUsername = normalizeRequiredString(username, "username");
       const accountPatch = normalizePatch(patch);
       const accounts = await readAccounts();
@@ -565,13 +592,14 @@ export const registerAccountManagerIpcHandlers = (
       }
 
       await writeAccounts(nextAccounts);
-      return await broadcastState();
+      return await publishStateToAccountManager(runWindowEffect);
     },
   );
 
   ipcMain.handle(
     AccountManagerIpcChannels.deleteAccount,
-    async (_event, username: unknown) => {
+    async (event, username: unknown) => {
+      await requireAccountManagerSender(event, runWindowEffect);
       const accountUsername = normalizeRequiredString(username, "username");
       const accounts = await readAccounts();
       const nextAccounts = accounts.filter(
@@ -584,13 +612,14 @@ export const registerAccountManagerIpcHandlers = (
 
       sessions.delete(accountUsername);
       await writeAccounts(nextAccounts);
-      return await broadcastState();
+      return await publishStateToAccountManager(runWindowEffect);
     },
   );
 
   ipcMain.handle(
     AccountManagerIpcChannels.launch,
-    async (_event, request: unknown) => {
+    async (event, request: unknown) => {
+      await requireAccountManagerSender(event, runWindowEffect);
       const launchRequest = normalizeLaunchRequest(request);
       const accounts = await readAccounts();
       const account = accounts.find(
@@ -622,30 +651,36 @@ export const registerAccountManagerIpcHandlers = (
 
       gameLaunchPayloads.set(gameWindowId, gameLaunchPayload);
 
-      await setSession({
-        username: account.username,
-        gameWindowId,
-        status: "starting",
-        message:
-          launchRequest.script === null
-            ? "Signing in"
-            : `Queued ${scriptName(launchRequest.script)}`,
-        ...(launchRequest.script === null
-          ? {}
-          : { scriptName: scriptName(launchRequest.script) }),
-      });
-
-      gameWindow.once("closed", () => {
-        gameLaunchPayloads.delete(gameWindowId);
-        void setSession({
+      await setSession(
+        {
           username: account.username,
           gameWindowId,
-          status: "stopped",
-          message: "Game window closed",
+          status: "starting",
+          message:
+            launchRequest.script === null
+              ? "Signing in"
+              : `Queued ${scriptName(launchRequest.script)}`,
           ...(launchRequest.script === null
             ? {}
             : { scriptName: scriptName(launchRequest.script) }),
-        }).catch((error) => {
+        },
+        runWindowEffect,
+      );
+
+      gameWindow.once("closed", () => {
+        gameLaunchPayloads.delete(gameWindowId);
+        void setSession(
+          {
+            username: account.username,
+            gameWindowId,
+            status: "stopped",
+            message: "Game window closed",
+            ...(launchRequest.script === null
+              ? {}
+              : { scriptName: scriptName(launchRequest.script) }),
+          },
+          runWindowEffect,
+        ).catch((error) => {
           console.error("Failed to update account session on close:", error);
         });
       });
@@ -675,17 +710,20 @@ export const registerAccountManagerIpcHandlers = (
         throw new Error("Invalid script status");
       }
 
-      await setSession({
-        username: normalizeRequiredString(input.username, "username"),
-        status,
-        ...(input.gameWindowId === undefined
-          ? {}
-          : { gameWindowId: input.gameWindowId }),
-        ...(input.scriptName === undefined
-          ? {}
-          : { scriptName: input.scriptName }),
-        ...(input.message === undefined ? {} : { message: input.message }),
-      });
+      await setSession(
+        {
+          username: normalizeRequiredString(input.username, "username"),
+          status,
+          ...(input.gameWindowId === undefined
+            ? {}
+            : { gameWindowId: input.gameWindowId }),
+          ...(input.scriptName === undefined
+            ? {}
+            : { scriptName: input.scriptName }),
+          ...(input.message === undefined ? {} : { message: input.message }),
+        },
+        runWindowEffect,
+      );
     },
   );
 
