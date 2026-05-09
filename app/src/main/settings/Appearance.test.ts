@@ -1,4 +1,4 @@
-import { mkdtemp, readFile, rm } from "node:fs/promises";
+import { mkdir, mkdtemp, readFile, rm, writeFile } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { describe, expect, it } from "vitest";
@@ -148,6 +148,37 @@ describe("appearance settings", () => {
         monoFontSize: 16,
       },
     });
+  });
+
+  it("does not rewrite partial hex color config on ensure", async () => {
+    const previous = process.env["VEXED_HOME"];
+    const testDir = await mkdtemp(join(tmpdir(), "vexed-appearance-"));
+    process.env["VEXED_HOME"] = testDir;
+
+    try {
+      const source = [
+        "themeMode: dark",
+        "themes:",
+        "  dark:",
+        "    tokens:",
+        '      primary: "#0d9488"',
+        "",
+      ].join("\n");
+      await mkdir(join(testDir, "userdata"), { recursive: true });
+      await writeFile(Appearance.path(), source, "utf8");
+
+      expect(Appearance.ensure().themes.dark.tokens.primary).toEqual([
+        13, 148, 136,
+      ]);
+      expect(await readFile(Appearance.path(), "utf8")).toBe(source);
+    } finally {
+      if (previous === undefined) {
+        delete process.env["VEXED_HOME"];
+      } else {
+        process.env["VEXED_HOME"] = previous;
+      }
+      await rm(testDir, { recursive: true, force: true });
+    }
   });
 
   it("writes color tokens as hex strings", async () => {

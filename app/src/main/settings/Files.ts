@@ -168,11 +168,50 @@ export const writeYaml = (path: string, value: unknown): void => {
   }
 };
 
+const isRecord = (value: unknown): value is Record<string, unknown> =>
+  typeof value === "object" && value !== null && !Array.isArray(value);
+
+const deepEqual = (left: unknown, right: unknown): boolean => {
+  if (Object.is(left, right)) {
+    return true;
+  }
+
+  if (Array.isArray(left) || Array.isArray(right)) {
+    return (
+      Array.isArray(left) &&
+      Array.isArray(right) &&
+      left.length === right.length &&
+      left.every((value, index) => deepEqual(value, right[index]))
+    );
+  }
+
+  if (!isRecord(left) || !isRecord(right)) {
+    return false;
+  }
+
+  const leftKeys = Object.keys(left);
+  const rightKeys = Object.keys(right);
+  return (
+    leftKeys.length === rightKeys.length &&
+    leftKeys.every(
+      (key) =>
+        Object.prototype.hasOwnProperty.call(right, key) &&
+        deepEqual(left[key], right[key]),
+    )
+  );
+};
+
 export const ensureYaml = <T>(
   path: string,
   defaults: T,
   normalize: (value: unknown) => T,
   serialize: (value: T) => unknown = (value) => value,
+  shouldRewrite: (
+    value: unknown,
+    normalized: T,
+    serialized: unknown,
+  ) => boolean = (value, _normalized, serialized) =>
+    !deepEqual(value, serialized),
 ): T => {
   const hasYaml = existsSync(path);
   const value = readYaml(path);
@@ -184,7 +223,7 @@ export const ensureYaml = <T>(
     return normalized;
   }
 
-  if (JSON.stringify(value) !== JSON.stringify(serialized)) {
+  if (shouldRewrite(value, normalized, serialized)) {
     writeYaml(path, serialized);
   }
 

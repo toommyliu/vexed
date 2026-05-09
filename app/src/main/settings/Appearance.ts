@@ -212,6 +212,35 @@ const serialize = (appearance: Appearance): PersistedAppearance => {
   };
 };
 
+const hasArrayColorTokens = (value: unknown): boolean => {
+  if (typeof value !== "object" || value === null) {
+    return false;
+  }
+
+  const record = value as Record<string, unknown>;
+  const themes = record["themes"];
+  if (typeof themes !== "object" || themes === null) {
+    return false;
+  }
+
+  for (const profile of Object.values(themes)) {
+    if (typeof profile !== "object" || profile === null) {
+      continue;
+    }
+
+    const tokens = (profile as Record<string, unknown>)["tokens"];
+    if (typeof tokens !== "object" || tokens === null) {
+      continue;
+    }
+
+    if (Object.values(tokens).some((token) => Array.isArray(token))) {
+      return true;
+    }
+  }
+
+  return false;
+};
+
 export const path = (): string => Files.join("appearance.yaml");
 
 export const read = (): Appearance => normalize(Files.readYaml(path()));
@@ -221,4 +250,4 @@ export const write = (appearance: Appearance): void => {
 };
 
 export const ensure = (): Appearance =>
-  Files.ensureYaml(path(), DEFAULT, normalize, serialize);
+  Files.ensureYaml(path(), DEFAULT, normalize, serialize, hasArrayColorTokens);
