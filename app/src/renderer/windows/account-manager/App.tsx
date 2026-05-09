@@ -34,11 +34,16 @@ import {
   DialogFooter,
   DialogHeader,
   DialogTitle,
+  Empty,
+  EmptyDescription,
+  EmptyHeader,
+  EmptyMedia,
+  EmptyTitle,
   Input,
   InputGroup,
   InputGroupAddon,
   InputGroupInput,
-  Switch,
+  Spinner,
   Tooltip,
   TooltipContent,
   TooltipTrigger,
@@ -53,11 +58,14 @@ import {
   RefreshCw,
   Search,
   Trash2,
+  UserPlus,
+  Users,
   X,
 } from "lucide-solid";
 import {
   For,
   Show,
+  createEffect,
   createMemo,
   createSignal,
   onCleanup,
@@ -92,6 +100,8 @@ interface LaunchScriptSelection {
 
 const NO_SERVER_VALUE = "__no_server__";
 const LAUNCH_WITH_SCRIPT_CHECKBOX_ID = "account-manager-launch-with-script";
+const ACCOUNT_PASSWORD_INPUT_ID = "account-manager-account-password";
+
 const emptyState: AccountManagerState = {
   accounts: [],
   sessions: [],
@@ -175,9 +185,7 @@ function AccountActionButton(props: {
           />
         )}
       />
-      <TooltipContent arrow>
-        {props.tooltip}
-      </TooltipContent>
+      <TooltipContent arrow>{props.tooltip}</TooltipContent>
     </Tooltip>
   );
 }
@@ -210,9 +218,7 @@ function AccountDeleteTrigger(props: {
           />
         )}
       />
-      <TooltipContent arrow>
-        {props.tooltip}
-      </TooltipContent>
+      <TooltipContent arrow>{props.tooltip}</TooltipContent>
     </Tooltip>
   );
 }
@@ -223,6 +229,7 @@ function App(): JSX.Element {
   let serverSelectionSettlingTimeout: number | undefined;
   let skipNextScriptPathBlur = false;
   const [state, setState] = createSignal<AccountManagerState>(emptyState);
+  const [stateLoaded, setStateLoaded] = createSignal(false);
   const [selectedAccountUsernames, setSelectedAccountUsernames] = createSignal<
     ReadonlySet<string>
   >(new Set());
@@ -320,8 +327,17 @@ function App(): JSX.Element {
     return selection.enabled ? selection.payload : null;
   });
 
+  createEffect(() => {
+    if (dialogOpen()) {
+      window.requestAnimationFrame(() => {
+        usernameInput?.focus();
+      });
+    }
+  });
+
   const applyState = (nextState: AccountManagerState) => {
     setState(nextState);
+    setStateLoaded(true);
     const usernames = new Set(
       nextState.accounts.map((account) => account.username),
     );
@@ -694,11 +710,12 @@ function App(): JSX.Element {
 
     void window.ipc.accounts
       .getState()
-      .then((nextState) => {
+      .then(async (nextState) => {
         applyState(nextState);
       })
       .catch((error) => {
         console.error("Failed to load accounts:", error);
+        setStateLoaded(true);
       });
 
     void loadServers();
@@ -759,9 +776,7 @@ function App(): JSX.Element {
                         </Button>
                       )}
                     />
-                    <TooltipContent arrow>
-                      Refresh servers
-                    </TooltipContent>
+                    <TooltipContent arrow>Refresh servers</TooltipContent>
                   </Tooltip>
                 </div>
                 <InputGroup class="account-manager__server-field account-manager__field">
@@ -953,9 +968,7 @@ function App(): JSX.Element {
                             </Button>
                           )}
                         />
-                        <TooltipContent arrow>
-                          Edit script path
-                        </TooltipContent>
+                        <TooltipContent arrow>Edit script path</TooltipContent>
                       </Tooltip>
                     </Show>
                     <Tooltip closeDelay={0} openDelay={200}>
@@ -975,9 +988,7 @@ function App(): JSX.Element {
                           </Button>
                         )}
                       />
-                      <TooltipContent arrow>
-                        Choose script file
-                      </TooltipContent>
+                      <TooltipContent arrow>Choose script file</TooltipContent>
                     </Tooltip>
                     <Show when={scriptPathInput() !== ""}>
                       <Tooltip closeDelay={0} openDelay={200}>
@@ -997,9 +1008,7 @@ function App(): JSX.Element {
                             </Button>
                           )}
                         />
-                        <TooltipContent arrow>
-                          Clear script
-                        </TooltipContent>
+                        <TooltipContent arrow>Clear script</TooltipContent>
                       </Tooltip>
                     </Show>
                   </InputGroupAddon>
@@ -1076,11 +1085,44 @@ function App(): JSX.Element {
             <Show
               when={filteredAccounts().length > 0}
               fallback={
-                <div class="account-list__empty">
-                  {accounts().length === 0
-                    ? "Add an account to queue game windows."
-                    : "No accounts match your search."}
-                </div>
+                <Show
+                  when={stateLoaded()}
+                  fallback={
+                    <div
+                      class="account-list__loading"
+                      aria-label="Loading accounts"
+                      aria-busy="true"
+                    >
+                      <div class="account-list__loading-content">
+                        <Spinner class="account-list__loading-spinner" size="xl" />
+                        <span>Loading...</span>
+                      </div>
+                    </div>
+                  }
+                >
+                  <Empty class="account-list__empty">
+                    <EmptyHeader>
+                      <EmptyMedia variant="icon">
+                        <Show
+                          when={accounts().length === 0}
+                          fallback={<Users aria-hidden="true" />}
+                        >
+                          <UserPlus aria-hidden="true" />
+                        </Show>
+                      </EmptyMedia>
+                      <EmptyTitle>
+                        {accounts().length === 0
+                          ? "No accounts yet"
+                          : "No matching accounts"}
+                      </EmptyTitle>
+                      <EmptyDescription>
+                        {accounts().length === 0
+                          ? "Add an account to get started."
+                          : "Try adjusting your search."}
+                      </EmptyDescription>
+                    </EmptyHeader>
+                  </Empty>
+                </Show>
               }
             >
               <For each={filteredAccounts()}>
@@ -1090,7 +1132,12 @@ function App(): JSX.Element {
                   );
 
                   return (
-                    <Card class="account-row">
+                    <Card
+                      class="account-row"
+                      style={{
+                        "animation-delay": `${Math.min(index() * 12, 36)}ms`,
+                      }}
+                    >
                       <Checkbox
                         checked={selectedAccountUsernames().has(
                           account.username,
@@ -1207,18 +1254,6 @@ function App(): JSX.Element {
                   <div class="account-dialog__error">{dialogError()}</div>
                 </Show>
                 <label class="account-dialog__field">
-                  <span>Label</span>
-                  <Input
-                    fullWidth
-                    size="lg"
-                    placeholder={form().username || "Defaults to username"}
-                    value={form().label}
-                    onInput={(event) =>
-                      setFormField("label", event.currentTarget.value)
-                    }
-                  />
-                </label>
-                <label class="account-dialog__field">
                   <span>Username</span>
                   <Input
                     ref={(element) => {
@@ -1233,13 +1268,15 @@ function App(): JSX.Element {
                     }
                   />
                 </label>
-                <label class="account-dialog__field">
-                  <span>Password</span>
+                <div class="account-dialog__field">
+                  <label for={ACCOUNT_PASSWORD_INPUT_ID}>Password</label>
                   <InputGroup
                     class="account-dialog__password-control"
                     size="lg"
                   >
                     <InputGroupInput
+                      id={ACCOUNT_PASSWORD_INPUT_ID}
+                      class="account-dialog__password-input"
                       type={passwordVisible() ? "text" : "password"}
                       value={form().password}
                       placeholder="Enter password"
@@ -1259,6 +1296,7 @@ function App(): JSX.Element {
                         aria-label={
                           passwordVisible() ? "Hide password" : "Show password"
                         }
+                        aria-pressed={passwordVisible()}
                         onClick={() =>
                           setPasswordVisible((visible) => !visible)
                         }
@@ -1272,7 +1310,29 @@ function App(): JSX.Element {
                       </Button>
                     </InputGroupAddon>
                   </InputGroup>
-                </label>
+                </div>
+
+                <div class="account-dialog__optional-field">
+                  <label class="account-dialog__field">
+                    <div class="account-dialog__field-header">
+                      <span>Label</span>
+                      <span class="account-dialog__field-optional">
+                        (Optional)
+                      </span>
+                    </div>
+                    <Input
+                      fullWidth
+                      size="lg"
+                      placeholder={form().username || "Defaults to username"}
+                      value={
+                        form().label === form().username ? "" : form().label
+                      }
+                      onInput={(event) =>
+                        setFormField("label", event.currentTarget.value)
+                      }
+                    />
+                  </label>
+                </div>
               </div>
 
               <DialogFooter>
@@ -1286,7 +1346,7 @@ function App(): JSX.Element {
                       <Trash2 class="button__icon" />
                       Delete
                     </AlertDialogTrigger>
-                    <AlertDialogContent>
+                    <AlertDialogContent class="account-dialog">
                       <AlertDialogHeader>
                         <AlertDialogTitle>Delete Account</AlertDialogTitle>
                         <AlertDialogDescription>

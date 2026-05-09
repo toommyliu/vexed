@@ -3,6 +3,9 @@ import { X } from "lucide-solid";
 import {
   Show,
   createContext,
+  createEffect,
+  createSignal,
+  onCleanup,
   splitProps,
   useContext,
   type JSX,
@@ -10,7 +13,19 @@ import {
 import { Portal } from "solid-js/web";
 import { cn } from "../lib/cn";
 
-const DialogLayerContext = createContext(0);
+interface DialogLayerState {
+  readonly layer: number;
+  readonly setNestedOpen: (id: number, open: boolean) => void;
+}
+
+const noopSetNestedOpen = (): void => undefined;
+
+const DialogLayerContext = createContext<DialogLayerState>({
+  layer: 0,
+  setNestedOpen: noopSetNestedOpen,
+});
+
+let nextDialogId = 0;
 
 function dataSlot(props: unknown, fallback: string): string {
   const value = (props as { readonly "data-slot"?: string })["data-slot"];
@@ -24,13 +39,76 @@ const positionerZIndex = (layer: number): number => overlayZIndex(layer) + 1;
 export type DialogProps = Parameters<typeof DialogPrimitive.Root>[0];
 
 export function Dialog(props: DialogProps): JSX.Element {
-  const parentLayer = useContext(DialogLayerContext);
-  const layer = parentLayer + 1;
+  const parent = useContext(DialogLayerContext);
+  const layer = parent.layer + 1;
+  const [local, rest] = splitProps(props, ["children"]);
+  const [nestedOpenIds, setNestedOpenIds] = createSignal<ReadonlySet<number>>(
+    new Set(),
+    { equals: false },
+  );
+
+  const setNestedOpen = (id: number, open: boolean): void => {
+    setNestedOpenIds((current) => {
+      const next = new Set(current);
+      if (open) {
+        next.add(id);
+      } else {
+        next.delete(id);
+      }
+      return next;
+    });
+  };
 
   return (
-    <DialogLayerContext.Provider value={layer}>
-      <DialogPrimitive.Root {...props} />
+    <DialogLayerContext.Provider value={{ layer, setNestedOpen }}>
+      <DialogPrimitive.Root {...rest}>
+        <DialogOpenReporter parent={parent} />
+        <DialogNestedOpenProvider count={() => nestedOpenIds().size}>
+          {local.children}
+        </DialogNestedOpenProvider>
+      </DialogPrimitive.Root>
     </DialogLayerContext.Provider>
+  );
+}
+
+function DialogOpenReporter(props: {
+  readonly parent: DialogLayerState;
+}): JSX.Element {
+  const id = ++nextDialogId;
+  let reportedOpen = false;
+
+  onCleanup(() => {
+    if (reportedOpen) {
+      props.parent.setNestedOpen(id, false);
+    }
+  });
+
+  return (
+    <DialogPrimitive.Context>
+      {(context) => {
+        createEffect(() => {
+          const open = context().open;
+          if (open !== reportedOpen) {
+            reportedOpen = open;
+            props.parent.setNestedOpen(id, open);
+          }
+        });
+        return null;
+      }}
+    </DialogPrimitive.Context>
+  );
+}
+
+const DialogNestedOpenContext = createContext<() => number>(() => 0);
+
+function DialogNestedOpenProvider(props: {
+  readonly count: () => number;
+  readonly children: JSX.Element;
+}): JSX.Element {
+  return (
+    <DialogNestedOpenContext.Provider value={props.count}>
+      {props.children}
+    </DialogNestedOpenContext.Provider>
   );
 }
 
@@ -73,7 +151,9 @@ export function DialogOverlay(
 }
 
 export function DialogContent(props: DialogContentProps): JSX.Element {
-  const layer = useContext(DialogLayerContext) || 1;
+  const dialogState = useContext(DialogLayerContext);
+  const nestedOpenCount = useContext(DialogNestedOpenContext);
+  const layer = dialogState.layer || 1;
   const slot = dataSlot(props, "dialog-content");
   const [local, rest] = splitProps(props, [
     "bottomStickOnMobile",
@@ -81,6 +161,7 @@ export function DialogContent(props: DialogContentProps): JSX.Element {
     "class",
     "closeProps",
     "showCloseButton",
+    "style",
   ]);
 
   return (
@@ -88,7 +169,10 @@ export function DialogContent(props: DialogContentProps): JSX.Element {
       {(context) => (
         <Show when={context().open}>
           <Portal>
-            <DialogOverlay style={{ "z-index": overlayZIndex(layer) }} />
+            <DialogOverlay
+              data-nested={layer > 1 ? "" : undefined}
+              style={{ "z-index": overlayZIndex(layer) }}
+            />
             <DialogPrimitive.Positioner
               class="dialog__positioner"
               data-slot="dialog-positioner"
@@ -102,6 +186,18 @@ export function DialogContent(props: DialogContentProps): JSX.Element {
                     "dialog__content--mobile-stick",
                   local.class,
                 )}
+                data-nested={layer > 1 ? "" : undefined}
+                data-nested-dialog-open={
+                  nestedOpenCount() > 0 ? "" : undefined
+                }
+                style={
+                  typeof local.style === "object"
+                    ? {
+                        ...local.style,
+                        "--nested-dialogs": nestedOpenCount(),
+                      }
+                    : { "--nested-dialogs": nestedOpenCount() }
+                }
                 data-slot={slot}
               >
                 {local.children}

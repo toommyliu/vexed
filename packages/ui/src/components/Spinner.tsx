@@ -2,7 +2,7 @@ import { splitProps, type JSX } from "solid-js";
 import { cn } from "../lib/cn";
 
 export interface SpinnerProps extends JSX.HTMLAttributes<HTMLSpanElement> {
-  readonly size?: "sm" | "md" | "lg";
+  readonly size?: "sm" | "md" | "lg" | "xl";
 }
 
 export function Spinner(props: SpinnerProps): JSX.Element {

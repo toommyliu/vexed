@@ -1,4 +1,5 @@
 import "./style.css";
+import { Spinner } from "@vexed/ui";
 import { Effect } from "effect";
 import {
   createMemo,
@@ -754,7 +755,7 @@ export default function App(props: {
         aria-live="polite"
       >
         <div class="game-loader__content">
-          <div class="game-loader__spinner" aria-hidden="true" />
+          <Spinner class="game-loader__spinner" size="xl" />
           <span id="progress-text">Loading...</span>
         </div>
       </section>

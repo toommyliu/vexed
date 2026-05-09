@@ -1844,6 +1844,11 @@ a.badge--destructive:hover {
   width: 1.5rem;
 }
 
+.spinner--xl {
+  height: 1.75rem;
+  width: 1.75rem;
+}
+
 /* Visually Hidden */
 
 .visually-hidden {
@@ -1956,7 +1961,20 @@ a.badge--destructive:hover {
   outline: none;
   overflow: hidden;
   position: relative;
+  transition:
+    opacity 160ms ease,
+    transform 160ms ease;
   width: 100%;
+}
+
+.dialog__overlay[data-nested] {
+  background: transparent;
+}
+
+.dialog__content[data-nested-dialog-open] {
+  opacity: 0;
+  pointer-events: none;
+  transform: scale(0.96) translateY(-0.5rem);
 }
 
 .dialog__close {

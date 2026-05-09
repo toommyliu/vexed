@@ -719,6 +719,15 @@ describe("Dialog", () => {
     expect(positioners[0]?.style.zIndex).toBe("51");
     expect(overlays[1]?.style.zIndex).toBe("52");
     expect(positioners[1]?.style.zIndex).toBe("53");
+    expect(overlays[1]?.hasAttribute("data-nested")).toBe(true);
+
+    const contents = document.body.querySelectorAll<HTMLElement>(
+      "[data-slot='dialog-content']",
+    );
+    expect(contents[0]?.hasAttribute("data-nested-dialog-open")).toBe(true);
+    expect(contents[0]?.style.getPropertyValue("--nested-dialogs")).toBe("1");
+    expect(contents[1]?.hasAttribute("data-nested")).toBe(true);
+    expect(contents[1]?.hasAttribute("data-nested-dialog-open")).toBe(false);
   });
 });
 

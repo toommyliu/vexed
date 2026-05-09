@@ -544,7 +544,7 @@ export const registerAccountManagerIpcHandlers = (
         return {
           ...account,
           ...accountPatch,
-          label: accountPatch.label ?? accountPatch.username ?? account.label,
+          label: accountPatch.label ?? account.label,
         };
       });
 
