@@ -2,10 +2,8 @@ import { type JSX } from "solid-js";
 import { Button, type ButtonProps } from "./Button";
 import {
   Tooltip,
-  TooltipArrow,
   TooltipContent,
   TooltipTrigger,
-  type TooltipArrowProps,
   type TooltipContentProps,
   type TooltipProps,
 } from "./Tooltip";
@@ -40,12 +38,4 @@ export function TooltipButtonContent(
   props: TooltipButtonContentProps,
 ): JSX.Element {
   return <TooltipContent {...props} />;
-}
-
-export type TooltipButtonArrowProps = TooltipArrowProps;
-
-export function TooltipButtonArrow(
-  props: TooltipButtonArrowProps,
-): JSX.Element {
-  return <TooltipArrow {...props} />;
 }

@@ -2562,20 +2562,6 @@ a.badge--destructive:hover {
   word-break: normal;
 }
 
-.tooltip__arrow {
-  --tooltip-arrow-size: 0.5rem;
-  height: var(--tooltip-arrow-size);
-  width: var(--tooltip-arrow-size);
-}
-
-.tooltip__arrow-tip {
-  background: rgb(var(--popover));
-  border: 1px solid rgb(var(--border));
-  height: var(--tooltip-arrow-size);
-  transform: rotate(45deg);
-  width: var(--tooltip-arrow-size);
-}
-
 /* Command */
 
 .command {

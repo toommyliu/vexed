@@ -96,9 +96,7 @@ import {
   TabsTrigger,
   Textarea,
   Tooltip,
-  TooltipArrow,
   TooltipButton,
-  TooltipButtonArrow,
   TooltipButtonContent,
   TooltipButtonTrigger,
   TooltipContent,
@@ -1006,14 +1004,11 @@ describe("Tabs", () => {
 });
 
 describe("Tooltip", () => {
-  it("renders open tooltip content, arrow, and trigger attributes", () => {
+  it("renders open tooltip content and trigger attributes", () => {
     renderUi(() => (
       <Tooltip open>
         <TooltipTrigger aria-label="Info">Info</TooltipTrigger>
-        <TooltipContent>
-          Runtime status
-          <TooltipArrow />
-        </TooltipContent>
+        <TooltipContent>Runtime status</TooltipContent>
       </Tooltip>
     ));
 
@@ -1022,9 +1017,6 @@ describe("Tooltip", () => {
     ).not.toBeNull();
     expect(
       document.body.querySelector("[data-slot='tooltip-content']"),
-    ).not.toBeNull();
-    expect(
-      document.body.querySelector("[data-slot='tooltip-arrow']"),
     ).not.toBeNull();
   });
 });
@@ -1036,10 +1028,7 @@ describe("TooltipButton", () => {
         <TooltipButtonTrigger variant="ghost" size="icon-sm" aria-label="Info">
           Info
         </TooltipButtonTrigger>
-        <TooltipButtonContent>
-          Runtime status
-          <TooltipButtonArrow />
-        </TooltipButtonContent>
+        <TooltipButtonContent>Runtime status</TooltipButtonContent>
       </TooltipButton>
     ));
     const button = root.querySelector("button");
@@ -1051,9 +1040,6 @@ describe("TooltipButton", () => {
     expect(root.querySelectorAll("button")).toHaveLength(1);
     expect(
       document.body.querySelector("[data-slot='tooltip-content']"),
-    ).not.toBeNull();
-    expect(
-      document.body.querySelector("[data-slot='tooltip-arrow']"),
     ).not.toBeNull();
   });
 

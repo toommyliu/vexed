@@ -185,7 +185,7 @@ function AccountActionButton(props: {
           />
         )}
       />
-      <TooltipContent arrow>{props.tooltip}</TooltipContent>
+      <TooltipContent>{props.tooltip}</TooltipContent>
     </Tooltip>
   );
 }
@@ -218,7 +218,7 @@ function AccountDeleteTrigger(props: {
           />
         )}
       />
-      <TooltipContent arrow>{props.tooltip}</TooltipContent>
+      <TooltipContent>{props.tooltip}</TooltipContent>
     </Tooltip>
   );
 }
@@ -776,7 +776,7 @@ function App(): JSX.Element {
                         </Button>
                       )}
                     />
-                    <TooltipContent arrow>Refresh servers</TooltipContent>
+                    <TooltipContent>Refresh servers</TooltipContent>
                   </Tooltip>
                 </div>
                 <InputGroup class="account-manager__server-field account-manager__field">
@@ -911,7 +911,7 @@ function App(): JSX.Element {
                           )}
                         />
                         <Show when={scriptPathInput() !== ""}>
-                          <TooltipContent arrow>
+                          <TooltipContent>
                             {scriptPathInput()}
                           </TooltipContent>
                         </Show>
@@ -969,7 +969,7 @@ function App(): JSX.Element {
                             </Button>
                           )}
                         />
-                        <TooltipContent arrow>Edit script path</TooltipContent>
+                        <TooltipContent>Edit script path</TooltipContent>
                       </Tooltip>
                     </Show>
                     <Tooltip closeDelay={0} openDelay={200}>
@@ -989,7 +989,7 @@ function App(): JSX.Element {
                           </Button>
                         )}
                       />
-                      <TooltipContent arrow>Choose script file</TooltipContent>
+                      <TooltipContent>Choose script file</TooltipContent>
                     </Tooltip>
                     <Show when={scriptPathInput() !== ""}>
                       <Tooltip closeDelay={0} openDelay={200}>
@@ -1009,7 +1009,7 @@ function App(): JSX.Element {
                             </Button>
                           )}
                         />
-                        <TooltipContent arrow>Clear script</TooltipContent>
+                        <TooltipContent>Clear script</TooltipContent>
                       </Tooltip>
                     </Show>
                   </InputGroupAddon>
