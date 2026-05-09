@@ -52,7 +52,7 @@ export interface TopNavProps {
   readonly autoAttackEnabled: Accessor<boolean>;
   readonly setAutoAttackEnabled: Setter<boolean>;
   readonly gameLoaded: Accessor<boolean>;
-  readonly playerLoggedIn: Accessor<boolean>;
+  readonly playerReady: Accessor<boolean>;
   readonly scriptLoaded: Accessor<boolean>;
   readonly scriptRunning: Accessor<boolean>;
   readonly scriptStatus: Accessor<string>;
@@ -175,12 +175,19 @@ export function TopNav(props: TopNavProps): JSX.Element {
   const toggleTravelMenu =
     (menu: "pads" | "cells"): JSX.EventHandler<HTMLButtonElement, MouseEvent> =>
     (event) => {
+      if (travelDisabled()) {
+        event.preventDefault();
+        return;
+      }
+
       props.handleRefreshTravelOptions();
       toggleMenu(menu)(event);
     };
 
-  const travelDisabled = () =>
-    !props.gameLoaded() || !props.playerLoggedIn() || props.travelBusy();
+  const gameInteractionDisabled = () =>
+    !props.gameLoaded() || !props.playerReady();
+
+  const travelDisabled = () => gameInteractionDisabled() || props.travelBusy();
 
   const isValidPad = (pad: string) =>
     props
@@ -190,6 +197,9 @@ export function TopNav(props: TopNavProps): JSX.Element {
   const clickOption =
     (option: TopNavOptionItem): JSX.EventHandler<HTMLDivElement, MouseEvent> =>
     () => {
+      if (option.disabled) {
+        return;
+      }
       option.onSelect();
     };
 
@@ -349,6 +359,7 @@ export function TopNav(props: TopNavProps): JSX.Element {
                       checked={option.checked}
                       class="game-menu__item"
                       closeOnSelect={false}
+                      disabled={option.disabled}
                       onClick={clickOption(option)}
                       value={option.id}
                     >
@@ -374,6 +385,7 @@ export function TopNav(props: TopNavProps): JSX.Element {
                 <label class="game-menu__field">
                   <span>Walk Speed</span>
                   <Input
+                    disabled={gameInteractionDisabled()}
                     size="sm"
                     value={props.walkSpeed()}
                     onBlur={props.handleSetWalkSpeed}
@@ -386,6 +398,7 @@ export function TopNav(props: TopNavProps): JSX.Element {
                 <label class="game-menu__field">
                   <span>FPS</span>
                   <Input
+                    disabled={gameInteractionDisabled()}
                     size="sm"
                     value={props.frameRate()}
                     onBlur={props.handleSetFrameRate}
@@ -398,6 +411,8 @@ export function TopNav(props: TopNavProps): JSX.Element {
                 <label class="game-menu__field game-menu__field--wide">
                   <span>Custom Name</span>
                   <Input
+                    disabled={gameInteractionDisabled()}
+                    placeholder="Keep current name"
                     size="sm"
                     value={props.customName()}
                     onBlur={props.handleSetCustomName}
@@ -410,6 +425,8 @@ export function TopNav(props: TopNavProps): JSX.Element {
                 <label class="game-menu__field game-menu__field--wide">
                   <span>Custom Guild</span>
                   <Input
+                    disabled={gameInteractionDisabled()}
+                    placeholder="Keep current guild"
                     size="sm"
                     value={props.customGuild()}
                     onBlur={props.handleSetCustomGuild}
@@ -587,7 +604,7 @@ export function TopNav(props: TopNavProps): JSX.Element {
         <div class="game-topnav__right">
           <Checkbox
             checked={props.autoAttackEnabled()}
-            disabled={!props.gameLoaded() || !props.playerLoggedIn()}
+            disabled={gameInteractionDisabled()}
             onChange={(event) =>
               props.setAutoAttackEnabled(event.currentTarget.checked)
             }
@@ -684,7 +701,7 @@ export function TopNav(props: TopNavProps): JSX.Element {
 
           <Button
             class="game-topnav__button"
-            disabled={!props.gameLoaded() || !props.playerLoggedIn()}
+            disabled={gameInteractionDisabled()}
             onClick={props.handleOpenBank}
             size="xs"
             title="Open bank"

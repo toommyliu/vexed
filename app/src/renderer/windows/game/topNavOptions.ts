@@ -12,6 +12,7 @@ export interface TopNavOptionItem {
   readonly id: string;
   readonly label: string;
   readonly checked: boolean;
+  readonly disabled?: boolean;
   readonly onSelect: () => void;
 }
 

@@ -606,14 +606,26 @@ export default function App(props: {
   };
 
   const handleSetCustomName = () => {
+    const name = customName().trim();
+    if (name === "") {
+      return;
+    }
+
+    setCustomName(name);
     runSettingsEffect("Set custom name", (settings) =>
-      settings.setCustomName(customName()),
+      settings.setCustomName(name),
     );
   };
 
   const handleSetCustomGuild = () => {
+    const guild = customGuild().trim();
+    if (guild === "") {
+      return;
+    }
+
+    setCustomGuild(guild);
     runSettingsEffect("Set custom guild", (settings) =>
-      settings.setCustomGuild(customGuild()),
+      settings.setCustomGuild(guild),
     );
   };
 
@@ -761,62 +773,75 @@ export default function App(props: {
       });
   };
 
-  const optionItems = createMemo<readonly TopNavOptionItem[]>(() => [
-    {
-      id: "infinite-range",
-      label: "Infinite Range",
-      checked: infiniteRangeEnabled(),
-      onSelect: handleToggleInfiniteRange,
-    },
-    {
-      id: "provoke-cell",
-      label: "Provoke Cell",
-      checked: provokeCellEnabled(),
-      onSelect: handleToggleProvokeCell,
-    },
-    {
-      id: "enemy-magnet",
-      label: "Enemy Magnet",
-      checked: enemyMagnetEnabled(),
-      onSelect: handleToggleEnemyMagnet,
-    },
-    {
-      id: "lag-killer",
-      label: "Lag Killer",
-      checked: lagKillerEnabled(),
-      onSelect: handleToggleLagKiller,
-    },
-    {
-      id: "hide-players",
-      label: "Hide Players",
-      checked: !otherPlayersVisible(),
-      onSelect: handleTogglePlayersVisible,
-    },
-    {
-      id: "skip-cutscenes",
-      label: "Skip Cutscenes",
-      checked: skipCutscenesEnabled(),
-      onSelect: handleToggleSkipCutscenes,
-    },
-    {
-      id: "disable-fx",
-      label: "Disable FX",
-      checked: !effectsEnabled(),
-      onSelect: handleToggleEffects,
-    },
-    {
-      id: "collisions",
-      label: "Collisions",
-      checked: collisionsEnabled(),
-      onSelect: handleToggleCollisions,
-    },
-    {
-      id: "death-ads",
-      label: "Death Ads",
-      checked: deathAdsVisible(),
-      onSelect: handleToggleDeathAds,
-    },
-  ]);
+  const optionItems = createMemo<readonly TopNavOptionItem[]>(() => {
+    const disabled = !canApplyGameSettings();
+
+    return [
+      {
+        id: "infinite-range",
+        label: "Infinite Range",
+        checked: infiniteRangeEnabled(),
+        disabled,
+        onSelect: handleToggleInfiniteRange,
+      },
+      {
+        id: "provoke-cell",
+        label: "Provoke Cell",
+        checked: provokeCellEnabled(),
+        disabled,
+        onSelect: handleToggleProvokeCell,
+      },
+      {
+        id: "enemy-magnet",
+        label: "Enemy Magnet",
+        checked: enemyMagnetEnabled(),
+        disabled,
+        onSelect: handleToggleEnemyMagnet,
+      },
+      {
+        id: "lag-killer",
+        label: "Lag Killer",
+        checked: lagKillerEnabled(),
+        disabled,
+        onSelect: handleToggleLagKiller,
+      },
+      {
+        id: "hide-players",
+        label: "Hide Players",
+        checked: !otherPlayersVisible(),
+        disabled,
+        onSelect: handleTogglePlayersVisible,
+      },
+      {
+        id: "skip-cutscenes",
+        label: "Skip Cutscenes",
+        checked: skipCutscenesEnabled(),
+        disabled,
+        onSelect: handleToggleSkipCutscenes,
+      },
+      {
+        id: "disable-fx",
+        label: "Disable FX",
+        checked: !effectsEnabled(),
+        disabled,
+        onSelect: handleToggleEffects,
+      },
+      {
+        id: "collisions",
+        label: "Collisions",
+        checked: collisionsEnabled(),
+        disabled,
+        onSelect: handleToggleCollisions,
+      },
+      {
+        id: "death-ads",
+        label: "Death Ads",
+        checked: deathAdsVisible(),
+        disabled,
+        onSelect: handleToggleDeathAds,
+      },
+    ];
+  });
 
   const gameCommands = createGameCommands({
     bindings: () => settings().hotkeys.bindings,
@@ -849,12 +874,12 @@ export default function App(props: {
     const disposeGameLoadState = subscribeGameLoadState((state) => {
       setGameLoaded(state.loaded);
       if (!state.loaded) {
-        setPlayerLoggedIn(false);
+        setPlayerReady(false);
       }
     });
 
-    refreshPlayerLoginState();
-    const loginStateInterval = setInterval(refreshPlayerLoginState, 1200);
+    refreshPlayerReadyState();
+    const playerReadyStateInterval = setInterval(refreshPlayerReadyState, 1200);
 
     void refreshScriptMeta();
     const scriptMetaInterval = setInterval(() => {
@@ -915,7 +940,7 @@ export default function App(props: {
       unsubscribeAccountLaunch();
       disposeGameLoadState();
       clearInterval(scriptMetaInterval);
-      clearInterval(loginStateInterval);
+      clearInterval(playerReadyStateInterval);
     });
   });
 
@@ -938,7 +963,7 @@ export default function App(props: {
         autoAttackEnabled={autoAttackEnabled}
         setAutoAttackEnabled={setAutoAttackEnabled}
         gameLoaded={gameLoaded}
-        playerLoggedIn={playerLoggedIn}
+        playerReady={playerReady}
         scriptLoaded={scriptLoaded}
         scriptRunning={scriptRunning}
         scriptStatus={scriptStatus}
