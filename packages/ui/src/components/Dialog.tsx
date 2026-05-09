@@ -36,6 +36,30 @@ const overlayZIndex = (layer: number): number =>
   50 + Math.max(0, layer - 1) * 2;
 const positionerZIndex = (layer: number): number => overlayZIndex(layer) + 1;
 
+function dialogContentStyle(
+  style: DialogContentProps["style"],
+  nestedDialogs: number,
+): JSX.CSSProperties | string {
+  if (typeof style === "string") {
+    const trimmedStyle = style.trimEnd();
+    if (trimmedStyle.length === 0) {
+      return `--nested-dialogs: ${nestedDialogs};`;
+    }
+
+    const separator = trimmedStyle.endsWith(";") ? " " : "; ";
+    return `${trimmedStyle}${separator}--nested-dialogs: ${nestedDialogs};`;
+  }
+
+  if (style != null && typeof style === "object") {
+    return {
+      ...style,
+      "--nested-dialogs": nestedDialogs,
+    } as JSX.CSSProperties;
+  }
+
+  return { "--nested-dialogs": nestedDialogs } as JSX.CSSProperties;
+}
+
 export type DialogProps = Parameters<typeof DialogPrimitive.Root>[0];
 
 export function Dialog(props: DialogProps): JSX.Element {
@@ -190,14 +214,7 @@ export function DialogContent(props: DialogContentProps): JSX.Element {
                 data-nested-dialog-open={
                   nestedOpenCount() > 0 ? "" : undefined
                 }
-                style={
-                  typeof local.style === "object"
-                    ? {
-                        ...local.style,
-                        "--nested-dialogs": nestedOpenCount(),
-                      }
-                    : { "--nested-dialogs": nestedOpenCount() }
-                }
+                style={dialogContentStyle(local.style, nestedOpenCount())}
                 data-slot={slot}
               >
                 {local.children}
