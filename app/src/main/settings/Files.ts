@@ -172,18 +172,20 @@ export const ensureYaml = <T>(
   path: string,
   defaults: T,
   normalize: (value: unknown) => T,
+  serialize: (value: T) => unknown = (value) => value,
 ): T => {
   const hasYaml = existsSync(path);
   const value = readYaml(path);
   const normalized = value === undefined ? defaults : normalize(value);
+  const serialized = serialize(normalized);
 
   if (!hasYaml || value === undefined) {
-    writeYaml(path, normalized);
+    writeYaml(path, serialized);
     return normalized;
   }
 
-  if (JSON.stringify(value) !== JSON.stringify(normalized)) {
-    writeYaml(path, normalized);
+  if (JSON.stringify(value) !== JSON.stringify(serialized)) {
+    writeYaml(path, serialized);
   }
 
   return normalized;
