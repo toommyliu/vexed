@@ -21,7 +21,11 @@ import {
 } from "../../../shared/commands";
 import type { HotkeyBindings } from "../../../shared/hotkeys";
 import type { AppPlatform } from "../../../shared/ipc";
-import { WindowIds, gameWindowGroups, type WindowId } from "../../../shared/windows";
+import {
+  WindowIds,
+  gameWindowGroups,
+  type WindowId,
+} from "../../../shared/windows";
 import {
   getTopNavOptionCommandId,
   type GameTopNavMenu,
@@ -138,6 +142,12 @@ export function TopNav(props: TopNavProps): JSX.Element {
     props
       .validPads()
       .some((validPad) => validPad.toLowerCase() === pad.toLowerCase());
+
+  const clickOption =
+    (option: TopNavOptionItem): JSX.EventHandler<HTMLDivElement, MouseEvent> =>
+    () => {
+      option.onSelect();
+    };
 
   return (
     <div id="topnav-container" class="game-topnav-container">
@@ -273,7 +283,8 @@ export function TopNav(props: TopNavProps): JSX.Element {
                     <MenuCheckboxItem
                       checked={option.checked}
                       class="game-menu__item"
-                      onClick={option.onSelect}
+                      closeOnSelect={false}
+                      onClick={clickOption(option)}
                       value={option.id}
                     >
                       <span class="game-menu__option-content">
@@ -431,6 +442,7 @@ export function TopNav(props: TopNavProps): JSX.Element {
         <div class="game-topnav__right">
           <Checkbox
             checked={props.autoAttackEnabled()}
+            disabled={!props.gameLoaded() || !props.playerLoggedIn()}
             onChange={(event) =>
               props.setAutoAttackEnabled(event.currentTarget.checked)
             }

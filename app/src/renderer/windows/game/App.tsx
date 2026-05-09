@@ -948,7 +948,9 @@ export default function App(props: {
         id="game-container"
         class="game-viewport"
         classList={{ "game-viewport--loaded": gameLoaded() }}
-      />
+      >
+        <div class="game-visual-cover" aria-hidden="true" />
+      </section>
     </main>
   );
 }
