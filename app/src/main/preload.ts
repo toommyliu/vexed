@@ -61,12 +61,18 @@ const deliverAccountGameLaunchPayload = (
     return;
   }
 
-  lastDeliveredAccountGameLaunchKey = key;
-
   if (accountGameLaunchListeners.size === 0) {
-    pendingAccountGameLaunchPayloads.push(payload);
+    if (
+      !pendingAccountGameLaunchPayloads.some(
+        (pendingPayload) => accountGameLaunchKey(pendingPayload) === key,
+      )
+    ) {
+      pendingAccountGameLaunchPayloads.push(payload);
+    }
     return;
   }
+
+  lastDeliveredAccountGameLaunchKey = key;
 
   for (const listener of accountGameLaunchListeners) {
     listener(payload);
@@ -153,7 +159,7 @@ const bridge: AppBridge = {
       while (pendingAccountGameLaunchPayloads.length > 0) {
         const payload = pendingAccountGameLaunchPayloads.shift();
         if (payload) {
-          listener(payload);
+          deliverAccountGameLaunchPayload(payload);
         }
       }
 
