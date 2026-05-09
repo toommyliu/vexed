@@ -344,6 +344,8 @@ const make = Effect.gen(function* () {
 
   const markFailure = (error: unknown) =>
     Effect.gen(function* () {
+      const terminal =
+        error instanceof AutoReloginAttemptError && !error.retryable;
       const publicState = yield* updateState((state) => {
         state.lastError = redacted(
           formatReloginError(error),
@@ -352,9 +354,21 @@ const make = Effect.gen(function* () {
         state.attempting = false;
         state.connected = false;
         state.ownedConnectionServerName = undefined;
+
+        // Non-retryable failures, such as the captured server being unavailable
+        // or ineligible for the logged-in account, will not be fixed by another
+        // immediate relogin attempt. Disable the worker so it does not spin once
+        // per delay interval while the player remains logged out.
+        if (terminal) {
+          state.enabled = false;
+          state.loggedOutSince = undefined;
+          state.lastAttemptAt = 0;
+        }
       });
       yield* Effect.logWarning({
-        message: "autorelogin failed",
+        message: terminal
+          ? "autorelogin stopped after terminal failure"
+          : "autorelogin failed",
         error: publicState.lastError,
       });
       return publicState;
