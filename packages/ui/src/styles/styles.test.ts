@@ -98,6 +98,9 @@ describe("component color usage", () => {
     expect(components).toContain(
       '.dark .input[type="number"]::-webkit-inner-spin-button',
     );
+    expect(components).toContain(
+      '.dark .input--unstyled[type="number"]::-webkit-inner-spin-button',
+    );
     expect(components).toContain(".textarea-control--invalid");
   });
 

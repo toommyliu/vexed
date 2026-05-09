@@ -32,6 +32,7 @@ export function MenuTrigger(props: MenuTriggerProps): JSX.Element {
 export interface MenuContentProps
   extends Omit<Parameters<typeof MenuPrimitive.Content>[0], "class"> {
   readonly class?: string;
+  readonly onKeyDownCapture?: JSX.EventHandler<HTMLDivElement, KeyboardEvent>;
   readonly portal?: boolean;
 }
 
@@ -227,16 +228,10 @@ export interface MenuSubTriggerProps
   extends Omit<Parameters<typeof MenuPrimitive.TriggerItem>[0], "class"> {
   readonly class?: string;
   readonly inset?: boolean;
-  readonly value?: string;
 }
 
 export function MenuSubTrigger(props: MenuSubTriggerProps): JSX.Element {
-  const [local, rest] = splitProps(props, [
-    "children",
-    "class",
-    "inset",
-    "value",
-  ]);
+  const [local, rest] = splitProps(props, ["children", "class", "inset"]);
   return (
     <MenuPrimitive.TriggerItem
       {...rest}
@@ -248,7 +243,6 @@ export function MenuSubTrigger(props: MenuSubTriggerProps): JSX.Element {
       )}
       data-inset={local.inset ? "" : undefined}
       data-slot="menu-sub-trigger"
-      data-value={local.value}
     >
       {local.children}
       <ChevronRight class="menu__sub-icon" />

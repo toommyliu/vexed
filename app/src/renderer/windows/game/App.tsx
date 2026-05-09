@@ -38,8 +38,10 @@ import {
 import type { GameTopNavMenu, TopNavOptionItem } from "./topNavOptions";
 
 const ACCOUNT_SCRIPT_STATUS_POLL_MS = 1000;
+const AUTO_RELOGIN_DEFAULT_DELAY_MS = 3000;
 const DEFAULT_CELL = "Enter";
 const DEFAULT_PAD = "Spawn";
+const MS_PER_SECOND = 1000;
 const DEFAULT_PADS = [
   "Spawn",
   "Center",
@@ -54,6 +56,16 @@ const DEFAULT_PADS = [
 const uniqueNonEmpty = (values: readonly string[]): string[] => [
   ...new Set(values.map((value) => value.trim()).filter(Boolean)),
 ];
+
+const formatDelaySeconds = (delayMs: number): string =>
+  String(delayMs / MS_PER_SECOND);
+
+const parseDelaySecondsToMs = (value: string): number => {
+  const seconds = Number.parseFloat(value);
+  return Number.isFinite(seconds)
+    ? Math.max(0, Math.round(seconds * MS_PER_SECOND))
+    : Number.NaN;
+};
 
 const formatScriptStatus = (
   loaded: boolean,
@@ -112,10 +124,13 @@ export default function App(props: {
   const [autoReloginCaptured, setAutoReloginCaptured] = createSignal(false);
   const [autoReloginAttempting, setAutoReloginAttempting] = createSignal(false);
   const [autoReloginToggling, setAutoReloginToggling] = createSignal(false);
-  const [autoReloginDelayMs, setAutoReloginDelayMs] = createSignal("3000");
-  const [autoReloginUsername, setAutoReloginUsername] = createSignal("");
+  const [autoReloginDelaySeconds, setAutoReloginDelaySeconds] = createSignal(
+    formatDelaySeconds(AUTO_RELOGIN_DEFAULT_DELAY_MS),
+  );
   const [autoReloginServer, setAutoReloginServer] = createSignal("");
-  const [autoReloginServers, setAutoReloginServers] = createSignal<string[]>([]);
+  const [autoReloginServers, setAutoReloginServers] = createSignal<string[]>(
+    [],
+  );
   const [autoReloginLastError, setAutoReloginLastError] = createSignal("");
   const [openTopNavMenu, setOpenTopNavMenu] =
     createSignal<GameTopNavMenu | null>(null);
@@ -633,8 +648,7 @@ export default function App(props: {
         setAutoReloginEnabled(state.enabled);
         setAutoReloginCaptured(state.captured);
         setAutoReloginAttempting(state.attempting);
-        setAutoReloginDelayMs(String(state.delayMs));
-        setAutoReloginUsername(state.username ?? "");
+        setAutoReloginDelaySeconds(formatDelaySeconds(state.delayMs));
         setAutoReloginServer(state.server ?? "");
         setAutoReloginLastError(state.lastError ?? "");
       })
@@ -665,8 +679,7 @@ export default function App(props: {
         setAutoReloginEnabled(state.enabled);
         setAutoReloginCaptured(state.captured);
         setAutoReloginAttempting(state.attempting);
-        setAutoReloginDelayMs(String(state.delayMs));
-        setAutoReloginUsername(state.username ?? "");
+        setAutoReloginDelaySeconds(formatDelaySeconds(state.delayMs));
         setAutoReloginServer(state.server ?? "");
         setAutoReloginLastError(state.lastError ?? "");
       })
@@ -699,24 +712,6 @@ export default function App(props: {
       });
   };
 
-  const handleCaptureAutoReloginSession = () => {
-    void runtime
-      .runPromise(
-        Effect.gen(function* () {
-          const autoRelogin = yield* AutoRelogin;
-          return yield* autoRelogin.captureCurrentSession();
-        }),
-      )
-      .then(() => {
-        refreshAutoReloginState();
-        refreshAutoReloginServers();
-      })
-      .catch((error) => {
-        console.error("Capture autorelogin session error:", error);
-        refreshAutoReloginState();
-      });
-  };
-
   const handleSelectAutoReloginServer = (serverName: string) => {
     setAutoReloginServer(serverName);
 
@@ -738,7 +733,7 @@ export default function App(props: {
   };
 
   const handleSetAutoReloginDelay = () => {
-    const delayMs = Number.parseInt(autoReloginDelayMs(), 10);
+    const delayMs = parseDelaySecondsToMs(autoReloginDelaySeconds());
     if (!Number.isFinite(delayMs) || delayMs < 0) {
       refreshAutoReloginState();
       return;
@@ -752,7 +747,7 @@ export default function App(props: {
         }),
       )
       .then((state) => {
-        setAutoReloginDelayMs(String(state.delayMs));
+        setAutoReloginDelaySeconds(formatDelaySeconds(state.delayMs));
         setAutoReloginLastError(state.lastError ?? "");
       })
       .catch((error) => {
@@ -897,8 +892,7 @@ export default function App(props: {
             setAutoReloginEnabled(state.enabled);
             setAutoReloginCaptured(state.captured);
             setAutoReloginAttempting(state.attempting);
-            setAutoReloginDelayMs(String(state.delayMs));
-            setAutoReloginUsername(state.username ?? "");
+            setAutoReloginDelaySeconds(formatDelaySeconds(state.delayMs));
             setAutoReloginServer(state.server ?? "");
             setAutoReloginLastError(state.lastError ?? "");
           });
@@ -965,13 +959,11 @@ export default function App(props: {
         autoReloginCaptured={autoReloginCaptured}
         autoReloginAttempting={autoReloginAttempting}
         autoReloginToggling={autoReloginToggling}
-        autoReloginDelayMs={autoReloginDelayMs}
-        setAutoReloginDelayMs={setAutoReloginDelayMs}
-        autoReloginUsername={autoReloginUsername}
+        autoReloginDelaySeconds={autoReloginDelaySeconds}
+        setAutoReloginDelaySeconds={setAutoReloginDelaySeconds}
         autoReloginServer={autoReloginServer}
         autoReloginServers={autoReloginServers}
         autoReloginLastError={autoReloginLastError}
-        handleCaptureAutoReloginSession={handleCaptureAutoReloginSession}
         handleToggleAutoRelogin={handleToggleAutoRelogin}
         handleRefreshAutoReloginServers={refreshAutoReloginServers}
         handleSelectAutoReloginServer={handleSelectAutoReloginServer}

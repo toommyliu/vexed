@@ -761,8 +761,8 @@ function DemoApp() {
                         <MenuRadioItem value="fast">Fast mode</MenuRadioItem>
                       </MenuRadioGroup>
                       <MenuSeparator />
-                      <MenuSub>
-                        <MenuSubTrigger value="more">More</MenuSubTrigger>
+                      <MenuSub id="more">
+                        <MenuSubTrigger>More</MenuSubTrigger>
                         <MenuSubContent>
                           <MenuItem value="copy">Copy ID</MenuItem>
                         </MenuSubContent>

@@ -1,4 +1,11 @@
-import { For, Show, type Accessor, type JSX, type Setter } from "solid-js";
+import {
+  createSignal,
+  For,
+  Show,
+  type Accessor,
+  type JSX,
+  type Setter,
+} from "solid-js";
 import { formatOptionalHotkeyDisplay } from "@vexed/shared/hotkeyDisplay";
 import {
   Button,
@@ -11,6 +18,8 @@ import {
   MenuGroup,
   MenuItem,
   MenuLabel,
+  MenuRadioGroup,
+  MenuRadioItem,
   MenuSeparator,
   MenuSub,
   MenuSubContent,
@@ -69,13 +78,11 @@ export interface TopNavProps {
   readonly autoReloginCaptured: Accessor<boolean>;
   readonly autoReloginAttempting: Accessor<boolean>;
   readonly autoReloginToggling: Accessor<boolean>;
-  readonly autoReloginDelayMs: Accessor<string>;
-  readonly setAutoReloginDelayMs: Setter<string>;
-  readonly autoReloginUsername: Accessor<string>;
+  readonly autoReloginDelaySeconds: Accessor<string>;
+  readonly setAutoReloginDelaySeconds: Setter<string>;
   readonly autoReloginServer: Accessor<string>;
   readonly autoReloginServers: Accessor<readonly string[]>;
   readonly autoReloginLastError: Accessor<string>;
-  readonly handleCaptureAutoReloginSession: () => void;
   readonly handleToggleAutoRelogin: () => void;
   readonly handleRefreshAutoReloginServers: () => void;
   readonly handleSelectAutoReloginServer: (serverName: string) => void;
@@ -114,12 +121,42 @@ const windowHotkey = (bindings: HotkeyBindings, id: WindowId): string => {
   return commandId ? commandHotkey(bindings, commandId) : "";
 };
 
+const MenuAutofocusAnchor = (): JSX.Element => (
+  <span
+    aria-hidden="true"
+    class="game-menu__autofocus-anchor"
+    data-autofocus=""
+    tabIndex={-1}
+  />
+);
+
 export function TopNav(props: TopNavProps): JSX.Element {
+  let autoReloginMenuContent: HTMLDivElement | undefined;
+  const [autoReloginServerMenuOpen, setAutoReloginServerMenuOpen] =
+    createSignal(false);
+
   const setMenuOpen =
     (menu: GameTopNavMenu) =>
     (details: { readonly open: boolean }): void => {
       props.setOpenMenu(details.open ? menu : null);
     };
+
+  const setAutoReloginMenuOpen = (details: {
+    readonly open: boolean;
+  }): void => {
+    if (details.open) {
+      props.handleRefreshAutoReloginServers();
+    } else {
+      setAutoReloginServerMenuOpen(false);
+    }
+    props.setOpenMenu(details.open ? "relogin" : null);
+  };
+
+  const setAutoReloginServerMenuOpenFromMenu = (details: {
+    readonly open: boolean;
+  }): void => {
+    setAutoReloginServerMenuOpen(details.open);
+  };
 
   const toggleMenu =
     (menu: GameTopNavMenu): JSX.EventHandler<HTMLButtonElement, MouseEvent> =>
@@ -155,6 +192,26 @@ export function TopNav(props: TopNavProps): JSX.Element {
     () => {
       option.onSelect();
     };
+
+  const stopMenuInputKeyPropagation: JSX.EventHandler<
+    HTMLInputElement,
+    KeyboardEvent
+  > = (event) => {
+    if (event.key !== "Escape" && event.key !== "Tab") {
+      event.stopPropagation();
+    }
+  };
+
+  const closeAutoReloginServerMenuToParent: JSX.EventHandler<
+    HTMLDivElement,
+    KeyboardEvent
+  > = (event) => {
+    if (event.key !== "ArrowLeft") return;
+    event.preventDefault();
+    event.stopPropagation();
+    setAutoReloginServerMenuOpen(false);
+    autoReloginMenuContent?.focus({ preventScroll: true });
+  };
 
   return (
     <div id="topnav-container" class="game-topnav-container">
@@ -284,6 +341,7 @@ export function TopNav(props: TopNavProps): JSX.Element {
               Options
             </MenuTrigger>
             <MenuContent class="game-menu game-menu--options" portal={false}>
+              <MenuAutofocusAnchor />
               <div class="game-options-grid">
                 <For each={props.optionItems()}>
                   {(option) => (
@@ -319,6 +377,7 @@ export function TopNav(props: TopNavProps): JSX.Element {
                     size="sm"
                     value={props.walkSpeed()}
                     onBlur={props.handleSetWalkSpeed}
+                    onKeyDown={stopMenuInputKeyPropagation}
                     onInput={(event) =>
                       props.setWalkSpeed(event.currentTarget.value)
                     }
@@ -330,6 +389,7 @@ export function TopNav(props: TopNavProps): JSX.Element {
                     size="sm"
                     value={props.frameRate()}
                     onBlur={props.handleSetFrameRate}
+                    onKeyDown={stopMenuInputKeyPropagation}
                     onInput={(event) =>
                       props.setFrameRate(event.currentTarget.value)
                     }
@@ -341,6 +401,7 @@ export function TopNav(props: TopNavProps): JSX.Element {
                     size="sm"
                     value={props.customName()}
                     onBlur={props.handleSetCustomName}
+                    onKeyDown={stopMenuInputKeyPropagation}
                     onInput={(event) =>
                       props.setCustomName(event.currentTarget.value)
                     }
@@ -352,6 +413,7 @@ export function TopNav(props: TopNavProps): JSX.Element {
                     size="sm"
                     value={props.customGuild()}
                     onBlur={props.handleSetCustomGuild}
+                    onKeyDown={stopMenuInputKeyPropagation}
                     onInput={(event) =>
                       props.setCustomGuild(event.currentTarget.value)
                     }
@@ -363,7 +425,7 @@ export function TopNav(props: TopNavProps): JSX.Element {
 
           <Menu
             open={props.openMenu() === "relogin"}
-            onOpenChange={setMenuOpen("relogin")}
+            onOpenChange={setAutoReloginMenuOpen}
           >
             <MenuTrigger
               class={cn(
@@ -371,44 +433,39 @@ export function TopNav(props: TopNavProps): JSX.Element {
                 props.autoReloginEnabled() && "game-topnav__trigger--success",
               )}
               data-expanded={props.openMenu() === "relogin" ? "" : undefined}
-              onClick={(event) => {
-                props.handleRefreshAutoReloginServers();
-                toggleMenu("relogin")(event);
-              }}
             >
               Auto Relogin
             </MenuTrigger>
-            <MenuContent class="game-menu game-menu--relogin" portal={false}>
-              <div class="game-menu__status">
-                <span>
-                  {props.autoReloginCaptured()
-                    ? `${props.autoReloginUsername() || "Captured user"}${
-                        props.autoReloginServer()
-                          ? ` @ ${props.autoReloginServer()}`
-                          : ""
-                      }`
-                    : "No captured session"}
-                </span>
-                <Show when={props.autoReloginToggling()}>
-                  <span>
-                    {props.autoReloginEnabled() ? "Enabling" : "Disabling"}
-                  </span>
-                </Show>
-                <Show when={props.autoReloginAttempting()}>
-                  <span>Attempting reconnect</span>
-                </Show>
-                <Show when={props.autoReloginLastError()}>
-                  {(error) => <span class="game-menu__error">{error()}</span>}
-                </Show>
-              </div>
-              <MenuSeparator />
-              <MenuItem
-                class="game-menu__item"
-                onSelect={props.handleCaptureAutoReloginSession}
-                value="capture-session"
+            <MenuContent
+              ref={(element) => {
+                autoReloginMenuContent = element;
+              }}
+              class="game-menu game-menu--relogin"
+              portal={false}
+            >
+              <MenuAutofocusAnchor />
+              <Show
+                when={
+                  props.autoReloginToggling() ||
+                  props.autoReloginAttempting() ||
+                  props.autoReloginLastError()
+                }
               >
-                Capture Current Session
-              </MenuItem>
+                <div class="game-menu__status">
+                  <Show when={props.autoReloginToggling()}>
+                    <span>
+                      {props.autoReloginEnabled() ? "Enabling" : "Disabling"}
+                    </span>
+                  </Show>
+                  <Show when={props.autoReloginAttempting()}>
+                    <span>Attempting reconnect</span>
+                  </Show>
+                  <Show when={props.autoReloginLastError()}>
+                    {(error) => <span class="game-menu__error">{error()}</span>}
+                  </Show>
+                </div>
+                <MenuSeparator />
+              </Show>
               <MenuItem
                 class="game-menu__item"
                 disabled={
@@ -418,6 +475,7 @@ export function TopNav(props: TopNavProps): JSX.Element {
                 onSelect={props.handleToggleAutoRelogin}
                 value="toggle-autorelogin"
                 variant={props.autoReloginEnabled() ? "destructive" : "default"}
+                closeOnSelect={false}
               >
                 {props.autoReloginToggling()
                   ? props.autoReloginEnabled()
@@ -427,17 +485,21 @@ export function TopNav(props: TopNavProps): JSX.Element {
                     ? "Disable"
                     : "Enable"}
               </MenuItem>
-              <MenuSeparator />
-              <MenuSub positioning={{ gutter: 4, placement: "right-start" }}>
-                <MenuSubTrigger
-                  class="game-menu__item"
-                  value="autorelogin-server-menu"
-                >
-                  <span class="game-menu__item-label">Target Server</span>
-                  <span>{props.autoReloginServer() || "None"}</span>
+              <MenuSub
+                id="autorelogin-server-menu"
+                open={autoReloginServerMenuOpen()}
+                onOpenChange={setAutoReloginServerMenuOpenFromMenu}
+                closeOnSelect={false}
+              >
+                <MenuSubTrigger class="game-menu__item game-menu__server-trigger">
+                  <span class="game-menu__item-label">Server</span>
+                  <span class="game-menu__item-value">
+                    {props.autoReloginServer() || "None"}
+                  </span>
                 </MenuSubTrigger>
                 <MenuSubContent
-                  class="game-menu game-menu--compact"
+                  class="game-menu game-menu--compact game-menu--relogin-servers"
+                  onKeyDownCapture={closeAutoReloginServerMenuToParent}
                   portal={false}
                 >
                   <Show
@@ -452,40 +514,54 @@ export function TopNav(props: TopNavProps): JSX.Element {
                       </MenuItem>
                     }
                   >
-                    <For each={props.autoReloginServers()}>
-                      {(serverName) => (
-                        <MenuItem
-                          class="game-menu__item"
-                          disabled={!props.autoReloginCaptured()}
-                          onSelect={() =>
-                            props.handleSelectAutoReloginServer(serverName)
-                          }
-                          value={`autorelogin-server-${serverName}`}
-                        >
-                          <span class="game-menu__item-label">
-                            {serverName}
-                          </span>
-                          <Show when={props.autoReloginServer() === serverName}>
-                            <span>Current</span>
-                          </Show>
-                        </MenuItem>
-                      )}
-                    </For>
+                    <MenuRadioGroup
+                      value={props.autoReloginServer()}
+                      onValueChange={(details) =>
+                        props.handleSelectAutoReloginServer(details.value)
+                      }
+                    >
+                      <For each={props.autoReloginServers()}>
+                        {(serverName) => (
+                          <MenuRadioItem
+                            class="game-menu__item"
+                            disabled={!props.autoReloginCaptured()}
+                            value={serverName}
+                          >
+                            <span class="game-menu__item-label">
+                              {serverName}
+                            </span>
+                          </MenuRadioItem>
+                        )}
+                      </For>
+                    </MenuRadioGroup>
                   </Show>
                 </MenuSubContent>
               </MenuSub>
               <MenuSeparator />
-              <label class="game-menu__field">
-                <span>Delay ms</span>
-                <Input
-                  size="sm"
-                  value={props.autoReloginDelayMs()}
-                  onBlur={props.handleSetAutoReloginDelay}
-                  onInput={(event) =>
-                    props.setAutoReloginDelayMs(event.currentTarget.value)
-                  }
-                />
-              </label>
+              <div class="game-menu__fields game-menu__fields--single-row">
+                <div class="game-menu__field game-menu__field--inline game-menu__field--wide">
+                  <span>Delay</span>
+                  <div class="game-menu__delay-control">
+                    <Input
+                      class="game-menu__delay-input"
+                      inputMode="decimal"
+                      min="0"
+                      size="sm"
+                      step="0.1"
+                      type="number"
+                      value={props.autoReloginDelaySeconds()}
+                      onBlur={props.handleSetAutoReloginDelay}
+                      onKeyDown={stopMenuInputKeyPropagation}
+                      onInput={(event) =>
+                        props.setAutoReloginDelaySeconds(
+                          event.currentTarget.value,
+                        )
+                      }
+                    />
+                    <span class="game-menu__delay-unit">sec</span>
+                  </div>
+                </div>
+              </div>
             </MenuContent>
           </Menu>
 

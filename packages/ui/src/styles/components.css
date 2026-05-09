@@ -391,22 +391,36 @@ body::-webkit-scrollbar-corner,
 }
 
 .input[type="number"]::-webkit-inner-spin-button,
-.input[type="number"]::-webkit-outer-spin-button {
+.input[type="number"]::-webkit-outer-spin-button,
+.input--unstyled[type="number"]::-webkit-inner-spin-button,
+.input--unstyled[type="number"]::-webkit-outer-spin-button {
   margin-left: 0.25rem;
   opacity: 0;
+}
+
+.input--unstyled[type="number"] {
+  padding-inline-end: 1.25rem;
 }
 
 .input[type="number"]:hover::-webkit-inner-spin-button,
 .input[type="number"]:hover::-webkit-outer-spin-button,
 .input[type="number"]:focus::-webkit-inner-spin-button,
-.input[type="number"]:focus::-webkit-outer-spin-button {
+.input[type="number"]:focus::-webkit-outer-spin-button,
+.input--unstyled[type="number"]:hover::-webkit-inner-spin-button,
+.input--unstyled[type="number"]:hover::-webkit-outer-spin-button,
+.input--unstyled[type="number"]:focus::-webkit-inner-spin-button,
+.input--unstyled[type="number"]:focus::-webkit-outer-spin-button {
   opacity: 0.9;
 }
 
 .dark .input[type="number"]::-webkit-inner-spin-button,
 .dark .input[type="number"]::-webkit-outer-spin-button,
 [data-theme="dark"] .input[type="number"]::-webkit-inner-spin-button,
-[data-theme="dark"] .input[type="number"]::-webkit-outer-spin-button {
+[data-theme="dark"] .input[type="number"]::-webkit-outer-spin-button,
+.dark .input--unstyled[type="number"]::-webkit-inner-spin-button,
+.dark .input--unstyled[type="number"]::-webkit-outer-spin-button,
+[data-theme="dark"] .input--unstyled[type="number"]::-webkit-inner-spin-button,
+[data-theme="dark"] .input--unstyled[type="number"]::-webkit-outer-spin-button {
   filter: invert(1) grayscale(1) brightness(1.16);
   opacity: 0;
 }
@@ -418,7 +432,15 @@ body::-webkit-scrollbar-corner,
 [data-theme="dark"] .input[type="number"]:hover::-webkit-inner-spin-button,
 [data-theme="dark"] .input[type="number"]:hover::-webkit-outer-spin-button,
 [data-theme="dark"] .input[type="number"]:focus::-webkit-inner-spin-button,
-[data-theme="dark"] .input[type="number"]:focus::-webkit-outer-spin-button {
+[data-theme="dark"] .input[type="number"]:focus::-webkit-outer-spin-button,
+.dark .input--unstyled[type="number"]:hover::-webkit-inner-spin-button,
+.dark .input--unstyled[type="number"]:hover::-webkit-outer-spin-button,
+.dark .input--unstyled[type="number"]:focus::-webkit-inner-spin-button,
+.dark .input--unstyled[type="number"]:focus::-webkit-outer-spin-button,
+[data-theme="dark"] .input--unstyled[type="number"]:hover::-webkit-inner-spin-button,
+[data-theme="dark"] .input--unstyled[type="number"]:hover::-webkit-outer-spin-button,
+[data-theme="dark"] .input--unstyled[type="number"]:focus::-webkit-inner-spin-button,
+[data-theme="dark"] .input--unstyled[type="number"]:focus::-webkit-outer-spin-button {
   opacity: 0.88;
 }
 
