@@ -3,10 +3,16 @@ import { Check } from "lucide-solid";
 import { cn } from "../lib/cn";
 import { isAriaInvalid } from "../lib/domState";
 
+export type CheckboxSize = "sm" | "default" | "lg";
+
 export interface CheckboxProps
-  extends Omit<JSX.InputHTMLAttributes<HTMLInputElement>, "class" | "type"> {
+  extends Omit<
+    JSX.InputHTMLAttributes<HTMLInputElement>,
+    "class" | "size" | "type"
+  > {
   readonly class?: string;
   readonly invalid?: boolean;
+  readonly size?: CheckboxSize;
 }
 
 export function Checkbox(props: CheckboxProps): JSX.Element {
@@ -16,7 +22,11 @@ export function Checkbox(props: CheckboxProps): JSX.Element {
     "class",
     "disabled",
     "invalid",
+    "size",
   ]);
+  const size = () => local.size ?? "default";
+  const sizeClass = () =>
+    size() === "default" ? "checkbox--size-default" : `checkbox--${size()}`;
   const invalid = () =>
     Boolean(local.invalid || isAriaInvalid(local["aria-invalid"]));
 
@@ -24,6 +34,7 @@ export function Checkbox(props: CheckboxProps): JSX.Element {
     <label
       class={cn(
         "checkbox",
+        sizeClass(),
         invalid() && "checkbox--invalid",
         local.disabled && "checkbox--disabled",
         local.class,

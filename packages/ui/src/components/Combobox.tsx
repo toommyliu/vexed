@@ -30,12 +30,44 @@ interface ComboboxContextValue {
 
 const ComboboxItemsContext = createContext<ComboboxContextValue>();
 
-export interface ComboboxProps
-  extends Omit<
-    Parameters<typeof ComboboxPrimitive.Root<ComboboxOption>>[0],
-    "collection"
-  > {
+export interface ComboboxProps extends Omit<
+  Parameters<typeof ComboboxPrimitive.Root<ComboboxOption>>[0],
+  "collection"
+> {
   readonly items?: ReadonlyArray<ComboboxOption>;
+}
+
+type ComboboxScrollToIndexDetails = Parameters<
+  NonNullable<ComboboxProps["scrollToIndexFn"]>
+>[0];
+
+function scrollComboboxItemIntoView(
+  details: ComboboxScrollToIndexDetails,
+): void {
+  const item = details.getElement();
+  const list = item?.closest<HTMLElement>("[data-slot='combobox-list']");
+
+  if (!item || !list) {
+    item?.scrollIntoView?.({ block: "nearest" });
+    return;
+  }
+
+  const itemRect = item.getBoundingClientRect();
+  const listRect = list.getBoundingClientRect();
+  const listStyle = window.getComputedStyle(list);
+  const listPaddingTop = Number.parseFloat(listStyle.paddingTop) || 0;
+  const listPaddingBottom = Number.parseFloat(listStyle.paddingBottom) || 0;
+  const visibleTop = listRect.top + listPaddingTop;
+  const visibleBottom = listRect.bottom - listPaddingBottom;
+
+  if (itemRect.top < visibleTop) {
+    list.scrollTop -= visibleTop - itemRect.top;
+    return;
+  }
+
+  if (itemRect.bottom > visibleBottom) {
+    list.scrollTop += itemRect.bottom - visibleBottom;
+  }
 }
 
 export function Combobox(props: ComboboxProps): JSX.Element {
@@ -44,6 +76,7 @@ export function Combobox(props: ComboboxProps): JSX.Element {
     "class",
     "items",
     "positioning",
+    "scrollToIndexFn",
   ]);
   const [registeredItems, setRegisteredItems] = createSignal<ComboboxOption[]>([
     ...(local.items ?? []),
@@ -77,6 +110,7 @@ export function Combobox(props: ComboboxProps): JSX.Element {
         positioning={
           local.positioning ?? { fitViewport: true, sameWidth: true }
         }
+        scrollToIndexFn={local.scrollToIndexFn ?? scrollComboboxItemIntoView}
       >
         {local.children}
       </ComboboxPrimitive.Root>
@@ -84,11 +118,10 @@ export function Combobox(props: ComboboxProps): JSX.Element {
   );
 }
 
-export interface ComboboxInputProps
-  extends Omit<
-    Parameters<typeof ComboboxPrimitive.Input>[0],
-    "class" | "size"
-  > {
+export interface ComboboxInputProps extends Omit<
+  Parameters<typeof ComboboxPrimitive.Input>[0],
+  "class" | "size"
+> {
   readonly class?: string;
   readonly clearProps?: ComboboxClearProps;
   readonly showClear?: boolean;
@@ -159,8 +192,10 @@ export function ComboboxTrigger(props: ComboboxTriggerProps): JSX.Element {
   );
 }
 
-export interface ComboboxContentProps
-  extends Omit<Parameters<typeof ComboboxPrimitive.Content>[0], "class"> {
+export interface ComboboxContentProps extends Omit<
+  Parameters<typeof ComboboxPrimitive.Content>[0],
+  "class"
+> {
   readonly class?: string;
 }
 
@@ -197,8 +232,10 @@ export function ComboboxList(props: ComboboxListProps): JSX.Element {
   );
 }
 
-export interface ComboboxItemProps
-  extends Omit<Parameters<typeof ComboboxPrimitive.Item>[0], "class" | "item"> {
+export interface ComboboxItemProps extends Omit<
+  Parameters<typeof ComboboxPrimitive.Item>[0],
+  "class" | "item"
+> {
   readonly class?: string;
   readonly disabled?: boolean;
   readonly item?: ComboboxOption;
@@ -279,8 +316,10 @@ export function ComboboxGroupLabel(
   );
 }
 
-export interface ComboboxSeparatorProps
-  extends Omit<JSX.HTMLAttributes<HTMLDivElement>, "class"> {
+export interface ComboboxSeparatorProps extends Omit<
+  JSX.HTMLAttributes<HTMLDivElement>,
+  "class"
+> {
   readonly class?: string;
 }
 
@@ -309,8 +348,10 @@ export function ComboboxEmpty(props: ComboboxEmptyProps): JSX.Element {
   );
 }
 
-export interface ComboboxValueProps
-  extends Omit<JSX.HTMLAttributes<HTMLSpanElement>, "class"> {
+export interface ComboboxValueProps extends Omit<
+  JSX.HTMLAttributes<HTMLSpanElement>,
+  "class"
+> {
   readonly class?: string;
 }
 

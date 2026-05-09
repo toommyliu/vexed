@@ -215,9 +215,6 @@ const isServerData = (value: unknown): value is ServerData => {
   );
 };
 
-const sortServers = (items: readonly ServerData[]): ServerData[] =>
-  [...items].sort((left, right) => left.sName.localeCompare(right.sName));
-
 const fetchJson = (url: string): Promise<unknown> =>
   new Promise((resolve, reject) => {
     const request = get(
@@ -312,7 +309,7 @@ const getCachedAccountServers = (): Effect.Effect<
     }
 
     yield* Effect.sync(() => {
-      cachedServers = sortServers(data.filter(isServerData));
+      cachedServers = data.filter(isServerData);
       lastServerFetchTime = now();
     });
 

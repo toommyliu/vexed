@@ -32,17 +32,24 @@ export function TooltipTrigger(props: TooltipTriggerProps): JSX.Element {
 
 export interface TooltipContentProps
   extends Omit<Parameters<typeof TooltipPrimitive.Content>[0], "class"> {
+  readonly arrow?: boolean;
   readonly class?: string;
   readonly portal?: boolean;
 }
 
 export function TooltipContent(props: TooltipContentProps): JSX.Element {
-  const [local, rest] = splitProps(props, ["children", "class", "portal"]);
+  const [local, rest] = splitProps(props, [
+    "arrow",
+    "children",
+    "class",
+    "portal",
+  ]);
   const content = () => (
     <TooltipPrimitive.Positioner
       class="tooltip__positioner"
       data-slot="tooltip-positioner"
     >
+      {local.arrow && <TooltipArrow />}
       <TooltipPrimitive.Content
         {...rest}
         class={cn("tooltip__content", local.class)}
