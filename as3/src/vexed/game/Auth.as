@@ -104,12 +104,14 @@ package vexed.game
       try
       {
         var gameClass:Class = Class(Main.getInstance().getGameDomain().getDefinition("Game"));
-        return gameClass["objLogin"];
+        login = gameClass["objLogin"];
       }
       catch (e:Error)
       {
-        return null;
+        login = null;
       }
+
+      return login;
     }
 
     private static function getServerData(row:*):Object
@@ -204,14 +206,17 @@ package vexed.game
     [BridgeTsReturnType("FlashTypes.ConnectToSelectionResult")]
     public static function connectTo(server:String):Object
     {
+      var result:Object;
       try
       {
-        return connectToUnsafe(server);
+        result = connectToUnsafe(server);
       }
       catch (e:Error)
       {
-        return connectResult("not-ready", "server selection failed");
+        result = connectResult("not-ready", "server selection failed");
       }
+
+      return result;
     }
 
     private static function connectToUnsafe(server:String):Object
