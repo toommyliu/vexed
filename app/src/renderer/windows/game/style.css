@@ -105,7 +105,6 @@
 }
 
 .game-topnav__status-slot {
-  align-items: center;
   color: var(--color-muted-foreground);
   display: inline-grid;
   flex: 0 0 auto;
