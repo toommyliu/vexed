@@ -280,7 +280,7 @@
 
 .game-menu__pad-name {
   flex: 1 1 auto;
-  font-weight: 600;
+  /* font-weight: 600; */
   min-width: 0;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -477,13 +477,24 @@
 .game-loader__content {
   align-items: center;
   color: rgb(var(--muted-foreground));
-  display: grid;
+  display: flex;
+  flex-direction: column;
   gap: 0.875rem;
+  justify-content: center;
   justify-items: center;
+  text-align: center;
 }
 
 .game-loader__spinner {
   color: rgb(var(--muted-foreground));
+  display: block;
+  flex: 0 0 auto;
+}
+
+.game-loader__text {
+  display: block;
+  text-align: center;
+  width: 100%;
 }
 
 .game-viewport {

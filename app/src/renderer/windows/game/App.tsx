@@ -1025,7 +1025,7 @@ export default function App(props: {
       >
         <div class="game-loader__content">
           <Spinner class="game-loader__spinner" size="xl" />
-          <span id="progress-text">Loading...</span>
+          <span id="progress-text" class="game-loader__text">Loading...</span>
         </div>
       </section>
 

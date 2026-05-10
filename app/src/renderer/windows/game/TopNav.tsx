@@ -779,7 +779,6 @@ export function TopNav(props: TopNavProps): JSX.Element {
           <div class="game-topnav__divider" />
 
           <Button
-            class="game-topnav__button"
             disabled={gameInteractionDisabled()}
             onClick={props.handleOpenBank}
             size="xs"
