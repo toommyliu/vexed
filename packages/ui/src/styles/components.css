@@ -827,6 +827,10 @@ body::-webkit-scrollbar-corner,
   padding: 0 0.6875rem;
 }
 
+.input-group .input--unstyled[type="number"] {
+  padding-inline-end: 1.25rem;
+}
+
 .input-group .input--unstyled:focus,
 .input-group .input--unstyled:focus-visible,
 .input-group .input--unstyled.input--invalid:focus-visible {
