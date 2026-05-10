@@ -114,8 +114,7 @@ const isWaitingForReloginDelay = (state: RuntimeState): boolean => {
     !state.enabled ||
     state.captured === null ||
     state.attempting ||
-    state.loggedOutSince === undefined ||
-    state.lastError !== undefined
+    state.loggedOutSince === undefined
   ) {
     return false;
   }
