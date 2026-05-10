@@ -103,6 +103,56 @@
   color: var(--color-success-foreground);
 }
 
+.game-topnav__alert-slot {
+  align-items: center;
+  color: var(--color-destructive-foreground);
+  display: inline-flex;
+  flex: 0 0 auto;
+  justify-content: center;
+  margin-left: 0;
+  opacity: 0;
+  overflow: hidden;
+  transform: scale(0.88);
+  transform-origin: center;
+  transition:
+    width 180ms cubic-bezier(0.23, 1, 0.32, 1),
+    margin-left 180ms cubic-bezier(0.23, 1, 0.32, 1),
+    opacity 140ms ease,
+    transform 180ms cubic-bezier(0.23, 1, 0.32, 1);
+  width: 0;
+}
+
+.game-topnav__alert-slot[data-visible] {
+  margin-left: 0.5rem;
+  opacity: 1;
+  overflow: visible;
+  transform: scale(1);
+  width: 0.75rem;
+}
+
+.game-topnav__alert-icon {
+  animation: game-topnav-alert-pulse 1.2s cubic-bezier(0.23, 1, 0.32, 1) infinite;
+  flex: 0 0 auto;
+  height: 0.75rem;
+  stroke-width: 2.25;
+  transform-origin: center;
+  width: 0.75rem;
+  will-change: opacity, transform;
+}
+
+@keyframes game-topnav-alert-pulse {
+  0%,
+  100% {
+    opacity: 0.62;
+    transform: scale(0.94);
+  }
+
+  42% {
+    opacity: 1;
+    transform: scale(1.2);
+  }
+}
+
 .game-topnav__button--danger {
   color: var(--color-destructive-foreground);
 }
@@ -168,7 +218,7 @@
 }
 
 .game-menu--relogin {
-  min-width: 15rem !important;
+  width: min(17rem, calc(100vw - 1rem)) !important;
 }
 
 .game-menu--options {
@@ -180,7 +230,7 @@
 }
 
 .game-menu--relogin-servers {
-  min-width: 8rem;
+  min-width: 10rem !important;
   width: max-content;
   max-width: 20rem;
 }
@@ -261,6 +311,17 @@
   flex: 0 0 auto;
 }
 
+.game-menu__server-trigger .game-menu__item-value {
+  flex: 0 1 8rem;
+  margin-left: auto;
+  max-width: 8rem;
+}
+
+.game-menu__server-trigger .menu__sub-icon {
+  flex: 0 0 auto;
+  margin-left: 0.375rem;
+}
+
 .game-menu__item > .kbd {
   flex: 0 0 auto;
   margin-left: auto;
@@ -286,6 +347,47 @@
   font-size: var(--text-sm);
   line-height: 1.25;
   padding: 0.375rem 0.5rem;
+}
+
+.game-menu__status--relogin {
+  gap: 0.375rem;
+}
+
+.game-menu__status-row {
+  align-items: center;
+  display: grid;
+  gap: 0.5rem;
+  grid-template-columns: 1rem minmax(0, 1fr);
+  min-width: 0;
+}
+
+.game-menu__status-row > span {
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+
+.game-menu__status-icon {
+  height: 0.875rem;
+  justify-self: center;
+  stroke-width: 2.25;
+  width: 0.875rem;
+}
+
+.game-menu__status-icon--spin {
+  animation: game-menu-status-spin 0.8s linear infinite;
+}
+
+@keyframes game-menu-status-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .game-topnav__alert-icon,
+  .game-menu__status-icon--spin {
+    animation: none;
+  }
 }
 
 .game-menu__error {
@@ -325,10 +427,15 @@
 .game-menu__field--inline {
   align-items: center;
   display: flex;
-  font-size: var(--text-sm);
+  font-size: var(--text-base);
+  font-weight: 400;
   gap: 0.5rem;
   justify-content: space-between;
   padding: 0 0.25rem;
+}
+
+.game-menu__field--menu-inset {
+  padding-left: 1.75rem;
 }
 
 .game-menu__delay-control {
@@ -345,7 +452,7 @@
 .game-menu__delay-unit {
   color: var(--color-muted-foreground);
   font-size: var(--text-xs);
-  font-weight: 500;
+  font-weight: 400;
 }
 
 .game-loader {

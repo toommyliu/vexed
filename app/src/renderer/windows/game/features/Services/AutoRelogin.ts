@@ -8,6 +8,7 @@ export interface AutoReloginState {
   readonly server?: string;
   readonly delayMs: number;
   readonly lastError?: string;
+  readonly attemptsRemaining?: number;
 }
 
 export type AutoReloginStateDisposer = () => void;

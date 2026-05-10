@@ -21,6 +21,24 @@ export type LoginCredentials = {
   strToken: string;
 };
 
+export type ConnectToSelectionStatus =
+  | "selected"
+  | "not-ready"
+  | "offline"
+  | "full"
+  | "member-only"
+  | "chat-restricted"
+  | "underage-chat"
+  | "email-unconfirmed"
+  | "test-client-required"
+  | "not-found";
+
+export type ConnectToSelectionResult = {
+  readonly status: ConnectToSelectionStatus;
+  readonly message: string;
+  readonly serverName?: string;
+};
+
 export type BaseTargetInfo = {
   type: "player" | "monster";
   intHP: number;

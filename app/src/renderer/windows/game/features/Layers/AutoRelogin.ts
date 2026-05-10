@@ -13,7 +13,7 @@ import {
   SwfMethodNotFoundError,
   SwfUnavailableError,
 } from "../../flash/Errors";
-import { Auth } from "../../flash/Services/Auth";
+import { Auth, type AuthConnectOutcome } from "../../flash/Services/Auth";
 import { Bridge } from "../../flash/Services/Bridge";
 import { Jobs } from "../../jobs/Services/Jobs";
 import { Player } from "../../flash/Services/Player";
@@ -37,7 +37,6 @@ const MAX_DELAY_MS = 300_000;
 const TEMP_KICK_TIMEOUT = "70 seconds";
 const SERVER_SELECT_TIMEOUT = "10 seconds";
 const SERVERS_LOAD_TIMEOUT = "5 seconds";
-const GAME_ENTRY_TIMEOUT = "15 seconds";
 const PLAYER_READY_TIMEOUT = "10 seconds";
 const MIN_FAILURE_COOLDOWN_MS = 5_000;
 const MAX_FAILURE_COOLDOWN_MS = 60_000;
@@ -74,6 +73,7 @@ type RuntimeState = {
   attempting: boolean;
   delayMs: number;
   lastError: string | undefined;
+  attemptsRemaining: number | undefined;
   // Retry spacing anchor; first-attempt delay is anchored by loggedOutSince.
   lastAttemptAt: number;
   // Set from the real disconnect event so delayMs means "after logout".
@@ -101,6 +101,7 @@ const initialState = (): RuntimeState => ({
   attempting: false,
   delayMs: DEFAULT_DELAY_MS,
   lastError: undefined,
+  attemptsRemaining: undefined,
   lastAttemptAt: 0,
   loggedOutSince: undefined,
   connected: false,
@@ -116,6 +117,9 @@ const toPublicState = (state: RuntimeState): AutoReloginState => ({
   ...(state.captured !== null ? { server: state.captured.server.sName } : {}),
   delayMs: state.delayMs,
   ...(state.lastError !== undefined ? { lastError: state.lastError } : {}),
+  ...(state.attemptsRemaining !== undefined
+    ? { attemptsRemaining: state.attemptsRemaining }
+    : {}),
 });
 
 const isServerData = (value: unknown): value is ServerData => {
@@ -201,67 +205,47 @@ const formatReloginError = (error: unknown): string => {
   return "autorelogin failed";
 };
 
-const isServerEligible = (
+const getServerIneligibilityReason = (
   server: Server,
   loginSession: LoginSession | null,
-): boolean => {
-  if (!server.isOnline() || server.isFull()) {
-    return false;
-  }
-
-  if (server.name.toLowerCase().includes("test")) {
-    return false;
-  }
+): string | undefined => {
+  if (!server.isOnline()) return "server offline";
+  if (server.isFull()) return "server full";
+  if (server.name.toLowerCase().includes("test")) return "test server";
 
   if (loginSession === null) {
-    return true;
+    return undefined;
   }
 
   const hasActiveMembership =
     typeof loginSession.iUpgDays === "number" && loginSession.iUpgDays >= 0;
-  const upgradeOnly = server.isUpgrade() && !hasActiveMembership;
-  const chatRestricted = server.data.iChat > 0 && loginSession.bCCOnly === 1;
-  const underageNonMember =
+  if (server.isUpgrade() && !hasActiveMembership) return "member-only";
+  if (server.data.iChat > 0 && loginSession.bCCOnly === 1) {
+    return "chat restricted";
+  }
+  if (
     server.data.iChat > 0 &&
     typeof loginSession.iAge === "number" &&
     loginSession.iAge < 13 &&
-    !hasActiveMembership;
-  const emailUnconfirmed =
+    !hasActiveMembership
+  ) {
+    return "age restricted";
+  }
+  if (
     server.data.iLevel > 0 &&
     typeof loginSession.iEmailStatus === "number" &&
-    loginSession.iEmailStatus <= 2;
-
-  return !(
-    upgradeOnly ||
-    chatRestricted ||
-    underageNonMember ||
-    emailUnconfirmed
-  );
-};
-
-const findCapturedServer = (
-  servers: readonly Server[],
-  captured: ServerData,
-): Server | undefined => {
-  const capturedName = captured.sName.toLowerCase();
-  const exact = servers.find(
-    (server) => server.name.toLowerCase() === capturedName,
-  );
-
-  if (exact !== undefined) {
-    return exact;
+    loginSession.iEmailStatus <= 2
+  ) {
+    return "email not confirmed";
   }
 
-  return servers.find((server) =>
-    server.name.toLowerCase().includes(capturedName),
-  );
+  return undefined;
 };
 
-const findServerByName = (
+const findServerByNormalizedName = (
   servers: readonly Server[],
-  name: string,
+  normalizedName: string,
 ): Server | undefined => {
-  const normalizedName = name.trim().toLowerCase();
   const exact = servers.find(
     (server) => server.name.toLowerCase() === normalizedName,
   );
@@ -274,6 +258,21 @@ const findServerByName = (
     server.name.toLowerCase().includes(normalizedName),
   );
 };
+
+const findCapturedServer = (
+  servers: readonly Server[],
+  captured: ServerData,
+): Server | undefined =>
+  findServerByNormalizedName(servers, captured.sName.toLowerCase());
+
+const findServerByName = (
+  servers: readonly Server[],
+  name: string,
+): Server | undefined =>
+  findServerByNormalizedName(servers, name.trim().toLowerCase());
+
+const serverUnavailableError = (serverName: string, reason: string): string =>
+  `Cannot use ${serverName} — ${reason}`;
 
 const make = Effect.gen(function* () {
   const auth = yield* Auth;
@@ -357,6 +356,7 @@ const make = Effect.gen(function* () {
           state.captured?.password,
         );
         state.attempting = false;
+        state.attemptsRemaining = terminal ? undefined : 0;
         state.connected = false;
         state.ownedConnectionServerName = undefined;
 
@@ -382,6 +382,7 @@ const make = Effect.gen(function* () {
   const markSuccess = () =>
     updateState((state) => {
       state.lastError = undefined;
+      state.attemptsRemaining = undefined;
       state.attempting = false;
       state.ownedConnectionServerName = undefined;
     });
@@ -389,6 +390,7 @@ const make = Effect.gen(function* () {
   const markReloginSuccess = () =>
     updateState((state) => {
       state.lastError = undefined;
+      state.attemptsRemaining = undefined;
       state.attempting = false;
       state.connected = true;
       state.ownedConnectionServerName = undefined;
@@ -409,6 +411,7 @@ const make = Effect.gen(function* () {
   const clearAttempting = () =>
     updateState((state) => {
       state.attempting = false;
+      state.attemptsRemaining = undefined;
       state.ownedConnectionServerName = undefined;
     });
 
@@ -416,6 +419,7 @@ const make = Effect.gen(function* () {
     SynchronizedRef.update(stateRef, (state) => {
       // A ready player closes the disconnect window.
       state.connected = true;
+      state.attemptsRemaining = undefined;
       state.ownedConnectionServerName = undefined;
       state.loggedOutSince = undefined;
       state.lastAttemptAt = 0;
@@ -553,6 +557,7 @@ const make = Effect.gen(function* () {
           server: targetServer,
         };
         state.lastError = undefined;
+        state.attemptsRemaining = undefined;
       });
 
       yield* logStage("capture succeeded", { server: server.sName });
@@ -590,42 +595,6 @@ const make = Effect.gen(function* () {
     },
   );
 
-  const waitForGameEntry = waitFor(
-    Effect.gen(function* () {
-      const [label, connStageNull, connText, backButtonVisible] =
-        yield* Effect.all([
-          bridge.call("flash.getGameObject", ["currentLabel"]),
-          bridge.call("flash.isNull", ["mcConnDetail.stage"]),
-          bridge.call("flash.getConnMcText"),
-          bridge.call("flash.isConnMcBackButtonVisible"),
-        ]);
-
-      if (flashStringEquals(label, "Game") && connStageNull) {
-        return true;
-      }
-
-      // Treat visible connect errors as terminal so the caller can inspect success.
-      const normalizedConnText = connText.toLowerCase();
-      if (normalizedConnText.includes("server is full") || backButtonVisible) {
-        return true;
-      }
-
-      return false;
-    }),
-    {
-      timeout: GAME_ENTRY_TIMEOUT,
-      schedule: Schedule.spaced("500 millis"),
-    },
-  );
-
-  const isGameEntrySuccessful = Effect.gen(function* () {
-    const [label, connStageNull] = yield* Effect.all([
-      bridge.call("flash.getGameObject", ["currentLabel"]),
-      bridge.call("flash.isNull", ["mcConnDetail.stage"]),
-    ]);
-    return flashStringEquals(label, "Game") && connStageNull;
-  });
-
   const reloginRetrySchedule = Schedule.exponential(
     `${MIN_FAILURE_COOLDOWN_MS} millis`,
   ).pipe(
@@ -639,10 +608,43 @@ const make = Effect.gen(function* () {
       ),
     ),
     Schedule.take(MAX_RELOGIN_RETRIES),
+    Schedule.tapInput((error) =>
+      error instanceof AutoReloginAttemptError && error.retryable
+        ? updateState((state) => {
+            state.attemptsRemaining = Math.max(
+              0,
+              (state.attemptsRemaining ?? MAX_RELOGIN_RETRIES) - 1,
+            );
+          }).pipe(Effect.asVoid)
+        : Effect.void,
+    ),
   );
 
   const failAttempt = (message: string, retryable: boolean) =>
     Effect.fail(new AutoReloginAttemptError({ message, retryable }));
+
+  const connectFailureMessage = (
+    outcome: Exclude<AuthConnectOutcome, { readonly status: "connected" }>,
+    requestedServer: string,
+  ): string => {
+    const serverName = outcome.serverName ?? requestedServer;
+    const serverPrefix = serverName === "" ? "" : `${serverName}: `;
+    return `${serverPrefix}${outcome.message} (${outcome.status})`;
+  };
+
+  const failIfConnectFailed = (
+    outcome: AuthConnectOutcome,
+    requestedServer: string,
+  ) => {
+    if (outcome.status === "connected") {
+      return Effect.void;
+    }
+
+    return failAttempt(
+      connectFailureMessage(outcome, requestedServer),
+      outcome.retryable,
+    );
+  };
 
   const restoreLoginSettings = (previousSettings: SettingsState) =>
     logStage("temporary settings restore").pipe(
@@ -702,11 +704,6 @@ const make = Effect.gen(function* () {
 
   const waitForReadyPlayer = () =>
     Effect.gen(function* () {
-      yield* logStage("waiting for game entry");
-      if (!(yield* waitForGameEntry) || !(yield* isGameEntrySuccessful)) {
-        return yield* failAttempt("game entry failed", true);
-      }
-
       yield* logStage("waiting for player ready");
       const ready = yield* waitFor(isPlayerReady(), {
         timeout: PLAYER_READY_TIMEOUT,
@@ -747,7 +744,7 @@ const make = Effect.gen(function* () {
           const targetServer = findServerByName(servers, requestedServer);
           if (targetServer === undefined) {
             return yield* failAttempt(
-              `server is unavailable: ${requestedServer}`,
+              serverUnavailableError(requestedServer, "server unavailable"),
               false,
             );
           }
@@ -755,9 +752,13 @@ const make = Effect.gen(function* () {
           const loginSession = yield* auth
             .getLoginSession()
             .pipe(Effect.catchCause(() => Effect.succeed(null)));
-          if (!isServerEligible(targetServer, loginSession)) {
+          const ineligibilityReason = getServerIneligibilityReason(
+            targetServer,
+            loginSession,
+          );
+          if (ineligibilityReason !== undefined) {
             return yield* failAttempt(
-              `server is not eligible: ${requestedServer}`,
+              serverUnavailableError(requestedServer, ineligibilityReason),
               false,
             );
           }
@@ -766,13 +767,8 @@ const make = Effect.gen(function* () {
           yield* Effect.sleep("1 second");
 
           yield* logStage("connect start", { server: targetServer.name });
-          const didConnect = yield* auth.connectTo(targetServer.name);
-          if (!didConnect) {
-            return yield* failAttempt(
-              `failed to select server: ${requestedServer}`,
-              true,
-            );
-          }
+          const connectOutcome = yield* auth.connectTo(targetServer.name);
+          yield* failIfConnectFailed(connectOutcome, requestedServer);
         } else {
           yield* logStage("waiting for server selection");
           return { stage: "server-select" } as const;
@@ -840,7 +836,7 @@ const make = Effect.gen(function* () {
           const targetServer = findCapturedServer(servers, captured.server);
           if (targetServer === undefined) {
             return yield* failAttempt(
-              `captured server is unavailable: ${captured.server.sName}`,
+              serverUnavailableError(captured.server.sName, "server unavailable"),
               false,
             );
           }
@@ -848,9 +844,13 @@ const make = Effect.gen(function* () {
           const loginSession = yield* auth
             .getLoginSession()
             .pipe(Effect.catchCause(() => Effect.succeed(null)));
-          if (!isServerEligible(targetServer, loginSession)) {
+          const ineligibilityReason = getServerIneligibilityReason(
+            targetServer,
+            loginSession,
+          );
+          if (ineligibilityReason !== undefined) {
             return yield* failAttempt(
-              `captured server is not eligible: ${captured.server.sName}`,
+              serverUnavailableError(captured.server.sName, ineligibilityReason),
               false,
             );
           }
@@ -861,13 +861,8 @@ const make = Effect.gen(function* () {
           yield* logStage("connect start", { server: targetServer.name });
           yield* setOwnedConnectionServerName(targetServer.name);
           yield* Effect.gen(function* () {
-            const didConnect = yield* auth.connectTo(targetServer.name);
-            if (!didConnect) {
-              return yield* failAttempt(
-                `failed to select captured server: ${captured.server.sName}`,
-                true,
-              );
-            }
+            const connectOutcome = yield* auth.connectTo(targetServer.name);
+            yield* failIfConnectFailed(connectOutcome, captured.server.sName);
 
             yield* waitForReadyPlayer();
           }).pipe(Effect.ensuring(setOwnedConnectionServerName(undefined)));
@@ -911,6 +906,7 @@ const make = Effect.gen(function* () {
         }
 
         state.attempting = true;
+        state.attemptsRemaining = MAX_RELOGIN_RETRIES;
         state.lastError = undefined;
         state.lastAttemptAt = now;
         return [
@@ -1028,6 +1024,7 @@ const make = Effect.gen(function* () {
       yield* updateState((state) => {
         state.enabled = true;
         state.lastError = undefined;
+        state.attemptsRemaining = undefined;
       });
       yield* captureCurrentSession({ preserveTargetServer: true });
       yield* startJob;
@@ -1043,6 +1040,7 @@ const make = Effect.gen(function* () {
         state.attempting = false;
         state.ownedConnectionServerName = undefined;
         state.lastError = undefined;
+        state.attemptsRemaining = undefined;
       });
     });
 
@@ -1063,6 +1061,7 @@ const make = Effect.gen(function* () {
       if (normalizedServerName === "") {
         return yield* updateState((state) => {
           state.lastError = "server is required";
+          state.attemptsRemaining = undefined;
         });
       }
 
@@ -1072,13 +1071,18 @@ const make = Effect.gen(function* () {
       const server = findServerByName(servers, normalizedServerName);
       if (server === undefined) {
         return yield* updateState((state) => {
-          state.lastError = `server is unavailable: ${normalizedServerName}`;
+          state.lastError = serverUnavailableError(
+            normalizedServerName,
+            "server unavailable",
+          );
+          state.attemptsRemaining = undefined;
         });
       }
 
       return yield* updateState((state) => {
         if (state.captured === null) {
           state.lastError = "capture a session before selecting a server";
+          state.attemptsRemaining = undefined;
           return;
         }
 
@@ -1087,6 +1091,7 @@ const make = Effect.gen(function* () {
           server: server.data,
         };
         state.lastError = undefined;
+        state.attemptsRemaining = undefined;
       });
     });
 

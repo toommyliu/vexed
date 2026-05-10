@@ -23,10 +23,17 @@ import type { WindowId } from "../../../shared/windows";
 import { runtime } from "./Runtime";
 import { Settings, type SettingsShape } from "./flash/Services/Settings";
 import { Auth } from "./flash/Services/Auth";
+import {
+  SwfMethodNotFoundError,
+  SwfUnavailableError,
+} from "./flash/Errors";
 import { Bank } from "./flash/Services/Bank";
 import { Player } from "./flash/Services/Player";
 import { World } from "./flash/Services/World";
-import { AutoRelogin } from "./features/Services/AutoRelogin";
+import {
+  AutoRelogin,
+  type AutoReloginState,
+} from "./features/Services/AutoRelogin";
 import { TopNav } from "./TopNav";
 import { createGameCommands } from "./commands";
 import { GameHotkeys } from "./hotkeys";
@@ -136,6 +143,8 @@ export default function App(props: {
     [],
   );
   const [autoReloginLastError, setAutoReloginLastError] = createSignal("");
+  const [autoReloginAttemptsRemaining, setAutoReloginAttemptsRemaining] =
+    createSignal<number | null>(null);
   const [openTopNavMenu, setOpenTopNavMenu] =
     createSignal<GameTopNavMenu | null>(null);
   const [cells, setCells] = createSignal<readonly string[]>([DEFAULT_CELL]);
@@ -657,6 +666,20 @@ export default function App(props: {
     );
   };
 
+  const applyAutoReloginState = (state: AutoReloginState) => {
+    setAutoReloginEnabled(state.enabled);
+    setAutoReloginCaptured(state.captured);
+    setAutoReloginAttempting(state.attempting);
+    setAutoReloginDelaySeconds(formatDelaySeconds(state.delayMs));
+    setAutoReloginServer(state.server ?? "");
+    setAutoReloginLastError(state.lastError ?? "");
+    setAutoReloginAttemptsRemaining(state.attemptsRemaining ?? null);
+  };
+
+  const isSwfBridgeNotReadyError = (error: unknown): boolean =>
+    error instanceof SwfUnavailableError ||
+    error instanceof SwfMethodNotFoundError;
+
   const refreshAutoReloginState = () => {
     void runtime
       .runPromise(
@@ -665,14 +688,7 @@ export default function App(props: {
           return yield* autoRelogin.getState();
         }),
       )
-      .then((state) => {
-        setAutoReloginEnabled(state.enabled);
-        setAutoReloginCaptured(state.captured);
-        setAutoReloginAttempting(state.attempting);
-        setAutoReloginDelaySeconds(formatDelaySeconds(state.delayMs));
-        setAutoReloginServer(state.server ?? "");
-        setAutoReloginLastError(state.lastError ?? "");
-      })
+      .then(applyAutoReloginState)
       .catch((error) => {
         console.error("Refresh autorelogin state error:", error);
       });
@@ -696,14 +712,7 @@ export default function App(props: {
             : autoRelogin.disable();
         }),
       )
-      .then((state) => {
-        setAutoReloginEnabled(state.enabled);
-        setAutoReloginCaptured(state.captured);
-        setAutoReloginAttempting(state.attempting);
-        setAutoReloginDelaySeconds(formatDelaySeconds(state.delayMs));
-        setAutoReloginServer(state.server ?? "");
-        setAutoReloginLastError(state.lastError ?? "");
-      })
+      .then(applyAutoReloginState)
       .catch((error) => {
         console.error("Toggle autorelogin error:", error);
         refreshAutoReloginState();
@@ -729,6 +738,11 @@ export default function App(props: {
         );
       })
       .catch((error) => {
+        if (isSwfBridgeNotReadyError(error)) {
+          setAutoReloginServers([]);
+          return;
+        }
+
         console.error("Refresh autorelogin servers error:", error);
       });
   };
@@ -743,10 +757,7 @@ export default function App(props: {
           return yield* autoRelogin.setServer(serverName);
         }),
       )
-      .then((state) => {
-        setAutoReloginServer(state.server ?? "");
-        setAutoReloginLastError(state.lastError ?? "");
-      })
+      .then(applyAutoReloginState)
       .catch((error) => {
         console.error("Set autorelogin server error:", error);
         refreshAutoReloginState();
@@ -767,10 +778,7 @@ export default function App(props: {
           return yield* autoRelogin.setDelayMs(delayMs);
         }),
       )
-      .then((state) => {
-        setAutoReloginDelaySeconds(formatDelaySeconds(state.delayMs));
-        setAutoReloginLastError(state.lastError ?? "");
-      })
+      .then(applyAutoReloginState)
       .catch((error) => {
         console.error("Set autorelogin delay error:", error);
         refreshAutoReloginState();
@@ -922,14 +930,7 @@ export default function App(props: {
       .runPromise(
         Effect.gen(function* () {
           const autoRelogin = yield* AutoRelogin;
-          return yield* autoRelogin.onState((state) => {
-            setAutoReloginEnabled(state.enabled);
-            setAutoReloginCaptured(state.captured);
-            setAutoReloginAttempting(state.attempting);
-            setAutoReloginDelaySeconds(formatDelaySeconds(state.delayMs));
-            setAutoReloginServer(state.server ?? "");
-            setAutoReloginLastError(state.lastError ?? "");
-          });
+          return yield* autoRelogin.onState(applyAutoReloginState);
         }),
       )
       .then((dispose) => {
@@ -998,6 +999,7 @@ export default function App(props: {
         autoReloginServer={autoReloginServer}
         autoReloginServers={autoReloginServers}
         autoReloginLastError={autoReloginLastError}
+        autoReloginAttemptsRemaining={autoReloginAttemptsRemaining}
         handleToggleAutoRelogin={handleToggleAutoRelogin}
         handleRefreshAutoReloginServers={refreshAutoReloginServers}
         handleSelectAutoReloginServer={handleSelectAutoReloginServer}

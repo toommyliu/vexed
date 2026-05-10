@@ -1,4 +1,5 @@
 import {
+  createEffect,
   createSignal,
   For,
   Show,
@@ -6,6 +7,7 @@ import {
   type JSX,
   type Setter,
 } from "solid-js";
+import { CircleAlert, LoaderCircle } from "lucide-solid";
 import { formatOptionalHotkeyDisplay } from "@vexed/shared/hotkeyDisplay";
 import {
   Button,
@@ -83,6 +85,7 @@ export interface TopNavProps {
   readonly autoReloginServer: Accessor<string>;
   readonly autoReloginServers: Accessor<readonly string[]>;
   readonly autoReloginLastError: Accessor<string>;
+  readonly autoReloginAttemptsRemaining: Accessor<number | null>;
   readonly handleToggleAutoRelogin: () => void;
   readonly handleRefreshAutoReloginServers: () => void;
   readonly handleSelectAutoReloginServer: (serverName: string) => void;
@@ -134,6 +137,26 @@ export function TopNav(props: TopNavProps): JSX.Element {
   let autoReloginMenuContent: HTMLDivElement | undefined;
   const [autoReloginServerMenuOpen, setAutoReloginServerMenuOpen] =
     createSignal(false);
+  const [acknowledgedAutoReloginError, setAcknowledgedAutoReloginError] =
+    createSignal("");
+
+  const autoReloginNeedsAttention = (): boolean => {
+    const error = props.autoReloginLastError();
+    return error !== "" && acknowledgedAutoReloginError() !== error;
+  };
+
+  const autoReloginAttemptsRemainingLabel = (): string => {
+    const remaining = props.autoReloginAttemptsRemaining();
+    if (remaining === null) return "";
+    if (remaining <= 0) return "No retry attempts left";
+    return `${remaining} retry ${remaining === 1 ? "attempt" : "attempts"} left`;
+  };
+
+  createEffect(() => {
+    if (props.autoReloginLastError() === "") {
+      setAcknowledgedAutoReloginError("");
+    }
+  });
 
   const setMenuOpen =
     (menu: GameTopNavMenu) =>
@@ -146,6 +169,8 @@ export function TopNav(props: TopNavProps): JSX.Element {
   }): void => {
     if (details.open) {
       props.handleRefreshAutoReloginServers();
+      const error = props.autoReloginLastError();
+      if (error !== "") setAcknowledgedAutoReloginError(error);
     } else {
       setAutoReloginServerMenuOpen(false);
     }
@@ -455,13 +480,30 @@ export function TopNav(props: TopNavProps): JSX.Element {
             onOpenChange={setAutoReloginMenuOpen}
           >
             <MenuTrigger
+              aria-label={
+                props.autoReloginLastError()
+                  ? `Auto Relogin failed: ${props.autoReloginLastError()}`
+                  : "Auto Relogin"
+              }
               class={cn(
-                "game-topnav__trigger",
-                props.autoReloginEnabled() && "game-topnav__trigger--success",
+                "game-topnav__trigger game-topnav__trigger--relogin",
+                autoReloginNeedsAttention() && "game-topnav__trigger--alert",
               )}
               data-expanded={props.openMenu() === "relogin" ? "" : undefined}
+              title={
+                props.autoReloginLastError()
+                  ? `Auto Relogin failed: ${props.autoReloginLastError()}`
+                  : undefined
+              }
             >
-              Auto Relogin
+              <span>Auto Relogin</span>
+              <span
+                aria-hidden="true"
+                class="game-topnav__alert-slot"
+                data-visible={autoReloginNeedsAttention() ? "" : undefined}
+              >
+                <CircleAlert class="game-topnav__alert-icon" />
+              </span>
             </MenuTrigger>
             <MenuContent
               ref={(element) => {
@@ -478,47 +520,73 @@ export function TopNav(props: TopNavProps): JSX.Element {
                   props.autoReloginLastError()
                 }
               >
-                <div class="game-menu__status">
+                <div class="game-menu__status game-menu__status--relogin">
                   <Show when={props.autoReloginToggling()}>
-                    <span>
-                      {props.autoReloginEnabled() ? "Enabling" : "Disabling"}
+                    <span class="game-menu__status-row">
+                      <LoaderCircle
+                        aria-hidden="true"
+                        class="game-menu__status-icon game-menu__status-icon--spin"
+                      />
+                      <span>
+                        {props.autoReloginEnabled() ? "Enabling" : "Disabling"}
+                      </span>
                     </span>
                   </Show>
                   <Show when={props.autoReloginAttempting()}>
-                    <span>Attempting reconnect</span>
+                    <span class="game-menu__status-row">
+                      <LoaderCircle
+                        aria-hidden="true"
+                        class="game-menu__status-icon game-menu__status-icon--spin"
+                      />
+                      <span>Attempting reconnect</span>
+                    </span>
                   </Show>
                   <Show when={props.autoReloginLastError()}>
-                    {(error) => <span class="game-menu__error">{error()}</span>}
+                    {(error) => (
+                      <span class="game-menu__status-row game-menu__error">
+                        <CircleAlert
+                          aria-hidden="true"
+                          class="game-menu__status-icon"
+                        />
+                        <span>{error()}</span>
+                      </span>
+                    )}
+                  </Show>
+                  <Show when={autoReloginAttemptsRemainingLabel()}>
+                    {(label) => (
+                      <span class="game-menu__status-row">
+                        <span aria-hidden="true" class="game-menu__status-icon" />
+                        <span>{label()}</span>
+                      </span>
+                    )}
                   </Show>
                 </div>
                 <MenuSeparator />
               </Show>
-              <MenuItem
+              <MenuCheckboxItem
+                checked={props.autoReloginEnabled()}
                 class="game-menu__item"
+                closeOnSelect={false}
                 disabled={
                   props.autoReloginToggling() ||
                   (!props.autoReloginCaptured() && !props.autoReloginEnabled())
                 }
-                onSelect={props.handleToggleAutoRelogin}
+                onClick={props.handleToggleAutoRelogin}
                 value="toggle-autorelogin"
-                variant={props.autoReloginEnabled() ? "destructive" : "default"}
-                closeOnSelect={false}
               >
                 {props.autoReloginToggling()
                   ? props.autoReloginEnabled()
                     ? "Enabling…"
                     : "Disabling…"
-                  : props.autoReloginEnabled()
-                    ? "Disable"
-                    : "Enable"}
-              </MenuItem>
+                  : (props.autoReloginEnabled() ? "Disable" : "Enable")}
+              </MenuCheckboxItem>
               <MenuSub
                 id="autorelogin-server-menu"
                 open={autoReloginServerMenuOpen()}
                 onOpenChange={setAutoReloginServerMenuOpenFromMenu}
                 closeOnSelect={false}
               >
-                <MenuSubTrigger class="game-menu__item game-menu__server-trigger">
+                <MenuSubTrigger class="game-menu__item game-menu__server-trigger" inset>
                   <span class="game-menu__item-label">Server</span>
                   <span class="game-menu__item-value">
                     {props.autoReloginServer() || "None"}
@@ -566,7 +634,7 @@ export function TopNav(props: TopNavProps): JSX.Element {
               </MenuSub>
               <MenuSeparator />
               <div class="game-menu__fields game-menu__fields--single-row">
-                <div class="game-menu__field game-menu__field--inline game-menu__field--wide">
+                <div class="game-menu__field game-menu__field--inline game-menu__field--wide game-menu__field--menu-inset">
                   <span>Delay</span>
                   <div class="game-menu__delay-control">
                     <Input

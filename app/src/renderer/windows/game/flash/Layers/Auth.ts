@@ -1,16 +1,28 @@
 import { Server, type ServerData } from "@vexed/game";
 import { Effect, Layer, Schedule, SynchronizedRef } from "effect";
-import type { AuthShape } from "../Services/Auth";
+import type {
+  AuthConnectFailureStatus,
+  AuthConnectOutcome,
+  AuthShape,
+} from "../Services/Auth";
 import { Auth } from "../Services/Auth";
 import { Bridge } from "../Services/Bridge";
-import type { LoginSession, LoginCredentials } from "../Types";
+import type {
+  ConnectToSelectionResult,
+  ConnectToSelectionStatus,
+  LoginCredentials,
+  LoginSession,
+} from "../Types";
 import { waitFor } from "../../utils/waitFor";
+
+const CONNECT_TO_TIMEOUT = "15 seconds";
 
 type RuntimeState = {
   readonly servers: Map<string, Server>;
   username: string;
   password: string;
   loginSession: LoginSession | undefined;
+  connectionFailureSeq: number;
 };
 
 const initialState = (): RuntimeState => ({
@@ -18,6 +30,7 @@ const initialState = (): RuntimeState => ({
   username: "",
   password: "",
   loginSession: undefined,
+  connectionFailureSeq: 0,
 });
 
 const clearSession = (state: RuntimeState): RuntimeState => {
@@ -27,6 +40,131 @@ const clearSession = (state: RuntimeState): RuntimeState => {
   return state;
 };
 
+const connectToSelectionStatuses: ReadonlySet<string> = new Set([
+  "selected",
+  "not-ready",
+  "offline",
+  "full",
+  "member-only",
+  "chat-restricted",
+  "underage-chat",
+  "email-unconfirmed",
+  "test-client-required",
+  "not-found",
+] satisfies ConnectToSelectionStatus[]);
+
+const nonRetryableSelectionStatuses: ReadonlySet<ConnectToSelectionStatus> =
+  new Set([
+    "member-only",
+    "chat-restricted",
+    "underage-chat",
+    "email-unconfirmed",
+    "test-client-required",
+    "not-found",
+  ]);
+
+const isRecord = (value: unknown): value is Record<string, unknown> =>
+  typeof value === "object" && value !== null;
+
+const isConnectToSelectionStatus = (
+  value: unknown,
+): value is ConnectToSelectionStatus =>
+  typeof value === "string" && connectToSelectionStatuses.has(value);
+
+const parseConnectToSelectionResult = (
+  value: unknown,
+  requestedServer: string,
+): ConnectToSelectionResult => {
+  if (value === true) {
+    return {
+      status: "selected",
+      message: "server selected",
+      serverName: requestedServer,
+    };
+  }
+
+  if (value === false) {
+    return { status: "not-found", message: "server was not found" };
+  }
+
+  if (!isRecord(value) || !isConnectToSelectionStatus(value["status"])) {
+    return {
+      status: "not-ready",
+      message: "invalid server selection response",
+    };
+  }
+
+  const message =
+    typeof value["message"] === "string"
+      ? value["message"]
+      : "server selection failed";
+  const serverName =
+    typeof value["serverName"] === "string" ? value["serverName"] : undefined;
+
+  return {
+    status: value["status"],
+    message,
+    ...(serverName === undefined ? {} : { serverName }),
+  };
+};
+
+const decodeFlashValue = (value: string): unknown => {
+  try {
+    return JSON.parse(value) as unknown;
+  } catch {
+    return value;
+  }
+};
+
+const flashStringEquals = (value: string, expected: string): boolean =>
+  decodeFlashValue(value) === expected || value === expected;
+
+const serverNameFields = (serverName: string | undefined) =>
+  serverName === undefined || serverName === "" ? {} : { serverName };
+
+const connectedOutcome = (
+  serverName: string | undefined,
+): AuthConnectOutcome => ({
+  status: "connected",
+  message: "connected",
+  retryable: false,
+  ...serverNameFields(serverName),
+});
+
+const connectFailure = (
+  status: AuthConnectFailureStatus,
+  message: string,
+  retryable: boolean,
+  serverName: string | undefined,
+): AuthConnectOutcome => ({
+  status,
+  message,
+  retryable,
+  ...serverNameFields(serverName),
+});
+
+const selectionToOutcome = (
+  selection: ConnectToSelectionResult,
+): AuthConnectOutcome => {
+  if (selection.status === "selected") {
+    return connectedOutcome(selection.serverName);
+  }
+
+  return connectFailure(
+    selection.status,
+    selection.message,
+    !nonRetryableSelectionStatuses.has(selection.status),
+    selection.serverName,
+  );
+};
+
+const connectErrorMessage = (connText: string): string => {
+  const decoded = decodeFlashValue(connText);
+  return typeof decoded === "string" && decoded !== "null"
+    ? decoded.trim()
+    : "";
+};
+
 const make = Effect.gen(function* () {
   const bridge = yield* Bridge;
   const stateRef = yield* SynchronizedRef.make(initialState());
@@ -34,8 +172,98 @@ const make = Effect.gen(function* () {
 
   const clearSessionState = SynchronizedRef.update(stateRef, clearSession);
 
+  const observeConnectOutcome = (
+    initialConnectionFailureSeq: number,
+    selection: ConnectToSelectionResult,
+  ) =>
+    Effect.gen(function* () {
+      const [label, connStageNull, connText, backButtonVisible, state] =
+        yield* Effect.all([
+          bridge.call("flash.getGameObject", ["currentLabel"]),
+          bridge.call("flash.isNull", ["mcConnDetail.stage"]),
+          bridge.call("flash.getConnMcText"),
+          bridge.call("flash.isConnMcBackButtonVisible"),
+          SynchronizedRef.get(stateRef),
+        ]);
+
+      const serverName = selection.serverName;
+      if (state.connectionFailureSeq > initialConnectionFailureSeq) {
+        return connectFailure(
+          "connection-failed",
+          "connection failed",
+          true,
+          serverName,
+        );
+      }
+
+      if (flashStringEquals(label, "Game") && connStageNull) {
+        return connectedOutcome(serverName);
+      }
+
+      const message = connectErrorMessage(connText);
+      if (message.toLowerCase().includes("server is full")) {
+        return connectFailure("full", "server is full", true, serverName);
+      }
+
+      if (backButtonVisible) {
+        return connectFailure(
+          "connection-error",
+          message === "" ? "connection failed" : message,
+          true,
+          serverName,
+        );
+      }
+
+      return null;
+    });
+
+  const waitForConnectOutcome = (
+    initialConnectionFailureSeq: number,
+    selection: ConnectToSelectionResult,
+  ) =>
+    Effect.gen(function* () {
+      let observedOutcome: AuthConnectOutcome | null = null;
+      const completed = yield* waitFor(
+        observeConnectOutcome(initialConnectionFailureSeq, selection).pipe(
+          Effect.map((outcome) => {
+            observedOutcome = outcome;
+            return outcome !== null;
+          }),
+        ),
+        {
+          timeout: CONNECT_TO_TIMEOUT,
+          schedule: Schedule.spaced("250 millis"),
+        },
+      );
+
+      if (completed && observedOutcome !== null) {
+        return observedOutcome;
+      }
+
+      return connectFailure(
+        "timeout",
+        "timed out connecting to server",
+        true,
+        selection.serverName,
+      );
+    });
+
   const connectTo: AuthShape["connectTo"] = (server) =>
-    bridge.call("auth.connectTo", [server]);
+    Effect.gen(function* () {
+      const state = yield* SynchronizedRef.get(stateRef);
+      const initialConnectionFailureSeq = state.connectionFailureSeq;
+      const rawSelection = yield* bridge.call("auth.connectTo", [server]);
+      const selection = parseConnectToSelectionResult(rawSelection, server);
+
+      if (selection.status !== "selected") {
+        return selectionToOutcome(selection);
+      }
+
+      return yield* waitForConnectOutcome(
+        initialConnectionFailureSeq,
+        selection,
+      );
+    });
 
   const getServers: AuthShape["getServers"] = () =>
     SynchronizedRef.modifyEffect(stateRef, (state) =>
@@ -131,6 +359,13 @@ const make = Effect.gen(function* () {
   const dispose = yield* bridge.onConnection((status) => {
     if (status === "OnConnection") {
       runFork(getLoginSession().pipe(Effect.asVoid));
+    } else if (status === "OnConnectionFailed") {
+      runFork(
+        SynchronizedRef.update(stateRef, (state) => {
+          state.connectionFailureSeq += 1;
+          return state;
+        }),
+      );
     } else if (status === "OnConnectionLost") {
       runFork(clearSessionState);
     }
