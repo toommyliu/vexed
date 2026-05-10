@@ -4,7 +4,7 @@ import "./entrypoint";
 import "./style.css";
 import { Spinner } from "@vexed/ui";
 import { mountWindow } from "../mount";
-import { Effect } from "effect";
+import { Data, Effect, Fiber } from "effect";
 import {
   createMemo,
   createSignal,
@@ -62,6 +62,19 @@ const DEFAULT_PADS = [
   "Up",
   "Down",
 ] as const;
+
+class AccountLaunchError extends Data.TaggedError("AccountLaunchError")<{
+  readonly message: string;
+  readonly cause?: unknown;
+}> {}
+
+const accountLaunchError = (
+  message: string,
+  cause?: unknown,
+): AccountLaunchError =>
+  new AccountLaunchError(
+    cause === undefined ? { message } : { message, cause },
+  );
 
 const uniqueNonEmpty = (values: readonly string[]): string[] => [
   ...new Set(values.map((value) => value.trim()).filter(Boolean)),
@@ -166,6 +179,7 @@ export default function App(props: {
   let autoZoneStateDisposer: (() => void) | undefined;
   let autoReloginStateDisposer: (() => void) | undefined;
   let cleanedUp = false;
+  const accountLaunchFibers = new Set<Fiber.Fiber<void, unknown>>();
   const assignDisposer =
     (slot: "settings" | "autoZone" | "autoRelogin") =>
     (dispose: () => void) => {
@@ -209,44 +223,6 @@ export default function App(props: {
       });
   };
 
-  const waitForAccountScriptStop = async (
-    payload: AccountGameLaunchPayload,
-    name: string,
-  ): Promise<void> => {
-    let lastMessage = "";
-
-    while (true) {
-      await new Promise((resolve) =>
-        setTimeout(resolve, ACCOUNT_SCRIPT_STATUS_POLL_MS),
-      );
-
-      if (!window.cmd) {
-        throw new Error("Script bridge is not ready");
-      }
-
-      const [isRunning, currentCommand] = await Promise.all([
-        window.cmd.isRunning(),
-        window.cmd.currentCommand(),
-      ]);
-
-      if (!isRunning) {
-        setScriptRunning(false);
-        setScriptStatus(`Stopped ${name}`);
-        updateAccountLaunchStatus(payload, "stopped", `Stopped ${name}`);
-        return;
-      }
-
-      const nextMessage = formatScriptStatus(true, true, currentCommand);
-      setScriptRunning(true);
-      setScriptStatus(nextMessage);
-
-      if (nextMessage !== lastMessage) {
-        updateAccountLaunchStatus(payload, "running", nextMessage);
-        lastMessage = nextMessage;
-      }
-    }
-  };
-
   const waitForLoadedGame = (): Promise<void> => {
     if (getGameLoadState().loaded) {
       return Promise.resolve();
@@ -263,66 +239,121 @@ export default function App(props: {
     });
   };
 
-  const handleAccountLaunch = (payload: AccountGameLaunchPayload) => {
-    updateAccountLaunchStatus(payload, "starting", "Waiting for game loader");
+  const waitForAccountScriptStopEffect = (
+    payload: AccountGameLaunchPayload,
+    name: string,
+  ): Effect.Effect<void, unknown> =>
+    Effect.gen(function* () {
+      let lastMessage = "";
 
-    void waitForLoadedGame()
-      .then(() =>
-        runtime.runPromise(
-          Effect.gen(function* () {
-            const autoRelogin = yield* AutoRelogin;
-            return yield* autoRelogin.login({
-              username: payload.account.username,
-              password: payload.account.password,
-              ...(payload.server === undefined
-                ? {}
-                : { server: payload.server }),
-            });
-          }),
-        ),
-      )
-      .then(async (outcome) => {
-        if (outcome.stage === "server-select") {
-          updateAccountLaunchStatus(
-            payload,
-            "stopped",
-            payload.script
-              ? "Select a server to run the script"
-              : "Waiting for server selection",
-          );
-          return;
+      while (true) {
+        yield* Effect.sleep(`${ACCOUNT_SCRIPT_STATUS_POLL_MS} millis`);
+
+        const cmd = window.cmd;
+        if (!cmd) {
+          return yield* accountLaunchError("Script bridge is not ready");
         }
 
-        if (!payload.script) {
+        const [isRunning, currentCommand] = yield* Effect.tryPromise({
+          try: () => Promise.all([cmd.isRunning(), cmd.currentCommand()]),
+          catch: (error) =>
+            accountLaunchError("Failed to read script status", error),
+        });
+
+        if (!isRunning) {
           setScriptRunning(false);
-          setScriptStatus("Player ready");
-          updateAccountLaunchStatus(payload, "running", "Player ready");
+          setScriptStatus(`Stopped ${name}`);
+          updateAccountLaunchStatus(payload, "stopped", `Stopped ${name}`);
           return;
         }
 
-        if (!window.cmd) {
-          throw new Error("Script bridge is not ready");
-        }
-
-        const name = payload.script.name ?? payload.script.path ?? "script";
-        updateAccountLaunchStatus(payload, "running", `Running ${name}`);
-        await window.cmd.run(payload.script.source, name);
+        const nextMessage = formatScriptStatus(true, true, currentCommand);
         setScriptRunning(true);
-        setScriptStatus(`Running ${name}`);
-        updateAccountLaunchStatus(payload, "running", `Running ${name}`);
-        await waitForAccountScriptStop(payload, name);
-      })
-      .catch((error: unknown) => {
-        console.error("Failed to run account launch:", error);
+        setScriptStatus(nextMessage);
+
+        if (nextMessage !== lastMessage) {
+          updateAccountLaunchStatus(payload, "running", nextMessage);
+          lastMessage = nextMessage;
+        }
+      }
+    });
+
+  const runAccountLaunch = (payload: AccountGameLaunchPayload) =>
+    Effect.gen(function* () {
+      updateAccountLaunchStatus(payload, "starting", "Waiting for game loader");
+      yield* Effect.promise(() => waitForLoadedGame());
+
+      const autoRelogin = yield* AutoRelogin;
+      const outcome = yield* autoRelogin.login({
+        username: payload.account.username,
+        password: payload.account.password,
+        ...(payload.server === undefined ? {} : { server: payload.server }),
+      });
+
+      if (outcome.stage === "server-select") {
         updateAccountLaunchStatus(
           payload,
-          "failed",
-          error instanceof Error ? error.message : "Account launch failed",
+          "stopped",
+          payload.script
+            ? "Select a server to run the script"
+            : "Waiting for server selection",
         );
-      })
-      .finally(() => {
         void refreshScriptMeta();
+        return;
+      }
+
+      if (!payload.script) {
+        setScriptRunning(false);
+        setScriptStatus("Player ready");
+        updateAccountLaunchStatus(payload, "running", "Player ready");
+        void refreshScriptMeta();
+        return;
+      }
+
+      const cmd = window.cmd;
+      if (!cmd) {
+        return yield* accountLaunchError("Script bridge is not ready");
+      }
+
+      const script = payload.script;
+      const name = script.name ?? script.path ?? "script";
+      updateAccountLaunchStatus(payload, "running", `Running ${name}`);
+      yield* Effect.tryPromise({
+        try: () => cmd.run(script.source, name),
+        catch: (error) =>
+          accountLaunchError(
+            error instanceof Error ? error.message : "Failed to run script",
+            error,
+          ),
       });
+      setScriptRunning(true);
+      setScriptStatus(`Running ${name}`);
+      updateAccountLaunchStatus(payload, "running", `Running ${name}`);
+      yield* waitForAccountScriptStopEffect(payload, name);
+      void refreshScriptMeta();
+    }).pipe(
+      Effect.catch((error: unknown) =>
+        Effect.sync(() => {
+          console.error("Failed to run account launch:", error);
+          updateAccountLaunchStatus(
+            payload,
+            "failed",
+            error instanceof AccountLaunchError
+              ? error.message
+              : "Account launch failed",
+          );
+          void refreshScriptMeta();
+        }),
+      ),
+    );
+
+  const handleAccountLaunch = (payload: AccountGameLaunchPayload) => {
+    const fiber = runtime.runFork(runAccountLaunch(payload));
+    accountLaunchFibers.add(fiber);
+    const removeObserver = fiber.addObserver(() => {
+      removeObserver();
+      accountLaunchFibers.delete(fiber);
+    });
   };
 
   const refreshScriptMeta = async () => {
@@ -1041,6 +1072,10 @@ export default function App(props: {
 
   onCleanup(() => {
     cleanedUp = true;
+    for (const fiber of accountLaunchFibers) {
+      runtime.runFork(Fiber.interrupt(fiber));
+    }
+    accountLaunchFibers.clear();
     settingsStateDisposer?.();
     autoZoneStateDisposer?.();
     autoReloginStateDisposer?.();
