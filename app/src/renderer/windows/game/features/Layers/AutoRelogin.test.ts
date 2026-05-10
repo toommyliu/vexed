@@ -356,6 +356,7 @@ test("enabling preserves a selected target server", async () => {
         yield* autoRelogin.enable();
         yield* autoRelogin.setDelayMs(0);
         yield* harness.jobsState.task!;
+        yield* harness.jobsState.task!;
         return {
           calls: harness.authCalls,
           state: yield* autoRelogin.getState(),
