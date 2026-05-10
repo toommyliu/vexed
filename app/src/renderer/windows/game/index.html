@@ -23,9 +23,9 @@
       #swf {
         position: absolute;
         left: 0;
-        top: 0;
+        top: var(--topnav-height, 28px);
         width: 100%;
-        height: 100%;
+        height: calc(100% - var(--topnav-height, 28px));
         z-index: 1;
       }
     </style>

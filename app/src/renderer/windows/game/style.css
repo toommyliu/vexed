@@ -55,16 +55,16 @@
   background: transparent;
   border: 1px solid transparent;
   border-radius: var(--radius-sm);
-  color: var(--color-muted-foreground);
+  color: var(--color-foreground);
   cursor: default;
   display: inline-flex;
   flex: 0 0 auto;
   font-family: var(--font-sans);
-  font-size: var(--text-sm);
-  font-weight: 600;
-  height: 1.5rem;
+  font-size: var(--text-base);
+  font-weight: 500;
+  height: 20px;
   justify-content: center;
-  line-height: 1;
+  line-height: 1.2;
   position: relative;
   min-width: 0;
   padding: 0 0.625rem;
@@ -81,7 +81,6 @@
 .game-topnav__button:not(:disabled):hover,
 .game-topnav__select-trigger:not(:disabled):hover {
   background: color-mix(in srgb, var(--color-accent) 82%, var(--color-background));
-  color: var(--color-foreground);
 }
 
 .game-topnav__trigger[data-expanded],
@@ -93,7 +92,6 @@
   box-shadow:
     0 0 0 1px rgb(var(--background)),
     0 0 0 3px rgba(var(--ring), 0.42);
-  color: var(--color-foreground);
   outline: none;
   z-index: 1;
 }
@@ -198,6 +196,12 @@
   flex: 0 0 1px;
   height: 0.875rem;
   margin: 0 0.25rem;
+}
+
+.game-topnav .checkbox {
+  color: var(--color-foreground);
+  font-weight: 500;
+  line-height: 1.2;
 }
 
 .game-menu {
