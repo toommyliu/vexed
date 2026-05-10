@@ -156,13 +156,13 @@ const MenuAutofocusAnchor = (): JSX.Element => (
 
 type TopNavMenuTriggerProps = Omit<
   ButtonProps,
-  "as" | "size" | "type" | "variant"
+  "as" | "size" | "type"
 > & {
   readonly expanded?: boolean;
 };
 
 function TopNavMenuTrigger(props: TopNavMenuTriggerProps): JSX.Element {
-  const [local, rest] = splitProps(props, ["children", "class", "expanded"]);
+  const [local, rest] = splitProps(props, ["children", "class", "expanded", "variant"]);
 
   return (
     <MenuTrigger
@@ -175,7 +175,7 @@ function TopNavMenuTrigger(props: TopNavMenuTriggerProps): JSX.Element {
             "data-expanded": local.expanded ? "" : undefined,
             size: "sm",
             type: "button",
-            variant: "ghost",
+            variant: local.variant ?? "ghost",
           } as ButtonProps) as ButtonProps)}
         />
       )}
@@ -857,6 +857,7 @@ export function TopNav(props: TopNavProps): JSX.Element {
               disabled={travelDisabled()}
               expanded={props.openMenu() === "pads"}
               onClick={toggleTravelMenu("pads")}
+              variant="secondary"
             >
               <span class="game-topnav__select-label">
                 {props.selectedPad() || "Pad"}
@@ -905,6 +906,7 @@ export function TopNav(props: TopNavProps): JSX.Element {
               disabled={travelDisabled()}
               expanded={props.openMenu() === "cells"}
               onClick={toggleTravelMenu("cells")}
+              variant="secondary"
             >
               <span class="game-topnav__select-label">
                 {props.selectedCell() || "Cell"}
