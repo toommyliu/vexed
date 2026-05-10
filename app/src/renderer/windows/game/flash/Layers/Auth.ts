@@ -250,8 +250,6 @@ const make = Effect.gen(function* () {
 
   const connectTo: AuthShape["connectTo"] = (server) =>
     Effect.gen(function* () {
-      const state = yield* SynchronizedRef.get(stateRef);
-      const initialConnectionFailureSeq = state.connectionFailureSeq;
       const rawSelection = yield* bridge.call("auth.connectTo", [server]);
       const selection = parseConnectToSelectionResult(rawSelection, server);
 
@@ -259,6 +257,8 @@ const make = Effect.gen(function* () {
         return selectionToOutcome(selection);
       }
 
+      const initialConnectionFailureSeq = (yield* SynchronizedRef.get(stateRef))
+        .connectionFailureSeq;
       return yield* waitForConnectOutcome(
         initialConnectionFailureSeq,
         selection,
