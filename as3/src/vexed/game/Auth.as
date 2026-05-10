@@ -110,8 +110,6 @@ package vexed.game
       {
         return null;
       }
-
-      return null;
     }
 
     private static function getServerData(row:*):Object
