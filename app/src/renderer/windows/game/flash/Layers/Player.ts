@@ -159,7 +159,7 @@ const make = Effect.gen(function* () {
       }
 
       return yield* bridge.call("player.isLoaded");
-    }).pipe(Effect.catchCause(() => Effect.succeed(false)));
+    }).pipe(Effect.catch(() => Effect.succeed(false)));
 
   const isMember: PlayerShape["isMember"] = () =>
     bridge.call("player.isMember");
