@@ -194,7 +194,6 @@ test("disposed subscribers stop receiving updates", async () => {
       });
 
       dispose();
-      yield* Effect.sleep("10 millis");
       yield* autoZone.setEnabled(true);
 
       return received;

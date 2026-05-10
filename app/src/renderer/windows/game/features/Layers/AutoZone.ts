@@ -1,5 +1,5 @@
 import { equalsIgnoreCase } from "@vexed/shared/string";
-import { Effect, Layer, Option, Random, Ref, SynchronizedRef } from "effect";
+import { Effect, Layer, Option, Random, Ref } from "effect";
 import {
   AutoZone,
   type AutoZoneState,
@@ -146,9 +146,7 @@ const make = Effect.gen(function* () {
   const enabledRef = yield* Ref.make(false);
   const mapRef = yield* Ref.make<AutoZoneSupportedMap | undefined>(undefined);
   const queenionaSequenceRef = yield* Ref.make(0);
-  const listenersRef = yield* SynchronizedRef.make<Set<AutoZoneStateListener>>(
-    new Set(),
-  );
+  const listeners = new Set<AutoZoneStateListener>();
 
   const getState: AutoZoneShape["getState"] = () =>
     Effect.all({
@@ -157,20 +155,12 @@ const make = Effect.gen(function* () {
     });
 
   const addStateListener = (listener: AutoZoneStateListener) =>
-    SynchronizedRef.update(listenersRef, (listeners) => {
+    Effect.sync(() => {
       listeners.add(listener);
-      return listeners;
-    });
-
-  const removeStateListener = (listener: AutoZoneStateListener) =>
-    SynchronizedRef.update(listenersRef, (listeners) => {
-      listeners.delete(listener);
-      return listeners;
     });
 
   const emitState = (state: AutoZoneState) =>
     Effect.gen(function* () {
-      const listeners = yield* SynchronizedRef.get(listenersRef);
       if (listeners.size === 0) {
         return;
       }
@@ -346,21 +336,16 @@ const make = Effect.gen(function* () {
 
   const onState: AutoZoneShape["onState"] = (listener, options) =>
     Effect.gen(function* () {
-      yield* addStateListener(listener);
-
       if (options?.emitCurrent ?? true) {
         yield* getState().pipe(
           Effect.flatMap((state) => Effect.sync(() => listener(state))),
-          Effect.catchCause((cause) =>
-            removeStateListener(listener).pipe(
-              Effect.andThen(Effect.failCause(cause)),
-            ),
-          ),
         );
       }
 
+      yield* addStateListener(listener);
+
       return () => {
-        runFork(removeStateListener(listener));
+        listeners.delete(listener);
       };
     });
 
