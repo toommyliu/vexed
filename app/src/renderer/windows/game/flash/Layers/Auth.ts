@@ -222,13 +222,9 @@ const make = Effect.gen(function* () {
     selection: ConnectToSelectionResult,
   ) =>
     Effect.gen(function* () {
-      let observedOutcome: AuthConnectOutcome | null = null;
       const completed = yield* waitFor(
         observeConnectOutcome(initialConnectionFailureSeq, selection).pipe(
-          Effect.map((outcome) => {
-            observedOutcome = outcome;
-            return outcome !== null;
-          }),
+          Effect.map((outcome) => outcome !== null),
         ),
         {
           timeout: CONNECT_TO_TIMEOUT,
@@ -236,8 +232,14 @@ const make = Effect.gen(function* () {
         },
       );
 
-      if (completed && observedOutcome !== null) {
-        return observedOutcome;
+      if (completed) {
+        const outcome = yield* observeConnectOutcome(
+          initialConnectionFailureSeq,
+          selection,
+        );
+        if (outcome !== null) {
+          return outcome;
+        }
       }
 
       return connectFailure(
