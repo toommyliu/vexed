@@ -211,8 +211,6 @@ package vexed.game
       {
         return connectResult("not-ready", "server selection failed");
       }
-
-      return connectResult("not-ready", "server selection failed");
     }
 
     private static function connectToUnsafe(server:String):Object
