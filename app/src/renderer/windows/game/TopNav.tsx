@@ -45,6 +45,10 @@ import {
   type WindowId,
 } from "../../../shared/windows";
 import {
+  AUTO_ZONE_MAP_OPTIONS,
+  type AutoZoneSupportedMap,
+} from "./features/Services/AutoZone";
+import {
   getTopNavOptionCommandId,
   type GameTopNavMenu,
   type TopNavOptionItem,
@@ -80,6 +84,12 @@ export interface TopNavProps {
   readonly customGuild: Accessor<string>;
   readonly setCustomGuild: Setter<string>;
   readonly handleSetCustomGuild: () => void;
+  readonly autoZoneEnabled: Accessor<boolean>;
+  readonly autoZoneMap: Accessor<AutoZoneSupportedMap | undefined>;
+  readonly handleToggleAutoZone: () => void;
+  readonly handleSelectAutoZoneMap: (
+    map: AutoZoneSupportedMap | undefined,
+  ) => void;
   readonly autoReloginEnabled: Accessor<boolean>;
   readonly autoReloginCaptured: Accessor<boolean>;
   readonly autoReloginAttempting: Accessor<boolean>;
@@ -537,6 +547,51 @@ export function TopNav(props: TopNavProps): JSX.Element {
                   />
                 </label>
               </div>
+            </MenuContent>
+          </Menu>
+
+          <Menu
+            open={props.openMenu() === "autozone"}
+            onOpenChange={setMenuOpen("autozone")}
+          >
+            <TopNavMenuTrigger
+              expanded={props.openMenu() === "autozone"}
+              onClick={toggleMenu("autozone")}
+            >
+              Auto Zone
+            </TopNavMenuTrigger>
+            <MenuContent class="game-menu game-menu--autozone" portal={false}>
+              <MenuAutofocusAnchor />
+              <MenuCheckboxItem
+                checked={props.autoZoneEnabled()}
+                class="game-menu__item"
+                closeOnSelect={false}
+                onClick={props.handleToggleAutoZone}
+                value="toggle-autozone"
+              >
+                {props.autoZoneEnabled() ? "Disable" : "Enable"}
+              </MenuCheckboxItem>
+              <MenuSeparator />
+              <MenuRadioGroup
+                value={props.autoZoneMap() ?? ""}
+                onValueChange={(details) =>
+                  props.handleSelectAutoZoneMap(
+                    details.value as AutoZoneSupportedMap,
+                  )
+                }
+              >
+                <For each={AUTO_ZONE_MAP_OPTIONS}>
+                  {(option) => (
+                    <MenuRadioItem
+                      class="game-menu__item"
+                      closeOnSelect={false}
+                      value={option.value}
+                    >
+                      <span class="game-menu__item-label">{option.label}</span>
+                    </MenuRadioItem>
+                  )}
+                </For>
+              </MenuRadioGroup>
             </MenuContent>
           </Menu>
 

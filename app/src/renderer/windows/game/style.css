@@ -277,6 +277,10 @@
   min-width: min(24rem, calc(100vw - 1rem));
 }
 
+.game-menu--autozone {
+  width: min(15rem, calc(100vw - 1rem)) !important;
+}
+
 .game-menu--compact {
   min-width: 7rem;
 }

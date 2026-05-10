@@ -31,6 +31,11 @@ import {
   AutoRelogin,
   type AutoReloginState,
 } from "./features/Services/AutoRelogin";
+import {
+  AutoZone,
+  type AutoZoneState,
+  type AutoZoneSupportedMap,
+} from "./features/Services/AutoZone";
 import { TopNav } from "./TopNav";
 import { createGameCommands } from "./commands";
 import { GameHotkeys } from "./hotkeys";
@@ -127,6 +132,10 @@ export default function App(props: {
   const [infiniteRangeEnabled, setInfiniteRangeEnabled] = createSignal(false);
   const [provokeCellEnabled, setProvokeCellEnabled] = createSignal(false);
   const [skipCutscenesEnabled, setSkipCutscenesEnabled] = createSignal(false);
+  const [autoZoneEnabled, setAutoZoneEnabled] = createSignal(false);
+  const [autoZoneMap, setAutoZoneMap] = createSignal<
+    AutoZoneSupportedMap | undefined
+  >(undefined);
 
   const [autoReloginEnabled, setAutoReloginEnabled] = createSignal(false);
   const [autoReloginCaptured, setAutoReloginCaptured] = createSignal(false);
@@ -154,6 +163,7 @@ export default function App(props: {
   const [travelBusy, setTravelBusy] = createSignal(false);
 
   let settingsStateDisposer: (() => void) | undefined;
+  let autoZoneStateDisposer: (() => void) | undefined;
   let autoReloginStateDisposer: (() => void) | undefined;
 
   const openWindow = (id: WindowId) => {
@@ -665,6 +675,62 @@ export default function App(props: {
     );
   };
 
+  const applyAutoZoneState = (state: AutoZoneState) => {
+    setAutoZoneEnabled(state.enabled);
+    setAutoZoneMap(state.map);
+  };
+
+  const refreshAutoZoneState = () => {
+    void runtime
+      .runPromise(
+        Effect.gen(function* () {
+          const autoZone = yield* AutoZone;
+          return yield* autoZone.getState();
+        }),
+      )
+      .then(applyAutoZoneState)
+      .catch((error) => {
+        console.error("Refresh autozone state error:", error);
+      });
+  };
+
+  const handleToggleAutoZone = () => {
+    const nextEnabled = !autoZoneEnabled();
+    setAutoZoneEnabled(nextEnabled);
+
+    void runtime
+      .runPromise(
+        Effect.gen(function* () {
+          const autoZone = yield* AutoZone;
+          yield* autoZone.setEnabled(nextEnabled);
+          return yield* autoZone.getState();
+        }),
+      )
+      .then(applyAutoZoneState)
+      .catch((error) => {
+        console.error("Toggle autozone error:", error);
+        refreshAutoZoneState();
+      });
+  };
+
+  const handleSelectAutoZoneMap = (map: AutoZoneSupportedMap | undefined) => {
+    setAutoZoneMap(map);
+
+    void runtime
+      .runPromise(
+        Effect.gen(function* () {
+          const autoZone = yield* AutoZone;
+          yield* autoZone.setMap(map);
+          return yield* autoZone.getState();
+        }),
+      )
+      .then(applyAutoZoneState)
+      .catch((error) => {
+        console.error("Set autozone map error:", error);
+        refreshAutoZoneState();
+      });
+  };
+
   const applyAutoReloginState = (state: AutoReloginState) => {
     setAutoReloginEnabled(state.enabled);
     setAutoReloginCaptured(state.captured);
@@ -940,6 +1006,20 @@ export default function App(props: {
         console.error("AutoRelogin state subscription error:", error);
       });
 
+    void runtime
+      .runPromise(
+        Effect.gen(function* () {
+          const autoZone = yield* AutoZone;
+          return yield* autoZone.onState(applyAutoZoneState);
+        }),
+      )
+      .then((dispose) => {
+        autoZoneStateDisposer = dispose;
+      })
+      .catch((error) => {
+        console.error("AutoZone state subscription error:", error);
+      });
+
     onCleanup(() => {
       unsubscribeAppSettings();
       unsubscribeAccountLaunch();
@@ -951,6 +1031,7 @@ export default function App(props: {
 
   onCleanup(() => {
     settingsStateDisposer?.();
+    autoZoneStateDisposer?.();
     autoReloginStateDisposer?.();
   });
 
@@ -990,6 +1071,10 @@ export default function App(props: {
         customGuild={customGuild}
         setCustomGuild={setCustomGuild}
         handleSetCustomGuild={handleSetCustomGuild}
+        autoZoneEnabled={autoZoneEnabled}
+        autoZoneMap={autoZoneMap}
+        handleToggleAutoZone={handleToggleAutoZone}
+        handleSelectAutoZoneMap={handleSelectAutoZoneMap}
         autoReloginEnabled={autoReloginEnabled}
         autoReloginCaptured={autoReloginCaptured}
         autoReloginAttempting={autoReloginAttempting}

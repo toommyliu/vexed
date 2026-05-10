@@ -1,7 +1,10 @@
 import type { Avatar, Aura } from "@vexed/game";
 import { Effect, Layer, Option } from "effect";
 import { expect, test } from "vitest";
-import { PacketDomain, type PacketDomainShape } from "../../flash/Services/PacketDomain";
+import {
+  PacketDomain,
+  type PacketDomainShape,
+} from "../../flash/Services/PacketDomain";
 import { Player, type PlayerShape } from "../../flash/Services/Player";
 import { World, type WorldShape } from "../../flash/Services/World";
 import { AutoZone, type AutoZoneShape } from "../Services/AutoZone";
@@ -25,14 +28,15 @@ const inRange = (
 ): boolean => value >= min && value <= max;
 
 const withAutoZone = async <A>(
-  body: (autoZone: AutoZoneShape, harness: Harness) => Effect.Effect<A, unknown>,
+  body: (
+    autoZone: AutoZoneShape,
+    harness: Harness,
+  ) => Effect.Effect<A, unknown>,
 ): Promise<A> => {
   const walks: WalkCall[] = [];
   const auraNames = new Set<string>();
   let currentMap = "ultradage";
-  let zoneHandler:
-    | Parameters<PacketDomainShape["on"]>[1]
-    | undefined;
+  let zoneHandler: Parameters<PacketDomainShape["on"]>[1] | undefined;
 
   const packetDomain = {
     started: true,
@@ -117,7 +121,7 @@ const withAutoZone = async <A>(
   );
 };
 
-test("default enabled and map state", async () => {
+test("default disabled and no map state", async () => {
   const state = await withAutoZone((autoZone) =>
     Effect.all({
       enabled: autoZone.enabled,
@@ -126,15 +130,101 @@ test("default enabled and map state", async () => {
   );
 
   expect(state).toEqual({
-    enabled: true,
-    map: "ultradage",
+    enabled: false,
+    map: undefined,
   });
+});
+
+test("emits current state to subscribers", async () => {
+  const states = await withAutoZone((autoZone) =>
+    Effect.gen(function* () {
+      const received: unknown[] = [];
+      yield* autoZone.onState((state) => {
+        received.push(state);
+      });
+      return received;
+    }),
+  );
+
+  expect(states).toEqual([
+    {
+      enabled: false,
+      map: undefined,
+    },
+  ]);
+});
+
+test("notifies subscribers when enabled or map changes", async () => {
+  const states = await withAutoZone((autoZone) =>
+    Effect.gen(function* () {
+      const received: unknown[] = [];
+      yield* autoZone.onState((state) => {
+        received.push(state);
+      });
+
+      yield* autoZone.setEnabled(true);
+      yield* autoZone.setMap("ledgermayne");
+
+      return received;
+    }),
+  );
+
+  expect(states).toEqual([
+    {
+      enabled: false,
+      map: undefined,
+    },
+    {
+      enabled: true,
+      map: undefined,
+    },
+    {
+      enabled: true,
+      map: "ledgermayne",
+    },
+  ]);
+});
+
+test("disposed subscribers stop receiving updates", async () => {
+  const states = await withAutoZone((autoZone) =>
+    Effect.gen(function* () {
+      const received: unknown[] = [];
+      const dispose = yield* autoZone.onState((state) => {
+        received.push(state);
+      });
+
+      dispose();
+      yield* Effect.sleep("10 millis");
+      yield* autoZone.setEnabled(true);
+
+      return received;
+    }),
+  );
+
+  expect(states).toEqual([
+    {
+      enabled: false,
+      map: undefined,
+    },
+  ]);
 });
 
 test("disabled AutoZone ignores zone packets", async () => {
   const walks = await withAutoZone((autoZone, harness) =>
     Effect.gen(function* () {
-      yield* autoZone.setEnabled(false);
+      yield* autoZone.setMap("ultradage");
+      yield* harness.emitZone("ultradage", "A");
+      return harness.walks;
+    }),
+  );
+
+  expect(walks).toEqual([]);
+});
+
+test("enabled AutoZone with no map ignores zone packets", async () => {
+  const walks = await withAutoZone((autoZone, harness) =>
+    Effect.gen(function* () {
+      yield* autoZone.setEnabled(true);
       yield* harness.emitZone("ultradage", "A");
       return harness.walks;
     }),
@@ -146,6 +236,7 @@ test("disabled AutoZone ignores zone packets", async () => {
 test("selected map mismatch ignores zone packets", async () => {
   const walks = await withAutoZone((autoZone, harness) =>
     Effect.gen(function* () {
+      yield* autoZone.setEnabled(true);
       yield* autoZone.setMap("ledgermayne");
       yield* harness.emitZone("ultradage", "A");
       return harness.walks;
@@ -158,6 +249,7 @@ test("selected map mismatch ignores zone packets", async () => {
 test("supported map zone walks within configured coordinate range", async () => {
   const walks = await withAutoZone((autoZone, harness) =>
     Effect.gen(function* () {
+      yield* autoZone.setEnabled(true);
       yield* autoZone.setMap("ledgermayne");
       yield* harness.emitZone("ledgermayne", "A");
       return harness.walks;
@@ -172,6 +264,7 @@ test("supported map zone walks within configured coordinate range", async () => 
 test("unsupported zone does not walk", async () => {
   const walks = await withAutoZone((autoZone, harness) =>
     Effect.gen(function* () {
+      yield* autoZone.setEnabled(true);
       yield* autoZone.setMap("ledgermayne");
       yield* harness.emitZone("ledgermayne", "missing");
       return harness.walks;
@@ -184,6 +277,7 @@ test("unsupported zone does not walk", async () => {
 test("queeniona center behavior", async () => {
   const walks = await withAutoZone((autoZone, harness) =>
     Effect.gen(function* () {
+      yield* autoZone.setEnabled(true);
       yield* autoZone.setMap("queeniona");
       harness.setWorldMap("queeniona");
       yield* harness.emitZone("queeniona", "");
@@ -198,6 +292,7 @@ test("queeniona center behavior", async () => {
 test("queeniona aura side selection", async () => {
   const walks = await withAutoZone((autoZone, harness) =>
     Effect.gen(function* () {
+      yield* autoZone.setEnabled(true);
       yield* autoZone.setMap("queeniona");
       harness.setWorldMap("queeniona");
       harness.auraNames.add("Positive Charge");
@@ -215,6 +310,7 @@ test("queeniona aura side selection", async () => {
 test("stale delayed queeniona sequence does not walk", async () => {
   const walks = await withAutoZone((autoZone, harness) =>
     Effect.gen(function* () {
+      yield* autoZone.setEnabled(true);
       yield* autoZone.setMap("queeniona");
       harness.setWorldMap("queeniona");
       harness.auraNames.add("Positive Charge");

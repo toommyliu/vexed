@@ -13,10 +13,43 @@ export type AutoZoneSupportedMap = Schema.Schema.Type<
   typeof AutoZoneSupportedMap
 >;
 
+export const AUTO_ZONE_MAP_OPTIONS = [
+  { value: "ledgermayne", label: "Ledgermayne" },
+  { value: "moreskulls", label: "More Skulls" },
+  { value: "ultradage", label: "Ultra Dage" },
+  { value: "darkcarnax", label: "Dark Carnax" },
+  { value: "astralshrine", label: "Astral Shrine" },
+  { value: "queeniona", label: "Queen Iona" },
+  { value: "magnumopus", label: "Magnum Opus" },
+] as const satisfies readonly {
+  readonly value: AutoZoneSupportedMap;
+  readonly label: string;
+}[];
+
+export interface AutoZoneState {
+  readonly enabled: boolean;
+  readonly map: AutoZoneSupportedMap | undefined;
+}
+
+export type AutoZoneStateDisposer = () => void;
+
+export type AutoZoneStateListener = (state: AutoZoneState) => void;
+
+export interface AutoZoneStateSubscriptionOptions {
+  readonly emitCurrent?: boolean;
+}
+
 export interface AutoZoneShape {
   readonly enabled: Effect.Effect<boolean>;
-  readonly map: Effect.Effect<AutoZoneSupportedMap>;
-  readonly setMap: (map: AutoZoneSupportedMap) => Effect.Effect<void>;
+  readonly map: Effect.Effect<AutoZoneSupportedMap | undefined>;
+  readonly getState: () => Effect.Effect<AutoZoneState>;
+  readonly onState: (
+    listener: AutoZoneStateListener,
+    options?: AutoZoneStateSubscriptionOptions,
+  ) => Effect.Effect<AutoZoneStateDisposer>;
+  readonly setMap: (
+    map: AutoZoneSupportedMap | undefined,
+  ) => Effect.Effect<void>;
   readonly setEnabled: (enabled: boolean) => Effect.Effect<void>;
 }
 
