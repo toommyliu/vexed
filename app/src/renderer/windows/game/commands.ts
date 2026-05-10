@@ -87,7 +87,10 @@ const createCommandEnabled = (
   }
 
   if (id in topNavOptionCommandIds) {
-    return () => !findOption(runtime, id)?.disabled;
+    return () => {
+      const option = findOption(runtime, id);
+      return option !== undefined && !option.disabled;
+    };
   }
 
   return () => true;
