@@ -139,6 +139,12 @@ const windowHotkey = (bindings: HotkeyBindings, id: WindowId): string => {
   return commandId ? commandHotkey(bindings, commandId) : "";
 };
 
+const getAutoZoneMapLabel = (map: AutoZoneSupportedMap | undefined): string =>
+  map === undefined
+    ? ""
+    : (AUTO_ZONE_MAP_OPTIONS.find((option) => option.value === map)?.label ??
+      map);
+
 const MenuAutofocusAnchor = (): JSX.Element => (
   <span
     aria-hidden="true"
@@ -555,10 +561,21 @@ export function TopNav(props: TopNavProps): JSX.Element {
             onOpenChange={setMenuOpen("autozone")}
           >
             <TopNavMenuTrigger
+              class="game-topnav__trigger--autozone"
               expanded={props.openMenu() === "autozone"}
               onClick={toggleMenu("autozone")}
+              title={
+                props.autoZoneEnabled() && props.autoZoneMap()
+                  ? `Auto Zone: ${getAutoZoneMapLabel(props.autoZoneMap())}`
+                  : undefined
+              }
             >
-              Auto Zone
+              <span>Auto Zone</span>
+              <Show when={props.autoZoneEnabled() && props.autoZoneMap()}>
+                <span class="game-topnav__trigger-detail">
+                  {props.autoZoneMap()}
+                </span>
+              </Show>
             </TopNavMenuTrigger>
             <MenuContent class="game-menu game-menu--autozone" portal={false}>
               <MenuAutofocusAnchor />

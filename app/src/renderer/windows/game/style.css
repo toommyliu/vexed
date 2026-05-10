@@ -75,6 +75,30 @@
   gap: 0;
 }
 
+.game-topnav__trigger--autozone {
+  max-width: 14rem;
+  overflow: hidden;
+}
+
+.game-topnav__trigger--autozone .button__content {
+  min-width: 0;
+  overflow: hidden;
+}
+
+.game-topnav__trigger-detail {
+  background: color-mix(in srgb, var(--color-muted) 76%, transparent);
+  border: 1px solid color-mix(in srgb, var(--color-border) 82%, transparent);
+  border-radius: max(2px, calc(var(--radius-sm) - 1px));
+  color: var(--color-muted-foreground);
+  display: inline-block;
+  flex: 0 0 auto;
+  font-size: var(--text-xs);
+  line-height: 1;
+  margin-left: 0.125rem;
+  padding: 0.125rem 0.25rem;
+  white-space: nowrap;
+}
+
 .game-topnav__trigger--success,
 .game-topnav__button--success {
   color: var(--color-success-foreground);
