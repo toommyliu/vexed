@@ -511,7 +511,6 @@ export default function App(props: {
           yield* player.jumpToCell(
             targetCell,
             targetPad.length > 0 ? targetPad : undefined,
-            true,
           );
           const [currentCell, currentPad] = yield* Effect.all([
             player.getCell(),
