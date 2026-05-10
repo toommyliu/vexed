@@ -109,10 +109,26 @@ const initialState = (): RuntimeState => ({
   connectionSeq: 0,
 });
 
+const isWaitingForReloginDelay = (state: RuntimeState): boolean => {
+  if (
+    !state.enabled ||
+    state.captured === null ||
+    state.attempting ||
+    state.loggedOutSince === undefined ||
+    state.lastError !== undefined
+  ) {
+    return false;
+  }
+
+  const waitAnchor = Math.max(state.loggedOutSince, state.lastAttemptAt);
+  return Date.now() < waitAnchor + state.delayMs;
+};
+
 const toPublicState = (state: RuntimeState): AutoReloginState => ({
   enabled: state.enabled,
   captured: state.captured !== null,
   attempting: state.attempting,
+  waitingDelay: isWaitingForReloginDelay(state),
   ...(state.captured !== null ? { username: state.captured.username } : {}),
   ...(state.captured !== null ? { server: state.captured.server.sName } : {}),
   delayMs: state.delayMs,
@@ -836,7 +852,10 @@ const make = Effect.gen(function* () {
           const targetServer = findCapturedServer(servers, captured.server);
           if (targetServer === undefined) {
             return yield* failAttempt(
-              serverUnavailableError(captured.server.sName, "server unavailable"),
+              serverUnavailableError(
+                captured.server.sName,
+                "server unavailable",
+              ),
               false,
             );
           }
@@ -850,7 +869,10 @@ const make = Effect.gen(function* () {
           );
           if (ineligibilityReason !== undefined) {
             return yield* failAttempt(
-              serverUnavailableError(captured.server.sName, ineligibilityReason),
+              serverUnavailableError(
+                captured.server.sName,
+                ineligibilityReason,
+              ),
               false,
             );
           }
@@ -963,6 +985,7 @@ const make = Effect.gen(function* () {
             loggedOutSince: connectionState.loggedOutSince,
           };
     if (logoutState.firstObserved) {
+      yield* emitCurrentState;
       yield* logStage("logged out observed", {
         delayMs: (yield* getState()).delayMs,
       });
@@ -1146,7 +1169,8 @@ const make = Effect.gen(function* () {
         markLoggedOut(Date.now()).pipe(
           Effect.tap((logoutState) =>
             logoutState.firstObserved
-              ? SynchronizedRef.get(stateRef).pipe(
+              ? emitCurrentState.pipe(
+                  Effect.andThen(SynchronizedRef.get(stateRef)),
                   Effect.flatMap((state) =>
                     logStage("logged out observed", { delayMs: state.delayMs }),
                   ),

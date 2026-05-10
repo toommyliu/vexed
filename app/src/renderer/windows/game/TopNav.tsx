@@ -2,15 +2,19 @@ import {
   createEffect,
   createSignal,
   For,
+  Match,
   Show,
+  splitProps,
+  Switch,
   type Accessor,
   type JSX,
   type Setter,
 } from "solid-js";
-import { CircleAlert, LoaderCircle } from "lucide-solid";
+import { ChevronDown, CircleAlert, Clock, LoaderCircle } from "lucide-solid";
 import { formatOptionalHotkeyDisplay } from "@vexed/shared/hotkeyDisplay";
 import {
   Button,
+  type ButtonProps,
   Checkbox,
   Input,
   Kbd,
@@ -79,6 +83,7 @@ export interface TopNavProps {
   readonly autoReloginEnabled: Accessor<boolean>;
   readonly autoReloginCaptured: Accessor<boolean>;
   readonly autoReloginAttempting: Accessor<boolean>;
+  readonly autoReloginWaitingDelay: Accessor<boolean>;
   readonly autoReloginToggling: Accessor<boolean>;
   readonly autoReloginDelaySeconds: Accessor<string>;
   readonly setAutoReloginDelaySeconds: Setter<string>;
@@ -133,6 +138,35 @@ const MenuAutofocusAnchor = (): JSX.Element => (
   />
 );
 
+type TopNavMenuTriggerProps = Omit<
+  ButtonProps,
+  "as" | "size" | "type" | "variant"
+> & {
+  readonly expanded?: boolean;
+};
+
+function TopNavMenuTrigger(props: TopNavMenuTriggerProps): JSX.Element {
+  const [local, rest] = splitProps(props, ["children", "class", "expanded"]);
+
+  return (
+    <MenuTrigger
+      asChild={(triggerProps) => (
+        <Button
+          {...(triggerProps({
+            ...rest,
+            children: local.children,
+            class: cn("game-topnav__trigger", local.class),
+            "data-expanded": local.expanded ? "" : undefined,
+            size: "sm",
+            type: "button",
+            variant: "ghost",
+          } as ButtonProps) as ButtonProps)}
+        />
+      )}
+    />
+  );
+}
+
 export function TopNav(props: TopNavProps): JSX.Element {
   let autoReloginMenuContent: HTMLDivElement | undefined;
   const [autoReloginServerMenuOpen, setAutoReloginServerMenuOpen] =
@@ -151,6 +185,40 @@ export function TopNav(props: TopNavProps): JSX.Element {
     if (remaining <= 0) return "No retry attempts left";
     return `${remaining} retry ${remaining === 1 ? "attempt" : "attempts"} left`;
   };
+
+  const autoReloginTriggerLabel = (): string => {
+    if (props.autoReloginAttempting()) {
+      const remaining = autoReloginAttemptsRemainingLabel();
+      return remaining === ""
+        ? "Auto Relogin reconnecting"
+        : `Auto Relogin reconnecting (${remaining})`;
+    }
+
+    if (props.autoReloginWaitingDelay()) {
+      return "Auto Relogin waiting before reconnect";
+    }
+
+    const error = props.autoReloginLastError();
+    return error === "" ? "Auto Relogin" : `Auto Relogin failed: ${error}`;
+  };
+
+  const autoReloginTriggerHasStatus = (): boolean =>
+    props.autoReloginAttempting() ||
+    props.autoReloginWaitingDelay() ||
+    autoReloginNeedsAttention();
+
+  const autoReloginTriggerStatusKind = ():
+    | "waiting"
+    | "retrying"
+    | "alert"
+    | undefined =>
+    props.autoReloginAttempting()
+      ? "retrying"
+      : props.autoReloginWaitingDelay()
+        ? "waiting"
+        : autoReloginNeedsAttention()
+          ? "alert"
+          : undefined;
 
   createEffect(() => {
     if (props.autoReloginLastError() === "") {
@@ -266,13 +334,12 @@ export function TopNav(props: TopNavProps): JSX.Element {
             open={props.openMenu() === "windows"}
             onOpenChange={setMenuOpen("windows")}
           >
-            <MenuTrigger
-              class="game-topnav__trigger"
-              data-expanded={props.openMenu() === "windows" ? "" : undefined}
+            <TopNavMenuTrigger
+              expanded={props.openMenu() === "windows"}
               onClick={toggleMenu("windows")}
             >
               Windows
-            </MenuTrigger>
+            </TopNavMenuTrigger>
             <MenuContent class="game-menu game-menu--mega" portal={false}>
               <div class="game-menu__mega-grid">
                 <For each={gameWindowGroups}>
@@ -313,13 +380,12 @@ export function TopNav(props: TopNavProps): JSX.Element {
             open={props.openMenu() === "scripts"}
             onOpenChange={setMenuOpen("scripts")}
           >
-            <MenuTrigger
-              class="game-topnav__trigger"
-              data-expanded={props.openMenu() === "scripts" ? "" : undefined}
+            <TopNavMenuTrigger
+              expanded={props.openMenu() === "scripts"}
               onClick={toggleMenu("scripts")}
             >
               Scripts
-            </MenuTrigger>
+            </TopNavMenuTrigger>
             <MenuContent class="game-menu game-menu--scripts" portal={false}>
               <MenuGroup>
                 <MenuItem
@@ -378,13 +444,12 @@ export function TopNav(props: TopNavProps): JSX.Element {
             open={props.openMenu() === "options"}
             onOpenChange={setMenuOpen("options")}
           >
-            <MenuTrigger
-              class="game-topnav__trigger"
-              data-expanded={props.openMenu() === "options" ? "" : undefined}
+            <TopNavMenuTrigger
+              expanded={props.openMenu() === "options"}
               onClick={toggleMenu("options")}
             >
               Options
-            </MenuTrigger>
+            </TopNavMenuTrigger>
             <MenuContent class="game-menu game-menu--options" portal={false}>
               <MenuAutofocusAnchor />
               <div class="game-options-grid">
@@ -479,32 +544,42 @@ export function TopNav(props: TopNavProps): JSX.Element {
             open={props.openMenu() === "relogin"}
             onOpenChange={setAutoReloginMenuOpen}
           >
-            <MenuTrigger
-              aria-label={
-                props.autoReloginLastError()
-                  ? `Auto Relogin failed: ${props.autoReloginLastError()}`
-                  : "Auto Relogin"
-              }
+            <TopNavMenuTrigger
+              aria-label={autoReloginTriggerLabel()}
               class={cn(
-                "game-topnav__trigger game-topnav__trigger--relogin",
-                autoReloginNeedsAttention() && "game-topnav__trigger--alert",
+                "game-topnav__trigger--relogin",
+                autoReloginNeedsAttention() &&
+                  !props.autoReloginAttempting() &&
+                  !props.autoReloginWaitingDelay() &&
+                  "game-topnav__trigger--alert",
               )}
-              data-expanded={props.openMenu() === "relogin" ? "" : undefined}
+              expanded={props.openMenu() === "relogin"}
               title={
-                props.autoReloginLastError()
-                  ? `Auto Relogin failed: ${props.autoReloginLastError()}`
-                  : undefined
+                autoReloginTriggerLabel() === "Auto Relogin"
+                  ? undefined
+                  : autoReloginTriggerLabel()
               }
             >
               <span>Auto Relogin</span>
               <span
                 aria-hidden="true"
-                class="game-topnav__alert-slot"
-                data-visible={autoReloginNeedsAttention() ? "" : undefined}
+                class="game-topnav__status-slot"
+                data-kind={autoReloginTriggerStatusKind()}
+                data-visible={autoReloginTriggerHasStatus() ? "" : undefined}
               >
-                <CircleAlert class="game-topnav__alert-icon" />
+                <Switch>
+                  <Match when={autoReloginTriggerStatusKind() === "waiting"}>
+                    <Clock class="game-topnav__status-icon game-topnav__delay-icon" />
+                  </Match>
+                  <Match when={autoReloginTriggerStatusKind() === "retrying"}>
+                    <LoaderCircle class="game-topnav__status-icon game-topnav__retry-spinner" />
+                  </Match>
+                  <Match when={autoReloginTriggerStatusKind() === "alert"}>
+                    <CircleAlert class="game-topnav__status-icon game-topnav__alert-icon" />
+                  </Match>
+                </Switch>
               </span>
-            </MenuTrigger>
+            </TopNavMenuTrigger>
             <MenuContent
               ref={(element) => {
                 autoReloginMenuContent = element;
@@ -555,7 +630,10 @@ export function TopNav(props: TopNavProps): JSX.Element {
                   <Show when={autoReloginAttemptsRemainingLabel()}>
                     {(label) => (
                       <span class="game-menu__status-row">
-                        <span aria-hidden="true" class="game-menu__status-icon" />
+                        <span
+                          aria-hidden="true"
+                          class="game-menu__status-icon"
+                        />
                         <span>{label()}</span>
                       </span>
                     )}
@@ -578,7 +656,9 @@ export function TopNav(props: TopNavProps): JSX.Element {
                   ? props.autoReloginEnabled()
                     ? "Enabling…"
                     : "Disabling…"
-                  : (props.autoReloginEnabled() ? "Disable" : "Enable")}
+                  : props.autoReloginEnabled()
+                    ? "Disable"
+                    : "Enable"}
               </MenuCheckboxItem>
               <MenuSub
                 id="autorelogin-server-menu"
@@ -586,7 +666,10 @@ export function TopNav(props: TopNavProps): JSX.Element {
                 onOpenChange={setAutoReloginServerMenuOpenFromMenu}
                 closeOnSelect={false}
               >
-                <MenuSubTrigger class="game-menu__item game-menu__server-trigger" inset>
+                <MenuSubTrigger
+                  class="game-menu__item game-menu__server-trigger"
+                  inset
+                >
                   <span class="game-menu__item-label">Server</span>
                   <span class="game-menu__item-value">
                     {props.autoReloginServer() || "None"}
@@ -673,7 +756,7 @@ export function TopNav(props: TopNavProps): JSX.Element {
             onClick={
               props.scriptRunning() ? props.stopScript : props.startScript
             }
-            size="xs"
+            size="sm"
             variant="ghost"
           >
             {props.scriptRunning() ? "Stop" : "Start"}
@@ -697,15 +780,20 @@ export function TopNav(props: TopNavProps): JSX.Element {
             open={props.openMenu() === "pads"}
             onOpenChange={setMenuOpen("pads")}
           >
-            <MenuTrigger
+            <TopNavMenuTrigger
               class="game-topnav__select-trigger"
-              data-expanded={props.openMenu() === "pads" ? "" : undefined}
               disabled={travelDisabled()}
+              expanded={props.openMenu() === "pads"}
               onClick={toggleTravelMenu("pads")}
-              title="Jump to the selected pad"
             >
-              {props.selectedPad() || "Pad"}
-            </MenuTrigger>
+              <span class="game-topnav__select-label">
+                {props.selectedPad() || "Pad"}
+              </span>
+              <ChevronDown
+                aria-hidden="true"
+                class="game-topnav__select-chevron"
+              />
+            </TopNavMenuTrigger>
             <MenuContent
               class="game-menu game-menu--compact game-menu--pads"
               portal={false}
@@ -740,15 +828,20 @@ export function TopNav(props: TopNavProps): JSX.Element {
             open={props.openMenu() === "cells"}
             onOpenChange={setMenuOpen("cells")}
           >
-            <MenuTrigger
+            <TopNavMenuTrigger
               class="game-topnav__select-trigger game-topnav__select-trigger--cell"
-              data-expanded={props.openMenu() === "cells" ? "" : undefined}
               disabled={travelDisabled()}
+              expanded={props.openMenu() === "cells"}
               onClick={toggleTravelMenu("cells")}
-              title="Jump to the selected cell"
             >
-              {props.selectedCell() || "Cell"}
-            </MenuTrigger>
+              <span class="game-topnav__select-label">
+                {props.selectedCell() || "Cell"}
+              </span>
+              <ChevronDown
+                aria-hidden="true"
+                class="game-topnav__select-chevron"
+              />
+            </TopNavMenuTrigger>
             <MenuContent
               class="game-menu game-menu--compact game-menu--cells"
               portal={false}
@@ -781,8 +874,7 @@ export function TopNav(props: TopNavProps): JSX.Element {
           <Button
             disabled={gameInteractionDisabled()}
             onClick={props.handleOpenBank}
-            size="xs"
-            title="Open bank"
+            size="sm"
             variant="ghost"
           >
             Bank

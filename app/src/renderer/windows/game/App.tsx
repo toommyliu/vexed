@@ -23,10 +23,7 @@ import type { WindowId } from "../../../shared/windows";
 import { runtime } from "./Runtime";
 import { Settings, type SettingsShape } from "./flash/Services/Settings";
 import { Auth } from "./flash/Services/Auth";
-import {
-  SwfMethodNotFoundError,
-  SwfUnavailableError,
-} from "./flash/Errors";
+import { SwfMethodNotFoundError, SwfUnavailableError } from "./flash/Errors";
 import { Bank } from "./flash/Services/Bank";
 import { Player } from "./flash/Services/Player";
 import { World } from "./flash/Services/World";
@@ -134,6 +131,8 @@ export default function App(props: {
   const [autoReloginEnabled, setAutoReloginEnabled] = createSignal(false);
   const [autoReloginCaptured, setAutoReloginCaptured] = createSignal(false);
   const [autoReloginAttempting, setAutoReloginAttempting] = createSignal(false);
+  const [autoReloginWaitingDelay, setAutoReloginWaitingDelay] =
+    createSignal(false);
   const [autoReloginToggling, setAutoReloginToggling] = createSignal(false);
   const [autoReloginDelaySeconds, setAutoReloginDelaySeconds] = createSignal(
     formatDelaySeconds(AUTO_RELOGIN_DEFAULT_DELAY_MS),
@@ -670,6 +669,7 @@ export default function App(props: {
     setAutoReloginEnabled(state.enabled);
     setAutoReloginCaptured(state.captured);
     setAutoReloginAttempting(state.attempting);
+    setAutoReloginWaitingDelay(state.waitingDelay);
     setAutoReloginDelaySeconds(formatDelaySeconds(state.delayMs));
     setAutoReloginServer(state.server ?? "");
     setAutoReloginLastError(state.lastError ?? "");
@@ -993,6 +993,7 @@ export default function App(props: {
         autoReloginEnabled={autoReloginEnabled}
         autoReloginCaptured={autoReloginCaptured}
         autoReloginAttempting={autoReloginAttempting}
+        autoReloginWaitingDelay={autoReloginWaitingDelay}
         autoReloginToggling={autoReloginToggling}
         autoReloginDelaySeconds={autoReloginDelaySeconds}
         setAutoReloginDelaySeconds={setAutoReloginDelaySeconds}
@@ -1025,7 +1026,9 @@ export default function App(props: {
       >
         <div class="game-loader__content">
           <Spinner class="game-loader__spinner" size="xl" />
-          <span id="progress-text" class="game-loader__text">Loading...</span>
+          <span id="progress-text" class="game-loader__text">
+            Loading...
+          </span>
         </div>
       </section>
 

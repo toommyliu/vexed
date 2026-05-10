@@ -4,6 +4,7 @@ export interface AutoReloginState {
   readonly enabled: boolean;
   readonly captured: boolean;
   readonly attempting: boolean;
+  readonly waitingDelay: boolean;
   readonly username?: string;
   readonly server?: string;
   readonly delayMs: number;
