@@ -1,5 +1,5 @@
 import { equalsIgnoreCase } from "@vexed/shared/string";
-import { Effect, Layer, Option, Random, Ref } from "effect";
+import { Effect, Layer, Option, Random, Ref, Semaphore } from "effect";
 import {
   AutoZone,
   type AutoZoneState,
@@ -146,6 +146,7 @@ const make = Effect.gen(function* () {
   const enabledRef = yield* Ref.make(false);
   const mapRef = yield* Ref.make<AutoZoneSupportedMap | undefined>(undefined);
   const queenionaSequenceRef = yield* Ref.make(0);
+  const updateSemaphore = yield* Semaphore.make(1);
   const listeners = new Set<AutoZoneStateListener>();
 
   const getState: AutoZoneShape["getState"] = () =>
@@ -184,12 +185,14 @@ const make = Effect.gen(function* () {
   const updateState = (
     update: Effect.Effect<void>,
   ): Effect.Effect<AutoZoneState> =>
-    Effect.gen(function* () {
-      yield* update;
-      const state = yield* getState();
-      yield* emitState(state);
-      return state;
-    });
+    updateSemaphore.withPermits(1)(
+      Effect.gen(function* () {
+        yield* update;
+        const state = yield* getState();
+        yield* emitState(state);
+        return state;
+      }),
+    );
 
   const walkTo = (x: number, y: number) =>
     player.walkTo(x, y).pipe(Effect.catch(() => Effect.void));

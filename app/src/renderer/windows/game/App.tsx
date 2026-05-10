@@ -879,7 +879,7 @@ export default function App(props: {
 
   const handleSetAutoReloginDelay = () => {
     const delayMs = parseDelaySecondsToMs(autoReloginDelaySeconds());
-    if (!Number.isFinite(delayMs) || delayMs < 0) {
+    if (!Number.isFinite(delayMs)) {
       refreshAutoReloginState();
       return;
     }
