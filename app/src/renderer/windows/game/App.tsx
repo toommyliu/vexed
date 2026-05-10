@@ -165,6 +165,23 @@ export default function App(props: {
   let settingsStateDisposer: (() => void) | undefined;
   let autoZoneStateDisposer: (() => void) | undefined;
   let autoReloginStateDisposer: (() => void) | undefined;
+  let cleanedUp = false;
+  const assignDisposer =
+    (slot: "settings" | "autoZone" | "autoRelogin") =>
+    (dispose: () => void) => {
+      if (cleanedUp) {
+        dispose();
+        return;
+      }
+
+      if (slot === "settings") {
+        settingsStateDisposer = dispose;
+      } else if (slot === "autoZone") {
+        autoZoneStateDisposer = dispose;
+      } else {
+        autoReloginStateDisposer = dispose;
+      }
+    };
 
   const openWindow = (id: WindowId) => {
     void window.ipc.windows.open(id).catch((error: unknown) => {
@@ -984,9 +1001,7 @@ export default function App(props: {
           });
         }),
       )
-      .then((dispose) => {
-        settingsStateDisposer = dispose;
-      })
+      .then(assignDisposer("settings"))
       .catch((error) => {
         console.error("Settings state subscription error:", error);
       });
@@ -998,9 +1013,7 @@ export default function App(props: {
           return yield* autoRelogin.onState(applyAutoReloginState);
         }),
       )
-      .then((dispose) => {
-        autoReloginStateDisposer = dispose;
-      })
+      .then(assignDisposer("autoRelogin"))
       .catch((error) => {
         console.error("AutoRelogin state subscription error:", error);
       });
@@ -1012,9 +1025,7 @@ export default function App(props: {
           return yield* autoZone.onState(applyAutoZoneState);
         }),
       )
-      .then((dispose) => {
-        autoZoneStateDisposer = dispose;
-      })
+      .then(assignDisposer("autoZone"))
       .catch((error) => {
         console.error("AutoZone state subscription error:", error);
       });
@@ -1029,6 +1040,7 @@ export default function App(props: {
   });
 
   onCleanup(() => {
+    cleanedUp = true;
     settingsStateDisposer?.();
     autoZoneStateDisposer?.();
     autoReloginStateDisposer?.();
