@@ -339,13 +339,18 @@ const make = Effect.gen(function* () {
 
   const onState: AutoZoneShape["onState"] = (listener, options) =>
     Effect.gen(function* () {
+      yield* addStateListener(listener);
+
       if (options?.emitCurrent ?? true) {
         yield* getState().pipe(
           Effect.flatMap((state) => Effect.sync(() => listener(state))),
+          Effect.catchCause((cause) =>
+            Effect.sync(() => listeners.delete(listener)).pipe(
+              Effect.andThen(Effect.failCause(cause)),
+            ),
+          ),
         );
       }
-
-      yield* addStateListener(listener);
 
       return () => {
         listeners.delete(listener);
