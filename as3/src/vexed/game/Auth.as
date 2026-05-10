@@ -186,6 +186,7 @@ package vexed.game
         return connectResult("member-only", "account is not authorized for member-only servers", serverName);
       }
 
+      // Intentional check.
       if (selected.iMax % 2 > 0)
       {
         return connectResult("test-client-required", "server requires the testing game client", serverName);
