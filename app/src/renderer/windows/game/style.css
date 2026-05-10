@@ -251,9 +251,6 @@
   width: 0.75rem;
 }
 
-.game-topnav__select-trigger--cell {
-  /* Inherits unified styles from .game-topnav__select-trigger */
-}
 
 .game-topnav__trigger:disabled,
 .game-topnav__button:disabled,
@@ -271,7 +268,6 @@
 
 .game-topnav .checkbox {
   color: var(--color-foreground);
-  /* font-weight: 500; */
   line-height: 1.2;
 }
 
@@ -366,7 +362,7 @@
 }
 
 .game-menu__pad-option--valid .game-menu__pad-name {
-  color: rgb(var(--success-foreground));
+  color: var(--color-success-foreground);
 }
 
 .game-menu__item-label {
@@ -496,7 +492,6 @@
   display: grid;
   gap: 0.25rem;
   font-size: var(--text-xs);
-  /* font-weight: 600; */
   min-width: 0;
 }
 
@@ -508,7 +503,6 @@
   align-items: center;
   display: flex;
   font-size: var(--text-base);
-  /* font-weight: 400; */
   gap: 0.5rem;
   justify-content: space-between;
   padding: 0 0.25rem;
@@ -532,7 +526,6 @@
 .game-menu__delay-unit {
   color: var(--color-muted-foreground);
   font-size: var(--text-xs);
-  /* font-weight: 400; */
 }
 
 .game-loader {
