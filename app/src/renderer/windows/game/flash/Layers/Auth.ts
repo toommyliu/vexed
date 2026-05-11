@@ -1,5 +1,5 @@
 import { Server, type ServerData } from "@vexed/game";
-import { Effect, Layer, Schedule, SynchronizedRef } from "effect";
+import { Effect, Layer, Option, Schedule, SynchronizedRef } from "effect";
 import type {
   AuthConnectFailureStatus,
   AuthConnectOutcome,
@@ -222,31 +222,39 @@ const make = Effect.gen(function* () {
     selection: ConnectToSelectionResult,
   ) =>
     Effect.gen(function* () {
-      const completed = yield* waitFor(
-        observeConnectOutcome(initialConnectionFailureSeq, selection).pipe(
-          Effect.map((outcome) => outcome !== null),
-        ),
-        {
-          timeout: CONNECT_TO_TIMEOUT,
+      const completed = yield* observeConnectOutcome(
+        initialConnectionFailureSeq,
+        selection,
+      ).pipe(
+        Effect.repeat({
+          until: (outcome) => outcome !== null,
           schedule: Schedule.spaced("250 millis"),
-        },
+        }),
+        Effect.timeoutOption(CONNECT_TO_TIMEOUT),
       );
 
-      if (completed) {
-        const outcome = yield* observeConnectOutcome(
-          initialConnectionFailureSeq,
-          selection,
+      if (Option.isNone(completed)) {
+        return connectFailure(
+          "timeout",
+          "timed out connecting to server",
+          true,
+          selection.serverName,
         );
-        if (outcome !== null) {
-          return outcome;
-        }
       }
 
-      return connectFailure(
-        "timeout",
-        "timed out connecting to server",
-        true,
-        selection.serverName,
+      const outcome = yield* observeConnectOutcome(
+        initialConnectionFailureSeq,
+        selection,
+      );
+
+      return (
+        outcome ??
+        connectFailure(
+          "timeout",
+          "timed out connecting to server",
+          true,
+          selection.serverName,
+        )
       );
     });
 
