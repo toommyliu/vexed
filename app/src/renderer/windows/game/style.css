@@ -542,6 +542,7 @@
 }
 
 .game-loader--hidden {
+  display: none;
   opacity: 0;
   pointer-events: none;
   visibility: hidden;
@@ -581,6 +582,331 @@
   display: block;
 }
 
+.command-overlay {
+  --command-overlay-radius: 0.75rem;
+  --command-overlay-body-block-end: var(--command-overlay-resize-hit-area);
+  --command-overlay-list-inset: 0.375rem;
+  --command-overlay-list-radius: 1rem;
+  --command-overlay-resize-hit-area: 1.375rem;
+
+  background: rgb(var(--muted));
+  border: 1px solid rgba(var(--border), 0.95);
+  border-radius: var(--command-overlay-radius);
+  box-shadow:
+    0 16px 42px rgba(var(--black), 0.38),
+    inset 0 1px 0 rgba(var(--white), 0.08);
+  color: var(--color-foreground);
+  display: grid;
+  font-family: var(--font-sans);
+  font-size: var(--font-sans-size-base);
+  grid-template-rows: auto minmax(0, 1fr);
+  inset-block-start: 0;
+  inset-inline-start: 0;
+  min-block-size: 6rem;
+  min-inline-size: 15rem;
+  overflow: hidden;
+  pointer-events: auto;
+  position: absolute;
+  z-index: 40;
+}
+
+.command-overlay__header {
+  align-items: center;
+  background: transparent;
+  cursor: grab;
+  display: flex;
+  gap: 0.625rem;
+  min-width: 0;
+  padding: 0.4375rem 0.75rem 0.375rem;
+  touch-action: none;
+}
+
+.command-overlay[data-collapsed] {
+  grid-template-rows: auto;
+  min-block-size: 0;
+}
+
+.command-overlay:not([data-collapsed]) .command-overlay__header {
+  padding-block-end: 0.5rem;
+}
+
+.command-overlay[data-dragging] .command-overlay__header,
+.command-overlay[data-resizing] .command-overlay__header {
+  cursor: grabbing;
+}
+
+.command-overlay__title-group {
+  align-items: center;
+  display: inline-flex;
+  flex: 1 1 auto;
+  gap: 0.625rem;
+  min-width: 0;
+}
+
+.command-overlay__title {
+  font-size: var(--font-sans-size-base);
+  font-weight: 650;
+  line-height: 1.2;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.command-overlay__status {
+  color: var(--color-muted-foreground);
+  flex: 0 1 auto;
+  font-size: var(--font-sans-size-base);
+  line-height: 1.2;
+  min-width: 0;
+  overflow: hidden;
+  text-align: right;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.command-overlay:not([data-collapsed]) .command-overlay__status {
+  display: none;
+}
+
+.command-overlay__icon-button {
+  align-items: center;
+  background: transparent;
+  border: 1px solid transparent;
+  border-radius: 0.375rem;
+  color: var(--color-muted-foreground);
+  cursor: pointer;
+  display: inline-grid;
+  flex: 0 0 auto;
+  height: 1.25rem;
+  justify-content: center;
+  margin: -0.125rem -0.25rem -0.125rem 0;
+  padding: 0;
+  place-items: center;
+  width: 1.25rem;
+}
+
+.command-overlay__icon-button:hover {
+  background: rgb(var(--accent));
+  color: var(--color-foreground);
+}
+
+.command-overlay__icon-button:focus-visible {
+  box-shadow:
+    0 0 0 1px rgb(var(--background)),
+    0 0 0 3px rgba(var(--ring), 0.42);
+}
+
+.command-overlay__icon-button::before {
+  border-block-end: 1.5px solid currentColor;
+  border-inline-end: 1.5px solid currentColor;
+  content: "";
+  height: 0.375rem;
+  transform: translateY(0.125rem) rotate(225deg);
+  width: 0.375rem;
+}
+
+.command-overlay__icon-button[data-collapsed]::before {
+  transform: translateY(-0.125rem) rotate(45deg);
+}
+
+.command-overlay__body {
+  background: rgb(var(--popover));
+  border-radius: var(--command-overlay-list-radius)
+    var(--command-overlay-list-radius) var(--command-overlay-radius)
+    var(--command-overlay-radius);
+  margin-block-end: var(--command-overlay-body-block-end);
+  margin-block-start: -0.125rem;
+  margin-left: var(--command-overlay-list-inset);
+  margin-right: var(--command-overlay-list-inset);
+  min-height: 0;
+  overflow: auto;
+  overscroll-behavior: contain;
+  padding-block: 0.1875rem 0.25rem;
+  scrollbar-gutter: stable;
+  scrollbar-width: auto;
+}
+
+.command-overlay__body::-webkit-scrollbar {
+  height: 0.875rem;
+  width: 0.875rem;
+}
+
+.command-overlay__body::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.command-overlay__body::-webkit-scrollbar-corner {
+  background: transparent;
+}
+
+.command-overlay__spacer {
+  min-height: 100%;
+  position: relative;
+}
+
+.command-overlay__row {
+  align-items: center;
+  border-radius: 0.375rem;
+  color: var(--color-muted-foreground);
+  display: grid;
+  font-size: var(--font-sans-size-base);
+  gap: 0.625rem;
+  grid-template-columns: 2.25rem minmax(0, 1fr);
+  inset-block-start: 0;
+  inset-inline: 0.375rem;
+  line-height: 1.2;
+  padding: 0 0.625rem;
+  position: absolute;
+}
+
+.command-overlay__row::before {
+  background: var(--color-success-foreground);
+  border-radius: 999px;
+  content: "";
+  inset-block: 0.4375rem;
+  inset-inline-start: 0;
+  opacity: 0;
+  position: absolute;
+  transform: scaleY(0.4);
+  transition:
+    opacity 120ms cubic-bezier(0.23, 1, 0.32, 1),
+    transform 120ms cubic-bezier(0.23, 1, 0.32, 1);
+  width: 2px;
+  z-index: 1;
+}
+
+.command-overlay__row::after {
+  background: rgba(var(--muted), 0.42);
+  border-radius: inherit;
+  content: "";
+  inset: 0;
+  opacity: 0;
+  position: absolute;
+  transform: scaleX(0.985);
+  transform-origin: left center;
+  transition:
+    opacity 120ms cubic-bezier(0.23, 1, 0.32, 1),
+    transform 120ms cubic-bezier(0.23, 1, 0.32, 1);
+}
+
+.command-overlay__row > * {
+  position: relative;
+  z-index: 1;
+}
+
+.command-overlay__row[data-active] {
+  color: var(--color-foreground);
+}
+
+.command-overlay__row[data-active]::before {
+  opacity: 1;
+  transform: scaleY(1);
+}
+
+.command-overlay__row[data-active]::after {
+  opacity: 1;
+  transform: scaleX(1);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .command-overlay__row::before,
+  .command-overlay__row::after {
+    transition-duration: 0ms;
+  }
+}
+
+.command-overlay__index {
+  color: rgba(var(--muted-foreground), 0.68);
+  font-family: var(--font-mono);
+  font-size: var(--font-mono-size);
+  font-variant-numeric: tabular-nums;
+  letter-spacing: 0;
+  line-height: 1;
+  min-width: 0;
+  text-align: right;
+}
+
+.command-overlay__row[data-active] .command-overlay__index {
+  color: rgba(var(--foreground), 0.72);
+  font-weight: 650;
+}
+
+.command-overlay__command {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.command-overlay__name {
+  color: inherit;
+}
+
+.command-overlay__args {
+  color: rgba(var(--muted-foreground), 0.84);
+}
+
+.command-overlay__resize-handle {
+  cursor: nwse-resize;
+  height: var(--command-overlay-resize-hit-area);
+  inset-block-end: 0;
+  inset-inline-end: 0;
+  position: absolute;
+  touch-action: none;
+  width: var(--command-overlay-resize-hit-area);
+  z-index: 2;
+}
+
+.command-overlay__resize-handle::before {
+  background-image: radial-gradient(
+    circle at center,
+    rgba(var(--foreground), 0.38) 1.25px,
+    transparent 1.25px
+  );
+  background-position: bottom right;
+  background-size: 5px 5px;
+  clip-path: polygon(100% 0, 100% 100%, 0 100%);
+  content: "";
+  height: 0.875rem;
+  inset-block-end: 0.1875rem;
+  inset-inline-end: 0.1875rem;
+  opacity: 0.32;
+  position: absolute;
+  transition:
+    opacity 160ms cubic-bezier(0.16, 1, 0.3, 1),
+    transform 160ms cubic-bezier(0.16, 1, 0.3, 1);
+  width: 0.875rem;
+}
+
+.command-overlay__resize-handle:hover::before {
+  opacity: 0.85;
+  transform: scale(1.15);
+}
+
+.command-overlay__resize-handle:active::before,
+.command-overlay[data-resizing] .command-overlay__resize-handle::before {
+  opacity: 1;
+  transform: scale(0.92);
+}
+
+.command-overlay__resize-handle {
+  background: radial-gradient(
+    circle at 100% 100%,
+    rgba(var(--foreground), 0.04),
+    transparent 72%
+  );
+  transition: background 200ms cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.command-overlay__resize-handle:hover {
+  background: radial-gradient(
+    circle at 100% 100%,
+    rgba(var(--foreground), 0.12),
+    transparent 72%
+  );
+}
+
 @media (max-width: 720px) {
   .game-topnav {
     overflow-x: auto;
@@ -595,4 +921,5 @@
   .game-menu__fields {
     grid-template-columns: 1fr;
   }
+
 }

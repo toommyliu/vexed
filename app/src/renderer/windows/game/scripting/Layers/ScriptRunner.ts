@@ -20,20 +20,12 @@ import { TempInventory } from "../../flash/Services/TempInventory";
 import { World } from "../../flash/Services/World";
 import {
   ScriptCustomConditionError,
-  ScriptCompileError,
-  ScriptDuplicateLabelError,
   ScriptInvalidArgumentError,
-  ScriptInvalidControlFlowError,
   ScriptLabelNotFoundError,
   ScriptNotReadyError,
   ScriptUnknownCommandError,
 } from "../Errors";
 import { createScriptDsl, scriptCommandHandlers } from "../Commands";
-import {
-  createCustomCondition,
-  type ScriptCommandApi,
-  type ScriptCondition,
-} from "../Commands/commandDsl";
 import { ScriptRunner } from "../Services/ScriptRunner";
 import type {
   RunningScriptCommand,
@@ -48,7 +40,6 @@ import {
   type ScriptDiagnostic,
   type ScriptDiagnosticInput,
   type ScriptExecutionContext,
-  type ScriptInstruction,
   type ScriptProgram,
 } from "../Types";
 import {
@@ -69,11 +60,10 @@ import {
   type AnyEffect,
 } from "../scriptRuntimeApi";
 import { makeScriptFeedback } from "../scriptFeedback";
-
-type ConditionalBlockFrame = {
-  readonly ifIndex: number;
-  readonly elseIndex?: number;
-};
+import {
+  compileScriptProgram,
+  instructionCustomConditionNames,
+} from "../scriptProgram";
 
 type ActiveScript = {
   readonly token: number;
@@ -117,261 +107,6 @@ const scriptNameFromPayload = (payload: ScriptExecutePayload): string => {
   return "inline-script";
 };
 
-const annotateControlFlow = (
-  sourceName: string,
-  instructions: ReadonlyArray<ScriptInstruction>,
-): ReadonlyArray<ScriptInstruction> => {
-  const annotated = [...instructions];
-  const stack: Array<ConditionalBlockFrame> = [];
-
-  const updateInstruction = (
-    index: number,
-    controlFlow: NonNullable<ScriptInstruction["controlFlow"]>,
-  ) => {
-    const instruction = annotated[index];
-    if (!instruction) {
-      return;
-    }
-
-    annotated[index] = {
-      ...instruction,
-      controlFlow: {
-        ...instruction.controlFlow,
-        ...controlFlow,
-      },
-    } satisfies ScriptInstruction;
-  };
-
-  for (const instruction of annotated) {
-    switch (instruction.name) {
-      case "if":
-      case "if_all":
-      case "if_any":
-        stack.push({ ifIndex: instruction.index });
-        break;
-      case "else": {
-        const frame = stack[stack.length - 1];
-        if (!frame) {
-          throw new ScriptInvalidControlFlowError({
-            sourceName,
-            instruction: instruction.name,
-            instructionIndex: instruction.index,
-            message: "cmd.else() must be paired with a previous cmd.if()",
-          });
-        }
-
-        if (frame.elseIndex !== undefined) {
-          throw new ScriptInvalidControlFlowError({
-            sourceName,
-            instruction: instruction.name,
-            instructionIndex: instruction.index,
-            message: "cmd.if() blocks can only contain one cmd.else()",
-          });
-        }
-
-        stack[stack.length - 1] = {
-          ...frame,
-          elseIndex: instruction.index,
-        };
-
-        updateInstruction(frame.ifIndex, {
-          falseJumpIndex: instruction.index + 1,
-        });
-        break;
-      }
-      case "end_if": {
-        const frame = stack.pop();
-        if (!frame) {
-          throw new ScriptInvalidControlFlowError({
-            sourceName,
-            instruction: instruction.name,
-            instructionIndex: instruction.index,
-            message: "cmd.end_if() must be paired with a previous cmd.if()",
-          });
-        }
-
-        const nextIndex = instruction.index + 1;
-        if (frame.elseIndex === undefined) {
-          updateInstruction(frame.ifIndex, {
-            falseJumpIndex: nextIndex,
-          });
-        } else {
-          updateInstruction(frame.elseIndex, {
-            endJumpIndex: nextIndex,
-          });
-        }
-        break;
-      }
-      default:
-        break;
-    }
-  }
-
-  const dangling = stack.pop();
-  if (dangling) {
-    throw new ScriptInvalidControlFlowError({
-      sourceName,
-      instruction: "if",
-      instructionIndex: dangling.ifIndex,
-      message: "cmd.if() must be closed with cmd.end_if()",
-    });
-  }
-
-  return annotated;
-};
-
-const collectCustomConditionNames = (
-  value: unknown,
-  names: Set<string>,
-): void => {
-  if (typeof value !== "object" || value === null) {
-    return;
-  }
-
-  const condition = value as Partial<ScriptCondition>;
-  switch (condition._tag) {
-    case "Custom":
-      if (typeof condition.name === "string" && condition.name.trim() !== "") {
-        names.add(condition.name);
-      }
-      return;
-    case "All":
-    case "Any":
-      if (Array.isArray(condition.conditions)) {
-        for (const child of condition.conditions) {
-          collectCustomConditionNames(child, names);
-        }
-      }
-      return;
-    case "Not":
-      collectCustomConditionNames(condition.condition, names);
-      return;
-    default:
-      return;
-  }
-};
-
-const instructionCustomConditionNames = (
-  instruction: ScriptInstruction,
-): ReadonlySet<string> => {
-  const names = new Set<string>();
-  for (const arg of instruction.args) {
-    collectCustomConditionNames(arg, names);
-  }
-  return names;
-};
-
-const compileProgram = (
-  source: string,
-  sourceName: string,
-): Effect.Effect<
-  ScriptProgram,
-  ScriptCompileError | ScriptDuplicateLabelError | ScriptInvalidControlFlowError
-> =>
-  Effect.try({
-    try: () => {
-      const instructions: Array<ScriptInstruction> = [];
-      const recordInstruction = (
-        name: string,
-        args: ReadonlyArray<unknown>,
-      ) => {
-        instructions.push({
-          name,
-          args: [...args],
-          index: instructions.length,
-        });
-      };
-      const staticCmd = createScriptDsl(recordInstruction);
-      const declaredCustomConditions = new Set<string>();
-      const cmdProxy = new Proxy(staticCmd as Record<string, unknown>, {
-        get(target, property, receiver) {
-          if (property === "then") {
-            return undefined;
-          }
-
-          if (typeof property !== "string") {
-            return Reflect.get(target, property, receiver);
-          }
-
-          const value = Reflect.get(target, property, receiver);
-          if (value !== undefined) {
-            if (
-              property === "register_condition" &&
-              typeof value === "function"
-            ) {
-              return (...args: ReadonlyArray<unknown>) => {
-                const result = Reflect.apply(value, target, args);
-                const name = args[0];
-                if (typeof name === "string") {
-                  declaredCustomConditions.add(name.trim());
-                }
-                return result;
-              };
-            }
-
-            return value;
-          }
-
-          if (declaredCustomConditions.has(property)) {
-            return (...args: ReadonlyArray<unknown>) =>
-              createCustomCondition(property, args);
-          }
-
-          return (...args: ReadonlyArray<unknown>) => {
-            recordInstruction(property, args);
-          };
-        },
-      });
-
-      const evaluate = new Function("cmd", source) as (
-        cmd: ScriptCommandApi,
-      ) => void;
-      evaluate(cmdProxy);
-
-      const annotatedInstructions = annotateControlFlow(
-        sourceName,
-        instructions,
-      );
-
-      const labels = new Map<string, number>();
-      for (const instruction of annotatedInstructions) {
-        if (instruction.name !== "label") {
-          continue;
-        }
-
-        const label = instruction.args[0];
-        if (typeof label !== "string") {
-          continue;
-        }
-
-        if (labels.has(label)) {
-          throw new ScriptDuplicateLabelError({ sourceName, label });
-        }
-
-        labels.set(label, instruction.index + 1);
-      }
-
-      return {
-        sourceName,
-        instructions: annotatedInstructions,
-        labels,
-      } satisfies ScriptProgram;
-    },
-    catch: (cause) => {
-      if (
-        cause instanceof ScriptDuplicateLabelError ||
-        cause instanceof ScriptInvalidControlFlowError
-      ) {
-        return cause;
-      }
-
-      return new ScriptCompileError({
-        sourceName,
-        cause,
-      });
-    },
-  });
-
 const make = Effect.gen(function* () {
   const auth = yield* Auth;
   const autoRelogin = yield* AutoRelogin;
@@ -410,6 +145,27 @@ const make = Effect.gen(function* () {
   const commandDelayRef = yield* Ref.make(1000);
   const nextDiagnosticIdRef = yield* Ref.make(0);
   const diagnosticsRef = yield* Ref.make<ReadonlyArray<ScriptDiagnostic>>([]);
+  const currentCommandListeners = new Set<
+    (command: RunningScriptCommand | null) => void
+  >();
+
+  const notifyCurrentCommandListeners = (
+    command: RunningScriptCommand | null,
+  ) =>
+    Effect.sync(() => {
+      for (const listener of currentCommandListeners) {
+        try {
+          listener(command);
+        } catch (error) {
+          console.error("Script command listener failed:", error);
+        }
+      }
+    });
+
+  const setCurrentCommand = (command: RunningScriptCommand | null) =>
+    Ref.set(currentCommandRef, command).pipe(
+      Effect.andThen(notifyCurrentCommandListeners(command)),
+    );
 
   const appendDiagnostic = (sourceName: string, input: ScriptDiagnosticInput) =>
     Effect.gen(function* () {
@@ -475,7 +231,7 @@ const make = Effect.gen(function* () {
       });
 
       if (removed) {
-        yield* Ref.set(currentCommandRef, null);
+        yield* setCurrentCommand(null);
       }
     });
 
@@ -846,7 +602,7 @@ const make = Effect.gen(function* () {
         }
 
         yield* ensureReady(program.sourceName);
-        yield* Ref.set(currentCommandRef, {
+        yield* setCurrentCommand({
           sourceName: program.sourceName,
           index: instruction.index,
           name: instruction.name,
@@ -855,7 +611,7 @@ const make = Effect.gen(function* () {
         const result = yield* handler(context, instruction);
 
         if (result._tag === "Stop") {
-          yield* Ref.set(currentCommandRef, null);
+          yield* setCurrentCommand(null);
           return yield* Effect.void;
         }
 
@@ -888,7 +644,7 @@ const make = Effect.gen(function* () {
         }
       }
 
-      yield* Ref.set(currentCommandRef, null);
+      yield* setCurrentCommand(null);
       return yield* Effect.void;
     }).pipe(Effect.ensuring(scriptScope.close("script finished")));
 
@@ -957,6 +713,12 @@ const make = Effect.gen(function* () {
     currentCommand: () => {
       return runPromise(currentCommand());
     },
+    onCurrentCommand: (listener) => {
+      currentCommandListeners.add(listener);
+      return () => {
+        currentCommandListeners.delete(listener);
+      };
+    },
     diagnostics: () => {
       return runPromise(diagnostics());
     },
@@ -1015,7 +777,7 @@ const make = Effect.gen(function* () {
         const sourceName = options?.name?.trim()
           ? options.name
           : "inline-script";
-        const program = yield* compileProgram(source, sourceName);
+        const program = yield* compileScriptProgram(source, sourceName);
         const commands = yield* Ref.get(commandsRef);
         const declaredCustomCommands = new Set<string>();
         const declaredCustomConditions = new Set<string>();
