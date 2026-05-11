@@ -7,7 +7,7 @@ import type * as FlashTypes from "./flash/Types";
 declare global {
   interface Window {
     swf: {
-      "auth.connectTo": (server: string) => boolean;
+      "auth.connectTo": (server: string) => FlashTypes.ConnectToSelectionResult;
       "auth.getServers": () => unknown[];
       "auth.isLoggedIn": () => boolean;
       "auth.isTemporarilyKicked": () => boolean;

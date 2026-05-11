@@ -86,6 +86,13 @@ const createCommandEnabled = (
     return () => runtime.scriptRunning();
   }
 
+  if (id in topNavOptionCommandIds) {
+    return () => {
+      const option = findOption(runtime, id);
+      return option !== undefined && !option.disabled;
+    };
+  }
+
   return () => true;
 };
 
@@ -138,7 +145,11 @@ const createCommandRunner = (
 
   if (id in topNavOptionCommandIds) {
     return () => {
-      findOption(runtime, id)?.onSelect();
+      const option = findOption(runtime, id);
+      if (!option || option.disabled) {
+        return;
+      }
+      option.onSelect();
     };
   }
 

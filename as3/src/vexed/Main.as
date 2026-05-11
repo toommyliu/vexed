@@ -107,8 +107,14 @@ package vexed {
 		}
 
 		private function onConnection(evt:*):void {
-			this.emitConnection('OnConnection');
-			this.emitDebug('Connected to SmartFoxServer.');
+			if (evt.params.success) {
+				this.emitConnection('OnConnection');
+				this.emitDebug('Connected to SmartFoxServer.');
+			}
+			else {
+				this.emitConnection('OnConnectionFailed');
+				this.emitDebug('Failed to connect to SmartFoxServer.');
+			}
 		}
 
 		private function onConnectionLost(evt:*):void {

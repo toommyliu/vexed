@@ -2,7 +2,11 @@ import { Server, type ServerData } from "@vexed/game";
 import { Effect, Exit, Fiber, Layer } from "effect";
 import { expect, test } from "vitest";
 import { SwfCallError } from "../../flash/Errors";
-import { Auth, type AuthShape } from "../../flash/Services/Auth";
+import {
+  Auth,
+  type AuthConnectOutcome,
+  type AuthShape,
+} from "../../flash/Services/Auth";
 import { Bridge, type BridgeShape } from "../../flash/Services/Bridge";
 import {
   Jobs,
@@ -32,8 +36,16 @@ const yorumiServer: ServerData = {
   sName: "Yorumi",
 };
 
+const connectedOutcome = (serverName: string): AuthConnectOutcome => ({
+  status: "connected",
+  message: "connected",
+  retryable: false,
+  serverName,
+});
+
 type HarnessOptions = {
   readonly bridgeLoggedIn?: boolean;
+  readonly connectOutcome?: AuthConnectOutcome;
   readonly emitConnectionOnConnect?: boolean;
   readonly iUpgDays?: number;
   readonly password?: string;
@@ -144,6 +156,10 @@ const withAutoRelogin = async <A>(
     connectTo(server: string) {
       return Effect.gen(function* () {
         authCalls.push(`connectTo:${server}`);
+        if (options.connectOutcome !== undefined) {
+          return options.connectOutcome;
+        }
+
         phase = "game";
         if (options.emitConnectionOnConnect === true) {
           for (const handler of connectionHandlers) {
@@ -157,7 +173,7 @@ const withAutoRelogin = async <A>(
           );
         }
         playerReady = true;
-        return true;
+        return connectedOutcome(server);
       });
     },
     getServers() {
@@ -328,6 +344,36 @@ test("captures current session from objServerInfo without exposing password", as
     username: "Hero",
   });
   expect(JSON.stringify(state)).not.toContain("secret-password");
+});
+
+test("enabling preserves a selected target server", async () => {
+  const result = await withAutoRelogin(
+    { servers: [twigServer, yorumiServer] },
+    (autoRelogin, harness) =>
+      Effect.gen(function* () {
+        yield* autoRelogin.captureCurrentSession();
+        yield* autoRelogin.setServer("Yorumi");
+        yield* autoRelogin.enable();
+        yield* autoRelogin.setDelayMs(0);
+        yield* harness.jobsState.task!;
+        yield* harness.jobsState.task!;
+        return {
+          calls: harness.authCalls,
+          state: yield* autoRelogin.getState(),
+        };
+      }),
+  );
+
+  expect(result.state).toMatchObject({
+    captured: true,
+    enabled: true,
+    server: "Yorumi",
+    username: "Hero",
+  });
+  expect(result.calls).toEqual([
+    "login:Hero:secret-password",
+    "connectTo:Yorumi",
+  ]);
 });
 
 test("ignores null objServerInfo", async () => {
@@ -576,6 +622,35 @@ test("temporary setting failures do not block relogin", async () => {
   expect(result.state.lastError).toBeUndefined();
 });
 
+test("non-retryable connect outcome stops relogin after one attempt", async () => {
+  const result = await withAutoRelogin(
+    {
+      connectOutcome: {
+        status: "member-only",
+        message: "account is not authorized for member-only servers",
+        retryable: false,
+        serverName: "Twig",
+      },
+    },
+    (autoRelogin, harness) =>
+      Effect.gen(function* () {
+        yield* autoRelogin.enable();
+        yield* autoRelogin.setDelayMs(0);
+        yield* harness.jobsState.task!;
+        return {
+          calls: harness.authCalls,
+          state: yield* autoRelogin.getState(),
+        };
+      }),
+  );
+
+  expect(result.calls).toEqual([
+    "login:Hero:secret-password",
+    "connectTo:Twig",
+  ]);
+  expect(result.state.lastError).toContain("member-only");
+});
+
 test("manual login during attempt interrupts without reconnecting captured server", async () => {
   const result = await withAutoRelogin(
     { serverSelectStalls: true },
@@ -682,7 +757,8 @@ test("does not choose another server when captured server is unavailable", async
   );
 
   expect(result.calls).toEqual(["login:Hero:secret-password"]);
-  expect(result.state.lastError).toContain("captured server is unavailable");
+  expect(result.state.lastError).toContain("Cannot use Twig");
+  expect(result.state.lastError).toContain("server unavailable");
 });
 
 test("rejects member-only server when iUpgDays is negative", async () => {
@@ -710,7 +786,8 @@ test("rejects member-only server when iUpgDays is negative", async () => {
   );
 
   expect(result.calls).toEqual(["login:Hero:secret-password"]);
-  expect(result.state.lastError).toContain("captured server is not eligible");
+  expect(result.state.lastError).toContain("Cannot use Twig");
+  expect(result.state.lastError).toContain("member-only");
 });
 
 test("missing captured session does not attempt login", async () => {

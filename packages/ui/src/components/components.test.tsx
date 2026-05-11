@@ -942,8 +942,8 @@ describe("Menu", () => {
       <Menu open>
         <MenuTrigger>Open</MenuTrigger>
         <MenuContent>
-          <MenuSub open>
-            <MenuSubTrigger value="more">More</MenuSubTrigger>
+          <MenuSub id="more" open>
+            <MenuSubTrigger>More</MenuSubTrigger>
             <MenuSubContent>
               <MenuItem value="nested">Nested</MenuItem>
             </MenuSubContent>
@@ -955,6 +955,11 @@ describe("Menu", () => {
     expect(
       document.body.querySelector("[data-slot='menu-sub-trigger']"),
     ).not.toBeNull();
+    expect(
+      document.body
+        .querySelector("[data-slot='menu-sub-trigger']")
+        ?.getAttribute("data-value"),
+    ).toBe("menu:more:trigger");
     expect(
       document.body.querySelector("[data-slot='menu-content']"),
     ).not.toBeNull();

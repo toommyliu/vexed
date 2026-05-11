@@ -1,7 +1,9 @@
 import { equalsIgnoreCase } from "@vexed/shared/string";
-import { Effect, Layer, Option, Random, Ref } from "effect";
+import { Effect, Layer, Option, Random, Ref, Semaphore } from "effect";
 import {
   AutoZone,
+  type AutoZoneState,
+  type AutoZoneStateListener,
   type AutoZoneSupportedMap,
   type AutoZoneShape,
 } from "../Services/AutoZone";
@@ -141,9 +143,56 @@ const make = Effect.gen(function* () {
   const world = yield* World;
 
   const runFork = Effect.runForkWith(yield* Effect.services());
-  const enabledRef = yield* Ref.make(true);
-  const mapRef = yield* Ref.make<AutoZoneSupportedMap>("ultradage");
+  const enabledRef = yield* Ref.make(false);
+  const mapRef = yield* Ref.make<AutoZoneSupportedMap | undefined>(undefined);
   const queenionaSequenceRef = yield* Ref.make(0);
+  const updateSemaphore = yield* Semaphore.make(1);
+  const listeners = new Set<AutoZoneStateListener>();
+
+  const getState: AutoZoneShape["getState"] = () =>
+    Effect.all({
+      enabled: Ref.get(enabledRef),
+      map: Ref.get(mapRef),
+    });
+
+  const addStateListener = (listener: AutoZoneStateListener) =>
+    Effect.sync(() => {
+      listeners.add(listener);
+    });
+
+  const emitState = (state: AutoZoneState) =>
+    Effect.gen(function* () {
+      if (listeners.size === 0) {
+        return;
+      }
+
+      yield* Effect.forEach(
+        Array.from(listeners),
+        (listener, listenerIndex) =>
+          Effect.sync(() => listener(state)).pipe(
+            Effect.catchCause((cause) =>
+              Effect.logError({
+                message: "autozone listener failed",
+                listenerIndex,
+                cause,
+              }),
+            ),
+          ),
+        { discard: true },
+      );
+    });
+
+  const updateState = (
+    update: Effect.Effect<void>,
+  ): Effect.Effect<AutoZoneState> =>
+    updateSemaphore.withPermits(1)(
+      Effect.gen(function* () {
+        yield* update;
+        const state = yield* getState();
+        yield* emitState(state);
+        return state;
+      }),
+    );
 
   const walkTo = (x: number, y: number) =>
     player.walkTo(x, y).pipe(Effect.catch(() => Effect.void));
@@ -248,6 +297,7 @@ const make = Effect.gen(function* () {
       if (!enabled) return;
 
       const currentMap = yield* Ref.get(mapRef);
+      if (currentMap === undefined) return;
       if (!equalsIgnoreCase(event.map, currentMap)) return;
 
       if (equalsIgnoreCase(currentMap, QUEENIONA_MAP)) {
@@ -281,15 +331,37 @@ const make = Effect.gen(function* () {
 
   const map: AutoZoneShape["map"] = Ref.get(mapRef);
 
-  const setMap: AutoZoneShape["setMap"] = (map: AutoZoneSupportedMap) =>
-    Ref.set(mapRef, map);
+  const setMap: AutoZoneShape["setMap"] = (map) =>
+    updateState(Ref.set(mapRef, map)).pipe(Effect.asVoid);
 
   const setEnabled: AutoZoneShape["setEnabled"] = (enabled: boolean) =>
-    Ref.set(enabledRef, enabled);
+    updateState(Ref.set(enabledRef, enabled)).pipe(Effect.asVoid);
+
+  const onState: AutoZoneShape["onState"] = (listener, options) =>
+    Effect.gen(function* () {
+      yield* addStateListener(listener);
+
+      if (options?.emitCurrent ?? true) {
+        yield* getState().pipe(
+          Effect.flatMap((state) => Effect.sync(() => listener(state))),
+          Effect.catchCause((cause) =>
+            Effect.sync(() => listeners.delete(listener)).pipe(
+              Effect.andThen(Effect.failCause(cause)),
+            ),
+          ),
+        );
+      }
+
+      return () => {
+        listeners.delete(listener);
+      };
+    });
 
   return {
     enabled,
     map,
+    getState,
+    onState,
     setMap,
     setEnabled,
   } satisfies AutoZoneShape;

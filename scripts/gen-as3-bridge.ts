@@ -675,6 +675,7 @@ export async function generateBridgeArtifacts(
     "app",
     "src",
     "renderer",
+    "windows",
     "game",
     "bridge.d.ts",
   );

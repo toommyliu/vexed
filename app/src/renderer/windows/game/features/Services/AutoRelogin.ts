@@ -4,10 +4,12 @@ export interface AutoReloginState {
   readonly enabled: boolean;
   readonly captured: boolean;
   readonly attempting: boolean;
+  readonly waitingDelay: boolean;
   readonly username?: string;
   readonly server?: string;
   readonly delayMs: number;
   readonly lastError?: string;
+  readonly attemptsRemaining?: number;
 }
 
 export type AutoReloginStateDisposer = () => void;
@@ -41,6 +43,7 @@ export interface AutoReloginShape {
   enable(): Effect.Effect<AutoReloginState>;
   disable(): Effect.Effect<AutoReloginState>;
   setDelayMs(delayMs: number): Effect.Effect<AutoReloginState>;
+  setServer(serverName: string): Effect.Effect<AutoReloginState>;
   captureCurrentSession(): Effect.Effect<boolean>;
   login(
     credentials: AutoLoginCredentials,

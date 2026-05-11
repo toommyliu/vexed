@@ -56,13 +56,13 @@ describe("window catalog", () => {
             },
           }),
           expect.objectContaining({
-            id: WindowIds.FastTravels,
-            label: "Fast travels",
+            id: WindowIds.Follower,
+            label: "Follower",
             scope: "game-child",
             closeBehavior: "hide",
             dimensions: {
-              width: 649,
-              height: 527,
+              width: 648,
+              height: 496,
             },
           }),
           expect.objectContaining({
@@ -76,13 +76,13 @@ describe("window catalog", () => {
             },
           }),
           expect.objectContaining({
-            id: WindowIds.Follower,
-            label: "Follower",
+            id: WindowIds.FastTravels,
+            label: "Fast travels",
             scope: "game-child",
             closeBehavior: "hide",
             dimensions: {
-              width: 648,
-              height: 496,
+              width: 649,
+              height: 527,
             },
           }),
         ],

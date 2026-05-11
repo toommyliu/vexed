@@ -149,11 +149,17 @@ const make = Effect.gen(function* () {
     fromSelfOr(false, (me) => me.isAFK());
 
   const isReady: PlayerShape["isReady"] = () =>
-    Effect.all([
-      auth.isLoggedIn(),
-      world.map.isLoaded(),
-      bridge.call("player.isLoaded"),
-    ]).pipe(Effect.map(([a, b, c]) => a && b && c));
+    Effect.gen(function* () {
+      if (!(yield* auth.isLoggedIn())) {
+        return false;
+      }
+
+      if (!(yield* world.map.isLoaded())) {
+        return false;
+      }
+
+      return yield* bridge.call("player.isLoaded");
+    }).pipe(Effect.catch(() => Effect.succeed(false)));
 
   const isMember: PlayerShape["isMember"] = () =>
     bridge.call("player.isMember");

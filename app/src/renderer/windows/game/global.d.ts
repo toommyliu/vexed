@@ -4,7 +4,10 @@ import type { ScriptDiagnostic } from "./scripting/Types";
 declare global {
   // Item id or name
   type ItemIdentifierToken = number | string;
-  type ConnectionStatus = "OnConnection" | "OnConnectionLost";
+  type ConnectionStatus =
+    | "OnConnection"
+    | "OnConnectionFailed"
+    | "OnConnectionLost";
 
   type MonsterName =
     | string
