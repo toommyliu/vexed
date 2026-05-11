@@ -17,6 +17,7 @@ import {
   DEFAULT_HOTKEYS,
   DEFAULT_PREFERENCES,
   type AppSettings,
+  type CommandOverlayLayoutSettings,
 } from "../../../shared/settings";
 import type {
   AccountGameLaunchPayload,
@@ -124,12 +125,25 @@ const defaultSettings: AppSettings = {
   hotkeys: DEFAULT_HOTKEYS,
 };
 
+const getCommandOverlayLayout = (
+  settings: AppSettings,
+): CommandOverlayLayoutSettings => settings.preferences.commandOverlay.layout;
+
+const commandOverlayLayoutsEqual = (
+  left: CommandOverlayLayoutSettings,
+  right: CommandOverlayLayoutSettings,
+): boolean =>
+  left.collapsed === right.collapsed &&
+  left.position.x === right.position.x &&
+  left.position.y === right.position.y &&
+  left.size.width === right.size.width &&
+  left.size.height === right.size.height;
+
 export default function App(props: {
   readonly initialSettings?: AppSettings | null;
 }): JSX.Element {
-  const [settings, setSettings] = createSignal<AppSettings>(
-    props.initialSettings ?? defaultSettings,
-  );
+  const initialSettings = props.initialSettings ?? defaultSettings;
+  const [settings, setSettings] = createSignal<AppSettings>(initialSettings);
   const [gameLoaded, setGameLoaded] = createSignal(getGameLoadState().loaded);
   const [playerReady, setPlayerReady] = createSignal(false);
   const [autoAttackEnabled, setAutoAttackEnabled] = createSignal(false);
@@ -141,6 +155,11 @@ export default function App(props: {
   const [scriptCommands, setScriptCommands] = createSignal<
     readonly ScriptCommandDisplayItem[]
   >([]);
+  const [commandOverlayLayout, setCommandOverlayLayout] =
+    createSignal<CommandOverlayLayoutSettings>(
+      getCommandOverlayLayout(initialSettings),
+    );
+  const [commandOverlayVisible, setCommandOverlayVisible] = createSignal(true);
   const [currentScriptCommand, setCurrentScriptCommand] =
     createSignal<RunningScriptCommand | null>(null);
   const [scriptStatus, setScriptStatus] = createSignal("No script loaded");
@@ -390,7 +409,30 @@ export default function App(props: {
     setScriptLoaded(true);
     setScriptCommands(commands);
     setScriptCommandCount(commands.length);
+    setCommandOverlayVisible(true);
     setCurrentScriptCommand(null);
+  };
+
+  const applyAppSettings = (settings: AppSettings) => {
+    setSettings(settings);
+    setCommandOverlayLayout(getCommandOverlayLayout(settings));
+  };
+
+  const persistCommandOverlayLayout = (
+    layout: CommandOverlayLayoutSettings,
+  ) => {
+    if (
+      commandOverlayLayoutsEqual(layout, getCommandOverlayLayout(settings()))
+    ) {
+      return;
+    }
+
+    void window.ipc.settings
+      .updatePreferences({ commandOverlay: { layout } })
+      .then(applyAppSettings)
+      .catch((error) => {
+        console.error("Failed to save command overlay layout:", error);
+      });
   };
 
   const applyScriptPayload = async (
@@ -1031,6 +1073,9 @@ export default function App(props: {
     stopScript,
     scriptLoaded,
     scriptRunning,
+    scriptCommandCount,
+    commandOverlayVisible,
+    setCommandOverlayVisible,
     setAutoAttackEnabled,
     autoAttackEnabled,
     optionItems,
@@ -1039,7 +1084,8 @@ export default function App(props: {
   });
 
   onMount(() => {
-    const unsubscribeAppSettings = window.ipc.settings.onChanged(setSettings);
+    const unsubscribeAppSettings =
+      window.ipc.settings.onChanged(applyAppSettings);
     const unsubscribeAccountLaunch =
       window.ipc.accounts.onGameLaunch(handleAccountLaunch);
     const unsubscribeScriptExecute = window.ipc.scripting.onExecute(
@@ -1069,7 +1115,7 @@ export default function App(props: {
     if (props.initialSettings === undefined || props.initialSettings === null) {
       void window.ipc.settings
         .get()
-        .then(setSettings)
+        .then(applyAppSettings)
         .catch((error) => {
           console.error("Failed to load app settings:", error);
         });
@@ -1190,6 +1236,8 @@ export default function App(props: {
         scriptStatus={scriptStatus}
         scriptCommandCount={scriptCommandCount}
         scriptDiagnosticsCount={scriptDiagnosticsCount}
+        commandOverlayVisible={commandOverlayVisible}
+        setCommandOverlayVisible={setCommandOverlayVisible}
         loadScript={loadScript}
         startScript={startScript}
         stopScript={stopScript}
@@ -1258,12 +1306,16 @@ export default function App(props: {
         classList={{ "game-viewport--loaded": gameLoaded() }}
       >
         <div class="game-visual-cover" aria-hidden="true" />
-        {scriptCommands().length > 0 && (
+        {scriptCommands().length > 0 && commandOverlayVisible() && (
           <CommandOverlay
             commands={scriptCommands}
             activeCommand={currentScriptCommand}
+            layout={commandOverlayLayout}
             scriptName={scriptName}
             running={scriptRunning}
+            setLayout={setCommandOverlayLayout}
+            onClose={() => setCommandOverlayVisible(false)}
+            onLayoutCommit={persistCommandOverlayLayout}
           />
         )}
       </section>

@@ -1,4 +1,5 @@
 import {
+  For,
   createEffect,
   createMemo,
   createSignal,
@@ -6,15 +7,15 @@ import {
   onMount,
   type Accessor,
   type JSX,
+  type Setter,
 } from "solid-js";
+import type { CommandOverlayLayoutSettings } from "../../../shared/settings";
 import type { ScriptCommandDisplayItem } from "./scripting/scriptCommandDisplay";
 
 const ROW_HEIGHT = 28;
 const OVERSCAN = 6;
 const EDGE_PADDING = 8;
 const SCROLL_PADDING = 4;
-const DEFAULT_POSITION = { x: 10, y: 10 } as const;
-const DEFAULT_SIZE = { width: 336, height: 196 } as const;
 const MIN_SIZE = { width: 240, height: 96 } as const;
 const COLLAPSED_MIN_SIZE = { width: 220, height: 34 } as const;
 
@@ -36,8 +37,12 @@ export interface OverlaySize {
 export interface CommandOverlayProps {
   readonly commands: Accessor<readonly ScriptCommandDisplayItem[]>;
   readonly activeCommand: Accessor<RunningScriptCommand | null>;
+  readonly layout: Accessor<CommandOverlayLayoutSettings>;
   readonly scriptName: Accessor<string>;
   readonly running: Accessor<boolean>;
+  readonly setLayout: Setter<CommandOverlayLayoutSettings>;
+  readonly onClose: () => void;
+  readonly onLayoutCommit: (layout: CommandOverlayLayoutSettings) => void;
 }
 
 export const getVirtualRange = (
@@ -164,12 +169,33 @@ export function CommandOverlay(props: CommandOverlayProps): JSX.Element {
 
   const [scrollTop, setScrollTop] = createSignal(0);
   const [viewportHeight, setViewportHeight] = createSignal(0);
-  const [position, setPosition] =
-    createSignal<OverlayPosition>(DEFAULT_POSITION);
-  const [size, setSize] = createSignal<OverlaySize>(DEFAULT_SIZE);
-  const [collapsed, setCollapsed] = createSignal(false);
   const [dragging, setDragging] = createSignal(false);
   const [resizing, setResizing] = createSignal(false);
+
+  const position = (): OverlayPosition => props.layout().position;
+  const size = (): OverlaySize => props.layout().size;
+  const collapsed = (): boolean => props.layout().collapsed;
+
+  const resolveNext = <T,>(value: T | ((current: T) => T), current: T): T =>
+    typeof value === "function" ? (value as (current: T) => T)(current) : value;
+
+  const setPosition = (
+    value: OverlayPosition | ((current: OverlayPosition) => OverlayPosition),
+  ) => {
+    props.setLayout((current) => ({
+      ...current,
+      position: resolveNext(value, current.position),
+    }));
+  };
+
+  const setSize = (
+    value: OverlaySize | ((current: OverlaySize) => OverlaySize),
+  ) => {
+    props.setLayout((current) => ({
+      ...current,
+      size: resolveNext(value, current.size),
+    }));
+  };
 
   const activeIndex = createMemo(() => {
     const current = props.activeCommand();
@@ -315,6 +341,7 @@ export function CommandOverlay(props: CommandOverlayProps): JSX.Element {
     event.currentTarget.releasePointerCapture(event.pointerId);
     dragState = undefined;
     setDragging(false);
+    props.onLayoutCommit(props.layout());
   };
 
   const handleResizeStart: JSX.EventHandler<HTMLElement, PointerEvent> = (
@@ -366,14 +393,27 @@ export function CommandOverlay(props: CommandOverlayProps): JSX.Element {
     resizeState = undefined;
     setResizing(false);
     syncBounds();
+    props.onLayoutCommit(props.layout());
   };
 
   const toggleCollapsed: JSX.EventHandler<HTMLButtonElement, MouseEvent> = (
     event,
   ) => {
     event.stopPropagation();
-    setCollapsed((value) => !value);
+    let nextLayout = props.layout();
+    props.setLayout((current) => {
+      nextLayout = { ...current, collapsed: !current.collapsed };
+      return nextLayout;
+    });
+    props.onLayoutCommit(nextLayout);
     window.requestAnimationFrame(syncBounds);
+  };
+
+  const closeOverlay: JSX.EventHandler<HTMLButtonElement, MouseEvent> = (
+    event,
+  ) => {
+    event.stopPropagation();
+    props.onClose();
   };
 
   onMount(() => {
@@ -457,6 +497,13 @@ export function CommandOverlay(props: CommandOverlayProps): JSX.Element {
           data-collapsed={collapsed() ? "" : undefined}
           type="button"
           onClick={toggleCollapsed}
+          onPointerDown={(event) => event.stopPropagation()}
+        />
+        <button
+          aria-label="Close command overlay"
+          class="command-overlay__icon-button command-overlay__icon-button--close"
+          type="button"
+          onClick={closeOverlay}
           onPointerDown={(event) => event.stopPropagation()}
         />
       </header>

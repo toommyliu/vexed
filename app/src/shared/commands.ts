@@ -11,6 +11,7 @@ export type GameCommandId =
   | "load-script"
   | "toggle-script"
   | "stop-script"
+  | "toggle-command-overlay"
   | "open-options-menu"
   | "open-environment"
   | "open-fast-travels"
@@ -64,6 +65,14 @@ export const GAME_COMMANDS: readonly CommandDefinition[] = [
     label: "Stop Script",
     keywords: ["halt", "script"],
     defaultHotkey: "Mod+Shift+X",
+  },
+  {
+    id: "toggle-command-overlay",
+    scope: "game",
+    category: "Scripts",
+    label: "Toggle Command Overlay",
+    keywords: ["commands", "overlay", "visibility"],
+    defaultHotkey: "`",
   },
   {
     id: "open-options-menu",
