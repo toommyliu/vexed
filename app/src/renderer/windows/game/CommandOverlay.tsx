@@ -16,6 +16,7 @@ const ROW_HEIGHT = 28;
 const OVERSCAN = 6;
 const EDGE_PADDING = 8;
 const SCROLL_PADDING = 4;
+const MAX_SCROLL_CONTEXT_ROWS = 2;
 const MIN_SIZE = { width: 240, height: 96 } as const;
 const COLLAPSED_MIN_SIZE = { width: 220, height: 34 } as const;
 
@@ -76,6 +77,7 @@ export const getScrollTopForVisibleIndex = (
   scrollHeight: number,
   rowHeight = ROW_HEIGHT,
   padding = SCROLL_PADDING,
+  maxContextRows = MAX_SCROLL_CONTEXT_ROWS,
 ): number => {
   if (index < 0 || rowHeight <= 0 || viewportHeight <= 0) {
     return scrollTop;
@@ -84,17 +86,23 @@ export const getScrollTopForVisibleIndex = (
   const maxScrollTop = Math.max(0, scrollHeight - viewportHeight);
   const itemTop = index * rowHeight;
   const itemBottom = itemTop + rowHeight;
-  const visibleTop = scrollTop + padding;
-  const visibleBottom = scrollTop + viewportHeight - padding;
+  const visibleRows = Math.floor(viewportHeight / rowHeight);
+  const contextRows =
+    visibleRows <= 2
+      ? 0
+      : Math.min(maxContextRows, Math.floor((visibleRows - 1) / 2));
+  const contextPadding = Math.max(padding, contextRows * rowHeight);
+  const visibleTop = scrollTop + contextPadding;
+  const visibleBottom = scrollTop + viewportHeight - contextPadding;
 
   if (itemTop < visibleTop) {
-    return Math.max(0, Math.min(maxScrollTop, itemTop - padding));
+    return Math.max(0, Math.min(maxScrollTop, itemTop - contextPadding));
   }
 
   if (itemBottom > visibleBottom) {
     return Math.max(
       0,
-      Math.min(maxScrollTop, itemBottom + padding - viewportHeight),
+      Math.min(maxScrollTop, itemBottom + contextPadding - viewportHeight),
     );
   }
 
@@ -128,14 +136,19 @@ export const getClampedOverlaySize = (
   containerSize: { readonly width: number; readonly height: number },
   minSize: OverlaySize = MIN_SIZE,
   padding = EDGE_PADDING,
+  maxContentHeight = Number.POSITIVE_INFINITY,
 ): OverlaySize => {
   const maxWidth = Math.max(
     minSize.width,
     containerSize.width - position.x - padding,
   );
-  const maxHeight = Math.max(
+  const maxViewportHeight = Math.max(
     minSize.height,
     containerSize.height - position.y - padding,
+  );
+  const maxHeight = Math.max(
+    minSize.height,
+    Math.min(maxViewportHeight, maxContentHeight),
   );
 
   return {
@@ -148,6 +161,7 @@ export function CommandOverlay(props: CommandOverlayProps): JSX.Element {
   let overlayRef: HTMLElement | undefined;
   let bodyRef: HTMLDivElement | undefined;
   let scrollFrame = 0;
+  let boundsFrame = 0;
   let dragState:
     | {
         readonly pointerId: number;
@@ -228,6 +242,9 @@ export function CommandOverlay(props: CommandOverlayProps): JSX.Element {
   });
 
   const commandCount = createMemo(() => props.commands().length);
+  const commandIndexWidth = createMemo(() =>
+    Math.max(2, String(Math.max(1, commandCount())).length),
+  );
 
   const collapsedCommand = createMemo(() => {
     const command = props.commands()[activeIndex()];
@@ -285,7 +302,14 @@ export function CommandOverlay(props: CommandOverlayProps): JSX.Element {
       return nextSize;
     }
 
-    return getClampedOverlaySize(nextSize, position(), container, MIN_SIZE);
+    return getClampedOverlaySize(
+      nextSize,
+      position(),
+      container,
+      MIN_SIZE,
+      EDGE_PADDING,
+      maxContentHeight(),
+    );
   };
 
   const syncBounds = () => {
@@ -294,6 +318,29 @@ export function CommandOverlay(props: CommandOverlayProps): JSX.Element {
       setSize((current) => clampOverlaySize(current));
     }
     setPosition((current) => clampOverlayPosition(current));
+  };
+
+  const scheduleSyncBounds = () => {
+    window.cancelAnimationFrame(boundsFrame);
+    boundsFrame = window.requestAnimationFrame(syncBounds);
+  };
+
+  const maxContentHeight = (): number => {
+    const body = bodyRef;
+    const overlay = overlayRef;
+    const total = commandCount();
+
+    if (!body || !overlay || total <= 0 || body.clientHeight <= 0) {
+      return Number.POSITIVE_INFINITY;
+    }
+
+    const bodyStyle = window.getComputedStyle(body);
+    const bodyPadding =
+      (Number.parseFloat(bodyStyle.paddingTop) || 0) +
+      (Number.parseFloat(bodyStyle.paddingBottom) || 0);
+    const overlayChromeHeight = overlay.offsetHeight - body.clientHeight;
+
+    return overlayChromeHeight + total * ROW_HEIGHT + bodyPadding;
   };
 
   const handleDragStart: JSX.EventHandler<HTMLElement, PointerEvent> = (
@@ -406,7 +453,7 @@ export function CommandOverlay(props: CommandOverlayProps): JSX.Element {
       return nextLayout;
     });
     props.onLayoutCommit(nextLayout);
-    window.requestAnimationFrame(syncBounds);
+    scheduleSyncBounds();
   };
 
   const closeOverlay: JSX.EventHandler<HTMLButtonElement, MouseEvent> = (
@@ -459,8 +506,15 @@ export function CommandOverlay(props: CommandOverlayProps): JSX.Element {
     });
   });
 
+  createEffect(() => {
+    commandCount();
+    collapsed();
+    scheduleSyncBounds();
+  });
+
   onCleanup(() => {
     window.cancelAnimationFrame(scrollFrame);
+    window.cancelAnimationFrame(boundsFrame);
   });
 
   return (
@@ -514,6 +568,9 @@ export function CommandOverlay(props: CommandOverlayProps): JSX.Element {
             ref={bodyRef}
             class="command-overlay__body"
             onScroll={(event) => setScrollTop(event.currentTarget.scrollTop)}
+            style={{
+              "--command-overlay-index-width": `${commandIndexWidth()}ch`,
+            }}
           >
             <div
               class="command-overlay__spacer"

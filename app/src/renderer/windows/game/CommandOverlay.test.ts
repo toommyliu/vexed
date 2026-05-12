@@ -49,6 +49,19 @@ describe("command overlay virtualization", () => {
     ).toEqual({ width: 392, height: 96 });
   });
 
+  it("clamps resized height to loaded command content", () => {
+    expect(
+      getClampedOverlaySize(
+        { width: 320, height: 420 },
+        { x: 24, y: 32 },
+        { width: 900, height: 700 },
+        { width: 240, height: 96 },
+        8,
+        180,
+      ),
+    ).toEqual({ width: 320, height: 180 });
+  });
+
   it("formats stable zero-padded command indices", () => {
     expect(formatCommandIndex(0, 6)).toBe("01");
     expect(formatCommandIndex(8, 128)).toBe("009");
@@ -60,11 +73,19 @@ describe("command overlay virtualization", () => {
   });
 
   it("scrolls upward when the active command is clipped above the viewport", () => {
-    expect(getScrollTopForVisibleIndex(3, 88, 84, 280, 28, 4)).toBe(80);
+    expect(getScrollTopForVisibleIndex(3, 88, 84, 280, 28, 4)).toBe(56);
   });
 
   it("scrolls downward when the active command is clipped below the viewport", () => {
-    expect(getScrollTopForVisibleIndex(6, 84, 84, 280, 28, 4)).toBe(116);
+    expect(getScrollTopForVisibleIndex(6, 84, 84, 280, 28, 4)).toBe(140);
+  });
+
+  it("leaves extra context around the active command in taller viewports", () => {
+    expect(getScrollTopForVisibleIndex(8, 84, 196, 560, 28, 4)).toBe(112);
+  });
+
+  it("uses compact padding when the viewport cannot fit surrounding commands", () => {
+    expect(getScrollTopForVisibleIndex(3, 56, 56, 280, 28, 4)).toBe(60);
   });
 
   it("clamps active command scrolling to the valid scroll range", () => {
