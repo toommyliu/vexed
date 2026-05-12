@@ -576,6 +576,16 @@ export function CommandOverlay(props: CommandOverlayProps): JSX.Element {
               class="command-overlay__spacer"
               style={{ height: `${commandCount() * ROW_HEIGHT}px` }}
             >
+              {activeIndex() >= 0 && (
+                <div
+                  aria-hidden="true"
+                  class="command-overlay__active-indicator"
+                  style={{
+                    height: `${ROW_HEIGHT}px`,
+                    transform: `translateY(${activeIndex() * ROW_HEIGHT}px)`,
+                  }}
+                />
+              )}
               <For each={visibleCommands()}>
                 {(command) => {
                   const active = () => activeIndex() === command.index;
@@ -594,13 +604,8 @@ export function CommandOverlay(props: CommandOverlayProps): JSX.Element {
                       </span>
                       <span class="command-overlay__command">
                         <span class="command-overlay__name">
-                          {command.label}
+                          {command.text}
                         </span>
-                        {command.argsText && (
-                          <span class="command-overlay__args">
-                            : {command.argsText}
-                          </span>
-                        )}
                       </span>
                     </div>
                   );
