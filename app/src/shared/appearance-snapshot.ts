@@ -228,12 +228,16 @@ export const applyAppearanceSnapshotToDocument = (
   const style = root.style;
 
   root.dataset["theme"] = snapshot.variant;
-  root.dataset["disableAnimations"] = snapshot.disableAnimations
-    ? "true"
-    : "false";
-  root.dataset["useCursorPointers"] = snapshot.useCursorPointers
-    ? "true"
-    : "false";
+  if (snapshot.disableAnimations) {
+    root.dataset["disableAnimations"] = "true";
+  } else {
+    delete root.dataset["disableAnimations"];
+  }
+  if (snapshot.useCursorPointers) {
+    root.dataset["useCursorPointers"] = "true";
+  } else {
+    delete root.dataset["useCursorPointers"];
+  }
   root.classList.toggle("dark", snapshot.variant === "dark");
   style.setProperty("color-scheme", snapshot.variant);
   style.setProperty(
