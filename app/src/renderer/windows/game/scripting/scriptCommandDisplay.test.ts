@@ -31,7 +31,7 @@ describe("script command display", () => {
     expect(toScriptCommandDisplayItem(instruction)).toEqual({
       index: 4,
       name: "accept_quest",
-      label: "accept quest",
+      label: "Accept quest: 8152",
       argsText: "8152",
     });
   });

@@ -252,9 +252,7 @@ export function CommandOverlay(props: CommandOverlayProps): JSX.Element {
       return "";
     }
 
-    return command.argsText
-      ? `${command.label}: ${command.argsText}`
-      : command.label;
+    return command.label;
   });
 
   const syncViewportHeight = () => {
@@ -542,8 +540,13 @@ export function CommandOverlay(props: CommandOverlayProps): JSX.Element {
         <div class="command-overlay__title-group">
           <span class="command-overlay__title">Commands</span>
         </div>
-        <span class="command-overlay__status">
-          {collapsed() ? collapsedCommand() : ""}
+        <span
+          class="command-overlay__status"
+          data-active={collapsed() && collapsedCommand() ? "" : undefined}
+        >
+          <span class="command-overlay__status-text">
+            {collapsed() ? collapsedCommand() : ""}
+          </span>
         </span>
         <button
           aria-label={collapsed() ? "Expand commands" : "Collapse commands"}
@@ -604,7 +607,7 @@ export function CommandOverlay(props: CommandOverlayProps): JSX.Element {
                       </span>
                       <span class="command-overlay__command">
                         <span class="command-overlay__name">
-                          {command.text}
+                          {command.label}
                         </span>
                       </span>
                     </div>

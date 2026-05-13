@@ -2378,22 +2378,26 @@ a.badge--destructive:hover {
 }
 
 .menu__option-item {
-  display: grid;
-  grid-template-columns: 1rem minmax(0, 1fr);
+  position: relative;
 }
 
 .menu__item-indicator {
   align-items: center;
   display: inline-flex;
-  grid-column: 1;
+  flex: 0 0 auto;
   justify-content: center;
+  margin-left: auto;
   opacity: 0;
+  order: 1;
+  transform: scale(0.85);
+  transition: opacity 150ms ease, transform 150ms cubic-bezier(0.23, 1, 0.32, 1);
 }
 
 .menu__item-indicator[data-state="checked"],
 .menu__option-item[data-state="checked"] .menu__item-indicator,
 .menu__option-item[data-checked] .menu__item-indicator {
   opacity: 1;
+  transform: scale(1);
 }
 
 .menu__item-indicator svg {
@@ -2401,11 +2405,17 @@ a.badge--destructive:hover {
   width: 0.875rem;
 }
 
-.menu__item-text {
-  grid-column: 2;
-  min-width: 0;
-  overflow: hidden;
-  text-overflow: ellipsis;
+.menu__radio-dot {
+  background-color: currentColor;
+  border-radius: 50%;
+  height: 0.375rem;
+  width: 0.375rem;
+}
+
+.menu__option-item > .menu__shortcut,
+.menu__option-item > .kbd {
+  margin-left: 0.375rem;
+  order: 2;
 }
 
 .menu__label {

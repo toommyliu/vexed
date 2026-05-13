@@ -140,7 +140,9 @@ const make = Effect.gen(function* () {
   );
   const nextScriptTokenRef = yield* Ref.make(0);
   const runSemaphore = yield* Semaphore.make(1);
-  const commandsRef = yield* Ref.make(new Map(scriptCommandHandlers));
+  const commandsRef = yield* Ref.make(
+    new Map<string, ScriptCommandHandler>(scriptCommandHandlers),
+  );
   const currentCommandRef = yield* Ref.make<RunningScriptCommand | null>(null);
   const commandDelayRef = yield* Ref.make(1000);
   const nextDiagnosticIdRef = yield* Ref.make(0);
