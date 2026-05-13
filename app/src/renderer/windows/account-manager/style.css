@@ -388,7 +388,7 @@
   border: 0;
   border-radius: var(--radius-sm);
   color: inherit;
-  cursor: pointer;
+  cursor: var(--cursor-interactive);
   display: grid;
   gap: 0.25rem;
   margin: -0.25rem -0.375rem;

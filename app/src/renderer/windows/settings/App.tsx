@@ -979,6 +979,40 @@ function AppearanceSettings(props: {
         description="Use light, dark, or match your system appearance."
         title="Theme"
       />
+      <SettingsRow
+        action={
+          <Switch
+            aria-label="Disable animations"
+            checked={props.settings.appearance.disableAnimations}
+            onChange={(event) =>
+              props.onAppearancePatch({
+                disableAnimations: event.currentTarget.checked,
+              })
+            }
+            size="default"
+          />
+        }
+        class="settings-row--switch"
+        description="Turn off app animations regardless of system motion settings."
+        title="Disable animations"
+      />
+      <SettingsRow
+        action={
+          <Switch
+            aria-label="Use cursor pointers"
+            checked={props.settings.appearance.useCursorPointers}
+            onChange={(event) =>
+              props.onAppearancePatch({
+                useCursorPointers: event.currentTarget.checked,
+              })
+            }
+            size="default"
+          />
+        }
+        class="settings-row--switch"
+        description="Change the cursor to a pointer when hovering over interactive elements."
+        title="Use cursor pointers"
+      />
       <div class="theme-profile-panel">
         {renderProfileEditor(activeThemeVariant())}
       </div>

@@ -58,6 +58,8 @@ export interface ThemeProfile {
 
 export interface Appearance {
   readonly themeMode: ThemeMode;
+  readonly disableAnimations: boolean;
+  readonly useCursorPointers: boolean;
   readonly themes: {
     readonly light: ThemeProfile;
     readonly dark: ThemeProfile;
@@ -139,6 +141,8 @@ export const DEFAULT_THEME_PROFILE: ThemeProfile = {
 
 export const DEFAULT_APPEARANCE: Appearance = {
   themeMode: "dark",
+  disableAnimations: false,
+  useCursorPointers: false,
   themes: {
     light: DEFAULT_THEME_PROFILE,
     dark: DEFAULT_THEME_PROFILE,
@@ -167,6 +171,8 @@ export interface ThemeProfilePatch {
 
 export interface AppearancePatch {
   readonly themeMode?: ThemeMode;
+  readonly disableAnimations?: boolean;
+  readonly useCursorPointers?: boolean;
   readonly themes?: Partial<Record<ThemeVariant, ThemeProfilePatch>>;
 }
 

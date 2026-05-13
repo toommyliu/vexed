@@ -21,13 +21,41 @@ const systemAppearance: Appearance = {
   themeMode: "system",
 };
 
+const datasetAttributeName = (key: string): string =>
+  `data-${key.replace(/[A-Z]/g, (match) => `-${match.toLowerCase()}`)}`;
+
 const createFakeRoot = () => {
   const properties = new Map<string, string>();
   const classes = new Set<string>();
-  const dataset: Record<string, string> = {};
+  const attributes = new Map<string, string>();
+  const dataset = new Proxy({} as DOMStringMap, {
+    get(_target, key) {
+      return typeof key === "string"
+        ? attributes.get(datasetAttributeName(key))
+        : undefined;
+    },
+    set(_target, key, value) {
+      if (typeof key === "string") {
+        attributes.set(datasetAttributeName(key), String(value));
+      }
+      return true;
+    },
+    deleteProperty(_target, key) {
+      if (typeof key === "string") {
+        attributes.delete(datasetAttributeName(key));
+      }
+      return true;
+    },
+  });
 
   return {
     dataset,
+    getAttribute(name: string) {
+      return attributes.get(name) ?? null;
+    },
+    hasAttribute(name: string) {
+      return attributes.has(name);
+    },
     classList: {
       toggle(name: string, force?: boolean) {
         if (force) {
@@ -79,6 +107,7 @@ describe("appearance snapshot", () => {
 
   it("uses custom background tokens for the Electron background color", () => {
     const appearance: Appearance = {
+      ...DEFAULT_APPEARANCE,
       themeMode: "light",
       themes: {
         ...DEFAULT_APPEARANCE.themes,
@@ -120,17 +149,42 @@ describe("appearance snapshot", () => {
   });
 
   it("applies the snapshot to a document root before renderer mount", () => {
-    const snapshot = createAppearanceSnapshot(DEFAULT_APPEARANCE, false);
+    const snapshot = createAppearanceSnapshot(
+      {
+        ...DEFAULT_APPEARANCE,
+        disableAnimations: true,
+        useCursorPointers: true,
+      },
+      false,
+    );
     const root = createFakeRoot();
 
     applyAppearanceSnapshotToDocument(root as unknown as HTMLElement, snapshot);
 
     expect(root.dataset["theme"]).toBe("dark");
+    expect(root.dataset["disableAnimations"]).toBe("true");
+    expect(root.dataset["useCursorPointers"]).toBe("true");
+    expect(root.getAttribute("data-disable-animations")).toBe("true");
+    expect(root.getAttribute("data-use-cursor-pointers")).toBe("true");
     expect(root.hasClass("dark")).toBe(true);
     expect(root.style.getPropertyValue("--background")).toBe("14, 14, 15");
+    expect(root.style.getPropertyValue("--cursor-interactive")).toBe("pointer");
     expect(root.style.getPropertyValue("--font-sans")).toBe(
       DEFAULT_THEME_PROFILE.sansFont,
     );
     expect(root.style.getPropertyValue("color-scheme")).toBe("dark");
+  });
+
+  it("omits inactive app preference attributes", () => {
+    const snapshot = createAppearanceSnapshot(DEFAULT_APPEARANCE, false);
+    const root = createFakeRoot();
+
+    root.dataset["disableAnimations"] = "true";
+    root.dataset["useCursorPointers"] = "true";
+    applyAppearanceSnapshotToDocument(root as unknown as HTMLElement, snapshot);
+
+    expect(root.hasAttribute("data-disable-animations")).toBe(false);
+    expect(root.hasAttribute("data-use-cursor-pointers")).toBe(false);
+    expect(root.style.getPropertyValue("--cursor-interactive")).toBe("default");
   });
 });

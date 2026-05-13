@@ -92,9 +92,13 @@
 }
 
 @media (prefers-reduced-motion: no-preference) {
-  .settings-content-wrapper {
+  :root:not([data-disable-animations="true"]) .settings-content-wrapper {
     scroll-behavior: smooth;
   }
+}
+
+:root[data-disable-animations="true"] .settings-content-wrapper {
+  scroll-behavior: auto;
 }
 
 @media (prefers-reduced-motion: reduce) {

@@ -62,6 +62,14 @@ describe("CSS color tokens", () => {
     expect(tokens).toContain("--text-5xl: 28px;");
     expect(tokens).not.toMatch(/--text-[\w-]+:\s*calc\([^;]*\*/);
   });
+
+  it("defines cursor pointer preference tokens", () => {
+    const tokens = readStyle("tokens.css");
+
+    expect(tokens).toContain("--cursor-interactive: default;");
+    expect(tokens).toContain(':root[data-use-cursor-pointers="true"]');
+    expect(tokens).toContain("--cursor-interactive: pointer;");
+  });
 });
 
 describe("component color usage", () => {
@@ -135,6 +143,15 @@ describe("component color usage", () => {
     );
     expect(components).toContain("@media (forced-colors: active)");
     expect(components).toContain("scrollbar-color: auto;");
+  });
+
+  it("supports app-controlled motion and cursor pointer preferences", () => {
+    const components = readStyle("components.css");
+
+    expect(components).toContain("cursor: var(--cursor-interactive);");
+    expect(components).toContain(':root[data-disable-animations="true"] *');
+    expect(components).toContain("animation-delay: 0s !important;");
+    expect(components).toContain("transition-delay: 0s !important;");
   });
 
   it("does not use forbidden Chrome 87-incompatible CSS syntax", () => {

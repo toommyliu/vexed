@@ -159,6 +159,14 @@ export const updateAppearance = (patch: AppearancePatch): AppSettings => {
     themeMode: isThemeMode(patch.themeMode)
       ? patch.themeMode
       : current.themeMode,
+    disableAnimations:
+      typeof patch.disableAnimations === "boolean"
+        ? patch.disableAnimations
+        : current.disableAnimations,
+    useCursorPointers:
+      typeof patch.useCursorPointers === "boolean"
+        ? patch.useCursorPointers
+        : current.useCursorPointers,
     themes: {
       light,
       dark,

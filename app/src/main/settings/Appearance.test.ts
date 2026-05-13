@@ -13,6 +13,8 @@ describe("appearance settings", () => {
       }),
     ).toEqual({
       themeMode: "system",
+      disableAnimations: Appearance.DEFAULT.disableAnimations,
+      useCursorPointers: Appearance.DEFAULT.useCursorPointers,
       themes: {
         light: Appearance.DEFAULT.themes.light,
         dark: Appearance.DEFAULT.themes.dark,
@@ -52,6 +54,8 @@ describe("appearance settings", () => {
       }),
     ).toEqual({
       themeMode: "dark",
+      disableAnimations: Appearance.DEFAULT.disableAnimations,
+      useCursorPointers: Appearance.DEFAULT.useCursorPointers,
       themes: {
         light: {
           tokens: {
@@ -116,6 +120,8 @@ describe("appearance settings", () => {
       }),
     ).toEqual({
       themeMode: Appearance.DEFAULT.themeMode,
+      disableAnimations: Appearance.DEFAULT.disableAnimations,
+      useCursorPointers: Appearance.DEFAULT.useCursorPointers,
       themes: {
         light: Appearance.DEFAULT.themes.light,
         dark: Appearance.DEFAULT.themes.dark,
@@ -148,6 +154,61 @@ describe("appearance settings", () => {
         monoFontSize: 16,
       },
     });
+  });
+
+  it("normalizes app motion and cursor pointer toggles", () => {
+    expect(
+      Appearance.normalize({
+        themeMode: "dark",
+        disableAnimations: true,
+        useCursorPointers: true,
+        themes: {},
+      }),
+    ).toMatchObject({
+      disableAnimations: true,
+      useCursorPointers: true,
+    });
+
+    expect(
+      Appearance.normalize({
+        themeMode: "dark",
+        disableAnimations: "yes",
+        useCursorPointers: 1,
+        themes: {},
+      }),
+    ).toMatchObject({
+      disableAnimations: Appearance.DEFAULT.disableAnimations,
+      useCursorPointers: Appearance.DEFAULT.useCursorPointers,
+    });
+  });
+
+  it("writes app motion and cursor pointer toggles", async () => {
+    const previous = process.env["VEXED_HOME"];
+    const testDir = await mkdtemp(join(tmpdir(), "vexed-appearance-"));
+    process.env["VEXED_HOME"] = testDir;
+
+    try {
+      Appearance.write({
+        ...Appearance.DEFAULT,
+        disableAnimations: true,
+        useCursorPointers: true,
+      });
+
+      const source = await readFile(Appearance.path(), "utf8");
+      expect(source).toContain("disableAnimations: true");
+      expect(source).toContain("useCursorPointers: true");
+      expect(Appearance.read()).toMatchObject({
+        disableAnimations: true,
+        useCursorPointers: true,
+      });
+    } finally {
+      if (previous === undefined) {
+        delete process.env["VEXED_HOME"];
+      } else {
+        process.env["VEXED_HOME"] = previous;
+      }
+      await rm(testDir, { recursive: true, force: true });
+    }
   });
 
   it("does not rewrite partial hex color config on ensure", async () => {

@@ -160,6 +160,14 @@ export const normalize = (value: unknown): Appearance => {
     themeMode: isThemeMode(record["themeMode"])
       ? record["themeMode"]
       : DEFAULT.themeMode,
+    disableAnimations:
+      typeof record["disableAnimations"] === "boolean"
+        ? record["disableAnimations"]
+        : DEFAULT.disableAnimations,
+    useCursorPointers:
+      typeof record["useCursorPointers"] === "boolean"
+        ? record["useCursorPointers"]
+        : DEFAULT.useCursorPointers,
     themes: {
       light: normalizeThemeProfile(rawThemes["light"]),
       dark: normalizeThemeProfile(rawThemes["dark"]),
@@ -205,6 +213,8 @@ const serialize = (appearance: Appearance): PersistedAppearance => {
   const normalized = normalize(appearance);
   return {
     themeMode: normalized.themeMode,
+    disableAnimations: normalized.disableAnimations,
+    useCursorPointers: normalized.useCursorPointers,
     themes: {
       light: serializeThemeProfile(normalized.themes.light),
       dark: serializeThemeProfile(normalized.themes.dark),
