@@ -104,11 +104,27 @@ body::-webkit-scrollbar-corner,
 
 /* Button */
 
+:root[data-use-cursor-pointers="true"] a[href],
+:root[data-use-cursor-pointers="true"] button:not(:disabled),
+:root[data-use-cursor-pointers="true"] select:not(:disabled),
+:root[data-use-cursor-pointers="true"] summary,
+:root[data-use-cursor-pointers="true"]
+  [role="button"]:not([aria-disabled="true"]),
+:root[data-use-cursor-pointers="true"]
+  [role="checkbox"]:not([aria-disabled="true"]),
+:root[data-use-cursor-pointers="true"]
+  [role="menuitem"]:not([aria-disabled="true"]),
+:root[data-use-cursor-pointers="true"]
+  [role="switch"]:not([aria-disabled="true"]),
+:root[data-use-cursor-pointers="true"] [role="tab"]:not([aria-disabled="true"]) {
+  cursor: pointer;
+}
+
 .button {
   align-items: center;
   border: 1px solid transparent;
   border-radius: var(--radius-md);
-  cursor: pointer;
+  cursor: var(--cursor-interactive);
   display: inline-flex;
   flex-shrink: 0;
   font-family: var(--font-sans);
@@ -500,7 +516,7 @@ body::-webkit-scrollbar-corner,
   align-items: center;
   border: 1px solid rgba(var(--black), 0.1);
   border-radius: 9999px;
-  cursor: pointer;
+  cursor: var(--cursor-interactive);
   display: inline-flex;
   gap: 0.5rem;
   height: var(--control-height-md);
@@ -538,7 +554,7 @@ body::-webkit-scrollbar-corner,
   background: transparent;
   border: 0;
   color: inherit;
-  cursor: pointer;
+  cursor: var(--cursor-interactive);
   display: inline-flex;
   flex-shrink: 0;
   height: 1.125rem;
@@ -958,7 +974,7 @@ body::-webkit-scrollbar-corner,
 .switch {
   align-items: center;
   color: rgb(var(--foreground));
-  cursor: pointer;
+  cursor: var(--cursor-interactive);
   display: inline-flex;
   font-family: var(--font-sans);
   font-size: var(--text-base);
@@ -1287,7 +1303,7 @@ body::-webkit-scrollbar-corner,
 
 button.badge,
 a.badge {
-  cursor: pointer;
+  cursor: var(--cursor-interactive);
 }
 
 .badge svg {
@@ -2088,7 +2104,7 @@ a.badge--destructive:hover {
 }
 
 .select__trigger {
-  cursor: pointer;
+  cursor: var(--cursor-interactive);
 }
 
 .select__trigger:focus-visible,
@@ -2271,7 +2287,7 @@ a.badge--destructive:hover {
   border: 0;
   border-radius: var(--radius-sm);
   color: inherit;
-  cursor: pointer;
+  cursor: var(--cursor-interactive);
   display: inline-flex;
   flex-shrink: 0;
   height: 1.5rem;
@@ -2293,7 +2309,7 @@ a.badge--destructive:hover {
 .dropdown .combobox__input,
 .dropdown__input {
   caret-color: transparent;
-  cursor: pointer;
+  cursor: var(--cursor-interactive);
 }
 
 /* Menu and Tooltip Positioners */
@@ -2479,7 +2495,7 @@ a.badge--destructive:hover {
   border: 1px solid transparent;
   border-radius: var(--radius-md);
   color: inherit;
-  cursor: pointer;
+  cursor: var(--cursor-interactive);
   display: inline-flex;
   font-family: var(--font-sans);
   font-size: var(--text-base);
@@ -2869,9 +2885,33 @@ a.badge--destructive:hover {
   *,
   *::before,
   *::after {
+    animation-delay: 0s !important;
     animation-duration: 0.001ms !important;
     animation-iteration-count: 1 !important;
+    transition-delay: 0s !important;
     transition-duration: 0.001ms !important;
+  }
+}
+
+:root[data-disable-animations="true"] *,
+:root[data-disable-animations="true"] *::before,
+:root[data-disable-animations="true"] *::after {
+  animation-delay: 0s !important;
+  animation-duration: 0.001ms !important;
+  animation-iteration-count: 1 !important;
+  transition-delay: 0s !important;
+  transition-duration: 0.001ms !important;
+}
+
+:root[data-disable-animations="true"] {
+  scroll-behavior: auto !important;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    scroll-behavior: auto !important;
   }
 }
 

@@ -111,10 +111,15 @@
   --control-height-md: 1.875rem;
   --control-height-lg: 2.125rem;
   --control-height-xl: 2.375rem;
+  --cursor-interactive: default;
   --duration-fast: 120ms;
   --duration-normal: 180ms;
   --shadow-xs: 0 1px 2px rgba(var(--black), 0.05);
   --shadow-sm: 0 1px 3px rgba(var(--black), 0.08);
+}
+
+:root[data-use-cursor-pointers="true"] {
+  --cursor-interactive: pointer;
 }
 
 .dark,

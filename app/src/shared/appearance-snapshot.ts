@@ -51,6 +51,8 @@ export interface AppearanceSnapshot {
   readonly sansFontSize: number;
   readonly monoFontSize: number;
   readonly rounding: number;
+  readonly disableAnimations: boolean;
+  readonly useCursorPointers: boolean;
   readonly backgroundColor: string;
 }
 
@@ -113,6 +115,8 @@ export const createAppearanceSnapshot = (
     sansFontSize: profile.sansFontSize,
     monoFontSize: profile.monoFontSize,
     rounding: profile.rounding,
+    disableAnimations: appearance.disableAnimations,
+    useCursorPointers: appearance.useCursorPointers,
     backgroundColor: rgbToHex(tokens.background),
   };
 };
@@ -159,6 +163,8 @@ export const isAppearanceSnapshot = (
     Number.isFinite(value["monoFontSize"]) &&
     typeof value["rounding"] === "number" &&
     Number.isFinite(value["rounding"]) &&
+    typeof value["disableAnimations"] === "boolean" &&
+    typeof value["useCursorPointers"] === "boolean" &&
     typeof value["backgroundColor"] === "string"
   );
 };
@@ -222,8 +228,18 @@ export const applyAppearanceSnapshotToDocument = (
   const style = root.style;
 
   root.dataset["theme"] = snapshot.variant;
+  root.dataset["disableAnimations"] = snapshot.disableAnimations
+    ? "true"
+    : "false";
+  root.dataset["useCursorPointers"] = snapshot.useCursorPointers
+    ? "true"
+    : "false";
   root.classList.toggle("dark", snapshot.variant === "dark");
   style.setProperty("color-scheme", snapshot.variant);
+  style.setProperty(
+    "--cursor-interactive",
+    snapshot.useCursorPointers ? "pointer" : "default",
+  );
 
   for (const name of THEME_TOKEN_NAMES) {
     const cssName = tokenCssNames.get(name);

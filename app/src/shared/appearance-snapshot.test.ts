@@ -79,6 +79,7 @@ describe("appearance snapshot", () => {
 
   it("uses custom background tokens for the Electron background color", () => {
     const appearance: Appearance = {
+      ...DEFAULT_APPEARANCE,
       themeMode: "light",
       themes: {
         ...DEFAULT_APPEARANCE.themes,
@@ -120,14 +121,24 @@ describe("appearance snapshot", () => {
   });
 
   it("applies the snapshot to a document root before renderer mount", () => {
-    const snapshot = createAppearanceSnapshot(DEFAULT_APPEARANCE, false);
+    const snapshot = createAppearanceSnapshot(
+      {
+        ...DEFAULT_APPEARANCE,
+        disableAnimations: true,
+        useCursorPointers: true,
+      },
+      false,
+    );
     const root = createFakeRoot();
 
     applyAppearanceSnapshotToDocument(root as unknown as HTMLElement, snapshot);
 
     expect(root.dataset["theme"]).toBe("dark");
+    expect(root.dataset["disableAnimations"]).toBe("true");
+    expect(root.dataset["useCursorPointers"]).toBe("true");
     expect(root.hasClass("dark")).toBe(true);
     expect(root.style.getPropertyValue("--background")).toBe("14, 14, 15");
+    expect(root.style.getPropertyValue("--cursor-interactive")).toBe("pointer");
     expect(root.style.getPropertyValue("--font-sans")).toBe(
       DEFAULT_THEME_PROFILE.sansFont,
     );
