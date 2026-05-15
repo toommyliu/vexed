@@ -1,99 +1,119 @@
-cmd.set_delay(0)
-cmd.goto_house()
-cmd.set_fps(10)
-cmd.enable_lagkiller()
-cmd.enable_hideplayers()
-cmd.enable_infiniterange()
-cmd.enable_anticounter()
-cmd.enable_death_ads()
-cmd.army_start('army_config')
-cmd.set_delay(1000)
-cmd.buy_lifesteal(99)
-cmd.buy_scroll_of_enrage(999)
-cmd.accept_quest(8300) // drakath
+const BOSS = 'Champion Drakath'
 
-var opts = {
-  skillAction() {
-    let a = []
-    let i = 0
-    let h
+const BOUNDARIES = [
+  { min: 18020000, max: 18250000, msg: 'taunt at 18.02mil - 18.25mil' },
+  { min: 16020000, max: 16250000, msg: 'taunt at 16.02mil - 16.25mil' },
+  { min: 14020000, max: 14250000, msg: 'taunt at 14.02mil - 14.25mil' },
+  { min: 12020000, max: 12250000, msg: 'taunt at 12.02mil - 12.25mil' },
+  { min: 10020000, max: 10150000, msg: 'taunt at 10.02mil - 10.15mil' },
+  { min: 8020000, max: 8200000, msg: 'taunt at 8.02mil - 8.2mil' },
+  { min: 6020000, max: 6200000, msg: 'taunt at 6.02mil - 6.2mil' },
+  { min: 4020000, max: 4200000, msg: 'taunt at 4.02mil - 4.2mil' },
+  { min: 2020000, max: 2200000, msg: 'taunt at 2.02mil - 2.2mil' },
+]
 
-    switch (this.bot.player.className) {
-      case 'LEGION REVENANT':
-        a = [3, 1, 2, 4]
-        break
-      case 'ARCHPALADIN':
-        a = [3, 1, 2, 4, 5]
-        break
-      case 'STONECRUSHER':
-        a = [1, 2, 3, 4, 5]
-        h = 2
-        break
-      case 'LORD OF ORDER':
-        a = [1, 3, 4, 5]
-        h = 2
-    }
-
-    const boundaries = [
-      { min: 18020000, max: 18250000, msg: 'taunt at 18.02mil - 18.25mil' },
-      { min: 16020000, max: 16250000, msg: 'taunt at 16.02mil - 16.25mil' },
-      { min: 14020000, max: 14250000, msg: 'taunt at 14.02mil - 14.25mil' },
-      { min: 12020000, max: 12250000, msg: 'taunt at 12.02mil - 12.25mil' },
-      { min: 10020000, max: 10150000, msg: 'taunt at 10.02mil - 10.15mil' },
-      { min: 8020000, max: 8200000, msg: 'taunt at 8.02mil - 8.2mil' },
-      { min: 6020000, max: 6200000, msg: 'taunt at 6.02mil - 6.2mil' },
-      { min: 4020000, max: 4200000, msg: 'taunt at 4.02mil - 4.2mil' },
-      { min: 2020000, max: 2200000, msg: 'taunt at 2.02mil - 2.2mil' },
-    ]
-
-    return async function () {
-      const plyrNumber = this.bot.army.getPlayerNumber()
-
-      if (plyrNumber === 1 && this.bot.combat.hasTarget()) {
-        if (this._nextBoundaryIndex === undefined) this._nextBoundaryIndex = 0
-
-        const hp = this.bot.combat.target.hp
-        const b = boundaries[this._nextBoundaryIndex]
-
-        if (b && hp <= b.max) {
-          if (hp >= b.min) {
-            console.log(b.msg)
-            await this.bot.combat.useSkill(5, true, true)
-            this._nextBoundaryIndex++
-          } else if (hp < b.min) {
-            // HP dropped below the current boundary without triggering or already triggered
-            this._nextBoundaryIndex++
-          }
-        }
-      }
-
-      if ((plyrNumber === 3 || plyrNumber === 4) && h) {
-        for (const username of this.bot.army.players) {
-          const p = this.bot.world.players.get(username)
-          if (p && p.isHpPercentageLessThan(60)) {
-            await this.bot.combat.useSkill(h)
-            return
-          }
-        }
-      }
-
-      await this.bot.combat.useSkill(a[i])
-      i = (i + 1) % a.length
-    }
-  },
-  skillDelay: 0,
+function getSkillPlan(className) {
+  switch (className) {
+    case 'LEGION REVENANT':
+      return { rotation: [3, 1, 2, 4] }
+    case 'ARCHPALADIN':
+      return { rotation: [3, 1, 2, 4, 5] }
+    case 'STONECRUSHER':
+      return { rotation: [1, 2, 3, 4, 5], healSkill: 2 }
+    case 'LORD OF ORDER':
+      return { rotation: [1, 3, 4, 5], healSkill: 2 }
+    default:
+      return { rotation: [1, 2, 3, 4] }
+  }
 }
 
-cmd.army_join('championdrakath')
-cmd.army_equip_set('ChampionDrakath', { resolveItems: true })
-cmd.buff()
-cmd.hunt('Champion Drakath')
-cmd.set_spawn()
-cmd.army_kill_for_tempitem(
-  'Champion Drakath',
-  'Champion Drakath Defeated',
-  1,
-  opts,
-)
-cmd.jump_to_cell('Enter')
-cmd.complete_quest(8300)
+function* healIfNeeded(api, healSkill) {
+  if (!healSkill) return false
+
+  const playerNumber = yield* api.army.getPlayerNumber()
+  if (playerNumber !== 3 && playerNumber !== 4) return false
+
+  const players = yield* api.world.players.getAll()
+  for (const player of players.values()) {
+    if (player.isHpPercentageLessThan(60)) {
+      yield* api.combat.useSkill(healSkill)
+      return true
+    }
+  }
+
+  return false
+}
+
+function* tauntBoundaryIfNeeded(api, nextBoundaryIndex) {
+  const playerNumber = yield* api.army.getPlayerNumber()
+  if (playerNumber !== 1) return nextBoundaryIndex
+
+  const target = yield* api.combat.getTarget()
+  if (!target || target.name !== BOSS) return nextBoundaryIndex
+
+  const boundary = BOUNDARIES[nextBoundaryIndex]
+  if (!boundary || target.hp > boundary.max) return nextBoundaryIndex
+
+  if (target.hp >= boundary.min) {
+    api.log(boundary.msg)
+    yield* api.combat.useSkill(5, true, true)
+  }
+
+  return nextBoundaryIndex + 1
+}
+
+/** @param {ScriptContext} context */
+module.exports = function* run({ api }) {
+  yield* api.settings.setFrameRate(10)
+  yield* api.settings.setLagKillerEnabled(true)
+  yield* api.settings.setOtherPlayersVisible(false)
+  yield* api.settings.setInfiniteRange(true)
+  yield* api.settings.setDeathAdsVisible(false)
+
+  yield* api.army.start('config')
+  yield* api.recipes.goToHouse()
+  yield* api.recipes.ensureLifeSteal(99)
+  yield* api.recipes.ensureScrollOfEnrage(999)
+  yield* api.quests.accept(8300)
+
+  yield* api.army.joinMap('championdrakath')
+  yield* api.army.equipSet('ChampionDrakath', { resolveItems: true })
+  yield* api.recipes.buff()
+  yield* api.combat.hunt(BOSS)
+  yield* api.world.map.setSpawnPoint()
+
+  const className = yield* api.player.getClassName()
+  const { rotation, healSkill } = getSkillPlan(className)
+
+  let skillIndex = 0
+  let nextBoundaryIndex = 0
+
+  while (!(yield* api.tempInventory.contains('Champion Drakath Defeated', 1))) {
+    const alive = yield* api.player.isAlive()
+    if (!alive) {
+      yield* api.sleep(1000)
+      continue
+    }
+
+    const hasTarget = yield* api.combat.hasTarget()
+    if (!hasTarget) {
+      yield* api.combat.attackMonster(BOSS)
+    }
+
+    nextBoundaryIndex = yield* tauntBoundaryIfNeeded(api, nextBoundaryIndex)
+
+    if (yield* healIfNeeded(api, healSkill)) {
+      yield* api.sleep(100)
+      continue
+    }
+
+    yield* api.combat.useSkill(rotation[skillIndex])
+    skillIndex = (skillIndex + 1) % rotation.length
+    yield* api.sleep(100)
+  }
+
+  yield* api.player.jumpToCell('Enter')
+  if (yield* api.quests.canComplete(8300)) {
+    yield* api.quests.complete(8300)
+  }
+}
