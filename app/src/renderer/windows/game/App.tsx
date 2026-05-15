@@ -888,7 +888,7 @@ export default function App(props: {
       .runPromise(
         Effect.gen(function* () {
           const autoRelogin = yield* AutoRelogin;
-          return yield* autoRelogin.setDelayMs(delayMs);
+          return yield* autoRelogin.setDelay(delayMs);
         }),
       )
       .then(applyAutoReloginState)

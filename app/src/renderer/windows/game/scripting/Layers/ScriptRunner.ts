@@ -10,7 +10,6 @@ import { Combat } from "../../flash/Services/Combat";
 import { Drops } from "../../flash/Services/Drops";
 import { House } from "../../flash/Services/House";
 import { Inventory } from "../../flash/Services/Inventory";
-import { Jobs } from "../../jobs/Services/Jobs";
 import { Packet } from "../../flash/Services/Packet";
 import { Player } from "../../flash/Services/Player";
 import { Quests } from "../../flash/Services/Quests";
@@ -28,9 +27,13 @@ import type { ScriptRunnerShape } from "../Services/ScriptRunner";
 import type { ScriptDiagnostic, ScriptDiagnosticInput } from "../Types";
 import type {
   ScriptApi,
+  ScriptAutoReloginShape,
+  ScriptAutoZoneShape,
   ScriptContext,
   ScriptMain,
   ScriptPacketListener,
+  ScriptSettingsShape,
+  ScriptWorldShape,
 } from "../ScriptApi";
 import {
   type ScriptAsyncScope,
@@ -84,7 +87,6 @@ const make = Effect.gen(function* () {
   const drops = yield* Drops;
   const house = yield* House;
   const inventory = yield* Inventory;
-  const jobs = yield* Jobs;
   const packet = yield* Packet;
   const player = yield* Player;
   const quests = yield* Quests;
@@ -394,6 +396,131 @@ const make = Effect.gen(function* () {
           ),
         )) satisfies ScriptApi["packet"][typeof listener];
 
+    const scriptSettings: ScriptSettingsShape = {
+      enemyMagnet: settings.enemyMagnet,
+      infiniteRange: settings.infiniteRange,
+      provokeCell: settings.provokeCell,
+      skipCutscenes: settings.skipCutscenes,
+      setEnemyMagnetEnabled: settings.setEnemyMagnetEnabled,
+      setInfiniteRangeEnabled: settings.setInfiniteRangeEnabled,
+      setProvokeCellEnabled: settings.setProvokeCellEnabled,
+      setSkipCutscenesEnabled: settings.setSkipCutscenesEnabled,
+      setCustomName: settings.setCustomName,
+      setCustomGuild: settings.setCustomGuild,
+      setWalkSpeed: settings.setWalkSpeed,
+      setDeathAdsVisible: settings.setDeathAdsVisible,
+      setCollisionsEnabled: settings.setCollisionsEnabled,
+      setEffectsEnabled: settings.setEffectsEnabled,
+      setOtherPlayersVisible: settings.setOtherPlayersVisible,
+      setLagKillerEnabled: settings.setLagKillerEnabled,
+      setFrameRate: settings.setFrameRate,
+    };
+
+    const getScriptPlayer = (username: string) =>
+      Effect.gen(function* () {
+        const exact = yield* world.players.get(username);
+        if (Option.isSome(exact)) {
+          return exact;
+        }
+
+        return yield* world.players.getByName(username);
+      });
+
+    const getScriptPlayerAuras = (username: string) =>
+      Effect.gen(function* () {
+        const target = yield* getScriptPlayer(username);
+        if (Option.isNone(target)) {
+          return [];
+        }
+
+        return yield* world.players.getAuras(target.value.data.entID);
+      });
+
+    const getScriptPlayerAura = (username: string, auraName: string) =>
+      Effect.gen(function* () {
+        const target = yield* getScriptPlayer(username);
+        if (Option.isNone(target)) {
+          return Option.none();
+        }
+
+        return yield* world.players.getAura(target.value.data.entID, auraName);
+      });
+
+    const getScriptSelfAuras = () =>
+      Effect.gen(function* () {
+        const me = yield* world.players.getSelf();
+        if (Option.isNone(me)) {
+          return [];
+        }
+
+        return yield* world.players.getAuras(me.value.data.entID);
+      });
+
+    const getScriptSelfAura = (auraName: string) =>
+      Effect.gen(function* () {
+        const me = yield* world.players.getSelf();
+        if (Option.isNone(me)) {
+          return Option.none();
+        }
+
+        return yield* world.players.getAura(me.value.data.entID, auraName);
+      });
+
+    const scriptWorld: ScriptWorldShape = {
+      map: {
+        getCellMonsters: world.map.getCellMonsters,
+        getCells: world.map.getCells,
+        getCellPads: world.map.getCellPads,
+        isLoaded: world.map.isLoaded,
+        isActionAvailable: world.map.isActionAvailable,
+        getMapItem: world.map.getMapItem,
+        loadSwf: world.map.loadSwf,
+        reload: world.map.reload,
+        setSpawnPoint: world.map.setSpawnPoint,
+        waitForGameAction: world.map.waitForGameAction,
+        getName: world.map.getName,
+        getId: world.map.getId,
+        getRoomNumber: world.map.getRoomNumber,
+      },
+      players: {
+        me: {
+          get: world.players.getSelf,
+          getAuras: getScriptSelfAuras,
+          getAura: getScriptSelfAura,
+        },
+        getAll: world.players.getAll,
+        get: getScriptPlayer,
+        getByName: world.players.getByName,
+        getAuras: getScriptPlayerAuras,
+        getAura: getScriptPlayerAura,
+      },
+      monsters: {
+        getAll: world.monsters.getAll,
+        get: world.monsters.get,
+        findByName: world.monsters.findByName,
+        getAura: world.monsters.getAura,
+      },
+    };
+
+    const scriptAutoRelogin: ScriptAutoReloginShape = {
+      isEnabled: autoRelogin.isEnabled,
+      enable: () => autoRelogin.enable().pipe(Effect.asVoid),
+      disable: () => autoRelogin.disable().pipe(Effect.asVoid),
+      getDelay: autoRelogin.getDelay,
+      setDelay: (delayMs) => autoRelogin.setDelay(delayMs).pipe(Effect.asVoid),
+      getServer: autoRelogin.getServer,
+      setServer: (serverName) =>
+        autoRelogin.setServer(serverName).pipe(Effect.asVoid),
+    };
+
+    const scriptAutoZone: ScriptAutoZoneShape = {
+      isEnabled: autoZone.isEnabled,
+      getMap: autoZone.getMap,
+      enable: () => autoZone.setEnabled(true),
+      disable: () => autoZone.setEnabled(false),
+      setMap: autoZone.setMap,
+    };
+
     const api: ScriptApi = {
       signal: scriptScope.signal,
       log: (message: string) => {
@@ -414,7 +541,6 @@ const make = Effect.gen(function* () {
       drops: wrapValue(drops) as ScriptApi["drops"],
       house: wrapValue(house) as ScriptApi["house"],
       inventory: wrapValue(inventory) as ScriptApi["inventory"],
-      jobs: wrapValue(jobs) as ScriptApi["jobs"],
       packet: {
         sendClient: ((...args) =>
           wrapScriptEffect(packet.sendClient(...args))) as ScriptApi["packet"]["sendClient"],
@@ -435,16 +561,16 @@ const make = Effect.gen(function* () {
       },
       player: wrapValue(player) as ScriptApi["player"],
       quests: wrapValue(quests) as ScriptApi["quests"],
-      settings: wrapValue(settings) as ScriptApi["settings"],
+      settings: wrapValue(scriptSettings) as ScriptApi["settings"],
       shops: wrapValue(shops) as ScriptApi["shops"],
       tempInventory: wrapValue(tempInventory) as ScriptApi["tempInventory"],
-      world: wrapValue(world) as ScriptApi["world"],
+      world: wrapValue(scriptWorld) as ScriptApi["world"],
     };
 
     const context: ScriptContext = {
       api,
-      autoRelogin: wrapValue(autoRelogin) as ScriptContext["autoRelogin"],
-      autoZone: wrapValue(autoZone) as ScriptContext["autoZone"],
+      autoRelogin: wrapValue(scriptAutoRelogin) as ScriptContext["autoRelogin"],
+      autoZone: wrapValue(scriptAutoZone) as ScriptContext["autoZone"],
     };
 
     return Effect.gen(function* () {

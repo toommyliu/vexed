@@ -124,8 +124,8 @@ const withAutoZone = async <A>(
 test("default disabled and no map state", async () => {
   const state = await withAutoZone((autoZone) =>
     Effect.all({
-      enabled: autoZone.enabled,
-      map: autoZone.map,
+      enabled: autoZone.isEnabled(),
+      map: autoZone.getMap(),
     }),
   );
 

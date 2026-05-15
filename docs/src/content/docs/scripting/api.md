@@ -23,14 +23,13 @@ tableOfContents:
 | [`api.drops`](./drops/) | `DropsShape` |
 | [`api.house`](./house/) | `HouseShape` |
 | [`api.inventory`](./inventory/) | `InventoryShape` |
-| [`api.jobs`](./jobs/) | `JobsShape` |
 | [`api.packet`](./packet/) | `ScriptPacketApi` |
 | [`api.player`](./player/) | `PlayerShape` |
 | [`api.quests`](./quests/) | `QuestsShape` |
-| [`api.settings`](./settings/) | `SettingsShape` |
+| [`api.settings`](./settings/) | `ScriptSettingsShape` |
 | [`api.shops`](./shops/) | `ShopsShape` |
 | [`api.tempInventory`](./temp-inventory/) | `TempInventoryShape` |
-| [`api.world`](./world/) | `WorldShape` |
+| [`api.world`](./world/) | `ScriptWorldShape` |
 
 ## Helpers
 
@@ -38,7 +37,7 @@ tableOfContents:
 
 ### `api.log()`
 
-**Source:** [`app/src/renderer/windows/game/scripting/ScriptApi.ts:66`](https://github.com/toommyliu/vexed/blob/0a2fe6a59fb6ab8ac0c23add5f07767ef4d57185/app/src/renderer/windows/game/scripting/ScriptApi.ts#L66)
+**Source:** [`app/src/renderer/windows/game/scripting/ScriptApi.ts:163`](https://github.com/toommyliu/vexed/blob/d7317e24c0bcb361aa11b7116ccc41ff8290e094/app/src/renderer/windows/game/scripting/ScriptApi.ts#L163)
 
 ```ts
 api.log(message: string): void
@@ -54,7 +53,9 @@ api.log(message: string): void
 
 ### `api.signal`
 
-**Source:** [`app/src/renderer/windows/game/scripting/ScriptApi.ts:65`](https://github.com/toommyliu/vexed/blob/0a2fe6a59fb6ab8ac0c23add5f07767ef4d57185/app/src/renderer/windows/game/scripting/ScriptApi.ts#L65)
+Aborts when the script stops. Pass this to APIs that support cancellation.
+
+**Source:** [`app/src/renderer/windows/game/scripting/ScriptApi.ts:162`](https://github.com/toommyliu/vexed/blob/d7317e24c0bcb361aa11b7116ccc41ff8290e094/app/src/renderer/windows/game/scripting/ScriptApi.ts#L162)
 
 ```ts
 api.signal: AbortSignal
@@ -66,7 +67,9 @@ api.signal: AbortSignal
 
 ### `api.sleep()`
 
-**Source:** [`app/src/renderer/windows/game/scripting/ScriptApi.ts:67`](https://github.com/toommyliu/vexed/blob/0a2fe6a59fb6ab8ac0c23add5f07767ef4d57185/app/src/renderer/windows/game/scripting/ScriptApi.ts#L67)
+Waits for milliseconds and cancels when the script stops.
+
+**Source:** [`app/src/renderer/windows/game/scripting/ScriptApi.ts:167`](https://github.com/toommyliu/vexed/blob/d7317e24c0bcb361aa11b7116ccc41ff8290e094/app/src/renderer/windows/game/scripting/ScriptApi.ts#L167)
 
 ```ts
 api.sleep(ms: number): Effect.Effect<void, ScriptExecutionError, never>

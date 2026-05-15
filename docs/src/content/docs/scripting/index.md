@@ -38,11 +38,10 @@ module.exports = function* run({ api, autoZone, autoRelogin }) {
 | [`api.drops`](./api/drops/) | `DropsShape` |
 | [`api.house`](./api/house/) | `HouseShape` |
 | [`api.inventory`](./api/inventory/) | `InventoryShape` |
-| [`api.jobs`](./api/jobs/) | `JobsShape` |
 | [`api.packet`](./api/packet/) | `ScriptPacketApi` |
 | [`api.player`](./api/player/) | `PlayerShape` |
 | [`api.quests`](./api/quests/) | `QuestsShape` |
-| [`api.settings`](./api/settings/) | `SettingsShape` |
+| [`api.settings`](./api/settings/) | `ScriptSettingsShape` |
 | [`api.shops`](./api/shops/) | `ShopsShape` |
 | [`api.tempInventory`](./api/temp-inventory/) | `TempInventoryShape` |
-| [`api.world`](./api/world/) | `WorldShape` |
+| [`api.world`](./api/world/) | `ScriptWorldShape` |

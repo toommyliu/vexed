@@ -1040,6 +1040,15 @@ const make = Effect.gen(function* () {
 
   const stopJob = jobs.stop(JOB_KEY);
 
+  const isEnabled: AutoReloginShape["isEnabled"] = () =>
+    getState().pipe(Effect.map((state) => state.enabled));
+
+  const getDelay: AutoReloginShape["getDelay"] = () =>
+    getState().pipe(Effect.map((state) => state.delayMs));
+
+  const getServer: AutoReloginShape["getServer"] = () =>
+    getState().pipe(Effect.map((state) => state.server));
+
   const enable: AutoReloginShape["enable"] = () =>
     Effect.gen(function* () {
       yield* logStage("enable");
@@ -1066,7 +1075,7 @@ const make = Effect.gen(function* () {
       });
     });
 
-  const setDelayMs: AutoReloginShape["setDelayMs"] = (delayMs) =>
+  const setDelay: AutoReloginShape["setDelay"] = (delayMs) =>
     Effect.gen(function* () {
       const normalizedDelayMs = normalizeDelayMs(delayMs);
       yield* logStage("set delay", { delayMs: normalizedDelayMs });
@@ -1203,10 +1212,13 @@ const make = Effect.gen(function* () {
 
   return {
     getState,
+    isEnabled,
+    getDelay,
+    getServer,
     onState,
     enable,
     disable,
-    setDelayMs,
+    setDelay,
     setServer,
     captureCurrentSession,
     login,

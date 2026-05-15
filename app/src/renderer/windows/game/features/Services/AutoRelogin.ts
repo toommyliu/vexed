@@ -36,13 +36,16 @@ export type AutoLoginOutcome =
 
 export interface AutoReloginShape {
   getState(): Effect.Effect<AutoReloginState>;
+  isEnabled(): Effect.Effect<boolean>;
+  getDelay(): Effect.Effect<number>;
+  getServer(): Effect.Effect<string | undefined>;
   onState(
     listener: AutoReloginStateListener,
     options?: AutoReloginStateSubscriptionOptions,
   ): Effect.Effect<AutoReloginStateDisposer>;
   enable(): Effect.Effect<AutoReloginState>;
   disable(): Effect.Effect<AutoReloginState>;
-  setDelayMs(delayMs: number): Effect.Effect<AutoReloginState>;
+  setDelay(delayMs: number): Effect.Effect<AutoReloginState>;
   setServer(serverName: string): Effect.Effect<AutoReloginState>;
   captureCurrentSession(): Effect.Effect<boolean>;
   login(

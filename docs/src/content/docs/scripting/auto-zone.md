@@ -16,91 +16,67 @@ Feature controls available as `autoZone` on the script context.
 
 | Member |
 | --- |
-| [`autoZone.enabled`](#member-autozone-enabled) |
-| [`autoZone.getState`](#member-autozone-getstate) |
-| [`autoZone.map`](#member-autozone-map) |
-| [`autoZone.onState`](#member-autozone-onstate) |
-| [`autoZone.setEnabled`](#member-autozone-setenabled) |
+| [`autoZone.disable`](#member-autozone-disable) |
+| [`autoZone.enable`](#member-autozone-enable) |
+| [`autoZone.getMap`](#member-autozone-getmap) |
+| [`autoZone.isEnabled`](#member-autozone-isenabled) |
 | [`autoZone.setMap`](#member-autozone-setmap) |
 
 ## Members
 
-<a id="member-autozone-enabled"></a>
+<a id="member-autozone-disable"></a>
 
-### `autoZone.enabled`
+### `autoZone.disable()`
 
-**Source:** [`app/src/renderer/windows/game/features/Services/AutoZone.ts:43`](https://github.com/toommyliu/vexed/blob/0a2fe6a59fb6ab8ac0c23add5f07767ef4d57185/app/src/renderer/windows/game/features/Services/AutoZone.ts#L43)
+**Source:** [`app/src/renderer/windows/game/scripting/ScriptApi.ts:148`](https://github.com/toommyliu/vexed/blob/d7317e24c0bcb361aa11b7116ccc41ff8290e094/app/src/renderer/windows/game/scripting/ScriptApi.ts#L148)
 
 ```ts
-autoZone.enabled: Effect.Effect<boolean, never, never>
+autoZone.disable(): Effect.Effect<void, never, never>
 ```
 
-**Yields:** `boolean`
+**Yields:** `void`
 
 **Errors:** `never`
 
-<a id="member-autozone-getstate"></a>
+<a id="member-autozone-enable"></a>
 
-### `autoZone.getState()`
+### `autoZone.enable()`
 
-**Source:** [`app/src/renderer/windows/game/features/Services/AutoZone.ts:45`](https://github.com/toommyliu/vexed/blob/0a2fe6a59fb6ab8ac0c23add5f07767ef4d57185/app/src/renderer/windows/game/features/Services/AutoZone.ts#L45)
+**Source:** [`app/src/renderer/windows/game/scripting/ScriptApi.ts:147`](https://github.com/toommyliu/vexed/blob/d7317e24c0bcb361aa11b7116ccc41ff8290e094/app/src/renderer/windows/game/scripting/ScriptApi.ts#L147)
 
 ```ts
-autoZone.getState(): Effect.Effect<AutoZoneState, never, never>
+autoZone.enable(): Effect.Effect<void, never, never>
 ```
 
-**Yields:** [`AutoZoneState`](#type-autozonestate)
+**Yields:** `void`
 
 **Errors:** `never`
 
-<a id="member-autozone-map"></a>
+<a id="member-autozone-getmap"></a>
 
-### `autoZone.map`
+### `autoZone.getMap()`
 
-**Source:** [`app/src/renderer/windows/game/features/Services/AutoZone.ts:44`](https://github.com/toommyliu/vexed/blob/0a2fe6a59fb6ab8ac0c23add5f07767ef4d57185/app/src/renderer/windows/game/features/Services/AutoZone.ts#L44)
+**Source:** [`app/src/renderer/windows/game/scripting/ScriptApi.ts:146`](https://github.com/toommyliu/vexed/blob/d7317e24c0bcb361aa11b7116ccc41ff8290e094/app/src/renderer/windows/game/scripting/ScriptApi.ts#L146)
 
 ```ts
-autoZone.map: Effect.Effect<'ledgermayne' | 'moreskulls' | 'ultradage' | 'darkcarnax' | 'astralshrine' | 'queeniona' | 'magnumopus' | undefined, never, never>
+autoZone.getMap(): Effect.Effect<'ledgermayne' | 'moreskulls' | 'ultradage' | 'darkcarnax' | 'astralshrine' | 'queeniona' | 'magnumopus' | undefined, never, never>
 ```
 
 **Yields:** [`AutoZoneSupportedMap`](#type-autozonesupportedmap) \| `undefined`
 
 **Errors:** `never`
 
-<a id="member-autozone-onstate"></a>
+<a id="member-autozone-isenabled"></a>
 
-### `autoZone.onState()`
+### `autoZone.isEnabled()`
 
-**Source:** [`app/src/renderer/windows/game/features/Services/AutoZone.ts:46`](https://github.com/toommyliu/vexed/blob/0a2fe6a59fb6ab8ac0c23add5f07767ef4d57185/app/src/renderer/windows/game/features/Services/AutoZone.ts#L46)
-
-```ts
-autoZone.onState(listener: AutoZoneStateListener, options?: AutoZoneStateSubscriptionOptions): Effect.Effect<AutoZoneStateDisposer, never, never>
-```
-
-| Name | Type | Required | Description |
-| --- | --- | --- | --- |
-| `listener` | [`AutoZoneStateListener`](#type-autozonestatelistener) | ✓ |  |
-| `options` | [`AutoZoneStateSubscriptionOptions`](#type-autozonestatesubscriptionoptions) |  |  |
-
-**Yields:** [`AutoZoneStateDisposer`](#type-autozonestatedisposer)
-
-**Errors:** `never`
-
-<a id="member-autozone-setenabled"></a>
-
-### `autoZone.setEnabled()`
-
-**Source:** [`app/src/renderer/windows/game/features/Services/AutoZone.ts:53`](https://github.com/toommyliu/vexed/blob/0a2fe6a59fb6ab8ac0c23add5f07767ef4d57185/app/src/renderer/windows/game/features/Services/AutoZone.ts#L53)
+**Source:** [`app/src/renderer/windows/game/scripting/ScriptApi.ts:145`](https://github.com/toommyliu/vexed/blob/d7317e24c0bcb361aa11b7116ccc41ff8290e094/app/src/renderer/windows/game/scripting/ScriptApi.ts#L145)
 
 ```ts
-autoZone.setEnabled(enabled: boolean): Effect.Effect<void, never, never>
+autoZone.isEnabled(): Effect.Effect<boolean, never, never>
 ```
 
-| Name | Type | Required | Description |
-| --- | --- | --- | --- |
-| `enabled` | `boolean` | ✓ |  |
-
-**Yields:** `void`
+**Yields:** `boolean`
 
 **Errors:** `never`
 
@@ -108,7 +84,7 @@ autoZone.setEnabled(enabled: boolean): Effect.Effect<void, never, never>
 
 ### `autoZone.setMap()`
 
-**Source:** [`app/src/renderer/windows/game/features/Services/AutoZone.ts:50`](https://github.com/toommyliu/vexed/blob/0a2fe6a59fb6ab8ac0c23add5f07767ef4d57185/app/src/renderer/windows/game/features/Services/AutoZone.ts#L50)
+**Source:** [`app/src/renderer/windows/game/scripting/ScriptApi.ts:149`](https://github.com/toommyliu/vexed/blob/d7317e24c0bcb361aa11b7116ccc41ff8290e094/app/src/renderer/windows/game/scripting/ScriptApi.ts#L149)
 
 ```ts
 autoZone.setMap(map: 'ledgermayne' | 'moreskulls' | 'ultradage' | 'darkcarnax' | 'astralshrine' | 'queeniona' | 'magnumopus' | undefined): Effect.Effect<void, never, never>
@@ -124,60 +100,11 @@ autoZone.setMap(map: 'ledgermayne' | 'moreskulls' | 'ultradage' | 'darkcarnax' |
 
 ## Referenced Types
 
-<a id="type-autozonestate"></a>
-
-### `AutoZoneState`
-
-**Source:** [`app/src/renderer/windows/game/features/Services/AutoZone.ts:29`](https://github.com/toommyliu/vexed/blob/0a2fe6a59fb6ab8ac0c23add5f07767ef4d57185/app/src/renderer/windows/game/features/Services/AutoZone.ts#L29)
-
-```ts
-interface AutoZoneState
-```
-
-| Name | Type | Required | Readonly | Description |
-| --- | --- | --- | --- | --- |
-| `enabled` | `boolean` | ✓ | ✓ |  |
-| `map` | '`ledgermayne`' \| '`moreskulls`' \| '`ultradage`' \| '`darkcarnax`' \| '`astralshrine`' \| '`queeniona`' \| '`magnumopus`' \| `undefined` | ✓ | ✓ |  |
-
-<a id="type-autozonestatedisposer"></a>
-
-### `AutoZoneStateDisposer`
-
-**Source:** [`app/src/renderer/windows/game/features/Services/AutoZone.ts:34`](https://github.com/toommyliu/vexed/blob/0a2fe6a59fb6ab8ac0c23add5f07767ef4d57185/app/src/renderer/windows/game/features/Services/AutoZone.ts#L34)
-
-```ts
-type AutoZoneStateDisposer = () => void
-```
-
-<a id="type-autozonestatelistener"></a>
-
-### `AutoZoneStateListener`
-
-**Source:** [`app/src/renderer/windows/game/features/Services/AutoZone.ts:36`](https://github.com/toommyliu/vexed/blob/0a2fe6a59fb6ab8ac0c23add5f07767ef4d57185/app/src/renderer/windows/game/features/Services/AutoZone.ts#L36)
-
-```ts
-type AutoZoneStateListener = (state: AutoZoneState) => void
-```
-
-<a id="type-autozonestatesubscriptionoptions"></a>
-
-### `AutoZoneStateSubscriptionOptions`
-
-**Source:** [`app/src/renderer/windows/game/features/Services/AutoZone.ts:38`](https://github.com/toommyliu/vexed/blob/0a2fe6a59fb6ab8ac0c23add5f07767ef4d57185/app/src/renderer/windows/game/features/Services/AutoZone.ts#L38)
-
-```ts
-interface AutoZoneStateSubscriptionOptions
-```
-
-| Name | Type | Required | Readonly | Description |
-| --- | --- | --- | --- | --- |
-| `emitCurrent` | `boolean` |  | ✓ |  |
-
 <a id="type-autozonesupportedmap"></a>
 
 ### `AutoZoneSupportedMap`
 
-**Source:** [`app/src/renderer/windows/game/features/Services/AutoZone.ts:12`](https://github.com/toommyliu/vexed/blob/0a2fe6a59fb6ab8ac0c23add5f07767ef4d57185/app/src/renderer/windows/game/features/Services/AutoZone.ts#L12)
+**Source:** [`app/src/renderer/windows/game/features/Services/AutoZone.ts:12`](https://github.com/toommyliu/vexed/blob/d7317e24c0bcb361aa11b7116ccc41ff8290e094/app/src/renderer/windows/game/features/Services/AutoZone.ts#L12)
 
 ```ts
 type AutoZoneSupportedMap = Schema.Schema.Type<

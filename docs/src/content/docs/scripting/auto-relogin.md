@@ -16,43 +16,27 @@ Feature controls available as `autoRelogin` on the script context.
 
 | Member |
 | --- |
-| [`autoRelogin.captureCurrentSession`](#member-autorelogin-capturecurrentsession) |
 | [`autoRelogin.disable`](#member-autorelogin-disable) |
 | [`autoRelogin.enable`](#member-autorelogin-enable) |
-| [`autoRelogin.getState`](#member-autorelogin-getstate) |
-| [`autoRelogin.login`](#member-autorelogin-login) |
-| [`autoRelogin.loginAndWaitReady`](#member-autorelogin-loginandwaitready) |
-| [`autoRelogin.onState`](#member-autorelogin-onstate) |
-| [`autoRelogin.setDelayMs`](#member-autorelogin-setdelayms) |
+| [`autoRelogin.getDelay`](#member-autorelogin-getdelay) |
+| [`autoRelogin.getServer`](#member-autorelogin-getserver) |
+| [`autoRelogin.isEnabled`](#member-autorelogin-isenabled) |
+| [`autoRelogin.setDelay`](#member-autorelogin-setdelay) |
 | [`autoRelogin.setServer`](#member-autorelogin-setserver) |
 
 ## Members
-
-<a id="member-autorelogin-capturecurrentsession"></a>
-
-### `autoRelogin.captureCurrentSession()`
-
-**Source:** [`app/src/renderer/windows/game/features/Services/AutoRelogin.ts:47`](https://github.com/toommyliu/vexed/blob/0a2fe6a59fb6ab8ac0c23add5f07767ef4d57185/app/src/renderer/windows/game/features/Services/AutoRelogin.ts#L47)
-
-```ts
-autoRelogin.captureCurrentSession(): Effect.Effect<boolean, never, never>
-```
-
-**Yields:** `boolean`
-
-**Errors:** `never`
 
 <a id="member-autorelogin-disable"></a>
 
 ### `autoRelogin.disable()`
 
-**Source:** [`app/src/renderer/windows/game/features/Services/AutoRelogin.ts:44`](https://github.com/toommyliu/vexed/blob/0a2fe6a59fb6ab8ac0c23add5f07767ef4d57185/app/src/renderer/windows/game/features/Services/AutoRelogin.ts#L44)
+**Source:** [`app/src/renderer/windows/game/scripting/ScriptApi.ts:137`](https://github.com/toommyliu/vexed/blob/d7317e24c0bcb361aa11b7116ccc41ff8290e094/app/src/renderer/windows/game/scripting/ScriptApi.ts#L137)
 
 ```ts
-autoRelogin.disable(): Effect.Effect<AutoReloginState, never, never>
+autoRelogin.disable(): Effect.Effect<void, never, never>
 ```
 
-**Yields:** [`AutoReloginState`](#type-autoreloginstate)
+**Yields:** `void`
 
 **Errors:** `never`
 
@@ -60,100 +44,73 @@ autoRelogin.disable(): Effect.Effect<AutoReloginState, never, never>
 
 ### `autoRelogin.enable()`
 
-**Source:** [`app/src/renderer/windows/game/features/Services/AutoRelogin.ts:43`](https://github.com/toommyliu/vexed/blob/0a2fe6a59fb6ab8ac0c23add5f07767ef4d57185/app/src/renderer/windows/game/features/Services/AutoRelogin.ts#L43)
+**Source:** [`app/src/renderer/windows/game/scripting/ScriptApi.ts:136`](https://github.com/toommyliu/vexed/blob/d7317e24c0bcb361aa11b7116ccc41ff8290e094/app/src/renderer/windows/game/scripting/ScriptApi.ts#L136)
 
 ```ts
-autoRelogin.enable(): Effect.Effect<AutoReloginState, never, never>
+autoRelogin.enable(): Effect.Effect<void, never, never>
 ```
-
-**Yields:** [`AutoReloginState`](#type-autoreloginstate)
-
-**Errors:** `never`
-
-<a id="member-autorelogin-getstate"></a>
-
-### `autoRelogin.getState()`
-
-**Source:** [`app/src/renderer/windows/game/features/Services/AutoRelogin.ts:38`](https://github.com/toommyliu/vexed/blob/0a2fe6a59fb6ab8ac0c23add5f07767ef4d57185/app/src/renderer/windows/game/features/Services/AutoRelogin.ts#L38)
-
-```ts
-autoRelogin.getState(): Effect.Effect<AutoReloginState, never, never>
-```
-
-**Yields:** [`AutoReloginState`](#type-autoreloginstate)
-
-**Errors:** `never`
-
-<a id="member-autorelogin-login"></a>
-
-### `autoRelogin.login()`
-
-**Source:** [`app/src/renderer/windows/game/features/Services/AutoRelogin.ts:48`](https://github.com/toommyliu/vexed/blob/0a2fe6a59fb6ab8ac0c23add5f07767ef4d57185/app/src/renderer/windows/game/features/Services/AutoRelogin.ts#L48)
-
-```ts
-autoRelogin.login(credentials: AutoLoginCredentials): Effect.Effect<AutoLoginOutcome, unknown, never>
-```
-
-| Name | Type | Required | Description |
-| --- | --- | --- | --- |
-| `credentials` | [`AutoLoginCredentials`](#type-autologincredentials) | ✓ |  |
-
-**Yields:** [`AutoLoginOutcome`](#type-autologinoutcome)
-
-**Errors:** `unknown`
-
-<a id="member-autorelogin-loginandwaitready"></a>
-
-### `autoRelogin.loginAndWaitReady()`
-
-**Source:** [`app/src/renderer/windows/game/features/Services/AutoRelogin.ts:51`](https://github.com/toommyliu/vexed/blob/0a2fe6a59fb6ab8ac0c23add5f07767ef4d57185/app/src/renderer/windows/game/features/Services/AutoRelogin.ts#L51)
-
-```ts
-autoRelogin.loginAndWaitReady(credentials: AutoLoginCredentials): Effect.Effect<void, unknown, never>
-```
-
-| Name | Type | Required | Description |
-| --- | --- | --- | --- |
-| `credentials` | [`AutoLoginCredentials`](#type-autologincredentials) | ✓ |  |
 
 **Yields:** `void`
 
-**Errors:** `unknown`
+**Errors:** `never`
 
-<a id="member-autorelogin-onstate"></a>
+<a id="member-autorelogin-getdelay"></a>
 
-### `autoRelogin.onState()`
+### `autoRelogin.getDelay()`
 
-**Source:** [`app/src/renderer/windows/game/features/Services/AutoRelogin.ts:39`](https://github.com/toommyliu/vexed/blob/0a2fe6a59fb6ab8ac0c23add5f07767ef4d57185/app/src/renderer/windows/game/features/Services/AutoRelogin.ts#L39)
+**Source:** [`app/src/renderer/windows/game/scripting/ScriptApi.ts:138`](https://github.com/toommyliu/vexed/blob/d7317e24c0bcb361aa11b7116ccc41ff8290e094/app/src/renderer/windows/game/scripting/ScriptApi.ts#L138)
 
 ```ts
-autoRelogin.onState(listener: AutoReloginStateListener, options?: AutoReloginStateSubscriptionOptions): Effect.Effect<AutoReloginStateDisposer, never, never>
+autoRelogin.getDelay(): Effect.Effect<number, never, never>
 ```
 
-| Name | Type | Required | Description |
-| --- | --- | --- | --- |
-| `listener` | [`AutoReloginStateListener`](#type-autoreloginstatelistener) | ✓ |  |
-| `options` | [`AutoReloginStateSubscriptionOptions`](#type-autoreloginstatesubscriptionoptions) |  |  |
-
-**Yields:** [`AutoReloginStateDisposer`](#type-autoreloginstatedisposer)
+**Yields:** `number`
 
 **Errors:** `never`
 
-<a id="member-autorelogin-setdelayms"></a>
+<a id="member-autorelogin-getserver"></a>
 
-### `autoRelogin.setDelayMs()`
+### `autoRelogin.getServer()`
 
-**Source:** [`app/src/renderer/windows/game/features/Services/AutoRelogin.ts:45`](https://github.com/toommyliu/vexed/blob/0a2fe6a59fb6ab8ac0c23add5f07767ef4d57185/app/src/renderer/windows/game/features/Services/AutoRelogin.ts#L45)
+**Source:** [`app/src/renderer/windows/game/scripting/ScriptApi.ts:140`](https://github.com/toommyliu/vexed/blob/d7317e24c0bcb361aa11b7116ccc41ff8290e094/app/src/renderer/windows/game/scripting/ScriptApi.ts#L140)
 
 ```ts
-autoRelogin.setDelayMs(delayMs: number): Effect.Effect<AutoReloginState, never, never>
+autoRelogin.getServer(): Effect.Effect<string | undefined, never, never>
+```
+
+**Yields:** `string` \| `undefined`
+
+**Errors:** `never`
+
+<a id="member-autorelogin-isenabled"></a>
+
+### `autoRelogin.isEnabled()`
+
+**Source:** [`app/src/renderer/windows/game/scripting/ScriptApi.ts:135`](https://github.com/toommyliu/vexed/blob/d7317e24c0bcb361aa11b7116ccc41ff8290e094/app/src/renderer/windows/game/scripting/ScriptApi.ts#L135)
+
+```ts
+autoRelogin.isEnabled(): Effect.Effect<boolean, never, never>
+```
+
+**Yields:** `boolean`
+
+**Errors:** `never`
+
+<a id="member-autorelogin-setdelay"></a>
+
+### `autoRelogin.setDelay()`
+
+**Source:** [`app/src/renderer/windows/game/scripting/ScriptApi.ts:139`](https://github.com/toommyliu/vexed/blob/d7317e24c0bcb361aa11b7116ccc41ff8290e094/app/src/renderer/windows/game/scripting/ScriptApi.ts#L139)
+
+```ts
+autoRelogin.setDelay(delayMs: number): Effect.Effect<void, never, never>
 ```
 
 | Name | Type | Required | Description |
 | --- | --- | --- | --- |
 | `delayMs` | `number` | ✓ |  |
 
-**Yields:** [`AutoReloginState`](#type-autoreloginstate)
+**Yields:** `void`
 
 **Errors:** `never`
 
@@ -161,105 +118,16 @@ autoRelogin.setDelayMs(delayMs: number): Effect.Effect<AutoReloginState, never, 
 
 ### `autoRelogin.setServer()`
 
-**Source:** [`app/src/renderer/windows/game/features/Services/AutoRelogin.ts:46`](https://github.com/toommyliu/vexed/blob/0a2fe6a59fb6ab8ac0c23add5f07767ef4d57185/app/src/renderer/windows/game/features/Services/AutoRelogin.ts#L46)
+**Source:** [`app/src/renderer/windows/game/scripting/ScriptApi.ts:141`](https://github.com/toommyliu/vexed/blob/d7317e24c0bcb361aa11b7116ccc41ff8290e094/app/src/renderer/windows/game/scripting/ScriptApi.ts#L141)
 
 ```ts
-autoRelogin.setServer(serverName: string): Effect.Effect<AutoReloginState, never, never>
+autoRelogin.setServer(serverName: string): Effect.Effect<void, never, never>
 ```
 
 | Name | Type | Required | Description |
 | --- | --- | --- | --- |
 | `serverName` | `string` | ✓ |  |
 
-**Yields:** [`AutoReloginState`](#type-autoreloginstate)
+**Yields:** `void`
 
 **Errors:** `never`
-
-## Referenced Types
-
-<a id="type-autologincredentials"></a>
-
-### `AutoLoginCredentials`
-
-**Source:** [`app/src/renderer/windows/game/features/Services/AutoRelogin.ts:23`](https://github.com/toommyliu/vexed/blob/0a2fe6a59fb6ab8ac0c23add5f07767ef4d57185/app/src/renderer/windows/game/features/Services/AutoRelogin.ts#L23)
-
-```ts
-interface AutoLoginCredentials
-```
-
-| Name | Type | Required | Readonly | Description |
-| --- | --- | --- | --- | --- |
-| `username` | `string` | ✓ | ✓ |  |
-| `password` | `string` | ✓ | ✓ |  |
-| `server` | `string` |  | ✓ |  |
-
-<a id="type-autologinoutcome"></a>
-
-### `AutoLoginOutcome`
-
-**Source:** [`app/src/renderer/windows/game/features/Services/AutoRelogin.ts:29`](https://github.com/toommyliu/vexed/blob/0a2fe6a59fb6ab8ac0c23add5f07767ef4d57185/app/src/renderer/windows/game/features/Services/AutoRelogin.ts#L29)
-
-```ts
-type AutoLoginOutcome = | {
-      readonly stage: "server-select";
-    }
-  | {
-      readonly stage: "player-ready";
-    }
-```
-
-<a id="type-autoreloginstate"></a>
-
-### `AutoReloginState`
-
-**Source:** [`app/src/renderer/windows/game/features/Services/AutoRelogin.ts:3`](https://github.com/toommyliu/vexed/blob/0a2fe6a59fb6ab8ac0c23add5f07767ef4d57185/app/src/renderer/windows/game/features/Services/AutoRelogin.ts#L3)
-
-```ts
-interface AutoReloginState
-```
-
-| Name | Type | Required | Readonly | Description |
-| --- | --- | --- | --- | --- |
-| `enabled` | `boolean` | ✓ | ✓ |  |
-| `captured` | `boolean` | ✓ | ✓ |  |
-| `attempting` | `boolean` | ✓ | ✓ |  |
-| `waitingDelay` | `boolean` | ✓ | ✓ |  |
-| `username` | `string` |  | ✓ |  |
-| `server` | `string` |  | ✓ |  |
-| `delayMs` | `number` | ✓ | ✓ |  |
-| `lastError` | `string` |  | ✓ |  |
-| `attemptsRemaining` | `number` |  | ✓ |  |
-
-<a id="type-autoreloginstatedisposer"></a>
-
-### `AutoReloginStateDisposer`
-
-**Source:** [`app/src/renderer/windows/game/features/Services/AutoRelogin.ts:15`](https://github.com/toommyliu/vexed/blob/0a2fe6a59fb6ab8ac0c23add5f07767ef4d57185/app/src/renderer/windows/game/features/Services/AutoRelogin.ts#L15)
-
-```ts
-type AutoReloginStateDisposer = () => void
-```
-
-<a id="type-autoreloginstatelistener"></a>
-
-### `AutoReloginStateListener`
-
-**Source:** [`app/src/renderer/windows/game/features/Services/AutoRelogin.ts:17`](https://github.com/toommyliu/vexed/blob/0a2fe6a59fb6ab8ac0c23add5f07767ef4d57185/app/src/renderer/windows/game/features/Services/AutoRelogin.ts#L17)
-
-```ts
-type AutoReloginStateListener = (state: AutoReloginState) => void
-```
-
-<a id="type-autoreloginstatesubscriptionoptions"></a>
-
-### `AutoReloginStateSubscriptionOptions`
-
-**Source:** [`app/src/renderer/windows/game/features/Services/AutoRelogin.ts:19`](https://github.com/toommyliu/vexed/blob/0a2fe6a59fb6ab8ac0c23add5f07767ef4d57185/app/src/renderer/windows/game/features/Services/AutoRelogin.ts#L19)
-
-```ts
-interface AutoReloginStateSubscriptionOptions
-```
-
-| Name | Type | Required | Readonly | Description |
-| --- | --- | --- | --- | --- |
-| `emitCurrent` | `boolean` |  | ✓ |  |
