@@ -21,13 +21,13 @@ export const createScriptDsl = (
   ...createQuestScriptDsl(emit),
 });
 
-export const scriptCommandHandlers: ReadonlyArray<
-  readonly [string, ScriptCommandHandler]
-> = [
+export const scriptCommandHandlers = [
   ...conditionCommandHandlers,
   ...combatCommandHandlers,
   ...itemCommandHandlers,
   ...mapCommandHandlers,
   ...miscCommandHandlers,
   ...questCommandHandlers,
-];
+] satisfies ReadonlyArray<readonly [string, ScriptCommandHandler]>;
+
+export type ScriptCommandName = (typeof scriptCommandHandlers)[number][0];

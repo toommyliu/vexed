@@ -175,12 +175,10 @@ export function MenuCheckboxItem(props: MenuCheckboxItemProps): JSX.Element {
       class={cn("menu__item", "menu__option-item", local.class)}
       data-slot="menu-checkbox-item"
     >
+      {local.children}
       <MenuPrimitive.ItemIndicator class="menu__item-indicator">
         <Check />
       </MenuPrimitive.ItemIndicator>
-      <MenuPrimitive.ItemText class="menu__item-text">
-        {local.children}
-      </MenuPrimitive.ItemText>
     </MenuPrimitive.CheckboxItem>
   );
 }
@@ -208,12 +206,10 @@ export function MenuRadioItem(props: MenuRadioItemProps): JSX.Element {
       class={cn("menu__item", "menu__option-item", local.class)}
       data-slot="menu-radio-item"
     >
+      {local.children}
       <MenuPrimitive.ItemIndicator class="menu__item-indicator">
-        <Check />
+        <div class="menu__radio-dot" />
       </MenuPrimitive.ItemIndicator>
-      <MenuPrimitive.ItemText class="menu__item-text">
-        {local.children}
-      </MenuPrimitive.ItemText>
     </MenuPrimitive.RadioItem>
   );
 }

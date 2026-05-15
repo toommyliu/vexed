@@ -4,11 +4,37 @@ export type AppLaunchMode = "game" | "account-manager";
 
 export interface Preferences {
   readonly checkForUpdates: boolean;
+  readonly commandOverlay: CommandOverlayPreferences;
   readonly launchMode: AppLaunchMode;
 }
 
+export interface CommandOverlayLayoutSettings {
+  readonly position: {
+    readonly x: number;
+    readonly y: number;
+  };
+  readonly size: {
+    readonly width: number;
+    readonly height: number;
+  };
+  readonly collapsed: boolean;
+}
+
+export interface CommandOverlayPreferences {
+  readonly layout: CommandOverlayLayoutSettings;
+}
+
+export const DEFAULT_COMMAND_OVERLAY_LAYOUT: CommandOverlayLayoutSettings = {
+  position: { x: 10, y: 10 },
+  size: { width: 336, height: 196 },
+  collapsed: false,
+};
+
 export const DEFAULT_PREFERENCES: Preferences = {
   checkForUpdates: true,
+  commandOverlay: {
+    layout: DEFAULT_COMMAND_OVERLAY_LAYOUT,
+  },
   launchMode: "game",
 };
 
@@ -157,6 +183,16 @@ export interface AppSettings {
 
 export interface PreferencesPatch {
   readonly checkForUpdates?: boolean;
+  readonly commandOverlay?: {
+    readonly layout?: Partial<{
+      readonly position: Partial<{ readonly x: number; readonly y: number }>;
+      readonly size: Partial<{
+        readonly width: number;
+        readonly height: number;
+      }>;
+      readonly collapsed: boolean;
+    }>;
+  };
   readonly launchMode?: AppLaunchMode;
 }
 

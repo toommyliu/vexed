@@ -34,6 +34,9 @@ declare global {
     listCommands(): Promise<ReadonlyArray<string>>;
     isRunning(): Promise<boolean>;
     currentCommand(): Promise<RunningScriptCommand | null>;
+    onCurrentCommand(
+      listener: (command: RunningScriptCommand | null) => void,
+    ): () => void;
     diagnostics(): Promise<ReadonlyArray<ScriptDiagnostic>>;
   }
 

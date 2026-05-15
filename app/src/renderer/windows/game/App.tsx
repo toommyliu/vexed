@@ -17,8 +17,12 @@ import {
   DEFAULT_HOTKEYS,
   DEFAULT_PREFERENCES,
   type AppSettings,
+  type CommandOverlayLayoutSettings,
 } from "../../../shared/settings";
-import type { AccountGameLaunchPayload } from "../../../shared/ipc";
+import type {
+  AccountGameLaunchPayload,
+  ScriptExecutePayload,
+} from "../../../shared/ipc";
 import type { WindowId } from "../../../shared/windows";
 import { runtime } from "./Runtime";
 import { Settings, type SettingsShape } from "./flash/Services/Settings";
@@ -45,6 +49,12 @@ import {
   subscribeGameLoadState,
 } from "./loadState";
 import type { GameTopNavMenu, TopNavOptionItem } from "./topNavOptions";
+import { CommandOverlay } from "./CommandOverlay";
+import {
+  toScriptCommandDisplayItems,
+  type ScriptCommandDisplayItem,
+} from "./scripting/scriptCommandDisplay";
+import { compileScriptProgram } from "./scripting/scriptProgram";
 
 const ACCOUNT_SCRIPT_STATUS_POLL_MS = 1000;
 const AUTO_RELOGIN_DEFAULT_DELAY_MS = 3000;
@@ -115,12 +125,25 @@ const defaultSettings: AppSettings = {
   hotkeys: DEFAULT_HOTKEYS,
 };
 
+const getCommandOverlayLayout = (
+  settings: AppSettings,
+): CommandOverlayLayoutSettings => settings.preferences.commandOverlay.layout;
+
+const commandOverlayLayoutsEqual = (
+  left: CommandOverlayLayoutSettings,
+  right: CommandOverlayLayoutSettings,
+): boolean =>
+  left.collapsed === right.collapsed &&
+  left.position.x === right.position.x &&
+  left.position.y === right.position.y &&
+  left.size.width === right.size.width &&
+  left.size.height === right.size.height;
+
 export default function App(props: {
   readonly initialSettings?: AppSettings | null;
 }): JSX.Element {
-  const [settings, setSettings] = createSignal<AppSettings>(
-    props.initialSettings ?? defaultSettings,
-  );
+  const initialSettings = props.initialSettings ?? defaultSettings;
+  const [settings, setSettings] = createSignal<AppSettings>(initialSettings);
   const [gameLoaded, setGameLoaded] = createSignal(getGameLoadState().loaded);
   const [playerReady, setPlayerReady] = createSignal(false);
   const [autoAttackEnabled, setAutoAttackEnabled] = createSignal(false);
@@ -129,6 +152,16 @@ export default function App(props: {
   const [scriptLoaded, setScriptLoaded] = createSignal(false);
   const [scriptRunning, setScriptRunning] = createSignal(false);
   const [scriptCommandCount, setScriptCommandCount] = createSignal(0);
+  const [scriptCommands, setScriptCommands] = createSignal<
+    readonly ScriptCommandDisplayItem[]
+  >([]);
+  const [commandOverlayLayout, setCommandOverlayLayout] =
+    createSignal<CommandOverlayLayoutSettings>(
+      getCommandOverlayLayout(initialSettings),
+    );
+  const [commandOverlayVisible, setCommandOverlayVisible] = createSignal(true);
+  const [currentScriptCommand, setCurrentScriptCommand] =
+    createSignal<RunningScriptCommand | null>(null);
   const [scriptStatus, setScriptStatus] = createSignal("No script loaded");
   const [scriptDiagnosticsCount, setScriptDiagnosticsCount] = createSignal(0);
 
@@ -178,6 +211,7 @@ export default function App(props: {
   let settingsStateDisposer: (() => void) | undefined;
   let autoZoneStateDisposer: (() => void) | undefined;
   let autoReloginStateDisposer: (() => void) | undefined;
+  let currentCommandDisposer: (() => void) | undefined;
   let cleanedUp = false;
   const accountLaunchFibers = new Set<Fiber.Fiber<void, unknown>>();
   const assignDisposer =
@@ -262,6 +296,7 @@ export default function App(props: {
 
         if (!isRunning) {
           setScriptRunning(false);
+          setCurrentScriptCommand(null);
           setScriptStatus(`Stopped ${name}`);
           updateAccountLaunchStatus(payload, "stopped", `Stopped ${name}`);
           return;
@@ -269,6 +304,7 @@ export default function App(props: {
 
         const nextMessage = formatScriptStatus(true, true, currentCommand);
         setScriptRunning(true);
+        setCurrentScriptCommand(currentCommand);
         setScriptStatus(nextMessage);
 
         if (nextMessage !== lastMessage) {
@@ -317,6 +353,13 @@ export default function App(props: {
 
       const script = payload.script;
       const name = script.name ?? script.path ?? "script";
+      const program = yield* compileScriptProgram(script.source, name);
+      const commandDisplayItems = toScriptCommandDisplayItems(
+        program.instructions,
+      );
+      yield* Effect.sync(() => {
+        applyLoadedScript(script.source, name, commandDisplayItems);
+      });
       updateAccountLaunchStatus(payload, "running", `Running ${name}`);
       yield* Effect.tryPromise({
         try: () => cmd.run(script.source, name),
@@ -356,23 +399,74 @@ export default function App(props: {
     });
   };
 
+  const applyLoadedScript = (
+    source: string,
+    name: string,
+    commands: readonly ScriptCommandDisplayItem[],
+  ) => {
+    setScriptName(name);
+    setScriptSource(source);
+    setScriptLoaded(true);
+    setScriptCommands(commands);
+    setScriptCommandCount(commands.length);
+    setCommandOverlayVisible(true);
+    setCurrentScriptCommand(null);
+  };
+
+  const applyAppSettings = (settings: AppSettings) => {
+    setSettings(settings);
+    setCommandOverlayLayout(getCommandOverlayLayout(settings));
+  };
+
+  const persistCommandOverlayLayout = (
+    layout: CommandOverlayLayoutSettings,
+  ) => {
+    if (
+      commandOverlayLayoutsEqual(layout, getCommandOverlayLayout(settings()))
+    ) {
+      return;
+    }
+
+    void window.ipc.settings
+      .updatePreferences({ commandOverlay: { layout } })
+      .then(applyAppSettings)
+      .catch((error) => {
+        console.error("Failed to save command overlay layout:", error);
+      });
+  };
+
+  const applyScriptPayload = async (
+    payload: ScriptExecutePayload,
+  ): Promise<string> => {
+    const name = payload.name ?? payload.path ?? "script";
+    const program = await Effect.runPromise(
+      compileScriptProgram(payload.source, name),
+    );
+    const commandDisplayItems = toScriptCommandDisplayItems(
+      program.instructions,
+    );
+
+    applyLoadedScript(payload.source, name, commandDisplayItems);
+    return name;
+  };
+
   const refreshScriptMeta = async () => {
     if (!window.cmd) {
       setScriptStatus("Script bridge is not ready");
+      setCurrentScriptCommand(null);
       return;
     }
 
     try {
-      const [commands, isRunning, currentCommand, diagnostics] =
-        await Promise.all([
-          window.cmd.listCommands(),
-          window.cmd.isRunning(),
-          window.cmd.currentCommand(),
-          window.cmd.diagnostics(),
-        ]);
+      const [isRunning, currentCommand, diagnostics] = await Promise.all([
+        window.cmd.isRunning(),
+        window.cmd.currentCommand(),
+        window.cmd.diagnostics(),
+      ]);
 
-      setScriptCommandCount(commands.length);
+      setScriptCommandCount(scriptCommands().length);
       setScriptRunning(isRunning);
+      setCurrentScriptCommand(currentCommand);
       setScriptDiagnosticsCount(diagnostics.length);
       setScriptStatus(
         formatScriptStatus(scriptLoaded(), isRunning, currentCommand),
@@ -380,6 +474,7 @@ export default function App(props: {
     } catch (error) {
       console.error("Failed to refresh script metadata", error);
       setScriptStatus("Failed to refresh script state");
+      setCurrentScriptCommand(null);
     }
   };
 
@@ -396,13 +491,15 @@ export default function App(props: {
         return;
       }
 
-      setScriptName(payload.name ?? payload.path ?? "script");
-      setScriptSource(payload.source);
-      setScriptLoaded(true);
-      setScriptStatus(`Loaded ${payload.name ?? payload.path ?? "script"}`);
+      const name = await applyScriptPayload(payload);
+      setScriptStatus(`Loaded ${name}`);
       void refreshScriptMeta();
     } catch (error) {
       console.error("Failed to load script", error);
+      setScriptLoaded(false);
+      setScriptCommands([]);
+      setScriptCommandCount(0);
+      setCurrentScriptCommand(null);
       setScriptStatus("Failed to load script");
     }
   };
@@ -444,6 +541,7 @@ export default function App(props: {
 
     window.cmd.stop();
     setScriptRunning(false);
+    setCurrentScriptCommand(null);
     setScriptStatus("Stop requested");
     void refreshScriptMeta();
   };
@@ -975,6 +1073,9 @@ export default function App(props: {
     stopScript,
     scriptLoaded,
     scriptRunning,
+    scriptCommandCount,
+    commandOverlayVisible,
+    setCommandOverlayVisible,
     setAutoAttackEnabled,
     autoAttackEnabled,
     optionItems,
@@ -983,14 +1084,38 @@ export default function App(props: {
   });
 
   onMount(() => {
-    const unsubscribeAppSettings = window.ipc.settings.onChanged(setSettings);
+    const unsubscribeAppSettings =
+      window.ipc.settings.onChanged(applyAppSettings);
     const unsubscribeAccountLaunch =
       window.ipc.accounts.onGameLaunch(handleAccountLaunch);
+    const unsubscribeScriptExecute = window.ipc.scripting.onExecute(
+      (payload) => {
+        void applyScriptPayload(payload)
+          .then((name) => {
+            setScriptStatus(`Running ${name}`);
+            void refreshScriptMeta();
+          })
+          .catch((error) => {
+            console.error("Failed to prepare script overlay", error);
+            setScriptLoaded(false);
+            setScriptCommands([]);
+            setScriptCommandCount(0);
+            setCurrentScriptCommand(null);
+            setScriptStatus("Failed to load script");
+          });
+      },
+    );
+    const unsubscribeScriptStop = window.ipc.scripting.onStop(() => {
+      setScriptRunning(false);
+      setCurrentScriptCommand(null);
+      setScriptStatus("Stop requested");
+      void refreshScriptMeta();
+    });
 
     if (props.initialSettings === undefined || props.initialSettings === null) {
       void window.ipc.settings
         .get()
-        .then(setSettings)
+        .then(applyAppSettings)
         .catch((error) => {
           console.error("Failed to load app settings:", error);
         });
@@ -1010,6 +1135,13 @@ export default function App(props: {
     const scriptMetaInterval = setInterval(() => {
       void refreshScriptMeta();
     }, 1200);
+    currentCommandDisposer = window.cmd?.onCurrentCommand((command) => {
+      setCurrentScriptCommand(command);
+      setScriptRunning(command !== null);
+      setScriptStatus(
+        formatScriptStatus(scriptLoaded(), command !== null, command),
+      );
+    });
 
     void runtime
       .runPromise(
@@ -1064,6 +1196,8 @@ export default function App(props: {
     onCleanup(() => {
       unsubscribeAppSettings();
       unsubscribeAccountLaunch();
+      unsubscribeScriptExecute();
+      unsubscribeScriptStop();
       disposeGameLoadState();
       clearInterval(scriptMetaInterval);
       clearInterval(playerReadyStateInterval);
@@ -1079,6 +1213,7 @@ export default function App(props: {
     settingsStateDisposer?.();
     autoZoneStateDisposer?.();
     autoReloginStateDisposer?.();
+    currentCommandDisposer?.();
   });
 
   return (
@@ -1101,6 +1236,8 @@ export default function App(props: {
         scriptStatus={scriptStatus}
         scriptCommandCount={scriptCommandCount}
         scriptDiagnosticsCount={scriptDiagnosticsCount}
+        commandOverlayVisible={commandOverlayVisible}
+        setCommandOverlayVisible={setCommandOverlayVisible}
         loadScript={loadScript}
         startScript={startScript}
         stopScript={stopScript}
@@ -1169,6 +1306,18 @@ export default function App(props: {
         classList={{ "game-viewport--loaded": gameLoaded() }}
       >
         <div class="game-visual-cover" aria-hidden="true" />
+        {scriptCommands().length > 0 && commandOverlayVisible() && (
+          <CommandOverlay
+            commands={scriptCommands}
+            activeCommand={currentScriptCommand}
+            layout={commandOverlayLayout}
+            scriptName={scriptName}
+            running={scriptRunning}
+            setLayout={setCommandOverlayLayout}
+            onClose={() => setCommandOverlayVisible(false)}
+            onLayoutCommit={persistCommandOverlayLayout}
+          />
+        )}
       </section>
     </main>
   );
