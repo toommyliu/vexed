@@ -26,7 +26,7 @@ tableOfContents:
 
 ### `api.packet.onExtensionResponse()`
 
-**Source:** [`app/src/renderer/windows/game/scripting/ScriptApi.ts:53`](https://github.com/toommyliu/vexed/blob/6494a25761ae20039c3dbfb6ffe31551d4040ed3/app/src/renderer/windows/game/scripting/ScriptApi.ts#L53)
+**Source:** [`app/src/renderer/windows/game/scripting/ScriptApi.ts:55`](https://github.com/toommyliu/vexed/blob/a462966b2e60f995d3aa973d6b292a4e82a38d19/app/src/renderer/windows/game/scripting/ScriptApi.ts#L55)
 
 ```ts
 api.packet.onExtensionResponse(handler: ScriptPacketListener): Effect.Effect<ScriptPacketDisposer, ScriptNotReadyError, never>
@@ -44,7 +44,7 @@ api.packet.onExtensionResponse(handler: ScriptPacketListener): Effect.Effect<Scr
 
 ### `api.packet.packetFromClient()`
 
-**Source:** [`app/src/renderer/windows/game/scripting/ScriptApi.ts:47`](https://github.com/toommyliu/vexed/blob/6494a25761ae20039c3dbfb6ffe31551d4040ed3/app/src/renderer/windows/game/scripting/ScriptApi.ts#L47)
+**Source:** [`app/src/renderer/windows/game/scripting/ScriptApi.ts:49`](https://github.com/toommyliu/vexed/blob/a462966b2e60f995d3aa973d6b292a4e82a38d19/app/src/renderer/windows/game/scripting/ScriptApi.ts#L49)
 
 ```ts
 api.packet.packetFromClient(handler: ScriptPacketListener): Effect.Effect<ScriptPacketDisposer, ScriptNotReadyError, never>
@@ -62,7 +62,7 @@ api.packet.packetFromClient(handler: ScriptPacketListener): Effect.Effect<Script
 
 ### `api.packet.packetFromServer()`
 
-**Source:** [`app/src/renderer/windows/game/scripting/ScriptApi.ts:50`](https://github.com/toommyliu/vexed/blob/6494a25761ae20039c3dbfb6ffe31551d4040ed3/app/src/renderer/windows/game/scripting/ScriptApi.ts#L50)
+**Source:** [`app/src/renderer/windows/game/scripting/ScriptApi.ts:52`](https://github.com/toommyliu/vexed/blob/a462966b2e60f995d3aa973d6b292a4e82a38d19/app/src/renderer/windows/game/scripting/ScriptApi.ts#L52)
 
 ```ts
 api.packet.packetFromServer(handler: ScriptPacketListener): Effect.Effect<ScriptPacketDisposer, ScriptNotReadyError, never>
@@ -80,7 +80,7 @@ api.packet.packetFromServer(handler: ScriptPacketListener): Effect.Effect<Script
 
 ### `api.packet.sendClient()`
 
-**Source:** [`app/src/renderer/windows/game/flash/Services/Packet.ts:29`](https://github.com/toommyliu/vexed/blob/6494a25761ae20039c3dbfb6ffe31551d4040ed3/app/src/renderer/windows/game/flash/Services/Packet.ts#L29)
+**Source:** [`app/src/renderer/windows/game/flash/Services/Packet.ts:29`](https://github.com/toommyliu/vexed/blob/a462966b2e60f995d3aa973d6b292a4e82a38d19/app/src/renderer/windows/game/flash/Services/Packet.ts#L29)
 
 ```ts
 api.packet.sendClient(packet: string, type?: ClientPacketSendType): BridgeEffect<void>
@@ -99,7 +99,7 @@ api.packet.sendClient(packet: string, type?: ClientPacketSendType): BridgeEffect
 
 ### `api.packet.sendServer()`
 
-**Source:** [`app/src/renderer/windows/game/flash/Services/Packet.ts:30`](https://github.com/toommyliu/vexed/blob/6494a25761ae20039c3dbfb6ffe31551d4040ed3/app/src/renderer/windows/game/flash/Services/Packet.ts#L30)
+**Source:** [`app/src/renderer/windows/game/flash/Services/Packet.ts:30`](https://github.com/toommyliu/vexed/blob/a462966b2e60f995d3aa973d6b292a4e82a38d19/app/src/renderer/windows/game/flash/Services/Packet.ts#L30)
 
 ```ts
 api.packet.sendServer(packet: string, type?: ServerPacketSendType): BridgeEffect<void>
@@ -120,7 +120,7 @@ api.packet.sendServer(packet: string, type?: ServerPacketSendType): BridgeEffect
 
 ### `BridgeEffect`
 
-**Source:** [`app/src/renderer/windows/game/flash/Services/Bridge.ts:14`](https://github.com/toommyliu/vexed/blob/6494a25761ae20039c3dbfb6ffe31551d4040ed3/app/src/renderer/windows/game/flash/Services/Bridge.ts#L14)
+**Source:** [`app/src/renderer/windows/game/flash/Services/Bridge.ts:14`](https://github.com/toommyliu/vexed/blob/a462966b2e60f995d3aa973d6b292a4e82a38d19/app/src/renderer/windows/game/flash/Services/Bridge.ts#L14)
 
 ```ts
 type BridgeEffect = Effect.Effect<A, BridgeError>
@@ -130,7 +130,7 @@ type BridgeEffect = Effect.Effect<A, BridgeError>
 
 ### `BridgeError`
 
-**Source:** [`app/src/renderer/windows/game/flash/Services/Bridge.ts:9`](https://github.com/toommyliu/vexed/blob/6494a25761ae20039c3dbfb6ffe31551d4040ed3/app/src/renderer/windows/game/flash/Services/Bridge.ts#L9)
+**Source:** [`app/src/renderer/windows/game/flash/Services/Bridge.ts:9`](https://github.com/toommyliu/vexed/blob/a462966b2e60f995d3aa973d6b292a4e82a38d19/app/src/renderer/windows/game/flash/Services/Bridge.ts#L9)
 
 ```ts
 type BridgeError = | SwfUnavailableError
@@ -142,7 +142,7 @@ type BridgeError = | SwfUnavailableError
 
 ### `ClientPacketSendType`
 
-**Source:** [`app/src/renderer/windows/game/flash/Services/Packet.ts:24`](https://github.com/toommyliu/vexed/blob/6494a25761ae20039c3dbfb6ffe31551d4040ed3/app/src/renderer/windows/game/flash/Services/Packet.ts#L24)
+**Source:** [`app/src/renderer/windows/game/flash/Services/Packet.ts:24`](https://github.com/toommyliu/vexed/blob/a462966b2e60f995d3aa973d6b292a4e82a38d19/app/src/renderer/windows/game/flash/Services/Packet.ts#L24)
 
 ```ts
 type ClientPacketSendType = "str" | "json" | "xml"
@@ -152,7 +152,7 @@ type ClientPacketSendType = "str" | "json" | "xml"
 
 ### `ScriptPacketDisposer`
 
-**Source:** [`app/src/renderer/windows/game/scripting/ScriptApi.ts:43`](https://github.com/toommyliu/vexed/blob/6494a25761ae20039c3dbfb6ffe31551d4040ed3/app/src/renderer/windows/game/scripting/ScriptApi.ts#L43)
+**Source:** [`app/src/renderer/windows/game/scripting/ScriptApi.ts:45`](https://github.com/toommyliu/vexed/blob/a462966b2e60f995d3aa973d6b292a4e82a38d19/app/src/renderer/windows/game/scripting/ScriptApi.ts#L45)
 
 ```ts
 type ScriptPacketDisposer = () => void
@@ -162,7 +162,7 @@ type ScriptPacketDisposer = () => void
 
 ### `ScriptPacketListener`
 
-**Source:** [`app/src/renderer/windows/game/scripting/ScriptApi.ts:36`](https://github.com/toommyliu/vexed/blob/6494a25761ae20039c3dbfb6ffe31551d4040ed3/app/src/renderer/windows/game/scripting/ScriptApi.ts#L36)
+**Source:** [`app/src/renderer/windows/game/scripting/ScriptApi.ts:38`](https://github.com/toommyliu/vexed/blob/a462966b2e60f995d3aa973d6b292a4e82a38d19/app/src/renderer/windows/game/scripting/ScriptApi.ts#L38)
 
 ```ts
 type ScriptPacketListener = (
@@ -177,7 +177,7 @@ type ScriptPacketListener = (
 
 ### `ServerPacketSendType`
 
-**Source:** [`app/src/renderer/windows/game/flash/Services/Packet.ts:26`](https://github.com/toommyliu/vexed/blob/6494a25761ae20039c3dbfb6ffe31551d4040ed3/app/src/renderer/windows/game/flash/Services/Packet.ts#L26)
+**Source:** [`app/src/renderer/windows/game/flash/Services/Packet.ts:26`](https://github.com/toommyliu/vexed/blob/a462966b2e60f995d3aa973d6b292a4e82a38d19/app/src/renderer/windows/game/flash/Services/Packet.ts#L26)
 
 ```ts
 type ServerPacketSendType = "String" | "Json"

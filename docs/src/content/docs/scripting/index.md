@@ -21,24 +21,28 @@ module.exports = function* run({ api, autoZone, autoRelogin }) {
 
 ## Editor IntelliSense
 
-Download the generated declaration file from `/vexed-script.d.ts` on this docs site, place it beside your scripts, then add a reference at the top of each script:
+Download the generated declaration file [`script-api.d.ts`](/script-api.d.ts) and place it beside your scripts. These typings are not perfect, but they should be good enough for editor autocomplete and catching common mistakes.
 
 ```js
-// @ts-check
-/// <reference path="./vexed-script.d.ts" />
+/// <reference path="./script-api.d.ts" />
 
-/** @param {Vexed.ScriptContext} context */
+/** @param {ScriptContext} context */
 module.exports = function* run({ api }) {
   yield* api.player.joinMap("battleon")
 }
 ```
 
-For a folder full of scripts, put `vexed-script.d.ts` in that folder and add a `jsconfig.json`:
+For a folder full of scripts, put `script-api.d.ts` in that folder and add a `jsconfig.json`. Keep `checkJs` off to get autocomplete without diagnostics noise; add `// @ts-check` only to files where you want type errors reported.
 
 ```json
 {
-  "compilerOptions": { "checkJs": true },
-  "include": ["**/*.js", "vexed-script.d.ts"]
+  "compilerOptions": {
+    "target": "ES2020",
+    "lib": ["ES2020", "DOM"],
+    "checkJs": false,
+    "skipLibCheck": true
+  },
+  "include": ["**/*.js", "script-api.d.ts"]
 }
 ```
 

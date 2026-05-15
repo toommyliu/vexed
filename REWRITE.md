@@ -3,7 +3,17 @@ List of capabilities added/removed/modified in the rewrite:
 - TODO: Flash Player no longer bundled.
 
 - Scripting:
-  - Some commands renamed for better clarity and consistency.
-  - Conditionals: `cmd.if`, `cmd.if_all`, and `cmd.if_any` now take condition expressions and manage full blocks with `cmd.else`/`cmd.end_if`. Expressions can be built from built-in checks, custom `cmd.x(...)` checks, and `cmd.and`/`cmd.or`/`cmd.not`.
-  - Custom commands: new shape and API, no longer subclass-based.
+  - Removed the legacy command DSL (`cmd.*`). Scripts now export a CommonJS generator function and receive a script context:
+    ```js
+    module.exports = function* run({ api, autoZone, autoRelogin }) {
+      api.log("started")
+      yield* api.player.joinMap("battleon")
+    }
+    ```
+  - Script actions are now grouped under explicit API namespaces such as `api.player`, `api.combat`, `api.inventory`, `api.quests`, `api.army`, `api.settings`, and `api.world`.
+  - High-level helpers that used to be convenience commands now live under `api.recipes`, for example `api.recipes.buff()`, `api.recipes.goToHouse()`, `api.recipes.ensureLifeSteal()`, and `api.recipes.ensureScrollOfEnrage()`.
+  - Feature controls are scriptable through context objects instead of commands, for example `autoZone.enable()`, `autoZone.setMap(...)`, `autoRelogin.enable()`, and `autoRelogin.setServer(...)`.
+  - Control flow is now plain JavaScript (`if`, `while`, functions, loops) instead of label/goto/conditional command blocks.
+  - Custom script logic should be regular JavaScript functions/generators composed with `yield* api...` calls; custom command registration/subclassing is no longer part of the scripting model.
+
 - AutoRelogin: removed fallback server.

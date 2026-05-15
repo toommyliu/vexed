@@ -38,7 +38,7 @@ tableOfContents:
 
 ### `api.log()`
 
-**Source:** [`app/src/renderer/windows/game/scripting/ScriptApi.ts:160`](https://github.com/toommyliu/vexed/blob/6494a25761ae20039c3dbfb6ffe31551d4040ed3/app/src/renderer/windows/game/scripting/ScriptApi.ts#L160)
+**Source:** [`app/src/renderer/windows/game/scripting/ScriptApi.ts:162`](https://github.com/toommyliu/vexed/blob/a462966b2e60f995d3aa973d6b292a4e82a38d19/app/src/renderer/windows/game/scripting/ScriptApi.ts#L162)
 
 ```ts
 api.log(message: string): void
@@ -56,7 +56,7 @@ api.log(message: string): void
 
 Aborts when the script stops. Pass this to APIs that support cancellation.
 
-**Source:** [`app/src/renderer/windows/game/scripting/ScriptApi.ts:159`](https://github.com/toommyliu/vexed/blob/6494a25761ae20039c3dbfb6ffe31551d4040ed3/app/src/renderer/windows/game/scripting/ScriptApi.ts#L159)
+**Source:** [`app/src/renderer/windows/game/scripting/ScriptApi.ts:161`](https://github.com/toommyliu/vexed/blob/a462966b2e60f995d3aa973d6b292a4e82a38d19/app/src/renderer/windows/game/scripting/ScriptApi.ts#L161)
 
 ```ts
 api.signal: AbortSignal
@@ -70,7 +70,7 @@ api.signal: AbortSignal
 
 Waits for milliseconds and cancels when the script stops.
 
-**Source:** [`app/src/renderer/windows/game/scripting/ScriptApi.ts:164`](https://github.com/toommyliu/vexed/blob/6494a25761ae20039c3dbfb6ffe31551d4040ed3/app/src/renderer/windows/game/scripting/ScriptApi.ts#L164)
+**Source:** [`app/src/renderer/windows/game/scripting/ScriptApi.ts:170`](https://github.com/toommyliu/vexed/blob/a462966b2e60f995d3aa973d6b292a4e82a38d19/app/src/renderer/windows/game/scripting/ScriptApi.ts#L170)
 
 ```ts
 api.sleep(ms: number): Effect.Effect<void, ScriptExecutionError, never>
@@ -83,3 +83,23 @@ api.sleep(ms: number): Effect.Effect<void, ScriptExecutionError, never>
 **Yields:** `void`
 
 **Errors:** `ScriptExecutionError`
+
+<a id="member-api-stop"></a>
+
+### `api.stop()`
+
+Stops the current script.
+
+**Source:** [`app/src/renderer/windows/game/scripting/ScriptApi.ts:166`](https://github.com/toommyliu/vexed/blob/a462966b2e60f995d3aa973d6b292a4e82a38d19/app/src/renderer/windows/game/scripting/ScriptApi.ts#L166)
+
+```ts
+api.stop(reason?: string): Effect.Effect<never, never, never>
+```
+
+| Name | Type | Required | Description |
+| --- | --- | --- | --- |
+| `reason` | `string` |  |  |
+
+**Yields:** `never`
+
+**Errors:** `never`

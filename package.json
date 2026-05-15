@@ -10,7 +10,7 @@
     "dev": "tsx scripts/dev-runner.ts dev",
     "dev:app": "tsx scripts/dev-runner.ts app",
     "dev:docs": "tsx scripts/dev-runner.ts docs",
-    "docgen": "tsx scripts/docgen.ts",
+    "docgen": "tsx scripts/docgen.ts && tsx scripts/gen-script-types.ts",
     "lint": "oxlint",
     "lint:fix": "oxlint --fix",
     "format": "oxfmt --check",

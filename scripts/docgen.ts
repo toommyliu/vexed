@@ -1,12 +1,6 @@
 import { execFile } from "node:child_process";
 import fs from "node:fs/promises";
-import {
-  dirname,
-  isAbsolute,
-  join,
-  relative,
-  resolve,
-} from "node:path";
+import { dirname, isAbsolute, join, relative, resolve } from "node:path";
 import { promisify } from "node:util";
 import { fileURLToPath, pathToFileURL } from "node:url";
 
@@ -241,11 +235,9 @@ const getGitSourceInfo = (
     }
 
     const ref = yield* Effect.tryPromise(async () => {
-      const result = await execFileAsync(
-        "git",
-        ["rev-parse", "HEAD"],
-        { cwd: repoRoot },
-      );
+      const result = await execFileAsync("git", ["rev-parse", "HEAD"], {
+        cwd: repoRoot,
+      });
       return result.stdout.trim();
     }).pipe(Effect.catch(() => Effect.succeed("main")));
 
@@ -282,7 +274,12 @@ const getSourceInfo = (
       "/",
     ),
     sourceLine,
-    sourceUrl: buildSourceUrl(git, options.repoRoot, sourceFile.fileName, sourceLine),
+    sourceUrl: buildSourceUrl(
+      git,
+      options.repoRoot,
+      sourceFile.fileName,
+      sourceLine,
+    ),
   };
 };
 
@@ -348,7 +345,8 @@ const getNodeJsDoc = (node: ts.Node): ts.JSDoc | null => {
   return docs?.[docs.length - 1] ?? null;
 };
 
-const getSummary = (node: ts.Node): string => getText(getNodeJsDoc(node)?.comment);
+const getSummary = (node: ts.Node): string =>
+  getText(getNodeJsDoc(node)?.comment);
 
 const getParamDescriptions = (
   node: ts.SignatureDeclarationBase,
@@ -363,7 +361,10 @@ const getParamDescriptions = (
     if (!ts.isJSDocParameterTag(tag)) {
       continue;
     }
-    descriptions.set(tag.name.getText(), getText(tag.comment).replace(/^\s*-\s+/, ""));
+    descriptions.set(
+      tag.name.getText(),
+      getText(tag.comment).replace(/^\s*-\s+/, ""),
+    );
   }
 
   return descriptions;
@@ -417,7 +418,10 @@ const buildDeclarationMap = (
     }
 
     for (const statement of sourceFile.statements) {
-      if (ts.isInterfaceDeclaration(statement) || ts.isTypeAliasDeclaration(statement)) {
+      if (
+        ts.isInterfaceDeclaration(statement) ||
+        ts.isTypeAliasDeclaration(statement)
+      ) {
         declarations.set(statement.name.text, statement);
       }
     }
@@ -427,7 +431,10 @@ const buildDeclarationMap = (
 };
 
 const getInterface = (
-  declarations: ReadonlyMap<string, ts.InterfaceDeclaration | ts.TypeAliasDeclaration>,
+  declarations: ReadonlyMap<
+    string,
+    ts.InterfaceDeclaration | ts.TypeAliasDeclaration
+  >,
   name: string,
 ): ts.InterfaceDeclaration => {
   const declaration = declarations.get(name);
@@ -455,8 +462,10 @@ const getTypeNameText = (name: ts.EntityName): string => {
   return getTypeNameText(name.right);
 };
 
-const typeText = (node: ts.TypeNode | undefined, sourceFile: ts.SourceFile): string =>
-  node === undefined ? "unknown" : node.getText(sourceFile);
+const typeText = (
+  node: ts.TypeNode | undefined,
+  sourceFile: ts.SourceFile,
+): string => (node === undefined ? "unknown" : node.getText(sourceFile));
 
 const splitTopLevel = (value: string, delimiter = ","): string[] => {
   const parts: string[] = [];
@@ -528,7 +537,8 @@ const formatType = (
   return checker.typeToString(
     type,
     node,
-    ts.TypeFormatFlags.NoTruncation | ts.TypeFormatFlags.UseSingleQuotesForStringLiteralType,
+    ts.TypeFormatFlags.NoTruncation |
+      ts.TypeFormatFlags.UseSingleQuotesForStringLiteralType,
   );
 };
 
@@ -559,7 +569,9 @@ const parseEffectReturn = (
 
   if (reference?.name === "ArmyEffect" && reference.args.length >= 1) {
     const extraError =
-      reference.args.length >= 2 ? `${typeText(reference.args[1], sourceFile)} | ` : "";
+      reference.args.length >= 2
+        ? `${typeText(reference.args[1], sourceFile)} | `
+        : "";
     return {
       raw,
       result: typeText(reference.args[0], sourceFile),
@@ -653,7 +665,10 @@ const collectTypeReferences = (
 };
 
 const resolveNestedInterface = (
-  declarations: ReadonlyMap<string, ts.InterfaceDeclaration | ts.TypeAliasDeclaration>,
+  declarations: ReadonlyMap<
+    string,
+    ts.InterfaceDeclaration | ts.TypeAliasDeclaration
+  >,
   node: ts.TypeNode | undefined,
 ): ts.InterfaceDeclaration | null => {
   const reference = parseTypeReference(node);
@@ -669,7 +684,10 @@ const resolveNestedInterface = (
 
 const collectMembersFromInterface = (
   checker: ts.TypeChecker,
-  declarations: ReadonlyMap<string, ts.InterfaceDeclaration | ts.TypeAliasDeclaration>,
+  declarations: ReadonlyMap<
+    string,
+    ts.InterfaceDeclaration | ts.TypeAliasDeclaration
+  >,
   options: CliOptions,
   git: GitSourceInfo | null,
   declaration: ts.InterfaceDeclaration,
@@ -785,7 +803,10 @@ const collectMembersFromInterface = (
 
 const collectScriptPacketMembers = (
   checker: ts.TypeChecker,
-  declarations: ReadonlyMap<string, ts.InterfaceDeclaration | ts.TypeAliasDeclaration>,
+  declarations: ReadonlyMap<
+    string,
+    ts.InterfaceDeclaration | ts.TypeAliasDeclaration
+  >,
   options: CliOptions,
   git: GitSourceInfo | null,
   typeReferences: Set<string>,
@@ -830,7 +851,10 @@ const getProperty = (
   name: string,
 ): ts.PropertySignature | null => {
   for (const member of declaration.members) {
-    if (ts.isPropertySignature(member) && getPropertyName(member.name) === name) {
+    if (
+      ts.isPropertySignature(member) &&
+      getPropertyName(member.name) === name
+    ) {
       return member;
     }
   }
@@ -853,17 +877,16 @@ const collectTypePropertyDocs = (
   checker: ts.TypeChecker,
   declaration: ts.InterfaceDeclaration,
 ): TypePropertyDoc[] =>
-  declaration.members
-    .filter(ts.isPropertySignature)
-    .map((property) => ({
-      name: getPropertyName(property.name) ?? property.name.getText(),
-      type: formatType(checker, property.type),
-      required: property.questionToken === undefined,
-      readonly: property.modifiers?.some(
+  declaration.members.filter(ts.isPropertySignature).map((property) => ({
+    name: getPropertyName(property.name) ?? property.name.getText(),
+    type: formatType(checker, property.type),
+    required: property.questionToken === undefined,
+    readonly:
+      property.modifiers?.some(
         (modifier) => modifier.kind === ts.SyntaxKind.ReadonlyKeyword,
       ) ?? false,
-      description: getSummary(property),
-    }));
+    description: getSummary(property),
+  }));
 
 const getTypeDefinition = (
   declaration: ts.InterfaceDeclaration | ts.TypeAliasDeclaration,
@@ -879,7 +902,10 @@ const getTypeDefinition = (
 
 const collectTypeDocs = (
   checker: ts.TypeChecker,
-  declarations: ReadonlyMap<string, ts.InterfaceDeclaration | ts.TypeAliasDeclaration>,
+  declarations: ReadonlyMap<
+    string,
+    ts.InterfaceDeclaration | ts.TypeAliasDeclaration
+  >,
   options: CliOptions,
   git: GitSourceInfo | null,
   rootReferences: ReadonlySet<string>,
@@ -895,7 +921,10 @@ const collectTypeDocs = (
     }
 
     const declaration = declarations.get(name);
-    if (!declaration || !isInsideRepo(options.repoRoot, declaration.getSourceFile().fileName)) {
+    if (
+      !declaration ||
+      !isInsideRepo(options.repoRoot, declaration.getSourceFile().fileName)
+    ) {
       continue;
     }
 
@@ -939,7 +968,10 @@ const collectTypeDocs = (
 
 const collectApiGroups = (
   checker: ts.TypeChecker,
-  declarations: ReadonlyMap<string, ts.InterfaceDeclaration | ts.TypeAliasDeclaration>,
+  declarations: ReadonlyMap<
+    string,
+    ts.InterfaceDeclaration | ts.TypeAliasDeclaration
+  >,
   options: CliOptions,
   git: GitSourceInfo | null,
 ): {
@@ -953,7 +985,7 @@ const collectApiGroups = (
   const groups: ApiGroup[] = [];
 
   const apiHelpers = [
-    ...["log", "sleep"].flatMap((name) => {
+    ...["log", "stop", "sleep"].flatMap((name) => {
       const method = getMethod(scriptApi, name);
       if (!method) {
         return [];
@@ -1026,7 +1058,13 @@ const collectApiGroups = (
     const typeReferences = new Set<string>();
     const members =
       name === "packet"
-        ? collectScriptPacketMembers(checker, declarations, options, git, typeReferences)
+        ? collectScriptPacketMembers(
+            checker,
+            declarations,
+            options,
+            git,
+            typeReferences,
+          )
         : collectMembersFromInterface(
             checker,
             declarations,
@@ -1050,9 +1088,15 @@ const collectApiGroups = (
       label: titleCase(name),
       contextPath: `api.${name}`,
       // summary: `Members available under \`${`api.${name}`}\`.`,
-      summary: '',
+      summary: "",
       members,
-      types: collectTypeDocs(checker, declarations, options, git, typeReferences),
+      types: collectTypeDocs(
+        checker,
+        declarations,
+        options,
+        git,
+        typeReferences,
+      ),
     });
   }
 
@@ -1089,7 +1133,13 @@ const collectApiGroups = (
       contextPath: name,
       summary: `Feature controls available as \`${name}\` on the script context.`,
       members,
-      types: collectTypeDocs(checker, declarations, options, git, typeReferences),
+      types: collectTypeDocs(
+        checker,
+        declarations,
+        options,
+        git,
+        typeReferences,
+      ),
     });
   }
 
@@ -1111,7 +1161,10 @@ const renderTypeExpression = (
     if (match?.[0]) {
       const token = match[0];
       const link = typeLinks.get(token);
-      rendered += link === undefined ? renderCode(token) : `[${renderCode(token)}](${link})`;
+      rendered +=
+        link === undefined
+          ? renderCode(token)
+          : `[${renderCode(token)}](${link})`;
       index += token.length;
       continue;
     }
@@ -1131,7 +1184,9 @@ const renderTypeExpression = (
   return rendered;
 };
 
-const buildTypeLinks = (types: readonly TypeShapeDoc[]): ReadonlyMap<string, string> =>
+const buildTypeLinks = (
+  types: readonly TypeShapeDoc[],
+): ReadonlyMap<string, string> =>
   new Map(types.map((type) => [type.name, `#${typeAnchor(type.name)}`]));
 
 const renderSource = (source: SourceInfo): string =>
@@ -1145,7 +1200,10 @@ const renderMember = (
   typeLinks: ReadonlyMap<string, string>,
 ) => {
   lines.push(`<a id="${memberAnchor(member.path)}"></a>`, "");
-  lines.push(`### \`${member.path}${member.kind === "method" ? "()" : ""}\``, "");
+  lines.push(
+    `### \`${member.path}${member.kind === "method" ? "()" : ""}\``,
+    "",
+  );
 
   if (member.summary !== "") {
     lines.push(member.summary, "");
@@ -1175,7 +1233,10 @@ const renderMember = (
       "",
     );
   } else {
-    lines.push(`**Returns:** ${renderTypeExpression(member.returnDoc.raw, typeLinks)}`, "");
+    lines.push(
+      `**Returns:** ${renderTypeExpression(member.returnDoc.raw, typeLinks)}`,
+      "",
+    );
   }
 };
 
@@ -1227,7 +1288,10 @@ const frontmatter = (
 };
 
 const finalizeMarkdown = (lines: readonly string[]): string =>
-  `${lines.join("\n").replace(/\n{3,}/g, "\n\n").trimEnd()}\n`;
+  `${lines
+    .join("\n")
+    .replace(/\n{3,}/g, "\n\n")
+    .trimEnd()}\n`;
 
 const renderIndex = (namespaces: readonly ApiNamespace[]): string => {
   const lines = [
@@ -1245,6 +1309,33 @@ const renderIndex = (namespaces: readonly ApiNamespace[]): string => {
     "module.exports = function* run({ api, autoZone, autoRelogin }) {",
     '  api.log("started")',
     '  yield* api.player.joinMap("battleon")',
+    "}",
+    "```",
+    "",
+    "## Editor IntelliSense",
+    "",
+    "Download the generated declaration file [`script-api.d.ts`](/script-api.d.ts) and place it beside your scripts. These typings are not perfect, but they should be good enough for editor autocomplete and catching common mistakes.",
+    "",
+    "```js",
+    '/// <reference path="./script-api.d.ts" />',
+    "",
+    "/** @param {ScriptContext} context */",
+    "module.exports = function* run({ api }) {",
+    '  yield* api.player.joinMap("battleon")',
+    "}",
+    "```",
+    "",
+    "For a folder full of scripts, put `script-api.d.ts` in that folder and add a `jsconfig.json`. Keep `checkJs` off to get autocomplete without diagnostics noise; add `// @ts-check` only to files where you want type errors reported.",
+    "",
+    "```json",
+    "{",
+    '  "compilerOptions": {',
+    '    "target": "ES2020",',
+    '    "lib": ["ES2020", "DOM"],',
+    '    "checkJs": false,',
+    '    "skipLibCheck": true',
+    "  },",
+    '  "include": ["**/*.js", "script-api.d.ts"]',
     "}",
     "```",
     "",
@@ -1369,7 +1460,9 @@ const ensureParentDir = (path: string): Promise<void> =>
   fs.mkdir(dirname(path), { recursive: true });
 
 const listMarkdownFiles = async (dir: string): Promise<readonly string[]> => {
-  const entries = await fs.readdir(dir, { withFileTypes: true }).catch(() => []);
+  const entries = await fs
+    .readdir(dir, { withFileTypes: true })
+    .catch(() => []);
   const files: string[] = [];
   for (const entry of entries) {
     const path = join(dir, entry.name);
@@ -1398,7 +1491,9 @@ const writeGeneratedDocs = (
     yield* Effect.tryPromise(() => fs.mkdir(outputDir, { recursive: true }));
 
     const expected = new Set(files.map((file) => resolve(file.path)));
-    const existing = yield* Effect.tryPromise(() => listMarkdownFiles(outputDir));
+    const existing = yield* Effect.tryPromise(() =>
+      listMarkdownFiles(outputDir),
+    );
     for (const file of existing) {
       if (!expected.has(resolve(file))) {
         yield* Effect.tryPromise(() => fs.unlink(file));
@@ -1439,7 +1534,11 @@ const main = (options: CliOptions): Effect.Effect<void, unknown> =>
     );
     const renderedFiles = renderFiles(options, apiHelpers, namespaces, groups);
 
-    yield* writeGeneratedDocs(options.repoRoot, options.outputDir, renderedFiles);
+    yield* writeGeneratedDocs(
+      options.repoRoot,
+      options.outputDir,
+      renderedFiles,
+    );
     yield* Console.log(
       `Generated ${renderedFiles.length} scripting API doc files in ${relative(
         options.repoRoot,
