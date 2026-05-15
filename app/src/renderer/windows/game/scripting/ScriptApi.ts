@@ -21,7 +21,9 @@ import type { TempInventoryShape } from "../flash/Services/TempInventory";
 type EffectValue<T> =
   T extends Effect.Effect<infer A, infer E, infer R>
     ? Effect.Effect<A, E, R>
-    : T extends (...args: infer Args) => Effect.Effect<infer A, infer E, infer R>
+    : T extends (
+          ...args: infer Args
+        ) => Effect.Effect<infer A, infer E, infer R>
       ? (...args: Args) => Effect.Effect<A, E, R>
       : T extends (...args: ReadonlyArray<never>) => unknown
         ? never
@@ -30,7 +32,7 @@ type EffectValue<T> =
               readonly [Key in keyof T as EffectValue<T[Key]> extends never
                 ? never
                 : Key]: EffectValue<T[Key]>;
-          }
+            }
           : never;
 
 export type ScriptPacketListener = (
@@ -158,6 +160,10 @@ export interface ScriptApi {
    */
   readonly signal: AbortSignal;
   log(message: string): void;
+  /**
+   * Stops the current script.
+   */
+  stop(reason?: string): Effect.Effect<never>;
   /**
    * Waits for milliseconds and cancels when the script stops.
    */

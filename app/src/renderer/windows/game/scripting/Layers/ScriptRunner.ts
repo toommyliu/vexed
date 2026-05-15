@@ -54,7 +54,11 @@ const MAX_SCRIPT_DIAGNOSTICS = 50;
 
 const isGenerator = (
   value: unknown,
-): value is Generator<Effect.Yieldable<any, any, never, never>, unknown, never> =>
+): value is Generator<
+  Effect.Yieldable<any, any, never, never>,
+  unknown,
+  never
+> =>
   typeof value === "object" &&
   value !== null &&
   typeof (value as { readonly next?: unknown }).next === "function" &&
@@ -243,18 +247,20 @@ const make = Effect.gen(function* () {
     ): Effect.Effect<A, E | ScriptNotReadyError> =>
       Effect.suspend(() => {
         if (scriptScope.isCancelled()) {
-          return Effect.interrupt as Effect.Effect<
-            A,
-            E | ScriptNotReadyError
-          >;
+          return Effect.interrupt as Effect.Effect<A, E | ScriptNotReadyError>;
         }
 
         return ensureReady(sourceName).pipe(Effect.andThen(effect));
       });
 
-    const wrapValue = (value: unknown, cache = new WeakMap<object, unknown>()) => {
+    const wrapValue = (
+      value: unknown,
+      cache = new WeakMap<object, unknown>(),
+    ) => {
       if (Effect.isEffect(value)) {
-        return wrapScriptEffect(value as Effect.Effect<unknown, unknown, never>);
+        return wrapScriptEffect(
+          value as Effect.Effect<unknown, unknown, never>,
+        );
       }
 
       if (typeof value === "function") {
@@ -303,6 +309,16 @@ const make = Effect.gen(function* () {
         }
 
         return Effect.sleep(`${Math.trunc(ms)} millis`);
+      });
+
+    const stopScript = (reason?: string): Effect.Effect<never> =>
+      Effect.gen(function* () {
+        const stopReason = reason?.trim() ? reason : "script request";
+
+        yield* scriptScope.requestInterrupt(stopReason);
+        runFork(interruptActiveScript(stopReason));
+
+        return yield* Effect.interrupt;
       });
 
     const handlePacketHandlerCause = (
@@ -546,6 +562,7 @@ const make = Effect.gen(function* () {
           }),
         );
       },
+      stop: stopScript,
       sleep,
       army: wrapValue(army) as ScriptApi["army"],
       auth: wrapValue(auth) as ScriptApi["auth"],
@@ -556,9 +573,13 @@ const make = Effect.gen(function* () {
       inventory: wrapValue(inventory) as ScriptApi["inventory"],
       packet: {
         sendClient: ((...args) =>
-          wrapScriptEffect(packet.sendClient(...args))) as ScriptApi["packet"]["sendClient"],
+          wrapScriptEffect(
+            packet.sendClient(...args),
+          )) as ScriptApi["packet"]["sendClient"],
         sendServer: ((...args) =>
-          wrapScriptEffect(packet.sendServer(...args))) as ScriptApi["packet"]["sendServer"],
+          wrapScriptEffect(
+            packet.sendServer(...args),
+          )) as ScriptApi["packet"]["sendServer"],
         packetFromClient: registerPacketListener(
           "packetFromClient",
           packet.packetFromClient,
