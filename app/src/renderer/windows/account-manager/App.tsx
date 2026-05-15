@@ -883,9 +883,8 @@ function App(): JSX.Element {
                     <TooltipContent>Refresh servers</TooltipContent>
                   </Tooltip>
                 </div>
-                <InputGroup class="account-manager__server-field account-manager__field">
-                  <Combobox
-                    class="account-manager__server-combobox"
+                <Combobox
+                  class="account-manager__server-field account-manager__field account-manager__server-combobox"
                     value={[launchServer() || NO_SERVER_VALUE]}
                     disabled={serversLoading() || serverError() !== ""}
                     inputBehavior="autohighlight"
@@ -914,6 +913,7 @@ function App(): JSX.Element {
                       }}
                       placeholder="Choose server..."
                       showClear={false}
+                      size="lg"
                       value={serverInputValue()}
                       onInput={(event) => {
                         const value = event.currentTarget.value;
@@ -969,7 +969,6 @@ function App(): JSX.Element {
                       </ComboboxList>
                     </ComboboxContent>
                   </Combobox>
-                </InputGroup>
               </div>
 
               <div class="account-manager__field-container">
