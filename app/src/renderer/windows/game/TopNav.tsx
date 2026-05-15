@@ -246,6 +246,12 @@ export function TopNav(props: TopNavProps): JSX.Element {
     }
   });
 
+  createEffect(() => {
+    if (props.autoReloginAttempting()) {
+      setAutoReloginServerMenuOpen(false);
+    }
+  });
+
   const setMenuOpen =
     (menu: GameTopNavMenu) =>
     (details: { readonly open: boolean }): void => {
@@ -775,7 +781,11 @@ export function TopNav(props: TopNavProps): JSX.Element {
                 closeOnSelect={false}
               >
                 <MenuSubTrigger
+                  aria-disabled={
+                    props.autoReloginAttempting() ? "true" : undefined
+                  }
                   class="game-menu__item game-menu__server-trigger"
+                  disabled={props.autoReloginAttempting()}
                   inset
                 >
                   <span class="game-menu__item-label">Server</span>
@@ -810,7 +820,10 @@ export function TopNav(props: TopNavProps): JSX.Element {
                         {(serverName) => (
                           <MenuRadioItem
                             class="game-menu__item"
-                            disabled={!props.autoReloginCaptured()}
+                            disabled={
+                              !props.autoReloginCaptured() ||
+                              props.autoReloginAttempting()
+                            }
                             value={serverName}
                           >
                             <span class="game-menu__item-label">

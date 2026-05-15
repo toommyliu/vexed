@@ -651,6 +651,40 @@ test("non-retryable connect outcome stops relogin after one attempt", async () =
   expect(result.state.lastError).toContain("member-only");
 });
 
+test("server selection during attempt is ignored", async () => {
+  const result = await withAutoRelogin(
+    { serverSelectStalls: true, servers: [twigServer, yorumiServer] },
+    (autoRelogin, harness) =>
+      Effect.gen(function* () {
+        yield* autoRelogin.enable();
+        yield* autoRelogin.setDelayMs(0);
+        const fiber = yield* Effect.forkDetach(harness.jobsState.task!, {
+          startImmediately: true,
+        });
+        yield* Effect.sleep("10 millis");
+        const selectedState = yield* autoRelogin.setServer("Yorumi");
+        yield* autoRelogin.disable();
+        yield* Fiber.join(fiber);
+        return {
+          calls: harness.authCalls,
+          selectedState,
+          state: yield* autoRelogin.getState(),
+        };
+      }),
+  );
+
+  expect(result.calls).toEqual(["login:Hero:secret-password"]);
+  expect(result.selectedState).toMatchObject({
+    attempting: true,
+    server: "Twig",
+    lastError: "cannot change server while reconnecting",
+  });
+  expect(result.state).toMatchObject({
+    attempting: false,
+    server: "Twig",
+  });
+});
+
 test("manual login during attempt interrupts without reconnecting captured server", async () => {
   const result = await withAutoRelogin(
     { serverSelectStalls: true },
