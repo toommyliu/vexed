@@ -1,17 +1,13 @@
 packages:
-  - 'packages/*'
-  - '!packages/fs'
-  - '!packages/config'
+  - "packages/*"
   - app
   - docs
-
-ignoredBuiltDependencies:
-  - core-js
-  - esbuild
-  - svelte-preprocess
-  - unrs-resolver
 
 onlyBuiltDependencies:
   - electron # https://github.com/electron/electron/issues/44008
   - esbuild
   - sharp
+
+ignoredBuiltDependencies:
+  - core-js
+  - unrs-resolver
