@@ -1087,6 +1087,13 @@ const make = Effect.gen(function* () {
         });
       }
 
+      const currentState = yield* SynchronizedRef.get(stateRef);
+      if (currentState.attempting) {
+        return yield* updateState((state) => {
+          state.lastError = "cannot change server while reconnecting";
+        });
+      }
+
       const servers = yield* auth
         .getServers()
         .pipe(Effect.catchCause(() => Effect.succeed([])));
@@ -1102,6 +1109,11 @@ const make = Effect.gen(function* () {
       }
 
       return yield* updateState((state) => {
+        if (state.attempting) {
+          state.lastError = "cannot change server while reconnecting";
+          return;
+        }
+
         if (state.captured === null) {
           state.lastError = "capture a session before selecting a server";
           state.attemptsRemaining = undefined;
