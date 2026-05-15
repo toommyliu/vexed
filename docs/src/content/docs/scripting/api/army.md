@@ -38,7 +38,7 @@ tableOfContents:
 
 ### `api.army.equipSet()`
 
-**Source:** [`app/src/renderer/windows/game/army/Services/Army.ts:84`](https://github.com/toommyliu/vexed/blob/d7317e24c0bcb361aa11b7116ccc41ff8290e094/app/src/renderer/windows/game/army/Services/Army.ts#L84)
+**Source:** [`app/src/renderer/windows/game/army/Services/Army.ts:84`](https://github.com/toommyliu/vexed/blob/ca5f4a4e39fa8b64a762a80ebaa57a5d4bf14832/app/src/renderer/windows/game/army/Services/Army.ts#L84)
 
 ```ts
 api.army.equipSet(setName: string, options?: ArmyEquipSetOptions): ArmyEffect<void, never>
@@ -57,7 +57,7 @@ api.army.equipSet(setName: string, options?: ArmyEquipSetOptions): ArmyEffect<vo
 
 ### `api.army.executeWithArmy()`
 
-**Source:** [`app/src/renderer/windows/game/army/Services/Army.ts:70`](https://github.com/toommyliu/vexed/blob/d7317e24c0bcb361aa11b7116ccc41ff8290e094/app/src/renderer/windows/game/army/Services/Army.ts#L70)
+**Source:** [`app/src/renderer/windows/game/army/Services/Army.ts:70`](https://github.com/toommyliu/vexed/blob/ca5f4a4e39fa8b64a762a80ebaa57a5d4bf14832/app/src/renderer/windows/game/army/Services/Army.ts#L70)
 
 ```ts
 api.army.executeWithArmy(action: Effect.Effect<A, E, never>): ArmyEffect<A, E>
@@ -75,7 +75,7 @@ api.army.executeWithArmy(action: Effect.Effect<A, E, never>): ArmyEffect<A, E>
 
 ### `api.army.getConfigString()`
 
-**Source:** [`app/src/renderer/windows/game/army/Services/Army.ts:62`](https://github.com/toommyliu/vexed/blob/d7317e24c0bcb361aa11b7116ccc41ff8290e094/app/src/renderer/windows/game/army/Services/Army.ts#L62)
+**Source:** [`app/src/renderer/windows/game/army/Services/Army.ts:62`](https://github.com/toommyliu/vexed/blob/ca5f4a4e39fa8b64a762a80ebaa57a5d4bf14832/app/src/renderer/windows/game/army/Services/Army.ts#L62)
 
 ```ts
 api.army.getConfigString(key: string, defaultValue?: string): ArmyEffect<string, never>
@@ -94,7 +94,7 @@ api.army.getConfigString(key: string, defaultValue?: string): ArmyEffect<string,
 
 ### `api.army.getConfigValue()`
 
-**Source:** [`app/src/renderer/windows/game/army/Services/Army.ts:61`](https://github.com/toommyliu/vexed/blob/d7317e24c0bcb361aa11b7116ccc41ff8290e094/app/src/renderer/windows/game/army/Services/Army.ts#L61)
+**Source:** [`app/src/renderer/windows/game/army/Services/Army.ts:61`](https://github.com/toommyliu/vexed/blob/ca5f4a4e39fa8b64a762a80ebaa57a5d4bf14832/app/src/renderer/windows/game/army/Services/Army.ts#L61)
 
 ```ts
 api.army.getConfigValue(key: string, defaultValue?: unknown): ArmyEffect<unknown, never>
@@ -113,7 +113,7 @@ api.army.getConfigValue(key: string, defaultValue?: unknown): ArmyEffect<unknown
 
 ### `api.army.getPlayerNumber()`
 
-**Source:** [`app/src/renderer/windows/game/army/Services/Army.ts:63`](https://github.com/toommyliu/vexed/blob/d7317e24c0bcb361aa11b7116ccc41ff8290e094/app/src/renderer/windows/game/army/Services/Army.ts#L63)
+**Source:** [`app/src/renderer/windows/game/army/Services/Army.ts:63`](https://github.com/toommyliu/vexed/blob/ca5f4a4e39fa8b64a762a80ebaa57a5d4bf14832/app/src/renderer/windows/game/army/Services/Army.ts#L63)
 
 ```ts
 api.army.getPlayerNumber(): ArmyEffect<number, never>
@@ -127,7 +127,7 @@ api.army.getPlayerNumber(): ArmyEffect<number, never>
 
 ### `api.army.getSession()`
 
-**Source:** [`app/src/renderer/windows/game/army/Services/Army.ts:60`](https://github.com/toommyliu/vexed/blob/d7317e24c0bcb361aa11b7116ccc41ff8290e094/app/src/renderer/windows/game/army/Services/Army.ts#L60)
+**Source:** [`app/src/renderer/windows/game/army/Services/Army.ts:60`](https://github.com/toommyliu/vexed/blob/ca5f4a4e39fa8b64a762a80ebaa57a5d4bf14832/app/src/renderer/windows/game/army/Services/Army.ts#L60)
 
 ```ts
 api.army.getSession(): ArmyEffect<ArmySessionPayload | null, never>
@@ -141,7 +141,7 @@ api.army.getSession(): ArmyEffect<ArmySessionPayload | null, never>
 
 ### `api.army.isLeader()`
 
-**Source:** [`app/src/renderer/windows/game/army/Services/Army.ts:58`](https://github.com/toommyliu/vexed/blob/d7317e24c0bcb361aa11b7116ccc41ff8290e094/app/src/renderer/windows/game/army/Services/Army.ts#L58)
+**Source:** [`app/src/renderer/windows/game/army/Services/Army.ts:58`](https://github.com/toommyliu/vexed/blob/ca5f4a4e39fa8b64a762a80ebaa57a5d4bf14832/app/src/renderer/windows/game/army/Services/Army.ts#L58)
 
 ```ts
 api.army.isLeader(): ArmyEffect<boolean, never>
@@ -155,7 +155,7 @@ api.army.isLeader(): ArmyEffect<boolean, never>
 
 ### `api.army.isMember()`
 
-**Source:** [`app/src/renderer/windows/game/army/Services/Army.ts:59`](https://github.com/toommyliu/vexed/blob/d7317e24c0bcb361aa11b7116ccc41ff8290e094/app/src/renderer/windows/game/army/Services/Army.ts#L59)
+**Source:** [`app/src/renderer/windows/game/army/Services/Army.ts:59`](https://github.com/toommyliu/vexed/blob/ca5f4a4e39fa8b64a762a80ebaa57a5d4bf14832/app/src/renderer/windows/game/army/Services/Army.ts#L59)
 
 ```ts
 api.army.isMember(): ArmyEffect<boolean, never>
@@ -169,7 +169,7 @@ api.army.isMember(): ArmyEffect<boolean, never>
 
 ### `api.army.isStarted()`
 
-**Source:** [`app/src/renderer/windows/game/army/Services/Army.ts:57`](https://github.com/toommyliu/vexed/blob/d7317e24c0bcb361aa11b7116ccc41ff8290e094/app/src/renderer/windows/game/army/Services/Army.ts#L57)
+**Source:** [`app/src/renderer/windows/game/army/Services/Army.ts:57`](https://github.com/toommyliu/vexed/blob/ca5f4a4e39fa8b64a762a80ebaa57a5d4bf14832/app/src/renderer/windows/game/army/Services/Army.ts#L57)
 
 ```ts
 api.army.isStarted(): ArmyEffect<boolean, never>
@@ -183,7 +183,7 @@ api.army.isStarted(): ArmyEffect<boolean, never>
 
 ### `api.army.joinMap()`
 
-**Source:** [`app/src/renderer/windows/game/army/Services/Army.ts:72`](https://github.com/toommyliu/vexed/blob/d7317e24c0bcb361aa11b7116ccc41ff8290e094/app/src/renderer/windows/game/army/Services/Army.ts#L72)
+**Source:** [`app/src/renderer/windows/game/army/Services/Army.ts:72`](https://github.com/toommyliu/vexed/blob/ca5f4a4e39fa8b64a762a80ebaa57a5d4bf14832/app/src/renderer/windows/game/army/Services/Army.ts#L72)
 
 ```ts
 api.army.joinMap(map: string, cell?: string, pad?: string): ArmyEffect<void, never>
@@ -203,7 +203,7 @@ api.army.joinMap(map: string, cell?: string, pad?: string): ArmyEffect<void, nev
 
 ### `api.army.kill()`
 
-**Source:** [`app/src/renderer/windows/game/army/Services/Army.ts:73`](https://github.com/toommyliu/vexed/blob/d7317e24c0bcb361aa11b7116ccc41ff8290e094/app/src/renderer/windows/game/army/Services/Army.ts#L73)
+**Source:** [`app/src/renderer/windows/game/army/Services/Army.ts:73`](https://github.com/toommyliu/vexed/blob/ca5f4a4e39fa8b64a762a80ebaa57a5d4bf14832/app/src/renderer/windows/game/army/Services/Army.ts#L73)
 
 ```ts
 api.army.kill(target: MonsterIdentifierToken, options?: CombatKillOptions): ArmyEffect<void, never>
@@ -222,7 +222,7 @@ api.army.kill(target: MonsterIdentifierToken, options?: CombatKillOptions): Army
 
 ### `api.army.killForItem()`
 
-**Source:** [`app/src/renderer/windows/game/army/Services/Army.ts:77`](https://github.com/toommyliu/vexed/blob/d7317e24c0bcb361aa11b7116ccc41ff8290e094/app/src/renderer/windows/game/army/Services/Army.ts#L77)
+**Source:** [`app/src/renderer/windows/game/army/Services/Army.ts:77`](https://github.com/toommyliu/vexed/blob/ca5f4a4e39fa8b64a762a80ebaa57a5d4bf14832/app/src/renderer/windows/game/army/Services/Army.ts#L77)
 
 ```ts
 api.army.killForItem(target: MonsterIdentifierToken, item: ItemIdentifierToken, quantity: number, isTemp: boolean, options?: CombatKillOptions): ArmyEffect<void, never>
@@ -244,7 +244,7 @@ api.army.killForItem(target: MonsterIdentifierToken, item: ItemIdentifierToken, 
 
 ### `api.army.leave()`
 
-**Source:** [`app/src/renderer/windows/game/army/Services/Army.ts:56`](https://github.com/toommyliu/vexed/blob/d7317e24c0bcb361aa11b7116ccc41ff8290e094/app/src/renderer/windows/game/army/Services/Army.ts#L56)
+**Source:** [`app/src/renderer/windows/game/army/Services/Army.ts:56`](https://github.com/toommyliu/vexed/blob/ca5f4a4e39fa8b64a762a80ebaa57a5d4bf14832/app/src/renderer/windows/game/army/Services/Army.ts#L56)
 
 ```ts
 api.army.leave(): ArmyEffect<void, never>
@@ -258,7 +258,7 @@ api.army.leave(): ArmyEffect<void, never>
 
 ### `api.army.runStep()`
 
-**Source:** [`app/src/renderer/windows/game/army/Services/Army.ts:65`](https://github.com/toommyliu/vexed/blob/d7317e24c0bcb361aa11b7116ccc41ff8290e094/app/src/renderer/windows/game/army/Services/Army.ts#L65)
+**Source:** [`app/src/renderer/windows/game/army/Services/Army.ts:65`](https://github.com/toommyliu/vexed/blob/ca5f4a4e39fa8b64a762a80ebaa57a5d4bf14832/app/src/renderer/windows/game/army/Services/Army.ts#L65)
 
 ```ts
 api.army.runStep(label: string, action: Effect.Effect<A, E, never>, options?: ArmyRunStepOptions): ArmyEffect<A, E>
@@ -278,7 +278,7 @@ api.army.runStep(label: string, action: Effect.Effect<A, E, never>, options?: Ar
 
 ### `api.army.start()`
 
-**Source:** [`app/src/renderer/windows/game/army/Services/Army.ts:55`](https://github.com/toommyliu/vexed/blob/d7317e24c0bcb361aa11b7116ccc41ff8290e094/app/src/renderer/windows/game/army/Services/Army.ts#L55)
+**Source:** [`app/src/renderer/windows/game/army/Services/Army.ts:55`](https://github.com/toommyliu/vexed/blob/ca5f4a4e39fa8b64a762a80ebaa57a5d4bf14832/app/src/renderer/windows/game/army/Services/Army.ts#L55)
 
 ```ts
 api.army.start(configName: string): ArmyEffect<ArmySessionPayload, never>
@@ -296,7 +296,7 @@ api.army.start(configName: string): ArmyEffect<ArmySessionPayload, never>
 
 ### `api.army.sync()`
 
-**Source:** [`app/src/renderer/windows/game/army/Services/Army.ts:64`](https://github.com/toommyliu/vexed/blob/d7317e24c0bcb361aa11b7116ccc41ff8290e094/app/src/renderer/windows/game/army/Services/Army.ts#L64)
+**Source:** [`app/src/renderer/windows/game/army/Services/Army.ts:64`](https://github.com/toommyliu/vexed/blob/ca5f4a4e39fa8b64a762a80ebaa57a5d4bf14832/app/src/renderer/windows/game/army/Services/Army.ts#L64)
 
 ```ts
 api.army.sync(label?: string, options?: ArmyRunStepOptions): ArmyEffect<void, never>
@@ -315,7 +315,7 @@ api.army.sync(label?: string, options?: ArmyRunStepOptions): ArmyEffect<void, ne
 
 ### `api.army.waitForAllInMap()`
 
-**Source:** [`app/src/renderer/windows/game/army/Services/Army.ts:71`](https://github.com/toommyliu/vexed/blob/d7317e24c0bcb361aa11b7116ccc41ff8290e094/app/src/renderer/windows/game/army/Services/Army.ts#L71)
+**Source:** [`app/src/renderer/windows/game/army/Services/Army.ts:71`](https://github.com/toommyliu/vexed/blob/ca5f4a4e39fa8b64a762a80ebaa57a5d4bf14832/app/src/renderer/windows/game/army/Services/Army.ts#L71)
 
 ```ts
 api.army.waitForAllInMap(): ArmyEffect<void, never>
@@ -331,7 +331,7 @@ api.army.waitForAllInMap(): ArmyEffect<void, never>
 
 ### `ArmyEffect`
 
-**Source:** [`app/src/renderer/windows/game/army/Services/Army.ts:26`](https://github.com/toommyliu/vexed/blob/d7317e24c0bcb361aa11b7116ccc41ff8290e094/app/src/renderer/windows/game/army/Services/Army.ts#L26)
+**Source:** [`app/src/renderer/windows/game/army/Services/Army.ts:26`](https://github.com/toommyliu/vexed/blob/ca5f4a4e39fa8b64a762a80ebaa57a5d4bf14832/app/src/renderer/windows/game/army/Services/Army.ts#L26)
 
 ```ts
 type ArmyEffect = Effect.Effect<
@@ -344,7 +344,7 @@ type ArmyEffect = Effect.Effect<
 
 ### `ArmyEquipSetOptions`
 
-**Source:** [`app/src/renderer/windows/game/army/Services/Army.ts:35`](https://github.com/toommyliu/vexed/blob/d7317e24c0bcb361aa11b7116ccc41ff8290e094/app/src/renderer/windows/game/army/Services/Army.ts#L35)
+**Source:** [`app/src/renderer/windows/game/army/Services/Army.ts:35`](https://github.com/toommyliu/vexed/blob/ca5f4a4e39fa8b64a762a80ebaa57a5d4bf14832/app/src/renderer/windows/game/army/Services/Army.ts#L35)
 
 ```ts
 interface ArmyEquipSetOptions
@@ -358,7 +358,7 @@ interface ArmyEquipSetOptions
 
 ### `ArmyRunStepOptions`
 
-**Source:** [`app/src/renderer/windows/game/army/Services/Army.ts:31`](https://github.com/toommyliu/vexed/blob/d7317e24c0bcb361aa11b7116ccc41ff8290e094/app/src/renderer/windows/game/army/Services/Army.ts#L31)
+**Source:** [`app/src/renderer/windows/game/army/Services/Army.ts:31`](https://github.com/toommyliu/vexed/blob/ca5f4a4e39fa8b64a762a80ebaa57a5d4bf14832/app/src/renderer/windows/game/army/Services/Army.ts#L31)
 
 ```ts
 interface ArmyRunStepOptions
@@ -372,7 +372,7 @@ interface ArmyRunStepOptions
 
 ### `ArmySession`
 
-**Source:** [`app/src/renderer/windows/game/army/Services/Army.ts:52`](https://github.com/toommyliu/vexed/blob/d7317e24c0bcb361aa11b7116ccc41ff8290e094/app/src/renderer/windows/game/army/Services/Army.ts#L52)
+**Source:** [`app/src/renderer/windows/game/army/Services/Army.ts:52`](https://github.com/toommyliu/vexed/blob/ca5f4a4e39fa8b64a762a80ebaa57a5d4bf14832/app/src/renderer/windows/game/army/Services/Army.ts#L52)
 
 ```ts
 type ArmySession = ArmySessionPayload
@@ -382,7 +382,7 @@ type ArmySession = ArmySessionPayload
 
 ### `ArmySessionPayload`
 
-**Source:** [`app/src/shared/army.ts:19`](https://github.com/toommyliu/vexed/blob/d7317e24c0bcb361aa11b7116ccc41ff8290e094/app/src/shared/army.ts#L19)
+**Source:** [`app/src/shared/army.ts:19`](https://github.com/toommyliu/vexed/blob/ca5f4a4e39fa8b64a762a80ebaa57a5d4bf14832/app/src/shared/army.ts#L19)
 
 ```ts
 interface ArmySessionPayload
@@ -399,7 +399,7 @@ interface ArmySessionPayload
 
 ### `BridgeError`
 
-**Source:** [`app/src/renderer/windows/game/flash/Services/Bridge.ts:9`](https://github.com/toommyliu/vexed/blob/d7317e24c0bcb361aa11b7116ccc41ff8290e094/app/src/renderer/windows/game/flash/Services/Bridge.ts#L9)
+**Source:** [`app/src/renderer/windows/game/flash/Services/Bridge.ts:9`](https://github.com/toommyliu/vexed/blob/ca5f4a4e39fa8b64a762a80ebaa57a5d4bf14832/app/src/renderer/windows/game/flash/Services/Bridge.ts#L9)
 
 ```ts
 type BridgeError = | SwfUnavailableError
@@ -411,7 +411,7 @@ type BridgeError = | SwfUnavailableError
 
 ### `CombatKillOptions`
 
-**Source:** [`app/src/renderer/windows/game/flash/Services/Combat.ts:6`](https://github.com/toommyliu/vexed/blob/d7317e24c0bcb361aa11b7116ccc41ff8290e094/app/src/renderer/windows/game/flash/Services/Combat.ts#L6)
+**Source:** [`app/src/renderer/windows/game/flash/Services/Combat.ts:6`](https://github.com/toommyliu/vexed/blob/ca5f4a4e39fa8b64a762a80ebaa57a5d4bf14832/app/src/renderer/windows/game/flash/Services/Combat.ts#L6)
 
 ```ts
 interface CombatKillOptions

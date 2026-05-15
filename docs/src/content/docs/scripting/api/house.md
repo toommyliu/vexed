@@ -26,7 +26,7 @@ tableOfContents:
 
 ### `api.house.getAvailableSlots()`
 
-**Source:** [`app/src/renderer/windows/game/flash/Services/House.ts:10`](https://github.com/toommyliu/vexed/blob/d7317e24c0bcb361aa11b7116ccc41ff8290e094/app/src/renderer/windows/game/flash/Services/House.ts#L10)
+**Source:** [`app/src/renderer/windows/game/flash/Services/House.ts:10`](https://github.com/toommyliu/vexed/blob/ca5f4a4e39fa8b64a762a80ebaa57a5d4bf14832/app/src/renderer/windows/game/flash/Services/House.ts#L10)
 
 ```ts
 api.house.getAvailableSlots(): BridgeEffect<number>
@@ -40,7 +40,7 @@ api.house.getAvailableSlots(): BridgeEffect<number>
 
 ### `api.house.getItem()`
 
-**Source:** [`app/src/renderer/windows/game/flash/Services/House.ts:6`](https://github.com/toommyliu/vexed/blob/d7317e24c0bcb361aa11b7116ccc41ff8290e094/app/src/renderer/windows/game/flash/Services/House.ts#L6)
+**Source:** [`app/src/renderer/windows/game/flash/Services/House.ts:6`](https://github.com/toommyliu/vexed/blob/ca5f4a4e39fa8b64a762a80ebaa57a5d4bf14832/app/src/renderer/windows/game/flash/Services/House.ts#L6)
 
 ```ts
 api.house.getItem(item: ItemIdentifierToken): BridgeEffect<Item | null>
@@ -58,7 +58,7 @@ api.house.getItem(item: ItemIdentifierToken): BridgeEffect<Item | null>
 
 ### `api.house.getItems()`
 
-**Source:** [`app/src/renderer/windows/game/flash/Services/House.ts:7`](https://github.com/toommyliu/vexed/blob/d7317e24c0bcb361aa11b7116ccc41ff8290e094/app/src/renderer/windows/game/flash/Services/House.ts#L7)
+**Source:** [`app/src/renderer/windows/game/flash/Services/House.ts:7`](https://github.com/toommyliu/vexed/blob/ca5f4a4e39fa8b64a762a80ebaa57a5d4bf14832/app/src/renderer/windows/game/flash/Services/House.ts#L7)
 
 ```ts
 api.house.getItems(): BridgeEffect<readonly Item[]>
@@ -72,7 +72,7 @@ api.house.getItems(): BridgeEffect<readonly Item[]>
 
 ### `api.house.getSlots()`
 
-**Source:** [`app/src/renderer/windows/game/flash/Services/House.ts:8`](https://github.com/toommyliu/vexed/blob/d7317e24c0bcb361aa11b7116ccc41ff8290e094/app/src/renderer/windows/game/flash/Services/House.ts#L8)
+**Source:** [`app/src/renderer/windows/game/flash/Services/House.ts:8`](https://github.com/toommyliu/vexed/blob/ca5f4a4e39fa8b64a762a80ebaa57a5d4bf14832/app/src/renderer/windows/game/flash/Services/House.ts#L8)
 
 ```ts
 api.house.getSlots(): BridgeEffect<number>
@@ -86,7 +86,7 @@ api.house.getSlots(): BridgeEffect<number>
 
 ### `api.house.getUsedSlots()`
 
-**Source:** [`app/src/renderer/windows/game/flash/Services/House.ts:9`](https://github.com/toommyliu/vexed/blob/d7317e24c0bcb361aa11b7116ccc41ff8290e094/app/src/renderer/windows/game/flash/Services/House.ts#L9)
+**Source:** [`app/src/renderer/windows/game/flash/Services/House.ts:9`](https://github.com/toommyliu/vexed/blob/ca5f4a4e39fa8b64a762a80ebaa57a5d4bf14832/app/src/renderer/windows/game/flash/Services/House.ts#L9)
 
 ```ts
 api.house.getUsedSlots(): BridgeEffect<number>
@@ -102,7 +102,7 @@ api.house.getUsedSlots(): BridgeEffect<number>
 
 ### `BridgeEffect`
 
-**Source:** [`app/src/renderer/windows/game/flash/Services/Bridge.ts:14`](https://github.com/toommyliu/vexed/blob/d7317e24c0bcb361aa11b7116ccc41ff8290e094/app/src/renderer/windows/game/flash/Services/Bridge.ts#L14)
+**Source:** [`app/src/renderer/windows/game/flash/Services/Bridge.ts:14`](https://github.com/toommyliu/vexed/blob/ca5f4a4e39fa8b64a762a80ebaa57a5d4bf14832/app/src/renderer/windows/game/flash/Services/Bridge.ts#L14)
 
 ```ts
 type BridgeEffect = Effect.Effect<A, BridgeError>
@@ -112,7 +112,7 @@ type BridgeEffect = Effect.Effect<A, BridgeError>
 
 ### `BridgeError`
 
-**Source:** [`app/src/renderer/windows/game/flash/Services/Bridge.ts:9`](https://github.com/toommyliu/vexed/blob/d7317e24c0bcb361aa11b7116ccc41ff8290e094/app/src/renderer/windows/game/flash/Services/Bridge.ts#L9)
+**Source:** [`app/src/renderer/windows/game/flash/Services/Bridge.ts:9`](https://github.com/toommyliu/vexed/blob/ca5f4a4e39fa8b64a762a80ebaa57a5d4bf14832/app/src/renderer/windows/game/flash/Services/Bridge.ts#L9)
 
 ```ts
 type BridgeError = | SwfUnavailableError

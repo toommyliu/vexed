@@ -37,7 +37,7 @@ tableOfContents:
 
 ### `api.log()`
 
-**Source:** [`app/src/renderer/windows/game/scripting/ScriptApi.ts:163`](https://github.com/toommyliu/vexed/blob/d7317e24c0bcb361aa11b7116ccc41ff8290e094/app/src/renderer/windows/game/scripting/ScriptApi.ts#L163)
+**Source:** [`app/src/renderer/windows/game/scripting/ScriptApi.ts:159`](https://github.com/toommyliu/vexed/blob/ca5f4a4e39fa8b64a762a80ebaa57a5d4bf14832/app/src/renderer/windows/game/scripting/ScriptApi.ts#L159)
 
 ```ts
 api.log(message: string): void
@@ -55,7 +55,7 @@ api.log(message: string): void
 
 Aborts when the script stops. Pass this to APIs that support cancellation.
 
-**Source:** [`app/src/renderer/windows/game/scripting/ScriptApi.ts:162`](https://github.com/toommyliu/vexed/blob/d7317e24c0bcb361aa11b7116ccc41ff8290e094/app/src/renderer/windows/game/scripting/ScriptApi.ts#L162)
+**Source:** [`app/src/renderer/windows/game/scripting/ScriptApi.ts:158`](https://github.com/toommyliu/vexed/blob/ca5f4a4e39fa8b64a762a80ebaa57a5d4bf14832/app/src/renderer/windows/game/scripting/ScriptApi.ts#L158)
 
 ```ts
 api.signal: AbortSignal
@@ -69,7 +69,7 @@ api.signal: AbortSignal
 
 Waits for milliseconds and cancels when the script stops.
 
-**Source:** [`app/src/renderer/windows/game/scripting/ScriptApi.ts:167`](https://github.com/toommyliu/vexed/blob/d7317e24c0bcb361aa11b7116ccc41ff8290e094/app/src/renderer/windows/game/scripting/ScriptApi.ts#L167)
+**Source:** [`app/src/renderer/windows/game/scripting/ScriptApi.ts:163`](https://github.com/toommyliu/vexed/blob/ca5f4a4e39fa8b64a762a80ebaa57a5d4bf14832/app/src/renderer/windows/game/scripting/ScriptApi.ts#L163)
 
 ```ts
 api.sleep(ms: number): Effect.Effect<void, ScriptExecutionError, never>
