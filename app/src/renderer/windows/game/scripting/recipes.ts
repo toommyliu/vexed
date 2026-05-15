@@ -61,10 +61,6 @@ export interface ScriptRecipesShape {
   ): ScriptRecipeEffect<void>;
   ensureLifeSteal(quantity: number): ScriptRecipeEffect<void>;
   ensureScrollOfEnrage(quantity: number): ScriptRecipeEffect<void>;
-  drinkConsumables(
-    items: string | readonly string[],
-    equipAfter?: string,
-  ): ScriptRecipeEffect<void>;
   useConsumables(
     items: string | readonly string[],
     equipAfter?: string,
@@ -271,7 +267,7 @@ const normalizeConsumableItems = (
     return normalizedItems;
   });
 
-const drinkConsumables = (
+const useConsumables = (
   deps: ScriptRecipeDependencies,
   items: string | readonly string[],
   equipAfter?: string,
@@ -279,7 +275,7 @@ const drinkConsumables = (
   Effect.gen(function* () {
     const normalizedItems = yield* normalizeConsumableItems(
       deps,
-      "drinkConsumables",
+      "useConsumables",
       items,
     );
 
@@ -288,7 +284,7 @@ const drinkConsumables = (
         ? undefined
         : yield* requireNonEmptyString(
             deps,
-            "drinkConsumables",
+            "useConsumables",
             "equipAfter",
             equipAfter,
           );
@@ -897,10 +893,8 @@ export const makeScriptRecipes = (
   buff: (skillList, wait) => buff(deps, skillList, wait),
   ensureLifeSteal: (quantity) => ensureLifeSteal(deps, quantity),
   ensureScrollOfEnrage: (quantity) => ensureScrollOfEnrage(deps, quantity),
-  drinkConsumables: (items, equipAfter) =>
-    drinkConsumables(deps, items, equipAfter),
   useConsumables: (items, equipAfter) =>
-    drinkConsumables(deps, items, equipAfter),
+    useConsumables(deps, items, equipAfter),
   goToHouse: (player) => goToHouse(deps, player),
   beep: (times) => beep(deps, times),
   doWheelOfDoom: (toBank) => doWheelOfDoom(deps, toBank),
