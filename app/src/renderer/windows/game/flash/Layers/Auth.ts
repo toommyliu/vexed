@@ -228,7 +228,14 @@ const make = Effect.gen(function* () {
       ).pipe(
         Effect.repeat({
           until: (outcome) => outcome !== null,
-          schedule: Schedule.spaced("250 millis"),
+          schedule: Schedule.passthrough<
+            number,
+            AuthConnectOutcome | null,
+            never,
+            never
+          >(
+            Schedule.spaced("250 millis"),
+          ),
         }),
         Effect.timeoutOption(CONNECT_TO_TIMEOUT),
       );
@@ -242,13 +249,8 @@ const make = Effect.gen(function* () {
         );
       }
 
-      const outcome = yield* observeConnectOutcome(
-        initialConnectionFailureSeq,
-        selection,
-      );
-
       return (
-        outcome ??
+        completed.value ??
         connectFailure(
           "timeout",
           "timed out connecting to server",
