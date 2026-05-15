@@ -1087,6 +1087,13 @@ const make = Effect.gen(function* () {
         });
       }
 
+      const currentState = yield* SynchronizedRef.get(stateRef);
+      if (currentState.attempting) {
+        return yield* updateState((state) => {
+          state.lastError = "cannot change server while reconnecting";
+        });
+      }
+
       const servers = yield* auth
         .getServers()
         .pipe(Effect.catchCause(() => Effect.succeed([])));
