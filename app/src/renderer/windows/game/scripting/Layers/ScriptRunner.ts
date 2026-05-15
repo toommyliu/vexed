@@ -397,14 +397,26 @@ const make = Effect.gen(function* () {
         )) satisfies ScriptApi["packet"][typeof listener];
 
     const scriptSettings: ScriptSettingsShape = {
-      enemyMagnet: settings.enemyMagnet,
-      infiniteRange: settings.infiniteRange,
-      provokeCell: settings.provokeCell,
-      skipCutscenes: settings.skipCutscenes,
-      setEnemyMagnetEnabled: settings.setEnemyMagnetEnabled,
-      setInfiniteRangeEnabled: settings.setInfiniteRangeEnabled,
-      setProvokeCellEnabled: settings.setProvokeCellEnabled,
-      setSkipCutscenesEnabled: settings.setSkipCutscenesEnabled,
+      isEnemyMagnetEnabled: () =>
+        settings
+          .getState()
+          .pipe(Effect.map((state) => state.enemyMagnetEnabled)),
+      setEnemyMagnet: settings.setEnemyMagnetEnabled,
+      isInfiniteRangeEnabled: () =>
+        settings
+          .getState()
+          .pipe(Effect.map((state) => state.infiniteRangeEnabled)),
+      setInfiniteRange: settings.setInfiniteRangeEnabled,
+      isProvokeCellEnabled: () =>
+        settings
+          .getState()
+          .pipe(Effect.map((state) => state.provokeCellEnabled)),
+      setProvokeCell: settings.setProvokeCellEnabled,
+      isSkipCutscenesEnabled: () =>
+        settings
+          .getState()
+          .pipe(Effect.map((state) => state.skipCutscenesEnabled)),
+      setSkipCutscenes: settings.setSkipCutscenesEnabled,
       setCustomName: settings.setCustomName,
       setCustomGuild: settings.setCustomGuild,
       setWalkSpeed: settings.setWalkSpeed,

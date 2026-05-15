@@ -6,7 +6,7 @@ module.exports = function* run({ api }) {
   yield* api.settings.setFrameRate(30)
   yield* api.settings.setLagKillerEnabled(true)
   yield* api.settings.setOtherPlayersVisible(false)
-  yield* api.settings.setInfiniteRangeEnabled(true)
+  yield* api.settings.setInfiniteRange(true)
 
   yield* api.player.joinMap("battleon", "Enter", "Spawn")
   yield* api.player.jumpToCell("Enter", "Spawn")

@@ -55,14 +55,14 @@ export interface ScriptPacketApi
 }
 
 export interface ScriptSettingsShape {
-  enemyMagnet(): BridgeEffect<void>;
-  infiniteRange(): BridgeEffect<void>;
-  provokeCell(): BridgeEffect<void>;
-  skipCutscenes(): BridgeEffect<void>;
-  setEnemyMagnetEnabled(enabled: boolean): BridgeEffect<void>;
-  setInfiniteRangeEnabled(enabled: boolean): BridgeEffect<void>;
-  setProvokeCellEnabled(enabled: boolean): BridgeEffect<void>;
-  setSkipCutscenesEnabled(enabled: boolean): BridgeEffect<void>;
+  isEnemyMagnetEnabled(): Effect.Effect<boolean>;
+  setEnemyMagnet(enabled: boolean): BridgeEffect<void>;
+  isInfiniteRangeEnabled(): Effect.Effect<boolean>;
+  setInfiniteRange(enabled: boolean): BridgeEffect<void>;
+  isProvokeCellEnabled(): Effect.Effect<boolean>;
+  setProvokeCell(enabled: boolean): BridgeEffect<void>;
+  isSkipCutscenesEnabled(): Effect.Effect<boolean>;
+  setSkipCutscenes(enabled: boolean): BridgeEffect<void>;
   setCustomName(name: string): BridgeEffect<void>;
   setCustomGuild(name: string): BridgeEffect<void>;
   setWalkSpeed(speed: number): BridgeEffect<void>;
