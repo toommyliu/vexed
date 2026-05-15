@@ -24,7 +24,7 @@ tableOfContents:
 
 ### `api.tempInventory.contains()`
 
-**Source:** [`app/src/renderer/windows/game/flash/Services/TempInventory.ts:6`](https://github.com/toommyliu/vexed/blob/ca5f4a4e39fa8b64a762a80ebaa57a5d4bf14832/app/src/renderer/windows/game/flash/Services/TempInventory.ts#L6)
+**Source:** [`app/src/renderer/windows/game/flash/Services/TempInventory.ts:6`](https://github.com/toommyliu/vexed/blob/6494a25761ae20039c3dbfb6ffe31551d4040ed3/app/src/renderer/windows/game/flash/Services/TempInventory.ts#L6)
 
 ```ts
 api.tempInventory.contains(item: ItemIdentifierToken, quantity?: number): BridgeEffect<boolean>
@@ -43,7 +43,7 @@ api.tempInventory.contains(item: ItemIdentifierToken, quantity?: number): Bridge
 
 ### `api.tempInventory.getItem()`
 
-**Source:** [`app/src/renderer/windows/game/flash/Services/TempInventory.ts:7`](https://github.com/toommyliu/vexed/blob/ca5f4a4e39fa8b64a762a80ebaa57a5d4bf14832/app/src/renderer/windows/game/flash/Services/TempInventory.ts#L7)
+**Source:** [`app/src/renderer/windows/game/flash/Services/TempInventory.ts:7`](https://github.com/toommyliu/vexed/blob/6494a25761ae20039c3dbfb6ffe31551d4040ed3/app/src/renderer/windows/game/flash/Services/TempInventory.ts#L7)
 
 ```ts
 api.tempInventory.getItem(item: ItemIdentifierToken): BridgeEffect<Item | null>
@@ -61,7 +61,7 @@ api.tempInventory.getItem(item: ItemIdentifierToken): BridgeEffect<Item | null>
 
 ### `api.tempInventory.getItems()`
 
-**Source:** [`app/src/renderer/windows/game/flash/Services/TempInventory.ts:8`](https://github.com/toommyliu/vexed/blob/ca5f4a4e39fa8b64a762a80ebaa57a5d4bf14832/app/src/renderer/windows/game/flash/Services/TempInventory.ts#L8)
+**Source:** [`app/src/renderer/windows/game/flash/Services/TempInventory.ts:8`](https://github.com/toommyliu/vexed/blob/6494a25761ae20039c3dbfb6ffe31551d4040ed3/app/src/renderer/windows/game/flash/Services/TempInventory.ts#L8)
 
 ```ts
 api.tempInventory.getItems(): BridgeEffect<readonly Item[]>
@@ -77,7 +77,7 @@ api.tempInventory.getItems(): BridgeEffect<readonly Item[]>
 
 ### `BridgeEffect`
 
-**Source:** [`app/src/renderer/windows/game/flash/Services/Bridge.ts:14`](https://github.com/toommyliu/vexed/blob/ca5f4a4e39fa8b64a762a80ebaa57a5d4bf14832/app/src/renderer/windows/game/flash/Services/Bridge.ts#L14)
+**Source:** [`app/src/renderer/windows/game/flash/Services/Bridge.ts:14`](https://github.com/toommyliu/vexed/blob/6494a25761ae20039c3dbfb6ffe31551d4040ed3/app/src/renderer/windows/game/flash/Services/Bridge.ts#L14)
 
 ```ts
 type BridgeEffect = Effect.Effect<A, BridgeError>
@@ -87,7 +87,7 @@ type BridgeEffect = Effect.Effect<A, BridgeError>
 
 ### `BridgeError`
 
-**Source:** [`app/src/renderer/windows/game/flash/Services/Bridge.ts:9`](https://github.com/toommyliu/vexed/blob/ca5f4a4e39fa8b64a762a80ebaa57a5d4bf14832/app/src/renderer/windows/game/flash/Services/Bridge.ts#L9)
+**Source:** [`app/src/renderer/windows/game/flash/Services/Bridge.ts:9`](https://github.com/toommyliu/vexed/blob/6494a25761ae20039c3dbfb6ffe31551d4040ed3/app/src/renderer/windows/game/flash/Services/Bridge.ts#L9)
 
 ```ts
 type BridgeError = | SwfUnavailableError

@@ -19,6 +19,29 @@ module.exports = function* run({ api, autoZone, autoRelogin }) {
 }
 ```
 
+## Editor IntelliSense
+
+Download the generated declaration file from `/vexed-script.d.ts` on this docs site, place it beside your scripts, then add a reference at the top of each script:
+
+```js
+// @ts-check
+/// <reference path="./vexed-script.d.ts" />
+
+/** @param {Vexed.ScriptContext} context */
+module.exports = function* run({ api }) {
+  yield* api.player.joinMap("battleon")
+}
+```
+
+For a folder full of scripts, put `vexed-script.d.ts` in that folder and add a `jsconfig.json`:
+
+```json
+{
+  "compilerOptions": { "checkJs": true },
+  "include": ["**/*.js", "vexed-script.d.ts"]
+}
+```
+
 ## Context
 
 | Member | Description |
@@ -41,6 +64,7 @@ module.exports = function* run({ api, autoZone, autoRelogin }) {
 | [`api.packet`](./api/packet/) | `ScriptPacketApi` |
 | [`api.player`](./api/player/) | `PlayerShape` |
 | [`api.quests`](./api/quests/) | `QuestsShape` |
+| [`api.recipes`](./api/recipes/) | `ScriptRecipesShape` |
 | [`api.settings`](./api/settings/) | `ScriptSettingsShape` |
 | [`api.shops`](./api/shops/) | `ShopsShape` |
 | [`api.tempInventory`](./api/temp-inventory/) | `TempInventoryShape` |

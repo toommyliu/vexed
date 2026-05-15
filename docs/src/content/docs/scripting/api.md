@@ -26,6 +26,7 @@ tableOfContents:
 | [`api.packet`](./packet/) | `ScriptPacketApi` |
 | [`api.player`](./player/) | `PlayerShape` |
 | [`api.quests`](./quests/) | `QuestsShape` |
+| [`api.recipes`](./recipes/) | `ScriptRecipesShape` |
 | [`api.settings`](./settings/) | `ScriptSettingsShape` |
 | [`api.shops`](./shops/) | `ShopsShape` |
 | [`api.tempInventory`](./temp-inventory/) | `TempInventoryShape` |
@@ -37,7 +38,7 @@ tableOfContents:
 
 ### `api.log()`
 
-**Source:** [`app/src/renderer/windows/game/scripting/ScriptApi.ts:159`](https://github.com/toommyliu/vexed/blob/ca5f4a4e39fa8b64a762a80ebaa57a5d4bf14832/app/src/renderer/windows/game/scripting/ScriptApi.ts#L159)
+**Source:** [`app/src/renderer/windows/game/scripting/ScriptApi.ts:160`](https://github.com/toommyliu/vexed/blob/6494a25761ae20039c3dbfb6ffe31551d4040ed3/app/src/renderer/windows/game/scripting/ScriptApi.ts#L160)
 
 ```ts
 api.log(message: string): void
@@ -55,7 +56,7 @@ api.log(message: string): void
 
 Aborts when the script stops. Pass this to APIs that support cancellation.
 
-**Source:** [`app/src/renderer/windows/game/scripting/ScriptApi.ts:158`](https://github.com/toommyliu/vexed/blob/ca5f4a4e39fa8b64a762a80ebaa57a5d4bf14832/app/src/renderer/windows/game/scripting/ScriptApi.ts#L158)
+**Source:** [`app/src/renderer/windows/game/scripting/ScriptApi.ts:159`](https://github.com/toommyliu/vexed/blob/6494a25761ae20039c3dbfb6ffe31551d4040ed3/app/src/renderer/windows/game/scripting/ScriptApi.ts#L159)
 
 ```ts
 api.signal: AbortSignal
@@ -69,7 +70,7 @@ api.signal: AbortSignal
 
 Waits for milliseconds and cancels when the script stops.
 
-**Source:** [`app/src/renderer/windows/game/scripting/ScriptApi.ts:163`](https://github.com/toommyliu/vexed/blob/ca5f4a4e39fa8b64a762a80ebaa57a5d4bf14832/app/src/renderer/windows/game/scripting/ScriptApi.ts#L163)
+**Source:** [`app/src/renderer/windows/game/scripting/ScriptApi.ts:164`](https://github.com/toommyliu/vexed/blob/6494a25761ae20039c3dbfb6ffe31551d4040ed3/app/src/renderer/windows/game/scripting/ScriptApi.ts#L164)
 
 ```ts
 api.sleep(ms: number): Effect.Effect<void, ScriptExecutionError, never>
