@@ -109,7 +109,6 @@ interface AuthApi {
     getServers(): Effect<Server[], BridgeError>;
     getUsername(): Effect<string, BridgeError>;
     getPassword(): Effect<string, BridgeError>;
-    getLoginSession(): Effect<LoginSession, BridgeError>;
     isLoggedIn(): Effect<boolean, BridgeError>;
     isTemporarilyKicked(): Effect<boolean, BridgeError>;
     login(username: string, password: string): Effect<void, BridgeError>;
@@ -509,18 +508,6 @@ interface Item {
   readonly enhancementPatternId: number;
   isBoost(): boolean;
 }
-type LoginSession = {
-  servers: ServerData[];
-  bSuccess: number;
-  bCCOnly?: number;
-  iAccess?: number;
-  iAge?: number;
-  iEmailStatus?: number;
-  iUpg: number;
-  iUpgDays?: number;
-  unm: string; // username
-  sToken: string; // password
-};
 interface Monster extends BaseEntity {
   readonly data: MonsterData;
   readonly monMapId: number;
@@ -702,18 +689,6 @@ type ItemData = {
   sName: string;
   sType: string;
 };
-type ServerData = {
-  bOnline: number;
-  bUpg: number;
-  iChat: number;
-  iCount: number;
-  iLevel: number;
-  iMax: number;
-  iPort: number;
-  sIP: string;
-  sLang: string;
-  sName: string;
-};
 type MonsterData = BaseEntityData & {
   iLvl: number;
   intMP: number;
@@ -827,6 +802,18 @@ type QuestRequirement = {
    * The quantity of the item.
    */
   quantity: number;
+};
+type ServerData = {
+  bOnline: number;
+  bUpg: number;
+  iChat: number;
+  iCount: number;
+  iLevel: number;
+  iMax: number;
+  iPort: number;
+  sIP: string;
+  sLang: string;
+  sName: string;
 };
 interface Json { readonly [key: string]: unknown; }
 interface Location { readonly [key: string]: unknown; }

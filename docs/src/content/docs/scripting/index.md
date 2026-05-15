@@ -59,7 +59,7 @@ For a folder full of scripts, put `script-api.d.ts` in that folder and add a `js
 | Namespace | Source Type |
 | --- | --- |
 | [`api.army`](./api/army/) | `ArmyShape` |
-| [`api.auth`](./api/auth/) | `AuthShape` |
+| [`api.auth`](./api/auth/) | `ScriptAuthShape` |
 | [`api.bank`](./api/bank/) | `BankShape` |
 | [`api.combat`](./api/combat/) | `CombatShape` |
 | [`api.drops`](./api/drops/) | `DropsShape` |

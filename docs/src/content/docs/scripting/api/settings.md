@@ -34,7 +34,7 @@ tableOfContents:
 
 ### `api.settings.setCollisionsEnabled()`
 
-**Source:** [`app/src/renderer/windows/game/scripting/ScriptApi.ts:69`](https://github.com/toommyliu/vexed/blob/a462966b2e60f995d3aa973d6b292a4e82a38d19/app/src/renderer/windows/game/scripting/ScriptApi.ts#L69)
+**Source:** [`app/src/renderer/windows/game/scripting/ScriptApi.ts:80`](https://github.com/toommyliu/vexed/blob/3a194e38fe23218b85978c4567e31303a27d86c2/app/src/renderer/windows/game/scripting/ScriptApi.ts#L80)
 
 ```ts
 api.settings.setCollisionsEnabled(enabled: boolean): BridgeEffect<void>
@@ -52,7 +52,7 @@ api.settings.setCollisionsEnabled(enabled: boolean): BridgeEffect<void>
 
 ### `api.settings.setCustomGuild()`
 
-**Source:** [`app/src/renderer/windows/game/scripting/ScriptApi.ts:66`](https://github.com/toommyliu/vexed/blob/a462966b2e60f995d3aa973d6b292a4e82a38d19/app/src/renderer/windows/game/scripting/ScriptApi.ts#L66)
+**Source:** [`app/src/renderer/windows/game/scripting/ScriptApi.ts:77`](https://github.com/toommyliu/vexed/blob/3a194e38fe23218b85978c4567e31303a27d86c2/app/src/renderer/windows/game/scripting/ScriptApi.ts#L77)
 
 ```ts
 api.settings.setCustomGuild(name: string): BridgeEffect<void>
@@ -70,7 +70,7 @@ api.settings.setCustomGuild(name: string): BridgeEffect<void>
 
 ### `api.settings.setCustomName()`
 
-**Source:** [`app/src/renderer/windows/game/scripting/ScriptApi.ts:65`](https://github.com/toommyliu/vexed/blob/a462966b2e60f995d3aa973d6b292a4e82a38d19/app/src/renderer/windows/game/scripting/ScriptApi.ts#L65)
+**Source:** [`app/src/renderer/windows/game/scripting/ScriptApi.ts:76`](https://github.com/toommyliu/vexed/blob/3a194e38fe23218b85978c4567e31303a27d86c2/app/src/renderer/windows/game/scripting/ScriptApi.ts#L76)
 
 ```ts
 api.settings.setCustomName(name: string): BridgeEffect<void>
@@ -88,7 +88,7 @@ api.settings.setCustomName(name: string): BridgeEffect<void>
 
 ### `api.settings.setDeathAdsVisible()`
 
-**Source:** [`app/src/renderer/windows/game/scripting/ScriptApi.ts:68`](https://github.com/toommyliu/vexed/blob/a462966b2e60f995d3aa973d6b292a4e82a38d19/app/src/renderer/windows/game/scripting/ScriptApi.ts#L68)
+**Source:** [`app/src/renderer/windows/game/scripting/ScriptApi.ts:79`](https://github.com/toommyliu/vexed/blob/3a194e38fe23218b85978c4567e31303a27d86c2/app/src/renderer/windows/game/scripting/ScriptApi.ts#L79)
 
 ```ts
 api.settings.setDeathAdsVisible(visible: boolean): BridgeEffect<void>
@@ -106,7 +106,7 @@ api.settings.setDeathAdsVisible(visible: boolean): BridgeEffect<void>
 
 ### `api.settings.setEffectsEnabled()`
 
-**Source:** [`app/src/renderer/windows/game/scripting/ScriptApi.ts:70`](https://github.com/toommyliu/vexed/blob/a462966b2e60f995d3aa973d6b292a4e82a38d19/app/src/renderer/windows/game/scripting/ScriptApi.ts#L70)
+**Source:** [`app/src/renderer/windows/game/scripting/ScriptApi.ts:81`](https://github.com/toommyliu/vexed/blob/3a194e38fe23218b85978c4567e31303a27d86c2/app/src/renderer/windows/game/scripting/ScriptApi.ts#L81)
 
 ```ts
 api.settings.setEffectsEnabled(enabled: boolean): BridgeEffect<void>
@@ -124,7 +124,7 @@ api.settings.setEffectsEnabled(enabled: boolean): BridgeEffect<void>
 
 ### `api.settings.setEnemyMagnet()`
 
-**Source:** [`app/src/renderer/windows/game/scripting/ScriptApi.ts:61`](https://github.com/toommyliu/vexed/blob/a462966b2e60f995d3aa973d6b292a4e82a38d19/app/src/renderer/windows/game/scripting/ScriptApi.ts#L61)
+**Source:** [`app/src/renderer/windows/game/scripting/ScriptApi.ts:72`](https://github.com/toommyliu/vexed/blob/3a194e38fe23218b85978c4567e31303a27d86c2/app/src/renderer/windows/game/scripting/ScriptApi.ts#L72)
 
 ```ts
 api.settings.setEnemyMagnet(enabled: boolean): BridgeEffect<void>
@@ -142,7 +142,7 @@ api.settings.setEnemyMagnet(enabled: boolean): BridgeEffect<void>
 
 ### `api.settings.setFrameRate()`
 
-**Source:** [`app/src/renderer/windows/game/scripting/ScriptApi.ts:73`](https://github.com/toommyliu/vexed/blob/a462966b2e60f995d3aa973d6b292a4e82a38d19/app/src/renderer/windows/game/scripting/ScriptApi.ts#L73)
+**Source:** [`app/src/renderer/windows/game/scripting/ScriptApi.ts:84`](https://github.com/toommyliu/vexed/blob/3a194e38fe23218b85978c4567e31303a27d86c2/app/src/renderer/windows/game/scripting/ScriptApi.ts#L84)
 
 ```ts
 api.settings.setFrameRate(fps: number): BridgeEffect<void>
@@ -160,7 +160,7 @@ api.settings.setFrameRate(fps: number): BridgeEffect<void>
 
 ### `api.settings.setInfiniteRange()`
 
-**Source:** [`app/src/renderer/windows/game/scripting/ScriptApi.ts:62`](https://github.com/toommyliu/vexed/blob/a462966b2e60f995d3aa973d6b292a4e82a38d19/app/src/renderer/windows/game/scripting/ScriptApi.ts#L62)
+**Source:** [`app/src/renderer/windows/game/scripting/ScriptApi.ts:73`](https://github.com/toommyliu/vexed/blob/3a194e38fe23218b85978c4567e31303a27d86c2/app/src/renderer/windows/game/scripting/ScriptApi.ts#L73)
 
 ```ts
 api.settings.setInfiniteRange(enabled: boolean): BridgeEffect<void>
@@ -178,7 +178,7 @@ api.settings.setInfiniteRange(enabled: boolean): BridgeEffect<void>
 
 ### `api.settings.setLagKillerEnabled()`
 
-**Source:** [`app/src/renderer/windows/game/scripting/ScriptApi.ts:72`](https://github.com/toommyliu/vexed/blob/a462966b2e60f995d3aa973d6b292a4e82a38d19/app/src/renderer/windows/game/scripting/ScriptApi.ts#L72)
+**Source:** [`app/src/renderer/windows/game/scripting/ScriptApi.ts:83`](https://github.com/toommyliu/vexed/blob/3a194e38fe23218b85978c4567e31303a27d86c2/app/src/renderer/windows/game/scripting/ScriptApi.ts#L83)
 
 ```ts
 api.settings.setLagKillerEnabled(enabled: boolean): BridgeEffect<void>
@@ -196,7 +196,7 @@ api.settings.setLagKillerEnabled(enabled: boolean): BridgeEffect<void>
 
 ### `api.settings.setOtherPlayersVisible()`
 
-**Source:** [`app/src/renderer/windows/game/scripting/ScriptApi.ts:71`](https://github.com/toommyliu/vexed/blob/a462966b2e60f995d3aa973d6b292a4e82a38d19/app/src/renderer/windows/game/scripting/ScriptApi.ts#L71)
+**Source:** [`app/src/renderer/windows/game/scripting/ScriptApi.ts:82`](https://github.com/toommyliu/vexed/blob/3a194e38fe23218b85978c4567e31303a27d86c2/app/src/renderer/windows/game/scripting/ScriptApi.ts#L82)
 
 ```ts
 api.settings.setOtherPlayersVisible(visible: boolean): BridgeEffect<void>
@@ -214,7 +214,7 @@ api.settings.setOtherPlayersVisible(visible: boolean): BridgeEffect<void>
 
 ### `api.settings.setProvokeCell()`
 
-**Source:** [`app/src/renderer/windows/game/scripting/ScriptApi.ts:63`](https://github.com/toommyliu/vexed/blob/a462966b2e60f995d3aa973d6b292a4e82a38d19/app/src/renderer/windows/game/scripting/ScriptApi.ts#L63)
+**Source:** [`app/src/renderer/windows/game/scripting/ScriptApi.ts:74`](https://github.com/toommyliu/vexed/blob/3a194e38fe23218b85978c4567e31303a27d86c2/app/src/renderer/windows/game/scripting/ScriptApi.ts#L74)
 
 ```ts
 api.settings.setProvokeCell(enabled: boolean): BridgeEffect<void>
@@ -232,7 +232,7 @@ api.settings.setProvokeCell(enabled: boolean): BridgeEffect<void>
 
 ### `api.settings.setSkipCutscenes()`
 
-**Source:** [`app/src/renderer/windows/game/scripting/ScriptApi.ts:64`](https://github.com/toommyliu/vexed/blob/a462966b2e60f995d3aa973d6b292a4e82a38d19/app/src/renderer/windows/game/scripting/ScriptApi.ts#L64)
+**Source:** [`app/src/renderer/windows/game/scripting/ScriptApi.ts:75`](https://github.com/toommyliu/vexed/blob/3a194e38fe23218b85978c4567e31303a27d86c2/app/src/renderer/windows/game/scripting/ScriptApi.ts#L75)
 
 ```ts
 api.settings.setSkipCutscenes(enabled: boolean): BridgeEffect<void>
@@ -250,7 +250,7 @@ api.settings.setSkipCutscenes(enabled: boolean): BridgeEffect<void>
 
 ### `api.settings.setWalkSpeed()`
 
-**Source:** [`app/src/renderer/windows/game/scripting/ScriptApi.ts:67`](https://github.com/toommyliu/vexed/blob/a462966b2e60f995d3aa973d6b292a4e82a38d19/app/src/renderer/windows/game/scripting/ScriptApi.ts#L67)
+**Source:** [`app/src/renderer/windows/game/scripting/ScriptApi.ts:78`](https://github.com/toommyliu/vexed/blob/3a194e38fe23218b85978c4567e31303a27d86c2/app/src/renderer/windows/game/scripting/ScriptApi.ts#L78)
 
 ```ts
 api.settings.setWalkSpeed(speed: number): BridgeEffect<void>
@@ -270,7 +270,7 @@ api.settings.setWalkSpeed(speed: number): BridgeEffect<void>
 
 ### `BridgeEffect`
 
-**Source:** [`app/src/renderer/windows/game/flash/Services/Bridge.ts:14`](https://github.com/toommyliu/vexed/blob/a462966b2e60f995d3aa973d6b292a4e82a38d19/app/src/renderer/windows/game/flash/Services/Bridge.ts#L14)
+**Source:** [`app/src/renderer/windows/game/flash/Services/Bridge.ts:14`](https://github.com/toommyliu/vexed/blob/3a194e38fe23218b85978c4567e31303a27d86c2/app/src/renderer/windows/game/flash/Services/Bridge.ts#L14)
 
 ```ts
 type BridgeEffect = Effect.Effect<A, BridgeError>
@@ -280,7 +280,7 @@ type BridgeEffect = Effect.Effect<A, BridgeError>
 
 ### `BridgeError`
 
-**Source:** [`app/src/renderer/windows/game/flash/Services/Bridge.ts:9`](https://github.com/toommyliu/vexed/blob/a462966b2e60f995d3aa973d6b292a4e82a38d19/app/src/renderer/windows/game/flash/Services/Bridge.ts#L9)
+**Source:** [`app/src/renderer/windows/game/flash/Services/Bridge.ts:9`](https://github.com/toommyliu/vexed/blob/3a194e38fe23218b85978c4567e31303a27d86c2/app/src/renderer/windows/game/flash/Services/Bridge.ts#L9)
 
 ```ts
 type BridgeError = | SwfUnavailableError

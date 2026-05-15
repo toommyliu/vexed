@@ -17,7 +17,7 @@ tableOfContents:
 | Namespace | Source Type |
 | --- | --- |
 | [`api.army`](./army/) | `ArmyShape` |
-| [`api.auth`](./auth/) | `AuthShape` |
+| [`api.auth`](./auth/) | `ScriptAuthShape` |
 | [`api.bank`](./bank/) | `BankShape` |
 | [`api.combat`](./combat/) | `CombatShape` |
 | [`api.drops`](./drops/) | `DropsShape` |
@@ -38,7 +38,7 @@ tableOfContents:
 
 ### `api.log()`
 
-**Source:** [`app/src/renderer/windows/game/scripting/ScriptApi.ts:162`](https://github.com/toommyliu/vexed/blob/a462966b2e60f995d3aa973d6b292a4e82a38d19/app/src/renderer/windows/game/scripting/ScriptApi.ts#L162)
+**Source:** [`app/src/renderer/windows/game/scripting/ScriptApi.ts:173`](https://github.com/toommyliu/vexed/blob/3a194e38fe23218b85978c4567e31303a27d86c2/app/src/renderer/windows/game/scripting/ScriptApi.ts#L173)
 
 ```ts
 api.log(message: string): void
@@ -56,7 +56,7 @@ api.log(message: string): void
 
 Aborts when the script stops. Pass this to APIs that support cancellation.
 
-**Source:** [`app/src/renderer/windows/game/scripting/ScriptApi.ts:161`](https://github.com/toommyliu/vexed/blob/a462966b2e60f995d3aa973d6b292a4e82a38d19/app/src/renderer/windows/game/scripting/ScriptApi.ts#L161)
+**Source:** [`app/src/renderer/windows/game/scripting/ScriptApi.ts:172`](https://github.com/toommyliu/vexed/blob/3a194e38fe23218b85978c4567e31303a27d86c2/app/src/renderer/windows/game/scripting/ScriptApi.ts#L172)
 
 ```ts
 api.signal: AbortSignal
@@ -70,7 +70,7 @@ api.signal: AbortSignal
 
 Waits for milliseconds and cancels when the script stops.
 
-**Source:** [`app/src/renderer/windows/game/scripting/ScriptApi.ts:170`](https://github.com/toommyliu/vexed/blob/a462966b2e60f995d3aa973d6b292a4e82a38d19/app/src/renderer/windows/game/scripting/ScriptApi.ts#L170)
+**Source:** [`app/src/renderer/windows/game/scripting/ScriptApi.ts:181`](https://github.com/toommyliu/vexed/blob/3a194e38fe23218b85978c4567e31303a27d86c2/app/src/renderer/windows/game/scripting/ScriptApi.ts#L181)
 
 ```ts
 api.sleep(ms: number): Effect.Effect<void, ScriptExecutionError, never>
@@ -90,7 +90,7 @@ api.sleep(ms: number): Effect.Effect<void, ScriptExecutionError, never>
 
 Stops the current script.
 
-**Source:** [`app/src/renderer/windows/game/scripting/ScriptApi.ts:166`](https://github.com/toommyliu/vexed/blob/a462966b2e60f995d3aa973d6b292a4e82a38d19/app/src/renderer/windows/game/scripting/ScriptApi.ts#L166)
+**Source:** [`app/src/renderer/windows/game/scripting/ScriptApi.ts:177`](https://github.com/toommyliu/vexed/blob/3a194e38fe23218b85978c4567e31303a27d86c2/app/src/renderer/windows/game/scripting/ScriptApi.ts#L177)
 
 ```ts
 api.stop(reason?: string): Effect.Effect<never, never, never>

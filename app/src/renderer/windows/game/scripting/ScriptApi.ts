@@ -1,10 +1,10 @@
 import type { Collection } from "@vexed/collection";
-import type { Aura, Avatar, GameAction, Monster } from "@vexed/game";
+import type { Aura, Avatar, GameAction, Monster, Server } from "@vexed/game";
 import type { Duration, Effect, Option } from "effect";
 import type { ScriptExecutionError, ScriptNotReadyError } from "./Errors";
 import type { ScriptRecipesShape } from "./recipes";
 import type { ArmyShape } from "../army/Services/Army";
-import type { AuthShape } from "../flash/Services/Auth";
+import type { AuthConnectOutcome } from "../flash/Services/Auth";
 import type { AutoZoneSupportedMap } from "../features/Services/AutoZone";
 import type { BankShape } from "../flash/Services/Bank";
 import type { BridgeEffect } from "../flash/Services/Bridge";
@@ -43,6 +43,17 @@ export type ScriptPacketListener = (
   | Generator<Effect.Yieldable<any, any, never, never>, unknown, never>;
 
 export type ScriptPacketDisposer = () => void;
+
+export interface ScriptAuthShape {
+  connectTo(server: string): BridgeEffect<AuthConnectOutcome>;
+  getServers(): BridgeEffect<Server[]>;
+  getUsername(): BridgeEffect<string>;
+  getPassword(): BridgeEffect<string>;
+  isLoggedIn(): BridgeEffect<boolean>;
+  isTemporarilyKicked(): BridgeEffect<boolean>;
+  login(username: string, password: string): BridgeEffect<void>;
+  logout(): BridgeEffect<void>;
+}
 
 export interface ScriptPacketApi
   extends Pick<EffectValue<PacketShape>, "sendClient" | "sendServer"> {
@@ -169,7 +180,7 @@ export interface ScriptApi {
    */
   sleep(ms: number): Effect.Effect<void, ScriptExecutionError>;
   readonly army: EffectValue<ArmyShape>;
-  readonly auth: EffectValue<AuthShape>;
+  readonly auth: EffectValue<ScriptAuthShape>;
   readonly bank: EffectValue<BankShape>;
   readonly combat: EffectValue<CombatShape>;
   readonly drops: EffectValue<DropsShape>;

@@ -34,7 +34,7 @@ tableOfContents:
 
 ### `api.combat.attackMonster()`
 
-**Source:** [`app/src/renderer/windows/game/flash/Services/Combat.ts:14`](https://github.com/toommyliu/vexed/blob/a462966b2e60f995d3aa973d6b292a4e82a38d19/app/src/renderer/windows/game/flash/Services/Combat.ts#L14)
+**Source:** [`app/src/renderer/windows/game/flash/Services/Combat.ts:14`](https://github.com/toommyliu/vexed/blob/3a194e38fe23218b85978c4567e31303a27d86c2/app/src/renderer/windows/game/flash/Services/Combat.ts#L14)
 
 ```ts
 api.combat.attackMonster(monster: MonsterIdentifierToken): BridgeEffect<void>
@@ -52,7 +52,7 @@ api.combat.attackMonster(monster: MonsterIdentifierToken): BridgeEffect<void>
 
 ### `api.combat.cancelAutoAttack()`
 
-**Source:** [`app/src/renderer/windows/game/flash/Services/Combat.ts:15`](https://github.com/toommyliu/vexed/blob/a462966b2e60f995d3aa973d6b292a4e82a38d19/app/src/renderer/windows/game/flash/Services/Combat.ts#L15)
+**Source:** [`app/src/renderer/windows/game/flash/Services/Combat.ts:15`](https://github.com/toommyliu/vexed/blob/3a194e38fe23218b85978c4567e31303a27d86c2/app/src/renderer/windows/game/flash/Services/Combat.ts#L15)
 
 ```ts
 api.combat.cancelAutoAttack(): BridgeEffect<void>
@@ -66,7 +66,7 @@ api.combat.cancelAutoAttack(): BridgeEffect<void>
 
 ### `api.combat.cancelTarget()`
 
-**Source:** [`app/src/renderer/windows/game/flash/Services/Combat.ts:16`](https://github.com/toommyliu/vexed/blob/a462966b2e60f995d3aa973d6b292a4e82a38d19/app/src/renderer/windows/game/flash/Services/Combat.ts#L16)
+**Source:** [`app/src/renderer/windows/game/flash/Services/Combat.ts:16`](https://github.com/toommyliu/vexed/blob/3a194e38fe23218b85978c4567e31303a27d86c2/app/src/renderer/windows/game/flash/Services/Combat.ts#L16)
 
 ```ts
 api.combat.cancelTarget(): BridgeEffect<void>
@@ -80,7 +80,7 @@ api.combat.cancelTarget(): BridgeEffect<void>
 
 ### `api.combat.canUseSkill()`
 
-**Source:** [`app/src/renderer/windows/game/flash/Services/Combat.ts:17`](https://github.com/toommyliu/vexed/blob/a462966b2e60f995d3aa973d6b292a4e82a38d19/app/src/renderer/windows/game/flash/Services/Combat.ts#L17)
+**Source:** [`app/src/renderer/windows/game/flash/Services/Combat.ts:17`](https://github.com/toommyliu/vexed/blob/3a194e38fe23218b85978c4567e31303a27d86c2/app/src/renderer/windows/game/flash/Services/Combat.ts#L17)
 
 ```ts
 api.combat.canUseSkill(index: string | number): BridgeEffect<boolean>
@@ -98,7 +98,7 @@ api.combat.canUseSkill(index: string | number): BridgeEffect<boolean>
 
 ### `api.combat.exit()`
 
-**Source:** [`app/src/renderer/windows/game/flash/Services/Combat.ts:18`](https://github.com/toommyliu/vexed/blob/a462966b2e60f995d3aa973d6b292a4e82a38d19/app/src/renderer/windows/game/flash/Services/Combat.ts#L18)
+**Source:** [`app/src/renderer/windows/game/flash/Services/Combat.ts:18`](https://github.com/toommyliu/vexed/blob/3a194e38fe23218b85978c4567e31303a27d86c2/app/src/renderer/windows/game/flash/Services/Combat.ts#L18)
 
 ```ts
 api.combat.exit(): BridgeEffect<boolean>
@@ -112,7 +112,7 @@ api.combat.exit(): BridgeEffect<boolean>
 
 ### `api.combat.getActiveSkillItem()`
 
-**Source:** [`app/src/renderer/windows/game/flash/Services/Combat.ts:19`](https://github.com/toommyliu/vexed/blob/a462966b2e60f995d3aa973d6b292a4e82a38d19/app/src/renderer/windows/game/flash/Services/Combat.ts#L19)
+**Source:** [`app/src/renderer/windows/game/flash/Services/Combat.ts:19`](https://github.com/toommyliu/vexed/blob/3a194e38fe23218b85978c4567e31303a27d86c2/app/src/renderer/windows/game/flash/Services/Combat.ts#L19)
 
 ```ts
 api.combat.getActiveSkillItem(index: string | number): BridgeEffect<ActiveSkillItem | null>
@@ -130,7 +130,7 @@ api.combat.getActiveSkillItem(index: string | number): BridgeEffect<ActiveSkillI
 
 ### `api.combat.getTarget()`
 
-**Source:** [`app/src/renderer/windows/game/flash/Services/Combat.ts:22`](https://github.com/toommyliu/vexed/blob/a462966b2e60f995d3aa973d6b292a4e82a38d19/app/src/renderer/windows/game/flash/Services/Combat.ts#L22)
+**Source:** [`app/src/renderer/windows/game/flash/Services/Combat.ts:22`](https://github.com/toommyliu/vexed/blob/3a194e38fe23218b85978c4567e31303a27d86c2/app/src/renderer/windows/game/flash/Services/Combat.ts#L22)
 
 ```ts
 api.combat.getTarget(): BridgeEffect<Monster | Avatar | null>
@@ -144,7 +144,7 @@ api.combat.getTarget(): BridgeEffect<Monster | Avatar | null>
 
 ### `api.combat.hasTarget()`
 
-**Source:** [`app/src/renderer/windows/game/flash/Services/Combat.ts:23`](https://github.com/toommyliu/vexed/blob/a462966b2e60f995d3aa973d6b292a4e82a38d19/app/src/renderer/windows/game/flash/Services/Combat.ts#L23)
+**Source:** [`app/src/renderer/windows/game/flash/Services/Combat.ts:23`](https://github.com/toommyliu/vexed/blob/3a194e38fe23218b85978c4567e31303a27d86c2/app/src/renderer/windows/game/flash/Services/Combat.ts#L23)
 
 ```ts
 api.combat.hasTarget(): BridgeEffect<boolean>
@@ -158,7 +158,7 @@ api.combat.hasTarget(): BridgeEffect<boolean>
 
 ### `api.combat.hunt()`
 
-**Source:** [`app/src/renderer/windows/game/flash/Services/Combat.ts:45`](https://github.com/toommyliu/vexed/blob/a462966b2e60f995d3aa973d6b292a4e82a38d19/app/src/renderer/windows/game/flash/Services/Combat.ts#L45)
+**Source:** [`app/src/renderer/windows/game/flash/Services/Combat.ts:45`](https://github.com/toommyliu/vexed/blob/3a194e38fe23218b85978c4567e31303a27d86c2/app/src/renderer/windows/game/flash/Services/Combat.ts#L45)
 
 ```ts
 api.combat.hunt(target: MonsterIdentifierToken, findMost?: boolean): BridgeEffect<string>
@@ -177,7 +177,7 @@ api.combat.hunt(target: MonsterIdentifierToken, findMost?: boolean): BridgeEffec
 
 ### `api.combat.kill()`
 
-**Source:** [`app/src/renderer/windows/game/flash/Services/Combat.ts:24`](https://github.com/toommyliu/vexed/blob/a462966b2e60f995d3aa973d6b292a4e82a38d19/app/src/renderer/windows/game/flash/Services/Combat.ts#L24)
+**Source:** [`app/src/renderer/windows/game/flash/Services/Combat.ts:24`](https://github.com/toommyliu/vexed/blob/3a194e38fe23218b85978c4567e31303a27d86c2/app/src/renderer/windows/game/flash/Services/Combat.ts#L24)
 
 ```ts
 api.combat.kill(target: MonsterIdentifierToken, options?: CombatKillOptions): BridgeEffect<void>
@@ -196,7 +196,7 @@ api.combat.kill(target: MonsterIdentifierToken, options?: CombatKillOptions): Br
 
 ### `api.combat.killForItem()`
 
-**Source:** [`app/src/renderer/windows/game/flash/Services/Combat.ts:28`](https://github.com/toommyliu/vexed/blob/a462966b2e60f995d3aa973d6b292a4e82a38d19/app/src/renderer/windows/game/flash/Services/Combat.ts#L28)
+**Source:** [`app/src/renderer/windows/game/flash/Services/Combat.ts:28`](https://github.com/toommyliu/vexed/blob/3a194e38fe23218b85978c4567e31303a27d86c2/app/src/renderer/windows/game/flash/Services/Combat.ts#L28)
 
 ```ts
 api.combat.killForItem(target: MonsterIdentifierToken, item: ItemIdentifierToken, quantity?: number, options?: CombatKillOptions): BridgeEffect<void>
@@ -217,7 +217,7 @@ api.combat.killForItem(target: MonsterIdentifierToken, item: ItemIdentifierToken
 
 ### `api.combat.killForTempItem()`
 
-**Source:** [`app/src/renderer/windows/game/flash/Services/Combat.ts:34`](https://github.com/toommyliu/vexed/blob/a462966b2e60f995d3aa973d6b292a4e82a38d19/app/src/renderer/windows/game/flash/Services/Combat.ts#L34)
+**Source:** [`app/src/renderer/windows/game/flash/Services/Combat.ts:34`](https://github.com/toommyliu/vexed/blob/3a194e38fe23218b85978c4567e31303a27d86c2/app/src/renderer/windows/game/flash/Services/Combat.ts#L34)
 
 ```ts
 api.combat.killForTempItem(target: MonsterIdentifierToken, item: ItemIdentifierToken, quantity?: number, options?: CombatKillOptions): BridgeEffect<void>
@@ -238,7 +238,7 @@ api.combat.killForTempItem(target: MonsterIdentifierToken, item: ItemIdentifierT
 
 ### `api.combat.useSkill()`
 
-**Source:** [`app/src/renderer/windows/game/flash/Services/Combat.ts:40`](https://github.com/toommyliu/vexed/blob/a462966b2e60f995d3aa973d6b292a4e82a38d19/app/src/renderer/windows/game/flash/Services/Combat.ts#L40)
+**Source:** [`app/src/renderer/windows/game/flash/Services/Combat.ts:40`](https://github.com/toommyliu/vexed/blob/3a194e38fe23218b85978c4567e31303a27d86c2/app/src/renderer/windows/game/flash/Services/Combat.ts#L40)
 
 ```ts
 api.combat.useSkill(index: string | number, force?: boolean, wait?: boolean): BridgeEffect<void>
@@ -260,7 +260,7 @@ api.combat.useSkill(index: string | number, force?: boolean, wait?: boolean): Br
 
 ### `ActiveSkillItem`
 
-**Source:** [`app/src/renderer/windows/game/flash/Types.ts:66`](https://github.com/toommyliu/vexed/blob/a462966b2e60f995d3aa973d6b292a4e82a38d19/app/src/renderer/windows/game/flash/Types.ts#L66)
+**Source:** [`app/src/renderer/windows/game/flash/Types.ts:66`](https://github.com/toommyliu/vexed/blob/3a194e38fe23218b85978c4567e31303a27d86c2/app/src/renderer/windows/game/flash/Types.ts#L66)
 
 ```ts
 type ActiveSkillItem = {
@@ -273,7 +273,7 @@ type ActiveSkillItem = {
 
 ### `BridgeEffect`
 
-**Source:** [`app/src/renderer/windows/game/flash/Services/Bridge.ts:14`](https://github.com/toommyliu/vexed/blob/a462966b2e60f995d3aa973d6b292a4e82a38d19/app/src/renderer/windows/game/flash/Services/Bridge.ts#L14)
+**Source:** [`app/src/renderer/windows/game/flash/Services/Bridge.ts:14`](https://github.com/toommyliu/vexed/blob/3a194e38fe23218b85978c4567e31303a27d86c2/app/src/renderer/windows/game/flash/Services/Bridge.ts#L14)
 
 ```ts
 type BridgeEffect = Effect.Effect<A, BridgeError>
@@ -283,7 +283,7 @@ type BridgeEffect = Effect.Effect<A, BridgeError>
 
 ### `BridgeError`
 
-**Source:** [`app/src/renderer/windows/game/flash/Services/Bridge.ts:9`](https://github.com/toommyliu/vexed/blob/a462966b2e60f995d3aa973d6b292a4e82a38d19/app/src/renderer/windows/game/flash/Services/Bridge.ts#L9)
+**Source:** [`app/src/renderer/windows/game/flash/Services/Bridge.ts:9`](https://github.com/toommyliu/vexed/blob/3a194e38fe23218b85978c4567e31303a27d86c2/app/src/renderer/windows/game/flash/Services/Bridge.ts#L9)
 
 ```ts
 type BridgeError = | SwfUnavailableError
@@ -295,7 +295,7 @@ type BridgeError = | SwfUnavailableError
 
 ### `CombatKillOptions`
 
-**Source:** [`app/src/renderer/windows/game/flash/Services/Combat.ts:6`](https://github.com/toommyliu/vexed/blob/a462966b2e60f995d3aa973d6b292a4e82a38d19/app/src/renderer/windows/game/flash/Services/Combat.ts#L6)
+**Source:** [`app/src/renderer/windows/game/flash/Services/Combat.ts:6`](https://github.com/toommyliu/vexed/blob/3a194e38fe23218b85978c4567e31303a27d86c2/app/src/renderer/windows/game/flash/Services/Combat.ts#L6)
 
 ```ts
 interface CombatKillOptions

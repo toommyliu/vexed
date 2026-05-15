@@ -534,6 +534,8 @@ const make = Effect.gen(function* () {
       setMap: autoZone.setMap,
     };
 
+    const { getLoginSession: _getLoginSession, ...scriptAuth } = auth;
+
     const recipes = makeScriptRecipes({
       sourceName,
       auth,
@@ -565,7 +567,7 @@ const make = Effect.gen(function* () {
       stop: stopScript,
       sleep,
       army: wrapValue(army) as ScriptApi["army"],
-      auth: wrapValue(auth) as ScriptApi["auth"],
+      auth: wrapValue(scriptAuth) as ScriptApi["auth"],
       bank: wrapValue(bank) as ScriptApi["bank"],
       combat: wrapValue(combat) as ScriptApi["combat"],
       drops: wrapValue(drops) as ScriptApi["drops"],

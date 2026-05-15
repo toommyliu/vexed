@@ -30,7 +30,7 @@ Feature controls available as `autoRelogin` on the script context.
 
 ### `autoRelogin.disable()`
 
-**Source:** [`app/src/renderer/windows/game/scripting/ScriptApi.ts:136`](https://github.com/toommyliu/vexed/blob/a462966b2e60f995d3aa973d6b292a4e82a38d19/app/src/renderer/windows/game/scripting/ScriptApi.ts#L136)
+**Source:** [`app/src/renderer/windows/game/scripting/ScriptApi.ts:147`](https://github.com/toommyliu/vexed/blob/3a194e38fe23218b85978c4567e31303a27d86c2/app/src/renderer/windows/game/scripting/ScriptApi.ts#L147)
 
 ```ts
 autoRelogin.disable(): Effect.Effect<void, never, never>
@@ -44,7 +44,7 @@ autoRelogin.disable(): Effect.Effect<void, never, never>
 
 ### `autoRelogin.enable()`
 
-**Source:** [`app/src/renderer/windows/game/scripting/ScriptApi.ts:135`](https://github.com/toommyliu/vexed/blob/a462966b2e60f995d3aa973d6b292a4e82a38d19/app/src/renderer/windows/game/scripting/ScriptApi.ts#L135)
+**Source:** [`app/src/renderer/windows/game/scripting/ScriptApi.ts:146`](https://github.com/toommyliu/vexed/blob/3a194e38fe23218b85978c4567e31303a27d86c2/app/src/renderer/windows/game/scripting/ScriptApi.ts#L146)
 
 ```ts
 autoRelogin.enable(): Effect.Effect<void, never, never>
@@ -58,7 +58,7 @@ autoRelogin.enable(): Effect.Effect<void, never, never>
 
 ### `autoRelogin.getDelay()`
 
-**Source:** [`app/src/renderer/windows/game/scripting/ScriptApi.ts:137`](https://github.com/toommyliu/vexed/blob/a462966b2e60f995d3aa973d6b292a4e82a38d19/app/src/renderer/windows/game/scripting/ScriptApi.ts#L137)
+**Source:** [`app/src/renderer/windows/game/scripting/ScriptApi.ts:148`](https://github.com/toommyliu/vexed/blob/3a194e38fe23218b85978c4567e31303a27d86c2/app/src/renderer/windows/game/scripting/ScriptApi.ts#L148)
 
 ```ts
 autoRelogin.getDelay(): Effect.Effect<number, never, never>
@@ -72,7 +72,7 @@ autoRelogin.getDelay(): Effect.Effect<number, never, never>
 
 ### `autoRelogin.getServer()`
 
-**Source:** [`app/src/renderer/windows/game/scripting/ScriptApi.ts:139`](https://github.com/toommyliu/vexed/blob/a462966b2e60f995d3aa973d6b292a4e82a38d19/app/src/renderer/windows/game/scripting/ScriptApi.ts#L139)
+**Source:** [`app/src/renderer/windows/game/scripting/ScriptApi.ts:150`](https://github.com/toommyliu/vexed/blob/3a194e38fe23218b85978c4567e31303a27d86c2/app/src/renderer/windows/game/scripting/ScriptApi.ts#L150)
 
 ```ts
 autoRelogin.getServer(): Effect.Effect<string | undefined, never, never>
@@ -86,7 +86,7 @@ autoRelogin.getServer(): Effect.Effect<string | undefined, never, never>
 
 ### `autoRelogin.isEnabled()`
 
-**Source:** [`app/src/renderer/windows/game/scripting/ScriptApi.ts:134`](https://github.com/toommyliu/vexed/blob/a462966b2e60f995d3aa973d6b292a4e82a38d19/app/src/renderer/windows/game/scripting/ScriptApi.ts#L134)
+**Source:** [`app/src/renderer/windows/game/scripting/ScriptApi.ts:145`](https://github.com/toommyliu/vexed/blob/3a194e38fe23218b85978c4567e31303a27d86c2/app/src/renderer/windows/game/scripting/ScriptApi.ts#L145)
 
 ```ts
 autoRelogin.isEnabled(): Effect.Effect<boolean, never, never>
@@ -100,7 +100,7 @@ autoRelogin.isEnabled(): Effect.Effect<boolean, never, never>
 
 ### `autoRelogin.setDelay()`
 
-**Source:** [`app/src/renderer/windows/game/scripting/ScriptApi.ts:138`](https://github.com/toommyliu/vexed/blob/a462966b2e60f995d3aa973d6b292a4e82a38d19/app/src/renderer/windows/game/scripting/ScriptApi.ts#L138)
+**Source:** [`app/src/renderer/windows/game/scripting/ScriptApi.ts:149`](https://github.com/toommyliu/vexed/blob/3a194e38fe23218b85978c4567e31303a27d86c2/app/src/renderer/windows/game/scripting/ScriptApi.ts#L149)
 
 ```ts
 autoRelogin.setDelay(delayMs: number): Effect.Effect<void, never, never>
@@ -118,7 +118,7 @@ autoRelogin.setDelay(delayMs: number): Effect.Effect<void, never, never>
 
 ### `autoRelogin.setServer()`
 
-**Source:** [`app/src/renderer/windows/game/scripting/ScriptApi.ts:140`](https://github.com/toommyliu/vexed/blob/a462966b2e60f995d3aa973d6b292a4e82a38d19/app/src/renderer/windows/game/scripting/ScriptApi.ts#L140)
+**Source:** [`app/src/renderer/windows/game/scripting/ScriptApi.ts:151`](https://github.com/toommyliu/vexed/blob/3a194e38fe23218b85978c4567e31303a27d86c2/app/src/renderer/windows/game/scripting/ScriptApi.ts#L151)
 
 ```ts
 autoRelogin.setServer(serverName: string): Effect.Effect<void, never, never>

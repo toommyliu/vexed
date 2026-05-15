@@ -45,7 +45,7 @@ tableOfContents:
 
 ### `api.player.getCell()`
 
-**Source:** [`app/src/renderer/windows/game/flash/Services/Player.ts:7`](https://github.com/toommyliu/vexed/blob/a462966b2e60f995d3aa973d6b292a4e82a38d19/app/src/renderer/windows/game/flash/Services/Player.ts#L7)
+**Source:** [`app/src/renderer/windows/game/flash/Services/Player.ts:7`](https://github.com/toommyliu/vexed/blob/3a194e38fe23218b85978c4567e31303a27d86c2/app/src/renderer/windows/game/flash/Services/Player.ts#L7)
 
 ```ts
 api.player.getCell(): BridgeEffect<string>
@@ -61,7 +61,7 @@ api.player.getCell(): BridgeEffect<string>
 
 Uppercased class name.
 
-**Source:** [`app/src/renderer/windows/game/flash/Services/Player.ts:11`](https://github.com/toommyliu/vexed/blob/a462966b2e60f995d3aa973d6b292a4e82a38d19/app/src/renderer/windows/game/flash/Services/Player.ts#L11)
+**Source:** [`app/src/renderer/windows/game/flash/Services/Player.ts:11`](https://github.com/toommyliu/vexed/blob/3a194e38fe23218b85978c4567e31303a27d86c2/app/src/renderer/windows/game/flash/Services/Player.ts#L11)
 
 ```ts
 api.player.getClassName(): BridgeEffect<string>
@@ -75,7 +75,7 @@ api.player.getClassName(): BridgeEffect<string>
 
 ### `api.player.getFactions()`
 
-**Source:** [`app/src/renderer/windows/game/flash/Services/Player.ts:12`](https://github.com/toommyliu/vexed/blob/a462966b2e60f995d3aa973d6b292a4e82a38d19/app/src/renderer/windows/game/flash/Services/Player.ts#L12)
+**Source:** [`app/src/renderer/windows/game/flash/Services/Player.ts:12`](https://github.com/toommyliu/vexed/blob/3a194e38fe23218b85978c4567e31303a27d86c2/app/src/renderer/windows/game/flash/Services/Player.ts#L12)
 
 ```ts
 api.player.getFactions(): BridgeEffect<Collection<string, Faction>>
@@ -89,7 +89,7 @@ api.player.getFactions(): BridgeEffect<Collection<string, Faction>>
 
 ### `api.player.getGender()`
 
-**Source:** [`app/src/renderer/windows/game/flash/Services/Player.ts:13`](https://github.com/toommyliu/vexed/blob/a462966b2e60f995d3aa973d6b292a4e82a38d19/app/src/renderer/windows/game/flash/Services/Player.ts#L13)
+**Source:** [`app/src/renderer/windows/game/flash/Services/Player.ts:13`](https://github.com/toommyliu/vexed/blob/3a194e38fe23218b85978c4567e31303a27d86c2/app/src/renderer/windows/game/flash/Services/Player.ts#L13)
 
 ```ts
 api.player.getGender(): BridgeEffect<string>
@@ -103,7 +103,7 @@ api.player.getGender(): BridgeEffect<string>
 
 ### `api.player.getGold()`
 
-**Source:** [`app/src/renderer/windows/game/flash/Services/Player.ts:14`](https://github.com/toommyliu/vexed/blob/a462966b2e60f995d3aa973d6b292a4e82a38d19/app/src/renderer/windows/game/flash/Services/Player.ts#L14)
+**Source:** [`app/src/renderer/windows/game/flash/Services/Player.ts:14`](https://github.com/toommyliu/vexed/blob/3a194e38fe23218b85978c4567e31303a27d86c2/app/src/renderer/windows/game/flash/Services/Player.ts#L14)
 
 ```ts
 api.player.getGold(): BridgeEffect<number>
@@ -117,7 +117,7 @@ api.player.getGold(): BridgeEffect<number>
 
 ### `api.player.getHp()`
 
-**Source:** [`app/src/renderer/windows/game/flash/Services/Player.ts:15`](https://github.com/toommyliu/vexed/blob/a462966b2e60f995d3aa973d6b292a4e82a38d19/app/src/renderer/windows/game/flash/Services/Player.ts#L15)
+**Source:** [`app/src/renderer/windows/game/flash/Services/Player.ts:15`](https://github.com/toommyliu/vexed/blob/3a194e38fe23218b85978c4567e31303a27d86c2/app/src/renderer/windows/game/flash/Services/Player.ts#L15)
 
 ```ts
 api.player.getHp(): BridgeEffect<number>
@@ -131,7 +131,7 @@ api.player.getHp(): BridgeEffect<number>
 
 ### `api.player.getLevel()`
 
-**Source:** [`app/src/renderer/windows/game/flash/Services/Player.ts:16`](https://github.com/toommyliu/vexed/blob/a462966b2e60f995d3aa973d6b292a4e82a38d19/app/src/renderer/windows/game/flash/Services/Player.ts#L16)
+**Source:** [`app/src/renderer/windows/game/flash/Services/Player.ts:16`](https://github.com/toommyliu/vexed/blob/3a194e38fe23218b85978c4567e31303a27d86c2/app/src/renderer/windows/game/flash/Services/Player.ts#L16)
 
 ```ts
 api.player.getLevel(): BridgeEffect<number>
@@ -145,7 +145,7 @@ api.player.getLevel(): BridgeEffect<number>
 
 ### `api.player.getMaxHp()`
 
-**Source:** [`app/src/renderer/windows/game/flash/Services/Player.ts:17`](https://github.com/toommyliu/vexed/blob/a462966b2e60f995d3aa973d6b292a4e82a38d19/app/src/renderer/windows/game/flash/Services/Player.ts#L17)
+**Source:** [`app/src/renderer/windows/game/flash/Services/Player.ts:17`](https://github.com/toommyliu/vexed/blob/3a194e38fe23218b85978c4567e31303a27d86c2/app/src/renderer/windows/game/flash/Services/Player.ts#L17)
 
 ```ts
 api.player.getMaxHp(): BridgeEffect<number>
@@ -159,7 +159,7 @@ api.player.getMaxHp(): BridgeEffect<number>
 
 ### `api.player.getMaxMp()`
 
-**Source:** [`app/src/renderer/windows/game/flash/Services/Player.ts:18`](https://github.com/toommyliu/vexed/blob/a462966b2e60f995d3aa973d6b292a4e82a38d19/app/src/renderer/windows/game/flash/Services/Player.ts#L18)
+**Source:** [`app/src/renderer/windows/game/flash/Services/Player.ts:18`](https://github.com/toommyliu/vexed/blob/3a194e38fe23218b85978c4567e31303a27d86c2/app/src/renderer/windows/game/flash/Services/Player.ts#L18)
 
 ```ts
 api.player.getMaxMp(): BridgeEffect<number>
@@ -173,7 +173,7 @@ api.player.getMaxMp(): BridgeEffect<number>
 
 ### `api.player.getMp()`
 
-**Source:** [`app/src/renderer/windows/game/flash/Services/Player.ts:19`](https://github.com/toommyliu/vexed/blob/a462966b2e60f995d3aa973d6b292a4e82a38d19/app/src/renderer/windows/game/flash/Services/Player.ts#L19)
+**Source:** [`app/src/renderer/windows/game/flash/Services/Player.ts:19`](https://github.com/toommyliu/vexed/blob/3a194e38fe23218b85978c4567e31303a27d86c2/app/src/renderer/windows/game/flash/Services/Player.ts#L19)
 
 ```ts
 api.player.getMp(): BridgeEffect<number>
@@ -187,7 +187,7 @@ api.player.getMp(): BridgeEffect<number>
 
 ### `api.player.getPad()`
 
-**Source:** [`app/src/renderer/windows/game/flash/Services/Player.ts:20`](https://github.com/toommyliu/vexed/blob/a462966b2e60f995d3aa973d6b292a4e82a38d19/app/src/renderer/windows/game/flash/Services/Player.ts#L20)
+**Source:** [`app/src/renderer/windows/game/flash/Services/Player.ts:20`](https://github.com/toommyliu/vexed/blob/3a194e38fe23218b85978c4567e31303a27d86c2/app/src/renderer/windows/game/flash/Services/Player.ts#L20)
 
 ```ts
 api.player.getPad(): BridgeEffect<string>
@@ -201,7 +201,7 @@ api.player.getPad(): BridgeEffect<string>
 
 ### `api.player.getPosition()`
 
-**Source:** [`app/src/renderer/windows/game/flash/Services/Player.ts:21`](https://github.com/toommyliu/vexed/blob/a462966b2e60f995d3aa973d6b292a4e82a38d19/app/src/renderer/windows/game/flash/Services/Player.ts#L21)
+**Source:** [`app/src/renderer/windows/game/flash/Services/Player.ts:21`](https://github.com/toommyliu/vexed/blob/3a194e38fe23218b85978c4567e31303a27d86c2/app/src/renderer/windows/game/flash/Services/Player.ts#L21)
 
 ```ts
 api.player.getPosition(): BridgeEffect<[number, number]>
@@ -215,7 +215,7 @@ api.player.getPosition(): BridgeEffect<[number, number]>
 
 ### `api.player.getState()`
 
-**Source:** [`app/src/renderer/windows/game/flash/Services/Player.ts:22`](https://github.com/toommyliu/vexed/blob/a462966b2e60f995d3aa973d6b292a4e82a38d19/app/src/renderer/windows/game/flash/Services/Player.ts#L22)
+**Source:** [`app/src/renderer/windows/game/flash/Services/Player.ts:22`](https://github.com/toommyliu/vexed/blob/3a194e38fe23218b85978c4567e31303a27d86c2/app/src/renderer/windows/game/flash/Services/Player.ts#L22)
 
 ```ts
 api.player.getState(): BridgeEffect<number>
@@ -229,7 +229,7 @@ api.player.getState(): BridgeEffect<number>
 
 ### `api.player.goToPlayer()`
 
-**Source:** [`app/src/renderer/windows/game/flash/Services/Player.ts:32`](https://github.com/toommyliu/vexed/blob/a462966b2e60f995d3aa973d6b292a4e82a38d19/app/src/renderer/windows/game/flash/Services/Player.ts#L32)
+**Source:** [`app/src/renderer/windows/game/flash/Services/Player.ts:32`](https://github.com/toommyliu/vexed/blob/3a194e38fe23218b85978c4567e31303a27d86c2/app/src/renderer/windows/game/flash/Services/Player.ts#L32)
 
 ```ts
 api.player.goToPlayer(name: string): BridgeEffect<void>
@@ -247,7 +247,7 @@ api.player.goToPlayer(name: string): BridgeEffect<void>
 
 ### `api.player.hasActiveBoost()`
 
-**Source:** [`app/src/renderer/windows/game/flash/Services/Player.ts:35`](https://github.com/toommyliu/vexed/blob/a462966b2e60f995d3aa973d6b292a4e82a38d19/app/src/renderer/windows/game/flash/Services/Player.ts#L35)
+**Source:** [`app/src/renderer/windows/game/flash/Services/Player.ts:35`](https://github.com/toommyliu/vexed/blob/3a194e38fe23218b85978c4567e31303a27d86c2/app/src/renderer/windows/game/flash/Services/Player.ts#L35)
 
 ```ts
 api.player.hasActiveBoost(boostType: 'classPoints' | 'exp' | 'gold' | 'rep'): BridgeEffect<boolean>
@@ -265,7 +265,7 @@ api.player.hasActiveBoost(boostType: 'classPoints' | 'exp' | 'gold' | 'rep'): Br
 
 ### `api.player.isAfk()`
 
-**Source:** [`app/src/renderer/windows/game/flash/Services/Player.ts:23`](https://github.com/toommyliu/vexed/blob/a462966b2e60f995d3aa973d6b292a4e82a38d19/app/src/renderer/windows/game/flash/Services/Player.ts#L23)
+**Source:** [`app/src/renderer/windows/game/flash/Services/Player.ts:23`](https://github.com/toommyliu/vexed/blob/3a194e38fe23218b85978c4567e31303a27d86c2/app/src/renderer/windows/game/flash/Services/Player.ts#L23)
 
 ```ts
 api.player.isAfk(): BridgeEffect<boolean>
@@ -279,7 +279,7 @@ api.player.isAfk(): BridgeEffect<boolean>
 
 ### `api.player.isAlive()`
 
-**Source:** [`app/src/renderer/windows/game/flash/Services/Player.ts:36`](https://github.com/toommyliu/vexed/blob/a462966b2e60f995d3aa973d6b292a4e82a38d19/app/src/renderer/windows/game/flash/Services/Player.ts#L36)
+**Source:** [`app/src/renderer/windows/game/flash/Services/Player.ts:36`](https://github.com/toommyliu/vexed/blob/3a194e38fe23218b85978c4567e31303a27d86c2/app/src/renderer/windows/game/flash/Services/Player.ts#L36)
 
 ```ts
 api.player.isAlive(): BridgeEffect<boolean>
@@ -293,7 +293,7 @@ api.player.isAlive(): BridgeEffect<boolean>
 
 ### `api.player.isMember()`
 
-**Source:** [`app/src/renderer/windows/game/flash/Services/Player.ts:25`](https://github.com/toommyliu/vexed/blob/a462966b2e60f995d3aa973d6b292a4e82a38d19/app/src/renderer/windows/game/flash/Services/Player.ts#L25)
+**Source:** [`app/src/renderer/windows/game/flash/Services/Player.ts:25`](https://github.com/toommyliu/vexed/blob/3a194e38fe23218b85978c4567e31303a27d86c2/app/src/renderer/windows/game/flash/Services/Player.ts#L25)
 
 ```ts
 api.player.isMember(): BridgeEffect<boolean>
@@ -307,7 +307,7 @@ api.player.isMember(): BridgeEffect<boolean>
 
 ### `api.player.isReady()`
 
-**Source:** [`app/src/renderer/windows/game/flash/Services/Player.ts:24`](https://github.com/toommyliu/vexed/blob/a462966b2e60f995d3aa973d6b292a4e82a38d19/app/src/renderer/windows/game/flash/Services/Player.ts#L24)
+**Source:** [`app/src/renderer/windows/game/flash/Services/Player.ts:24`](https://github.com/toommyliu/vexed/blob/3a194e38fe23218b85978c4567e31303a27d86c2/app/src/renderer/windows/game/flash/Services/Player.ts#L24)
 
 ```ts
 api.player.isReady(): BridgeEffect<boolean>
@@ -321,7 +321,7 @@ api.player.isReady(): BridgeEffect<boolean>
 
 ### `api.player.joinMap()`
 
-**Source:** [`app/src/renderer/windows/game/flash/Services/Player.ts:31`](https://github.com/toommyliu/vexed/blob/a462966b2e60f995d3aa973d6b292a4e82a38d19/app/src/renderer/windows/game/flash/Services/Player.ts#L31)
+**Source:** [`app/src/renderer/windows/game/flash/Services/Player.ts:31`](https://github.com/toommyliu/vexed/blob/3a194e38fe23218b85978c4567e31303a27d86c2/app/src/renderer/windows/game/flash/Services/Player.ts#L31)
 
 ```ts
 api.player.joinMap(map: string, cell?: string, pad?: string): BridgeEffect<void>
@@ -341,7 +341,7 @@ api.player.joinMap(map: string, cell?: string, pad?: string): BridgeEffect<void>
 
 ### `api.player.jumpToCell()`
 
-**Source:** [`app/src/renderer/windows/game/flash/Services/Player.ts:26`](https://github.com/toommyliu/vexed/blob/a462966b2e60f995d3aa973d6b292a4e82a38d19/app/src/renderer/windows/game/flash/Services/Player.ts#L26)
+**Source:** [`app/src/renderer/windows/game/flash/Services/Player.ts:26`](https://github.com/toommyliu/vexed/blob/3a194e38fe23218b85978c4567e31303a27d86c2/app/src/renderer/windows/game/flash/Services/Player.ts#L26)
 
 ```ts
 api.player.jumpToCell(cell: string, pad?: string, correction?: boolean): BridgeEffect<void>
@@ -361,7 +361,7 @@ api.player.jumpToCell(cell: string, pad?: string, correction?: boolean): BridgeE
 
 ### `api.player.rest()`
 
-**Source:** [`app/src/renderer/windows/game/flash/Services/Player.ts:33`](https://github.com/toommyliu/vexed/blob/a462966b2e60f995d3aa973d6b292a4e82a38d19/app/src/renderer/windows/game/flash/Services/Player.ts#L33)
+**Source:** [`app/src/renderer/windows/game/flash/Services/Player.ts:33`](https://github.com/toommyliu/vexed/blob/3a194e38fe23218b85978c4567e31303a27d86c2/app/src/renderer/windows/game/flash/Services/Player.ts#L33)
 
 ```ts
 api.player.rest(full?: boolean): BridgeEffect<void>
@@ -379,7 +379,7 @@ api.player.rest(full?: boolean): BridgeEffect<void>
 
 ### `api.player.useBoost()`
 
-**Source:** [`app/src/renderer/windows/game/flash/Services/Player.ts:34`](https://github.com/toommyliu/vexed/blob/a462966b2e60f995d3aa973d6b292a4e82a38d19/app/src/renderer/windows/game/flash/Services/Player.ts#L34)
+**Source:** [`app/src/renderer/windows/game/flash/Services/Player.ts:34`](https://github.com/toommyliu/vexed/blob/3a194e38fe23218b85978c4567e31303a27d86c2/app/src/renderer/windows/game/flash/Services/Player.ts#L34)
 
 ```ts
 api.player.useBoost(boost: ItemIdentifierToken): BridgeEffect<boolean>
@@ -397,7 +397,7 @@ api.player.useBoost(boost: ItemIdentifierToken): BridgeEffect<boolean>
 
 ### `api.player.walkTo()`
 
-**Source:** [`app/src/renderer/windows/game/flash/Services/Player.ts:37`](https://github.com/toommyliu/vexed/blob/a462966b2e60f995d3aa973d6b292a4e82a38d19/app/src/renderer/windows/game/flash/Services/Player.ts#L37)
+**Source:** [`app/src/renderer/windows/game/flash/Services/Player.ts:37`](https://github.com/toommyliu/vexed/blob/3a194e38fe23218b85978c4567e31303a27d86c2/app/src/renderer/windows/game/flash/Services/Player.ts#L37)
 
 ```ts
 api.player.walkTo(x: number, y: number, walkSpeed?: number): BridgeEffect<boolean>
@@ -419,7 +419,7 @@ api.player.walkTo(x: number, y: number, walkSpeed?: number): BridgeEffect<boolea
 
 ### `BridgeEffect`
 
-**Source:** [`app/src/renderer/windows/game/flash/Services/Bridge.ts:14`](https://github.com/toommyliu/vexed/blob/a462966b2e60f995d3aa973d6b292a4e82a38d19/app/src/renderer/windows/game/flash/Services/Bridge.ts#L14)
+**Source:** [`app/src/renderer/windows/game/flash/Services/Bridge.ts:14`](https://github.com/toommyliu/vexed/blob/3a194e38fe23218b85978c4567e31303a27d86c2/app/src/renderer/windows/game/flash/Services/Bridge.ts#L14)
 
 ```ts
 type BridgeEffect = Effect.Effect<A, BridgeError>
@@ -429,7 +429,7 @@ type BridgeEffect = Effect.Effect<A, BridgeError>
 
 ### `BridgeError`
 
-**Source:** [`app/src/renderer/windows/game/flash/Services/Bridge.ts:9`](https://github.com/toommyliu/vexed/blob/a462966b2e60f995d3aa973d6b292a4e82a38d19/app/src/renderer/windows/game/flash/Services/Bridge.ts#L9)
+**Source:** [`app/src/renderer/windows/game/flash/Services/Bridge.ts:9`](https://github.com/toommyliu/vexed/blob/3a194e38fe23218b85978c4567e31303a27d86c2/app/src/renderer/windows/game/flash/Services/Bridge.ts#L9)
 
 ```ts
 type BridgeError = | SwfUnavailableError

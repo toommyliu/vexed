@@ -31,7 +31,7 @@ tableOfContents:
 
 ### `api.recipes.beep()`
 
-**Source:** [`app/src/renderer/windows/game/scripting/recipes.ts:69`](https://github.com/toommyliu/vexed/blob/a462966b2e60f995d3aa973d6b292a4e82a38d19/app/src/renderer/windows/game/scripting/recipes.ts#L69)
+**Source:** [`app/src/renderer/windows/game/scripting/recipes.ts:69`](https://github.com/toommyliu/vexed/blob/3a194e38fe23218b85978c4567e31303a27d86c2/app/src/renderer/windows/game/scripting/recipes.ts#L69)
 
 ```ts
 api.recipes.beep(times?: number): ScriptRecipeEffect<void>
@@ -47,7 +47,7 @@ api.recipes.beep(times?: number): ScriptRecipeEffect<void>
 
 ### `api.recipes.buff()`
 
-**Source:** [`app/src/renderer/windows/game/scripting/recipes.ts:58`](https://github.com/toommyliu/vexed/blob/a462966b2e60f995d3aa973d6b292a4e82a38d19/app/src/renderer/windows/game/scripting/recipes.ts#L58)
+**Source:** [`app/src/renderer/windows/game/scripting/recipes.ts:58`](https://github.com/toommyliu/vexed/blob/3a194e38fe23218b85978c4567e31303a27d86c2/app/src/renderer/windows/game/scripting/recipes.ts#L58)
 
 ```ts
 api.recipes.buff(skillList?: readonly number[] | null, wait?: boolean): ScriptRecipeEffect<void>
@@ -64,7 +64,7 @@ api.recipes.buff(skillList?: readonly number[] | null, wait?: boolean): ScriptRe
 
 ### `api.recipes.doWheelOfDoom()`
 
-**Source:** [`app/src/renderer/windows/game/scripting/recipes.ts:70`](https://github.com/toommyliu/vexed/blob/a462966b2e60f995d3aa973d6b292a4e82a38d19/app/src/renderer/windows/game/scripting/recipes.ts#L70)
+**Source:** [`app/src/renderer/windows/game/scripting/recipes.ts:70`](https://github.com/toommyliu/vexed/blob/3a194e38fe23218b85978c4567e31303a27d86c2/app/src/renderer/windows/game/scripting/recipes.ts#L70)
 
 ```ts
 api.recipes.doWheelOfDoom(toBank?: boolean): ScriptRecipeEffect<void>
@@ -80,7 +80,7 @@ api.recipes.doWheelOfDoom(toBank?: boolean): ScriptRecipeEffect<void>
 
 ### `api.recipes.enhanceItem()`
 
-**Source:** [`app/src/renderer/windows/game/scripting/recipes.ts:75`](https://github.com/toommyliu/vexed/blob/a462966b2e60f995d3aa973d6b292a4e82a38d19/app/src/renderer/windows/game/scripting/recipes.ts#L75)
+**Source:** [`app/src/renderer/windows/game/scripting/recipes.ts:75`](https://github.com/toommyliu/vexed/blob/3a194e38fe23218b85978c4567e31303a27d86c2/app/src/renderer/windows/game/scripting/recipes.ts#L75)
 
 ```ts
 api.recipes.enhanceItem(item: string, options: ScriptEnhanceItemOptions): ScriptRecipeEffect<void>
@@ -97,7 +97,7 @@ api.recipes.enhanceItem(item: string, options: ScriptEnhanceItemOptions): Script
 
 ### `api.recipes.ensureLifeSteal()`
 
-**Source:** [`app/src/renderer/windows/game/scripting/recipes.ts:62`](https://github.com/toommyliu/vexed/blob/a462966b2e60f995d3aa973d6b292a4e82a38d19/app/src/renderer/windows/game/scripting/recipes.ts#L62)
+**Source:** [`app/src/renderer/windows/game/scripting/recipes.ts:62`](https://github.com/toommyliu/vexed/blob/3a194e38fe23218b85978c4567e31303a27d86c2/app/src/renderer/windows/game/scripting/recipes.ts#L62)
 
 ```ts
 api.recipes.ensureLifeSteal(quantity: number): ScriptRecipeEffect<void>
@@ -113,7 +113,7 @@ api.recipes.ensureLifeSteal(quantity: number): ScriptRecipeEffect<void>
 
 ### `api.recipes.ensureScrollOfEnrage()`
 
-**Source:** [`app/src/renderer/windows/game/scripting/recipes.ts:63`](https://github.com/toommyliu/vexed/blob/a462966b2e60f995d3aa973d6b292a4e82a38d19/app/src/renderer/windows/game/scripting/recipes.ts#L63)
+**Source:** [`app/src/renderer/windows/game/scripting/recipes.ts:63`](https://github.com/toommyliu/vexed/blob/3a194e38fe23218b85978c4567e31303a27d86c2/app/src/renderer/windows/game/scripting/recipes.ts#L63)
 
 ```ts
 api.recipes.ensureScrollOfEnrage(quantity: number): ScriptRecipeEffect<void>
@@ -129,7 +129,7 @@ api.recipes.ensureScrollOfEnrage(quantity: number): ScriptRecipeEffect<void>
 
 ### `api.recipes.equipItemByEnhancement()`
 
-**Source:** [`app/src/renderer/windows/game/scripting/recipes.ts:72`](https://github.com/toommyliu/vexed/blob/a462966b2e60f995d3aa973d6b292a4e82a38d19/app/src/renderer/windows/game/scripting/recipes.ts#L72)
+**Source:** [`app/src/renderer/windows/game/scripting/recipes.ts:72`](https://github.com/toommyliu/vexed/blob/3a194e38fe23218b85978c4567e31303a27d86c2/app/src/renderer/windows/game/scripting/recipes.ts#L72)
 
 ```ts
 api.recipes.equipItemByEnhancement(options: EquipEnhancementSelector): ScriptRecipeEffect<void>
@@ -145,7 +145,7 @@ api.recipes.equipItemByEnhancement(options: EquipEnhancementSelector): ScriptRec
 
 ### `api.recipes.goToHouse()`
 
-**Source:** [`app/src/renderer/windows/game/scripting/recipes.ts:68`](https://github.com/toommyliu/vexed/blob/a462966b2e60f995d3aa973d6b292a4e82a38d19/app/src/renderer/windows/game/scripting/recipes.ts#L68)
+**Source:** [`app/src/renderer/windows/game/scripting/recipes.ts:68`](https://github.com/toommyliu/vexed/blob/3a194e38fe23218b85978c4567e31303a27d86c2/app/src/renderer/windows/game/scripting/recipes.ts#L68)
 
 ```ts
 api.recipes.goToHouse(player?: string): ScriptRecipeEffect<void>
@@ -161,7 +161,7 @@ api.recipes.goToHouse(player?: string): ScriptRecipeEffect<void>
 
 ### `api.recipes.useConsumables()`
 
-**Source:** [`app/src/renderer/windows/game/scripting/recipes.ts:64`](https://github.com/toommyliu/vexed/blob/a462966b2e60f995d3aa973d6b292a4e82a38d19/app/src/renderer/windows/game/scripting/recipes.ts#L64)
+**Source:** [`app/src/renderer/windows/game/scripting/recipes.ts:64`](https://github.com/toommyliu/vexed/blob/3a194e38fe23218b85978c4567e31303a27d86c2/app/src/renderer/windows/game/scripting/recipes.ts#L64)
 
 ```ts
 api.recipes.useConsumables(items: string | readonly string[], equipAfter?: string): ScriptRecipeEffect<void>
@@ -178,7 +178,7 @@ api.recipes.useConsumables(items: string | readonly string[], equipAfter?: strin
 
 ### `api.recipes.waitForPlayerCount()`
 
-**Source:** [`app/src/renderer/windows/game/scripting/recipes.ts:71`](https://github.com/toommyliu/vexed/blob/a462966b2e60f995d3aa973d6b292a4e82a38d19/app/src/renderer/windows/game/scripting/recipes.ts#L71)
+**Source:** [`app/src/renderer/windows/game/scripting/recipes.ts:71`](https://github.com/toommyliu/vexed/blob/3a194e38fe23218b85978c4567e31303a27d86c2/app/src/renderer/windows/game/scripting/recipes.ts#L71)
 
 ```ts
 api.recipes.waitForPlayerCount(count: number, exact?: boolean): ScriptRecipeEffect<void>
@@ -197,7 +197,7 @@ api.recipes.waitForPlayerCount(count: number, exact?: boolean): ScriptRecipeEffe
 
 ### `ScriptEnhanceItemOptions`
 
-**Source:** [`app/src/renderer/windows/game/scripting/recipes.ts:50`](https://github.com/toommyliu/vexed/blob/a462966b2e60f995d3aa973d6b292a4e82a38d19/app/src/renderer/windows/game/scripting/recipes.ts#L50)
+**Source:** [`app/src/renderer/windows/game/scripting/recipes.ts:50`](https://github.com/toommyliu/vexed/blob/3a194e38fe23218b85978c4567e31303a27d86c2/app/src/renderer/windows/game/scripting/recipes.ts#L50)
 
 ```ts
 interface ScriptEnhanceItemOptions
@@ -212,7 +212,7 @@ interface ScriptEnhanceItemOptions
 
 ### `ScriptEquipItemByEnhancementOptions`
 
-**Source:** [`app/src/renderer/windows/game/scripting/recipes.ts:55`](https://github.com/toommyliu/vexed/blob/a462966b2e60f995d3aa973d6b292a4e82a38d19/app/src/renderer/windows/game/scripting/recipes.ts#L55)
+**Source:** [`app/src/renderer/windows/game/scripting/recipes.ts:55`](https://github.com/toommyliu/vexed/blob/3a194e38fe23218b85978c4567e31303a27d86c2/app/src/renderer/windows/game/scripting/recipes.ts#L55)
 
 ```ts
 type ScriptEquipItemByEnhancementOptions = EquipEnhancementSelector
@@ -222,7 +222,7 @@ type ScriptEquipItemByEnhancementOptions = EquipEnhancementSelector
 
 ### `ScriptRecipeEffect`
 
-**Source:** [`app/src/renderer/windows/game/scripting/recipes.ts:32`](https://github.com/toommyliu/vexed/blob/a462966b2e60f995d3aa973d6b292a4e82a38d19/app/src/renderer/windows/game/scripting/recipes.ts#L32)
+**Source:** [`app/src/renderer/windows/game/scripting/recipes.ts:32`](https://github.com/toommyliu/vexed/blob/3a194e38fe23218b85978c4567e31303a27d86c2/app/src/renderer/windows/game/scripting/recipes.ts#L32)
 
 ```ts
 type ScriptRecipeEffect = Effect.Effect<A, unknown>
