@@ -1,0 +1,56 @@
+# Copy this file to your Vexed userdata army directory as army_config.yaml.
+# The app reads configs from: <VEXED_HOME or ~/.vexed>/userdata/army/
+version: 1
+room: "12345"
+players:
+  - a
+  - b
+  - c
+  - d
+
+items:
+  SafePot: Elders' Blood
+  SafeClass: Void HighLord
+  Valiance: Valiance
+  Penitence: Penitence
+  WizHelm: Wizard Helm
+  LuckHelm: Lucky Helm
+  LegionRevenant: Legion Revenant
+  ChaosAvenger: Chaos Avenger
+  LordOfOrder: Lord Of Order
+  ArchPaladin: ArchPaladin
+
+sets:
+  UltraEzrajal:
+    Player1:
+      SafeClass: SafeClass
+      SafePot: SafePot
+      Weapon: Valiance
+      Cape: Penitence
+      Helm: WizHelm
+      Class: LegionRevenant
+      Scroll: Scroll Of Enrage
+    Player2:
+      SafeClass: SafeClass
+      SafePot: SafePot
+      Weapon: Valiance
+      Cape: Penitence
+      Helm: LuckHelm
+      Class: ChaosAvenger
+      Scroll: Scroll Of Enrage
+    Player3:
+      SafeClass: SafeClass
+      SafePot: SafePot
+      Weapon: Valiance
+      Cape: Penitence
+      Helm: LuckHelm
+      Class: LordOfOrder
+      Scroll: Scroll Of Enrage
+    Player4:
+      SafeClass: SafeClass
+      SafePot: SafePot
+      Weapon: Valiance
+      Cape: Penitence
+      Helm: LuckHelm
+      Class: ArchPaladin
+      Scroll: Scroll Of Enrage

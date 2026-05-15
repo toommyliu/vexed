@@ -1,10 +1,29 @@
 import type { WindowId } from "./windows";
 import type {
+  ArmyBarrierPayload,
+  ArmyConfigPayload,
+  ArmyLeavePayload,
+  ArmySessionPayload,
+  ArmyStartPayload,
+  ArmyStatusPayload,
+  ArmyStatusResult,
+} from "./army";
+import type {
   AppSettings,
   AppearancePatch,
   HotkeysPatch,
   PreferencesPatch,
 } from "./settings";
+
+export type {
+  ArmyBarrierPayload,
+  ArmyConfigPayload,
+  ArmyLeavePayload,
+  ArmySessionPayload,
+  ArmyStartPayload,
+  ArmyStatusPayload,
+  ArmyStatusResult,
+} from "./army";
 
 export type {
   AppSettings,
@@ -59,6 +78,14 @@ export const SettingsIpcChannels = {
   resetAppearance: "settings:reset-appearance",
   resetHotkeys: "settings:reset-hotkeys",
   changed: "settings:changed",
+} as const;
+
+export const ArmyIpcChannels = {
+  loadConfig: "army:load-config",
+  start: "army:start",
+  leave: "army:leave",
+  barrier: "army:barrier",
+  status: "army:status",
 } as const;
 
 export interface ScriptExecutePayload {
@@ -289,6 +316,37 @@ export interface SettingsBridge {
   onChanged(listener: (settings: AppSettings) => void): () => void;
 }
 
+export interface ArmyInvokeChannels {
+  readonly [ArmyIpcChannels.loadConfig]: IpcInvokeDefinition<
+    [fileName: string],
+    ArmyConfigPayload
+  >;
+  readonly [ArmyIpcChannels.start]: IpcInvokeDefinition<
+    [payload: ArmyStartPayload],
+    ArmySessionPayload
+  >;
+  readonly [ArmyIpcChannels.leave]: IpcInvokeDefinition<
+    [payload: ArmyLeavePayload],
+    void
+  >;
+  readonly [ArmyIpcChannels.barrier]: IpcInvokeDefinition<
+    [payload: ArmyBarrierPayload],
+    void
+  >;
+  readonly [ArmyIpcChannels.status]: IpcInvokeDefinition<
+    [payload: ArmyStatusPayload],
+    ArmyStatusResult
+  >;
+}
+
+export interface ArmyBridge {
+  loadConfig(fileName: string): Promise<ArmyConfigPayload>;
+  start(payload: ArmyStartPayload): Promise<ArmySessionPayload>;
+  leave(payload: ArmyLeavePayload): Promise<void>;
+  barrier(payload: ArmyBarrierPayload): Promise<void>;
+  status(payload: ArmyStatusPayload): Promise<ArmyStatusResult>;
+}
+
 export type AppPlatform = "mac" | "windows" | "linux";
 
 export interface PlatformBridge {
@@ -297,6 +355,7 @@ export interface PlatformBridge {
 
 export interface AppBridge {
   readonly accounts: AccountManagerBridge;
+  readonly army: ArmyBridge;
   readonly platform: PlatformBridge;
   readonly scripting: ScriptingBridge;
   readonly settings: SettingsBridge;

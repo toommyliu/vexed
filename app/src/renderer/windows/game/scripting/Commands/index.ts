@@ -1,4 +1,5 @@
 import type { ScriptCommandHandler } from "../Types";
+import { armyCommandHandlers, createArmyScriptDsl } from "./army";
 import { combatCommandHandlers, createCombatScriptDsl } from "./combat";
 import {
   conditionCommandHandlers,
@@ -14,6 +15,7 @@ export const createScriptDsl = (
   emit: ScriptInstructionRecorder,
 ): ScriptCommandApi => ({
   ...createConditionScriptDsl(emit),
+  ...createArmyScriptDsl(emit),
   ...createCombatScriptDsl(emit),
   ...createItemScriptDsl(emit),
   ...createMapScriptDsl(emit),
@@ -23,6 +25,7 @@ export const createScriptDsl = (
 
 export const scriptCommandHandlers = [
   ...conditionCommandHandlers,
+  ...armyCommandHandlers,
   ...combatCommandHandlers,
   ...itemCommandHandlers,
   ...mapCommandHandlers,

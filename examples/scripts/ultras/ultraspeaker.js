@@ -6,8 +6,7 @@ cmd.enable_hideplayers()
 cmd.enable_infiniterange()
 cmd.enable_anticounter()
 cmd.enable_death_ads()
-cmd.army_set_config('army_config')
-cmd.army_init()
+cmd.army_start('army_config')
 cmd.set_delay(1000)
 
 cmd.accept_quest(9173) // ultraspeaker
@@ -56,7 +55,7 @@ var opts = {
   }
 }
 cmd.army_join('ultraspeaker')
-cmd.army_equip_set('UltraSpeaker', true)
+cmd.army_equip_set('UltraSpeaker', { resolveItems: true })
 cmd.buff()
 
 cmd.hunt('The First Speaker')

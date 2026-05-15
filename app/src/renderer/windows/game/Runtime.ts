@@ -1,4 +1,5 @@
 import { Layer, ManagedRuntime } from "effect";
+import { ArmyLive } from "./army/Layers/Army";
 import { FeaturesLive } from "./features/Layers/Features";
 import { FlashLive } from "./flash/Layers/Flash";
 import { FlashJobGateLive } from "./flash/Layers/JobGate";
@@ -24,11 +25,16 @@ const FeatureRuntimeLive = FeaturesLive.pipe(
   Layer.provide(Layer.mergeAll(FlashRuntimeLive, JobsRuntimeLive)),
 );
 
+const ArmyRuntimeLive = ArmyLive.pipe(
+  Layer.provide(FlashRuntimeLive),
+);
+
 const GameServicesLive = Layer.mergeAll(
   FlashRuntimeLive,
   JobsRuntimeLive,
   FlashJobPoliciesRuntimeLive,
   FeatureRuntimeLive,
+  ArmyRuntimeLive,
 );
 
 const ScriptRunnerRuntimeLive = ScriptRunnerLive.pipe(

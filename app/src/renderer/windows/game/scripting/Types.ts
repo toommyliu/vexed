@@ -26,6 +26,7 @@ import type { WorldShape } from "../flash/Services/World";
 import type { ScriptEffect } from "./scriptEffect";
 import type { ScriptRuntimeValue } from "./scriptRuntimeApi";
 import type { AutoReloginShape } from "../features/Services/AutoRelogin";
+import type { ArmyError, ArmyShape } from "../army/Services/Army";
 
 export interface ScriptInstructionControlFlow {
   readonly falseJumpIndex?: number;
@@ -123,6 +124,7 @@ export interface CustomScriptRuntimeApi {
   readonly auth: CustomScriptRuntimeValue<AuthShape>;
   readonly autoRelogin: CustomScriptRuntimeValue<AutoReloginShape>;
   readonly autoZone: CustomScriptRuntimeValue<AutoZoneShape>;
+  readonly army: CustomScriptRuntimeValue<ArmyShape>;
   readonly bank: CustomScriptRuntimeValue<BankShape>;
   readonly bridge: CustomScriptRuntimeValue<BridgeShape>;
   readonly combat: CustomScriptRuntimeValue<CombatShape>;
@@ -143,6 +145,7 @@ export interface CustomScriptEffectRuntimeApi {
   readonly auth: CustomScriptEffectRuntimeValue<AuthShape>;
   readonly autoRelogin: CustomScriptEffectRuntimeValue<AutoReloginShape>;
   readonly autoZone: CustomScriptEffectRuntimeValue<AutoZoneShape>;
+  readonly army: CustomScriptEffectRuntimeValue<ArmyShape>;
   readonly bank: CustomScriptEffectRuntimeValue<BankShape>;
   readonly bridge: CustomScriptEffectRuntimeValue<BridgeShape>;
   readonly combat: CustomScriptEffectRuntimeValue<CombatShape>;
@@ -252,6 +255,7 @@ export interface ScriptExecutionContext {
   readonly auth: ScriptRuntimeValue<AuthShape>;
   readonly autoRelogin: ScriptRuntimeValue<AutoReloginShape>;
   readonly autoZone: ScriptRuntimeValue<AutoZoneShape>;
+  readonly army: ScriptRuntimeValue<ArmyShape>;
   readonly bank: ScriptRuntimeValue<BankShape>;
   readonly bridge: ScriptRuntimeValue<BridgeShape>;
   readonly combat: ScriptRuntimeValue<CombatShape>;
@@ -311,6 +315,7 @@ export interface ScriptExecutionContext {
 }
 
 export type ScriptCommandError =
+  | ArmyError
   | BridgeError
   | ScriptCustomCommandError
   | ScriptCustomConditionError

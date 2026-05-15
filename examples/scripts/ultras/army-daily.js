@@ -8,8 +8,7 @@ cmd.set_fps(10)
 cmd.enable_lagkiller()
 cmd.enable_infiniterange()
 cmd.enable_anticounter()
-cmd.army_set_config('army_config')
-cmd.army_init()
+cmd.army_start('army_config')
 cmd.set_delay(1000)
 
 let opts = {
@@ -60,7 +59,7 @@ let opts = {
 }
 
 cmd.army_join('ultraezrajal')
-cmd.army_equip_set('UltraEzrajal', true)
+cmd.army_equip_set('UltraEzrajal', { resolveItems: true })
 cmd.buff()
 cmd.hunt('Ultra Ezrajal')
 cmd.set_spawn()
@@ -68,7 +67,7 @@ cmd.army_kill_for('Ultra Ezrajal', 'Ultra Ezrajal Defeated', 1, true, opts)
 cmd.move_to_cell('Enter', 'Spawn')
 
 cmd.army_join('ultrawarden')
-cmd.army_equip_set('UltraWarden', true)
+cmd.army_equip_set('UltraWarden', { resolveItems: true })
 cmd.buff()
 cmd.hunt('Ultra Warden')
 cmd.set_spawn()
@@ -76,7 +75,7 @@ cmd.army_kill_for('Ultra Warden', 'Ultra Warden Defeated', 1, true, opts)
 cmd.move_to_cell('Enter')
 
 cmd.army_join('ultraengineer')
-cmd.army_equip_set('UltraEngineer', true)
+cmd.army_equip_set('UltraEngineer', { resolveItems: true })
 cmd.buff()
 cmd.hunt('Ultra Engineer')
 cmd.set_spawn()
@@ -87,7 +86,7 @@ cmd.army_kill_for('id.3', 'Ultra Engineer Defeated', 1, true, {
 cmd.move_to_cell('Enter')
 
 cmd.army_join('ultratyndarius')
-cmd.army_equip_set('UltraTyndarius', true)
+cmd.army_equip_set('UltraTyndarius', { resolveItems: true })
 cmd.buff()
 cmd.hunt('Ultra Avatar Tyndarius')
 cmd.set_spawn()

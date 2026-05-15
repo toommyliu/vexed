@@ -1,15 +1,17 @@
 # Command Port Todo
 
 ## Army
-- [ ] army_init - Not ported: no current Army service/runtime API exists.
-- [ ] army_set_config - Not ported: no current Army service/runtime API exists.
-- [ ] army_join - Not ported: no current Army service/runtime API exists.
-- [ ] army_kill - Not ported: no current Army service/runtime API exists.
-- [ ] army_kill_for - Not ported: no current Army service/runtime API exists.
-- [ ] army_kill_for_item - Not ported: no current Army service/runtime API exists.
-- [ ] army_kill_for_tempitem - Not ported: no current Army service/runtime API exists.
-- [ ] execute_with_army - Not ported: no current Army service/runtime API exists.
-- [ ] army_equip_set - Not ported: no current Army service/runtime API exists.
+- [x] army_start - Fresh API replacement for legacy army_init + army_set_config.
+- [x] army_sync
+- [x] army_join
+- [x] army_kill
+- [x] army_kill_for
+- [x] army_kill_for_item
+- [x] army_kill_for_tempitem
+- [x] execute_with_army
+- [x] army_equip_set
+- [ ] army_init - Intentionally replaced by army_start.
+- [ ] army_set_config - Intentionally replaced by army_start.
 
 ## Combat
 - [x] attack
@@ -63,9 +65,9 @@
 - [x] not_in_map
 - [x] monster_in_room
 - [x] monster_not_in_room
-- [ ] is_army_member - Not ported: no current Army service/runtime API exists.
-- [ ] is_army_leader - Not ported: no current Army service/runtime API exists.
-- [ ] is_player_number - Not ported: no current Army service/runtime API exists.
+- [x] is_army_member
+- [x] is_army_leader
+- [x] is_player_number
 - [x] can_buy_item
 
 ## Item

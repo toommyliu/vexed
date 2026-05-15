@@ -175,6 +175,12 @@ export type ScriptCondition =
       readonly expected: boolean;
     }
   | {
+      readonly _tag: "ArmyState";
+      readonly state: "started" | "leader" | "member" | "player_number";
+      readonly expected: boolean;
+      readonly playerNumber?: number;
+    }
+  | {
       readonly _tag: "Cell";
       readonly cell: string;
       readonly expected: boolean;
@@ -897,6 +903,17 @@ export const createBooleanStateCondition = (
   expected,
 });
 
+export const createArmyStateCondition = (
+  state: "started" | "leader" | "member" | "player_number",
+  expected: boolean,
+  playerNumber?: number,
+): ScriptCondition => ({
+  _tag: "ArmyState",
+  state,
+  expected,
+  ...(playerNumber !== undefined ? { playerNumber } : {}),
+});
+
 export const createCellCondition = (
   cell: string,
   expected: boolean,
@@ -1176,6 +1193,23 @@ const evaluateBooleanState = (
         : condition.state === "member"
           ? yield* context.player.isMember()
           : (yield* context.player.getState()) === EntityState.InCombat;
+
+    return condition.expected ? actual : !actual;
+  });
+
+const evaluateArmyState = (
+  context: ScriptExecutionContext,
+  condition: Extract<ScriptCondition, { readonly _tag: "ArmyState" }>,
+) =>
+  Effect.gen(function* () {
+    const actual =
+      condition.state === "started"
+        ? yield* context.army.isStarted()
+        : condition.state === "leader"
+          ? yield* context.army.isLeader()
+          : condition.state === "member"
+            ? yield* context.army.isMember()
+            : (yield* context.army.getPlayerNumber()) === condition.playerNumber;
 
     return condition.expected ? actual : !actual;
   });
@@ -1615,6 +1649,34 @@ export const evaluateScriptCondition = (
           { readonly _tag: "BooleanState" }
         >,
       );
+    case "ArmyState": {
+      if (
+        condition.state !== "started" &&
+        condition.state !== "leader" &&
+        condition.state !== "member" &&
+        condition.state !== "player_number"
+      ) {
+        return invalidArg(context, command, "army condition state is invalid");
+      }
+
+      if (
+        condition.state === "player_number" &&
+        (typeof condition.playerNumber !== "number" ||
+          !Number.isInteger(condition.playerNumber) ||
+          condition.playerNumber < 1)
+      ) {
+        return invalidArg(
+          context,
+          command,
+          "army player number must be a positive integer",
+        );
+      }
+
+      return evaluateArmyState(
+        context,
+        condition as Extract<ScriptCondition, { readonly _tag: "ArmyState" }>,
+      );
+    }
     case "Cell": {
       const cell = condition.cell;
       if (typeof cell !== "string" || cell.trim() === "") {

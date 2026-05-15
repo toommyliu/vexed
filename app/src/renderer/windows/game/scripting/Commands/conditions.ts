@@ -4,6 +4,7 @@ import {
   createAllCondition,
   createAnyCondition,
   createAnyPlayerMetricCondition,
+  createArmyStateCondition,
   createBooleanStateCondition,
   createCellCondition,
   createClassRankCondition,
@@ -181,6 +182,10 @@ type ConditionBuilderScriptDsl = {
     operator: ScriptComparisonOperatorInput,
     value: number,
   ): ScriptCondition;
+  is_army_started(): ScriptCondition;
+  is_army_leader(): ScriptCondition;
+  is_army_member(): ScriptCondition;
+  is_player_number(playerNumber: number): ScriptCondition;
 };
 
 type ConditionScriptDsl = ScriptCommandDsl<ConditionScriptCommandArguments> &
@@ -1562,6 +1567,38 @@ export const createConditionScriptDsl = (
       return emitCondition(
         "is_not_member",
         createBooleanStateCondition("member", false),
+      );
+    },
+
+    /**
+     * Checks whether the current script has started an army session.
+     */
+    is_army_started() {
+      return createArmyStateCondition("started", true);
+    },
+
+    /**
+     * Checks whether the current player is the army leader.
+     */
+    is_army_leader() {
+      return createArmyStateCondition("leader", true);
+    },
+
+    /**
+     * Checks whether the current player is an army member, but not the leader.
+     */
+    is_army_member() {
+      return createArmyStateCondition("member", true);
+    },
+
+    /**
+     * Checks whether the current player has the configured army player number.
+     */
+    is_player_number(playerNumber) {
+      return createArmyStateCondition(
+        "player_number",
+        true,
+        positiveIntArg("is_player_number", "playerNumber", playerNumber),
       );
     },
 

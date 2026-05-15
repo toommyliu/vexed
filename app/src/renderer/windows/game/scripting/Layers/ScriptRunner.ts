@@ -1,5 +1,6 @@
 import { Cause, Effect, Fiber, Layer, Option, Ref, Semaphore } from "effect";
 import { type ScriptExecutePayload } from "../ipc";
+import { Army } from "../../army/Services/Army";
 import { Auth } from "../../flash/Services/Auth";
 import { AutoZone } from "../../features/Services/AutoZone";
 import { AutoRelogin } from "../../features/Services/AutoRelogin";
@@ -111,6 +112,7 @@ const make = Effect.gen(function* () {
   const auth = yield* Auth;
   const autoRelogin = yield* AutoRelogin;
   const autoZone = yield* AutoZone;
+  const army = yield* Army;
   const bank = yield* Bank;
   const bridge = yield* Bridge;
   const combat = yield* Combat;
@@ -316,6 +318,7 @@ const make = Effect.gen(function* () {
           auth,
           autoRelogin,
           autoZone,
+          army,
           bank,
           bridge,
           combat,
@@ -464,6 +467,7 @@ const make = Effect.gen(function* () {
         auth: api.auth,
         autoRelogin: api.autoRelogin,
         autoZone: api.autoZone,
+        army: api.army,
         bank: api.bank,
         bridge: api.bridge,
         combat: api.combat,

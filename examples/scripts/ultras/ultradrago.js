@@ -5,14 +5,13 @@ cmd.enable_lagkiller()
 cmd.enable_hideplayers()
 cmd.enable_infiniterange()
 cmd.enable_anticounter()
-cmd.army_set_config('army_config')
-cmd.army_init()
+cmd.army_start('army_config')
 cmd.set_delay(1000)
 
 cmd.accept_quest(8397) // drago
 
 cmd.army_join('ultradrago')
-cmd.army_equip_set('UltraDrago', true)
+cmd.army_equip_set('UltraDrago', { resolveItems: true })
 cmd.buff()
 
 cmd.or(

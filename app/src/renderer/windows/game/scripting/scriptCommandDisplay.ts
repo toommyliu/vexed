@@ -189,6 +189,10 @@ const formatCondition = (value: unknown): string => {
       return `Item ${valueText(value["item"])} ${value["expected"] === false ? "not " : ""}${conditionMetricText(value["state"])}${value["quantity"] ? ` x${valueText(value["quantity"])}` : ""}`;
     case "BooleanState":
       return `${sentenceCaseCommandName(conditionMetricText(value["state"]))}: ${value["expected"] === false ? "false" : "true"}`;
+    case "ArmyState":
+      return value["state"] === "player_number"
+        ? `Army player number is ${valueText(value["playerNumber"])}`
+        : `Army ${conditionMetricText(value["state"])}: ${value["expected"] === false ? "false" : "true"}`;
     case "Cell":
       return `Cell ${value["expected"] === false ? "is not" : "is"}: ${valueText(value["cell"])}`;
     case "Map":
@@ -270,6 +274,21 @@ const commandDisplayFormatters = {
     `Monster not in room: ${valueText(monster)}`,
   can_buy_item: ([item, quantity]) =>
     `Can buy item: ${valueText(item)}${quantity ? ` x${valueText(quantity)}` : ""}`,
+
+  army_start: ([configName]) => `Start army: ${valueText(configName)}`,
+  army_sync: ([label]) => `Army sync${label ? `: ${valueText(label)}` : ""}`,
+  army_join: ([map, cell, pad]) =>
+    `Army join: ${valueText(map)}${bracket(cellPadText(cell, pad))}`,
+  army_kill: ([target]) => `Army kill: ${valueText(target)}`,
+  army_kill_for: ([target, item, quantity, isTemp]) =>
+    `Army kill for ${isTemp ? "temp item" : "item"}: [${valueText(target)}] [x${valueText(quantity)} ${valueText(item)}]`,
+  army_kill_for_item: ([target, item, quantity]) =>
+    `Army kill for item: [${valueText(target)}] [x${valueText(quantity)} ${valueText(item)}]`,
+  army_kill_for_tempitem: ([target, item, quantity]) =>
+    `Army kill for temp item: [${valueText(target)}] [x${valueText(quantity)} ${valueText(item)}]`,
+  execute_with_army: ([, fnName]) =>
+    `Execute with army${fnName ? `: ${valueText(fnName)}` : ""}`,
+  army_equip_set: ([setName]) => `Army equip set: ${valueText(setName)}`,
 
   attack: ([target]) => `Attack: ${valueText(target)}`,
   cancel_target: () => "Cancel target",

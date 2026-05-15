@@ -6,8 +6,7 @@ cmd.enable_hideplayers()
 cmd.enable_infiniterange()
 cmd.enable_anticounter()
 cmd.enable_death_ads()
-cmd.army_set_config('army_config')
-cmd.army_init()
+cmd.army_start('army_config')
 cmd.set_delay(1000)
 cmd.buy_lifesteal(99)
 cmd.buy_scroll_of_enrage(999)
@@ -86,7 +85,7 @@ var opts = {
 }
 
 cmd.army_join('championdrakath')
-cmd.army_equip_set('ChampionDrakath', true)
+cmd.army_equip_set('ChampionDrakath', { resolveItems: true })
 cmd.buff()
 cmd.hunt('Champion Drakath')
 cmd.set_spawn()

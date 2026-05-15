@@ -5,8 +5,7 @@ cmd.enable_lagkiller()
 cmd.enable_hideplayers()
 cmd.enable_infiniterange()
 cmd.enable_anticounter()
-cmd.army_set_config('army_config')
-cmd.army_init()
+cmd.army_start('army_config')
 cmd.set_delay(1000)
 
 cmd.accept_quest(8692) // nulgath
@@ -65,7 +64,7 @@ var opts = {
 }
 
 cmd.army_join('ultranulgath')
-cmd.army_equip_set('UltraNulgath', true)
+cmd.army_equip_set('UltraNulgath', { resolveItems: true })
 cmd.buff()
 cmd.hunt('Nulgath the Archfiend')
 cmd.set_spawnpoint()

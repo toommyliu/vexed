@@ -785,7 +785,6 @@ export function TopNav(props: TopNavProps): JSX.Element {
                     props.autoReloginAttempting() ? "true" : undefined
                   }
                   class="game-menu__item game-menu__server-trigger"
-                  disabled={props.autoReloginAttempting()}
                   inset
                 >
                   <span class="game-menu__item-label">Server</span>

@@ -5,8 +5,7 @@ cmd.enable_lagkiller()
 cmd.enable_hideplayers()
 cmd.enable_infiniterange()
 cmd.enable_anticounter()
-cmd.army_set_config('army_config')
-cmd.army_init()
+cmd.army_start('army_config')
 cmd.set_delay(1000)
 
 cmd.accept_quest(8547) // dage
@@ -55,7 +54,7 @@ var opts = {
 }
 
 cmd.army_join('ultradage')
-cmd.army_equip_set('UltraDage', true)
+cmd.army_equip_set('UltraDage', { resolveItems: true })
 cmd.use_autozone_ultradage()
 cmd.buff()
 cmd.hunt('Dage the Dark Lord')
