@@ -9,6 +9,7 @@ import {
   type JSX,
   type Setter,
 } from "solid-js";
+import { ChevronUp, X } from "lucide-solid";
 import type { CommandOverlayLayoutSettings } from "../../../shared/settings";
 import type { ScriptCommandDisplayItem } from "./scripting/scriptCommandDisplay";
 
@@ -18,7 +19,7 @@ const EDGE_PADDING = 8;
 const SCROLL_PADDING = 4;
 const MAX_SCROLL_CONTEXT_ROWS = 2;
 const MIN_SIZE = { width: 240, height: 96 } as const;
-const COLLAPSED_MIN_SIZE = { width: 220, height: 34 } as const;
+const COLLAPSED_MIN_SIZE = { width: 220, height: 28 } as const;
 
 export interface VirtualRange {
   readonly start: number;
@@ -537,9 +538,11 @@ export function CommandOverlay(props: CommandOverlayProps): JSX.Element {
         onPointerUp={handleDragEnd}
         onPointerCancel={handleDragEnd}
       >
-        <div class="command-overlay__title-group">
-          <span class="command-overlay__title">Commands</span>
-        </div>
+        {!collapsed() && (
+          <div class="command-overlay__title-group">
+            <span class="command-overlay__title">Commands</span>
+          </div>
+        )}
         <span
           class="command-overlay__status"
           data-active={collapsed() && collapsedCommand() ? "" : undefined}
@@ -555,14 +558,18 @@ export function CommandOverlay(props: CommandOverlayProps): JSX.Element {
           type="button"
           onClick={toggleCollapsed}
           onPointerDown={(event) => event.stopPropagation()}
-        />
+        >
+          <ChevronUp aria-hidden="true" class="command-overlay__chevron-icon" />
+        </button>
         <button
           aria-label="Close command overlay"
           class="command-overlay__icon-button command-overlay__icon-button--close"
           type="button"
           onClick={closeOverlay}
           onPointerDown={(event) => event.stopPropagation()}
-        />
+        >
+          <X aria-hidden="true" class="command-overlay__close-icon" />
+        </button>
       </header>
 
       {!collapsed() && (
