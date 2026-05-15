@@ -397,25 +397,9 @@ const make = Effect.gen(function* () {
         )) satisfies ScriptApi["packet"][typeof listener];
 
     const scriptSettings: ScriptSettingsShape = {
-      isEnemyMagnetEnabled: () =>
-        settings
-          .getState()
-          .pipe(Effect.map((state) => state.enemyMagnetEnabled)),
       setEnemyMagnet: settings.setEnemyMagnetEnabled,
-      isInfiniteRangeEnabled: () =>
-        settings
-          .getState()
-          .pipe(Effect.map((state) => state.infiniteRangeEnabled)),
       setInfiniteRange: settings.setInfiniteRangeEnabled,
-      isProvokeCellEnabled: () =>
-        settings
-          .getState()
-          .pipe(Effect.map((state) => state.provokeCellEnabled)),
       setProvokeCell: settings.setProvokeCellEnabled,
-      isSkipCutscenesEnabled: () =>
-        settings
-          .getState()
-          .pipe(Effect.map((state) => state.skipCutscenesEnabled)),
       setSkipCutscenes: settings.setSkipCutscenesEnabled,
       setCustomName: settings.setCustomName,
       setCustomGuild: settings.setCustomGuild,

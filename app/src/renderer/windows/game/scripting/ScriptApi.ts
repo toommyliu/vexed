@@ -55,13 +55,9 @@ export interface ScriptPacketApi
 }
 
 export interface ScriptSettingsShape {
-  isEnemyMagnetEnabled(): Effect.Effect<boolean>;
   setEnemyMagnet(enabled: boolean): BridgeEffect<void>;
-  isInfiniteRangeEnabled(): Effect.Effect<boolean>;
   setInfiniteRange(enabled: boolean): BridgeEffect<void>;
-  isProvokeCellEnabled(): Effect.Effect<boolean>;
   setProvokeCell(enabled: boolean): BridgeEffect<void>;
-  isSkipCutscenesEnabled(): Effect.Effect<boolean>;
   setSkipCutscenes(enabled: boolean): BridgeEffect<void>;
   setCustomName(name: string): BridgeEffect<void>;
   setCustomGuild(name: string): BridgeEffect<void>;
