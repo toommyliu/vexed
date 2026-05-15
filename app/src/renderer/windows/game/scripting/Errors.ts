@@ -1,63 +1,17 @@
 import { Data } from "effect";
 
-export class ScriptCompileError extends Data.TaggedError("ScriptCompileError")<{
+export class ScriptLoadError extends Data.TaggedError("ScriptLoadError")<{
   readonly sourceName: string;
-  readonly cause: unknown;
-}> {}
-
-export class ScriptDuplicateLabelError extends Data.TaggedError(
-  "ScriptDuplicateLabelError",
-)<{
-  readonly sourceName: string;
-  readonly label: string;
-}> {}
-
-export class ScriptInvalidControlFlowError extends Data.TaggedError(
-  "ScriptInvalidControlFlowError",
-)<{
-  readonly sourceName: string;
-  readonly instruction: string;
-  readonly instructionIndex: number;
   readonly message: string;
+  readonly cause?: unknown;
 }> {}
 
-export class ScriptUnknownCommandError extends Data.TaggedError(
-  "ScriptUnknownCommandError",
+export class ScriptExecutionError extends Data.TaggedError(
+  "ScriptExecutionError",
 )<{
   readonly sourceName: string;
-  readonly command: string;
-  readonly instructionIndex: number;
-}> {}
-
-export class ScriptLabelNotFoundError extends Data.TaggedError(
-  "ScriptLabelNotFoundError",
-)<{
-  readonly sourceName: string;
-  readonly label: string;
-}> {}
-
-export class ScriptInvalidArgumentError extends Data.TaggedError(
-  "ScriptInvalidArgumentError",
-)<{
-  readonly sourceName: string;
-  readonly command: string;
   readonly message: string;
-}> {}
-
-export class ScriptCustomCommandError extends Data.TaggedError(
-  "ScriptCustomCommandError",
-)<{
-  readonly sourceName: string;
-  readonly command: string;
-  readonly cause: unknown;
-}> {}
-
-export class ScriptCustomConditionError extends Data.TaggedError(
-  "ScriptCustomConditionError",
-)<{
-  readonly sourceName: string;
-  readonly condition: string;
-  readonly cause: unknown;
+  readonly cause?: unknown;
 }> {}
 
 export class ScriptNotReadyError extends Data.TaggedError(

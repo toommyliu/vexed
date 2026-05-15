@@ -20,9 +20,6 @@ export interface GameCommandRuntime {
   readonly stopScript: () => void;
   readonly scriptLoaded: Accessor<boolean>;
   readonly scriptRunning: Accessor<boolean>;
-  readonly scriptCommandCount: Accessor<number>;
-  readonly commandOverlayVisible: Accessor<boolean>;
-  readonly setCommandOverlayVisible: Setter<boolean>;
   readonly setAutoAttackEnabled: Setter<boolean>;
   readonly autoAttackEnabled: Accessor<boolean>;
   readonly optionItems: Accessor<readonly TopNavOptionItem[]>;
@@ -65,13 +62,6 @@ const createCommandLabel = (
     return () => (runtime.scriptRunning() ? "Stop Script" : "Start Script");
   }
 
-  if (id === "toggle-command-overlay") {
-    return () =>
-      runtime.commandOverlayVisible()
-        ? "Hide Command Overlay"
-        : "Show Command Overlay";
-  }
-
   if (id === "toggle-autoattack") {
     return () =>
       runtime.autoAttackEnabled() ? "Disable Autoattack" : "Enable Autoattack";
@@ -94,10 +84,6 @@ const createCommandEnabled = (
 
   if (id === "stop-script") {
     return () => runtime.scriptRunning();
-  }
-
-  if (id === "toggle-command-overlay") {
-    return () => runtime.scriptCommandCount() > 0;
   }
 
   if (id in topNavOptionCommandIds) {
@@ -145,12 +131,6 @@ const createCommandRunner = (
   if (id === "toggle-autoattack") {
     return () => {
       runtime.setAutoAttackEnabled((enabled) => !enabled);
-    };
-  }
-
-  if (id === "toggle-command-overlay") {
-    return () => {
-      runtime.setCommandOverlayVisible((visible) => !visible);
     };
   }
 

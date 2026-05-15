@@ -24,9 +24,6 @@ const createRuntime = (
     stopScript: noop,
     scriptLoaded: () => true,
     scriptRunning: () => false,
-    scriptCommandCount: () => 0,
-    commandOverlayVisible: () => true,
-    setCommandOverlayVisible: noop,
     setAutoAttackEnabled,
     autoAttackEnabled: () => autoAttackEnabled,
     optionItems: () => [],
@@ -82,46 +79,4 @@ describe("game commands", () => {
     expect(onSelect).toHaveBeenCalledOnce();
   });
 
-  it("toggles the command overlay when commands exist", () => {
-    let commandOverlayVisible = true;
-    const setCommandOverlayVisible: Setter<boolean> = (value) => {
-      commandOverlayVisible =
-        typeof value === "function" ? value(commandOverlayVisible) : value;
-      return commandOverlayVisible;
-    };
-    const runtime = createRuntime({
-      scriptCommandCount: () => 1,
-      commandOverlayVisible: () => commandOverlayVisible,
-      setCommandOverlayVisible,
-    });
-
-    const command = findCommand(runtime, "toggle-command-overlay");
-
-    expect(command.enabled()).toBe(true);
-    expect(command.label()).toBe("Hide Command Overlay");
-
-    command.run();
-
-    expect(commandOverlayVisible).toBe(false);
-    expect(command.label()).toBe("Show Command Overlay");
-  });
-
-  it("disables the command overlay toggle when no commands exist", () => {
-    let commandOverlayVisible = true;
-    const setCommandOverlayVisible = vi.fn();
-    const runtime = createRuntime({
-      scriptCommandCount: () => 0,
-      commandOverlayVisible: () => commandOverlayVisible,
-      setCommandOverlayVisible,
-    });
-
-    const command = findCommand(runtime, "toggle-command-overlay");
-
-    expect(command.enabled()).toBe(false);
-
-    command.run();
-
-    expect(commandOverlayVisible).toBe(true);
-    expect(setCommandOverlayVisible).not.toHaveBeenCalled();
-  });
 });

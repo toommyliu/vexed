@@ -66,10 +66,7 @@ export interface TopNavProps {
   readonly scriptLoaded: Accessor<boolean>;
   readonly scriptRunning: Accessor<boolean>;
   readonly scriptStatus: Accessor<string>;
-  readonly scriptCommandCount: Accessor<number>;
   readonly scriptDiagnosticsCount: Accessor<number>;
-  readonly commandOverlayVisible: Accessor<boolean>;
-  readonly setCommandOverlayVisible: Setter<boolean>;
   readonly loadScript: () => void | Promise<void>;
   readonly startScript: () => void;
   readonly stopScript: () => void;
@@ -454,36 +451,10 @@ export function TopNav(props: TopNavProps): JSX.Element {
                     {(shortcut) => <Kbd>{shortcut()}</Kbd>}
                   </Show>
                 </MenuItem>
-                <MenuCheckboxItem
-                  checked={props.commandOverlayVisible()}
-                  class="game-menu__item"
-                  closeOnSelect={false}
-                  disabled={props.scriptCommandCount() <= 0}
-                  onClick={() =>
-                    props.setCommandOverlayVisible((visible) => !visible)
-                  }
-                  value="toggle-command-overlay"
-                >
-                  <span class="game-menu__option-content">
-                    <span class="game-menu__item-label">Command Overlay</span>
-                    <Show
-                      when={formatOptionalHotkeyDisplay(
-                        commandHotkey(
-                          props.hotkeyBindings(),
-                          "toggle-command-overlay",
-                        ),
-                        props.hotkeyPlatform,
-                      )}
-                    >
-                      {(shortcut) => <Kbd>{shortcut()}</Kbd>}
-                    </Show>
-                  </span>
-                </MenuCheckboxItem>
               </MenuGroup>
               <MenuSeparator />
               <div class="game-menu__status">
                 <span>{props.scriptStatus()}</span>
-                <span>{props.scriptCommandCount()} commands</span>
                 <Show when={props.scriptDiagnosticsCount() > 0}>
                   <span>{props.scriptDiagnosticsCount()} diagnostics</span>
                 </Show>

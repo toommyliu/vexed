@@ -17,7 +17,6 @@ import {
   DEFAULT_HOTKEYS,
   DEFAULT_PREFERENCES,
   type AppSettings,
-  type CommandOverlayLayoutSettings,
 } from "../../../shared/settings";
 import type {
   AccountGameLaunchPayload,
@@ -49,12 +48,7 @@ import {
   subscribeGameLoadState,
 } from "./loadState";
 import type { GameTopNavMenu, TopNavOptionItem } from "./topNavOptions";
-import { CommandOverlay } from "./CommandOverlay";
-import {
-  toScriptCommandDisplayItems,
-  type ScriptCommandDisplayItem,
-} from "./scripting/scriptCommandDisplay";
-import { compileScriptProgram } from "./scripting/scriptProgram";
+import { ScriptRunner } from "./scripting/Services/ScriptRunner";
 
 const ACCOUNT_SCRIPT_STATUS_POLL_MS = 1000;
 const AUTO_RELOGIN_DEFAULT_DELAY_MS = 3000;
@@ -106,12 +100,7 @@ const parseDelaySecondsToMs = (value: string): number => {
 const formatScriptStatus = (
   loaded: boolean,
   running: boolean,
-  currentCommand: RunningScriptCommand | null,
 ) => {
-  if (running && currentCommand) {
-    return `Running #${currentCommand.index} ${currentCommand.name}`;
-  }
-
   if (running) {
     return "Running";
   }
@@ -125,20 +114,6 @@ const defaultSettings: AppSettings = {
   hotkeys: DEFAULT_HOTKEYS,
 };
 
-const getCommandOverlayLayout = (
-  settings: AppSettings,
-): CommandOverlayLayoutSettings => settings.preferences.commandOverlay.layout;
-
-const commandOverlayLayoutsEqual = (
-  left: CommandOverlayLayoutSettings,
-  right: CommandOverlayLayoutSettings,
-): boolean =>
-  left.collapsed === right.collapsed &&
-  left.position.x === right.position.x &&
-  left.position.y === right.position.y &&
-  left.size.width === right.size.width &&
-  left.size.height === right.size.height;
-
 export default function App(props: {
   readonly initialSettings?: AppSettings | null;
 }): JSX.Element {
@@ -151,17 +126,6 @@ export default function App(props: {
   const [scriptSource, setScriptSource] = createSignal("");
   const [scriptLoaded, setScriptLoaded] = createSignal(false);
   const [scriptRunning, setScriptRunning] = createSignal(false);
-  const [scriptCommandCount, setScriptCommandCount] = createSignal(0);
-  const [scriptCommands, setScriptCommands] = createSignal<
-    readonly ScriptCommandDisplayItem[]
-  >([]);
-  const [commandOverlayLayout, setCommandOverlayLayout] =
-    createSignal<CommandOverlayLayoutSettings>(
-      getCommandOverlayLayout(initialSettings),
-    );
-  const [commandOverlayVisible, setCommandOverlayVisible] = createSignal(true);
-  const [currentScriptCommand, setCurrentScriptCommand] =
-    createSignal<RunningScriptCommand | null>(null);
   const [scriptStatus, setScriptStatus] = createSignal("No script loaded");
   const [scriptDiagnosticsCount, setScriptDiagnosticsCount] = createSignal(0);
 
@@ -211,7 +175,6 @@ export default function App(props: {
   let settingsStateDisposer: (() => void) | undefined;
   let autoZoneStateDisposer: (() => void) | undefined;
   let autoReloginStateDisposer: (() => void) | undefined;
-  let currentCommandDisposer: (() => void) | undefined;
   let cleanedUp = false;
   const accountLaunchFibers = new Set<Fiber.Fiber<void, unknown>>();
   const assignDisposer =
@@ -276,35 +239,25 @@ export default function App(props: {
   const waitForAccountScriptStopEffect = (
     payload: AccountGameLaunchPayload,
     name: string,
-  ): Effect.Effect<void, unknown> =>
+  ) =>
     Effect.gen(function* () {
       let lastMessage = "";
+      const runner = yield* ScriptRunner;
 
       while (true) {
         yield* Effect.sleep(`${ACCOUNT_SCRIPT_STATUS_POLL_MS} millis`);
 
-        const cmd = window.cmd;
-        if (!cmd) {
-          return yield* accountLaunchError("Script bridge is not ready");
-        }
-
-        const [isRunning, currentCommand] = yield* Effect.tryPromise({
-          try: () => Promise.all([cmd.isRunning(), cmd.currentCommand()]),
-          catch: (error) =>
-            accountLaunchError("Failed to read script status", error),
-        });
+        const isRunning = yield* runner.isRunning();
 
         if (!isRunning) {
           setScriptRunning(false);
-          setCurrentScriptCommand(null);
           setScriptStatus(`Stopped ${name}`);
           updateAccountLaunchStatus(payload, "stopped", `Stopped ${name}`);
           return;
         }
 
-        const nextMessage = formatScriptStatus(true, true, currentCommand);
+        const nextMessage = formatScriptStatus(true, true);
         setScriptRunning(true);
-        setCurrentScriptCommand(currentCommand);
         setScriptStatus(nextMessage);
 
         if (nextMessage !== lastMessage) {
@@ -346,29 +299,21 @@ export default function App(props: {
         return;
       }
 
-      const cmd = window.cmd;
-      if (!cmd) {
-        return yield* accountLaunchError("Script bridge is not ready");
-      }
-
       const script = payload.script;
       const name = script.name ?? script.path ?? "script";
-      const program = yield* compileScriptProgram(script.source, name);
-      const commandDisplayItems = toScriptCommandDisplayItems(
-        program.instructions,
-      );
+      const runner = yield* ScriptRunner;
       yield* Effect.sync(() => {
-        applyLoadedScript(script.source, name, commandDisplayItems);
+        applyLoadedScript(script.source, name);
       });
       updateAccountLaunchStatus(payload, "running", `Running ${name}`);
-      yield* Effect.tryPromise({
-        try: () => cmd.run(script.source, name),
-        catch: (error) =>
+      yield* runner.run(script.source, { name }).pipe(
+        Effect.mapError((error) =>
           accountLaunchError(
             error instanceof Error ? error.message : "Failed to run script",
             error,
           ),
-      });
+        ),
+      );
       setScriptRunning(true);
       setScriptStatus(`Running ${name}`);
       updateAccountLaunchStatus(payload, "running", `Running ${name}`);
@@ -399,93 +344,49 @@ export default function App(props: {
     });
   };
 
-  const applyLoadedScript = (
-    source: string,
-    name: string,
-    commands: readonly ScriptCommandDisplayItem[],
-  ) => {
+  const applyLoadedScript = (source: string, name: string) => {
     setScriptName(name);
     setScriptSource(source);
     setScriptLoaded(true);
-    setScriptCommands(commands);
-    setScriptCommandCount(commands.length);
-    setCommandOverlayVisible(true);
-    setCurrentScriptCommand(null);
   };
 
   const applyAppSettings = (settings: AppSettings) => {
     setSettings(settings);
-    setCommandOverlayLayout(getCommandOverlayLayout(settings));
-  };
-
-  const persistCommandOverlayLayout = (
-    layout: CommandOverlayLayoutSettings,
-  ) => {
-    if (
-      commandOverlayLayoutsEqual(layout, getCommandOverlayLayout(settings()))
-    ) {
-      return;
-    }
-
-    void window.ipc.settings
-      .updatePreferences({ commandOverlay: { layout } })
-      .then(applyAppSettings)
-      .catch((error) => {
-        console.error("Failed to save command overlay layout:", error);
-      });
   };
 
   const applyScriptPayload = async (
     payload: ScriptExecutePayload,
   ): Promise<string> => {
     const name = payload.name ?? payload.path ?? "script";
-    const program = await Effect.runPromise(
-      compileScriptProgram(payload.source, name),
-    );
-    const commandDisplayItems = toScriptCommandDisplayItems(
-      program.instructions,
-    );
-
-    applyLoadedScript(payload.source, name, commandDisplayItems);
+    applyLoadedScript(payload.source, name);
     return name;
   };
 
   const refreshScriptMeta = async () => {
-    if (!window.cmd) {
-      setScriptStatus("Script bridge is not ready");
-      setCurrentScriptCommand(null);
-      return;
-    }
-
     try {
-      const [isRunning, currentCommand, diagnostics] = await Promise.all([
-        window.cmd.isRunning(),
-        window.cmd.currentCommand(),
-        window.cmd.diagnostics(),
-      ]);
-
-      setScriptCommandCount(scriptCommands().length);
-      setScriptRunning(isRunning);
-      setCurrentScriptCommand(currentCommand);
-      setScriptDiagnosticsCount(diagnostics.length);
-      setScriptStatus(
-        formatScriptStatus(scriptLoaded(), isRunning, currentCommand),
+      const { isRunning, diagnostics } = await runtime.runPromise(
+        Effect.gen(function* () {
+          const runner = yield* ScriptRunner;
+          const [isRunning, diagnostics] = yield* Effect.all([
+            runner.isRunning(),
+            runner.diagnostics(),
+          ]);
+          return { isRunning, diagnostics };
+        }),
       );
+
+      setScriptRunning(isRunning);
+      setScriptDiagnosticsCount(diagnostics.length);
+      setScriptStatus(formatScriptStatus(scriptLoaded(), isRunning));
     } catch (error) {
       console.error("Failed to refresh script metadata", error);
       setScriptStatus("Failed to refresh script state");
-      setCurrentScriptCommand(null);
     }
   };
 
   const loadScript = async () => {
-    if (!window.cmd) {
-      setScriptStatus("Script bridge is not ready");
-      return;
-    }
-
     try {
-      const payload = await window.cmd.open();
+      const payload = await window.ipc.scripting.openFile();
       if (!payload) {
         setScriptStatus("Open script cancelled");
         return;
@@ -497,19 +398,11 @@ export default function App(props: {
     } catch (error) {
       console.error("Failed to load script", error);
       setScriptLoaded(false);
-      setScriptCommands([]);
-      setScriptCommandCount(0);
-      setCurrentScriptCommand(null);
       setScriptStatus("Failed to load script");
     }
   };
 
   const startScript = () => {
-    if (!window.cmd) {
-      setScriptStatus("Script bridge is not ready");
-      return;
-    }
-
     const source = scriptSource().trim();
     if (!source) {
       setScriptStatus("No script loaded");
@@ -518,8 +411,13 @@ export default function App(props: {
 
     const name = scriptName() || "script";
     setScriptStatus(`Starting ${name}`);
-    void window.cmd
-      .run(source, name)
+    void runtime
+      .runPromise(
+        Effect.gen(function* () {
+          const runner = yield* ScriptRunner;
+          yield* runner.run(source, { name });
+        }),
+      )
       .then(() => {
         setScriptRunning(true);
         setScriptStatus(`Running ${name}`);
@@ -534,16 +432,20 @@ export default function App(props: {
   };
 
   const stopScript = () => {
-    if (!window.cmd) {
-      setScriptStatus("Script bridge is not ready");
-      return;
-    }
-
-    window.cmd.stop();
-    setScriptRunning(false);
-    setCurrentScriptCommand(null);
+    void runtime
+      .runPromise(
+        Effect.gen(function* () {
+          const runner = yield* ScriptRunner;
+          yield* runner.stop("ui request");
+        }),
+      )
+      .catch((error) => {
+        console.error("Failed to stop script", error);
+      })
+      .finally(() => {
+        void refreshScriptMeta();
+      });
     setScriptStatus("Stop requested");
-    void refreshScriptMeta();
   };
 
   const canApplyGameSettings = () => gameLoaded() && playerReady();
@@ -1073,9 +975,6 @@ export default function App(props: {
     stopScript,
     scriptLoaded,
     scriptRunning,
-    scriptCommandCount,
-    commandOverlayVisible,
-    setCommandOverlayVisible,
     setAutoAttackEnabled,
     autoAttackEnabled,
     optionItems,
@@ -1096,18 +995,14 @@ export default function App(props: {
             void refreshScriptMeta();
           })
           .catch((error) => {
-            console.error("Failed to prepare script overlay", error);
+            console.error("Failed to load script payload", error);
             setScriptLoaded(false);
-            setScriptCommands([]);
-            setScriptCommandCount(0);
-            setCurrentScriptCommand(null);
             setScriptStatus("Failed to load script");
           });
       },
     );
     const unsubscribeScriptStop = window.ipc.scripting.onStop(() => {
       setScriptRunning(false);
-      setCurrentScriptCommand(null);
       setScriptStatus("Stop requested");
       void refreshScriptMeta();
     });
@@ -1135,13 +1030,6 @@ export default function App(props: {
     const scriptMetaInterval = setInterval(() => {
       void refreshScriptMeta();
     }, 1200);
-    currentCommandDisposer = window.cmd?.onCurrentCommand((command) => {
-      setCurrentScriptCommand(command);
-      setScriptRunning(command !== null);
-      setScriptStatus(
-        formatScriptStatus(scriptLoaded(), command !== null, command),
-      );
-    });
 
     void runtime
       .runPromise(
@@ -1213,7 +1101,6 @@ export default function App(props: {
     settingsStateDisposer?.();
     autoZoneStateDisposer?.();
     autoReloginStateDisposer?.();
-    currentCommandDisposer?.();
   });
 
   return (
@@ -1234,10 +1121,7 @@ export default function App(props: {
         scriptLoaded={scriptLoaded}
         scriptRunning={scriptRunning}
         scriptStatus={scriptStatus}
-        scriptCommandCount={scriptCommandCount}
         scriptDiagnosticsCount={scriptDiagnosticsCount}
-        commandOverlayVisible={commandOverlayVisible}
-        setCommandOverlayVisible={setCommandOverlayVisible}
         loadScript={loadScript}
         startScript={startScript}
         stopScript={stopScript}
@@ -1306,18 +1190,6 @@ export default function App(props: {
         classList={{ "game-viewport--loaded": gameLoaded() }}
       >
         <div class="game-visual-cover" aria-hidden="true" />
-        {scriptCommands().length > 0 && commandOverlayVisible() && (
-          <CommandOverlay
-            commands={scriptCommands}
-            activeCommand={currentScriptCommand}
-            layout={commandOverlayLayout}
-            scriptName={scriptName}
-            running={scriptRunning}
-            setLayout={setCommandOverlayLayout}
-            onClose={() => setCommandOverlayVisible(false)}
-            onLayoutCommit={persistCommandOverlayLayout}
-          />
-        )}
       </section>
     </main>
   );

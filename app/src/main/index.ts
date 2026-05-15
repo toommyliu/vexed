@@ -165,7 +165,7 @@ const openScriptDialog = async (
     title: "Open script",
     defaultPath: scriptsPath,
     filters: [
-      { name: "JavaScript", extensions: ["js", "mjs", "cjs", "ts"] },
+      { name: "JavaScript", extensions: ["js", "cjs"] },
       { name: "All Files", extensions: ["*"] },
     ],
     properties: ["openFile"],
