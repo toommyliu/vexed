@@ -11,9 +11,9 @@ export default defineConfig({
       sidebar: [
         { link: "/", label: "Overview" },
         {
-          label: "Script Commands",
+          label: "Scripting API",
           autogenerate: {
-            directory: "script-commands",
+            directory: "scripting",
             collapsed: false,
           },
         },

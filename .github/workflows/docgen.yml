@@ -4,9 +4,13 @@ on:
   push:
     branches: [main]
     paths:
-      - 'app/src/renderer/game/scripting/Commands/**/*.ts'
-      - 'app/src/renderer/game/scripting/Types.ts'
+      - 'app/src/renderer/windows/game/scripting/ScriptApi.ts'
+      - 'app/src/renderer/windows/game/army/Services/**/*.ts'
+      - 'app/src/renderer/windows/game/features/Services/**/*.ts'
+      - 'app/src/renderer/windows/game/flash/Services/**/*.ts'
+      - 'app/src/renderer/windows/game/jobs/Services/**/*.ts'
       - 'scripts/docgen.ts'
+      - 'docs/astro.config.mjs'
       - 'package.json'
       - 'pnpm-lock.yaml'
   workflow_dispatch:
@@ -39,6 +43,8 @@ jobs:
         run: pnpm install
 
       - name: Generate documentation
+        env:
+          DOCGEN_SOURCE_REF: ${{ github.sha }}
         run: pnpm run docgen
 
       - name: Commit and push documentation updates

@@ -1,8 +1,6 @@
 ---
 title: Overview
-description: API reference for vexed scripting commands.
+description: API reference for vexed scripting.
 ---
 
-# vexed API Reference
-
-Use the Script Commands section to browse generated command documentation.
+Use the Scripting API section to browse the generated script context reference.
