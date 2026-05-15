@@ -657,11 +657,18 @@ export function TopNav(props: TopNavProps): JSX.Element {
               expanded={props.openMenu() === "relogin"}
               title={
                 autoReloginTriggerLabel() === "Auto Relogin"
-                  ? undefined
+                  ? props.autoReloginEnabled() && props.autoReloginServer()
+                    ? `Auto Relogin: ${props.autoReloginServer()}`
+                    : undefined
                   : autoReloginTriggerLabel()
               }
             >
               <span>Auto Relogin</span>
+              <Show when={props.autoReloginEnabled() && props.autoReloginServer()}>
+                <span class="game-topnav__trigger-detail">
+                  {props.autoReloginServer()}
+                </span>
+              </Show>
               <span
                 aria-hidden="true"
                 class="game-topnav__status-slot"
