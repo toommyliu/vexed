@@ -39,6 +39,7 @@ import {
   type ScriptAsyncScope,
   makeScriptAsyncScope,
 } from "../scriptAsyncScope";
+import { makeScriptRecipes } from "../recipes";
 import { loadScriptModule } from "../scriptLoader";
 
 type ActiveScript = {
@@ -517,6 +518,22 @@ const make = Effect.gen(function* () {
       setMap: autoZone.setMap,
     };
 
+    const recipes = makeScriptRecipes({
+      sourceName,
+      auth,
+      bank,
+      bridge,
+      combat,
+      drops,
+      inventory,
+      packet,
+      player,
+      quests,
+      shops,
+      tempInventory,
+      world,
+    });
+
     const api: ScriptApi = {
       signal: scriptScope.signal,
       log: (message: string) => {
@@ -557,6 +574,7 @@ const make = Effect.gen(function* () {
       },
       player: wrapValue(player) as ScriptApi["player"],
       quests: wrapValue(quests) as ScriptApi["quests"],
+      recipes: wrapValue(recipes) as ScriptApi["recipes"],
       settings: wrapValue(scriptSettings) as ScriptApi["settings"],
       shops: wrapValue(shops) as ScriptApi["shops"],
       tempInventory: wrapValue(tempInventory) as ScriptApi["tempInventory"],

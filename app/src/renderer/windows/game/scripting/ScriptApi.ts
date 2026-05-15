@@ -2,6 +2,7 @@ import type { Collection } from "@vexed/collection";
 import type { Aura, Avatar, GameAction, Monster } from "@vexed/game";
 import type { Duration, Effect, Option } from "effect";
 import type { ScriptExecutionError, ScriptNotReadyError } from "./Errors";
+import type { ScriptRecipesShape } from "./recipes";
 import type { ArmyShape } from "../army/Services/Army";
 import type { AuthShape } from "../flash/Services/Auth";
 import type { AutoZoneSupportedMap } from "../features/Services/AutoZone";
@@ -171,6 +172,7 @@ export interface ScriptApi {
   readonly packet: ScriptPacketApi;
   readonly player: EffectValue<PlayerShape>;
   readonly quests: EffectValue<QuestsShape>;
+  readonly recipes: EffectValue<ScriptRecipesShape>;
   readonly settings: EffectValue<ScriptSettingsShape>;
   readonly shops: EffectValue<ShopsShape>;
   readonly tempInventory: EffectValue<TempInventoryShape>;
