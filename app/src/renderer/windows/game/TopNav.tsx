@@ -3,6 +3,8 @@ import {
   createSignal,
   For,
   Match,
+  onCleanup,
+  onMount,
   Show,
   splitProps,
   Switch,
@@ -185,6 +187,7 @@ function TopNavMenuTrigger(props: TopNavMenuTriggerProps): JSX.Element {
 }
 
 export function TopNav(props: TopNavProps): JSX.Element {
+  let topNavContainer: HTMLDivElement | undefined;
   let autoReloginMenuContent: HTMLDivElement | undefined;
   const [autoReloginServerMenuOpen, setAutoReloginServerMenuOpen] =
     createSignal(false);
@@ -236,6 +239,36 @@ export function TopNav(props: TopNavProps): JSX.Element {
         : autoReloginNeedsAttention()
           ? "alert"
           : undefined;
+
+  onMount(() => {
+    let lastTopNavHeight = 0;
+
+    const setTopNavOffset = (height: number): void => {
+      if (!Number.isFinite(height)) return;
+
+      const roundedHeight = Math.ceil(height);
+      if (roundedHeight <= 0 || roundedHeight === lastTopNavHeight) return;
+
+      lastTopNavHeight = roundedHeight;
+      document.documentElement.style.setProperty(
+        "--topnav-offset",
+        `${roundedHeight}px`,
+      );
+    };
+
+    const observer = new ResizeObserver(([entry]) => {
+      const height =
+        entry?.borderBoxSize[0]?.blockSize ?? entry?.contentRect.height;
+      if (height !== undefined) setTopNavOffset(height);
+    });
+
+    if (topNavContainer) observer.observe(topNavContainer);
+
+    onCleanup(() => {
+      observer.disconnect();
+      document.documentElement.style.removeProperty("--topnav-offset");
+    });
+  });
 
   createEffect(() => {
     if (props.autoReloginLastError() === "") {
@@ -350,9 +383,24 @@ export function TopNav(props: TopNavProps): JSX.Element {
   };
 
   return (
-    <div id="topnav-container" class="game-topnav-container">
+    <div
+      ref={(element) => {
+        topNavContainer = element;
+      }}
+      id="topnav-container"
+      class="game-topnav-container"
+    >
       <nav id="topnav" class="game-topnav" aria-label="Game controls">
-        <div class="game-topnav__left">
+        <div
+          class="game-topnav__left"
+          data-menu-open={
+            props.openMenu() !== null &&
+            props.openMenu() !== "pads" &&
+            props.openMenu() !== "cells"
+              ? ""
+              : undefined
+          }
+        >
           <Menu
             open={props.openMenu() === "windows"}
             onOpenChange={setMenuOpen("windows")}
@@ -854,7 +902,14 @@ export function TopNav(props: TopNavProps): JSX.Element {
           </Button>
         </div>
 
-        <div class="game-topnav__right">
+        <div
+          class="game-topnav__right"
+          data-menu-open={
+            props.openMenu() === "pads" || props.openMenu() === "cells"
+              ? ""
+              : undefined
+          }
+        >
           <Checkbox
             checked={props.autoAttackEnabled()}
             disabled={gameInteractionDisabled()}

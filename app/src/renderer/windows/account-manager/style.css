@@ -205,10 +205,6 @@
   width: 100%;
 }
 
-.combobox__positioner:has(.account-manager__server-content) {
-  z-index: 100;
-}
-
 .account-manager__server-content {
   min-width: min(22rem, var(--available-width));
   position: relative;
