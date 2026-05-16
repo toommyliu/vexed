@@ -59,8 +59,10 @@ on:
   workflow_dispatch:
 
 permissions:
+  checks: write
   contents: write
   issues: write
+  pull-requests: write
 
 concurrency:
   group: docgen-${{ github.ref }}
@@ -129,25 +131,34 @@ jobs:
 
       - name: Update PR documentation drift comment
         if: github.event_name == 'pull_request'
-        continue-on-error: true
         env:
           GH_TOKEN: ${{ github.token }}
           COMMENT_MARKER: '<!-- vexed-docgen-drift -->'
           PR_NUMBER: ${{ github.event.pull_request.number }}
           STALE_DOCS: ${{ steps.docgen-drift.outputs.stale }}
         run: |
+          gh_error="${RUNNER_TEMP}/docgen-comment-error.log"
           existing_comment_id="$(
             gh api --paginate "repos/${GITHUB_REPOSITORY}/issues/${PR_NUMBER}/comments" \
               --jq '.[] | select(.user.type == "Bot" and (.body | contains(env.COMMENT_MARKER))) | .id' \
-              | tail -n 1
+              2> "$gh_error" \
+              | tail -n 1 \
+              || true
           )"
+          if [ -s "$gh_error" ]; then
+            echo "::notice title=Unable to read docgen PR comments::$(tr '\n' ' ' < "$gh_error")"
+            rm -f "$gh_error"
+          fi
 
           if [ "$STALE_DOCS" != "true" ]; then
             if [ -n "$existing_comment_id" ]; then
-              gh api \
+              if ! gh api \
                 --method DELETE \
                 "repos/${GITHUB_REPOSITORY}/issues/comments/${existing_comment_id}" \
-                --silent
+                --silent \
+                2> "$gh_error"; then
+                echo "::notice title=Unable to delete stale docgen PR comment::$(tr '\n' ' ' < "$gh_error")"
+              fi
             fi
             exit 0
           fi
@@ -172,17 +183,55 @@ jobs:
           } > "$body_file"
 
           if [ -n "$existing_comment_id" ]; then
-            gh api \
+            if ! gh api \
               --method PATCH \
               "repos/${GITHUB_REPOSITORY}/issues/comments/${existing_comment_id}" \
               --field body=@"$body_file" \
-              --silent
+              --silent \
+              2> "$gh_error"; then
+              echo "::notice title=Unable to update docgen PR comment::$(tr '\n' ' ' < "$gh_error")"
+            fi
           else
-            gh api \
+            if ! gh api \
               --method POST \
               "repos/${GITHUB_REPOSITORY}/issues/${PR_NUMBER}/comments" \
               --field body=@"$body_file" \
-              --silent
+              --silent \
+              2> "$gh_error"; then
+              echo "::notice title=Unable to create docgen PR comment::$(tr '\n' ' ' < "$gh_error")"
+            fi
+          fi
+
+      - name: Publish docgen artifact check
+        if: github.event_name == 'pull_request'
+        env:
+          GH_TOKEN: ${{ github.token }}
+          HEAD_SHA: ${{ github.event.pull_request.head.sha }}
+          STALE_DOCS: ${{ steps.docgen-drift.outputs.stale }}
+        run: |
+          gh_error="${RUNNER_TEMP}/docgen-check-error.log"
+          if [ "$STALE_DOCS" = "true" ]; then
+            conclusion="neutral"
+            title="Generated scripting docs need an update"
+            summary="Run \`pnpm run docgen\` locally and commit the generated docs."
+          else
+            conclusion="success"
+            title="Generated scripting docs are up to date"
+            summary="No generated doc artifacts changed after running docgen."
+          fi
+
+          if ! gh api \
+            --method POST \
+            "repos/${GITHUB_REPOSITORY}/check-runs" \
+            --field name="Docgen artifacts" \
+            --field head_sha="$HEAD_SHA" \
+            --field status="completed" \
+            --field conclusion="$conclusion" \
+            --field "output[title]=$title" \
+            --field "output[summary]=$summary" \
+            --silent \
+            2> "$gh_error"; then
+            echo "::notice title=Unable to publish docgen artifact check::$(tr '\n' ' ' < "$gh_error")"
           fi
 
       - name: Commit and push documentation updates
