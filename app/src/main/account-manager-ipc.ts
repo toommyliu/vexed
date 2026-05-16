@@ -36,7 +36,7 @@ const gameLaunchPayloads = new Map<number, AccountGameLaunchPayload>();
 
 const now = (): number => Date.now();
 
-const getAccountsPath = (): string => Files.join("accounts.yaml");
+const getAccountsPath = (): string => Files.appDataJoin("accounts.json");
 
 class AccountServersFetchError extends Data.TaggedError(
   "AccountServersFetchError",
@@ -138,12 +138,12 @@ const normalizeAccounts = (value: unknown): readonly ManagedAccount[] => {
 };
 
 const readAccounts = async (): Promise<readonly ManagedAccount[]> =>
-  Files.ensureYaml(getAccountsPath(), [], normalizeAccounts);
+  Files.ensureJson(getAccountsPath(), [], normalizeAccounts);
 
 const writeAccounts = async (
   accounts: readonly ManagedAccount[],
 ): Promise<void> => {
-  Files.writeYaml(
+  Files.writeJson(
     getAccountsPath(),
     dedupeAccountsByUsername(accounts).map(normalizeStoredAccount),
   );

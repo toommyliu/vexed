@@ -1,5 +1,5 @@
-# Copy this file to your Vexed userdata army directory as army_config.yaml.
-# The app reads configs from: <VEXED_HOME or ~/.vexed>/userdata/army/
+# Copy this file to your Vexed workspace army directory as army_config.yaml.
+# The app reads configs from: <--vexed-home, VEXED_HOME, or ~/Documents/vexed>/army/
 version: 1
 room: "12345"
 players:

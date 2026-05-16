@@ -59,7 +59,7 @@ const trackedWindows = new WeakSet<BrowserWindow>();
 const normalizePlayerName = (name: string): string => name.trim().toLowerCase();
 
 const getArmyConfigPath = (configName: string): string =>
-  Files.join("army", `${assertValidArmyConfigName(configName)}.yaml`);
+  Files.workspaceJoin("army", `${assertValidArmyConfigName(configName)}.yaml`);
 
 const getSenderWindow = (sender: WebContents): BrowserWindow => {
   const senderWindow = BrowserWindow.fromWebContents(sender);

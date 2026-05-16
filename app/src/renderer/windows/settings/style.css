@@ -111,6 +111,10 @@
   }
 }
 
+:root[data-reduce-motion="off"] .settings-content-wrapper {
+  scroll-behavior: smooth;
+}
+
 .settings-section {
   display: grid;
   gap: 1.25rem;

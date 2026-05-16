@@ -11,6 +11,10 @@ const launcherSource = readFileSync(
   resolve(import.meta.dirname, "../../scripts/start-ui-demo-electron11.mjs"),
   "utf8",
 );
+const brandingSource = readFileSync(
+  resolve(import.meta.dirname, "../../appBranding.json"),
+  "utf8",
+);
 
 describe("main process dev renderer URL", () => {
   it("supports a loopback-only Vite renderer URL in development", () => {
@@ -32,5 +36,21 @@ describe("main process dev renderer URL", () => {
     expect(launcherSource).toContain("await waitForServer(uiDemoUrl");
     expect(launcherSource).toContain("VEXED_DEV_RENDERER_URL: uiDemoUrl");
     expect(launcherSource).not.toContain("assertPortAvailable");
+  });
+});
+
+describe("main process storage paths", () => {
+  it("uses branding userDataDirName without legacy fallback", () => {
+    expect(mainSource).toContain("activeBranding.userDataDirName");
+    expect(mainSource).not.toContain("legacyUserDataDirNames");
+    expect(brandingSource).not.toContain("legacyUserDataDirNames");
+  });
+
+  it("configures app data separately from the user workspace", () => {
+    expect(mainSource).toContain("Files.configureAppDataHome");
+    expect(mainSource).toContain("Files.resolveWorkspaceHome");
+    expect(mainSource).toContain("argv: process.argv");
+    expect(mainSource).toContain("documentsPath: app.getPath(\"documents\")");
+    expect(mainSource).toContain("Files.configureWorkspaceHome");
   });
 });

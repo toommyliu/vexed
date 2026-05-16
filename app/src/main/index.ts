@@ -1,5 +1,5 @@
 import "abort-controller/polyfill";
-import { existsSync, promises, unwatchFile, watchFile, type Stats } from "fs";
+import { promises, unwatchFile, watchFile, type Stats } from "fs";
 import {
   app,
   BrowserWindow,
@@ -25,6 +25,7 @@ import {
 } from "./artix-launcher-headers";
 import { createApplicationMenu } from "./menu";
 import * as Appearance from "./settings/Appearance";
+import * as Files from "./settings/Files";
 import * as Preferences from "./settings/Preferences";
 import { registerSettingsIpcHandlers } from "./settings-ipc";
 import {
@@ -60,21 +61,11 @@ const resolveAppDataBasePath = (): string =>
       ? join(homedir(), "Library", "Application Support")
       : process.env["XDG_CONFIG_HOME"] || join(homedir(), ".config");
 
-const resolveUserDataPath = (): string => {
-  const appDataBase = resolveAppDataBasePath();
-
-  // If the legacy directory exists, prefer that over the new one to avoid losing session data.
-  for (const dirName of activeBranding.legacyUserDataDirNames) {
-    const legacyPath = join(appDataBase, dirName);
-    if (existsSync(legacyPath)) {
-      return legacyPath;
-    }
-  }
-
-  return join(appDataBase, activeBranding.userDataDirName);
-};
+const resolveUserDataPath = (): string =>
+  join(resolveAppDataBasePath(), activeBranding.userDataDirName);
 
 app.setPath("userData", resolveUserDataPath());
+Files.configureAppDataHome(app.getPath("userData"));
 app.setName(activeBranding.displayName);
 
 if (isWin) {
@@ -83,8 +74,12 @@ if (isWin) {
 
 const assetsPath = join(app.getAppPath(), "..", "assets");
 const rendererPath = join(__dirname, "../renderer");
-const documentsPath = join(app.getPath("documents"), "vexed");
-const scriptsPath = join(documentsPath, "scripts");
+const workspacePath = Files.resolveWorkspaceHome({
+  argv: process.argv,
+  documentsPath: app.getPath("documents"),
+});
+Files.configureWorkspaceHome(workspacePath);
+const scriptsPath = Files.workspaceJoin("scripts");
 const devRendererReloadPath = process.env["VEXED_DEV_RENDERER_RELOAD"];
 const devRendererUrl = process.env["VEXED_DEV_RENDERER_URL"];
 
@@ -96,11 +91,11 @@ const flashPath = join(
 );
 
 const flashPluginPath = isDarwin
-  ? join(documentsPath, "PepperFlashPlayer.plugin")
+  ? Files.workspaceJoin("PepperFlashPlayer.plugin")
   : isWin
-    ? join(documentsPath, "pepflashplayer.dll")
+    ? Files.workspaceJoin("pepflashplayer.dll")
     : isLinux
-      ? join(documentsPath, "libpepflashplayer.so")
+      ? Files.workspaceJoin("libpepflashplayer.so")
       : null;
 
 if (flashPluginPath) {
