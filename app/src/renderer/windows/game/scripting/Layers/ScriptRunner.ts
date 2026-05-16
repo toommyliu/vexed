@@ -32,6 +32,7 @@ import type {
   ScriptContext,
   ScriptMain,
   ScriptPacketListener,
+  ScriptRuntimeApi,
   ScriptSettingsShape,
   ScriptWorldShape,
 } from "../ScriptApi";
@@ -298,7 +299,7 @@ const make = Effect.gen(function* () {
           return Effect.fail(
             new ScriptExecutionError({
               sourceName,
-              message: "api.sleep(ms) expects a finite non-negative number",
+              message: "script.sleep(ms) expects a finite non-negative number",
               cause: ms,
             }),
           );
@@ -552,7 +553,7 @@ const make = Effect.gen(function* () {
       world,
     });
 
-    const api: ScriptApi = {
+    const script: ScriptRuntimeApi = {
       signal: scriptScope.signal,
       log: (message: string) => {
         const text = String(message);
@@ -566,6 +567,9 @@ const make = Effect.gen(function* () {
       },
       stop: stopScript,
       sleep,
+    };
+
+    const api: ScriptApi = {
       army: wrapValue(army) as ScriptApi["army"],
       auth: wrapValue(scriptAuth) as ScriptApi["auth"],
       bank: wrapValue(bank) as ScriptApi["bank"],
@@ -606,6 +610,7 @@ const make = Effect.gen(function* () {
 
     const context: ScriptContext = {
       api,
+      script,
       autoRelogin: wrapValue(scriptAutoRelogin) as ScriptContext["autoRelogin"],
       autoZone: wrapValue(scriptAutoZone) as ScriptContext["autoZone"],
     };

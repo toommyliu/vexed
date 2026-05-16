@@ -160,7 +160,14 @@ export interface ScriptAutoZoneShape {
 }
 
 export interface ScriptContext {
+  /**
+   * Gameplay and game-state APIs exposed to scripts.
+   */
   readonly api: ScriptApi;
+  /**
+   * Current script lifecycle and diagnostics APIs.
+   */
+  readonly script: ScriptRuntimeApi;
   /**
    * Controls automatic relogin behavior from scripts.
    */
@@ -171,7 +178,7 @@ export interface ScriptContext {
   readonly autoZone: EffectValue<ScriptAutoZoneShape>;
 }
 
-export interface ScriptApi {
+export interface ScriptRuntimeApi {
   /**
    * Current script cancellation signal; aborted when the script stops.
    */
@@ -182,9 +189,12 @@ export interface ScriptApi {
    */
   stop(reason?: string): Effect.Effect<never>;
   /**
-   * Waits for milliseconds and cancels when the script stops.
+   * Waits for milliseconds and cancels when the script stops. Prefer this over homemade `setTimeout` helpers to avoid background timers that keep running after the script is stopped.
    */
   sleep(ms: number): Effect.Effect<void, ScriptExecutionError>;
+}
+
+export interface ScriptApi {
   readonly army: EffectValue<ArmyShape>;
   readonly auth: EffectValue<ScriptAuthShape>;
   readonly bank: EffectValue<BankShape>;

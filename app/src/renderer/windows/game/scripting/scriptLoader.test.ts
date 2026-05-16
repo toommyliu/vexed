@@ -8,8 +8,8 @@ describe("script loader", () => {
     const main = await Effect.runPromise(
       loadScriptModule(
         `
-module.exports = function* run({ api, autoZone, autoRelogin }) {
-  api.log("ready")
+module.exports = function* run({ script }) {
+  script.log("ready")
 }
 `,
         "loader.test.js",

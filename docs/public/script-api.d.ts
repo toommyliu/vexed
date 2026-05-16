@@ -58,17 +58,11 @@ type ScriptMain = (
 
 interface ScriptContext {
     readonly api: ScriptApi;
+    readonly script: ScriptRuntimeApi;
     readonly autoRelogin: ScriptContextAutoReloginApi;
     readonly autoZone: ScriptContextAutoZoneApi;
 }
 interface ScriptApi {
-  /** Current script cancellation signal; aborted when the script stops. */
-    readonly signal: AbortSignal;
-    log(message: string): void;
-  /** Stops the current script. */
-    stop(reason?: string): Effect<never, never>;
-  /** Waits for milliseconds and cancels when the script stops. */
-    sleep(ms: number): Effect<void, ScriptExecutionError>;
     readonly army: ArmyApi;
     readonly auth: AuthApi;
     readonly bank: BankApi;
@@ -84,6 +78,15 @@ interface ScriptApi {
     readonly shops: ShopsApi;
     readonly tempInventory: TempInventoryApi;
     readonly world: WorldApi;
+}
+interface ScriptRuntimeApi {
+  /** Current script cancellation signal; aborted when the script stops. */
+    readonly signal: AbortSignal;
+    log(message: string): void;
+  /** Stops the current script. */
+    stop(reason?: string): Effect<never, never>;
+  /** Waits for milliseconds and cancels when the script stops. Prefer this over homemade `setTimeout` helpers to avoid background timers that keep running after the script is stopped. */
+    sleep(ms: number): Effect<void, ScriptExecutionError>;
 }
 interface ArmyApi {
     start(configName: string): Effect<ArmySession, never | ArmyError | BridgeError>;

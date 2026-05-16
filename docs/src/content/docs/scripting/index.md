@@ -14,19 +14,20 @@ Scripts export a CommonJS generator function and receive one context object.
 
 ```js
 module.exports = function* run(ctx) {
-  const { api, autoZone, autoRelogin } = ctx
-  api.log("started")
+  const { api, script } = ctx
+  script.log("started")
   yield* api.player.joinMap("battleon")
 }
 ```
 
 ## Context
 
-The context is the object passed to your script. It gives you access to the main scripting API and scriptable feature controls.
+The context is the object passed to your script. It separates gameplay APIs, current-script lifecycle helpers, and scriptable feature controls.
 
 | Member | Description |
 | --- | --- |
-| [`api`](/scripting/api/) | Access to our script API. |
+| [`api`](/scripting/api/) | Gameplay and game-state APIs. |
+| [`script`](/scripting/script/) | Current script lifecycle and diagnostics APIs. |
 | [`autoZone`](/scripting/auto-zone/) | Auto Zone feature controls. |
 | [`autoRelogin`](/scripting/auto-relogin/) | Auto Relogin feature controls. |
 

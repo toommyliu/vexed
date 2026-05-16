@@ -923,19 +923,20 @@ const collectApiGroups = (
   options: CliOptions,
   git: GitSourceInfo | null,
 ): {
-  readonly apiHelpers: readonly MemberDoc[];
+  readonly runtimeHelpers: readonly MemberDoc[];
   readonly namespaces: readonly ApiNamespace[];
   readonly groups: readonly ApiGroup[];
   readonly typeReferences: readonly string[];
 } => {
   const scriptApi = getInterface(declarations, "ScriptApi");
   const scriptContext = getInterface(declarations, "ScriptContext");
+  const scriptRuntimeApi = getInterface(declarations, "ScriptRuntimeApi");
   const helperTypeReferences = new Set<string>();
   const groups: ApiGroup[] = [];
 
-  const apiHelpers = [
+  const runtimeHelpers = [
     ...["log", "stop", "sleep"].flatMap((name) => {
-      const method = getMethod(scriptApi, name);
+      const method = getMethod(scriptRuntimeApi, name);
       if (!method) {
         return [];
       }
@@ -945,7 +946,7 @@ const collectApiGroups = (
         collectTypeReferences(parameter.type, helperTypeReferences);
       }
       collectTypeReferences(method.type, helperTypeReferences);
-      const path = `api.${name}`;
+      const path = `script.${name}`;
       return [
         {
           path,
@@ -960,7 +961,7 @@ const collectApiGroups = (
       ];
     }),
     ...["signal"].flatMap((name) => {
-      const property = getProperty(scriptApi, name);
+      const property = getProperty(scriptRuntimeApi, name);
       if (!property) {
         return [];
       }
@@ -972,11 +973,11 @@ const collectApiGroups = (
       );
       return [
         {
-          path: `api.${name}`,
+          path: `script.${name}`,
           name,
           kind: "value" as const,
           summary: getSummary(property),
-          signature: `api.${name}: ${returnDoc.raw}`,
+          signature: `script.${name}: ${returnDoc.raw}`,
           parameters: [],
           returnDoc,
           ...getSourceInfo(options, git, property),
@@ -992,7 +993,7 @@ const collectApiGroups = (
     }
 
     const name = getPropertyName(member.name);
-    if (name === null || name === "signal") {
+    if (name === null) {
       continue;
     }
 
@@ -1049,7 +1050,7 @@ const collectApiGroups = (
     }
 
     const name = getPropertyName(member.name);
-    if (name === null || name === "api") {
+    if (name === null || name === "api" || name === "script") {
       continue;
     }
 
@@ -1082,7 +1083,7 @@ const collectApiGroups = (
   }
 
   return {
-    apiHelpers,
+    runtimeHelpers,
     namespaces: namespaces.sort((a, b) => a.name.localeCompare(b.name)),
     groups: groups.sort((a, b) => a.id.localeCompare(b.id)),
     typeReferences: Array.from(
@@ -1705,19 +1706,20 @@ const renderIndex = (namespaces: readonly ApiNamespace[]): string => {
     "",
     "```js",
     "module.exports = function* run(ctx) {",
-    "  const { api, autoZone, autoRelogin } = ctx",
-    '  api.log("started")',
+    "  const { api, script } = ctx",
+    '  script.log("started")',
     '  yield* api.player.joinMap("battleon")',
     "}",
     "```",
     "",
     "## Context",
     "",
-    "The context is the object passed to your script. It gives you access to the main scripting API and scriptable feature controls.",
+    "The context is the object passed to your script. It separates gameplay APIs, current-script lifecycle helpers, and scriptable feature controls.",
     "",
     "| Member | Description |",
     "| --- | --- |",
-    "| [`api`](/scripting/api/) | Access to our script API. |",
+    "| [`api`](/scripting/api/) | Gameplay and game-state APIs. |",
+    "| [`script`](/scripting/script/) | Current script lifecycle and diagnostics APIs. |",
     "| [`autoZone`](/scripting/auto-zone/) | Auto Zone feature controls. |",
     "| [`autoRelogin`](/scripting/auto-relogin/) | Auto Relogin feature controls. |",
     "",
@@ -1758,21 +1760,50 @@ const renderIndex = (namespaces: readonly ApiNamespace[]): string => {
 };
 
 const renderApiOverview = (
-  helpers: readonly MemberDoc[],
-  typeLinks: ReadonlyMap<string, TypeLink>,
+  namespaces: readonly ApiNamespace[],
 ): string => {
   const lines = [
     frontmatter(
-      "API",
-      "Access to our script API.",
+      "Game API",
+      "Gameplay and game-state APIs exposed to scripts.",
       "API",
     ),
     "",
     GENERATED_HEADER,
     "",
-    "`api` gives scripts access to our script API. Use it to call into game systems and manage the current script's lifecycle.",
+    "`api` gives scripts access to gameplay and game-state namespaces.",
     "",
-    "## Helpers",
+    "## Namespaces",
+    "",
+    "| Namespace | Description |",
+    "| --- | --- |",
+    ...namespaces.map(
+      (namespace) =>
+        `| [\`api.${namespace.name}\`](${namespace.href}) | ${titleCase(
+          namespace.name,
+        )} APIs. |`,
+    ),
+  ];
+
+  return finalizeMarkdown(lines);
+};
+
+const renderScriptOverview = (
+  helpers: readonly MemberDoc[],
+  typeLinks: ReadonlyMap<string, TypeLink>,
+): string => {
+  const lines = [
+    frontmatter(
+      "Script",
+      "Current script lifecycle and diagnostics APIs.",
+      "Script",
+    ),
+    "",
+    GENERATED_HEADER,
+    "",
+    "`script` gives scripts access to the current script's lifecycle and diagnostics helpers.",
+    "",
+    "## Members",
     "",
   ];
 
@@ -1942,7 +1973,11 @@ const renderFiles = (
     },
     {
       path: join(options.outputDir, "api.md"),
-      content: renderApiOverview(helpers, typeLinks),
+      content: renderApiOverview(namespaces),
+    },
+    {
+      path: join(options.outputDir, "script.md"),
+      content: renderScriptOverview(helpers, typeLinks),
     },
     {
       path: join(options.outputDir, "types/index.md"),
@@ -2037,12 +2072,13 @@ const main = (options: CliOptions): Effect.Effect<void, unknown> =>
     const checker = program.getTypeChecker();
     const declarations = buildDeclarationMap(program);
     const git = yield* getGitSourceInfo(options.repoRoot);
-    const { apiHelpers, namespaces, groups, typeReferences } = collectApiGroups(
-      checker,
-      declarations,
-      options,
-      options.includeSourceLinks ? git : null,
-    );
+    const { runtimeHelpers, namespaces, groups, typeReferences } =
+      collectApiGroups(
+        checker,
+        declarations,
+        options,
+        options.includeSourceLinks ? git : null,
+      );
     const typedocProject = yield* createTypeDocProject(
       program,
       options,
@@ -2057,7 +2093,7 @@ const main = (options: CliOptions): Effect.Effect<void, unknown> =>
     );
     const renderedFiles = renderFiles(
       options,
-      apiHelpers,
+      runtimeHelpers,
       namespaces,
       groups,
       referencedTypes,

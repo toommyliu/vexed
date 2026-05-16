@@ -521,8 +521,8 @@ const renderInterfaceFromDeclaration = (
         : getDeclaration(state.declarations, reference.unqualifiedName);
     if (childDeclaration && ts.isInterfaceDeclaration(childDeclaration)) {
       const childOutputName =
-        outputName === "ScriptContext" && name === "api"
-          ? "ScriptApi"
+        outputName === "ScriptContext"
+          ? childDeclaration.name.text
           : nestedInterfaceName(outputName, name);
       renderApiInterface(state, childDeclaration.name.text, childOutputName);
       lines.push(`    readonly ${name}: ${childOutputName};`);
@@ -783,6 +783,8 @@ const renderScriptTypes = (
       if (right.name === "ScriptContext") return 1;
       if (left.name === "ScriptApi") return -1;
       if (right.name === "ScriptApi") return 1;
+      if (left.name === "ScriptRuntimeApi") return -1;
+      if (right.name === "ScriptRuntimeApi") return 1;
       return left.name.localeCompare(right.name);
     })
     .map((entry) => entry.content);
