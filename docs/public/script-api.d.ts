@@ -92,8 +92,19 @@ interface ArmyApi {
     isLeader(): Effect<boolean, never | ArmyError | BridgeError>;
     isMember(): Effect<boolean, never | ArmyError | BridgeError>;
     getSession(): Effect<ArmySession | null, never | ArmyError | BridgeError>;
+  /** Reads a value from the active army config.
+
+Dot-separated keys read nested object values. An empty key returns the raw
+config object. Returns `defaultValue` when the army is not started (a.k.a. no config loaded), the key
+is missing, or a nested path cannot be resolved. */
     getConfigValue(key: string, defaultValue?: unknown): Effect<unknown, never | ArmyError | BridgeError>;
+  /** Reads a string value from the active army config.
+
+Uses the same key resolution rules as `getConfigValue`, but returns
+`defaultValue` when the resolved value is missing or not a string. */
     getConfigString(key: string, defaultValue?: string): Effect<string, never | ArmyError | BridgeError>;
+  /** The player's number in the army, starting at 1 for the leader and incrementing
+for each member. */
     getPlayerNumber(): Effect<number, never | ArmyError | BridgeError>;
     sync(label?: string, options?: ArmyRunStepOptions): Effect<void, never | ArmyError | BridgeError>;
     runStep<A, E>(label: string, action: Effect<A, E, never>, options?: ArmyRunStepOptions): Effect<A, E | ArmyError | BridgeError>;
@@ -101,7 +112,8 @@ interface ArmyApi {
     waitForAllInMap(): Effect<void, never | ArmyError | BridgeError>;
     joinMap(map: string, cell?: string, pad?: string): Effect<void, never | ArmyError | BridgeError>;
     kill(target: MonsterIdentifierToken, options?: CombatKillOptions): Effect<void, never | ArmyError | BridgeError>;
-    killForItem(target: MonsterIdentifierToken, item: ItemIdentifierToken, quantity: number, isTemp: boolean, options?: CombatKillOptions): Effect<void, never | ArmyError | BridgeError>;
+    killForItem(target: MonsterIdentifierToken, item: ItemIdentifierToken, quantity?: number, options?: CombatKillOptions): Effect<void, never | ArmyError | BridgeError>;
+    killForTempItem(target: MonsterIdentifierToken, item: ItemIdentifierToken, quantity?: number, options?: CombatKillOptions): Effect<void, never | ArmyError | BridgeError>;
     equipSet(setName: string, options?: ArmyEquipSetOptions): Effect<void, never | ArmyError | BridgeError>;
 }
 interface AuthApi {
@@ -321,6 +333,9 @@ interface WorldPlayersMeApi {
 }
 
 interface ArmyEquipSetOptions {
+  /**
+   * When true, items will be resolved under the `items` key of the army config.
+   */
   readonly resolveItems?: boolean;
 }
 interface ArmyRunStepOptions {
@@ -567,6 +582,7 @@ type ShopInfo = {
 interface ShopItem extends Item {
   data: ShopItemData;
 }
+interface When { readonly [key: string]: unknown; }
 interface ArmySessionPayload extends ArmyConfigPayload {
   readonly sessionId: string;
   readonly playerName: string;

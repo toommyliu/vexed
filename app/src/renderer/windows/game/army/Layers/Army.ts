@@ -266,14 +266,22 @@ const make = Effect.gen(function* () {
     target,
     item,
     quantity,
-    isTemp,
     options,
   ) =>
     runStep(
-      `${isTemp ? "kill-temp" : "kill-item"}:${String(item)}`,
-      isTemp
-        ? combat.killForTempItem(target, item, quantity, options)
-        : combat.killForItem(target, item, quantity, options),
+      `kill-item:${String(item)}`,
+      combat.killForItem(target, item, quantity, options),
+    ).pipe(Effect.asVoid);
+
+  const killForTempItem: ArmyShape["killForTempItem"] = (
+    target,
+    item,
+    quantity,
+    options,
+  ) =>
+    runStep(
+      `kill-temp:${String(item)}`,
+      combat.killForTempItem(target, item, quantity, options),
     ).pipe(Effect.asVoid);
 
   const resolveItem = (item: string | undefined, resolveItems: boolean) =>
@@ -386,6 +394,7 @@ const make = Effect.gen(function* () {
     joinMap,
     kill,
     killForItem,
+    killForTempItem,
     equipSet,
   } satisfies ArmyShape;
 });

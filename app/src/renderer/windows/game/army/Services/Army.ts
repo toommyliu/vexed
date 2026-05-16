@@ -33,6 +33,9 @@ export interface ArmyRunStepOptions {
 }
 
 export interface ArmyEquipSetOptions {
+  /**
+   * When true, items will be resolved under the `items` key of the army config.
+   */
   readonly resolveItems?: boolean;
 }
 
@@ -58,8 +61,25 @@ export interface ArmyShape {
   isLeader(): ArmyEffect<boolean>;
   isMember(): ArmyEffect<boolean>;
   getSession(): ArmyEffect<ArmySession | null>;
+  /**
+   * Reads a value from the active army config.
+   *
+   * Dot-separated keys read nested object values. An empty key returns the raw
+   * config object. Returns `defaultValue` when the army is not started (a.k.a. no config loaded), the key
+   * is missing, or a nested path cannot be resolved.
+   */
   getConfigValue(key: string, defaultValue?: unknown): ArmyEffect<unknown>;
+  /**
+   * Reads a string value from the active army config.
+   *
+   * Uses the same key resolution rules as `getConfigValue`, but returns
+   * `defaultValue` when the resolved value is missing or not a string.
+   */
   getConfigString(key: string, defaultValue?: string): ArmyEffect<string>;
+  /**
+   * The player's number in the army, starting at 1 for the leader and incrementing
+   * for each member.
+   */
   getPlayerNumber(): ArmyEffect<number>;
   sync(label?: string, options?: ArmyRunStepOptions): ArmyEffect<void>;
   runStep<A, E>(
@@ -77,10 +97,19 @@ export interface ArmyShape {
   killForItem(
     target: MonsterIdentifierToken,
     item: ItemIdentifierToken,
-    quantity: number,
-    isTemp: boolean,
+    quantity?: number,
     options?: CombatKillOptions,
   ): ArmyEffect<void>;
+  killForTempItem(
+    target: MonsterIdentifierToken,
+    item: ItemIdentifierToken,
+    quantity?: number,
+    options?: CombatKillOptions,
+  ): ArmyEffect<void>;
+  /**
+   * @param setName Name of the army config set to equip.
+   * @param options Set-equipping options.
+   */
   equipSet(setName: string, options?: ArmyEquipSetOptions): ArmyEffect<void>;
 }
 
