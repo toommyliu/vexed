@@ -4,6 +4,7 @@ import {
   DEFAULT_APPEARANCE,
   DEFAULT_THEME_PROFILE,
   THEME_TOKEN_NAMES,
+  isMotionMode,
   type Appearance,
   type ThemeMode,
   type ThemeProfile,
@@ -15,6 +16,7 @@ import {
 export {
   THEME_TOKEN_NAMES,
   type Appearance,
+  type MotionMode,
   type ThemeMode,
   type ThemeProfile,
   type ThemeRgb,
@@ -160,10 +162,9 @@ export const normalize = (value: unknown): Appearance => {
     themeMode: isThemeMode(record["themeMode"])
       ? record["themeMode"]
       : DEFAULT.themeMode,
-    disableAnimations:
-      typeof record["disableAnimations"] === "boolean"
-        ? record["disableAnimations"]
-        : DEFAULT.disableAnimations,
+    reduceMotion: isMotionMode(record["reduceMotion"])
+      ? record["reduceMotion"]
+      : DEFAULT.reduceMotion,
     useCursorPointers:
       typeof record["useCursorPointers"] === "boolean"
         ? record["useCursorPointers"]
@@ -213,7 +214,7 @@ const serialize = (appearance: Appearance): PersistedAppearance => {
   const normalized = normalize(appearance);
   return {
     themeMode: normalized.themeMode,
-    disableAnimations: normalized.disableAnimations,
+    reduceMotion: normalized.reduceMotion,
     useCursorPointers: normalized.useCursorPointers,
     themes: {
       light: serializeThemeProfile(normalized.themes.light),

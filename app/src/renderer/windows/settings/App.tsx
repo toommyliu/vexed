@@ -72,6 +72,7 @@ import {
   type AppSettings,
   type AppearancePatch,
   type HotkeysPatch,
+  type MotionMode,
   type PreferencesPatch,
   type ThemeMode,
   type ThemeRgb,
@@ -118,6 +119,15 @@ const themeModes: ReadonlyArray<{
   { label: "Light", value: "light" },
   { label: "Dark", value: "dark" },
   { label: "System", value: "system" },
+];
+
+const motionModes: ReadonlyArray<{
+  readonly label: string;
+  readonly value: MotionMode;
+}> = [
+  { label: "System", value: "system" },
+  { label: "On", value: "on" },
+  { label: "Off", value: "off" },
 ];
 
 const launchModes = [
@@ -981,20 +991,17 @@ function AppearanceSettings(props: {
       />
       <SettingsRow
         action={
-          <Switch
-            aria-label="Disable animations"
-            checked={props.settings.appearance.disableAnimations}
-            onChange={(event) =>
-              props.onAppearancePatch({
-                disableAnimations: event.currentTarget.checked,
-              })
+          <SegmentedControl
+            aria-label="Reduce motion"
+            onChange={(reduceMotion) =>
+              props.onAppearancePatch({ reduceMotion })
             }
-            size="default"
+            options={motionModes}
+            value={props.settings.appearance.reduceMotion}
           />
         }
-        class="settings-row--switch"
-        description="Turn off app animations regardless of system motion settings."
-        title="Disable animations"
+        description="Control animation and transition effects."
+        title="Reduce motion"
       />
       <SettingsRow
         action={

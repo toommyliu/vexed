@@ -13,7 +13,7 @@ describe("appearance settings", () => {
       }),
     ).toEqual({
       themeMode: "system",
-      disableAnimations: Appearance.DEFAULT.disableAnimations,
+      reduceMotion: Appearance.DEFAULT.reduceMotion,
       useCursorPointers: Appearance.DEFAULT.useCursorPointers,
       themes: {
         light: Appearance.DEFAULT.themes.light,
@@ -54,7 +54,7 @@ describe("appearance settings", () => {
       }),
     ).toEqual({
       themeMode: "dark",
-      disableAnimations: Appearance.DEFAULT.disableAnimations,
+      reduceMotion: Appearance.DEFAULT.reduceMotion,
       useCursorPointers: Appearance.DEFAULT.useCursorPointers,
       themes: {
         light: {
@@ -120,7 +120,7 @@ describe("appearance settings", () => {
       }),
     ).toEqual({
       themeMode: Appearance.DEFAULT.themeMode,
-      disableAnimations: Appearance.DEFAULT.disableAnimations,
+      reduceMotion: Appearance.DEFAULT.reduceMotion,
       useCursorPointers: Appearance.DEFAULT.useCursorPointers,
       themes: {
         light: Appearance.DEFAULT.themes.light,
@@ -156,33 +156,33 @@ describe("appearance settings", () => {
     });
   });
 
-  it("normalizes app motion and cursor pointer toggles", () => {
+  it("normalizes app motion mode and cursor pointer toggles", () => {
     expect(
       Appearance.normalize({
         themeMode: "dark",
-        disableAnimations: true,
+        reduceMotion: "on",
         useCursorPointers: true,
         themes: {},
       }),
     ).toMatchObject({
-      disableAnimations: true,
+      reduceMotion: "on",
       useCursorPointers: true,
     });
 
     expect(
       Appearance.normalize({
         themeMode: "dark",
-        disableAnimations: "yes",
+        reduceMotion: "sometimes",
         useCursorPointers: 1,
         themes: {},
       }),
     ).toMatchObject({
-      disableAnimations: Appearance.DEFAULT.disableAnimations,
+      reduceMotion: Appearance.DEFAULT.reduceMotion,
       useCursorPointers: Appearance.DEFAULT.useCursorPointers,
     });
   });
 
-  it("writes app motion and cursor pointer toggles", async () => {
+  it("writes app motion mode and cursor pointer toggles", async () => {
     const previous = process.env["VEXED_HOME"];
     const testDir = await mkdtemp(join(tmpdir(), "vexed-appearance-"));
     process.env["VEXED_HOME"] = testDir;
@@ -190,15 +190,15 @@ describe("appearance settings", () => {
     try {
       Appearance.write({
         ...Appearance.DEFAULT,
-        disableAnimations: true,
+        reduceMotion: "off",
         useCursorPointers: true,
       });
 
       const source = await readFile(Appearance.path(), "utf8");
-      expect(source).toContain("disableAnimations: true");
+      expect(source).toContain("reduceMotion: off");
       expect(source).toContain("useCursorPointers: true");
       expect(Appearance.read()).toMatchObject({
-        disableAnimations: true,
+        reduceMotion: "off",
         useCursorPointers: true,
       });
     } finally {

@@ -2892,9 +2892,9 @@ a.badge--destructive:hover {
 /* Reduced Motion */
 
 @media (prefers-reduced-motion: reduce) {
-  *,
-  *::before,
-  *::after {
+  :root:not([data-reduce-motion="off"]) *,
+  :root:not([data-reduce-motion="off"]) *::before,
+  :root:not([data-reduce-motion="off"]) *::after {
     animation-delay: 0s !important;
     animation-duration: 0.001ms !important;
     animation-iteration-count: 1 !important;
@@ -2903,9 +2903,9 @@ a.badge--destructive:hover {
   }
 }
 
-:root[data-disable-animations="true"] *,
-:root[data-disable-animations="true"] *::before,
-:root[data-disable-animations="true"] *::after {
+:root[data-reduce-motion="on"] *,
+:root[data-reduce-motion="on"] *::before,
+:root[data-reduce-motion="on"] *::after {
   animation-delay: 0s !important;
   animation-duration: 0.001ms !important;
   animation-iteration-count: 1 !important;
@@ -2913,14 +2913,14 @@ a.badge--destructive:hover {
   transition-duration: 0.001ms !important;
 }
 
-:root[data-disable-animations="true"] {
+:root[data-reduce-motion="on"] {
   scroll-behavior: auto !important;
 }
 
 @media (prefers-reduced-motion: reduce) {
-  *,
-  *::before,
-  *::after {
+  :root:not([data-reduce-motion="off"]) *,
+  :root:not([data-reduce-motion="off"]) *::before,
+  :root:not([data-reduce-motion="off"]) *::after {
     scroll-behavior: auto !important;
   }
 }

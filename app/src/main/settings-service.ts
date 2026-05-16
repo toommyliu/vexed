@@ -2,6 +2,7 @@ import { BrowserWindow, nativeTheme } from "electron";
 import { SettingsIpcChannels } from "../shared/ipc";
 import {
   THEME_TOKEN_NAMES,
+  isMotionMode,
   type AppSettings,
   type Appearance,
   type AppearancePatch,
@@ -159,10 +160,9 @@ export const updateAppearance = (patch: AppearancePatch): AppSettings => {
     themeMode: isThemeMode(patch.themeMode)
       ? patch.themeMode
       : current.themeMode,
-    disableAnimations:
-      typeof patch.disableAnimations === "boolean"
-        ? patch.disableAnimations
-        : current.disableAnimations,
+    reduceMotion: isMotionMode(patch.reduceMotion)
+      ? patch.reduceMotion
+      : current.reduceMotion,
     useCursorPointers:
       typeof patch.useCursorPointers === "boolean"
         ? patch.useCursorPointers
