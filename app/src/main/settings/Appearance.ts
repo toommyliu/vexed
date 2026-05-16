@@ -5,6 +5,7 @@ import {
   DEFAULT_THEME_PROFILE,
   THEME_TOKEN_NAMES,
   type Appearance,
+  type MotionMode,
   type ThemeMode,
   type ThemeProfile,
   type ThemeRgb,
@@ -15,6 +16,7 @@ import {
 export {
   THEME_TOKEN_NAMES,
   type Appearance,
+  type MotionMode,
   type ThemeMode,
   type ThemeProfile,
   type ThemeRgb,
@@ -28,6 +30,9 @@ const themeTokenNames = new Set<string>(THEME_TOKEN_NAMES);
 
 const isThemeMode = (value: unknown): value is ThemeMode =>
   value === "light" || value === "dark" || value === "system";
+
+const isMotionMode = (value: unknown): value is MotionMode =>
+  value === "system" || value === "on" || value === "off";
 
 const parseHexRgb = (value: string): ThemeRgb | undefined => {
   const match = /^#?([0-9a-f]{6})$/i.exec(value.trim());
@@ -160,10 +165,9 @@ export const normalize = (value: unknown): Appearance => {
     themeMode: isThemeMode(record["themeMode"])
       ? record["themeMode"]
       : DEFAULT.themeMode,
-    disableAnimations:
-      typeof record["disableAnimations"] === "boolean"
-        ? record["disableAnimations"]
-        : DEFAULT.disableAnimations,
+    reduceMotion: isMotionMode(record["reduceMotion"])
+      ? record["reduceMotion"]
+      : DEFAULT.reduceMotion,
     useCursorPointers:
       typeof record["useCursorPointers"] === "boolean"
         ? record["useCursorPointers"]
@@ -213,7 +217,7 @@ const serialize = (appearance: Appearance): PersistedAppearance => {
   const normalized = normalize(appearance);
   return {
     themeMode: normalized.themeMode,
-    disableAnimations: normalized.disableAnimations,
+    reduceMotion: normalized.reduceMotion,
     useCursorPointers: normalized.useCursorPointers,
     themes: {
       light: serializeThemeProfile(normalized.themes.light),

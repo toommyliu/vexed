@@ -13,6 +13,7 @@ export const DEFAULT_PREFERENCES: Preferences = {
 };
 
 export type ThemeMode = "light" | "dark" | "system";
+export type MotionMode = "system" | "on" | "off";
 export type ThemeVariant = "light" | "dark";
 export type ThemeRgb = readonly [number, number, number];
 
@@ -58,7 +59,7 @@ export interface ThemeProfile {
 
 export interface Appearance {
   readonly themeMode: ThemeMode;
-  readonly disableAnimations: boolean;
+  readonly reduceMotion: MotionMode;
   readonly useCursorPointers: boolean;
   readonly themes: {
     readonly light: ThemeProfile;
@@ -141,7 +142,7 @@ export const DEFAULT_THEME_PROFILE: ThemeProfile = {
 
 export const DEFAULT_APPEARANCE: Appearance = {
   themeMode: "dark",
-  disableAnimations: false,
+  reduceMotion: "system",
   useCursorPointers: false,
   themes: {
     light: DEFAULT_THEME_PROFILE,
@@ -171,7 +172,7 @@ export interface ThemeProfilePatch {
 
 export interface AppearancePatch {
   readonly themeMode?: ThemeMode;
-  readonly disableAnimations?: boolean;
+  readonly reduceMotion?: MotionMode;
   readonly useCursorPointers?: boolean;
   readonly themes?: Partial<Record<ThemeVariant, ThemeProfilePatch>>;
 }

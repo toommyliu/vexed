@@ -2,6 +2,7 @@ import {
   DEFAULT_THEME_TOKENS,
   THEME_TOKEN_NAMES,
   type Appearance,
+  type MotionMode,
   type ThemeRgb,
   type ThemeTokenName,
   type ThemeTokenValues,
@@ -51,7 +52,7 @@ export interface AppearanceSnapshot {
   readonly sansFontSize: number;
   readonly monoFontSize: number;
   readonly rounding: number;
-  readonly disableAnimations: boolean;
+  readonly reduceMotion: MotionMode;
   readonly useCursorPointers: boolean;
   readonly backgroundColor: string;
 }
@@ -115,7 +116,7 @@ export const createAppearanceSnapshot = (
     sansFontSize: profile.sansFontSize,
     monoFontSize: profile.monoFontSize,
     rounding: profile.rounding,
-    disableAnimations: appearance.disableAnimations,
+    reduceMotion: appearance.reduceMotion,
     useCursorPointers: appearance.useCursorPointers,
     backgroundColor: rgbToHex(tokens.background),
   };
@@ -163,7 +164,9 @@ export const isAppearanceSnapshot = (
     Number.isFinite(value["monoFontSize"]) &&
     typeof value["rounding"] === "number" &&
     Number.isFinite(value["rounding"]) &&
-    typeof value["disableAnimations"] === "boolean" &&
+    (value["reduceMotion"] === "system" ||
+      value["reduceMotion"] === "on" ||
+      value["reduceMotion"] === "off") &&
     typeof value["useCursorPointers"] === "boolean" &&
     typeof value["backgroundColor"] === "string"
   );
@@ -228,11 +231,7 @@ export const applyAppearanceSnapshotToDocument = (
   const style = root.style;
 
   root.dataset["theme"] = snapshot.variant;
-  if (snapshot.disableAnimations) {
-    root.dataset["disableAnimations"] = "true";
-  } else {
-    delete root.dataset["disableAnimations"];
-  }
+  root.dataset["reduceMotion"] = snapshot.reduceMotion;
   if (snapshot.useCursorPointers) {
     root.dataset["useCursorPointers"] = "true";
   } else {

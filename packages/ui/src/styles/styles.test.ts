@@ -149,7 +149,8 @@ describe("component color usage", () => {
     const components = readStyle("components.css");
 
     expect(components).toContain("cursor: var(--cursor-interactive);");
-    expect(components).toContain(':root[data-disable-animations="true"] *');
+    expect(components).toContain(':root[data-reduce-motion="on"] *');
+    expect(components).toContain(':root:not([data-reduce-motion="off"]) *');
     expect(components).toContain("animation-delay: 0s !important;");
     expect(components).toContain("transition-delay: 0s !important;");
   });

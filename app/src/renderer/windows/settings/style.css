@@ -92,17 +92,17 @@
 }
 
 @media (prefers-reduced-motion: no-preference) {
-  :root:not([data-disable-animations="true"]) .settings-content-wrapper {
+  :root:not([data-reduce-motion="on"]) .settings-content-wrapper {
     scroll-behavior: smooth;
   }
 }
 
-:root[data-disable-animations="true"] .settings-content-wrapper {
+:root[data-reduce-motion="on"] .settings-content-wrapper {
   scroll-behavior: auto;
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .settings-content-wrapper {
+  :root:not([data-reduce-motion="off"]) .settings-content-wrapper {
     scroll-behavior: auto;
   }
 }

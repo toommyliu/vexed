@@ -6,6 +6,7 @@ import {
   type Appearance,
   type AppearancePatch,
   type HotkeysPatch,
+  type MotionMode,
   type Preferences,
   type PreferencesPatch,
   type ThemeMode,
@@ -29,6 +30,9 @@ const isRecord = (value: unknown): value is Record<string, unknown> =>
 
 const isThemeMode = (value: unknown): value is ThemeMode =>
   value === "light" || value === "dark" || value === "system";
+
+const isMotionMode = (value: unknown): value is MotionMode =>
+  value === "system" || value === "on" || value === "off";
 
 const isThemeVariant = (value: string): value is ThemeVariant =>
   value === "light" || value === "dark";
@@ -159,10 +163,9 @@ export const updateAppearance = (patch: AppearancePatch): AppSettings => {
     themeMode: isThemeMode(patch.themeMode)
       ? patch.themeMode
       : current.themeMode,
-    disableAnimations:
-      typeof patch.disableAnimations === "boolean"
-        ? patch.disableAnimations
-        : current.disableAnimations,
+    reduceMotion: isMotionMode(patch.reduceMotion)
+      ? patch.reduceMotion
+      : current.reduceMotion,
     useCursorPointers:
       typeof patch.useCursorPointers === "boolean"
         ? patch.useCursorPointers

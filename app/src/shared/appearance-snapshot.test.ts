@@ -152,7 +152,7 @@ describe("appearance snapshot", () => {
     const snapshot = createAppearanceSnapshot(
       {
         ...DEFAULT_APPEARANCE,
-        disableAnimations: true,
+        reduceMotion: "on",
         useCursorPointers: true,
       },
       false,
@@ -162,9 +162,9 @@ describe("appearance snapshot", () => {
     applyAppearanceSnapshotToDocument(root as unknown as HTMLElement, snapshot);
 
     expect(root.dataset["theme"]).toBe("dark");
-    expect(root.dataset["disableAnimations"]).toBe("true");
+    expect(root.dataset["reduceMotion"]).toBe("on");
     expect(root.dataset["useCursorPointers"]).toBe("true");
-    expect(root.getAttribute("data-disable-animations")).toBe("true");
+    expect(root.getAttribute("data-reduce-motion")).toBe("on");
     expect(root.getAttribute("data-use-cursor-pointers")).toBe("true");
     expect(root.hasClass("dark")).toBe(true);
     expect(root.style.getPropertyValue("--background")).toBe("14, 14, 15");
@@ -175,15 +175,15 @@ describe("appearance snapshot", () => {
     expect(root.style.getPropertyValue("color-scheme")).toBe("dark");
   });
 
-  it("omits inactive app preference attributes", () => {
+  it("applies default app preference attributes", () => {
     const snapshot = createAppearanceSnapshot(DEFAULT_APPEARANCE, false);
     const root = createFakeRoot();
 
-    root.dataset["disableAnimations"] = "true";
+    root.dataset["reduceMotion"] = "on";
     root.dataset["useCursorPointers"] = "true";
     applyAppearanceSnapshotToDocument(root as unknown as HTMLElement, snapshot);
 
-    expect(root.hasAttribute("data-disable-animations")).toBe(false);
+    expect(root.getAttribute("data-reduce-motion")).toBe("system");
     expect(root.hasAttribute("data-use-cursor-pointers")).toBe(false);
     expect(root.style.getPropertyValue("--cursor-interactive")).toBe("default");
   });
