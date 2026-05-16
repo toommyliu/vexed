@@ -50,7 +50,10 @@ type HarnessOptions = {
   readonly iUpgDays?: number;
   readonly password?: string;
   readonly playerReadyAfterConnectDelayMs?: number;
+  readonly playerReadyAfterReload?: boolean;
   readonly playerReadyFailures?: number;
+  readonly playerReadyOnConnect?: boolean;
+  readonly playerReloadSucceeds?: boolean;
   readonly serverInfo?: string;
   readonly serverSelectStalls?: boolean;
   readonly servers?: readonly ServerData[];
@@ -65,6 +68,7 @@ type Harness = {
   };
   readonly emitConnection: (status: ConnectionStatus) => void;
   readonly manualLogin: (server?: ServerData) => void;
+  readonly playerReloads: readonly string[];
   readonly settingsPatches: readonly unknown[];
 };
 
@@ -76,6 +80,7 @@ const withAutoRelogin = async <A>(
   ) => Effect.Effect<A, unknown>,
 ): Promise<A> => {
   const authCalls: string[] = [];
+  const playerReloads: string[] = [];
   const settingsPatches: unknown[] = [];
   const connectionHandlers = new Set<(status: ConnectionStatus) => void>();
   const jobsState: {
@@ -172,7 +177,9 @@ const withAutoRelogin = async <A>(
             `${options.playerReadyAfterConnectDelayMs} millis`,
           );
         }
-        playerReady = true;
+        if (options.playerReadyOnConnect !== false) {
+          playerReady = true;
+        }
         return connectedOutcome(server);
       });
     },
@@ -256,6 +263,15 @@ const withAutoRelogin = async <A>(
         return playerReady;
       });
     },
+    reloadAvatar() {
+      return Effect.sync(() => {
+        playerReloads.push("reloadAvatar");
+        if (options.playerReadyAfterReload === true) {
+          playerReady = true;
+        }
+        return options.playerReloadSucceeds ?? true;
+      });
+    },
   } as unknown as PlayerShape;
 
   const settings = {
@@ -308,6 +324,7 @@ const withAutoRelogin = async <A>(
               handler("OnConnection");
             }
           },
+          playerReloads,
           settingsPatches,
         });
       }),
@@ -493,6 +510,30 @@ test("direct login with a server waits for player readiness", async () => {
     "connectTo:Twig",
   ]);
 });
+
+test("direct login reloads avatar art when connected player stays unready", async () => {
+  const result = await withAutoRelogin(
+    {
+      playerReadyAfterReload: true,
+      playerReadyOnConnect: false,
+    },
+    (autoRelogin, harness) =>
+      Effect.gen(function* () {
+        const outcome = yield* autoRelogin.login({
+          username: "Hero",
+          password: "secret-password",
+          server: "Twig",
+        });
+        return {
+          outcome,
+          reloads: harness.playerReloads,
+        };
+      }),
+  );
+
+  expect(result.outcome).toEqual({ stage: "player-ready" });
+  expect(result.reloads).toEqual(["reloadAvatar"]);
+}, 15_000);
 
 test("socket connection during relogin does not interrupt before player ready", async () => {
   const result = await withAutoRelogin(

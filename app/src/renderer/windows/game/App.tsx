@@ -80,6 +80,18 @@ const accountLaunchError = (
     cause === undefined ? { message } : { message, cause },
   );
 
+const formatAccountLaunchError = (error: unknown): string => {
+  if (error instanceof AccountLaunchError) {
+    return error.message;
+  }
+
+  if (error instanceof Error && error.message !== "") {
+    return error.message;
+  }
+
+  return "Account launch failed";
+};
+
 const uniqueNonEmpty = (values: readonly string[]): string[] => [
   ...new Set(values.map((value) => value.trim()).filter(Boolean)),
 ];
@@ -97,10 +109,7 @@ const parseDelaySecondsToMs = (value: string): number => {
     : Number.NaN;
 };
 
-const formatScriptStatus = (
-  loaded: boolean,
-  running: boolean,
-) => {
+const formatScriptStatus = (loaded: boolean, running: boolean) => {
   if (running) {
     return "Running";
   }
@@ -306,14 +315,16 @@ export default function App(props: {
         applyLoadedScript(script.source, name);
       });
       updateAccountLaunchStatus(payload, "running", `Running ${name}`);
-      yield* runner.run(script.source, { name }).pipe(
-        Effect.mapError((error) =>
-          accountLaunchError(
-            error instanceof Error ? error.message : "Failed to run script",
-            error,
+      yield* runner
+        .run(script.source, { name })
+        .pipe(
+          Effect.mapError((error) =>
+            accountLaunchError(
+              error instanceof Error ? error.message : "Failed to run script",
+              error,
+            ),
           ),
-        ),
-      );
+        );
       setScriptRunning(true);
       setScriptStatus(`Running ${name}`);
       updateAccountLaunchStatus(payload, "running", `Running ${name}`);
@@ -326,9 +337,7 @@ export default function App(props: {
           updateAccountLaunchStatus(
             payload,
             "failed",
-            error instanceof AccountLaunchError
-              ? error.message
-              : "Account launch failed",
+            formatAccountLaunchError(error),
           );
           void refreshScriptMeta();
         }),

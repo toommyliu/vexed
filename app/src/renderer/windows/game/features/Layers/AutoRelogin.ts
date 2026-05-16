@@ -38,6 +38,7 @@ const TEMP_KICK_TIMEOUT = "70 seconds";
 const SERVER_SELECT_TIMEOUT = "10 seconds";
 const SERVERS_LOAD_TIMEOUT = "5 seconds";
 const PLAYER_READY_TIMEOUT = "10 seconds";
+const AVATAR_RELOAD_READY_TIMEOUT = "20 seconds";
 const MIN_FAILURE_COOLDOWN_MS = 5_000;
 const MAX_FAILURE_COOLDOWN_MS = 60_000;
 const MAX_RELOGIN_RETRIES = 3;
@@ -724,8 +725,32 @@ const make = Effect.gen(function* () {
         timeout: PLAYER_READY_TIMEOUT,
         schedule: Schedule.spaced("250 millis"),
       });
-      if (!ready) {
-        return yield* failAttempt("player did not become ready", true);
+      if (ready) {
+        return;
+      }
+
+      yield* logStage("player ready timed out", {
+        recovery: "reload avatar",
+      });
+      const reloadStarted = yield* player.reloadAvatar().pipe(
+        Effect.catchCause((cause) =>
+          Effect.logWarning({
+            message: "failed to reload player avatar",
+            cause,
+          }).pipe(Effect.as(false)),
+        ),
+      );
+      if (!reloadStarted) {
+        return yield* failAttempt("player avatar did not load", true);
+      }
+
+      yield* logStage("avatar reload requested");
+      const readyAfterReload = yield* waitFor(isPlayerReady(), {
+        timeout: AVATAR_RELOAD_READY_TIMEOUT,
+        schedule: Schedule.spaced("250 millis"),
+      });
+      if (!readyAfterReload) {
+        return yield* failAttempt("player avatar did not load", true);
       }
     });
 
