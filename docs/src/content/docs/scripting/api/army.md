@@ -14,7 +14,7 @@ tableOfContents:
 
 <a id="member-api-army-equipset"></a>
 
-### `api.army.equipSet()` <a class="source-reference__heading-link" style="float: right; display: inline-flex; align-items: center; justify-content: center; width: 2rem; height: 2rem; margin-block: -0.125rem; margin-inline-start: 0.5rem; border-radius: var(--radius-sm); text-decoration: none;" href="https://github.com/toommyliu/vexed/blob/69e580bf8bbae374ead5a6f3cb3d3e064ac2735d/app/src/renderer/windows/game/army/Services/Army.ts#L84" tabindex="-1" aria-hidden="true" title="Open source: app/src/renderer/windows/game/army/Services/Army.ts:84" target="_blank" rel="noreferrer"><svg class="source-reference__icon" width="16" height="16" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m18 16 4-4-4-4"></path><path d="m6 8-4 4 4 4"></path><path d="m14.5 4-5 16"></path></svg></a>
+### `api.army.equipSet()` <a class="source-reference__heading-link" style="float: right; display: inline-flex; align-items: center; justify-content: center; width: 2rem; height: 2rem; margin-block: -0.125rem; margin-inline-start: 0.5rem; border-radius: var(--radius-sm); text-decoration: none;" href="https://github.com/toommyliu/vexed/blob/4227dc684ea6453d924c541e8c9a315719ba13b0/app/src/renderer/windows/game/army/Services/Army.ts#L113" tabindex="-1" aria-hidden="true" title="Open source: app/src/renderer/windows/game/army/Services/Army.ts:113" target="_blank" rel="noreferrer"><svg class="source-reference__icon" width="16" height="16" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m18 16 4-4-4-4"></path><path d="m6 8-4 4 4 4"></path><path d="m14.5 4-5 16"></path></svg></a>
 
 ```ts
 api.army.equipSet(setName: string, options?: ArmyEquipSetOptions): ArmyEffect<void, never>
@@ -22,8 +22,8 @@ api.army.equipSet(setName: string, options?: ArmyEquipSetOptions): ArmyEffect<vo
 
 | Name | Type | Required | Description |
 | --- | --- | --- | --- |
-| `setName` | `string` | <span class="required-mark" role="img" aria-label="Required"></span> |  |
-| `options` | [`ArmyEquipSetOptions`](../../types/army-equip-set-options/) |  |  |
+| `setName` | `string` | <span class="required-mark" role="img" aria-label="Required"></span> | Name of the army config set to equip. |
+| `options` | [`ArmyEquipSetOptions`](../../types/army-equip-set-options/) |  | Set-equipping options. |
 
 **Yields:** `void`
 
@@ -31,7 +31,7 @@ api.army.equipSet(setName: string, options?: ArmyEquipSetOptions): ArmyEffect<vo
 
 <a id="member-api-army-executewitharmy"></a>
 
-### `api.army.executeWithArmy()` <a class="source-reference__heading-link" style="float: right; display: inline-flex; align-items: center; justify-content: center; width: 2rem; height: 2rem; margin-block: -0.125rem; margin-inline-start: 0.5rem; border-radius: var(--radius-sm); text-decoration: none;" href="https://github.com/toommyliu/vexed/blob/69e580bf8bbae374ead5a6f3cb3d3e064ac2735d/app/src/renderer/windows/game/army/Services/Army.ts#L70" tabindex="-1" aria-hidden="true" title="Open source: app/src/renderer/windows/game/army/Services/Army.ts:70" target="_blank" rel="noreferrer"><svg class="source-reference__icon" width="16" height="16" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m18 16 4-4-4-4"></path><path d="m6 8-4 4 4 4"></path><path d="m14.5 4-5 16"></path></svg></a>
+### `api.army.executeWithArmy()` <a class="source-reference__heading-link" style="float: right; display: inline-flex; align-items: center; justify-content: center; width: 2rem; height: 2rem; margin-block: -0.125rem; margin-inline-start: 0.5rem; border-radius: var(--radius-sm); text-decoration: none;" href="https://github.com/toommyliu/vexed/blob/4227dc684ea6453d924c541e8c9a315719ba13b0/app/src/renderer/windows/game/army/Services/Army.ts#L90" tabindex="-1" aria-hidden="true" title="Open source: app/src/renderer/windows/game/army/Services/Army.ts:90" target="_blank" rel="noreferrer"><svg class="source-reference__icon" width="16" height="16" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m18 16 4-4-4-4"></path><path d="m6 8-4 4 4 4"></path><path d="m14.5 4-5 16"></path></svg></a>
 
 ```ts
 api.army.executeWithArmy(action: Effect.Effect<A, E, never>): ArmyEffect<A, E>
@@ -47,7 +47,12 @@ api.army.executeWithArmy(action: Effect.Effect<A, E, never>): ArmyEffect<A, E>
 
 <a id="member-api-army-getconfigstring"></a>
 
-### `api.army.getConfigString()` <a class="source-reference__heading-link" style="float: right; display: inline-flex; align-items: center; justify-content: center; width: 2rem; height: 2rem; margin-block: -0.125rem; margin-inline-start: 0.5rem; border-radius: var(--radius-sm); text-decoration: none;" href="https://github.com/toommyliu/vexed/blob/69e580bf8bbae374ead5a6f3cb3d3e064ac2735d/app/src/renderer/windows/game/army/Services/Army.ts#L62" tabindex="-1" aria-hidden="true" title="Open source: app/src/renderer/windows/game/army/Services/Army.ts:62" target="_blank" rel="noreferrer"><svg class="source-reference__icon" width="16" height="16" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m18 16 4-4-4-4"></path><path d="m6 8-4 4 4 4"></path><path d="m14.5 4-5 16"></path></svg></a>
+### `api.army.getConfigString()` <a class="source-reference__heading-link" style="float: right; display: inline-flex; align-items: center; justify-content: center; width: 2rem; height: 2rem; margin-block: -0.125rem; margin-inline-start: 0.5rem; border-radius: var(--radius-sm); text-decoration: none;" href="https://github.com/toommyliu/vexed/blob/4227dc684ea6453d924c541e8c9a315719ba13b0/app/src/renderer/windows/game/army/Services/Army.ts#L78" tabindex="-1" aria-hidden="true" title="Open source: app/src/renderer/windows/game/army/Services/Army.ts:78" target="_blank" rel="noreferrer"><svg class="source-reference__icon" width="16" height="16" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m18 16 4-4-4-4"></path><path d="m6 8-4 4 4 4"></path><path d="m14.5 4-5 16"></path></svg></a>
+
+Reads a string value from the active army config.
+
+Uses the same key resolution rules as `getConfigValue`, but returns
+`defaultValue` when the resolved value is missing or not a string.
 
 ```ts
 api.army.getConfigString(key: string, defaultValue?: string): ArmyEffect<string, never>
@@ -64,7 +69,13 @@ api.army.getConfigString(key: string, defaultValue?: string): ArmyEffect<string,
 
 <a id="member-api-army-getconfigvalue"></a>
 
-### `api.army.getConfigValue()` <a class="source-reference__heading-link" style="float: right; display: inline-flex; align-items: center; justify-content: center; width: 2rem; height: 2rem; margin-block: -0.125rem; margin-inline-start: 0.5rem; border-radius: var(--radius-sm); text-decoration: none;" href="https://github.com/toommyliu/vexed/blob/69e580bf8bbae374ead5a6f3cb3d3e064ac2735d/app/src/renderer/windows/game/army/Services/Army.ts#L61" tabindex="-1" aria-hidden="true" title="Open source: app/src/renderer/windows/game/army/Services/Army.ts:61" target="_blank" rel="noreferrer"><svg class="source-reference__icon" width="16" height="16" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m18 16 4-4-4-4"></path><path d="m6 8-4 4 4 4"></path><path d="m14.5 4-5 16"></path></svg></a>
+### `api.army.getConfigValue()` <a class="source-reference__heading-link" style="float: right; display: inline-flex; align-items: center; justify-content: center; width: 2rem; height: 2rem; margin-block: -0.125rem; margin-inline-start: 0.5rem; border-radius: var(--radius-sm); text-decoration: none;" href="https://github.com/toommyliu/vexed/blob/4227dc684ea6453d924c541e8c9a315719ba13b0/app/src/renderer/windows/game/army/Services/Army.ts#L71" tabindex="-1" aria-hidden="true" title="Open source: app/src/renderer/windows/game/army/Services/Army.ts:71" target="_blank" rel="noreferrer"><svg class="source-reference__icon" width="16" height="16" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m18 16 4-4-4-4"></path><path d="m6 8-4 4 4 4"></path><path d="m14.5 4-5 16"></path></svg></a>
+
+Reads a value from the active army config.
+
+Dot-separated keys read nested object values. An empty key returns the raw
+config object. Returns `defaultValue` when the army is not started (a.k.a. no config loaded), the key
+is missing, or a nested path cannot be resolved.
 
 ```ts
 api.army.getConfigValue(key: string, defaultValue?: unknown): ArmyEffect<unknown, never>
@@ -81,7 +92,10 @@ api.army.getConfigValue(key: string, defaultValue?: unknown): ArmyEffect<unknown
 
 <a id="member-api-army-getplayernumber"></a>
 
-### `api.army.getPlayerNumber()` <a class="source-reference__heading-link" style="float: right; display: inline-flex; align-items: center; justify-content: center; width: 2rem; height: 2rem; margin-block: -0.125rem; margin-inline-start: 0.5rem; border-radius: var(--radius-sm); text-decoration: none;" href="https://github.com/toommyliu/vexed/blob/69e580bf8bbae374ead5a6f3cb3d3e064ac2735d/app/src/renderer/windows/game/army/Services/Army.ts#L63" tabindex="-1" aria-hidden="true" title="Open source: app/src/renderer/windows/game/army/Services/Army.ts:63" target="_blank" rel="noreferrer"><svg class="source-reference__icon" width="16" height="16" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m18 16 4-4-4-4"></path><path d="m6 8-4 4 4 4"></path><path d="m14.5 4-5 16"></path></svg></a>
+### `api.army.getPlayerNumber()` <a class="source-reference__heading-link" style="float: right; display: inline-flex; align-items: center; justify-content: center; width: 2rem; height: 2rem; margin-block: -0.125rem; margin-inline-start: 0.5rem; border-radius: var(--radius-sm); text-decoration: none;" href="https://github.com/toommyliu/vexed/blob/4227dc684ea6453d924c541e8c9a315719ba13b0/app/src/renderer/windows/game/army/Services/Army.ts#L83" tabindex="-1" aria-hidden="true" title="Open source: app/src/renderer/windows/game/army/Services/Army.ts:83" target="_blank" rel="noreferrer"><svg class="source-reference__icon" width="16" height="16" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m18 16 4-4-4-4"></path><path d="m6 8-4 4 4 4"></path><path d="m14.5 4-5 16"></path></svg></a>
+
+The player's number in the army, starting at 1 for the leader and incrementing
+for each member.
 
 ```ts
 api.army.getPlayerNumber(): ArmyEffect<number, never>
@@ -93,7 +107,7 @@ api.army.getPlayerNumber(): ArmyEffect<number, never>
 
 <a id="member-api-army-getsession"></a>
 
-### `api.army.getSession()` <a class="source-reference__heading-link" style="float: right; display: inline-flex; align-items: center; justify-content: center; width: 2rem; height: 2rem; margin-block: -0.125rem; margin-inline-start: 0.5rem; border-radius: var(--radius-sm); text-decoration: none;" href="https://github.com/toommyliu/vexed/blob/69e580bf8bbae374ead5a6f3cb3d3e064ac2735d/app/src/renderer/windows/game/army/Services/Army.ts#L60" tabindex="-1" aria-hidden="true" title="Open source: app/src/renderer/windows/game/army/Services/Army.ts:60" target="_blank" rel="noreferrer"><svg class="source-reference__icon" width="16" height="16" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m18 16 4-4-4-4"></path><path d="m6 8-4 4 4 4"></path><path d="m14.5 4-5 16"></path></svg></a>
+### `api.army.getSession()` <a class="source-reference__heading-link" style="float: right; display: inline-flex; align-items: center; justify-content: center; width: 2rem; height: 2rem; margin-block: -0.125rem; margin-inline-start: 0.5rem; border-radius: var(--radius-sm); text-decoration: none;" href="https://github.com/toommyliu/vexed/blob/4227dc684ea6453d924c541e8c9a315719ba13b0/app/src/renderer/windows/game/army/Services/Army.ts#L63" tabindex="-1" aria-hidden="true" title="Open source: app/src/renderer/windows/game/army/Services/Army.ts:63" target="_blank" rel="noreferrer"><svg class="source-reference__icon" width="16" height="16" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m18 16 4-4-4-4"></path><path d="m6 8-4 4 4 4"></path><path d="m14.5 4-5 16"></path></svg></a>
 
 ```ts
 api.army.getSession(): ArmyEffect<ArmySessionPayload | null, never>
@@ -105,7 +119,7 @@ api.army.getSession(): ArmyEffect<ArmySessionPayload | null, never>
 
 <a id="member-api-army-isleader"></a>
 
-### `api.army.isLeader()` <a class="source-reference__heading-link" style="float: right; display: inline-flex; align-items: center; justify-content: center; width: 2rem; height: 2rem; margin-block: -0.125rem; margin-inline-start: 0.5rem; border-radius: var(--radius-sm); text-decoration: none;" href="https://github.com/toommyliu/vexed/blob/69e580bf8bbae374ead5a6f3cb3d3e064ac2735d/app/src/renderer/windows/game/army/Services/Army.ts#L58" tabindex="-1" aria-hidden="true" title="Open source: app/src/renderer/windows/game/army/Services/Army.ts:58" target="_blank" rel="noreferrer"><svg class="source-reference__icon" width="16" height="16" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m18 16 4-4-4-4"></path><path d="m6 8-4 4 4 4"></path><path d="m14.5 4-5 16"></path></svg></a>
+### `api.army.isLeader()` <a class="source-reference__heading-link" style="float: right; display: inline-flex; align-items: center; justify-content: center; width: 2rem; height: 2rem; margin-block: -0.125rem; margin-inline-start: 0.5rem; border-radius: var(--radius-sm); text-decoration: none;" href="https://github.com/toommyliu/vexed/blob/4227dc684ea6453d924c541e8c9a315719ba13b0/app/src/renderer/windows/game/army/Services/Army.ts#L61" tabindex="-1" aria-hidden="true" title="Open source: app/src/renderer/windows/game/army/Services/Army.ts:61" target="_blank" rel="noreferrer"><svg class="source-reference__icon" width="16" height="16" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m18 16 4-4-4-4"></path><path d="m6 8-4 4 4 4"></path><path d="m14.5 4-5 16"></path></svg></a>
 
 ```ts
 api.army.isLeader(): ArmyEffect<boolean, never>
@@ -117,7 +131,7 @@ api.army.isLeader(): ArmyEffect<boolean, never>
 
 <a id="member-api-army-ismember"></a>
 
-### `api.army.isMember()` <a class="source-reference__heading-link" style="float: right; display: inline-flex; align-items: center; justify-content: center; width: 2rem; height: 2rem; margin-block: -0.125rem; margin-inline-start: 0.5rem; border-radius: var(--radius-sm); text-decoration: none;" href="https://github.com/toommyliu/vexed/blob/69e580bf8bbae374ead5a6f3cb3d3e064ac2735d/app/src/renderer/windows/game/army/Services/Army.ts#L59" tabindex="-1" aria-hidden="true" title="Open source: app/src/renderer/windows/game/army/Services/Army.ts:59" target="_blank" rel="noreferrer"><svg class="source-reference__icon" width="16" height="16" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m18 16 4-4-4-4"></path><path d="m6 8-4 4 4 4"></path><path d="m14.5 4-5 16"></path></svg></a>
+### `api.army.isMember()` <a class="source-reference__heading-link" style="float: right; display: inline-flex; align-items: center; justify-content: center; width: 2rem; height: 2rem; margin-block: -0.125rem; margin-inline-start: 0.5rem; border-radius: var(--radius-sm); text-decoration: none;" href="https://github.com/toommyliu/vexed/blob/4227dc684ea6453d924c541e8c9a315719ba13b0/app/src/renderer/windows/game/army/Services/Army.ts#L62" tabindex="-1" aria-hidden="true" title="Open source: app/src/renderer/windows/game/army/Services/Army.ts:62" target="_blank" rel="noreferrer"><svg class="source-reference__icon" width="16" height="16" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m18 16 4-4-4-4"></path><path d="m6 8-4 4 4 4"></path><path d="m14.5 4-5 16"></path></svg></a>
 
 ```ts
 api.army.isMember(): ArmyEffect<boolean, never>
@@ -129,7 +143,7 @@ api.army.isMember(): ArmyEffect<boolean, never>
 
 <a id="member-api-army-isstarted"></a>
 
-### `api.army.isStarted()` <a class="source-reference__heading-link" style="float: right; display: inline-flex; align-items: center; justify-content: center; width: 2rem; height: 2rem; margin-block: -0.125rem; margin-inline-start: 0.5rem; border-radius: var(--radius-sm); text-decoration: none;" href="https://github.com/toommyliu/vexed/blob/69e580bf8bbae374ead5a6f3cb3d3e064ac2735d/app/src/renderer/windows/game/army/Services/Army.ts#L57" tabindex="-1" aria-hidden="true" title="Open source: app/src/renderer/windows/game/army/Services/Army.ts:57" target="_blank" rel="noreferrer"><svg class="source-reference__icon" width="16" height="16" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m18 16 4-4-4-4"></path><path d="m6 8-4 4 4 4"></path><path d="m14.5 4-5 16"></path></svg></a>
+### `api.army.isStarted()` <a class="source-reference__heading-link" style="float: right; display: inline-flex; align-items: center; justify-content: center; width: 2rem; height: 2rem; margin-block: -0.125rem; margin-inline-start: 0.5rem; border-radius: var(--radius-sm); text-decoration: none;" href="https://github.com/toommyliu/vexed/blob/4227dc684ea6453d924c541e8c9a315719ba13b0/app/src/renderer/windows/game/army/Services/Army.ts#L60" tabindex="-1" aria-hidden="true" title="Open source: app/src/renderer/windows/game/army/Services/Army.ts:60" target="_blank" rel="noreferrer"><svg class="source-reference__icon" width="16" height="16" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m18 16 4-4-4-4"></path><path d="m6 8-4 4 4 4"></path><path d="m14.5 4-5 16"></path></svg></a>
 
 ```ts
 api.army.isStarted(): ArmyEffect<boolean, never>
@@ -141,7 +155,7 @@ api.army.isStarted(): ArmyEffect<boolean, never>
 
 <a id="member-api-army-joinmap"></a>
 
-### `api.army.joinMap()` <a class="source-reference__heading-link" style="float: right; display: inline-flex; align-items: center; justify-content: center; width: 2rem; height: 2rem; margin-block: -0.125rem; margin-inline-start: 0.5rem; border-radius: var(--radius-sm); text-decoration: none;" href="https://github.com/toommyliu/vexed/blob/69e580bf8bbae374ead5a6f3cb3d3e064ac2735d/app/src/renderer/windows/game/army/Services/Army.ts#L72" tabindex="-1" aria-hidden="true" title="Open source: app/src/renderer/windows/game/army/Services/Army.ts:72" target="_blank" rel="noreferrer"><svg class="source-reference__icon" width="16" height="16" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m18 16 4-4-4-4"></path><path d="m6 8-4 4 4 4"></path><path d="m14.5 4-5 16"></path></svg></a>
+### `api.army.joinMap()` <a class="source-reference__heading-link" style="float: right; display: inline-flex; align-items: center; justify-content: center; width: 2rem; height: 2rem; margin-block: -0.125rem; margin-inline-start: 0.5rem; border-radius: var(--radius-sm); text-decoration: none;" href="https://github.com/toommyliu/vexed/blob/4227dc684ea6453d924c541e8c9a315719ba13b0/app/src/renderer/windows/game/army/Services/Army.ts#L92" tabindex="-1" aria-hidden="true" title="Open source: app/src/renderer/windows/game/army/Services/Army.ts:92" target="_blank" rel="noreferrer"><svg class="source-reference__icon" width="16" height="16" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m18 16 4-4-4-4"></path><path d="m6 8-4 4 4 4"></path><path d="m14.5 4-5 16"></path></svg></a>
 
 ```ts
 api.army.joinMap(map: string, cell?: string, pad?: string): ArmyEffect<void, never>
@@ -159,7 +173,7 @@ api.army.joinMap(map: string, cell?: string, pad?: string): ArmyEffect<void, nev
 
 <a id="member-api-army-kill"></a>
 
-### `api.army.kill()` <a class="source-reference__heading-link" style="float: right; display: inline-flex; align-items: center; justify-content: center; width: 2rem; height: 2rem; margin-block: -0.125rem; margin-inline-start: 0.5rem; border-radius: var(--radius-sm); text-decoration: none;" href="https://github.com/toommyliu/vexed/blob/69e580bf8bbae374ead5a6f3cb3d3e064ac2735d/app/src/renderer/windows/game/army/Services/Army.ts#L73" tabindex="-1" aria-hidden="true" title="Open source: app/src/renderer/windows/game/army/Services/Army.ts:73" target="_blank" rel="noreferrer"><svg class="source-reference__icon" width="16" height="16" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m18 16 4-4-4-4"></path><path d="m6 8-4 4 4 4"></path><path d="m14.5 4-5 16"></path></svg></a>
+### `api.army.kill()` <a class="source-reference__heading-link" style="float: right; display: inline-flex; align-items: center; justify-content: center; width: 2rem; height: 2rem; margin-block: -0.125rem; margin-inline-start: 0.5rem; border-radius: var(--radius-sm); text-decoration: none;" href="https://github.com/toommyliu/vexed/blob/4227dc684ea6453d924c541e8c9a315719ba13b0/app/src/renderer/windows/game/army/Services/Army.ts#L93" tabindex="-1" aria-hidden="true" title="Open source: app/src/renderer/windows/game/army/Services/Army.ts:93" target="_blank" rel="noreferrer"><svg class="source-reference__icon" width="16" height="16" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m18 16 4-4-4-4"></path><path d="m6 8-4 4 4 4"></path><path d="m14.5 4-5 16"></path></svg></a>
 
 ```ts
 api.army.kill(target: MonsterIdentifierToken, options?: CombatKillOptions): ArmyEffect<void, never>
@@ -176,18 +190,36 @@ api.army.kill(target: MonsterIdentifierToken, options?: CombatKillOptions): Army
 
 <a id="member-api-army-killforitem"></a>
 
-### `api.army.killForItem()` <a class="source-reference__heading-link" style="float: right; display: inline-flex; align-items: center; justify-content: center; width: 2rem; height: 2rem; margin-block: -0.125rem; margin-inline-start: 0.5rem; border-radius: var(--radius-sm); text-decoration: none;" href="https://github.com/toommyliu/vexed/blob/69e580bf8bbae374ead5a6f3cb3d3e064ac2735d/app/src/renderer/windows/game/army/Services/Army.ts#L77" tabindex="-1" aria-hidden="true" title="Open source: app/src/renderer/windows/game/army/Services/Army.ts:77" target="_blank" rel="noreferrer"><svg class="source-reference__icon" width="16" height="16" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m18 16 4-4-4-4"></path><path d="m6 8-4 4 4 4"></path><path d="m14.5 4-5 16"></path></svg></a>
+### `api.army.killForItem()` <a class="source-reference__heading-link" style="float: right; display: inline-flex; align-items: center; justify-content: center; width: 2rem; height: 2rem; margin-block: -0.125rem; margin-inline-start: 0.5rem; border-radius: var(--radius-sm); text-decoration: none;" href="https://github.com/toommyliu/vexed/blob/4227dc684ea6453d924c541e8c9a315719ba13b0/app/src/renderer/windows/game/army/Services/Army.ts#L97" tabindex="-1" aria-hidden="true" title="Open source: app/src/renderer/windows/game/army/Services/Army.ts:97" target="_blank" rel="noreferrer"><svg class="source-reference__icon" width="16" height="16" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m18 16 4-4-4-4"></path><path d="m6 8-4 4 4 4"></path><path d="m14.5 4-5 16"></path></svg></a>
 
 ```ts
-api.army.killForItem(target: MonsterIdentifierToken, item: ItemIdentifierToken, quantity: number, isTemp: boolean, options?: CombatKillOptions): ArmyEffect<void, never>
+api.army.killForItem(target: MonsterIdentifierToken, item: ItemIdentifierToken, quantity?: number, options?: CombatKillOptions): ArmyEffect<void, never>
 ```
 
 | Name | Type | Required | Description |
 | --- | --- | --- | --- |
 | `target` | [`MonsterIdentifierToken`](../../types/monster-identifier-token/) | <span class="required-mark" role="img" aria-label="Required"></span> |  |
 | `item` | [`ItemIdentifierToken`](../../types/item-identifier-token/) | <span class="required-mark" role="img" aria-label="Required"></span> |  |
-| `quantity` | `number` | <span class="required-mark" role="img" aria-label="Required"></span> |  |
-| `isTemp` | `boolean` | <span class="required-mark" role="img" aria-label="Required"></span> |  |
+| `quantity` | `number` |  |  |
+| `options` | [`CombatKillOptions`](../../types/combat-kill-options/) |  |  |
+
+**Yields:** `void`
+
+**Errors:** [`ArmyError`](../../types/army-error/) \| [`BridgeError`](../../types/bridge-error/)
+
+<a id="member-api-army-killfortempitem"></a>
+
+### `api.army.killForTempItem()` <a class="source-reference__heading-link" style="float: right; display: inline-flex; align-items: center; justify-content: center; width: 2rem; height: 2rem; margin-block: -0.125rem; margin-inline-start: 0.5rem; border-radius: var(--radius-sm); text-decoration: none;" href="https://github.com/toommyliu/vexed/blob/4227dc684ea6453d924c541e8c9a315719ba13b0/app/src/renderer/windows/game/army/Services/Army.ts#L103" tabindex="-1" aria-hidden="true" title="Open source: app/src/renderer/windows/game/army/Services/Army.ts:103" target="_blank" rel="noreferrer"><svg class="source-reference__icon" width="16" height="16" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m18 16 4-4-4-4"></path><path d="m6 8-4 4 4 4"></path><path d="m14.5 4-5 16"></path></svg></a>
+
+```ts
+api.army.killForTempItem(target: MonsterIdentifierToken, item: ItemIdentifierToken, quantity?: number, options?: CombatKillOptions): ArmyEffect<void, never>
+```
+
+| Name | Type | Required | Description |
+| --- | --- | --- | --- |
+| `target` | [`MonsterIdentifierToken`](../../types/monster-identifier-token/) | <span class="required-mark" role="img" aria-label="Required"></span> |  |
+| `item` | [`ItemIdentifierToken`](../../types/item-identifier-token/) | <span class="required-mark" role="img" aria-label="Required"></span> |  |
+| `quantity` | `number` |  |  |
 | `options` | [`CombatKillOptions`](../../types/combat-kill-options/) |  |  |
 
 **Yields:** `void`
@@ -196,7 +228,7 @@ api.army.killForItem(target: MonsterIdentifierToken, item: ItemIdentifierToken, 
 
 <a id="member-api-army-leave"></a>
 
-### `api.army.leave()` <a class="source-reference__heading-link" style="float: right; display: inline-flex; align-items: center; justify-content: center; width: 2rem; height: 2rem; margin-block: -0.125rem; margin-inline-start: 0.5rem; border-radius: var(--radius-sm); text-decoration: none;" href="https://github.com/toommyliu/vexed/blob/69e580bf8bbae374ead5a6f3cb3d3e064ac2735d/app/src/renderer/windows/game/army/Services/Army.ts#L56" tabindex="-1" aria-hidden="true" title="Open source: app/src/renderer/windows/game/army/Services/Army.ts:56" target="_blank" rel="noreferrer"><svg class="source-reference__icon" width="16" height="16" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m18 16 4-4-4-4"></path><path d="m6 8-4 4 4 4"></path><path d="m14.5 4-5 16"></path></svg></a>
+### `api.army.leave()` <a class="source-reference__heading-link" style="float: right; display: inline-flex; align-items: center; justify-content: center; width: 2rem; height: 2rem; margin-block: -0.125rem; margin-inline-start: 0.5rem; border-radius: var(--radius-sm); text-decoration: none;" href="https://github.com/toommyliu/vexed/blob/4227dc684ea6453d924c541e8c9a315719ba13b0/app/src/renderer/windows/game/army/Services/Army.ts#L59" tabindex="-1" aria-hidden="true" title="Open source: app/src/renderer/windows/game/army/Services/Army.ts:59" target="_blank" rel="noreferrer"><svg class="source-reference__icon" width="16" height="16" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m18 16 4-4-4-4"></path><path d="m6 8-4 4 4 4"></path><path d="m14.5 4-5 16"></path></svg></a>
 
 ```ts
 api.army.leave(): ArmyEffect<void, never>
@@ -208,7 +240,7 @@ api.army.leave(): ArmyEffect<void, never>
 
 <a id="member-api-army-runstep"></a>
 
-### `api.army.runStep()` <a class="source-reference__heading-link" style="float: right; display: inline-flex; align-items: center; justify-content: center; width: 2rem; height: 2rem; margin-block: -0.125rem; margin-inline-start: 0.5rem; border-radius: var(--radius-sm); text-decoration: none;" href="https://github.com/toommyliu/vexed/blob/69e580bf8bbae374ead5a6f3cb3d3e064ac2735d/app/src/renderer/windows/game/army/Services/Army.ts#L65" tabindex="-1" aria-hidden="true" title="Open source: app/src/renderer/windows/game/army/Services/Army.ts:65" target="_blank" rel="noreferrer"><svg class="source-reference__icon" width="16" height="16" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m18 16 4-4-4-4"></path><path d="m6 8-4 4 4 4"></path><path d="m14.5 4-5 16"></path></svg></a>
+### `api.army.runStep()` <a class="source-reference__heading-link" style="float: right; display: inline-flex; align-items: center; justify-content: center; width: 2rem; height: 2rem; margin-block: -0.125rem; margin-inline-start: 0.5rem; border-radius: var(--radius-sm); text-decoration: none;" href="https://github.com/toommyliu/vexed/blob/4227dc684ea6453d924c541e8c9a315719ba13b0/app/src/renderer/windows/game/army/Services/Army.ts#L85" tabindex="-1" aria-hidden="true" title="Open source: app/src/renderer/windows/game/army/Services/Army.ts:85" target="_blank" rel="noreferrer"><svg class="source-reference__icon" width="16" height="16" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m18 16 4-4-4-4"></path><path d="m6 8-4 4 4 4"></path><path d="m14.5 4-5 16"></path></svg></a>
 
 ```ts
 api.army.runStep(label: string, action: Effect.Effect<A, E, never>, options?: ArmyRunStepOptions): ArmyEffect<A, E>
@@ -226,7 +258,7 @@ api.army.runStep(label: string, action: Effect.Effect<A, E, never>, options?: Ar
 
 <a id="member-api-army-start"></a>
 
-### `api.army.start()` <a class="source-reference__heading-link" style="float: right; display: inline-flex; align-items: center; justify-content: center; width: 2rem; height: 2rem; margin-block: -0.125rem; margin-inline-start: 0.5rem; border-radius: var(--radius-sm); text-decoration: none;" href="https://github.com/toommyliu/vexed/blob/69e580bf8bbae374ead5a6f3cb3d3e064ac2735d/app/src/renderer/windows/game/army/Services/Army.ts#L55" tabindex="-1" aria-hidden="true" title="Open source: app/src/renderer/windows/game/army/Services/Army.ts:55" target="_blank" rel="noreferrer"><svg class="source-reference__icon" width="16" height="16" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m18 16 4-4-4-4"></path><path d="m6 8-4 4 4 4"></path><path d="m14.5 4-5 16"></path></svg></a>
+### `api.army.start()` <a class="source-reference__heading-link" style="float: right; display: inline-flex; align-items: center; justify-content: center; width: 2rem; height: 2rem; margin-block: -0.125rem; margin-inline-start: 0.5rem; border-radius: var(--radius-sm); text-decoration: none;" href="https://github.com/toommyliu/vexed/blob/4227dc684ea6453d924c541e8c9a315719ba13b0/app/src/renderer/windows/game/army/Services/Army.ts#L58" tabindex="-1" aria-hidden="true" title="Open source: app/src/renderer/windows/game/army/Services/Army.ts:58" target="_blank" rel="noreferrer"><svg class="source-reference__icon" width="16" height="16" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m18 16 4-4-4-4"></path><path d="m6 8-4 4 4 4"></path><path d="m14.5 4-5 16"></path></svg></a>
 
 ```ts
 api.army.start(configName: string): ArmyEffect<ArmySessionPayload, never>
@@ -242,7 +274,7 @@ api.army.start(configName: string): ArmyEffect<ArmySessionPayload, never>
 
 <a id="member-api-army-sync"></a>
 
-### `api.army.sync()` <a class="source-reference__heading-link" style="float: right; display: inline-flex; align-items: center; justify-content: center; width: 2rem; height: 2rem; margin-block: -0.125rem; margin-inline-start: 0.5rem; border-radius: var(--radius-sm); text-decoration: none;" href="https://github.com/toommyliu/vexed/blob/69e580bf8bbae374ead5a6f3cb3d3e064ac2735d/app/src/renderer/windows/game/army/Services/Army.ts#L64" tabindex="-1" aria-hidden="true" title="Open source: app/src/renderer/windows/game/army/Services/Army.ts:64" target="_blank" rel="noreferrer"><svg class="source-reference__icon" width="16" height="16" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m18 16 4-4-4-4"></path><path d="m6 8-4 4 4 4"></path><path d="m14.5 4-5 16"></path></svg></a>
+### `api.army.sync()` <a class="source-reference__heading-link" style="float: right; display: inline-flex; align-items: center; justify-content: center; width: 2rem; height: 2rem; margin-block: -0.125rem; margin-inline-start: 0.5rem; border-radius: var(--radius-sm); text-decoration: none;" href="https://github.com/toommyliu/vexed/blob/4227dc684ea6453d924c541e8c9a315719ba13b0/app/src/renderer/windows/game/army/Services/Army.ts#L84" tabindex="-1" aria-hidden="true" title="Open source: app/src/renderer/windows/game/army/Services/Army.ts:84" target="_blank" rel="noreferrer"><svg class="source-reference__icon" width="16" height="16" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m18 16 4-4-4-4"></path><path d="m6 8-4 4 4 4"></path><path d="m14.5 4-5 16"></path></svg></a>
 
 ```ts
 api.army.sync(label?: string, options?: ArmyRunStepOptions): ArmyEffect<void, never>
@@ -259,7 +291,7 @@ api.army.sync(label?: string, options?: ArmyRunStepOptions): ArmyEffect<void, ne
 
 <a id="member-api-army-waitforallinmap"></a>
 
-### `api.army.waitForAllInMap()` <a class="source-reference__heading-link" style="float: right; display: inline-flex; align-items: center; justify-content: center; width: 2rem; height: 2rem; margin-block: -0.125rem; margin-inline-start: 0.5rem; border-radius: var(--radius-sm); text-decoration: none;" href="https://github.com/toommyliu/vexed/blob/69e580bf8bbae374ead5a6f3cb3d3e064ac2735d/app/src/renderer/windows/game/army/Services/Army.ts#L71" tabindex="-1" aria-hidden="true" title="Open source: app/src/renderer/windows/game/army/Services/Army.ts:71" target="_blank" rel="noreferrer"><svg class="source-reference__icon" width="16" height="16" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m18 16 4-4-4-4"></path><path d="m6 8-4 4 4 4"></path><path d="m14.5 4-5 16"></path></svg></a>
+### `api.army.waitForAllInMap()` <a class="source-reference__heading-link" style="float: right; display: inline-flex; align-items: center; justify-content: center; width: 2rem; height: 2rem; margin-block: -0.125rem; margin-inline-start: 0.5rem; border-radius: var(--radius-sm); text-decoration: none;" href="https://github.com/toommyliu/vexed/blob/4227dc684ea6453d924c541e8c9a315719ba13b0/app/src/renderer/windows/game/army/Services/Army.ts#L91" tabindex="-1" aria-hidden="true" title="Open source: app/src/renderer/windows/game/army/Services/Army.ts:91" target="_blank" rel="noreferrer"><svg class="source-reference__icon" width="16" height="16" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m18 16 4-4-4-4"></path><path d="m6 8-4 4 4 4"></path><path d="m14.5 4-5 16"></path></svg></a>
 
 ```ts
 api.army.waitForAllInMap(): ArmyEffect<void, never>
