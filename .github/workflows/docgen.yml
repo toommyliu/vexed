@@ -4,19 +4,66 @@ on:
   push:
     branches: [main]
     paths:
-      - 'app/src/renderer/windows/game/scripting/ScriptApi.ts'
-      - 'app/src/renderer/windows/game/army/Services/**/*.ts'
-      - 'app/src/renderer/windows/game/features/Services/**/*.ts'
-      - 'app/src/renderer/windows/game/flash/Services/**/*.ts'
-      - 'app/src/renderer/windows/game/jobs/Services/**/*.ts'
+      - '.github/workflows/docgen.yml'
+      - 'app/package.json'
+      - 'app/src/shared/**/*.ts'
+      - 'app/src/renderer/windows/game/**/*.d.ts'
+      - 'app/src/renderer/windows/game/**/*.ts'
+      - 'app/tsconfig.json'
+      - 'packages/collection/package.json'
+      - 'packages/collection/src/**/*.ts'
+      - 'packages/collection/tsconfig.json'
+      - 'packages/game/package.json'
+      - 'packages/game/src/**/*.ts'
+      - 'packages/game/tsconfig.json'
+      - 'packages/shared/package.json'
+      - 'packages/shared/src/**/*.ts'
+      - 'packages/shared/tsconfig.json'
       - 'scripts/docgen.ts'
+      - 'scripts/gen-script-types.ts'
       - 'docs/astro.config.mjs'
+      - 'docs/package.json'
+      - 'docs/src/content.config.ts'
       - 'package.json'
       - 'pnpm-lock.yaml'
+      - 'pnpm-workspace.yaml'
+      - 'tsconfig.base.json'
+      - 'tsconfig.json'
+  pull_request:
+    paths:
+      - '.github/workflows/docgen.yml'
+      - 'app/package.json'
+      - 'app/src/shared/**/*.ts'
+      - 'app/src/renderer/windows/game/**/*.d.ts'
+      - 'app/src/renderer/windows/game/**/*.ts'
+      - 'app/tsconfig.json'
+      - 'packages/collection/package.json'
+      - 'packages/collection/src/**/*.ts'
+      - 'packages/collection/tsconfig.json'
+      - 'packages/game/package.json'
+      - 'packages/game/src/**/*.ts'
+      - 'packages/game/tsconfig.json'
+      - 'packages/shared/package.json'
+      - 'packages/shared/src/**/*.ts'
+      - 'packages/shared/tsconfig.json'
+      - 'scripts/docgen.ts'
+      - 'scripts/gen-script-types.ts'
+      - 'docs/astro.config.mjs'
+      - 'docs/package.json'
+      - 'docs/src/content.config.ts'
+      - 'package.json'
+      - 'pnpm-lock.yaml'
+      - 'pnpm-workspace.yaml'
+      - 'tsconfig.base.json'
+      - 'tsconfig.json'
   workflow_dispatch:
 
 permissions:
   contents: write
+
+concurrency:
+  group: docgen-${{ github.ref }}
+  cancel-in-progress: true
 
 jobs:
   generate-docs:
@@ -25,33 +72,43 @@ jobs:
 
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
         with:
           fetch-depth: 0
 
       - name: Setup pnpm
-        uses: pnpm/action-setup@v4
-        with:
-          version: 10.17.0
+        uses: pnpm/action-setup@v6
 
       - name: Setup Node.js
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@v6
         with:
-          node-version: '24.8.0'
+          node-version: '24.x'
+          cache: pnpm
 
       - name: Install dependencies
-        run: pnpm install
+        run: pnpm install --frozen-lockfile
 
       - name: Generate documentation
         env:
           DOCGEN_SOURCE_REF: ${{ github.sha }}
         run: pnpm run docgen
 
-      - name: Commit and push documentation updates
+      - name: Verify generated documentation is committed
+        if: github.event_name == 'pull_request'
         run: |
-          git config --local user.email "action@github.com"
-          git config --local user.name "GitHub Action"
-          git add .
+          if [ -n "$(git status --porcelain -- docs/public/script-api.d.ts docs/src/content/docs/scripting docs/src/generated/script-source-links.ts)" ]; then
+            git diff --stat -- docs/public/script-api.d.ts docs/src/content/docs/scripting docs/src/generated/script-source-links.ts
+            git status --short -- docs/public/script-api.d.ts docs/src/content/docs/scripting docs/src/generated/script-source-links.ts
+            echo "::error::Generated scripting docs are out of date. Run pnpm run docgen and commit the result."
+            exit 1
+          fi
+
+      - name: Commit and push documentation updates
+        if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+        run: |
+          git config --local user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git config --local user.name "github-actions[bot]"
+          git add -A docs/public/script-api.d.ts docs/src/content/docs/scripting docs/src/generated/script-source-links.ts
           if ! git diff --staged --quiet; then
             git commit -m "docs: auto-update API documentation"
             git push
