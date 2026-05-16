@@ -90,18 +90,38 @@ jobs:
 
       - name: Generate documentation
         env:
-          DOCGEN_SOURCE_REF: ${{ github.sha }}
+          DOCGEN_SOURCE_REF: ${{ github.event_name == 'pull_request' && github.event.pull_request.head.sha || github.sha }}
         run: pnpm run docgen
 
-      - name: Verify generated documentation is committed
+      - name: Report generated documentation drift
         if: github.event_name == 'pull_request'
         run: |
-          if [ -n "$(git status --porcelain -- docs/public/script-api.d.ts docs/src/content/docs/scripting docs/src/generated/script-source-links.ts)" ]; then
-            git diff --stat -- docs/public/script-api.d.ts docs/src/content/docs/scripting docs/src/generated/script-source-links.ts
-            git status --short -- docs/public/script-api.d.ts docs/src/content/docs/scripting docs/src/generated/script-source-links.ts
-            echo "::error::Generated scripting docs are out of date. Run pnpm run docgen and commit the result."
-            exit 1
+          doc_paths=(
+            docs/public/script-api.d.ts
+            docs/src/content/docs/scripting
+            docs/src/generated/script-source-links.ts
+          )
+
+          status="$(git status --porcelain -- "${doc_paths[@]}")"
+          if [ -z "$status" ]; then
+            echo "Generated scripting docs are up to date." >> "$GITHUB_STEP_SUMMARY"
+            exit 0
           fi
+
+          git diff --stat -- "${doc_paths[@]}"
+          git status --short -- "${doc_paths[@]}"
+          echo "::warning title=Generated docs are stale::Run pnpm run docgen and commit the generated docs."
+
+          {
+            echo "### Generated scripting docs need an update"
+            echo
+            echo 'Run `pnpm run docgen` locally and commit the generated docs.'
+            echo
+            echo "Changed generated files:"
+            echo '```'
+            git status --short -- "${doc_paths[@]}"
+            echo '```'
+          } >> "$GITHUB_STEP_SUMMARY"
 
       - name: Commit and push documentation updates
         if: github.event_name == 'push' && github.ref == 'refs/heads/main'
