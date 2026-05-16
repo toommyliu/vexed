@@ -2,11 +2,11 @@ import { BrowserWindow, nativeTheme } from "electron";
 import { SettingsIpcChannels } from "../shared/ipc";
 import {
   THEME_TOKEN_NAMES,
+  isMotionMode,
   type AppSettings,
   type Appearance,
   type AppearancePatch,
   type HotkeysPatch,
-  type MotionMode,
   type Preferences,
   type PreferencesPatch,
   type ThemeMode,
@@ -30,9 +30,6 @@ const isRecord = (value: unknown): value is Record<string, unknown> =>
 
 const isThemeMode = (value: unknown): value is ThemeMode =>
   value === "light" || value === "dark" || value === "system";
-
-const isMotionMode = (value: unknown): value is MotionMode =>
-  value === "system" || value === "on" || value === "off";
 
 const isThemeVariant = (value: string): value is ThemeVariant =>
   value === "light" || value === "dark";

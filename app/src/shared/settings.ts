@@ -17,6 +17,9 @@ export type MotionMode = "system" | "on" | "off";
 export type ThemeVariant = "light" | "dark";
 export type ThemeRgb = readonly [number, number, number];
 
+export const isMotionMode = (value: unknown): value is MotionMode =>
+  value === "system" || value === "on" || value === "off";
+
 export const THEME_TOKEN_NAMES = [
   "background",
   "foreground",

@@ -4,8 +4,8 @@ import {
   DEFAULT_APPEARANCE,
   DEFAULT_THEME_PROFILE,
   THEME_TOKEN_NAMES,
+  isMotionMode,
   type Appearance,
-  type MotionMode,
   type ThemeMode,
   type ThemeProfile,
   type ThemeRgb,
@@ -30,9 +30,6 @@ const themeTokenNames = new Set<string>(THEME_TOKEN_NAMES);
 
 const isThemeMode = (value: unknown): value is ThemeMode =>
   value === "light" || value === "dark" || value === "system";
-
-const isMotionMode = (value: unknown): value is MotionMode =>
-  value === "system" || value === "on" || value === "off";
 
 const parseHexRgb = (value: string): ThemeRgb | undefined => {
   const match = /^#?([0-9a-f]{6})$/i.exec(value.trim());
