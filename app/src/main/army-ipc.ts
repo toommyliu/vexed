@@ -352,18 +352,21 @@ const waitForLeaderSession = (
   playerName: string,
 ): Promise<ArmySessionPayload> =>
   new Promise((resolve, reject) => {
+    let waiter: PendingStart;
     const timer = setTimeout(() => {
       const pending = pendingStartsByConfig.get(configName);
       if (pending) {
-        pendingStartsByConfig.set(
-          configName,
-          pending.filter((waiter) => waiter.playerName !== playerName),
-        );
+        const remaining = pending.filter((pendingWaiter) => pendingWaiter !== waiter);
+        if (remaining.length > 0) {
+          pendingStartsByConfig.set(configName, remaining);
+        } else {
+          pendingStartsByConfig.delete(configName);
+        }
       }
       reject(new Error(`Timed out waiting for army leader: ${configName}`));
     }, ARMY_START_TIMEOUT_MS);
 
-    const waiter: PendingStart = {
+    waiter = {
       playerName,
       senderWindow,
       timer,
