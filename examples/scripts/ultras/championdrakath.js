@@ -44,7 +44,7 @@ function* healIfNeeded(api, healSkill) {
   return false
 }
 
-function* tauntBoundaryIfNeeded(api, nextBoundaryIndex) {
+function* tauntBoundaryIfNeeded(api, script, nextBoundaryIndex) {
   const playerNumber = yield* api.army.getPlayerNumber()
   if (playerNumber !== 1) return nextBoundaryIndex
 
@@ -55,7 +55,7 @@ function* tauntBoundaryIfNeeded(api, nextBoundaryIndex) {
   if (!boundary || target.hp > boundary.max) return nextBoundaryIndex
 
   if (target.hp >= boundary.min) {
-    api.log(boundary.msg)
+    script.log(boundary.msg)
     yield* api.combat.useSkill(5, true, true)
   }
 
@@ -63,7 +63,7 @@ function* tauntBoundaryIfNeeded(api, nextBoundaryIndex) {
 }
 
 /** @param {ScriptContext} context */
-module.exports = function* run({ api }) {
+module.exports = function* run({ api, script }) {
   yield* api.settings.setFrameRate(10)
   yield* api.settings.setLagKillerEnabled(true)
   yield* api.settings.setOtherPlayersVisible(false)
@@ -91,7 +91,7 @@ module.exports = function* run({ api }) {
   while (!(yield* api.tempInventory.contains('Champion Drakath Defeated', 1))) {
     const alive = yield* api.player.isAlive()
     if (!alive) {
-      yield* api.sleep(1000)
+      yield* script.sleep(1000)
       continue
     }
 
@@ -100,16 +100,16 @@ module.exports = function* run({ api }) {
       yield* api.combat.attackMonster(BOSS)
     }
 
-    nextBoundaryIndex = yield* tauntBoundaryIfNeeded(api, nextBoundaryIndex)
+    nextBoundaryIndex = yield* tauntBoundaryIfNeeded(api, script, nextBoundaryIndex)
 
     if (yield* healIfNeeded(api, healSkill)) {
-      yield* api.sleep(100)
+      yield* script.sleep(100)
       continue
     }
 
     yield* api.combat.useSkill(rotation[skillIndex])
     skillIndex = (skillIndex + 1) % rotation.length
-    yield* api.sleep(100)
+    yield* script.sleep(100)
   }
 
   yield* api.player.jumpToCell('Enter')

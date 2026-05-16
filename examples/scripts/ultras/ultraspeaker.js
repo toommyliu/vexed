@@ -1,82 +1,92 @@
-cmd.set_delay(0)
-cmd.goto_house()
-cmd.set_fps(10)
-cmd.enable_lagkiller()
-cmd.enable_hideplayers()
-cmd.enable_infiniterange()
-cmd.enable_anticounter()
-cmd.enable_death_ads()
-cmd.army_start('army_config')
-cmd.set_delay(1000)
+const BOSS = 'The First Speaker'
 
-cmd.accept_quest(9173) // ultraspeaker
-
-var opts = {
-  skillAction() {
-    let a = []
-    let i = 0
-    let h
-    let hV
-
-    switch (this.bot.player.className) {
-      case 'LEGION REVENANT':
-        a = [3, 2, 1, 4, 5]
-        break
-      case 'ARCHPALADIN':
-        a = [1, 3, 4, 5, 2]
-        h = 2
-        hV = 40
-        break
-      case 'LORD OF ORDER':
-        a = [1, 3, 4, 5, 2]
-        h = 2
-        hV = 80
-        break
-      case 'VERUS DOOMKNIGHT':
-        a = [1, 2, 3, 4, 5]
-    }
-
-    return async function () {
-      const plyrNumber = this.bot.army.getPlayerNumber()
-
-      if (plyrNumber === 3 || plyrNumber === 4) {
-        for (const plyr of this.bot.army.players) {
-          const p = this.bot.world.players.get(plyr)
-          if (h && hV && p.isHpPercentageLessThan(hV)) {
-            await this.bot.combat.useSkill(h)
-            return
-          }
-        }
-      }
-
-      await this.bot.combat.useSkill(a[i])
-      i = (i + 1) % a.length
-    }
+function getSkillPlan(className) {
+  switch (className) {
+    case 'LEGION REVENANT':
+      return { rotation: [3, 2, 1, 4, 5] }
+    case 'ARCHPALADIN':
+      return { rotation: [1, 3, 4, 5, 2], healSkill: 2, healAt: 40 }
+    case 'LORD OF ORDER':
+      return { rotation: [1, 3, 4, 5, 2], healSkill: 2, healAt: 80 }
+    case 'VERUS DOOMKNIGHT':
+      return { rotation: [1, 2, 3, 4, 5] }
+    default:
+      return { rotation: [1, 2, 3, 4] }
   }
 }
-cmd.army_join('ultraspeaker')
-cmd.army_equip_set('UltraSpeaker', { resolveItems: true })
-cmd.buff()
 
-cmd.hunt('The First Speaker')
-cmd.set_spawnpoint()
-cmd.register_task('walkToPoint', function () {
-  const bot = this.bot
-  const ctx = this.ctx
+function* healIfNeeded(api, healSkill, healAt) {
+  if (!healSkill || !healAt) return false
 
-  let intervalId = setInterval(() => {
-    if (!ctx.isRunning()) {
-      clearInterval(intervalId)
-      return
+  const playerNumber = yield* api.army.getPlayerNumber()
+  if (playerNumber !== 3 && playerNumber !== 4) return false
+
+  const players = yield* api.world.players.getAll()
+  for (const player of players.values()) {
+    if (player.isHpPercentageLessThan(healAt)) {
+      yield* api.combat.useSkill(healSkill)
+      return true
     }
-    if (bot.world.name !== 'ultraspeaker') return
-    if (bot.player.cell !== 'Enter') return
-    bot.player.walkTo(28, 235) // top left
-  }, 100)
-})
+  }
 
-cmd.army_kill_for_item('The First Speaker', 'The First Speaker Silenced', 1, {
-  ...opts,
-})
-cmd.jump_to_cell('Enter')
-cmd.complete_quest(9173)
+  return false
+}
+
+function* keepEnterWalkPosition(api) {
+  const mapName = yield* api.world.map.getName()
+  if (mapName !== 'ultraspeaker') return
+
+  const cell = yield* api.player.getCell()
+  if (cell !== 'Enter') return
+
+  yield* api.player.walkTo(28, 235)
+}
+
+module.exports = function* run({ api, script }) {
+  yield* api.recipes.goToHouse()
+  yield* api.settings.setFrameRate(10)
+  yield* api.settings.setLagKillerEnabled(true)
+  yield* api.settings.setOtherPlayersVisible(false)
+  yield* api.settings.setInfiniteRange(true)
+  yield* api.settings.setDeathAdsVisible(true)
+  yield* api.army.start('config')
+
+  yield* api.quests.accept(9173)
+  yield* api.army.joinMap('ultraspeaker')
+  yield* api.army.equipSet('UltraSpeaker', { resolveItems: true })
+  yield* api.recipes.buff()
+  yield* api.combat.hunt(BOSS)
+  yield* api.world.map.setSpawnPoint()
+
+  const { rotation, healSkill, healAt } = getSkillPlan(
+    yield* api.player.getClassName(),
+  )
+  let index = 0
+
+  while (!(yield* api.inventory.contains('The First Speaker Silenced', 1))) {
+    yield* keepEnterWalkPosition(api)
+
+    if (!(yield* api.player.isAlive())) {
+      yield* script.sleep(1000)
+      continue
+    }
+
+    if (!(yield* api.combat.hasTarget())) {
+      yield* api.combat.attackMonster(BOSS)
+    }
+
+    if (yield* healIfNeeded(api, healSkill, healAt)) {
+      yield* script.sleep(100)
+      continue
+    }
+
+    yield* api.combat.useSkill(rotation[index])
+    index = (index + 1) % rotation.length
+    yield* script.sleep(100)
+  }
+
+  yield* api.player.jumpToCell('Enter')
+  if (yield* api.quests.canComplete(9173)) {
+    yield* api.quests.complete(9173)
+  }
+}
