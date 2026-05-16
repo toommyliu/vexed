@@ -597,16 +597,8 @@ const make = Effect.gen(function* () {
       return cooldown === 0;
     });
 
-  const getActiveSkillItem: CombatShape["getActiveSkillItem"] = (index) =>
-    Effect.gen(function* () {
-      const idx =
-        typeof index === "number" ? index : Number.parseInt(index, 10);
-      if (!isValidSkillIndex(idx)) {
-        return null;
-      }
-
-      return yield* bridge.call("combat.getActiveSkillItem", [idx]);
-    });
+  const getConsumableSkillItem: CombatShape["getConsumableSkillItem"] = () =>
+    bridge.call("combat.getConsumableSkillItem");
 
   const hasTarget: CombatShape["hasTarget"] = () =>
     bridge.call("combat.hasTarget");
@@ -1032,7 +1024,7 @@ const make = Effect.gen(function* () {
     useSkill,
     canUseSkill,
     exit,
-    getActiveSkillItem,
+    getConsumableSkillItem,
     getTarget,
     hasTarget,
     kill,

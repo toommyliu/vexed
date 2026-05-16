@@ -54,6 +54,12 @@ For a folder full of scripts, put `script-api.d.ts` in that folder and add a `js
 | [`autoZone`](./auto-zone/) | Auto Zone feature controls. |
 | [`autoRelogin`](./auto-relogin/) | Auto Relogin feature controls. |
 
+## Reference
+
+| Page | Description |
+| --- | --- |
+| [`types`](./types/) | Referenced scripting data types and public class surfaces. |
+
 ## API Namespaces
 
 | Namespace | Source Type |

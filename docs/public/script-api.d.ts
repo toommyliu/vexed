@@ -135,7 +135,7 @@ interface CombatApi {
     cancelTarget(): Effect<void, BridgeError>;
     canUseSkill(index: string | number): Effect<boolean, BridgeError>;
     exit(): Effect<boolean, BridgeError>;
-    getActiveSkillItem(index: string | number): Effect<ActiveSkillItem | null, BridgeError>;
+    getConsumableSkillItem(): Effect<ConsumableSkillItem | null, BridgeError>;
     getTarget(): Effect<Monster | Avatar | null, BridgeError>;
     hasTarget(): Effect<boolean, BridgeError>;
     kill(target: MonsterIdentifierToken, options?: CombatKillOptions): Effect<void, BridgeError>;
@@ -320,10 +320,6 @@ interface WorldPlayersMeApi {
     getAura(auraName: string): Effect<Option<Aura>, never>;
 }
 
-type ActiveSkillItem = {
-  itemId?: number;
-  name?: string;
-};
 interface ArmyEquipSetOptions {
   readonly resolveItems?: boolean;
 }
@@ -461,6 +457,10 @@ interface CombatKillOptions {
   readonly skillDelay?: number;
   readonly skillWait?: boolean;
 }
+type ConsumableSkillItem = {
+  itemId?: number;
+  name?: string;
+};
 type EquipEnhancementSelector = {
   readonly enhancement: string;
   readonly slot?: EquipEnhancementSelectorSlot;

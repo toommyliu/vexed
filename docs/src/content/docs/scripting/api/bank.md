@@ -34,7 +34,7 @@ tableOfContents:
 
 ### `api.bank.contains()`
 
-**Source:** [`app/src/renderer/windows/game/flash/Services/Bank.ts:6`](https://github.com/toommyliu/vexed/blob/3a194e38fe23218b85978c4567e31303a27d86c2/app/src/renderer/windows/game/flash/Services/Bank.ts#L6)
+**Source:** [`app/src/renderer/windows/game/flash/Services/Bank.ts:6`](https://github.com/toommyliu/vexed/blob/ee7dea4922d10259289c35ce1638a1553a17b577/app/src/renderer/windows/game/flash/Services/Bank.ts#L6)
 
 ```ts
 api.bank.contains(item: ItemIdentifierToken, quantity?: number): BridgeEffect<boolean>
@@ -42,18 +42,18 @@ api.bank.contains(item: ItemIdentifierToken, quantity?: number): BridgeEffect<bo
 
 | Name | Type | Required | Description |
 | --- | --- | --- | --- |
-| `item` | `ItemIdentifierToken` | ✓ |  |
+| `item` | [`ItemIdentifierToken`](../../types/item-identifier-token/) | ✓ |  |
 | `quantity` | `number` |  |  |
 
 **Yields:** `boolean`
 
-**Errors:** [`BridgeError`](#type-bridgeerror)
+**Errors:** [`BridgeError`](../../types/bridge-error/)
 
 <a id="member-api-bank-deposit"></a>
 
 ### `api.bank.deposit()`
 
-**Source:** [`app/src/renderer/windows/game/flash/Services/Bank.ts:7`](https://github.com/toommyliu/vexed/blob/3a194e38fe23218b85978c4567e31303a27d86c2/app/src/renderer/windows/game/flash/Services/Bank.ts#L7)
+**Source:** [`app/src/renderer/windows/game/flash/Services/Bank.ts:7`](https://github.com/toommyliu/vexed/blob/ee7dea4922d10259289c35ce1638a1553a17b577/app/src/renderer/windows/game/flash/Services/Bank.ts#L7)
 
 ```ts
 api.bank.deposit(item: ItemIdentifierToken): BridgeEffect<boolean>
@@ -61,17 +61,17 @@ api.bank.deposit(item: ItemIdentifierToken): BridgeEffect<boolean>
 
 | Name | Type | Required | Description |
 | --- | --- | --- | --- |
-| `item` | `ItemIdentifierToken` | ✓ |  |
+| `item` | [`ItemIdentifierToken`](../../types/item-identifier-token/) | ✓ |  |
 
 **Yields:** `boolean`
 
-**Errors:** [`BridgeError`](#type-bridgeerror)
+**Errors:** [`BridgeError`](../../types/bridge-error/)
 
 <a id="member-api-bank-depositmany"></a>
 
 ### `api.bank.depositMany()`
 
-**Source:** [`app/src/renderer/windows/game/flash/Services/Bank.ts:8`](https://github.com/toommyliu/vexed/blob/3a194e38fe23218b85978c4567e31303a27d86c2/app/src/renderer/windows/game/flash/Services/Bank.ts#L8)
+**Source:** [`app/src/renderer/windows/game/flash/Services/Bank.ts:8`](https://github.com/toommyliu/vexed/blob/ee7dea4922d10259289c35ce1638a1553a17b577/app/src/renderer/windows/game/flash/Services/Bank.ts#L8)
 
 ```ts
 api.bank.depositMany(...items?: ItemIdentifierToken[]): BridgeEffect<void>
@@ -79,17 +79,17 @@ api.bank.depositMany(...items?: ItemIdentifierToken[]): BridgeEffect<void>
 
 | Name | Type | Required | Description |
 | --- | --- | --- | --- |
-| `...items` | `ItemIdentifierToken`[] |  |  |
+| `...items` | [`ItemIdentifierToken`](../../types/item-identifier-token/)[] |  |  |
 
 **Yields:** `void`
 
-**Errors:** [`BridgeError`](#type-bridgeerror)
+**Errors:** [`BridgeError`](../../types/bridge-error/)
 
 <a id="member-api-bank-getavailableslots"></a>
 
 ### `api.bank.getAvailableSlots()`
 
-**Source:** [`app/src/renderer/windows/game/flash/Services/Bank.ts:13`](https://github.com/toommyliu/vexed/blob/3a194e38fe23218b85978c4567e31303a27d86c2/app/src/renderer/windows/game/flash/Services/Bank.ts#L13)
+**Source:** [`app/src/renderer/windows/game/flash/Services/Bank.ts:13`](https://github.com/toommyliu/vexed/blob/ee7dea4922d10259289c35ce1638a1553a17b577/app/src/renderer/windows/game/flash/Services/Bank.ts#L13)
 
 ```ts
 api.bank.getAvailableSlots(): BridgeEffect<number>
@@ -97,13 +97,13 @@ api.bank.getAvailableSlots(): BridgeEffect<number>
 
 **Yields:** `number`
 
-**Errors:** [`BridgeError`](#type-bridgeerror)
+**Errors:** [`BridgeError`](../../types/bridge-error/)
 
 <a id="member-api-bank-getitem"></a>
 
 ### `api.bank.getItem()`
 
-**Source:** [`app/src/renderer/windows/game/flash/Services/Bank.ts:9`](https://github.com/toommyliu/vexed/blob/3a194e38fe23218b85978c4567e31303a27d86c2/app/src/renderer/windows/game/flash/Services/Bank.ts#L9)
+**Source:** [`app/src/renderer/windows/game/flash/Services/Bank.ts:9`](https://github.com/toommyliu/vexed/blob/ee7dea4922d10259289c35ce1638a1553a17b577/app/src/renderer/windows/game/flash/Services/Bank.ts#L9)
 
 ```ts
 api.bank.getItem(item: ItemIdentifierToken): BridgeEffect<Item | null>
@@ -111,31 +111,31 @@ api.bank.getItem(item: ItemIdentifierToken): BridgeEffect<Item | null>
 
 | Name | Type | Required | Description |
 | --- | --- | --- | --- |
-| `item` | `ItemIdentifierToken` | ✓ |  |
+| `item` | [`ItemIdentifierToken`](../../types/item-identifier-token/) | ✓ |  |
 
-**Yields:** `Item` \| `null`
+**Yields:** [`Item`](../../types/item/) \| `null`
 
-**Errors:** [`BridgeError`](#type-bridgeerror)
+**Errors:** [`BridgeError`](../../types/bridge-error/)
 
 <a id="member-api-bank-getitems"></a>
 
 ### `api.bank.getItems()`
 
-**Source:** [`app/src/renderer/windows/game/flash/Services/Bank.ts:10`](https://github.com/toommyliu/vexed/blob/3a194e38fe23218b85978c4567e31303a27d86c2/app/src/renderer/windows/game/flash/Services/Bank.ts#L10)
+**Source:** [`app/src/renderer/windows/game/flash/Services/Bank.ts:10`](https://github.com/toommyliu/vexed/blob/ee7dea4922d10259289c35ce1638a1553a17b577/app/src/renderer/windows/game/flash/Services/Bank.ts#L10)
 
 ```ts
 api.bank.getItems(): BridgeEffect<readonly Item[]>
 ```
 
-**Yields:** `readonly` `Item`[]
+**Yields:** `readonly` [`Item`](../../types/item/)[]
 
-**Errors:** [`BridgeError`](#type-bridgeerror)
+**Errors:** [`BridgeError`](../../types/bridge-error/)
 
 <a id="member-api-bank-getslots"></a>
 
 ### `api.bank.getSlots()`
 
-**Source:** [`app/src/renderer/windows/game/flash/Services/Bank.ts:11`](https://github.com/toommyliu/vexed/blob/3a194e38fe23218b85978c4567e31303a27d86c2/app/src/renderer/windows/game/flash/Services/Bank.ts#L11)
+**Source:** [`app/src/renderer/windows/game/flash/Services/Bank.ts:11`](https://github.com/toommyliu/vexed/blob/ee7dea4922d10259289c35ce1638a1553a17b577/app/src/renderer/windows/game/flash/Services/Bank.ts#L11)
 
 ```ts
 api.bank.getSlots(): BridgeEffect<number>
@@ -143,13 +143,13 @@ api.bank.getSlots(): BridgeEffect<number>
 
 **Yields:** `number`
 
-**Errors:** [`BridgeError`](#type-bridgeerror)
+**Errors:** [`BridgeError`](../../types/bridge-error/)
 
 <a id="member-api-bank-getusedslots"></a>
 
 ### `api.bank.getUsedSlots()`
 
-**Source:** [`app/src/renderer/windows/game/flash/Services/Bank.ts:12`](https://github.com/toommyliu/vexed/blob/3a194e38fe23218b85978c4567e31303a27d86c2/app/src/renderer/windows/game/flash/Services/Bank.ts#L12)
+**Source:** [`app/src/renderer/windows/game/flash/Services/Bank.ts:12`](https://github.com/toommyliu/vexed/blob/ee7dea4922d10259289c35ce1638a1553a17b577/app/src/renderer/windows/game/flash/Services/Bank.ts#L12)
 
 ```ts
 api.bank.getUsedSlots(): BridgeEffect<number>
@@ -157,13 +157,13 @@ api.bank.getUsedSlots(): BridgeEffect<number>
 
 **Yields:** `number`
 
-**Errors:** [`BridgeError`](#type-bridgeerror)
+**Errors:** [`BridgeError`](../../types/bridge-error/)
 
 <a id="member-api-bank-isopen"></a>
 
 ### `api.bank.isOpen()`
 
-**Source:** [`app/src/renderer/windows/game/flash/Services/Bank.ts:14`](https://github.com/toommyliu/vexed/blob/3a194e38fe23218b85978c4567e31303a27d86c2/app/src/renderer/windows/game/flash/Services/Bank.ts#L14)
+**Source:** [`app/src/renderer/windows/game/flash/Services/Bank.ts:14`](https://github.com/toommyliu/vexed/blob/ee7dea4922d10259289c35ce1638a1553a17b577/app/src/renderer/windows/game/flash/Services/Bank.ts#L14)
 
 ```ts
 api.bank.isOpen(): BridgeEffect<boolean>
@@ -171,13 +171,13 @@ api.bank.isOpen(): BridgeEffect<boolean>
 
 **Yields:** `boolean`
 
-**Errors:** [`BridgeError`](#type-bridgeerror)
+**Errors:** [`BridgeError`](../../types/bridge-error/)
 
 <a id="member-api-bank-open"></a>
 
 ### `api.bank.open()`
 
-**Source:** [`app/src/renderer/windows/game/flash/Services/Bank.ts:15`](https://github.com/toommyliu/vexed/blob/3a194e38fe23218b85978c4567e31303a27d86c2/app/src/renderer/windows/game/flash/Services/Bank.ts#L15)
+**Source:** [`app/src/renderer/windows/game/flash/Services/Bank.ts:15`](https://github.com/toommyliu/vexed/blob/ee7dea4922d10259289c35ce1638a1553a17b577/app/src/renderer/windows/game/flash/Services/Bank.ts#L15)
 
 ```ts
 api.bank.open(force?: boolean): BridgeEffect<void>
@@ -189,13 +189,13 @@ api.bank.open(force?: boolean): BridgeEffect<void>
 
 **Yields:** `void`
 
-**Errors:** [`BridgeError`](#type-bridgeerror)
+**Errors:** [`BridgeError`](../../types/bridge-error/)
 
 <a id="member-api-bank-swap"></a>
 
 ### `api.bank.swap()`
 
-**Source:** [`app/src/renderer/windows/game/flash/Services/Bank.ts:16`](https://github.com/toommyliu/vexed/blob/3a194e38fe23218b85978c4567e31303a27d86c2/app/src/renderer/windows/game/flash/Services/Bank.ts#L16)
+**Source:** [`app/src/renderer/windows/game/flash/Services/Bank.ts:16`](https://github.com/toommyliu/vexed/blob/ee7dea4922d10259289c35ce1638a1553a17b577/app/src/renderer/windows/game/flash/Services/Bank.ts#L16)
 
 ```ts
 api.bank.swap(invKey: ItemIdentifierToken, bankKey: ItemIdentifierToken): BridgeEffect<boolean>
@@ -203,18 +203,18 @@ api.bank.swap(invKey: ItemIdentifierToken, bankKey: ItemIdentifierToken): Bridge
 
 | Name | Type | Required | Description |
 | --- | --- | --- | --- |
-| `invKey` | `ItemIdentifierToken` | ✓ |  |
-| `bankKey` | `ItemIdentifierToken` | ✓ |  |
+| `invKey` | [`ItemIdentifierToken`](../../types/item-identifier-token/) | ✓ |  |
+| `bankKey` | [`ItemIdentifierToken`](../../types/item-identifier-token/) | ✓ |  |
 
 **Yields:** `boolean`
 
-**Errors:** [`BridgeError`](#type-bridgeerror)
+**Errors:** [`BridgeError`](../../types/bridge-error/)
 
 <a id="member-api-bank-withdraw"></a>
 
 ### `api.bank.withdraw()`
 
-**Source:** [`app/src/renderer/windows/game/flash/Services/Bank.ts:20`](https://github.com/toommyliu/vexed/blob/3a194e38fe23218b85978c4567e31303a27d86c2/app/src/renderer/windows/game/flash/Services/Bank.ts#L20)
+**Source:** [`app/src/renderer/windows/game/flash/Services/Bank.ts:20`](https://github.com/toommyliu/vexed/blob/ee7dea4922d10259289c35ce1638a1553a17b577/app/src/renderer/windows/game/flash/Services/Bank.ts#L20)
 
 ```ts
 api.bank.withdraw(key: ItemIdentifierToken): BridgeEffect<boolean>
@@ -222,17 +222,17 @@ api.bank.withdraw(key: ItemIdentifierToken): BridgeEffect<boolean>
 
 | Name | Type | Required | Description |
 | --- | --- | --- | --- |
-| `key` | `ItemIdentifierToken` | ✓ |  |
+| `key` | [`ItemIdentifierToken`](../../types/item-identifier-token/) | ✓ |  |
 
 **Yields:** `boolean`
 
-**Errors:** [`BridgeError`](#type-bridgeerror)
+**Errors:** [`BridgeError`](../../types/bridge-error/)
 
 <a id="member-api-bank-withdrawmany"></a>
 
 ### `api.bank.withdrawMany()`
 
-**Source:** [`app/src/renderer/windows/game/flash/Services/Bank.ts:21`](https://github.com/toommyliu/vexed/blob/3a194e38fe23218b85978c4567e31303a27d86c2/app/src/renderer/windows/game/flash/Services/Bank.ts#L21)
+**Source:** [`app/src/renderer/windows/game/flash/Services/Bank.ts:21`](https://github.com/toommyliu/vexed/blob/ee7dea4922d10259289c35ce1638a1553a17b577/app/src/renderer/windows/game/flash/Services/Bank.ts#L21)
 
 ```ts
 api.bank.withdrawMany(...items?: ItemIdentifierToken[]): BridgeEffect<void>
@@ -240,32 +240,8 @@ api.bank.withdrawMany(...items?: ItemIdentifierToken[]): BridgeEffect<void>
 
 | Name | Type | Required | Description |
 | --- | --- | --- | --- |
-| `...items` | `ItemIdentifierToken`[] |  |  |
+| `...items` | [`ItemIdentifierToken`](../../types/item-identifier-token/)[] |  |  |
 
 **Yields:** `void`
 
-**Errors:** [`BridgeError`](#type-bridgeerror)
-
-## Referenced Types
-
-<a id="type-bridgeeffect"></a>
-
-### `BridgeEffect`
-
-**Source:** [`app/src/renderer/windows/game/flash/Services/Bridge.ts:14`](https://github.com/toommyliu/vexed/blob/3a194e38fe23218b85978c4567e31303a27d86c2/app/src/renderer/windows/game/flash/Services/Bridge.ts#L14)
-
-```ts
-type BridgeEffect = Effect.Effect<A, BridgeError>
-```
-
-<a id="type-bridgeerror"></a>
-
-### `BridgeError`
-
-**Source:** [`app/src/renderer/windows/game/flash/Services/Bridge.ts:9`](https://github.com/toommyliu/vexed/blob/3a194e38fe23218b85978c4567e31303a27d86c2/app/src/renderer/windows/game/flash/Services/Bridge.ts#L9)
-
-```ts
-type BridgeError = | SwfUnavailableError
-  | SwfMethodNotFoundError
-  | SwfCallError
-```
+**Errors:** [`BridgeError`](../../types/bridge-error/)

@@ -33,7 +33,7 @@ tableOfContents:
 
 ### `api.quests.abandon()`
 
-**Source:** [`app/src/renderer/windows/game/flash/Services/Quests.ts:8`](https://github.com/toommyliu/vexed/blob/3a194e38fe23218b85978c4567e31303a27d86c2/app/src/renderer/windows/game/flash/Services/Quests.ts#L8)
+**Source:** [`app/src/renderer/windows/game/flash/Services/Quests.ts:8`](https://github.com/toommyliu/vexed/blob/ee7dea4922d10259289c35ce1638a1553a17b577/app/src/renderer/windows/game/flash/Services/Quests.ts#L8)
 
 ```ts
 api.quests.abandon(questId: number): BridgeEffect<void>
@@ -45,13 +45,13 @@ api.quests.abandon(questId: number): BridgeEffect<void>
 
 **Yields:** `void`
 
-**Errors:** [`BridgeError`](#type-bridgeerror)
+**Errors:** [`BridgeError`](../../types/bridge-error/)
 
 <a id="member-api-quests-accept"></a>
 
 ### `api.quests.accept()`
 
-**Source:** [`app/src/renderer/windows/game/flash/Services/Quests.ts:9`](https://github.com/toommyliu/vexed/blob/3a194e38fe23218b85978c4567e31303a27d86c2/app/src/renderer/windows/game/flash/Services/Quests.ts#L9)
+**Source:** [`app/src/renderer/windows/game/flash/Services/Quests.ts:9`](https://github.com/toommyliu/vexed/blob/ee7dea4922d10259289c35ce1638a1553a17b577/app/src/renderer/windows/game/flash/Services/Quests.ts#L9)
 
 ```ts
 api.quests.accept(questId: number, silent?: boolean): BridgeEffect<void>
@@ -64,13 +64,13 @@ api.quests.accept(questId: number, silent?: boolean): BridgeEffect<void>
 
 **Yields:** `void`
 
-**Errors:** [`BridgeError`](#type-bridgeerror)
+**Errors:** [`BridgeError`](../../types/bridge-error/)
 
 <a id="member-api-quests-cancomplete"></a>
 
 ### `api.quests.canComplete()`
 
-**Source:** [`app/src/renderer/windows/game/flash/Services/Quests.ts:10`](https://github.com/toommyliu/vexed/blob/3a194e38fe23218b85978c4567e31303a27d86c2/app/src/renderer/windows/game/flash/Services/Quests.ts#L10)
+**Source:** [`app/src/renderer/windows/game/flash/Services/Quests.ts:10`](https://github.com/toommyliu/vexed/blob/ee7dea4922d10259289c35ce1638a1553a17b577/app/src/renderer/windows/game/flash/Services/Quests.ts#L10)
 
 ```ts
 api.quests.canComplete(questId: number): BridgeEffect<boolean>
@@ -82,13 +82,13 @@ api.quests.canComplete(questId: number): BridgeEffect<boolean>
 
 **Yields:** `boolean`
 
-**Errors:** [`BridgeError`](#type-bridgeerror)
+**Errors:** [`BridgeError`](../../types/bridge-error/)
 
 <a id="member-api-quests-complete"></a>
 
 ### `api.quests.complete()`
 
-**Source:** [`app/src/renderer/windows/game/flash/Services/Quests.ts:11`](https://github.com/toommyliu/vexed/blob/3a194e38fe23218b85978c4567e31303a27d86c2/app/src/renderer/windows/game/flash/Services/Quests.ts#L11)
+**Source:** [`app/src/renderer/windows/game/flash/Services/Quests.ts:11`](https://github.com/toommyliu/vexed/blob/ee7dea4922d10259289c35ce1638a1553a17b577/app/src/renderer/windows/game/flash/Services/Quests.ts#L11)
 
 ```ts
 api.quests.complete(questId: number, turnIns?: number, itemId?: number, special?: boolean): BridgeEffect<void>
@@ -103,27 +103,27 @@ api.quests.complete(questId: number, turnIns?: number, itemId?: number, special?
 
 **Yields:** `void`
 
-**Errors:** [`BridgeError`](#type-bridgeerror)
+**Errors:** [`BridgeError`](../../types/bridge-error/)
 
 <a id="member-api-quests-getaccepted"></a>
 
 ### `api.quests.getAccepted()`
 
-**Source:** [`app/src/renderer/windows/game/flash/Services/Quests.ts:22`](https://github.com/toommyliu/vexed/blob/3a194e38fe23218b85978c4567e31303a27d86c2/app/src/renderer/windows/game/flash/Services/Quests.ts#L22)
+**Source:** [`app/src/renderer/windows/game/flash/Services/Quests.ts:22`](https://github.com/toommyliu/vexed/blob/ee7dea4922d10259289c35ce1638a1553a17b577/app/src/renderer/windows/game/flash/Services/Quests.ts#L22)
 
 ```ts
 api.quests.getAccepted(): BridgeEffect<Quest[]>
 ```
 
-**Yields:** `Quest`[]
+**Yields:** [`Quest`](../../types/quest/)[]
 
-**Errors:** [`BridgeError`](#type-bridgeerror)
+**Errors:** [`BridgeError`](../../types/bridge-error/)
 
 <a id="member-api-quests-getmaxturnins"></a>
 
 ### `api.quests.getMaxTurnIns()`
 
-**Source:** [`app/src/renderer/windows/game/flash/Services/Quests.ts:17`](https://github.com/toommyliu/vexed/blob/3a194e38fe23218b85978c4567e31303a27d86c2/app/src/renderer/windows/game/flash/Services/Quests.ts#L17)
+**Source:** [`app/src/renderer/windows/game/flash/Services/Quests.ts:17`](https://github.com/toommyliu/vexed/blob/ee7dea4922d10259289c35ce1638a1553a17b577/app/src/renderer/windows/game/flash/Services/Quests.ts#L17)
 
 ```ts
 api.quests.getMaxTurnIns(questId: number): BridgeEffect<number>
@@ -135,19 +135,19 @@ api.quests.getMaxTurnIns(questId: number): BridgeEffect<number>
 
 **Yields:** `number`
 
-**Errors:** [`BridgeError`](#type-bridgeerror)
+**Errors:** [`BridgeError`](../../types/bridge-error/)
 
 <a id="member-api-quests-gettree"></a>
 
 ### `api.quests.getTree()`
 
-**Source:** [`app/src/renderer/windows/game/flash/Services/Quests.ts:20`](https://github.com/toommyliu/vexed/blob/3a194e38fe23218b85978c4567e31303a27d86c2/app/src/renderer/windows/game/flash/Services/Quests.ts#L20)
+**Source:** [`app/src/renderer/windows/game/flash/Services/Quests.ts:20`](https://github.com/toommyliu/vexed/blob/ee7dea4922d10259289c35ce1638a1553a17b577/app/src/renderer/windows/game/flash/Services/Quests.ts#L20)
 
 ```ts
 api.quests.getTree(): Effect.Effect<Collection<number, Quest>, never, never>
 ```
 
-**Yields:** `Collection`&lt;`number`, `Quest`&gt;
+**Yields:** [`Collection`](../../types/collection/)&lt;`number`, [`Quest`](../../types/quest/)&gt;
 
 **Errors:** `never`
 
@@ -155,7 +155,7 @@ api.quests.getTree(): Effect.Effect<Collection<number, Quest>, never, never>
 
 ### `api.quests.has()`
 
-**Source:** [`app/src/renderer/windows/game/flash/Services/Quests.ts:21`](https://github.com/toommyliu/vexed/blob/3a194e38fe23218b85978c4567e31303a27d86c2/app/src/renderer/windows/game/flash/Services/Quests.ts#L21)
+**Source:** [`app/src/renderer/windows/game/flash/Services/Quests.ts:21`](https://github.com/toommyliu/vexed/blob/ee7dea4922d10259289c35ce1638a1553a17b577/app/src/renderer/windows/game/flash/Services/Quests.ts#L21)
 
 ```ts
 api.quests.has(questId: number): Effect.Effect<boolean, never, never>
@@ -173,7 +173,7 @@ api.quests.has(questId: number): Effect.Effect<boolean, never, never>
 
 ### `api.quests.isAvailable()`
 
-**Source:** [`app/src/renderer/windows/game/flash/Services/Quests.ts:23`](https://github.com/toommyliu/vexed/blob/3a194e38fe23218b85978c4567e31303a27d86c2/app/src/renderer/windows/game/flash/Services/Quests.ts#L23)
+**Source:** [`app/src/renderer/windows/game/flash/Services/Quests.ts:23`](https://github.com/toommyliu/vexed/blob/ee7dea4922d10259289c35ce1638a1553a17b577/app/src/renderer/windows/game/flash/Services/Quests.ts#L23)
 
 ```ts
 api.quests.isAvailable(questId: number): BridgeEffect<boolean>
@@ -185,13 +185,13 @@ api.quests.isAvailable(questId: number): BridgeEffect<boolean>
 
 **Yields:** `boolean`
 
-**Errors:** [`BridgeError`](#type-bridgeerror)
+**Errors:** [`BridgeError`](../../types/bridge-error/)
 
 <a id="member-api-quests-isinprogress"></a>
 
 ### `api.quests.isInProgress()`
 
-**Source:** [`app/src/renderer/windows/game/flash/Services/Quests.ts:24`](https://github.com/toommyliu/vexed/blob/3a194e38fe23218b85978c4567e31303a27d86c2/app/src/renderer/windows/game/flash/Services/Quests.ts#L24)
+**Source:** [`app/src/renderer/windows/game/flash/Services/Quests.ts:24`](https://github.com/toommyliu/vexed/blob/ee7dea4922d10259289c35ce1638a1553a17b577/app/src/renderer/windows/game/flash/Services/Quests.ts#L24)
 
 ```ts
 api.quests.isInProgress(questId: number): BridgeEffect<boolean>
@@ -203,13 +203,13 @@ api.quests.isInProgress(questId: number): BridgeEffect<boolean>
 
 **Yields:** `boolean`
 
-**Errors:** [`BridgeError`](#type-bridgeerror)
+**Errors:** [`BridgeError`](../../types/bridge-error/)
 
 <a id="member-api-quests-load"></a>
 
 ### `api.quests.load()`
 
-**Source:** [`app/src/renderer/windows/game/flash/Services/Quests.ts:18`](https://github.com/toommyliu/vexed/blob/3a194e38fe23218b85978c4567e31303a27d86c2/app/src/renderer/windows/game/flash/Services/Quests.ts#L18)
+**Source:** [`app/src/renderer/windows/game/flash/Services/Quests.ts:18`](https://github.com/toommyliu/vexed/blob/ee7dea4922d10259289c35ce1638a1553a17b577/app/src/renderer/windows/game/flash/Services/Quests.ts#L18)
 
 ```ts
 api.quests.load(questId: number, silent?: boolean): BridgeEffect<void>
@@ -222,13 +222,13 @@ api.quests.load(questId: number, silent?: boolean): BridgeEffect<void>
 
 **Yields:** `void`
 
-**Errors:** [`BridgeError`](#type-bridgeerror)
+**Errors:** [`BridgeError`](../../types/bridge-error/)
 
 <a id="member-api-quests-loadmany"></a>
 
 ### `api.quests.loadMany()`
 
-**Source:** [`app/src/renderer/windows/game/flash/Services/Quests.ts:19`](https://github.com/toommyliu/vexed/blob/3a194e38fe23218b85978c4567e31303a27d86c2/app/src/renderer/windows/game/flash/Services/Quests.ts#L19)
+**Source:** [`app/src/renderer/windows/game/flash/Services/Quests.ts:19`](https://github.com/toommyliu/vexed/blob/ee7dea4922d10259289c35ce1638a1553a17b577/app/src/renderer/windows/game/flash/Services/Quests.ts#L19)
 
 ```ts
 api.quests.loadMany(questIds: number[], silent?: boolean): BridgeEffect<void>
@@ -241,28 +241,4 @@ api.quests.loadMany(questIds: number[], silent?: boolean): BridgeEffect<void>
 
 **Yields:** `void`
 
-**Errors:** [`BridgeError`](#type-bridgeerror)
-
-## Referenced Types
-
-<a id="type-bridgeeffect"></a>
-
-### `BridgeEffect`
-
-**Source:** [`app/src/renderer/windows/game/flash/Services/Bridge.ts:14`](https://github.com/toommyliu/vexed/blob/3a194e38fe23218b85978c4567e31303a27d86c2/app/src/renderer/windows/game/flash/Services/Bridge.ts#L14)
-
-```ts
-type BridgeEffect = Effect.Effect<A, BridgeError>
-```
-
-<a id="type-bridgeerror"></a>
-
-### `BridgeError`
-
-**Source:** [`app/src/renderer/windows/game/flash/Services/Bridge.ts:9`](https://github.com/toommyliu/vexed/blob/3a194e38fe23218b85978c4567e31303a27d86c2/app/src/renderer/windows/game/flash/Services/Bridge.ts#L9)
-
-```ts
-type BridgeError = | SwfUnavailableError
-  | SwfMethodNotFoundError
-  | SwfCallError
-```
+**Errors:** [`BridgeError`](../../types/bridge-error/)

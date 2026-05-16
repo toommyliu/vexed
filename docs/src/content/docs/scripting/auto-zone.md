@@ -28,7 +28,7 @@ Feature controls available as `autoZone` on the script context.
 
 ### `autoZone.disable()`
 
-**Source:** [`app/src/renderer/windows/game/scripting/ScriptApi.ts:158`](https://github.com/toommyliu/vexed/blob/3a194e38fe23218b85978c4567e31303a27d86c2/app/src/renderer/windows/game/scripting/ScriptApi.ts#L158)
+**Source:** [`app/src/renderer/windows/game/scripting/ScriptApi.ts:158`](https://github.com/toommyliu/vexed/blob/ee7dea4922d10259289c35ce1638a1553a17b577/app/src/renderer/windows/game/scripting/ScriptApi.ts#L158)
 
 ```ts
 autoZone.disable(): Effect.Effect<void, never, never>
@@ -42,7 +42,7 @@ autoZone.disable(): Effect.Effect<void, never, never>
 
 ### `autoZone.enable()`
 
-**Source:** [`app/src/renderer/windows/game/scripting/ScriptApi.ts:157`](https://github.com/toommyliu/vexed/blob/3a194e38fe23218b85978c4567e31303a27d86c2/app/src/renderer/windows/game/scripting/ScriptApi.ts#L157)
+**Source:** [`app/src/renderer/windows/game/scripting/ScriptApi.ts:157`](https://github.com/toommyliu/vexed/blob/ee7dea4922d10259289c35ce1638a1553a17b577/app/src/renderer/windows/game/scripting/ScriptApi.ts#L157)
 
 ```ts
 autoZone.enable(): Effect.Effect<void, never, never>
@@ -56,13 +56,13 @@ autoZone.enable(): Effect.Effect<void, never, never>
 
 ### `autoZone.getMap()`
 
-**Source:** [`app/src/renderer/windows/game/scripting/ScriptApi.ts:156`](https://github.com/toommyliu/vexed/blob/3a194e38fe23218b85978c4567e31303a27d86c2/app/src/renderer/windows/game/scripting/ScriptApi.ts#L156)
+**Source:** [`app/src/renderer/windows/game/scripting/ScriptApi.ts:156`](https://github.com/toommyliu/vexed/blob/ee7dea4922d10259289c35ce1638a1553a17b577/app/src/renderer/windows/game/scripting/ScriptApi.ts#L156)
 
 ```ts
 autoZone.getMap(): Effect.Effect<'ledgermayne' | 'moreskulls' | 'ultradage' | 'darkcarnax' | 'astralshrine' | 'queeniona' | 'magnumopus' | undefined, never, never>
 ```
 
-**Yields:** [`AutoZoneSupportedMap`](#type-autozonesupportedmap) \| `undefined`
+**Yields:** [`AutoZoneSupportedMap`](./types/auto-zone-supported-map/) \| `undefined`
 
 **Errors:** `never`
 
@@ -70,7 +70,7 @@ autoZone.getMap(): Effect.Effect<'ledgermayne' | 'moreskulls' | 'ultradage' | 'd
 
 ### `autoZone.isEnabled()`
 
-**Source:** [`app/src/renderer/windows/game/scripting/ScriptApi.ts:155`](https://github.com/toommyliu/vexed/blob/3a194e38fe23218b85978c4567e31303a27d86c2/app/src/renderer/windows/game/scripting/ScriptApi.ts#L155)
+**Source:** [`app/src/renderer/windows/game/scripting/ScriptApi.ts:155`](https://github.com/toommyliu/vexed/blob/ee7dea4922d10259289c35ce1638a1553a17b577/app/src/renderer/windows/game/scripting/ScriptApi.ts#L155)
 
 ```ts
 autoZone.isEnabled(): Effect.Effect<boolean, never, never>
@@ -84,7 +84,7 @@ autoZone.isEnabled(): Effect.Effect<boolean, never, never>
 
 ### `autoZone.setMap()`
 
-**Source:** [`app/src/renderer/windows/game/scripting/ScriptApi.ts:159`](https://github.com/toommyliu/vexed/blob/3a194e38fe23218b85978c4567e31303a27d86c2/app/src/renderer/windows/game/scripting/ScriptApi.ts#L159)
+**Source:** [`app/src/renderer/windows/game/scripting/ScriptApi.ts:159`](https://github.com/toommyliu/vexed/blob/ee7dea4922d10259289c35ce1638a1553a17b577/app/src/renderer/windows/game/scripting/ScriptApi.ts#L159)
 
 ```ts
 autoZone.setMap(map: 'ledgermayne' | 'moreskulls' | 'ultradage' | 'darkcarnax' | 'astralshrine' | 'queeniona' | 'magnumopus' | undefined): Effect.Effect<void, never, never>
@@ -97,17 +97,3 @@ autoZone.setMap(map: 'ledgermayne' | 'moreskulls' | 'ultradage' | 'darkcarnax' |
 **Yields:** `void`
 
 **Errors:** `never`
-
-## Referenced Types
-
-<a id="type-autozonesupportedmap"></a>
-
-### `AutoZoneSupportedMap`
-
-**Source:** [`app/src/renderer/windows/game/features/Services/AutoZone.ts:12`](https://github.com/toommyliu/vexed/blob/3a194e38fe23218b85978c4567e31303a27d86c2/app/src/renderer/windows/game/features/Services/AutoZone.ts#L12)
-
-```ts
-type AutoZoneSupportedMap = Schema.Schema.Type<
-  typeof AutoZoneSupportedMap
->
-```

@@ -29,7 +29,7 @@ tableOfContents:
 
 ### `api.auth.connectTo()`
 
-**Source:** [`app/src/renderer/windows/game/scripting/ScriptApi.ts:48`](https://github.com/toommyliu/vexed/blob/3a194e38fe23218b85978c4567e31303a27d86c2/app/src/renderer/windows/game/scripting/ScriptApi.ts#L48)
+**Source:** [`app/src/renderer/windows/game/scripting/ScriptApi.ts:48`](https://github.com/toommyliu/vexed/blob/ee7dea4922d10259289c35ce1638a1553a17b577/app/src/renderer/windows/game/scripting/ScriptApi.ts#L48)
 
 ```ts
 api.auth.connectTo(server: string): BridgeEffect<AuthConnectOutcome>
@@ -39,15 +39,15 @@ api.auth.connectTo(server: string): BridgeEffect<AuthConnectOutcome>
 | --- | --- | --- | --- |
 | `server` | `string` | ✓ |  |
 
-**Yields:** [`AuthConnectOutcome`](#type-authconnectoutcome)
+**Yields:** [`AuthConnectOutcome`](../../types/auth-connect-outcome/)
 
-**Errors:** [`BridgeError`](#type-bridgeerror)
+**Errors:** [`BridgeError`](../../types/bridge-error/)
 
 <a id="member-api-auth-getpassword"></a>
 
 ### `api.auth.getPassword()`
 
-**Source:** [`app/src/renderer/windows/game/scripting/ScriptApi.ts:51`](https://github.com/toommyliu/vexed/blob/3a194e38fe23218b85978c4567e31303a27d86c2/app/src/renderer/windows/game/scripting/ScriptApi.ts#L51)
+**Source:** [`app/src/renderer/windows/game/scripting/ScriptApi.ts:51`](https://github.com/toommyliu/vexed/blob/ee7dea4922d10259289c35ce1638a1553a17b577/app/src/renderer/windows/game/scripting/ScriptApi.ts#L51)
 
 ```ts
 api.auth.getPassword(): BridgeEffect<string>
@@ -55,27 +55,27 @@ api.auth.getPassword(): BridgeEffect<string>
 
 **Yields:** `string`
 
-**Errors:** [`BridgeError`](#type-bridgeerror)
+**Errors:** [`BridgeError`](../../types/bridge-error/)
 
 <a id="member-api-auth-getservers"></a>
 
 ### `api.auth.getServers()`
 
-**Source:** [`app/src/renderer/windows/game/scripting/ScriptApi.ts:49`](https://github.com/toommyliu/vexed/blob/3a194e38fe23218b85978c4567e31303a27d86c2/app/src/renderer/windows/game/scripting/ScriptApi.ts#L49)
+**Source:** [`app/src/renderer/windows/game/scripting/ScriptApi.ts:49`](https://github.com/toommyliu/vexed/blob/ee7dea4922d10259289c35ce1638a1553a17b577/app/src/renderer/windows/game/scripting/ScriptApi.ts#L49)
 
 ```ts
 api.auth.getServers(): BridgeEffect<Server[]>
 ```
 
-**Yields:** `Server`[]
+**Yields:** [`Server`](../../types/server/)[]
 
-**Errors:** [`BridgeError`](#type-bridgeerror)
+**Errors:** [`BridgeError`](../../types/bridge-error/)
 
 <a id="member-api-auth-getusername"></a>
 
 ### `api.auth.getUsername()`
 
-**Source:** [`app/src/renderer/windows/game/scripting/ScriptApi.ts:50`](https://github.com/toommyliu/vexed/blob/3a194e38fe23218b85978c4567e31303a27d86c2/app/src/renderer/windows/game/scripting/ScriptApi.ts#L50)
+**Source:** [`app/src/renderer/windows/game/scripting/ScriptApi.ts:50`](https://github.com/toommyliu/vexed/blob/ee7dea4922d10259289c35ce1638a1553a17b577/app/src/renderer/windows/game/scripting/ScriptApi.ts#L50)
 
 ```ts
 api.auth.getUsername(): BridgeEffect<string>
@@ -83,13 +83,13 @@ api.auth.getUsername(): BridgeEffect<string>
 
 **Yields:** `string`
 
-**Errors:** [`BridgeError`](#type-bridgeerror)
+**Errors:** [`BridgeError`](../../types/bridge-error/)
 
 <a id="member-api-auth-isloggedin"></a>
 
 ### `api.auth.isLoggedIn()`
 
-**Source:** [`app/src/renderer/windows/game/scripting/ScriptApi.ts:52`](https://github.com/toommyliu/vexed/blob/3a194e38fe23218b85978c4567e31303a27d86c2/app/src/renderer/windows/game/scripting/ScriptApi.ts#L52)
+**Source:** [`app/src/renderer/windows/game/scripting/ScriptApi.ts:52`](https://github.com/toommyliu/vexed/blob/ee7dea4922d10259289c35ce1638a1553a17b577/app/src/renderer/windows/game/scripting/ScriptApi.ts#L52)
 
 ```ts
 api.auth.isLoggedIn(): BridgeEffect<boolean>
@@ -97,13 +97,13 @@ api.auth.isLoggedIn(): BridgeEffect<boolean>
 
 **Yields:** `boolean`
 
-**Errors:** [`BridgeError`](#type-bridgeerror)
+**Errors:** [`BridgeError`](../../types/bridge-error/)
 
 <a id="member-api-auth-istemporarilykicked"></a>
 
 ### `api.auth.isTemporarilyKicked()`
 
-**Source:** [`app/src/renderer/windows/game/scripting/ScriptApi.ts:53`](https://github.com/toommyliu/vexed/blob/3a194e38fe23218b85978c4567e31303a27d86c2/app/src/renderer/windows/game/scripting/ScriptApi.ts#L53)
+**Source:** [`app/src/renderer/windows/game/scripting/ScriptApi.ts:53`](https://github.com/toommyliu/vexed/blob/ee7dea4922d10259289c35ce1638a1553a17b577/app/src/renderer/windows/game/scripting/ScriptApi.ts#L53)
 
 ```ts
 api.auth.isTemporarilyKicked(): BridgeEffect<boolean>
@@ -111,13 +111,13 @@ api.auth.isTemporarilyKicked(): BridgeEffect<boolean>
 
 **Yields:** `boolean`
 
-**Errors:** [`BridgeError`](#type-bridgeerror)
+**Errors:** [`BridgeError`](../../types/bridge-error/)
 
 <a id="member-api-auth-login"></a>
 
 ### `api.auth.login()`
 
-**Source:** [`app/src/renderer/windows/game/scripting/ScriptApi.ts:54`](https://github.com/toommyliu/vexed/blob/3a194e38fe23218b85978c4567e31303a27d86c2/app/src/renderer/windows/game/scripting/ScriptApi.ts#L54)
+**Source:** [`app/src/renderer/windows/game/scripting/ScriptApi.ts:54`](https://github.com/toommyliu/vexed/blob/ee7dea4922d10259289c35ce1638a1553a17b577/app/src/renderer/windows/game/scripting/ScriptApi.ts#L54)
 
 ```ts
 api.auth.login(username: string, password: string): BridgeEffect<void>
@@ -130,13 +130,13 @@ api.auth.login(username: string, password: string): BridgeEffect<void>
 
 **Yields:** `void`
 
-**Errors:** [`BridgeError`](#type-bridgeerror)
+**Errors:** [`BridgeError`](../../types/bridge-error/)
 
 <a id="member-api-auth-logout"></a>
 
 ### `api.auth.logout()`
 
-**Source:** [`app/src/renderer/windows/game/scripting/ScriptApi.ts:55`](https://github.com/toommyliu/vexed/blob/3a194e38fe23218b85978c4567e31303a27d86c2/app/src/renderer/windows/game/scripting/ScriptApi.ts#L55)
+**Source:** [`app/src/renderer/windows/game/scripting/ScriptApi.ts:55`](https://github.com/toommyliu/vexed/blob/ee7dea4922d10259289c35ce1638a1553a17b577/app/src/renderer/windows/game/scripting/ScriptApi.ts#L55)
 
 ```ts
 api.auth.logout(): BridgeEffect<void>
@@ -144,81 +144,4 @@ api.auth.logout(): BridgeEffect<void>
 
 **Yields:** `void`
 
-**Errors:** [`BridgeError`](#type-bridgeerror)
-
-## Referenced Types
-
-<a id="type-authconnectfailurestatus"></a>
-
-### `AuthConnectFailureStatus`
-
-**Source:** [`app/src/renderer/windows/game/flash/Services/Auth.ts:6`](https://github.com/toommyliu/vexed/blob/3a194e38fe23218b85978c4567e31303a27d86c2/app/src/renderer/windows/game/flash/Services/Auth.ts#L6)
-
-```ts
-type AuthConnectFailureStatus = | Exclude<ConnectToSelectionStatus, "selected">
-  | "connection-failed"
-  | "connection-error"
-  | "timeout"
-```
-
-<a id="type-authconnectoutcome"></a>
-
-### `AuthConnectOutcome`
-
-**Source:** [`app/src/renderer/windows/game/flash/Services/Auth.ts:12`](https://github.com/toommyliu/vexed/blob/3a194e38fe23218b85978c4567e31303a27d86c2/app/src/renderer/windows/game/flash/Services/Auth.ts#L12)
-
-```ts
-type AuthConnectOutcome = | {
-      readonly status: "connected";
-      readonly message: string;
-      readonly retryable: false;
-      readonly serverName?: string;
-    }
-  | {
-      readonly status: AuthConnectFailureStatus;
-      readonly message: string;
-      readonly retryable: boolean;
-      readonly serverName?: string;
-    }
-```
-
-<a id="type-bridgeeffect"></a>
-
-### `BridgeEffect`
-
-**Source:** [`app/src/renderer/windows/game/flash/Services/Bridge.ts:14`](https://github.com/toommyliu/vexed/blob/3a194e38fe23218b85978c4567e31303a27d86c2/app/src/renderer/windows/game/flash/Services/Bridge.ts#L14)
-
-```ts
-type BridgeEffect = Effect.Effect<A, BridgeError>
-```
-
-<a id="type-bridgeerror"></a>
-
-### `BridgeError`
-
-**Source:** [`app/src/renderer/windows/game/flash/Services/Bridge.ts:9`](https://github.com/toommyliu/vexed/blob/3a194e38fe23218b85978c4567e31303a27d86c2/app/src/renderer/windows/game/flash/Services/Bridge.ts#L9)
-
-```ts
-type BridgeError = | SwfUnavailableError
-  | SwfMethodNotFoundError
-  | SwfCallError
-```
-
-<a id="type-connecttoselectionstatus"></a>
-
-### `ConnectToSelectionStatus`
-
-**Source:** [`app/src/renderer/windows/game/flash/Types.ts:24`](https://github.com/toommyliu/vexed/blob/3a194e38fe23218b85978c4567e31303a27d86c2/app/src/renderer/windows/game/flash/Types.ts#L24)
-
-```ts
-type ConnectToSelectionStatus = | "selected"
-  | "not-ready"
-  | "offline"
-  | "full"
-  | "member-only"
-  | "chat-restricted"
-  | "underage-chat"
-  | "email-unconfirmed"
-  | "test-client-required"
-  | "not-found"
-```
+**Errors:** [`BridgeError`](../../types/bridge-error/)

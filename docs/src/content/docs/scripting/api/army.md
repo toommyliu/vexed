@@ -38,7 +38,7 @@ tableOfContents:
 
 ### `api.army.equipSet()`
 
-**Source:** [`app/src/renderer/windows/game/army/Services/Army.ts:84`](https://github.com/toommyliu/vexed/blob/3a194e38fe23218b85978c4567e31303a27d86c2/app/src/renderer/windows/game/army/Services/Army.ts#L84)
+**Source:** [`app/src/renderer/windows/game/army/Services/Army.ts:84`](https://github.com/toommyliu/vexed/blob/ee7dea4922d10259289c35ce1638a1553a17b577/app/src/renderer/windows/game/army/Services/Army.ts#L84)
 
 ```ts
 api.army.equipSet(setName: string, options?: ArmyEquipSetOptions): ArmyEffect<void, never>
@@ -47,17 +47,17 @@ api.army.equipSet(setName: string, options?: ArmyEquipSetOptions): ArmyEffect<vo
 | Name | Type | Required | Description |
 | --- | --- | --- | --- |
 | `setName` | `string` | ✓ |  |
-| `options` | [`ArmyEquipSetOptions`](#type-armyequipsetoptions) |  |  |
+| `options` | [`ArmyEquipSetOptions`](../../types/army-equip-set-options/) |  |  |
 
 **Yields:** `void`
 
-**Errors:** `ArmyError` \| [`BridgeError`](#type-bridgeerror)
+**Errors:** [`ArmyError`](../../types/army-error/) \| [`BridgeError`](../../types/bridge-error/)
 
 <a id="member-api-army-executewitharmy"></a>
 
 ### `api.army.executeWithArmy()`
 
-**Source:** [`app/src/renderer/windows/game/army/Services/Army.ts:70`](https://github.com/toommyliu/vexed/blob/3a194e38fe23218b85978c4567e31303a27d86c2/app/src/renderer/windows/game/army/Services/Army.ts#L70)
+**Source:** [`app/src/renderer/windows/game/army/Services/Army.ts:70`](https://github.com/toommyliu/vexed/blob/ee7dea4922d10259289c35ce1638a1553a17b577/app/src/renderer/windows/game/army/Services/Army.ts#L70)
 
 ```ts
 api.army.executeWithArmy(action: Effect.Effect<A, E, never>): ArmyEffect<A, E>
@@ -69,13 +69,13 @@ api.army.executeWithArmy(action: Effect.Effect<A, E, never>): ArmyEffect<A, E>
 
 **Yields:** `A`
 
-**Errors:** `E` \| `ArmyError` \| [`BridgeError`](#type-bridgeerror)
+**Errors:** `E` \| [`ArmyError`](../../types/army-error/) \| [`BridgeError`](../../types/bridge-error/)
 
 <a id="member-api-army-getconfigstring"></a>
 
 ### `api.army.getConfigString()`
 
-**Source:** [`app/src/renderer/windows/game/army/Services/Army.ts:62`](https://github.com/toommyliu/vexed/blob/3a194e38fe23218b85978c4567e31303a27d86c2/app/src/renderer/windows/game/army/Services/Army.ts#L62)
+**Source:** [`app/src/renderer/windows/game/army/Services/Army.ts:62`](https://github.com/toommyliu/vexed/blob/ee7dea4922d10259289c35ce1638a1553a17b577/app/src/renderer/windows/game/army/Services/Army.ts#L62)
 
 ```ts
 api.army.getConfigString(key: string, defaultValue?: string): ArmyEffect<string, never>
@@ -88,13 +88,13 @@ api.army.getConfigString(key: string, defaultValue?: string): ArmyEffect<string,
 
 **Yields:** `string`
 
-**Errors:** `ArmyError` \| [`BridgeError`](#type-bridgeerror)
+**Errors:** [`ArmyError`](../../types/army-error/) \| [`BridgeError`](../../types/bridge-error/)
 
 <a id="member-api-army-getconfigvalue"></a>
 
 ### `api.army.getConfigValue()`
 
-**Source:** [`app/src/renderer/windows/game/army/Services/Army.ts:61`](https://github.com/toommyliu/vexed/blob/3a194e38fe23218b85978c4567e31303a27d86c2/app/src/renderer/windows/game/army/Services/Army.ts#L61)
+**Source:** [`app/src/renderer/windows/game/army/Services/Army.ts:61`](https://github.com/toommyliu/vexed/blob/ee7dea4922d10259289c35ce1638a1553a17b577/app/src/renderer/windows/game/army/Services/Army.ts#L61)
 
 ```ts
 api.army.getConfigValue(key: string, defaultValue?: unknown): ArmyEffect<unknown, never>
@@ -107,13 +107,13 @@ api.army.getConfigValue(key: string, defaultValue?: unknown): ArmyEffect<unknown
 
 **Yields:** `unknown`
 
-**Errors:** `ArmyError` \| [`BridgeError`](#type-bridgeerror)
+**Errors:** [`ArmyError`](../../types/army-error/) \| [`BridgeError`](../../types/bridge-error/)
 
 <a id="member-api-army-getplayernumber"></a>
 
 ### `api.army.getPlayerNumber()`
 
-**Source:** [`app/src/renderer/windows/game/army/Services/Army.ts:63`](https://github.com/toommyliu/vexed/blob/3a194e38fe23218b85978c4567e31303a27d86c2/app/src/renderer/windows/game/army/Services/Army.ts#L63)
+**Source:** [`app/src/renderer/windows/game/army/Services/Army.ts:63`](https://github.com/toommyliu/vexed/blob/ee7dea4922d10259289c35ce1638a1553a17b577/app/src/renderer/windows/game/army/Services/Army.ts#L63)
 
 ```ts
 api.army.getPlayerNumber(): ArmyEffect<number, never>
@@ -121,27 +121,27 @@ api.army.getPlayerNumber(): ArmyEffect<number, never>
 
 **Yields:** `number`
 
-**Errors:** `ArmyError` \| [`BridgeError`](#type-bridgeerror)
+**Errors:** [`ArmyError`](../../types/army-error/) \| [`BridgeError`](../../types/bridge-error/)
 
 <a id="member-api-army-getsession"></a>
 
 ### `api.army.getSession()`
 
-**Source:** [`app/src/renderer/windows/game/army/Services/Army.ts:60`](https://github.com/toommyliu/vexed/blob/3a194e38fe23218b85978c4567e31303a27d86c2/app/src/renderer/windows/game/army/Services/Army.ts#L60)
+**Source:** [`app/src/renderer/windows/game/army/Services/Army.ts:60`](https://github.com/toommyliu/vexed/blob/ee7dea4922d10259289c35ce1638a1553a17b577/app/src/renderer/windows/game/army/Services/Army.ts#L60)
 
 ```ts
 api.army.getSession(): ArmyEffect<ArmySessionPayload | null, never>
 ```
 
-**Yields:** [`ArmySession`](#type-armysession) \| `null`
+**Yields:** [`ArmySession`](../../types/army-session/) \| `null`
 
-**Errors:** `ArmyError` \| [`BridgeError`](#type-bridgeerror)
+**Errors:** [`ArmyError`](../../types/army-error/) \| [`BridgeError`](../../types/bridge-error/)
 
 <a id="member-api-army-isleader"></a>
 
 ### `api.army.isLeader()`
 
-**Source:** [`app/src/renderer/windows/game/army/Services/Army.ts:58`](https://github.com/toommyliu/vexed/blob/3a194e38fe23218b85978c4567e31303a27d86c2/app/src/renderer/windows/game/army/Services/Army.ts#L58)
+**Source:** [`app/src/renderer/windows/game/army/Services/Army.ts:58`](https://github.com/toommyliu/vexed/blob/ee7dea4922d10259289c35ce1638a1553a17b577/app/src/renderer/windows/game/army/Services/Army.ts#L58)
 
 ```ts
 api.army.isLeader(): ArmyEffect<boolean, never>
@@ -149,13 +149,13 @@ api.army.isLeader(): ArmyEffect<boolean, never>
 
 **Yields:** `boolean`
 
-**Errors:** `ArmyError` \| [`BridgeError`](#type-bridgeerror)
+**Errors:** [`ArmyError`](../../types/army-error/) \| [`BridgeError`](../../types/bridge-error/)
 
 <a id="member-api-army-ismember"></a>
 
 ### `api.army.isMember()`
 
-**Source:** [`app/src/renderer/windows/game/army/Services/Army.ts:59`](https://github.com/toommyliu/vexed/blob/3a194e38fe23218b85978c4567e31303a27d86c2/app/src/renderer/windows/game/army/Services/Army.ts#L59)
+**Source:** [`app/src/renderer/windows/game/army/Services/Army.ts:59`](https://github.com/toommyliu/vexed/blob/ee7dea4922d10259289c35ce1638a1553a17b577/app/src/renderer/windows/game/army/Services/Army.ts#L59)
 
 ```ts
 api.army.isMember(): ArmyEffect<boolean, never>
@@ -163,13 +163,13 @@ api.army.isMember(): ArmyEffect<boolean, never>
 
 **Yields:** `boolean`
 
-**Errors:** `ArmyError` \| [`BridgeError`](#type-bridgeerror)
+**Errors:** [`ArmyError`](../../types/army-error/) \| [`BridgeError`](../../types/bridge-error/)
 
 <a id="member-api-army-isstarted"></a>
 
 ### `api.army.isStarted()`
 
-**Source:** [`app/src/renderer/windows/game/army/Services/Army.ts:57`](https://github.com/toommyliu/vexed/blob/3a194e38fe23218b85978c4567e31303a27d86c2/app/src/renderer/windows/game/army/Services/Army.ts#L57)
+**Source:** [`app/src/renderer/windows/game/army/Services/Army.ts:57`](https://github.com/toommyliu/vexed/blob/ee7dea4922d10259289c35ce1638a1553a17b577/app/src/renderer/windows/game/army/Services/Army.ts#L57)
 
 ```ts
 api.army.isStarted(): ArmyEffect<boolean, never>
@@ -177,13 +177,13 @@ api.army.isStarted(): ArmyEffect<boolean, never>
 
 **Yields:** `boolean`
 
-**Errors:** `ArmyError` \| [`BridgeError`](#type-bridgeerror)
+**Errors:** [`ArmyError`](../../types/army-error/) \| [`BridgeError`](../../types/bridge-error/)
 
 <a id="member-api-army-joinmap"></a>
 
 ### `api.army.joinMap()`
 
-**Source:** [`app/src/renderer/windows/game/army/Services/Army.ts:72`](https://github.com/toommyliu/vexed/blob/3a194e38fe23218b85978c4567e31303a27d86c2/app/src/renderer/windows/game/army/Services/Army.ts#L72)
+**Source:** [`app/src/renderer/windows/game/army/Services/Army.ts:72`](https://github.com/toommyliu/vexed/blob/ee7dea4922d10259289c35ce1638a1553a17b577/app/src/renderer/windows/game/army/Services/Army.ts#L72)
 
 ```ts
 api.army.joinMap(map: string, cell?: string, pad?: string): ArmyEffect<void, never>
@@ -197,13 +197,13 @@ api.army.joinMap(map: string, cell?: string, pad?: string): ArmyEffect<void, nev
 
 **Yields:** `void`
 
-**Errors:** `ArmyError` \| [`BridgeError`](#type-bridgeerror)
+**Errors:** [`ArmyError`](../../types/army-error/) \| [`BridgeError`](../../types/bridge-error/)
 
 <a id="member-api-army-kill"></a>
 
 ### `api.army.kill()`
 
-**Source:** [`app/src/renderer/windows/game/army/Services/Army.ts:73`](https://github.com/toommyliu/vexed/blob/3a194e38fe23218b85978c4567e31303a27d86c2/app/src/renderer/windows/game/army/Services/Army.ts#L73)
+**Source:** [`app/src/renderer/windows/game/army/Services/Army.ts:73`](https://github.com/toommyliu/vexed/blob/ee7dea4922d10259289c35ce1638a1553a17b577/app/src/renderer/windows/game/army/Services/Army.ts#L73)
 
 ```ts
 api.army.kill(target: MonsterIdentifierToken, options?: CombatKillOptions): ArmyEffect<void, never>
@@ -211,18 +211,18 @@ api.army.kill(target: MonsterIdentifierToken, options?: CombatKillOptions): Army
 
 | Name | Type | Required | Description |
 | --- | --- | --- | --- |
-| `target` | `MonsterIdentifierToken` | ✓ |  |
-| `options` | [`CombatKillOptions`](#type-combatkilloptions) |  |  |
+| `target` | [`MonsterIdentifierToken`](../../types/monster-identifier-token/) | ✓ |  |
+| `options` | [`CombatKillOptions`](../../types/combat-kill-options/) |  |  |
 
 **Yields:** `void`
 
-**Errors:** `ArmyError` \| [`BridgeError`](#type-bridgeerror)
+**Errors:** [`ArmyError`](../../types/army-error/) \| [`BridgeError`](../../types/bridge-error/)
 
 <a id="member-api-army-killforitem"></a>
 
 ### `api.army.killForItem()`
 
-**Source:** [`app/src/renderer/windows/game/army/Services/Army.ts:77`](https://github.com/toommyliu/vexed/blob/3a194e38fe23218b85978c4567e31303a27d86c2/app/src/renderer/windows/game/army/Services/Army.ts#L77)
+**Source:** [`app/src/renderer/windows/game/army/Services/Army.ts:77`](https://github.com/toommyliu/vexed/blob/ee7dea4922d10259289c35ce1638a1553a17b577/app/src/renderer/windows/game/army/Services/Army.ts#L77)
 
 ```ts
 api.army.killForItem(target: MonsterIdentifierToken, item: ItemIdentifierToken, quantity: number, isTemp: boolean, options?: CombatKillOptions): ArmyEffect<void, never>
@@ -230,21 +230,21 @@ api.army.killForItem(target: MonsterIdentifierToken, item: ItemIdentifierToken, 
 
 | Name | Type | Required | Description |
 | --- | --- | --- | --- |
-| `target` | `MonsterIdentifierToken` | ✓ |  |
-| `item` | `ItemIdentifierToken` | ✓ |  |
+| `target` | [`MonsterIdentifierToken`](../../types/monster-identifier-token/) | ✓ |  |
+| `item` | [`ItemIdentifierToken`](../../types/item-identifier-token/) | ✓ |  |
 | `quantity` | `number` | ✓ |  |
 | `isTemp` | `boolean` | ✓ |  |
-| `options` | [`CombatKillOptions`](#type-combatkilloptions) |  |  |
+| `options` | [`CombatKillOptions`](../../types/combat-kill-options/) |  |  |
 
 **Yields:** `void`
 
-**Errors:** `ArmyError` \| [`BridgeError`](#type-bridgeerror)
+**Errors:** [`ArmyError`](../../types/army-error/) \| [`BridgeError`](../../types/bridge-error/)
 
 <a id="member-api-army-leave"></a>
 
 ### `api.army.leave()`
 
-**Source:** [`app/src/renderer/windows/game/army/Services/Army.ts:56`](https://github.com/toommyliu/vexed/blob/3a194e38fe23218b85978c4567e31303a27d86c2/app/src/renderer/windows/game/army/Services/Army.ts#L56)
+**Source:** [`app/src/renderer/windows/game/army/Services/Army.ts:56`](https://github.com/toommyliu/vexed/blob/ee7dea4922d10259289c35ce1638a1553a17b577/app/src/renderer/windows/game/army/Services/Army.ts#L56)
 
 ```ts
 api.army.leave(): ArmyEffect<void, never>
@@ -252,13 +252,13 @@ api.army.leave(): ArmyEffect<void, never>
 
 **Yields:** `void`
 
-**Errors:** `ArmyError` \| [`BridgeError`](#type-bridgeerror)
+**Errors:** [`ArmyError`](../../types/army-error/) \| [`BridgeError`](../../types/bridge-error/)
 
 <a id="member-api-army-runstep"></a>
 
 ### `api.army.runStep()`
 
-**Source:** [`app/src/renderer/windows/game/army/Services/Army.ts:65`](https://github.com/toommyliu/vexed/blob/3a194e38fe23218b85978c4567e31303a27d86c2/app/src/renderer/windows/game/army/Services/Army.ts#L65)
+**Source:** [`app/src/renderer/windows/game/army/Services/Army.ts:65`](https://github.com/toommyliu/vexed/blob/ee7dea4922d10259289c35ce1638a1553a17b577/app/src/renderer/windows/game/army/Services/Army.ts#L65)
 
 ```ts
 api.army.runStep(label: string, action: Effect.Effect<A, E, never>, options?: ArmyRunStepOptions): ArmyEffect<A, E>
@@ -268,17 +268,17 @@ api.army.runStep(label: string, action: Effect.Effect<A, E, never>, options?: Ar
 | --- | --- | --- | --- |
 | `label` | `string` | ✓ |  |
 | `action` | `Effect`.`Effect`&lt;`A`, `E`, `never`&gt; | ✓ |  |
-| `options` | [`ArmyRunStepOptions`](#type-armyrunstepoptions) |  |  |
+| `options` | [`ArmyRunStepOptions`](../../types/army-run-step-options/) |  |  |
 
 **Yields:** `A`
 
-**Errors:** `E` \| `ArmyError` \| [`BridgeError`](#type-bridgeerror)
+**Errors:** `E` \| [`ArmyError`](../../types/army-error/) \| [`BridgeError`](../../types/bridge-error/)
 
 <a id="member-api-army-start"></a>
 
 ### `api.army.start()`
 
-**Source:** [`app/src/renderer/windows/game/army/Services/Army.ts:55`](https://github.com/toommyliu/vexed/blob/3a194e38fe23218b85978c4567e31303a27d86c2/app/src/renderer/windows/game/army/Services/Army.ts#L55)
+**Source:** [`app/src/renderer/windows/game/army/Services/Army.ts:55`](https://github.com/toommyliu/vexed/blob/ee7dea4922d10259289c35ce1638a1553a17b577/app/src/renderer/windows/game/army/Services/Army.ts#L55)
 
 ```ts
 api.army.start(configName: string): ArmyEffect<ArmySessionPayload, never>
@@ -288,15 +288,15 @@ api.army.start(configName: string): ArmyEffect<ArmySessionPayload, never>
 | --- | --- | --- | --- |
 | `configName` | `string` | ✓ |  |
 
-**Yields:** [`ArmySession`](#type-armysession)
+**Yields:** [`ArmySession`](../../types/army-session/)
 
-**Errors:** `ArmyError` \| [`BridgeError`](#type-bridgeerror)
+**Errors:** [`ArmyError`](../../types/army-error/) \| [`BridgeError`](../../types/bridge-error/)
 
 <a id="member-api-army-sync"></a>
 
 ### `api.army.sync()`
 
-**Source:** [`app/src/renderer/windows/game/army/Services/Army.ts:64`](https://github.com/toommyliu/vexed/blob/3a194e38fe23218b85978c4567e31303a27d86c2/app/src/renderer/windows/game/army/Services/Army.ts#L64)
+**Source:** [`app/src/renderer/windows/game/army/Services/Army.ts:64`](https://github.com/toommyliu/vexed/blob/ee7dea4922d10259289c35ce1638a1553a17b577/app/src/renderer/windows/game/army/Services/Army.ts#L64)
 
 ```ts
 api.army.sync(label?: string, options?: ArmyRunStepOptions): ArmyEffect<void, never>
@@ -305,17 +305,17 @@ api.army.sync(label?: string, options?: ArmyRunStepOptions): ArmyEffect<void, ne
 | Name | Type | Required | Description |
 | --- | --- | --- | --- |
 | `label` | `string` |  |  |
-| `options` | [`ArmyRunStepOptions`](#type-armyrunstepoptions) |  |  |
+| `options` | [`ArmyRunStepOptions`](../../types/army-run-step-options/) |  |  |
 
 **Yields:** `void`
 
-**Errors:** `ArmyError` \| [`BridgeError`](#type-bridgeerror)
+**Errors:** [`ArmyError`](../../types/army-error/) \| [`BridgeError`](../../types/bridge-error/)
 
 <a id="member-api-army-waitforallinmap"></a>
 
 ### `api.army.waitForAllInMap()`
 
-**Source:** [`app/src/renderer/windows/game/army/Services/Army.ts:71`](https://github.com/toommyliu/vexed/blob/3a194e38fe23218b85978c4567e31303a27d86c2/app/src/renderer/windows/game/army/Services/Army.ts#L71)
+**Source:** [`app/src/renderer/windows/game/army/Services/Army.ts:71`](https://github.com/toommyliu/vexed/blob/ee7dea4922d10259289c35ce1638a1553a17b577/app/src/renderer/windows/game/army/Services/Army.ts#L71)
 
 ```ts
 api.army.waitForAllInMap(): ArmyEffect<void, never>
@@ -323,103 +323,4 @@ api.army.waitForAllInMap(): ArmyEffect<void, never>
 
 **Yields:** `void`
 
-**Errors:** `ArmyError` \| [`BridgeError`](#type-bridgeerror)
-
-## Referenced Types
-
-<a id="type-armyeffect"></a>
-
-### `ArmyEffect`
-
-**Source:** [`app/src/renderer/windows/game/army/Services/Army.ts:26`](https://github.com/toommyliu/vexed/blob/3a194e38fe23218b85978c4567e31303a27d86c2/app/src/renderer/windows/game/army/Services/Army.ts#L26)
-
-```ts
-type ArmyEffect = Effect.Effect<
-  A,
-  E | ArmyError | BridgeError
->
-```
-
-<a id="type-armyequipsetoptions"></a>
-
-### `ArmyEquipSetOptions`
-
-**Source:** [`app/src/renderer/windows/game/army/Services/Army.ts:35`](https://github.com/toommyliu/vexed/blob/3a194e38fe23218b85978c4567e31303a27d86c2/app/src/renderer/windows/game/army/Services/Army.ts#L35)
-
-```ts
-interface ArmyEquipSetOptions
-```
-
-| Name | Type | Required | Readonly | Description |
-| --- | --- | --- | --- | --- |
-| `resolveItems` | `boolean` |  | ✓ |  |
-
-<a id="type-armyrunstepoptions"></a>
-
-### `ArmyRunStepOptions`
-
-**Source:** [`app/src/renderer/windows/game/army/Services/Army.ts:31`](https://github.com/toommyliu/vexed/blob/3a194e38fe23218b85978c4567e31303a27d86c2/app/src/renderer/windows/game/army/Services/Army.ts#L31)
-
-```ts
-interface ArmyRunStepOptions
-```
-
-| Name | Type | Required | Readonly | Description |
-| --- | --- | --- | --- | --- |
-| `timeoutMs` | `number` |  | ✓ |  |
-
-<a id="type-armysession"></a>
-
-### `ArmySession`
-
-**Source:** [`app/src/renderer/windows/game/army/Services/Army.ts:52`](https://github.com/toommyliu/vexed/blob/3a194e38fe23218b85978c4567e31303a27d86c2/app/src/renderer/windows/game/army/Services/Army.ts#L52)
-
-```ts
-type ArmySession = ArmySessionPayload
-```
-
-<a id="type-armysessionpayload"></a>
-
-### `ArmySessionPayload`
-
-**Source:** [`app/src/shared/army.ts:19`](https://github.com/toommyliu/vexed/blob/3a194e38fe23218b85978c4567e31303a27d86c2/app/src/shared/army.ts#L19)
-
-```ts
-interface ArmySessionPayload
-```
-
-| Name | Type | Required | Readonly | Description |
-| --- | --- | --- | --- | --- |
-| `sessionId` | `string` | ✓ | ✓ |  |
-| `playerName` | `string` | ✓ | ✓ |  |
-| `playerNumber` | `number` | ✓ | ✓ |  |
-| `role` | '`leader`' \| '`member`' | ✓ | ✓ |  |
-
-<a id="type-bridgeerror"></a>
-
-### `BridgeError`
-
-**Source:** [`app/src/renderer/windows/game/flash/Services/Bridge.ts:9`](https://github.com/toommyliu/vexed/blob/3a194e38fe23218b85978c4567e31303a27d86c2/app/src/renderer/windows/game/flash/Services/Bridge.ts#L9)
-
-```ts
-type BridgeError = | SwfUnavailableError
-  | SwfMethodNotFoundError
-  | SwfCallError
-```
-
-<a id="type-combatkilloptions"></a>
-
-### `CombatKillOptions`
-
-**Source:** [`app/src/renderer/windows/game/flash/Services/Combat.ts:6`](https://github.com/toommyliu/vexed/blob/3a194e38fe23218b85978c4567e31303a27d86c2/app/src/renderer/windows/game/flash/Services/Combat.ts#L6)
-
-```ts
-interface CombatKillOptions
-```
-
-| Name | Type | Required | Readonly | Description |
-| --- | --- | --- | --- | --- |
-| `killPriority` | `string` \| `readonly` `MonsterIdentifierToken`[] |  | ✓ |  |
-| `skillSet` | `string` \| `readonly` `Skill`[] |  | ✓ |  |
-| `skillDelay` | `number` |  | ✓ |  |
-| `skillWait` | `boolean` |  | ✓ |  |
+**Errors:** [`ArmyError`](../../types/army-error/) \| [`BridgeError`](../../types/bridge-error/)

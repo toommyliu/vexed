@@ -28,7 +28,7 @@ tableOfContents:
 
 ### `api.inventory.contains()`
 
-**Source:** [`app/src/renderer/windows/game/flash/Services/Inventory.ts:6`](https://github.com/toommyliu/vexed/blob/3a194e38fe23218b85978c4567e31303a27d86c2/app/src/renderer/windows/game/flash/Services/Inventory.ts#L6)
+**Source:** [`app/src/renderer/windows/game/flash/Services/Inventory.ts:6`](https://github.com/toommyliu/vexed/blob/ee7dea4922d10259289c35ce1638a1553a17b577/app/src/renderer/windows/game/flash/Services/Inventory.ts#L6)
 
 ```ts
 api.inventory.contains(item: ItemIdentifierToken, quantity?: number): BridgeEffect<boolean>
@@ -36,18 +36,18 @@ api.inventory.contains(item: ItemIdentifierToken, quantity?: number): BridgeEffe
 
 | Name | Type | Required | Description |
 | --- | --- | --- | --- |
-| `item` | `ItemIdentifierToken` | ✓ |  |
+| `item` | [`ItemIdentifierToken`](../../types/item-identifier-token/) | ✓ |  |
 | `quantity` | `number` |  |  |
 
 **Yields:** `boolean`
 
-**Errors:** [`BridgeError`](#type-bridgeerror)
+**Errors:** [`BridgeError`](../../types/bridge-error/)
 
 <a id="member-api-inventory-equip"></a>
 
 ### `api.inventory.equip()`
 
-**Source:** [`app/src/renderer/windows/game/flash/Services/Inventory.ts:7`](https://github.com/toommyliu/vexed/blob/3a194e38fe23218b85978c4567e31303a27d86c2/app/src/renderer/windows/game/flash/Services/Inventory.ts#L7)
+**Source:** [`app/src/renderer/windows/game/flash/Services/Inventory.ts:7`](https://github.com/toommyliu/vexed/blob/ee7dea4922d10259289c35ce1638a1553a17b577/app/src/renderer/windows/game/flash/Services/Inventory.ts#L7)
 
 ```ts
 api.inventory.equip(item: ItemIdentifierToken): BridgeEffect<boolean>
@@ -55,17 +55,17 @@ api.inventory.equip(item: ItemIdentifierToken): BridgeEffect<boolean>
 
 | Name | Type | Required | Description |
 | --- | --- | --- | --- |
-| `item` | `ItemIdentifierToken` | ✓ |  |
+| `item` | [`ItemIdentifierToken`](../../types/item-identifier-token/) | ✓ |  |
 
 **Yields:** `boolean`
 
-**Errors:** [`BridgeError`](#type-bridgeerror)
+**Errors:** [`BridgeError`](../../types/bridge-error/)
 
 <a id="member-api-inventory-getavailableslots"></a>
 
 ### `api.inventory.getAvailableSlots()`
 
-**Source:** [`app/src/renderer/windows/game/flash/Services/Inventory.ts:12`](https://github.com/toommyliu/vexed/blob/3a194e38fe23218b85978c4567e31303a27d86c2/app/src/renderer/windows/game/flash/Services/Inventory.ts#L12)
+**Source:** [`app/src/renderer/windows/game/flash/Services/Inventory.ts:12`](https://github.com/toommyliu/vexed/blob/ee7dea4922d10259289c35ce1638a1553a17b577/app/src/renderer/windows/game/flash/Services/Inventory.ts#L12)
 
 ```ts
 api.inventory.getAvailableSlots(): BridgeEffect<number>
@@ -73,13 +73,13 @@ api.inventory.getAvailableSlots(): BridgeEffect<number>
 
 **Yields:** `number`
 
-**Errors:** [`BridgeError`](#type-bridgeerror)
+**Errors:** [`BridgeError`](../../types/bridge-error/)
 
 <a id="member-api-inventory-getitem"></a>
 
 ### `api.inventory.getItem()`
 
-**Source:** [`app/src/renderer/windows/game/flash/Services/Inventory.ts:8`](https://github.com/toommyliu/vexed/blob/3a194e38fe23218b85978c4567e31303a27d86c2/app/src/renderer/windows/game/flash/Services/Inventory.ts#L8)
+**Source:** [`app/src/renderer/windows/game/flash/Services/Inventory.ts:8`](https://github.com/toommyliu/vexed/blob/ee7dea4922d10259289c35ce1638a1553a17b577/app/src/renderer/windows/game/flash/Services/Inventory.ts#L8)
 
 ```ts
 api.inventory.getItem(item: ItemIdentifierToken): BridgeEffect<Item | null>
@@ -87,31 +87,31 @@ api.inventory.getItem(item: ItemIdentifierToken): BridgeEffect<Item | null>
 
 | Name | Type | Required | Description |
 | --- | --- | --- | --- |
-| `item` | `ItemIdentifierToken` | ✓ |  |
+| `item` | [`ItemIdentifierToken`](../../types/item-identifier-token/) | ✓ |  |
 
-**Yields:** `Item` \| `null`
+**Yields:** [`Item`](../../types/item/) \| `null`
 
-**Errors:** [`BridgeError`](#type-bridgeerror)
+**Errors:** [`BridgeError`](../../types/bridge-error/)
 
 <a id="member-api-inventory-getitems"></a>
 
 ### `api.inventory.getItems()`
 
-**Source:** [`app/src/renderer/windows/game/flash/Services/Inventory.ts:9`](https://github.com/toommyliu/vexed/blob/3a194e38fe23218b85978c4567e31303a27d86c2/app/src/renderer/windows/game/flash/Services/Inventory.ts#L9)
+**Source:** [`app/src/renderer/windows/game/flash/Services/Inventory.ts:9`](https://github.com/toommyliu/vexed/blob/ee7dea4922d10259289c35ce1638a1553a17b577/app/src/renderer/windows/game/flash/Services/Inventory.ts#L9)
 
 ```ts
 api.inventory.getItems(): BridgeEffect<readonly Item[]>
 ```
 
-**Yields:** `readonly` `Item`[]
+**Yields:** `readonly` [`Item`](../../types/item/)[]
 
-**Errors:** [`BridgeError`](#type-bridgeerror)
+**Errors:** [`BridgeError`](../../types/bridge-error/)
 
 <a id="member-api-inventory-getslots"></a>
 
 ### `api.inventory.getSlots()`
 
-**Source:** [`app/src/renderer/windows/game/flash/Services/Inventory.ts:10`](https://github.com/toommyliu/vexed/blob/3a194e38fe23218b85978c4567e31303a27d86c2/app/src/renderer/windows/game/flash/Services/Inventory.ts#L10)
+**Source:** [`app/src/renderer/windows/game/flash/Services/Inventory.ts:10`](https://github.com/toommyliu/vexed/blob/ee7dea4922d10259289c35ce1638a1553a17b577/app/src/renderer/windows/game/flash/Services/Inventory.ts#L10)
 
 ```ts
 api.inventory.getSlots(): BridgeEffect<number>
@@ -119,13 +119,13 @@ api.inventory.getSlots(): BridgeEffect<number>
 
 **Yields:** `number`
 
-**Errors:** [`BridgeError`](#type-bridgeerror)
+**Errors:** [`BridgeError`](../../types/bridge-error/)
 
 <a id="member-api-inventory-getusedslots"></a>
 
 ### `api.inventory.getUsedSlots()`
 
-**Source:** [`app/src/renderer/windows/game/flash/Services/Inventory.ts:11`](https://github.com/toommyliu/vexed/blob/3a194e38fe23218b85978c4567e31303a27d86c2/app/src/renderer/windows/game/flash/Services/Inventory.ts#L11)
+**Source:** [`app/src/renderer/windows/game/flash/Services/Inventory.ts:11`](https://github.com/toommyliu/vexed/blob/ee7dea4922d10259289c35ce1638a1553a17b577/app/src/renderer/windows/game/flash/Services/Inventory.ts#L11)
 
 ```ts
 api.inventory.getUsedSlots(): BridgeEffect<number>
@@ -133,28 +133,4 @@ api.inventory.getUsedSlots(): BridgeEffect<number>
 
 **Yields:** `number`
 
-**Errors:** [`BridgeError`](#type-bridgeerror)
-
-## Referenced Types
-
-<a id="type-bridgeeffect"></a>
-
-### `BridgeEffect`
-
-**Source:** [`app/src/renderer/windows/game/flash/Services/Bridge.ts:14`](https://github.com/toommyliu/vexed/blob/3a194e38fe23218b85978c4567e31303a27d86c2/app/src/renderer/windows/game/flash/Services/Bridge.ts#L14)
-
-```ts
-type BridgeEffect = Effect.Effect<A, BridgeError>
-```
-
-<a id="type-bridgeerror"></a>
-
-### `BridgeError`
-
-**Source:** [`app/src/renderer/windows/game/flash/Services/Bridge.ts:9`](https://github.com/toommyliu/vexed/blob/3a194e38fe23218b85978c4567e31303a27d86c2/app/src/renderer/windows/game/flash/Services/Bridge.ts#L9)
-
-```ts
-type BridgeError = | SwfUnavailableError
-  | SwfMethodNotFoundError
-  | SwfCallError
-```
+**Errors:** [`BridgeError`](../../types/bridge-error/)

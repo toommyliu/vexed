@@ -24,7 +24,7 @@ tableOfContents:
 
 ### `api.tempInventory.contains()`
 
-**Source:** [`app/src/renderer/windows/game/flash/Services/TempInventory.ts:6`](https://github.com/toommyliu/vexed/blob/3a194e38fe23218b85978c4567e31303a27d86c2/app/src/renderer/windows/game/flash/Services/TempInventory.ts#L6)
+**Source:** [`app/src/renderer/windows/game/flash/Services/TempInventory.ts:6`](https://github.com/toommyliu/vexed/blob/ee7dea4922d10259289c35ce1638a1553a17b577/app/src/renderer/windows/game/flash/Services/TempInventory.ts#L6)
 
 ```ts
 api.tempInventory.contains(item: ItemIdentifierToken, quantity?: number): BridgeEffect<boolean>
@@ -32,18 +32,18 @@ api.tempInventory.contains(item: ItemIdentifierToken, quantity?: number): Bridge
 
 | Name | Type | Required | Description |
 | --- | --- | --- | --- |
-| `item` | `ItemIdentifierToken` | ✓ |  |
+| `item` | [`ItemIdentifierToken`](../../types/item-identifier-token/) | ✓ |  |
 | `quantity` | `number` |  |  |
 
 **Yields:** `boolean`
 
-**Errors:** [`BridgeError`](#type-bridgeerror)
+**Errors:** [`BridgeError`](../../types/bridge-error/)
 
 <a id="member-api-tempinventory-getitem"></a>
 
 ### `api.tempInventory.getItem()`
 
-**Source:** [`app/src/renderer/windows/game/flash/Services/TempInventory.ts:7`](https://github.com/toommyliu/vexed/blob/3a194e38fe23218b85978c4567e31303a27d86c2/app/src/renderer/windows/game/flash/Services/TempInventory.ts#L7)
+**Source:** [`app/src/renderer/windows/game/flash/Services/TempInventory.ts:7`](https://github.com/toommyliu/vexed/blob/ee7dea4922d10259289c35ce1638a1553a17b577/app/src/renderer/windows/game/flash/Services/TempInventory.ts#L7)
 
 ```ts
 api.tempInventory.getItem(item: ItemIdentifierToken): BridgeEffect<Item | null>
@@ -51,46 +51,22 @@ api.tempInventory.getItem(item: ItemIdentifierToken): BridgeEffect<Item | null>
 
 | Name | Type | Required | Description |
 | --- | --- | --- | --- |
-| `item` | `ItemIdentifierToken` | ✓ |  |
+| `item` | [`ItemIdentifierToken`](../../types/item-identifier-token/) | ✓ |  |
 
-**Yields:** `Item` \| `null`
+**Yields:** [`Item`](../../types/item/) \| `null`
 
-**Errors:** [`BridgeError`](#type-bridgeerror)
+**Errors:** [`BridgeError`](../../types/bridge-error/)
 
 <a id="member-api-tempinventory-getitems"></a>
 
 ### `api.tempInventory.getItems()`
 
-**Source:** [`app/src/renderer/windows/game/flash/Services/TempInventory.ts:8`](https://github.com/toommyliu/vexed/blob/3a194e38fe23218b85978c4567e31303a27d86c2/app/src/renderer/windows/game/flash/Services/TempInventory.ts#L8)
+**Source:** [`app/src/renderer/windows/game/flash/Services/TempInventory.ts:8`](https://github.com/toommyliu/vexed/blob/ee7dea4922d10259289c35ce1638a1553a17b577/app/src/renderer/windows/game/flash/Services/TempInventory.ts#L8)
 
 ```ts
 api.tempInventory.getItems(): BridgeEffect<readonly Item[]>
 ```
 
-**Yields:** `readonly` `Item`[]
+**Yields:** `readonly` [`Item`](../../types/item/)[]
 
-**Errors:** [`BridgeError`](#type-bridgeerror)
-
-## Referenced Types
-
-<a id="type-bridgeeffect"></a>
-
-### `BridgeEffect`
-
-**Source:** [`app/src/renderer/windows/game/flash/Services/Bridge.ts:14`](https://github.com/toommyliu/vexed/blob/3a194e38fe23218b85978c4567e31303a27d86c2/app/src/renderer/windows/game/flash/Services/Bridge.ts#L14)
-
-```ts
-type BridgeEffect = Effect.Effect<A, BridgeError>
-```
-
-<a id="type-bridgeerror"></a>
-
-### `BridgeError`
-
-**Source:** [`app/src/renderer/windows/game/flash/Services/Bridge.ts:9`](https://github.com/toommyliu/vexed/blob/3a194e38fe23218b85978c4567e31303a27d86c2/app/src/renderer/windows/game/flash/Services/Bridge.ts#L9)
-
-```ts
-type BridgeError = | SwfUnavailableError
-  | SwfMethodNotFoundError
-  | SwfCallError
-```
+**Errors:** [`BridgeError`](../../types/bridge-error/)

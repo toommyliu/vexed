@@ -26,7 +26,7 @@ tableOfContents:
 
 ### `api.drops.acceptDrop()`
 
-**Source:** [`app/src/renderer/windows/game/flash/Services/Drops.ts:5`](https://github.com/toommyliu/vexed/blob/3a194e38fe23218b85978c4567e31303a27d86c2/app/src/renderer/windows/game/flash/Services/Drops.ts#L5)
+**Source:** [`app/src/renderer/windows/game/flash/Services/Drops.ts:5`](https://github.com/toommyliu/vexed/blob/ee7dea4922d10259289c35ce1638a1553a17b577/app/src/renderer/windows/game/flash/Services/Drops.ts#L5)
 
 ```ts
 api.drops.acceptDrop(item: ItemIdentifierToken): BridgeEffect<void>
@@ -34,17 +34,17 @@ api.drops.acceptDrop(item: ItemIdentifierToken): BridgeEffect<void>
 
 | Name | Type | Required | Description |
 | --- | --- | --- | --- |
-| `item` | `ItemIdentifierToken` | ✓ |  |
+| `item` | [`ItemIdentifierToken`](../../types/item-identifier-token/) | ✓ |  |
 
 **Yields:** `void`
 
-**Errors:** [`BridgeError`](#type-bridgeerror)
+**Errors:** [`BridgeError`](../../types/bridge-error/)
 
 <a id="member-api-drops-containsdrop"></a>
 
 ### `api.drops.containsDrop()`
 
-**Source:** [`app/src/renderer/windows/game/flash/Services/Drops.ts:6`](https://github.com/toommyliu/vexed/blob/3a194e38fe23218b85978c4567e31303a27d86c2/app/src/renderer/windows/game/flash/Services/Drops.ts#L6)
+**Source:** [`app/src/renderer/windows/game/flash/Services/Drops.ts:6`](https://github.com/toommyliu/vexed/blob/ee7dea4922d10259289c35ce1638a1553a17b577/app/src/renderer/windows/game/flash/Services/Drops.ts#L6)
 
 ```ts
 api.drops.containsDrop(item: ItemIdentifierToken): BridgeEffect<boolean>
@@ -52,17 +52,17 @@ api.drops.containsDrop(item: ItemIdentifierToken): BridgeEffect<boolean>
 
 | Name | Type | Required | Description |
 | --- | --- | --- | --- |
-| `item` | `ItemIdentifierToken` | ✓ |  |
+| `item` | [`ItemIdentifierToken`](../../types/item-identifier-token/) | ✓ |  |
 
 **Yields:** `boolean`
 
-**Errors:** [`BridgeError`](#type-bridgeerror)
+**Errors:** [`BridgeError`](../../types/bridge-error/)
 
 <a id="member-api-drops-isusingcustomdrops"></a>
 
 ### `api.drops.isUsingCustomDrops()`
 
-**Source:** [`app/src/renderer/windows/game/flash/Services/Drops.ts:7`](https://github.com/toommyliu/vexed/blob/3a194e38fe23218b85978c4567e31303a27d86c2/app/src/renderer/windows/game/flash/Services/Drops.ts#L7)
+**Source:** [`app/src/renderer/windows/game/flash/Services/Drops.ts:7`](https://github.com/toommyliu/vexed/blob/ee7dea4922d10259289c35ce1638a1553a17b577/app/src/renderer/windows/game/flash/Services/Drops.ts#L7)
 
 ```ts
 api.drops.isUsingCustomDrops(): BridgeEffect<boolean>
@@ -70,13 +70,13 @@ api.drops.isUsingCustomDrops(): BridgeEffect<boolean>
 
 **Yields:** `boolean`
 
-**Errors:** [`BridgeError`](#type-bridgeerror)
+**Errors:** [`BridgeError`](../../types/bridge-error/)
 
 <a id="member-api-drops-rejectdrop"></a>
 
 ### `api.drops.rejectDrop()`
 
-**Source:** [`app/src/renderer/windows/game/flash/Services/Drops.ts:8`](https://github.com/toommyliu/vexed/blob/3a194e38fe23218b85978c4567e31303a27d86c2/app/src/renderer/windows/game/flash/Services/Drops.ts#L8)
+**Source:** [`app/src/renderer/windows/game/flash/Services/Drops.ts:8`](https://github.com/toommyliu/vexed/blob/ee7dea4922d10259289c35ce1638a1553a17b577/app/src/renderer/windows/game/flash/Services/Drops.ts#L8)
 
 ```ts
 api.drops.rejectDrop(itemId: number, visual?: boolean): BridgeEffect<boolean>
@@ -89,13 +89,13 @@ api.drops.rejectDrop(itemId: number, visual?: boolean): BridgeEffect<boolean>
 
 **Yields:** `boolean`
 
-**Errors:** [`BridgeError`](#type-bridgeerror)
+**Errors:** [`BridgeError`](../../types/bridge-error/)
 
 <a id="member-api-drops-toggleui"></a>
 
 ### `api.drops.toggleUi()`
 
-**Source:** [`app/src/renderer/windows/game/flash/Services/Drops.ts:9`](https://github.com/toommyliu/vexed/blob/3a194e38fe23218b85978c4567e31303a27d86c2/app/src/renderer/windows/game/flash/Services/Drops.ts#L9)
+**Source:** [`app/src/renderer/windows/game/flash/Services/Drops.ts:9`](https://github.com/toommyliu/vexed/blob/ee7dea4922d10259289c35ce1638a1553a17b577/app/src/renderer/windows/game/flash/Services/Drops.ts#L9)
 
 ```ts
 api.drops.toggleUi(): BridgeEffect<void>
@@ -103,28 +103,4 @@ api.drops.toggleUi(): BridgeEffect<void>
 
 **Yields:** `void`
 
-**Errors:** [`BridgeError`](#type-bridgeerror)
-
-## Referenced Types
-
-<a id="type-bridgeeffect"></a>
-
-### `BridgeEffect`
-
-**Source:** [`app/src/renderer/windows/game/flash/Services/Bridge.ts:14`](https://github.com/toommyliu/vexed/blob/3a194e38fe23218b85978c4567e31303a27d86c2/app/src/renderer/windows/game/flash/Services/Bridge.ts#L14)
-
-```ts
-type BridgeEffect = Effect.Effect<A, BridgeError>
-```
-
-<a id="type-bridgeerror"></a>
-
-### `BridgeError`
-
-**Source:** [`app/src/renderer/windows/game/flash/Services/Bridge.ts:9`](https://github.com/toommyliu/vexed/blob/3a194e38fe23218b85978c4567e31303a27d86c2/app/src/renderer/windows/game/flash/Services/Bridge.ts#L9)
-
-```ts
-type BridgeError = | SwfUnavailableError
-  | SwfMethodNotFoundError
-  | SwfCallError
-```
+**Errors:** [`BridgeError`](../../types/bridge-error/)

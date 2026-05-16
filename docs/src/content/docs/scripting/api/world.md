@@ -46,21 +46,21 @@ tableOfContents:
 
 ### `api.world.map.getCellMonsters()`
 
-**Source:** [`app/src/renderer/windows/game/scripting/ScriptApi.ts:88`](https://github.com/toommyliu/vexed/blob/3a194e38fe23218b85978c4567e31303a27d86c2/app/src/renderer/windows/game/scripting/ScriptApi.ts#L88)
+**Source:** [`app/src/renderer/windows/game/scripting/ScriptApi.ts:88`](https://github.com/toommyliu/vexed/blob/ee7dea4922d10259289c35ce1638a1553a17b577/app/src/renderer/windows/game/scripting/ScriptApi.ts#L88)
 
 ```ts
 api.world.map.getCellMonsters(): BridgeEffect<Monster[]>
 ```
 
-**Yields:** `Monster`[]
+**Yields:** [`Monster`](../../types/monster/)[]
 
-**Errors:** [`BridgeError`](#type-bridgeerror)
+**Errors:** [`BridgeError`](../../types/bridge-error/)
 
 <a id="member-api-world-map-getcellpads"></a>
 
 ### `api.world.map.getCellPads()`
 
-**Source:** [`app/src/renderer/windows/game/scripting/ScriptApi.ts:90`](https://github.com/toommyliu/vexed/blob/3a194e38fe23218b85978c4567e31303a27d86c2/app/src/renderer/windows/game/scripting/ScriptApi.ts#L90)
+**Source:** [`app/src/renderer/windows/game/scripting/ScriptApi.ts:90`](https://github.com/toommyliu/vexed/blob/ee7dea4922d10259289c35ce1638a1553a17b577/app/src/renderer/windows/game/scripting/ScriptApi.ts#L90)
 
 ```ts
 api.world.map.getCellPads(): BridgeEffect<string[]>
@@ -68,13 +68,13 @@ api.world.map.getCellPads(): BridgeEffect<string[]>
 
 **Yields:** `string`[]
 
-**Errors:** [`BridgeError`](#type-bridgeerror)
+**Errors:** [`BridgeError`](../../types/bridge-error/)
 
 <a id="member-api-world-map-getcells"></a>
 
 ### `api.world.map.getCells()`
 
-**Source:** [`app/src/renderer/windows/game/scripting/ScriptApi.ts:89`](https://github.com/toommyliu/vexed/blob/3a194e38fe23218b85978c4567e31303a27d86c2/app/src/renderer/windows/game/scripting/ScriptApi.ts#L89)
+**Source:** [`app/src/renderer/windows/game/scripting/ScriptApi.ts:89`](https://github.com/toommyliu/vexed/blob/ee7dea4922d10259289c35ce1638a1553a17b577/app/src/renderer/windows/game/scripting/ScriptApi.ts#L89)
 
 ```ts
 api.world.map.getCells(): BridgeEffect<string[]>
@@ -82,13 +82,13 @@ api.world.map.getCells(): BridgeEffect<string[]>
 
 **Yields:** `string`[]
 
-**Errors:** [`BridgeError`](#type-bridgeerror)
+**Errors:** [`BridgeError`](../../types/bridge-error/)
 
 <a id="member-api-world-map-getid"></a>
 
 ### `api.world.map.getId()`
 
-**Source:** [`app/src/renderer/windows/game/scripting/ScriptApi.ts:103`](https://github.com/toommyliu/vexed/blob/3a194e38fe23218b85978c4567e31303a27d86c2/app/src/renderer/windows/game/scripting/ScriptApi.ts#L103)
+**Source:** [`app/src/renderer/windows/game/scripting/ScriptApi.ts:103`](https://github.com/toommyliu/vexed/blob/ee7dea4922d10259289c35ce1638a1553a17b577/app/src/renderer/windows/game/scripting/ScriptApi.ts#L103)
 
 ```ts
 api.world.map.getId(): Effect.Effect<number, never, never>
@@ -102,7 +102,7 @@ api.world.map.getId(): Effect.Effect<number, never, never>
 
 ### `api.world.map.getMapItem()`
 
-**Source:** [`app/src/renderer/windows/game/scripting/ScriptApi.ts:93`](https://github.com/toommyliu/vexed/blob/3a194e38fe23218b85978c4567e31303a27d86c2/app/src/renderer/windows/game/scripting/ScriptApi.ts#L93)
+**Source:** [`app/src/renderer/windows/game/scripting/ScriptApi.ts:93`](https://github.com/toommyliu/vexed/blob/ee7dea4922d10259289c35ce1638a1553a17b577/app/src/renderer/windows/game/scripting/ScriptApi.ts#L93)
 
 ```ts
 api.world.map.getMapItem(itemId: number): BridgeEffect<void>
@@ -114,13 +114,13 @@ api.world.map.getMapItem(itemId: number): BridgeEffect<void>
 
 **Yields:** `void`
 
-**Errors:** [`BridgeError`](#type-bridgeerror)
+**Errors:** [`BridgeError`](../../types/bridge-error/)
 
 <a id="member-api-world-map-getname"></a>
 
 ### `api.world.map.getName()`
 
-**Source:** [`app/src/renderer/windows/game/scripting/ScriptApi.ts:102`](https://github.com/toommyliu/vexed/blob/3a194e38fe23218b85978c4567e31303a27d86c2/app/src/renderer/windows/game/scripting/ScriptApi.ts#L102)
+**Source:** [`app/src/renderer/windows/game/scripting/ScriptApi.ts:102`](https://github.com/toommyliu/vexed/blob/ee7dea4922d10259289c35ce1638a1553a17b577/app/src/renderer/windows/game/scripting/ScriptApi.ts#L102)
 
 ```ts
 api.world.map.getName(): Effect.Effect<string, never, never>
@@ -134,7 +134,7 @@ api.world.map.getName(): Effect.Effect<string, never, never>
 
 ### `api.world.map.getRoomNumber()`
 
-**Source:** [`app/src/renderer/windows/game/scripting/ScriptApi.ts:104`](https://github.com/toommyliu/vexed/blob/3a194e38fe23218b85978c4567e31303a27d86c2/app/src/renderer/windows/game/scripting/ScriptApi.ts#L104)
+**Source:** [`app/src/renderer/windows/game/scripting/ScriptApi.ts:104`](https://github.com/toommyliu/vexed/blob/ee7dea4922d10259289c35ce1638a1553a17b577/app/src/renderer/windows/game/scripting/ScriptApi.ts#L104)
 
 ```ts
 api.world.map.getRoomNumber(): Effect.Effect<number, never, never>
@@ -148,7 +148,7 @@ api.world.map.getRoomNumber(): Effect.Effect<number, never, never>
 
 ### `api.world.map.isActionAvailable()`
 
-**Source:** [`app/src/renderer/windows/game/scripting/ScriptApi.ts:92`](https://github.com/toommyliu/vexed/blob/3a194e38fe23218b85978c4567e31303a27d86c2/app/src/renderer/windows/game/scripting/ScriptApi.ts#L92)
+**Source:** [`app/src/renderer/windows/game/scripting/ScriptApi.ts:92`](https://github.com/toommyliu/vexed/blob/ee7dea4922d10259289c35ce1638a1553a17b577/app/src/renderer/windows/game/scripting/ScriptApi.ts#L92)
 
 ```ts
 api.world.map.isActionAvailable(gameAction: 'acceptQuest' | 'buyItem' | 'doIA' | 'equipItem' | 'getMapItem' | 'loadEnhShop' | 'loadHairShop' | 'loadShop' | 'rest' | 'sellItem' | 'tfer' | 'tryQuestComplete' | 'unequipItem' | 'who'): BridgeEffect<boolean>
@@ -160,13 +160,13 @@ api.world.map.isActionAvailable(gameAction: 'acceptQuest' | 'buyItem' | 'doIA' |
 
 **Yields:** `boolean`
 
-**Errors:** [`BridgeError`](#type-bridgeerror)
+**Errors:** [`BridgeError`](../../types/bridge-error/)
 
 <a id="member-api-world-map-isloaded"></a>
 
 ### `api.world.map.isLoaded()`
 
-**Source:** [`app/src/renderer/windows/game/scripting/ScriptApi.ts:91`](https://github.com/toommyliu/vexed/blob/3a194e38fe23218b85978c4567e31303a27d86c2/app/src/renderer/windows/game/scripting/ScriptApi.ts#L91)
+**Source:** [`app/src/renderer/windows/game/scripting/ScriptApi.ts:91`](https://github.com/toommyliu/vexed/blob/ee7dea4922d10259289c35ce1638a1553a17b577/app/src/renderer/windows/game/scripting/ScriptApi.ts#L91)
 
 ```ts
 api.world.map.isLoaded(): BridgeEffect<boolean>
@@ -174,13 +174,13 @@ api.world.map.isLoaded(): BridgeEffect<boolean>
 
 **Yields:** `boolean`
 
-**Errors:** [`BridgeError`](#type-bridgeerror)
+**Errors:** [`BridgeError`](../../types/bridge-error/)
 
 <a id="member-api-world-map-loadswf"></a>
 
 ### `api.world.map.loadSwf()`
 
-**Source:** [`app/src/renderer/windows/game/scripting/ScriptApi.ts:94`](https://github.com/toommyliu/vexed/blob/3a194e38fe23218b85978c4567e31303a27d86c2/app/src/renderer/windows/game/scripting/ScriptApi.ts#L94)
+**Source:** [`app/src/renderer/windows/game/scripting/ScriptApi.ts:94`](https://github.com/toommyliu/vexed/blob/ee7dea4922d10259289c35ce1638a1553a17b577/app/src/renderer/windows/game/scripting/ScriptApi.ts#L94)
 
 ```ts
 api.world.map.loadSwf(path: string): BridgeEffect<void>
@@ -192,13 +192,13 @@ api.world.map.loadSwf(path: string): BridgeEffect<void>
 
 **Yields:** `void`
 
-**Errors:** [`BridgeError`](#type-bridgeerror)
+**Errors:** [`BridgeError`](../../types/bridge-error/)
 
 <a id="member-api-world-map-reload"></a>
 
 ### `api.world.map.reload()`
 
-**Source:** [`app/src/renderer/windows/game/scripting/ScriptApi.ts:95`](https://github.com/toommyliu/vexed/blob/3a194e38fe23218b85978c4567e31303a27d86c2/app/src/renderer/windows/game/scripting/ScriptApi.ts#L95)
+**Source:** [`app/src/renderer/windows/game/scripting/ScriptApi.ts:95`](https://github.com/toommyliu/vexed/blob/ee7dea4922d10259289c35ce1638a1553a17b577/app/src/renderer/windows/game/scripting/ScriptApi.ts#L95)
 
 ```ts
 api.world.map.reload(): BridgeEffect<void>
@@ -206,13 +206,13 @@ api.world.map.reload(): BridgeEffect<void>
 
 **Yields:** `void`
 
-**Errors:** [`BridgeError`](#type-bridgeerror)
+**Errors:** [`BridgeError`](../../types/bridge-error/)
 
 <a id="member-api-world-map-setspawnpoint"></a>
 
 ### `api.world.map.setSpawnPoint()`
 
-**Source:** [`app/src/renderer/windows/game/scripting/ScriptApi.ts:96`](https://github.com/toommyliu/vexed/blob/3a194e38fe23218b85978c4567e31303a27d86c2/app/src/renderer/windows/game/scripting/ScriptApi.ts#L96)
+**Source:** [`app/src/renderer/windows/game/scripting/ScriptApi.ts:96`](https://github.com/toommyliu/vexed/blob/ee7dea4922d10259289c35ce1638a1553a17b577/app/src/renderer/windows/game/scripting/ScriptApi.ts#L96)
 
 ```ts
 api.world.map.setSpawnPoint(cell?: string, pad?: string): BridgeEffect<void>
@@ -225,13 +225,13 @@ api.world.map.setSpawnPoint(cell?: string, pad?: string): BridgeEffect<void>
 
 **Yields:** `void`
 
-**Errors:** [`BridgeError`](#type-bridgeerror)
+**Errors:** [`BridgeError`](../../types/bridge-error/)
 
 <a id="member-api-world-map-waitforgameaction"></a>
 
 ### `api.world.map.waitForGameAction()`
 
-**Source:** [`app/src/renderer/windows/game/scripting/ScriptApi.ts:97`](https://github.com/toommyliu/vexed/blob/3a194e38fe23218b85978c4567e31303a27d86c2/app/src/renderer/windows/game/scripting/ScriptApi.ts#L97)
+**Source:** [`app/src/renderer/windows/game/scripting/ScriptApi.ts:97`](https://github.com/toommyliu/vexed/blob/ee7dea4922d10259289c35ce1638a1553a17b577/app/src/renderer/windows/game/scripting/ScriptApi.ts#L97)
 
 ```ts
 api.world.map.waitForGameAction(gameAction: 'acceptQuest' | 'buyItem' | 'doIA' | 'equipItem' | 'getMapItem' | 'loadEnhShop' | 'loadHairShop' | 'loadShop' | 'rest' | 'sellItem' | 'tfer' | 'tryQuestComplete' | 'unequipItem' | 'who', timeout?: Duration.Input): BridgeEffect<boolean>
@@ -244,13 +244,13 @@ api.world.map.waitForGameAction(gameAction: 'acceptQuest' | 'buyItem' | 'doIA' |
 
 **Yields:** `boolean`
 
-**Errors:** [`BridgeError`](#type-bridgeerror)
+**Errors:** [`BridgeError`](../../types/bridge-error/)
 
 <a id="member-api-world-monsters-findbyname"></a>
 
 ### `api.world.monsters.findByName()`
 
-**Source:** [`app/src/renderer/windows/game/scripting/ScriptApi.ts:128`](https://github.com/toommyliu/vexed/blob/3a194e38fe23218b85978c4567e31303a27d86c2/app/src/renderer/windows/game/scripting/ScriptApi.ts#L128)
+**Source:** [`app/src/renderer/windows/game/scripting/ScriptApi.ts:128`](https://github.com/toommyliu/vexed/blob/ee7dea4922d10259289c35ce1638a1553a17b577/app/src/renderer/windows/game/scripting/ScriptApi.ts#L128)
 
 ```ts
 api.world.monsters.findByName(name: string, cell?: string): Effect.Effect<Option.Option<Monster>, never, never>
@@ -261,7 +261,7 @@ api.world.monsters.findByName(name: string, cell?: string): Effect.Effect<Option
 | `name` | `string` | ✓ |  |
 | `cell` | `string` |  |  |
 
-**Yields:** `Option`.`Option`&lt;`Monster`&gt;
+**Yields:** `Option`.`Option`&lt;[`Monster`](../../types/monster/)&gt;
 
 **Errors:** `never`
 
@@ -269,7 +269,7 @@ api.world.monsters.findByName(name: string, cell?: string): Effect.Effect<Option
 
 ### `api.world.monsters.get()`
 
-**Source:** [`app/src/renderer/windows/game/scripting/ScriptApi.ts:127`](https://github.com/toommyliu/vexed/blob/3a194e38fe23218b85978c4567e31303a27d86c2/app/src/renderer/windows/game/scripting/ScriptApi.ts#L127)
+**Source:** [`app/src/renderer/windows/game/scripting/ScriptApi.ts:127`](https://github.com/toommyliu/vexed/blob/ee7dea4922d10259289c35ce1638a1553a17b577/app/src/renderer/windows/game/scripting/ScriptApi.ts#L127)
 
 ```ts
 api.world.monsters.get(monMapId: number): Effect.Effect<Option.Option<Monster>, never, never>
@@ -279,7 +279,7 @@ api.world.monsters.get(monMapId: number): Effect.Effect<Option.Option<Monster>, 
 | --- | --- | --- | --- |
 | `monMapId` | `number` | ✓ |  |
 
-**Yields:** `Option`.`Option`&lt;`Monster`&gt;
+**Yields:** `Option`.`Option`&lt;[`Monster`](../../types/monster/)&gt;
 
 **Errors:** `never`
 
@@ -287,13 +287,13 @@ api.world.monsters.get(monMapId: number): Effect.Effect<Option.Option<Monster>, 
 
 ### `api.world.monsters.getAll()`
 
-**Source:** [`app/src/renderer/windows/game/scripting/ScriptApi.ts:126`](https://github.com/toommyliu/vexed/blob/3a194e38fe23218b85978c4567e31303a27d86c2/app/src/renderer/windows/game/scripting/ScriptApi.ts#L126)
+**Source:** [`app/src/renderer/windows/game/scripting/ScriptApi.ts:126`](https://github.com/toommyliu/vexed/blob/ee7dea4922d10259289c35ce1638a1553a17b577/app/src/renderer/windows/game/scripting/ScriptApi.ts#L126)
 
 ```ts
 api.world.monsters.getAll(): Effect.Effect<Collection<number, Monster>, never, never>
 ```
 
-**Yields:** `Collection`&lt;`number`, `Monster`&gt;
+**Yields:** [`Collection`](../../types/collection/)&lt;`number`, [`Monster`](../../types/monster/)&gt;
 
 **Errors:** `never`
 
@@ -301,7 +301,7 @@ api.world.monsters.getAll(): Effect.Effect<Collection<number, Monster>, never, n
 
 ### `api.world.monsters.getAura()`
 
-**Source:** [`app/src/renderer/windows/game/scripting/ScriptApi.ts:132`](https://github.com/toommyliu/vexed/blob/3a194e38fe23218b85978c4567e31303a27d86c2/app/src/renderer/windows/game/scripting/ScriptApi.ts#L132)
+**Source:** [`app/src/renderer/windows/game/scripting/ScriptApi.ts:132`](https://github.com/toommyliu/vexed/blob/ee7dea4922d10259289c35ce1638a1553a17b577/app/src/renderer/windows/game/scripting/ScriptApi.ts#L132)
 
 ```ts
 api.world.monsters.getAura(monMapId: number, auraName: string): Effect.Effect<Option.Option<Aura>, never, never>
@@ -312,7 +312,7 @@ api.world.monsters.getAura(monMapId: number, auraName: string): Effect.Effect<Op
 | `monMapId` | `number` | ✓ |  |
 | `auraName` | `string` | ✓ |  |
 
-**Yields:** `Option`.`Option`&lt;`Aura`&gt;
+**Yields:** `Option`.`Option`&lt;[`Aura`](../../types/aura/)&gt;
 
 **Errors:** `never`
 
@@ -320,7 +320,7 @@ api.world.monsters.getAura(monMapId: number, auraName: string): Effect.Effect<Op
 
 ### `api.world.players.get()`
 
-**Source:** [`app/src/renderer/windows/game/scripting/ScriptApi.ts:110`](https://github.com/toommyliu/vexed/blob/3a194e38fe23218b85978c4567e31303a27d86c2/app/src/renderer/windows/game/scripting/ScriptApi.ts#L110)
+**Source:** [`app/src/renderer/windows/game/scripting/ScriptApi.ts:110`](https://github.com/toommyliu/vexed/blob/ee7dea4922d10259289c35ce1638a1553a17b577/app/src/renderer/windows/game/scripting/ScriptApi.ts#L110)
 
 ```ts
 api.world.players.get(username: string): Effect.Effect<Option.Option<Avatar>, never, never>
@@ -330,7 +330,7 @@ api.world.players.get(username: string): Effect.Effect<Option.Option<Avatar>, ne
 | --- | --- | --- | --- |
 | `username` | `string` | ✓ |  |
 
-**Yields:** `Option`.`Option`&lt;`Avatar`&gt;
+**Yields:** `Option`.`Option`&lt;[`Avatar`](../../types/avatar/)&gt;
 
 **Errors:** `never`
 
@@ -338,13 +338,13 @@ api.world.players.get(username: string): Effect.Effect<Option.Option<Avatar>, ne
 
 ### `api.world.players.getAll()`
 
-**Source:** [`app/src/renderer/windows/game/scripting/ScriptApi.ts:109`](https://github.com/toommyliu/vexed/blob/3a194e38fe23218b85978c4567e31303a27d86c2/app/src/renderer/windows/game/scripting/ScriptApi.ts#L109)
+**Source:** [`app/src/renderer/windows/game/scripting/ScriptApi.ts:109`](https://github.com/toommyliu/vexed/blob/ee7dea4922d10259289c35ce1638a1553a17b577/app/src/renderer/windows/game/scripting/ScriptApi.ts#L109)
 
 ```ts
 api.world.players.getAll(): Effect.Effect<Collection<string, Avatar>, never, never>
 ```
 
-**Yields:** `Collection`&lt;`string`, `Avatar`&gt;
+**Yields:** [`Collection`](../../types/collection/)&lt;`string`, [`Avatar`](../../types/avatar/)&gt;
 
 **Errors:** `never`
 
@@ -352,7 +352,7 @@ api.world.players.getAll(): Effect.Effect<Collection<string, Avatar>, never, nev
 
 ### `api.world.players.getAura()`
 
-**Source:** [`app/src/renderer/windows/game/scripting/ScriptApi.ts:113`](https://github.com/toommyliu/vexed/blob/3a194e38fe23218b85978c4567e31303a27d86c2/app/src/renderer/windows/game/scripting/ScriptApi.ts#L113)
+**Source:** [`app/src/renderer/windows/game/scripting/ScriptApi.ts:113`](https://github.com/toommyliu/vexed/blob/ee7dea4922d10259289c35ce1638a1553a17b577/app/src/renderer/windows/game/scripting/ScriptApi.ts#L113)
 
 ```ts
 api.world.players.getAura(username: string, auraName: string): Effect.Effect<Option.Option<Aura>, never, never>
@@ -363,7 +363,7 @@ api.world.players.getAura(username: string, auraName: string): Effect.Effect<Opt
 | `username` | `string` | ✓ |  |
 | `auraName` | `string` | ✓ |  |
 
-**Yields:** `Option`.`Option`&lt;`Aura`&gt;
+**Yields:** `Option`.`Option`&lt;[`Aura`](../../types/aura/)&gt;
 
 **Errors:** `never`
 
@@ -371,7 +371,7 @@ api.world.players.getAura(username: string, auraName: string): Effect.Effect<Opt
 
 ### `api.world.players.getAuras()`
 
-**Source:** [`app/src/renderer/windows/game/scripting/ScriptApi.ts:112`](https://github.com/toommyliu/vexed/blob/3a194e38fe23218b85978c4567e31303a27d86c2/app/src/renderer/windows/game/scripting/ScriptApi.ts#L112)
+**Source:** [`app/src/renderer/windows/game/scripting/ScriptApi.ts:112`](https://github.com/toommyliu/vexed/blob/ee7dea4922d10259289c35ce1638a1553a17b577/app/src/renderer/windows/game/scripting/ScriptApi.ts#L112)
 
 ```ts
 api.world.players.getAuras(username: string): Effect.Effect<readonly Aura[], never, never>
@@ -381,7 +381,7 @@ api.world.players.getAuras(username: string): Effect.Effect<readonly Aura[], nev
 | --- | --- | --- | --- |
 | `username` | `string` | ✓ |  |
 
-**Yields:** `readonly` `Aura`[]
+**Yields:** `readonly` [`Aura`](../../types/aura/)[]
 
 **Errors:** `never`
 
@@ -389,7 +389,7 @@ api.world.players.getAuras(username: string): Effect.Effect<readonly Aura[], nev
 
 ### `api.world.players.getByName()`
 
-**Source:** [`app/src/renderer/windows/game/scripting/ScriptApi.ts:111`](https://github.com/toommyliu/vexed/blob/3a194e38fe23218b85978c4567e31303a27d86c2/app/src/renderer/windows/game/scripting/ScriptApi.ts#L111)
+**Source:** [`app/src/renderer/windows/game/scripting/ScriptApi.ts:111`](https://github.com/toommyliu/vexed/blob/ee7dea4922d10259289c35ce1638a1553a17b577/app/src/renderer/windows/game/scripting/ScriptApi.ts#L111)
 
 ```ts
 api.world.players.getByName(name: string): Effect.Effect<Option.Option<Avatar>, never, never>
@@ -399,7 +399,7 @@ api.world.players.getByName(name: string): Effect.Effect<Option.Option<Avatar>, 
 | --- | --- | --- | --- |
 | `name` | `string` | ✓ |  |
 
-**Yields:** `Option`.`Option`&lt;`Avatar`&gt;
+**Yields:** `Option`.`Option`&lt;[`Avatar`](../../types/avatar/)&gt;
 
 **Errors:** `never`
 
@@ -407,13 +407,13 @@ api.world.players.getByName(name: string): Effect.Effect<Option.Option<Avatar>, 
 
 ### `api.world.players.me.get()`
 
-**Source:** [`app/src/renderer/windows/game/scripting/ScriptApi.ts:120`](https://github.com/toommyliu/vexed/blob/3a194e38fe23218b85978c4567e31303a27d86c2/app/src/renderer/windows/game/scripting/ScriptApi.ts#L120)
+**Source:** [`app/src/renderer/windows/game/scripting/ScriptApi.ts:120`](https://github.com/toommyliu/vexed/blob/ee7dea4922d10259289c35ce1638a1553a17b577/app/src/renderer/windows/game/scripting/ScriptApi.ts#L120)
 
 ```ts
 api.world.players.me.get(): Effect.Effect<Option.Option<Avatar>, never, never>
 ```
 
-**Yields:** `Option`.`Option`&lt;`Avatar`&gt;
+**Yields:** `Option`.`Option`&lt;[`Avatar`](../../types/avatar/)&gt;
 
 **Errors:** `never`
 
@@ -421,7 +421,7 @@ api.world.players.me.get(): Effect.Effect<Option.Option<Avatar>, never, never>
 
 ### `api.world.players.me.getAura()`
 
-**Source:** [`app/src/renderer/windows/game/scripting/ScriptApi.ts:122`](https://github.com/toommyliu/vexed/blob/3a194e38fe23218b85978c4567e31303a27d86c2/app/src/renderer/windows/game/scripting/ScriptApi.ts#L122)
+**Source:** [`app/src/renderer/windows/game/scripting/ScriptApi.ts:122`](https://github.com/toommyliu/vexed/blob/ee7dea4922d10259289c35ce1638a1553a17b577/app/src/renderer/windows/game/scripting/ScriptApi.ts#L122)
 
 ```ts
 api.world.players.me.getAura(auraName: string): Effect.Effect<Option.Option<Aura>, never, never>
@@ -431,7 +431,7 @@ api.world.players.me.getAura(auraName: string): Effect.Effect<Option.Option<Aura
 | --- | --- | --- | --- |
 | `auraName` | `string` | ✓ |  |
 
-**Yields:** `Option`.`Option`&lt;`Aura`&gt;
+**Yields:** `Option`.`Option`&lt;[`Aura`](../../types/aura/)&gt;
 
 **Errors:** `never`
 
@@ -439,36 +439,12 @@ api.world.players.me.getAura(auraName: string): Effect.Effect<Option.Option<Aura
 
 ### `api.world.players.me.getAuras()`
 
-**Source:** [`app/src/renderer/windows/game/scripting/ScriptApi.ts:121`](https://github.com/toommyliu/vexed/blob/3a194e38fe23218b85978c4567e31303a27d86c2/app/src/renderer/windows/game/scripting/ScriptApi.ts#L121)
+**Source:** [`app/src/renderer/windows/game/scripting/ScriptApi.ts:121`](https://github.com/toommyliu/vexed/blob/ee7dea4922d10259289c35ce1638a1553a17b577/app/src/renderer/windows/game/scripting/ScriptApi.ts#L121)
 
 ```ts
 api.world.players.me.getAuras(): Effect.Effect<readonly Aura[], never, never>
 ```
 
-**Yields:** `readonly` `Aura`[]
+**Yields:** `readonly` [`Aura`](../../types/aura/)[]
 
 **Errors:** `never`
-
-## Referenced Types
-
-<a id="type-bridgeeffect"></a>
-
-### `BridgeEffect`
-
-**Source:** [`app/src/renderer/windows/game/flash/Services/Bridge.ts:14`](https://github.com/toommyliu/vexed/blob/3a194e38fe23218b85978c4567e31303a27d86c2/app/src/renderer/windows/game/flash/Services/Bridge.ts#L14)
-
-```ts
-type BridgeEffect = Effect.Effect<A, BridgeError>
-```
-
-<a id="type-bridgeerror"></a>
-
-### `BridgeError`
-
-**Source:** [`app/src/renderer/windows/game/flash/Services/Bridge.ts:9`](https://github.com/toommyliu/vexed/blob/3a194e38fe23218b85978c4567e31303a27d86c2/app/src/renderer/windows/game/flash/Services/Bridge.ts#L9)
-
-```ts
-type BridgeError = | SwfUnavailableError
-  | SwfMethodNotFoundError
-  | SwfCallError
-```

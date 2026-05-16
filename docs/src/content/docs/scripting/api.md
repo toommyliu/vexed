@@ -38,7 +38,7 @@ tableOfContents:
 
 ### `api.log()`
 
-**Source:** [`app/src/renderer/windows/game/scripting/ScriptApi.ts:173`](https://github.com/toommyliu/vexed/blob/3a194e38fe23218b85978c4567e31303a27d86c2/app/src/renderer/windows/game/scripting/ScriptApi.ts#L173)
+**Source:** [`app/src/renderer/windows/game/scripting/ScriptApi.ts:173`](https://github.com/toommyliu/vexed/blob/ee7dea4922d10259289c35ce1638a1553a17b577/app/src/renderer/windows/game/scripting/ScriptApi.ts#L173)
 
 ```ts
 api.log(message: string): void
@@ -56,7 +56,7 @@ api.log(message: string): void
 
 Aborts when the script stops. Pass this to APIs that support cancellation.
 
-**Source:** [`app/src/renderer/windows/game/scripting/ScriptApi.ts:172`](https://github.com/toommyliu/vexed/blob/3a194e38fe23218b85978c4567e31303a27d86c2/app/src/renderer/windows/game/scripting/ScriptApi.ts#L172)
+**Source:** [`app/src/renderer/windows/game/scripting/ScriptApi.ts:172`](https://github.com/toommyliu/vexed/blob/ee7dea4922d10259289c35ce1638a1553a17b577/app/src/renderer/windows/game/scripting/ScriptApi.ts#L172)
 
 ```ts
 api.signal: AbortSignal
@@ -70,7 +70,7 @@ api.signal: AbortSignal
 
 Waits for milliseconds and cancels when the script stops.
 
-**Source:** [`app/src/renderer/windows/game/scripting/ScriptApi.ts:181`](https://github.com/toommyliu/vexed/blob/3a194e38fe23218b85978c4567e31303a27d86c2/app/src/renderer/windows/game/scripting/ScriptApi.ts#L181)
+**Source:** [`app/src/renderer/windows/game/scripting/ScriptApi.ts:181`](https://github.com/toommyliu/vexed/blob/ee7dea4922d10259289c35ce1638a1553a17b577/app/src/renderer/windows/game/scripting/ScriptApi.ts#L181)
 
 ```ts
 api.sleep(ms: number): Effect.Effect<void, ScriptExecutionError, never>
@@ -90,7 +90,7 @@ api.sleep(ms: number): Effect.Effect<void, ScriptExecutionError, never>
 
 Stops the current script.
 
-**Source:** [`app/src/renderer/windows/game/scripting/ScriptApi.ts:177`](https://github.com/toommyliu/vexed/blob/3a194e38fe23218b85978c4567e31303a27d86c2/app/src/renderer/windows/game/scripting/ScriptApi.ts#L177)
+**Source:** [`app/src/renderer/windows/game/scripting/ScriptApi.ts:177`](https://github.com/toommyliu/vexed/blob/ee7dea4922d10259289c35ce1638a1553a17b577/app/src/renderer/windows/game/scripting/ScriptApi.ts#L177)
 
 ```ts
 api.stop(reason?: string): Effect.Effect<never, never, never>

@@ -19,7 +19,7 @@ tableOfContents:
 | [`api.combat.cancelTarget`](#member-api-combat-canceltarget) |
 | [`api.combat.canUseSkill`](#member-api-combat-canuseskill) |
 | [`api.combat.exit`](#member-api-combat-exit) |
-| [`api.combat.getActiveSkillItem`](#member-api-combat-getactiveskillitem) |
+| [`api.combat.getConsumableSkillItem`](#member-api-combat-getconsumableskillitem) |
 | [`api.combat.getTarget`](#member-api-combat-gettarget) |
 | [`api.combat.hasTarget`](#member-api-combat-hastarget) |
 | [`api.combat.hunt`](#member-api-combat-hunt) |
@@ -34,7 +34,7 @@ tableOfContents:
 
 ### `api.combat.attackMonster()`
 
-**Source:** [`app/src/renderer/windows/game/flash/Services/Combat.ts:14`](https://github.com/toommyliu/vexed/blob/3a194e38fe23218b85978c4567e31303a27d86c2/app/src/renderer/windows/game/flash/Services/Combat.ts#L14)
+**Source:** [`app/src/renderer/windows/game/flash/Services/Combat.ts:14`](https://github.com/toommyliu/vexed/blob/ee7dea4922d10259289c35ce1638a1553a17b577/app/src/renderer/windows/game/flash/Services/Combat.ts#L14)
 
 ```ts
 api.combat.attackMonster(monster: MonsterIdentifierToken): BridgeEffect<void>
@@ -42,17 +42,17 @@ api.combat.attackMonster(monster: MonsterIdentifierToken): BridgeEffect<void>
 
 | Name | Type | Required | Description |
 | --- | --- | --- | --- |
-| `monster` | `MonsterIdentifierToken` | ✓ |  |
+| `monster` | [`MonsterIdentifierToken`](../../types/monster-identifier-token/) | ✓ |  |
 
 **Yields:** `void`
 
-**Errors:** [`BridgeError`](#type-bridgeerror)
+**Errors:** [`BridgeError`](../../types/bridge-error/)
 
 <a id="member-api-combat-cancelautoattack"></a>
 
 ### `api.combat.cancelAutoAttack()`
 
-**Source:** [`app/src/renderer/windows/game/flash/Services/Combat.ts:15`](https://github.com/toommyliu/vexed/blob/3a194e38fe23218b85978c4567e31303a27d86c2/app/src/renderer/windows/game/flash/Services/Combat.ts#L15)
+**Source:** [`app/src/renderer/windows/game/flash/Services/Combat.ts:15`](https://github.com/toommyliu/vexed/blob/ee7dea4922d10259289c35ce1638a1553a17b577/app/src/renderer/windows/game/flash/Services/Combat.ts#L15)
 
 ```ts
 api.combat.cancelAutoAttack(): BridgeEffect<void>
@@ -60,13 +60,13 @@ api.combat.cancelAutoAttack(): BridgeEffect<void>
 
 **Yields:** `void`
 
-**Errors:** [`BridgeError`](#type-bridgeerror)
+**Errors:** [`BridgeError`](../../types/bridge-error/)
 
 <a id="member-api-combat-canceltarget"></a>
 
 ### `api.combat.cancelTarget()`
 
-**Source:** [`app/src/renderer/windows/game/flash/Services/Combat.ts:16`](https://github.com/toommyliu/vexed/blob/3a194e38fe23218b85978c4567e31303a27d86c2/app/src/renderer/windows/game/flash/Services/Combat.ts#L16)
+**Source:** [`app/src/renderer/windows/game/flash/Services/Combat.ts:16`](https://github.com/toommyliu/vexed/blob/ee7dea4922d10259289c35ce1638a1553a17b577/app/src/renderer/windows/game/flash/Services/Combat.ts#L16)
 
 ```ts
 api.combat.cancelTarget(): BridgeEffect<void>
@@ -74,13 +74,13 @@ api.combat.cancelTarget(): BridgeEffect<void>
 
 **Yields:** `void`
 
-**Errors:** [`BridgeError`](#type-bridgeerror)
+**Errors:** [`BridgeError`](../../types/bridge-error/)
 
 <a id="member-api-combat-canuseskill"></a>
 
 ### `api.combat.canUseSkill()`
 
-**Source:** [`app/src/renderer/windows/game/flash/Services/Combat.ts:17`](https://github.com/toommyliu/vexed/blob/3a194e38fe23218b85978c4567e31303a27d86c2/app/src/renderer/windows/game/flash/Services/Combat.ts#L17)
+**Source:** [`app/src/renderer/windows/game/flash/Services/Combat.ts:17`](https://github.com/toommyliu/vexed/blob/ee7dea4922d10259289c35ce1638a1553a17b577/app/src/renderer/windows/game/flash/Services/Combat.ts#L17)
 
 ```ts
 api.combat.canUseSkill(index: string | number): BridgeEffect<boolean>
@@ -92,13 +92,13 @@ api.combat.canUseSkill(index: string | number): BridgeEffect<boolean>
 
 **Yields:** `boolean`
 
-**Errors:** [`BridgeError`](#type-bridgeerror)
+**Errors:** [`BridgeError`](../../types/bridge-error/)
 
 <a id="member-api-combat-exit"></a>
 
 ### `api.combat.exit()`
 
-**Source:** [`app/src/renderer/windows/game/flash/Services/Combat.ts:18`](https://github.com/toommyliu/vexed/blob/3a194e38fe23218b85978c4567e31303a27d86c2/app/src/renderer/windows/game/flash/Services/Combat.ts#L18)
+**Source:** [`app/src/renderer/windows/game/flash/Services/Combat.ts:18`](https://github.com/toommyliu/vexed/blob/ee7dea4922d10259289c35ce1638a1553a17b577/app/src/renderer/windows/game/flash/Services/Combat.ts#L18)
 
 ```ts
 api.combat.exit(): BridgeEffect<boolean>
@@ -106,45 +106,41 @@ api.combat.exit(): BridgeEffect<boolean>
 
 **Yields:** `boolean`
 
-**Errors:** [`BridgeError`](#type-bridgeerror)
+**Errors:** [`BridgeError`](../../types/bridge-error/)
 
-<a id="member-api-combat-getactiveskillitem"></a>
+<a id="member-api-combat-getconsumableskillitem"></a>
 
-### `api.combat.getActiveSkillItem()`
+### `api.combat.getConsumableSkillItem()`
 
-**Source:** [`app/src/renderer/windows/game/flash/Services/Combat.ts:19`](https://github.com/toommyliu/vexed/blob/3a194e38fe23218b85978c4567e31303a27d86c2/app/src/renderer/windows/game/flash/Services/Combat.ts#L19)
+**Source:** [`app/src/renderer/windows/game/flash/Services/Combat.ts:19`](https://github.com/toommyliu/vexed/blob/ee7dea4922d10259289c35ce1638a1553a17b577/app/src/renderer/windows/game/flash/Services/Combat.ts#L19)
 
 ```ts
-api.combat.getActiveSkillItem(index: string | number): BridgeEffect<ActiveSkillItem | null>
+api.combat.getConsumableSkillItem(): BridgeEffect<ConsumableSkillItem | null>
 ```
 
-| Name | Type | Required | Description |
-| --- | --- | --- | --- |
-| `index` | `string` \| `number` | ✓ |  |
+**Yields:** [`ConsumableSkillItem`](../../types/consumable-skill-item/) \| `null`
 
-**Yields:** [`ActiveSkillItem`](#type-activeskillitem) \| `null`
-
-**Errors:** [`BridgeError`](#type-bridgeerror)
+**Errors:** [`BridgeError`](../../types/bridge-error/)
 
 <a id="member-api-combat-gettarget"></a>
 
 ### `api.combat.getTarget()`
 
-**Source:** [`app/src/renderer/windows/game/flash/Services/Combat.ts:22`](https://github.com/toommyliu/vexed/blob/3a194e38fe23218b85978c4567e31303a27d86c2/app/src/renderer/windows/game/flash/Services/Combat.ts#L22)
+**Source:** [`app/src/renderer/windows/game/flash/Services/Combat.ts:20`](https://github.com/toommyliu/vexed/blob/ee7dea4922d10259289c35ce1638a1553a17b577/app/src/renderer/windows/game/flash/Services/Combat.ts#L20)
 
 ```ts
 api.combat.getTarget(): BridgeEffect<Monster | Avatar | null>
 ```
 
-**Yields:** `Monster` \| `Avatar` \| `null`
+**Yields:** [`Monster`](../../types/monster/) \| [`Avatar`](../../types/avatar/) \| `null`
 
-**Errors:** [`BridgeError`](#type-bridgeerror)
+**Errors:** [`BridgeError`](../../types/bridge-error/)
 
 <a id="member-api-combat-hastarget"></a>
 
 ### `api.combat.hasTarget()`
 
-**Source:** [`app/src/renderer/windows/game/flash/Services/Combat.ts:23`](https://github.com/toommyliu/vexed/blob/3a194e38fe23218b85978c4567e31303a27d86c2/app/src/renderer/windows/game/flash/Services/Combat.ts#L23)
+**Source:** [`app/src/renderer/windows/game/flash/Services/Combat.ts:21`](https://github.com/toommyliu/vexed/blob/ee7dea4922d10259289c35ce1638a1553a17b577/app/src/renderer/windows/game/flash/Services/Combat.ts#L21)
 
 ```ts
 api.combat.hasTarget(): BridgeEffect<boolean>
@@ -152,13 +148,13 @@ api.combat.hasTarget(): BridgeEffect<boolean>
 
 **Yields:** `boolean`
 
-**Errors:** [`BridgeError`](#type-bridgeerror)
+**Errors:** [`BridgeError`](../../types/bridge-error/)
 
 <a id="member-api-combat-hunt"></a>
 
 ### `api.combat.hunt()`
 
-**Source:** [`app/src/renderer/windows/game/flash/Services/Combat.ts:45`](https://github.com/toommyliu/vexed/blob/3a194e38fe23218b85978c4567e31303a27d86c2/app/src/renderer/windows/game/flash/Services/Combat.ts#L45)
+**Source:** [`app/src/renderer/windows/game/flash/Services/Combat.ts:43`](https://github.com/toommyliu/vexed/blob/ee7dea4922d10259289c35ce1638a1553a17b577/app/src/renderer/windows/game/flash/Services/Combat.ts#L43)
 
 ```ts
 api.combat.hunt(target: MonsterIdentifierToken, findMost?: boolean): BridgeEffect<string>
@@ -166,18 +162,18 @@ api.combat.hunt(target: MonsterIdentifierToken, findMost?: boolean): BridgeEffec
 
 | Name | Type | Required | Description |
 | --- | --- | --- | --- |
-| `target` | `MonsterIdentifierToken` | ✓ |  |
+| `target` | [`MonsterIdentifierToken`](../../types/monster-identifier-token/) | ✓ |  |
 | `findMost` | `boolean` |  |  |
 
 **Yields:** `string`
 
-**Errors:** [`BridgeError`](#type-bridgeerror)
+**Errors:** [`BridgeError`](../../types/bridge-error/)
 
 <a id="member-api-combat-kill"></a>
 
 ### `api.combat.kill()`
 
-**Source:** [`app/src/renderer/windows/game/flash/Services/Combat.ts:24`](https://github.com/toommyliu/vexed/blob/3a194e38fe23218b85978c4567e31303a27d86c2/app/src/renderer/windows/game/flash/Services/Combat.ts#L24)
+**Source:** [`app/src/renderer/windows/game/flash/Services/Combat.ts:22`](https://github.com/toommyliu/vexed/blob/ee7dea4922d10259289c35ce1638a1553a17b577/app/src/renderer/windows/game/flash/Services/Combat.ts#L22)
 
 ```ts
 api.combat.kill(target: MonsterIdentifierToken, options?: CombatKillOptions): BridgeEffect<void>
@@ -185,18 +181,18 @@ api.combat.kill(target: MonsterIdentifierToken, options?: CombatKillOptions): Br
 
 | Name | Type | Required | Description |
 | --- | --- | --- | --- |
-| `target` | `MonsterIdentifierToken` | ✓ |  |
-| `options` | [`CombatKillOptions`](#type-combatkilloptions) |  |  |
+| `target` | [`MonsterIdentifierToken`](../../types/monster-identifier-token/) | ✓ |  |
+| `options` | [`CombatKillOptions`](../../types/combat-kill-options/) |  |  |
 
 **Yields:** `void`
 
-**Errors:** [`BridgeError`](#type-bridgeerror)
+**Errors:** [`BridgeError`](../../types/bridge-error/)
 
 <a id="member-api-combat-killforitem"></a>
 
 ### `api.combat.killForItem()`
 
-**Source:** [`app/src/renderer/windows/game/flash/Services/Combat.ts:28`](https://github.com/toommyliu/vexed/blob/3a194e38fe23218b85978c4567e31303a27d86c2/app/src/renderer/windows/game/flash/Services/Combat.ts#L28)
+**Source:** [`app/src/renderer/windows/game/flash/Services/Combat.ts:26`](https://github.com/toommyliu/vexed/blob/ee7dea4922d10259289c35ce1638a1553a17b577/app/src/renderer/windows/game/flash/Services/Combat.ts#L26)
 
 ```ts
 api.combat.killForItem(target: MonsterIdentifierToken, item: ItemIdentifierToken, quantity?: number, options?: CombatKillOptions): BridgeEffect<void>
@@ -204,20 +200,20 @@ api.combat.killForItem(target: MonsterIdentifierToken, item: ItemIdentifierToken
 
 | Name | Type | Required | Description |
 | --- | --- | --- | --- |
-| `target` | `MonsterIdentifierToken` | ✓ |  |
-| `item` | `ItemIdentifierToken` | ✓ |  |
+| `target` | [`MonsterIdentifierToken`](../../types/monster-identifier-token/) | ✓ |  |
+| `item` | [`ItemIdentifierToken`](../../types/item-identifier-token/) | ✓ |  |
 | `quantity` | `number` |  |  |
-| `options` | [`CombatKillOptions`](#type-combatkilloptions) |  |  |
+| `options` | [`CombatKillOptions`](../../types/combat-kill-options/) |  |  |
 
 **Yields:** `void`
 
-**Errors:** [`BridgeError`](#type-bridgeerror)
+**Errors:** [`BridgeError`](../../types/bridge-error/)
 
 <a id="member-api-combat-killfortempitem"></a>
 
 ### `api.combat.killForTempItem()`
 
-**Source:** [`app/src/renderer/windows/game/flash/Services/Combat.ts:34`](https://github.com/toommyliu/vexed/blob/3a194e38fe23218b85978c4567e31303a27d86c2/app/src/renderer/windows/game/flash/Services/Combat.ts#L34)
+**Source:** [`app/src/renderer/windows/game/flash/Services/Combat.ts:32`](https://github.com/toommyliu/vexed/blob/ee7dea4922d10259289c35ce1638a1553a17b577/app/src/renderer/windows/game/flash/Services/Combat.ts#L32)
 
 ```ts
 api.combat.killForTempItem(target: MonsterIdentifierToken, item: ItemIdentifierToken, quantity?: number, options?: CombatKillOptions): BridgeEffect<void>
@@ -225,20 +221,20 @@ api.combat.killForTempItem(target: MonsterIdentifierToken, item: ItemIdentifierT
 
 | Name | Type | Required | Description |
 | --- | --- | --- | --- |
-| `target` | `MonsterIdentifierToken` | ✓ |  |
-| `item` | `ItemIdentifierToken` | ✓ |  |
+| `target` | [`MonsterIdentifierToken`](../../types/monster-identifier-token/) | ✓ |  |
+| `item` | [`ItemIdentifierToken`](../../types/item-identifier-token/) | ✓ |  |
 | `quantity` | `number` |  |  |
-| `options` | [`CombatKillOptions`](#type-combatkilloptions) |  |  |
+| `options` | [`CombatKillOptions`](../../types/combat-kill-options/) |  |  |
 
 **Yields:** `void`
 
-**Errors:** [`BridgeError`](#type-bridgeerror)
+**Errors:** [`BridgeError`](../../types/bridge-error/)
 
 <a id="member-api-combat-useskill"></a>
 
 ### `api.combat.useSkill()`
 
-**Source:** [`app/src/renderer/windows/game/flash/Services/Combat.ts:40`](https://github.com/toommyliu/vexed/blob/3a194e38fe23218b85978c4567e31303a27d86c2/app/src/renderer/windows/game/flash/Services/Combat.ts#L40)
+**Source:** [`app/src/renderer/windows/game/flash/Services/Combat.ts:38`](https://github.com/toommyliu/vexed/blob/ee7dea4922d10259289c35ce1638a1553a17b577/app/src/renderer/windows/game/flash/Services/Combat.ts#L38)
 
 ```ts
 api.combat.useSkill(index: string | number, force?: boolean, wait?: boolean): BridgeEffect<void>
@@ -252,58 +248,4 @@ api.combat.useSkill(index: string | number, force?: boolean, wait?: boolean): Br
 
 **Yields:** `void`
 
-**Errors:** [`BridgeError`](#type-bridgeerror)
-
-## Referenced Types
-
-<a id="type-activeskillitem"></a>
-
-### `ActiveSkillItem`
-
-**Source:** [`app/src/renderer/windows/game/flash/Types.ts:66`](https://github.com/toommyliu/vexed/blob/3a194e38fe23218b85978c4567e31303a27d86c2/app/src/renderer/windows/game/flash/Types.ts#L66)
-
-```ts
-type ActiveSkillItem = {
-  itemId?: number;
-  name?: string;
-}
-```
-
-<a id="type-bridgeeffect"></a>
-
-### `BridgeEffect`
-
-**Source:** [`app/src/renderer/windows/game/flash/Services/Bridge.ts:14`](https://github.com/toommyliu/vexed/blob/3a194e38fe23218b85978c4567e31303a27d86c2/app/src/renderer/windows/game/flash/Services/Bridge.ts#L14)
-
-```ts
-type BridgeEffect = Effect.Effect<A, BridgeError>
-```
-
-<a id="type-bridgeerror"></a>
-
-### `BridgeError`
-
-**Source:** [`app/src/renderer/windows/game/flash/Services/Bridge.ts:9`](https://github.com/toommyliu/vexed/blob/3a194e38fe23218b85978c4567e31303a27d86c2/app/src/renderer/windows/game/flash/Services/Bridge.ts#L9)
-
-```ts
-type BridgeError = | SwfUnavailableError
-  | SwfMethodNotFoundError
-  | SwfCallError
-```
-
-<a id="type-combatkilloptions"></a>
-
-### `CombatKillOptions`
-
-**Source:** [`app/src/renderer/windows/game/flash/Services/Combat.ts:6`](https://github.com/toommyliu/vexed/blob/3a194e38fe23218b85978c4567e31303a27d86c2/app/src/renderer/windows/game/flash/Services/Combat.ts#L6)
-
-```ts
-interface CombatKillOptions
-```
-
-| Name | Type | Required | Readonly | Description |
-| --- | --- | --- | --- | --- |
-| `killPriority` | `string` \| `readonly` `MonsterIdentifierToken`[] |  | ✓ |  |
-| `skillSet` | `string` \| `readonly` `Skill`[] |  | ✓ |  |
-| `skillDelay` | `number` |  | ✓ |  |
-| `skillWait` | `boolean` |  | ✓ |  |
+**Errors:** [`BridgeError`](../../types/bridge-error/)

@@ -36,7 +36,7 @@ tableOfContents:
 
 ### `api.shops.buyById()`
 
-**Source:** [`app/src/renderer/windows/game/flash/Services/Shops.ts:6`](https://github.com/toommyliu/vexed/blob/3a194e38fe23218b85978c4567e31303a27d86c2/app/src/renderer/windows/game/flash/Services/Shops.ts#L6)
+**Source:** [`app/src/renderer/windows/game/flash/Services/Shops.ts:6`](https://github.com/toommyliu/vexed/blob/ee7dea4922d10259289c35ce1638a1553a17b577/app/src/renderer/windows/game/flash/Services/Shops.ts#L6)
 
 ```ts
 api.shops.buyById(id: unknown, quantity?: number): BridgeEffect<boolean>
@@ -49,13 +49,13 @@ api.shops.buyById(id: unknown, quantity?: number): BridgeEffect<boolean>
 
 **Yields:** `boolean`
 
-**Errors:** [`BridgeError`](#type-bridgeerror)
+**Errors:** [`BridgeError`](../../types/bridge-error/)
 
 <a id="member-api-shops-buybyname"></a>
 
 ### `api.shops.buyByName()`
 
-**Source:** [`app/src/renderer/windows/game/flash/Services/Shops.ts:7`](https://github.com/toommyliu/vexed/blob/3a194e38fe23218b85978c4567e31303a27d86c2/app/src/renderer/windows/game/flash/Services/Shops.ts#L7)
+**Source:** [`app/src/renderer/windows/game/flash/Services/Shops.ts:7`](https://github.com/toommyliu/vexed/blob/ee7dea4922d10259289c35ce1638a1553a17b577/app/src/renderer/windows/game/flash/Services/Shops.ts#L7)
 
 ```ts
 api.shops.buyByName(name: string, quantity?: number): BridgeEffect<boolean>
@@ -68,13 +68,13 @@ api.shops.buyByName(name: string, quantity?: number): BridgeEffect<boolean>
 
 **Yields:** `boolean`
 
-**Errors:** [`BridgeError`](#type-bridgeerror)
+**Errors:** [`BridgeError`](../../types/bridge-error/)
 
 <a id="member-api-shops-canbuyitem"></a>
 
 ### `api.shops.canBuyItem()`
 
-**Source:** [`app/src/renderer/windows/game/flash/Services/Shops.ts:8`](https://github.com/toommyliu/vexed/blob/3a194e38fe23218b85978c4567e31303a27d86c2/app/src/renderer/windows/game/flash/Services/Shops.ts#L8)
+**Source:** [`app/src/renderer/windows/game/flash/Services/Shops.ts:8`](https://github.com/toommyliu/vexed/blob/ee7dea4922d10259289c35ce1638a1553a17b577/app/src/renderer/windows/game/flash/Services/Shops.ts#L8)
 
 ```ts
 api.shops.canBuyItem(key: ItemIdentifierToken, quantity?: number): BridgeEffect<boolean>
@@ -82,18 +82,18 @@ api.shops.canBuyItem(key: ItemIdentifierToken, quantity?: number): BridgeEffect<
 
 | Name | Type | Required | Description |
 | --- | --- | --- | --- |
-| `key` | `ItemIdentifierToken` | ✓ |  |
+| `key` | [`ItemIdentifierToken`](../../types/item-identifier-token/) | ✓ |  |
 | `quantity` | `number` |  |  |
 
 **Yields:** `boolean`
 
-**Errors:** [`BridgeError`](#type-bridgeerror)
+**Errors:** [`BridgeError`](../../types/bridge-error/)
 
 <a id="member-api-shops-close"></a>
 
 ### `api.shops.close()`
 
-**Source:** [`app/src/renderer/windows/game/flash/Services/Shops.ts:9`](https://github.com/toommyliu/vexed/blob/3a194e38fe23218b85978c4567e31303a27d86c2/app/src/renderer/windows/game/flash/Services/Shops.ts#L9)
+**Source:** [`app/src/renderer/windows/game/flash/Services/Shops.ts:9`](https://github.com/toommyliu/vexed/blob/ee7dea4922d10259289c35ce1638a1553a17b577/app/src/renderer/windows/game/flash/Services/Shops.ts#L9)
 
 ```ts
 api.shops.close(shopId?: number): BridgeEffect<boolean>
@@ -105,27 +105,27 @@ api.shops.close(shopId?: number): BridgeEffect<boolean>
 
 **Yields:** `boolean`
 
-**Errors:** [`BridgeError`](#type-bridgeerror)
+**Errors:** [`BridgeError`](../../types/bridge-error/)
 
 <a id="member-api-shops-getinfo"></a>
 
 ### `api.shops.getInfo()`
 
-**Source:** [`app/src/renderer/windows/game/flash/Services/Shops.ts:10`](https://github.com/toommyliu/vexed/blob/3a194e38fe23218b85978c4567e31303a27d86c2/app/src/renderer/windows/game/flash/Services/Shops.ts#L10)
+**Source:** [`app/src/renderer/windows/game/flash/Services/Shops.ts:10`](https://github.com/toommyliu/vexed/blob/ee7dea4922d10259289c35ce1638a1553a17b577/app/src/renderer/windows/game/flash/Services/Shops.ts#L10)
 
 ```ts
 api.shops.getInfo(): BridgeEffect<ShopInfo | null>
 ```
 
-**Yields:** `ShopInfo` \| `null`
+**Yields:** [`ShopInfo`](../../types/shop-info/) \| `null`
 
-**Errors:** [`BridgeError`](#type-bridgeerror)
+**Errors:** [`BridgeError`](../../types/bridge-error/)
 
 <a id="member-api-shops-getitem"></a>
 
 ### `api.shops.getItem()`
 
-**Source:** [`app/src/renderer/windows/game/flash/Services/Shops.ts:11`](https://github.com/toommyliu/vexed/blob/3a194e38fe23218b85978c4567e31303a27d86c2/app/src/renderer/windows/game/flash/Services/Shops.ts#L11)
+**Source:** [`app/src/renderer/windows/game/flash/Services/Shops.ts:11`](https://github.com/toommyliu/vexed/blob/ee7dea4922d10259289c35ce1638a1553a17b577/app/src/renderer/windows/game/flash/Services/Shops.ts#L11)
 
 ```ts
 api.shops.getItem(key: ItemIdentifierToken): BridgeEffect<ShopItem | null>
@@ -133,31 +133,31 @@ api.shops.getItem(key: ItemIdentifierToken): BridgeEffect<ShopItem | null>
 
 | Name | Type | Required | Description |
 | --- | --- | --- | --- |
-| `key` | `ItemIdentifierToken` | ✓ |  |
+| `key` | [`ItemIdentifierToken`](../../types/item-identifier-token/) | ✓ |  |
 
-**Yields:** `ShopItem` \| `null`
+**Yields:** [`ShopItem`](../../types/shop-item/) \| `null`
 
-**Errors:** [`BridgeError`](#type-bridgeerror)
+**Errors:** [`BridgeError`](../../types/bridge-error/)
 
 <a id="member-api-shops-getitems"></a>
 
 ### `api.shops.getItems()`
 
-**Source:** [`app/src/renderer/windows/game/flash/Services/Shops.ts:12`](https://github.com/toommyliu/vexed/blob/3a194e38fe23218b85978c4567e31303a27d86c2/app/src/renderer/windows/game/flash/Services/Shops.ts#L12)
+**Source:** [`app/src/renderer/windows/game/flash/Services/Shops.ts:12`](https://github.com/toommyliu/vexed/blob/ee7dea4922d10259289c35ce1638a1553a17b577/app/src/renderer/windows/game/flash/Services/Shops.ts#L12)
 
 ```ts
 api.shops.getItems(): BridgeEffect<readonly ShopItem[]>
 ```
 
-**Yields:** `readonly` `ShopItem`[]
+**Yields:** `readonly` [`ShopItem`](../../types/shop-item/)[]
 
-**Errors:** [`BridgeError`](#type-bridgeerror)
+**Errors:** [`BridgeError`](../../types/bridge-error/)
 
 <a id="member-api-shops-getmaxbuyquantity"></a>
 
 ### `api.shops.getMaxBuyQuantity()`
 
-**Source:** [`app/src/renderer/windows/game/flash/Services/Shops.ts:13`](https://github.com/toommyliu/vexed/blob/3a194e38fe23218b85978c4567e31303a27d86c2/app/src/renderer/windows/game/flash/Services/Shops.ts#L13)
+**Source:** [`app/src/renderer/windows/game/flash/Services/Shops.ts:13`](https://github.com/toommyliu/vexed/blob/ee7dea4922d10259289c35ce1638a1553a17b577/app/src/renderer/windows/game/flash/Services/Shops.ts#L13)
 
 ```ts
 api.shops.getMaxBuyQuantity(key: ItemIdentifierToken): BridgeEffect<number>
@@ -165,17 +165,17 @@ api.shops.getMaxBuyQuantity(key: ItemIdentifierToken): BridgeEffect<number>
 
 | Name | Type | Required | Description |
 | --- | --- | --- | --- |
-| `key` | `ItemIdentifierToken` | ✓ |  |
+| `key` | [`ItemIdentifierToken`](../../types/item-identifier-token/) | ✓ |  |
 
 **Yields:** `number`
 
-**Errors:** [`BridgeError`](#type-bridgeerror)
+**Errors:** [`BridgeError`](../../types/bridge-error/)
 
 <a id="member-api-shops-ismergeshop"></a>
 
 ### `api.shops.isMergeShop()`
 
-**Source:** [`app/src/renderer/windows/game/flash/Services/Shops.ts:15`](https://github.com/toommyliu/vexed/blob/3a194e38fe23218b85978c4567e31303a27d86c2/app/src/renderer/windows/game/flash/Services/Shops.ts#L15)
+**Source:** [`app/src/renderer/windows/game/flash/Services/Shops.ts:15`](https://github.com/toommyliu/vexed/blob/ee7dea4922d10259289c35ce1638a1553a17b577/app/src/renderer/windows/game/flash/Services/Shops.ts#L15)
 
 ```ts
 api.shops.isMergeShop(): BridgeEffect<boolean>
@@ -183,13 +183,13 @@ api.shops.isMergeShop(): BridgeEffect<boolean>
 
 **Yields:** `boolean`
 
-**Errors:** [`BridgeError`](#type-bridgeerror)
+**Errors:** [`BridgeError`](../../types/bridge-error/)
 
 <a id="member-api-shops-isopen"></a>
 
 ### `api.shops.isOpen()`
 
-**Source:** [`app/src/renderer/windows/game/flash/Services/Shops.ts:14`](https://github.com/toommyliu/vexed/blob/3a194e38fe23218b85978c4567e31303a27d86c2/app/src/renderer/windows/game/flash/Services/Shops.ts#L14)
+**Source:** [`app/src/renderer/windows/game/flash/Services/Shops.ts:14`](https://github.com/toommyliu/vexed/blob/ee7dea4922d10259289c35ce1638a1553a17b577/app/src/renderer/windows/game/flash/Services/Shops.ts#L14)
 
 ```ts
 api.shops.isOpen(shopId?: number): BridgeEffect<boolean>
@@ -201,13 +201,13 @@ api.shops.isOpen(shopId?: number): BridgeEffect<boolean>
 
 **Yields:** `boolean`
 
-**Errors:** [`BridgeError`](#type-bridgeerror)
+**Errors:** [`BridgeError`](../../types/bridge-error/)
 
 <a id="member-api-shops-load"></a>
 
 ### `api.shops.load()`
 
-**Source:** [`app/src/renderer/windows/game/flash/Services/Shops.ts:16`](https://github.com/toommyliu/vexed/blob/3a194e38fe23218b85978c4567e31303a27d86c2/app/src/renderer/windows/game/flash/Services/Shops.ts#L16)
+**Source:** [`app/src/renderer/windows/game/flash/Services/Shops.ts:16`](https://github.com/toommyliu/vexed/blob/ee7dea4922d10259289c35ce1638a1553a17b577/app/src/renderer/windows/game/flash/Services/Shops.ts#L16)
 
 ```ts
 api.shops.load(shopId: number): BridgeEffect<void>
@@ -219,13 +219,13 @@ api.shops.load(shopId: number): BridgeEffect<void>
 
 **Yields:** `void`
 
-**Errors:** [`BridgeError`](#type-bridgeerror)
+**Errors:** [`BridgeError`](../../types/bridge-error/)
 
 <a id="member-api-shops-loadarmorcustomize"></a>
 
 ### `api.shops.loadArmorCustomize()`
 
-**Source:** [`app/src/renderer/windows/game/flash/Services/Shops.ts:17`](https://github.com/toommyliu/vexed/blob/3a194e38fe23218b85978c4567e31303a27d86c2/app/src/renderer/windows/game/flash/Services/Shops.ts#L17)
+**Source:** [`app/src/renderer/windows/game/flash/Services/Shops.ts:17`](https://github.com/toommyliu/vexed/blob/ee7dea4922d10259289c35ce1638a1553a17b577/app/src/renderer/windows/game/flash/Services/Shops.ts#L17)
 
 ```ts
 api.shops.loadArmorCustomize(): BridgeEffect<void>
@@ -233,13 +233,13 @@ api.shops.loadArmorCustomize(): BridgeEffect<void>
 
 **Yields:** `void`
 
-**Errors:** [`BridgeError`](#type-bridgeerror)
+**Errors:** [`BridgeError`](../../types/bridge-error/)
 
 <a id="member-api-shops-loadhairshop"></a>
 
 ### `api.shops.loadHairShop()`
 
-**Source:** [`app/src/renderer/windows/game/flash/Services/Shops.ts:18`](https://github.com/toommyliu/vexed/blob/3a194e38fe23218b85978c4567e31303a27d86c2/app/src/renderer/windows/game/flash/Services/Shops.ts#L18)
+**Source:** [`app/src/renderer/windows/game/flash/Services/Shops.ts:18`](https://github.com/toommyliu/vexed/blob/ee7dea4922d10259289c35ce1638a1553a17b577/app/src/renderer/windows/game/flash/Services/Shops.ts#L18)
 
 ```ts
 api.shops.loadHairShop(shopId: number): BridgeEffect<void>
@@ -251,13 +251,13 @@ api.shops.loadHairShop(shopId: number): BridgeEffect<void>
 
 **Yields:** `void`
 
-**Errors:** [`BridgeError`](#type-bridgeerror)
+**Errors:** [`BridgeError`](../../types/bridge-error/)
 
 <a id="member-api-shops-sellbyid"></a>
 
 ### `api.shops.sellById()`
 
-**Source:** [`app/src/renderer/windows/game/flash/Services/Shops.ts:19`](https://github.com/toommyliu/vexed/blob/3a194e38fe23218b85978c4567e31303a27d86c2/app/src/renderer/windows/game/flash/Services/Shops.ts#L19)
+**Source:** [`app/src/renderer/windows/game/flash/Services/Shops.ts:19`](https://github.com/toommyliu/vexed/blob/ee7dea4922d10259289c35ce1638a1553a17b577/app/src/renderer/windows/game/flash/Services/Shops.ts#L19)
 
 ```ts
 api.shops.sellById(id: unknown, quantity?: number): BridgeEffect<boolean>
@@ -270,13 +270,13 @@ api.shops.sellById(id: unknown, quantity?: number): BridgeEffect<boolean>
 
 **Yields:** `boolean`
 
-**Errors:** [`BridgeError`](#type-bridgeerror)
+**Errors:** [`BridgeError`](../../types/bridge-error/)
 
 <a id="member-api-shops-sellbyname"></a>
 
 ### `api.shops.sellByName()`
 
-**Source:** [`app/src/renderer/windows/game/flash/Services/Shops.ts:20`](https://github.com/toommyliu/vexed/blob/3a194e38fe23218b85978c4567e31303a27d86c2/app/src/renderer/windows/game/flash/Services/Shops.ts#L20)
+**Source:** [`app/src/renderer/windows/game/flash/Services/Shops.ts:20`](https://github.com/toommyliu/vexed/blob/ee7dea4922d10259289c35ce1638a1553a17b577/app/src/renderer/windows/game/flash/Services/Shops.ts#L20)
 
 ```ts
 api.shops.sellByName(name: string, quantity?: number): BridgeEffect<boolean>
@@ -289,28 +289,4 @@ api.shops.sellByName(name: string, quantity?: number): BridgeEffect<boolean>
 
 **Yields:** `boolean`
 
-**Errors:** [`BridgeError`](#type-bridgeerror)
-
-## Referenced Types
-
-<a id="type-bridgeeffect"></a>
-
-### `BridgeEffect`
-
-**Source:** [`app/src/renderer/windows/game/flash/Services/Bridge.ts:14`](https://github.com/toommyliu/vexed/blob/3a194e38fe23218b85978c4567e31303a27d86c2/app/src/renderer/windows/game/flash/Services/Bridge.ts#L14)
-
-```ts
-type BridgeEffect = Effect.Effect<A, BridgeError>
-```
-
-<a id="type-bridgeerror"></a>
-
-### `BridgeError`
-
-**Source:** [`app/src/renderer/windows/game/flash/Services/Bridge.ts:9`](https://github.com/toommyliu/vexed/blob/3a194e38fe23218b85978c4567e31303a27d86c2/app/src/renderer/windows/game/flash/Services/Bridge.ts#L9)
-
-```ts
-type BridgeError = | SwfUnavailableError
-  | SwfMethodNotFoundError
-  | SwfCallError
-```
+**Errors:** [`BridgeError`](../../types/bridge-error/)

@@ -25,7 +25,7 @@ import type { TempInventoryShape } from "../flash/Services/TempInventory";
 import type { WorldShape } from "../flash/Services/World";
 import { asItemData } from "../flash/ItemDataPayload";
 import { asBoolean, asNumber, asRecord, asString } from "../flash/PacketPayload";
-import type { ActiveSkillItem } from "../flash/Types";
+import type { ConsumableSkillItem } from "../flash/Types";
 import { waitFor } from "../utils/waitFor";
 import { ScriptExecutionError } from "./Errors";
 
@@ -211,21 +211,21 @@ const buff = (
 const normalizeConsumableName = (name: string): string =>
   name.trim().toLowerCase().replaceAll(/\s+/g, " ");
 
-const activeSkillItemMatches = (
-  activeItem: ActiveSkillItem | null,
+const consumableSkillItemMatches = (
+  consumableSkillItem: ConsumableSkillItem | null,
   expectedItem: Item,
 ): boolean => {
-  if (!activeItem) {
+  if (!consumableSkillItem) {
     return false;
   }
 
-  if (activeItem.itemId !== undefined) {
-    return activeItem.itemId === expectedItem.id;
+  if (consumableSkillItem.itemId !== undefined) {
+    return consumableSkillItem.itemId === expectedItem.id;
   }
 
-  if (activeItem.name !== undefined) {
+  if (consumableSkillItem.name !== undefined) {
     return (
-      normalizeConsumableName(activeItem.name) ===
+      normalizeConsumableName(consumableSkillItem.name) ===
       normalizeConsumableName(expectedItem.name)
     );
   }
@@ -239,8 +239,9 @@ const waitForConsumableSkillSlot = (
 ) =>
   waitFor(
     Effect.map(
-      deps.combat.getActiveSkillItem(CONSUMABLE_SKILL_INDEX),
-      (activeItem) => activeSkillItemMatches(activeItem, expectedItem),
+      deps.combat.getConsumableSkillItem(),
+      (consumableSkillItem) =>
+        consumableSkillItemMatches(consumableSkillItem, expectedItem),
     ),
     { timeout: "2 seconds" },
   );
