@@ -1,65 +1,78 @@
-cmd.set_delay(0)
-cmd.goto_house()
-cmd.set_fps(10)
-cmd.enable_lagkiller()
-cmd.enable_hideplayers()
-cmd.enable_infiniterange()
-cmd.enable_anticounter()
-cmd.army_set_config('army_config')
-cmd.army_init()
-cmd.set_delay(1000)
+const BOSS = 'Dage the Dark Lord'
 
-cmd.accept_quest(8547) // dage
-
-var opts = {
-  skillAction() {
-    let a = []
-    let i = 0
-
-    switch (this.bot.player.className) {
-      case 'LEGION DOOMKNIGHT':
-        a = [1, 2, 3, 4]
-        break
-      case 'QUANTUM CHRONOMANCER':
-        a = [1, 2, 3, 4, 5]
-        break
-      case 'CHAOS AVENGER':
-        a = [1, 2, 3, 4, 5]
-        break
-      case 'VERUS DOOMKNIGHT':
-        a = [1, 2, 3, 4, 5]
-    }
-
-    return async function () {
-      const plyrNumber = this.bot.army.getPlayerNumber()
-
-      if (plyrNumber === 1 || plyrNumber === 3) {
-        try {
-          if (
-            this.bot.combat.hasTarget() &&
-            this.bot.combat.target.isMonster() &&
-            !this.bot.combat.target.hasAura('Focus')
-          ) {
-            void this.bot.combat.useSkill(5, true, false)
-          }
-        } catch (error) {
-          console.warn('failed aura check', error)
-        }
-      }
-
-      await this.bot.combat.useSkill(a[i])
-      i = (i + 1) % a.length
-    }
-  },
-  skillDelay: 0,
+function getSkillPlan(className) {
+  switch (className) {
+    case 'LEGION DOOMKNIGHT':
+      return [1, 2, 3, 4]
+    case 'QUANTUM CHRONOMANCER':
+    case 'CHAOS AVENGER':
+    case 'VERUS DOOMKNIGHT':
+      return [1, 2, 3, 4, 5]
+    default:
+      return [1, 2, 3, 4]
+  }
 }
 
-cmd.army_join('ultradage')
-cmd.army_equip_set('UltraDage', true)
-cmd.use_autozone_ultradage()
-cmd.buff()
-cmd.hunt('Dage the Dark Lord')
-cmd.set_spawnpoint()
-cmd.army_kill_for_tempitem('*', 'Dage the Dark Lord Defeated', 1, opts)
-cmd.jump_to_cell('Enter')
-cmd.complete_quest(8547)
+function isSome(option) {
+  return option && option._tag === 'Some'
+}
+
+function* useSkill(api, playerNumber, skill) {
+  const target = yield* api.combat.getTarget()
+  if (
+    (playerNumber === 1 || playerNumber === 3) &&
+    target &&
+    target.isMonster() &&
+    skill === 5
+  ) {
+    const focus = yield* api.world.monsters.getAura(target.monMapId, 'Focus')
+    if (!isSome(focus)) {
+      yield* api.combat.useSkill(5, true, false)
+      return
+    }
+  }
+
+  yield* api.combat.useSkill(skill)
+}
+
+module.exports = function* run({ api, autoZone, script }) {
+  yield* api.recipes.goToHouse()
+  yield* api.settings.setFrameRate(10)
+  yield* api.settings.setLagKillerEnabled(true)
+  yield* api.settings.setOtherPlayersVisible(false)
+  yield* api.settings.setInfiniteRange(true)
+  yield* api.army.start('config')
+
+  yield* api.quests.accept(8547)
+  yield* api.army.joinMap('ultradage')
+  yield* api.army.equipSet('UltraDage', { resolveItems: true })
+  yield* autoZone.setMap('ultradage')
+  yield* autoZone.enable()
+  yield* api.recipes.buff()
+  yield* api.combat.hunt(BOSS)
+  yield* api.world.map.setSpawnPoint()
+
+  const playerNumber = yield* api.army.getPlayerNumber()
+  const rotation = getSkillPlan(yield* api.player.getClassName())
+  let index = 0
+
+  while (!(yield* api.tempInventory.contains('Dage the Dark Lord Defeated', 1))) {
+    if (!(yield* api.player.isAlive())) {
+      yield* script.sleep(1000)
+      continue
+    }
+
+    if (!(yield* api.combat.hasTarget())) {
+      yield* api.combat.attackMonster(BOSS)
+    }
+
+    yield* useSkill(api, playerNumber, rotation[index])
+    index = (index + 1) % rotation.length
+    yield* script.sleep(100)
+  }
+
+  yield* api.player.jumpToCell('Enter')
+  if (yield* api.quests.canComplete(8547)) {
+    yield* api.quests.complete(8547)
+  }
+}

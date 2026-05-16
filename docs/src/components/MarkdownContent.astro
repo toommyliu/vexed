@@ -1,0 +1,482 @@
+---
+import '@astrojs/starlight/style/markdown.css';
+---
+
+<div class="markdown-wrapper">
+    <div class="sl-markdown-content">
+        <slot />
+    </div>
+</div>
+
+<script>
+    const legacyRequiredMark = String.fromCodePoint(Number.parseInt('2713', 16));
+    const apiSignaturePattern = /^(api(?:\.[A-Za-z_$][\w$]*)+)\((.*)\):\s*BridgeEffect<[\s\S]+>$/;
+    const typePreviewUrl = `${import.meta.env.BASE_URL.replace(/\/$/, '')}/script-type-previews.json`;
+    let typePreviewRequest;
+    let activeTypePreviewTrigger;
+    let typePreviewOpenTimer;
+    let typePreviewCloseTimer;
+
+    const getParameterName = (parameter) => {
+        const withoutDefault = parameter.split('=')[0]?.trim() ?? '';
+        const withoutType = withoutDefault.split(':')[0]?.trim() ?? '';
+        const withoutOptional = withoutType.replace(/\?$/, '').trim();
+        return withoutOptional.replace(/^\.\.\./, '').trim();
+    };
+
+    const toTitleCase = (text) =>
+        text ? text.charAt(0).toUpperCase() + text.slice(1) : text;
+
+    const splitParameters = (parameters) => {
+        const parts = [];
+        let current = '';
+        let depth = 0;
+        let quote = '';
+
+        for (const character of parameters) {
+            if (quote) {
+                current += character;
+                if (character === quote) quote = '';
+                continue;
+            }
+
+            if (character === "'" || character === '"' || character === '`') {
+                quote = character;
+                current += character;
+                continue;
+            }
+
+            if (character === '<' || character === '(' || character === '[' || character === '{') {
+                depth += 1;
+                current += character;
+                continue;
+            }
+
+            if (character === '>' || character === ')' || character === ']' || character === '}') {
+                depth = Math.max(0, depth - 1);
+                current += character;
+                continue;
+            }
+
+            if (character === ',' && depth === 0) {
+                parts.push(current.trim());
+                current = '';
+                continue;
+            }
+
+            current += character;
+        }
+
+        if (current.trim()) parts.push(current.trim());
+        return parts;
+    };
+
+    const createApiCallSnippet = (signature) => {
+        const match = signature.trim().match(apiSignaturePattern);
+        if (!match) return null;
+
+        const [, callee, parameters] = match;
+        const argumentNames = splitParameters(parameters)
+            .map(getParameterName)
+            .filter(Boolean);
+
+        return `${callee}(${argumentNames.join(', ')})`;
+    };
+
+    const writeToClipboard = async (text) => {
+        if (navigator.clipboard) {
+            await navigator.clipboard.writeText(text);
+            return;
+        }
+
+        const textArea = document.createElement('textarea');
+        textArea.value = text;
+        textArea.setAttribute('readonly', '');
+        textArea.style.position = 'fixed';
+        textArea.style.inset = '0 auto auto 0';
+        textArea.style.opacity = '0';
+        document.body.append(textArea);
+        textArea.select();
+
+        try {
+            document.execCommand('copy');
+        } finally {
+            textArea.remove();
+        }
+    };
+
+    const loadTypePreviews = () => {
+        typePreviewRequest ??= fetch(typePreviewUrl, {
+            headers: { Accept: 'application/json' },
+        }).then((response) => {
+            if (!response.ok) throw new Error(`Unable to load ${typePreviewUrl}`);
+            return response.json();
+        });
+        return typePreviewRequest;
+    };
+
+    const getTypePreview = () => {
+        let preview = document.querySelector('.script-type-preview');
+        if (preview) return preview;
+
+        preview = document.createElement('aside');
+        preview.className = 'script-type-preview';
+        preview.setAttribute('role', 'dialog');
+        preview.setAttribute('aria-modal', 'false');
+        preview.setAttribute('aria-labelledby', 'script-type-preview-title');
+        preview.hidden = true;
+        preview.innerHTML = `
+            <div class="script-type-preview__header">
+                <div class="script-type-preview__title-wrap">
+                    <p class="script-type-preview__eyebrow" aria-label="Type kind"></p>
+                    <p class="script-type-preview__title" id="script-type-preview-title"></p>
+                </div>
+                <button class="script-type-preview__close" type="button" aria-label="Close type preview" title="Close type preview">
+                    <svg class="script-type-preview__close-icon" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M18 6 6 18"></path>
+                        <path d="m6 6 12 12"></path>
+                    </svg>
+                </button>
+            </div>
+            <div class="script-type-preview__body">
+                <div class="script-type-preview__overview">
+                    <p class="script-type-preview__summary"></p>
+                    <pre class="script-type-preview__code"><code></code></pre>
+                </div>
+                <div class="script-type-preview__keys" hidden>
+                    <div class="script-type-preview__section-title">Members</div>
+                    <div class="script-type-preview__key-list"></div>
+                </div>
+            </div>
+            <div class="script-type-preview__actions">
+                <a class="script-type-preview__open">Open reference</a>
+                <a class="script-type-preview__source" target="_blank" rel="noreferrer">Source</a>
+            </div>
+        `;
+        preview
+            .querySelector('.script-type-preview__close')
+            ?.addEventListener('click', () => closeTypePreview({ restoreFocus: true }));
+        preview.addEventListener('mouseenter', clearTypePreviewTimers);
+        preview.addEventListener('mouseleave', scheduleTypePreviewClose);
+        document.body.append(preview);
+        return preview;
+    };
+
+    const closeTypePreview = ({ restoreFocus } = { restoreFocus: false }) => {
+        clearTypePreviewTimers();
+        const preview = document.querySelector('.script-type-preview');
+        if (!preview || preview.hidden) return;
+
+        preview.hidden = true;
+        preview.classList.remove('is-open');
+        activeTypePreviewTrigger?.removeAttribute('aria-expanded');
+
+        if (restoreFocus) {
+            activeTypePreviewTrigger?.focus();
+        }
+        activeTypePreviewTrigger = undefined;
+    };
+
+    const clearTypePreviewTimers = () => {
+        window.clearTimeout(typePreviewOpenTimer);
+        window.clearTimeout(typePreviewCloseTimer);
+    };
+
+    const scheduleTypePreviewClose = () => {
+        window.clearTimeout(typePreviewCloseTimer);
+        typePreviewCloseTimer = window.setTimeout(() => {
+            const preview = document.querySelector('.script-type-preview');
+            if (preview?.matches(':hover') || activeTypePreviewTrigger?.matches(':hover')) return;
+            closeTypePreview();
+        }, 140);
+    };
+
+    const positionTypePreview = (preview, trigger) => {
+        preview.removeAttribute('style');
+
+        if (window.matchMedia('(max-width: 719px)').matches) {
+            return;
+        }
+
+        const triggerRect = trigger.getBoundingClientRect();
+        const width = Math.min(400, window.innerWidth - 32);
+        const left = Math.min(window.innerWidth - width - 16, Math.max(16, triggerRect.left));
+        let top = triggerRect.bottom + 10;
+
+        preview.style.width = `${width}px`;
+        preview.style.left = `${left}px`;
+        preview.style.top = `${top}px`;
+
+        const previewRect = preview.getBoundingClientRect();
+        if (previewRect.bottom > window.innerHeight - 16) {
+            top = Math.max(16, triggerRect.top - previewRect.height - 10);
+            preview.style.top = `${top}px`;
+        }
+    };
+
+    const renderTypePreviewKeys = (preview, keys) => {
+        const section = preview.querySelector('.script-type-preview__keys');
+        const list = preview.querySelector('.script-type-preview__key-list');
+        list.replaceChildren();
+
+        if (!Array.isArray(keys) || keys.length === 0) {
+            section.hidden = true;
+            return;
+        }
+
+        for (const key of keys.slice(0, 8)) {
+            const row = document.createElement('div');
+            row.className = 'script-type-preview__key';
+
+            const header = document.createElement('div');
+            header.className = 'script-type-preview__key-header';
+
+            const name = document.createElement('code');
+            name.className = 'script-type-preview__key-name';
+            name.textContent = key.name ?? '';
+
+            const kind = document.createElement('span');
+            kind.className = 'script-type-preview__key-kind';
+            kind.textContent = toTitleCase(key.kind ?? 'key');
+
+            header.append(name, kind);
+
+            const signature = document.createElement('code');
+            signature.className = 'script-type-preview__key-signature';
+            signature.textContent = key.signature ?? key.name ?? '';
+
+            row.append(header, signature);
+
+            if (key.description) {
+                const description = document.createElement('p');
+                description.className = 'script-type-preview__key-description';
+                description.textContent = key.description;
+                row.append(description);
+            }
+
+            list.append(row);
+        }
+
+        if (keys.length > 8) {
+            const more = document.createElement('p');
+            more.className = 'script-type-preview__key-more';
+            more.textContent = `+${keys.length - 8} more on the reference page`;
+            list.append(more);
+        }
+
+        section.hidden = false;
+    };
+
+    const openTypePreview = async (trigger, { focusPreview } = { focusPreview: true }) => {
+        const slug = trigger.dataset.scriptType;
+        if (!slug) return false;
+
+        const data = await loadTypePreviews();
+        const type = data?.types?.[slug];
+        if (!type) return false;
+
+        const preview = getTypePreview();
+        preview.querySelector('.script-type-preview__eyebrow').textContent = toTitleCase(type.kind || 'Type');
+        preview.querySelector('.script-type-preview__title').textContent = type.name;
+        preview.querySelector('.script-type-preview__summary').textContent =
+            type.summary || '';
+        preview.querySelector('.script-type-preview__code code').textContent = type.definition;
+        renderTypePreviewKeys(preview, type.keys);
+
+        const openLink = preview.querySelector('.script-type-preview__open');
+        openLink.href = trigger.href;
+
+        const sourceLink = preview.querySelector('.script-type-preview__source');
+        if (type.source?.url) {
+            sourceLink.href = type.source.url;
+            sourceLink.title = type.source.path ? `Open source: ${type.source.path}` : 'Open source';
+            sourceLink.hidden = false;
+        } else {
+            sourceLink.hidden = true;
+            sourceLink.removeAttribute('href');
+            sourceLink.removeAttribute('title');
+        }
+
+        activeTypePreviewTrigger?.removeAttribute('aria-expanded');
+        activeTypePreviewTrigger = trigger;
+        trigger.setAttribute('aria-expanded', 'true');
+
+        preview.hidden = false;
+        preview.classList.add('is-open');
+        positionTypePreview(preview, trigger);
+        if (focusPreview) {
+            preview.querySelector('.script-type-preview__close')?.focus({ preventScroll: true });
+        }
+        return true;
+    };
+
+    const isTypePreviewTriggerInContent = (trigger) =>
+        !!trigger.closest('.sl-markdown-content');
+
+    const handleTypePreviewHover = (event) => {
+        const trigger = event.target?.closest?.('a[data-script-type]');
+        if (!trigger || !isTypePreviewTriggerInContent(trigger)) return;
+
+        clearTypePreviewTimers();
+        typePreviewOpenTimer = window.setTimeout(() => {
+            openTypePreview(trigger, { focusPreview: false }).catch(() => {});
+        }, 120);
+    };
+
+    const handleTypePreviewHoverEnd = (event) => {
+        const trigger = event.target?.closest?.('a[data-script-type]');
+        if (!trigger || !isTypePreviewTriggerInContent(trigger)) return;
+
+        const relatedTarget = event.relatedTarget;
+        const preview = document.querySelector('.script-type-preview');
+        if (
+            relatedTarget instanceof Node &&
+            (trigger.contains(relatedTarget) || preview?.contains(relatedTarget))
+        ) {
+            return;
+        }
+
+        scheduleTypePreviewClose();
+    };
+
+    const handleTypePreviewFocus = (event) => {
+        const trigger = event.target?.closest?.('a[data-script-type]');
+        if (!trigger || !isTypePreviewTriggerInContent(trigger)) return;
+
+        clearTypePreviewTimers();
+        openTypePreview(trigger, { focusPreview: false }).catch(() => {});
+    };
+
+    const handleTypePreviewBlur = (event) => {
+        const trigger = event.target?.closest?.('a[data-script-type]');
+        if (!trigger) return;
+
+        const relatedTarget = event.relatedTarget;
+        const preview = document.querySelector('.script-type-preview');
+        if (relatedTarget instanceof Node && preview?.contains(relatedTarget)) return;
+
+        scheduleTypePreviewClose();
+    };
+
+    const handleTypePreviewDismiss = (event) => {
+        const preview = document.querySelector('.script-type-preview');
+        if (!preview || preview.hidden) return;
+
+        const target = event.target;
+        if (preview.contains(target) || activeTypePreviewTrigger?.contains(target)) return;
+
+        closeTypePreview();
+    };
+
+    const handleTypePreviewKeydown = (event) => {
+        if (event.key !== 'Escape') return;
+        closeTypePreview({ restoreFocus: true });
+    };
+
+    const repositionActiveTypePreview = () => {
+        const preview = document.querySelector('.script-type-preview');
+        if (!preview || preview.hidden || !activeTypePreviewTrigger) return;
+        positionTypePreview(preview, activeTypePreviewTrigger);
+    };
+
+    const upgradeRequiredMarks = () => {
+        for (const table of document.querySelectorAll('.sl-markdown-content table')) {
+            const headers = Array.from(table.querySelectorAll('thead th'));
+            const requiredColumnIndex = headers.findIndex(
+                (header) => header.textContent?.trim() === 'Required'
+            );
+
+            if (requiredColumnIndex === -1) continue;
+
+            for (const row of table.querySelectorAll('tbody tr')) {
+                const cell = row.children.item(requiredColumnIndex);
+                if (cell?.textContent?.trim() !== legacyRequiredMark) continue;
+
+                cell.textContent = '';
+                const mark = document.createElement('span');
+                mark.className = 'required-mark';
+                mark.setAttribute('role', 'img');
+                mark.setAttribute('aria-label', 'Required');
+                cell.append(mark);
+            }
+        }
+    };
+
+    const upgradeApiSignatureCopyButtons = () => {
+        for (const block of document.querySelectorAll('.sl-markdown-content .expressive-code')) {
+            const code = block.querySelector('pre code');
+            const copyButton = block.querySelector('.copy button');
+            if (!code || !copyButton) continue;
+
+            const snippet = createApiCallSnippet(code.textContent ?? '');
+            if (!snippet) continue;
+
+            copyButton.dataset.copySnippet = snippet;
+            copyButton.setAttribute('aria-label', 'Copy call');
+            copyButton.setAttribute('title', 'Copy call');
+        }
+    };
+
+    const upgradeDecorativeHeadingSourceLinks = () => {
+        for (const link of document.querySelectorAll(
+            '.sl-markdown-content .source-reference__heading-link'
+        )) {
+            link.setAttribute('tabindex', '-1');
+            link.setAttribute('aria-hidden', 'true');
+        }
+    };
+
+    const copyApiCallSnippet = async (event) => {
+        const copyButton = event.target?.closest?.('.copy button');
+        if (!copyButton) return;
+
+        const snippet = copyButton.dataset.copySnippet ?? copyButton.dataset.code;
+        if (!snippet) return;
+
+        event.preventDefault();
+        event.stopPropagation();
+        event.stopImmediatePropagation();
+
+        await writeToClipboard(snippet);
+
+        const copyContainer = copyButton.closest('.copy');
+        const feedback = copyButton.closest('.copy')?.querySelector('.feedback');
+        feedback?.classList.add('show');
+        copyContainer?.classList.add('is-copied');
+        window.setTimeout(() => {
+            feedback?.classList.remove('show');
+            copyContainer?.classList.remove('is-copied');
+        }, 1000);
+    };
+
+    const upgradeMarkdownContent = () => {
+        upgradeRequiredMarks();
+        upgradeApiSignatureCopyButtons();
+        upgradeDecorativeHeadingSourceLinks();
+    };
+
+    document.addEventListener('click', copyApiCallSnippet, true);
+    document.addEventListener('click', handleTypePreviewDismiss, true);
+    document.addEventListener('mouseover', handleTypePreviewHover);
+    document.addEventListener('mouseout', handleTypePreviewHoverEnd);
+    document.addEventListener('pointerover', handleTypePreviewHover);
+    document.addEventListener('pointerout', handleTypePreviewHoverEnd);
+    document.addEventListener('focusin', handleTypePreviewFocus);
+    document.addEventListener('focusout', handleTypePreviewBlur);
+    document.addEventListener('keydown', handleTypePreviewKeydown);
+    window.addEventListener('resize', repositionActiveTypePreview);
+    window.addEventListener('scroll', repositionActiveTypePreview, true);
+    upgradeMarkdownContent();
+    document.addEventListener('astro:after-swap', () => {
+        closeTypePreview();
+        upgradeMarkdownContent();
+    });
+</script>
+
+<style>
+    .markdown-wrapper {
+        --foreground: var(--markdown-foreground, var(--foreground));
+
+        color: var(--foreground);
+    }
+</style>

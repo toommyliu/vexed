@@ -1,0 +1,361 @@
+---
+import type { StarlightRouteData } from '@astrojs/starlight/route-data';
+import { ChevronRight } from '@lucide/astro';
+
+interface Props {
+    sublist: StarlightRouteData['sidebar'];
+    nested?: boolean;
+    nestedDepth?: number;
+    path?: readonly string[];
+}
+
+const { sublist, nested = false, nestedDepth = 0, path = [] } = Astro.props;
+
+const toSidebarGroupKey = (segments: readonly string[]): string =>
+    segments
+        .map((segment) =>
+            segment
+                .trim()
+                .toLowerCase()
+                .replace(/[^a-z0-9]+/g, '-')
+                .replace(/^-+|-+$/g, '')
+        )
+        .filter(Boolean)
+        .join('/');
+
+const hasCurrentEntry = (entries: StarlightRouteData['sidebar']): boolean =>
+    entries.some((entry) =>
+        entry.type === 'link' ? entry.isCurrent : hasCurrentEntry(entry.entries)
+    );
+
+const shouldOpenGroup = (
+    entries: StarlightRouteData['sidebar'],
+    collapsed: boolean
+): boolean => !nested || hasCurrentEntry(entries) || !collapsed;
+
+const getScriptTypeSlug = (href: string): string | undefined =>
+    href.match(/^\/scripting\/types\/([^/]+)\/?$/)?.[1];
+
+const getLinkLabel = (entry: StarlightRouteData['sidebar'][number]): string =>
+    entry.type === 'link' && entry.href === '/scripting/types/' && entry.label === 'Types'
+        ? 'Overview'
+        : entry.label;
+
+const isGroupHeaderLink = (
+    groupLabel: string,
+    entry: StarlightRouteData['sidebar'][number] | undefined
+) => groupLabel === 'API' && entry?.type === 'link' && entry.label === groupLabel;
+---
+
+{
+    sublist.map((entry) => {
+        if (entry.type === 'link') {
+            return (
+                <a
+                    href={entry.href}
+                    aria-current={entry.isCurrent && 'page'}
+                    class:list={['entry-link', entry.attrs.class]}
+                    data-nested={nested ? '' : undefined}
+                    data-depth={nested ? nestedDepth : undefined}
+                    data-script-type={getScriptTypeSlug(entry.href)}
+                    {...entry.attrs}
+                >
+                    <span class="entry-link-inner">
+                        {getLinkLabel(entry)}
+                        {entry.badge && <span class="entry-badge">{entry.badge.text}</span>}
+                    </span>
+                </a>
+            );
+        }
+
+        const entryPath = [...path, entry.label];
+        const entryKey = toSidebarGroupKey(entryPath);
+        const hasCurrentChild = hasCurrentEntry(entry.entries);
+        const headerLink = isGroupHeaderLink(entry.label, entry.entries[0]) ? entry.entries[0] : undefined;
+        const childEntries = headerLink ? entry.entries.slice(1) : entry.entries;
+
+        if (headerLink) {
+            return (
+                <div
+                    class="container-sidebar-entry"
+                    data-current={hasCurrentChild ? '' : undefined}
+                >
+                    <a
+                        href={headerLink.href}
+                        aria-current={headerLink.isCurrent && 'page'}
+                        class:list={['entry-link', headerLink.attrs.class]}
+                        data-nested={nested ? '' : undefined}
+                        data-depth={nested ? nestedDepth : undefined}
+                        data-current-parent={!headerLink.isCurrent && hasCurrentChild ? '' : undefined}
+                        {...headerLink.attrs}
+                    >
+                        <span class="entry-link-inner">
+                            {entry.label}
+                            {entry.badge && <span class="entry-badge">{entry.badge.text}</span>}
+                        </span>
+                    </a>
+                    <div class="container-group-link">
+                        <Astro.self
+                            sublist={childEntries}
+                            nested
+                            nestedDepth={nestedDepth + 1}
+                            path={entryPath}
+                        />
+                    </div>
+                </div>
+            );
+        }
+
+        return (
+            <details
+                class="container-sidebar-entry"
+                data-sidebar-group={entryKey}
+                data-nested={nested ? '' : undefined}
+                data-depth={nested ? nestedDepth : undefined}
+                data-current={hasCurrentChild ? '' : undefined}
+                open={shouldOpenGroup(entry.entries, entry.collapsed)}
+            >
+                <script is:inline define:vars={{ groupKey: entryKey }}>
+                    (() => {
+                        const details = document.currentScript?.parentElement;
+                        const storedOpen = window.__vexedSidebarGroupState?.[groupKey];
+
+                        if (
+                            details instanceof HTMLDetailsElement &&
+                            typeof storedOpen === 'boolean'
+                        ) {
+                            details.open = storedOpen;
+                        }
+                    })();
+                </script>
+                <summary class="entry-title">
+                    <ChevronRight
+                        class="entry-title-chevron"
+                        aria-hidden="true"
+                        size={14}
+                        strokeWidth={1.75}
+                    />
+                    <span class="entry-title-label">{entry.label}</span>
+                </summary>
+                <div class="container-group-link">
+                    <Astro.self
+                        sublist={childEntries}
+                        nested
+                        nestedDepth={nestedDepth + 1}
+                        path={entryPath}
+                    />
+                </div>
+            </details>
+        );
+    })
+}
+
+<style>
+    .container-sidebar-entry {
+        gap: 0.25rem;
+        flex-direction: column;
+        display: flex;
+        min-width: 0;
+        max-width: 100%;
+        box-sizing: border-box;
+    }
+
+    .container-sidebar-entry[data-nested]:not([data-depth='1']) {
+        position: relative;
+        margin-left: calc(var(--spacing) * 2);
+        padding-left: calc(var(--spacing) * 3);
+    }
+
+    .container-sidebar-entry[data-nested]:not([data-depth='1'])::before {
+        content: '';
+        position: absolute;
+        left: 0;
+        top: 0.375rem;
+        bottom: 0.375rem;
+        width: 1px;
+        background: color-mix(in srgb, var(--border) 86%, transparent);
+    }
+
+    .entry-title {
+        list-style: none;
+        font-weight: 600;
+        font-size: var(--text-xs, 0.75rem);
+        line-height: 1rem;
+        padding-top: calc(var(--spacing) * 1);
+        padding-bottom: calc(var(--spacing) * 1);
+        padding-left: calc(var(--spacing) * 2);
+        padding-right: calc(var(--spacing) * 2);
+        border-radius: calc(var(--radius) - 2px);
+        color: var(--muted-foreground);
+        text-transform: none;
+        appearance: none;
+        display: grid;
+        grid-template-columns: 1rem minmax(0, 1fr);
+        align-items: center;
+        gap: calc(var(--spacing) * 1.5);
+        width: 100%;
+        max-width: 100%;
+        box-sizing: border-box;
+        min-height: var(--control-height-sm, 1.625rem);
+        cursor: var(--cursor-interactive, pointer);
+        user-select: none;
+    }
+
+    .entry-title::-webkit-details-marker {
+        display: none;
+    }
+
+    .entry-title::marker {
+        content: '';
+        font-size: 0;
+    }
+
+    .entry-title:hover {
+        background-color: color-mix(in srgb, var(--secondary) 62%, transparent);
+        color: var(--secondary-foreground);
+    }
+
+    .entry-title:focus-visible {
+        box-shadow: var(--focus-ring-shadow);
+    }
+
+    .entry-title-label {
+        min-width: 0;
+        justify-self: start;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+    }
+
+    .entry-title-chevron {
+        width: 1rem;
+        height: 1rem;
+        flex-shrink: 0;
+        color: color-mix(in srgb, var(--foreground) 70%, var(--muted-foreground));
+        opacity: 0.9;
+        transform: rotate(0deg);
+    }
+
+    .container-sidebar-entry[open] > .entry-title .entry-title-chevron {
+        opacity: 1;
+        transform: rotate(90deg);
+    }
+
+    .container-sidebar-entry[open] > .entry-title {
+        background-color: color-mix(in srgb, var(--secondary) 34%, transparent);
+    }
+
+    .entry-title:hover .entry-title-chevron,
+    .container-sidebar-entry[open] > .entry-title .entry-title-chevron {
+        color: var(--foreground);
+    }
+
+    .container-sidebar-entry[data-current] > .entry-title {
+        color: color-mix(in srgb, var(--foreground) 82%, var(--muted-foreground));
+    }
+
+    .container-sidebar-entry[data-nested] > .entry-title {
+        color: color-mix(in srgb, var(--muted-foreground) 86%, var(--foreground));
+        font-weight: 500;
+    }
+
+    .container-sidebar-entry[data-depth='1'] > .entry-title {
+        grid-template-columns: 1rem minmax(0, 1fr);
+        gap: 0;
+        padding-left: 0;
+    }
+
+    .container-group-link {
+        font-size: var(--text-sm, 0.75rem);
+        line-height: 1.25rem;
+        gap: 2px;
+        grid-auto-rows: max-content;
+        grid-auto-flow: row;
+        display: grid;
+        min-width: 0;
+        max-width: 100%;
+    }
+
+    .entry-link {
+        color: var(--foreground);
+        font-weight: 400;
+        align-items: center;
+        width: 100%;
+        min-height: var(--control-height-sm, 1.625rem);
+        display: flex;
+        text-decoration: none;
+        font-size: var(--text-sm, 0.75rem);
+        line-height: 1.125rem;
+        padding-right: 0;
+        box-sizing: border-box;
+        min-width: 0;
+        max-width: 100%;
+    }
+
+    .entry-link[data-nested] {
+        padding-left: calc(var(--spacing) * 2);
+    }
+
+    .entry-link[data-depth='2'] {
+        padding-left: calc(var(--spacing) * 6);
+    }
+
+    .entry-link[data-depth='3'] {
+        padding-left: calc(var(--spacing) * 10);
+    }
+
+    .entry-link-inner {
+        display: flex;
+        align-items: center;
+        flex: 1;
+        width: auto;
+        min-width: 0;
+        padding-left: calc(var(--spacing) * 2);
+        padding-right: calc(var(--spacing) * 2);
+        border-radius: var(--radius-sm, calc(var(--radius) - 2px));
+        height: 100%;
+        min-height: var(--control-height-sm, 1.625rem);
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+    }
+
+    .entry-link[aria-current='page'] {
+        font-weight: 500;
+    }
+
+    .entry-link[data-current-parent] {
+        color: color-mix(in srgb, var(--foreground) 82%, var(--muted-foreground));
+    }
+
+    .entry-link[aria-current='page'] .entry-link-inner {
+        background-color: var(--accent);
+        color: var(--accent-foreground);
+    }
+
+    .entry-link:hover:not([aria-current='page']) .entry-link-inner {
+        background-color: var(--secondary);
+        color: var(--secondary-foreground);
+    }
+
+    .entry-link:focus-visible {
+        box-shadow: none;
+    }
+
+    .entry-link:focus-visible .entry-link-inner {
+        box-shadow: var(--focus-ring-shadow);
+    }
+
+    .entry-badge {
+        color: rgb(0 0 0);
+        line-height: 1;
+        font-size: 0.75rem;
+        padding-top: calc(var(--spacing) * 0.5);
+        padding-bottom: calc(var(--spacing) * 0.5);
+        padding-left: calc(var(--spacing) * 1.5);
+        padding-right: calc(var(--spacing) * 1.5);
+        background-color: rgb(173 250 29);
+        border-radius: calc(var(--radius) - 2px);
+        margin-left: calc(var(--spacing) * 2);
+    }
+</style>

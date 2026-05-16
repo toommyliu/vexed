@@ -10,7 +10,7 @@
     "dev": "tsx scripts/dev-runner.ts dev",
     "dev:app": "tsx scripts/dev-runner.ts app",
     "dev:docs": "tsx scripts/dev-runner.ts docs",
-    "docgen": "tsx scripts/docgen.ts",
+    "docgen": "tsx scripts/docgen.ts && tsx scripts/gen-script-types.ts",
     "lint": "oxlint",
     "lint:fix": "oxlint --fix",
     "format": "oxfmt --check",
@@ -31,6 +31,7 @@
     "oxfmt": "^0.13.0",
     "oxlint": "^0.13.0",
     "tsx": "^4.21.0",
+    "typedoc": "^0.28.19",
     "typescript": "^5.9.3",
     "vitest": "^3.2.4"
   },

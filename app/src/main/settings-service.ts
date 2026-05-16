@@ -5,8 +5,6 @@ import {
   type AppSettings,
   type Appearance,
   type AppearancePatch,
-  type CommandOverlayLayoutSettings,
-  type CommandOverlayPreferences,
   type HotkeysPatch,
   type Preferences,
   type PreferencesPatch,
@@ -81,39 +79,6 @@ const applyThemeProfilePatch = (
   };
 };
 
-const applyCommandOverlayLayoutPatch = (
-  layout: CommandOverlayLayoutSettings,
-  patch: NonNullable<PreferencesPatch["commandOverlay"]>["layout"],
-): CommandOverlayLayoutSettings => {
-  const normalized = PreferencesSettings.normalizeCommandOverlayLayout({
-    ...layout,
-    ...patch,
-    position: {
-      ...layout.position,
-      ...(isRecord(patch?.position) ? patch.position : {}),
-    },
-    size: {
-      ...layout.size,
-      ...(isRecord(patch?.size) ? patch.size : {}),
-    },
-  });
-
-  return normalized;
-};
-
-const applyCommandOverlayPatch = (
-  preferences: CommandOverlayPreferences,
-  patch: PreferencesPatch["commandOverlay"],
-): CommandOverlayPreferences =>
-  isRecord(patch)
-    ? {
-        layout: applyCommandOverlayLayoutPatch(
-          preferences.layout,
-          isRecord(patch.layout) ? patch.layout : undefined,
-        ),
-      }
-    : preferences;
-
 export const readSettings = (): AppSettings => ({
   preferences: PreferencesSettings.ensure(),
   appearance: AppearanceSettings.ensure(),
@@ -162,10 +127,6 @@ export const updatePreferences = (patch: PreferencesPatch): AppSettings => {
       typeof patch.checkForUpdates === "boolean"
         ? patch.checkForUpdates
         : current.checkForUpdates,
-    commandOverlay: applyCommandOverlayPatch(
-      current.commandOverlay,
-      patch.commandOverlay,
-    ),
     launchMode: PreferencesSettings.isLaunchMode(patch.launchMode)
       ? patch.launchMode
       : current.launchMode,

@@ -1,0 +1,179 @@
+@layer docs {
+    :root {
+        --tracking-tight: -0.025em;
+        --tracking-tighter: -0.05em;
+        --tracking-normal: 0em;
+        --tracking-wide: 0.025em;
+        --tracking-wider: 0.05em;
+        --spacing: 0.25rem;
+        --radius: 0.625rem;
+        --header-height: calc(var(--spacing) * 14);
+        --sidebar-width: 19.5rem;
+        --container-max-width: 1600px;
+        --__sl-font: var(--font-sans, "Inter Variable", Arial, sans-serif);
+        --__sl-font-mono: var(--font-mono, "JetBrains Mono Variable", monospace);
+        --sl-text-code: var(--text-sm, 0.75rem);
+        --sl-line-height: 1.6;
+
+        /* starlight color mappings */
+        --sl-color-text-accent: var(--color-foreground);
+        --sl-color-banner-text: var(--color-foreground);
+        --sl-color-bg: var(--color-background);
+        --sl-color-text: var(--color-foreground);
+        --sl-color-accent-low: var(--color-muted);
+        --sl-color-accent: var(--color-border);
+        --sl-color-accent-high: var(--color-foreground);
+        --sl-color-gray-1: var(--gray-1);
+        --sl-color-gray-2: var(--gray-2);
+        --sl-color-gray-3: var(--gray-3);
+        --sl-color-gray-4: var(--gray-4);
+        --sl-color-gray-5: var(--gray-5);
+        --sl-color-gray-6: var(--gray-6);
+        --sl-color-gray-7: var(--gray-7);
+
+        /* colors */
+        --sl-color-orange-low: var(--orange-low);
+        --sl-color-orange: var(--orange);
+        --sl-color-orange-high: var(--orange-high);
+        --sl-color-green-low: var(--green-low);
+        --sl-color-green: var(--green);
+        --sl-color-green-high: var(--green-high);
+        --sl-color-blue-low: var(--blue-low);
+        --sl-color-blue: var(--blue);
+        --sl-color-blue-high: var(--blue-high);
+        --sl-color-purple-low: var(--purple-low);
+        --sl-color-purple: var(--purple);
+        --sl-color-purple-high: var(--purple-high);
+        --sl-color-red-low: var(--red-low);
+        --sl-color-red: var(--red);
+        --sl-color-red-high: var(--red-high);
+
+        --code-background: var(--gray-7);
+        --mark-background: var(--gray-8);
+
+        /* theme tokens */
+        --background: var(--gray-8);
+        --foreground: var(--gray-1);
+        --card: var(--gray-8);
+        --card-foreground: var(--gray-1);
+        --popover: var(--gray-7);
+        --popover-foreground: var(--gray-1);
+        --primary: var(--gray-1);
+        --primary-foreground: var(--gray-7);
+        --secondary: var(--gray-6);
+        --secondary-foreground: var(--gray-1);
+        --muted: var(--gray-6);
+        --muted-foreground: var(--gray-3);
+        --accent: var(--gray-5);
+        --accent-foreground: var(--gray-1);
+        --destructive: var(--red);
+        --destructive-foreground: var(--red-low);
+        --success: var(--green);
+        --success-foreground: var(--green-low);
+        --warning: var(--orange);
+        --warning-foreground: var(--orange-low);
+        --info: var(--blue);
+        --info-foreground: var(--blue-low);
+        --border: var(--gray-6);
+        --input: var(--gray-8);
+        --ring: var(--gray-4);
+
+        --color-background: var(--background);
+        --color-foreground: var(--foreground);
+        --color-surface: var(--card);
+        --color-surface-foreground: var(--card-foreground);
+        --color-surface-raised: var(--popover);
+        --color-primary: var(--primary);
+        --color-primary-foreground: var(--primary-foreground);
+        --color-secondary: var(--secondary);
+        --color-secondary-foreground: var(--secondary-foreground);
+        --color-muted: var(--muted);
+        --color-muted-foreground: var(--muted-foreground);
+        --color-accent: var(--accent);
+        --color-accent-foreground: var(--accent-foreground);
+        --color-destructive: var(--destructive);
+        --color-destructive-foreground: var(--destructive-foreground);
+        --color-success: var(--success);
+        --color-success-foreground: var(--success-foreground);
+        --color-warning: var(--warning);
+        --color-warning-foreground: var(--warning-foreground);
+        --color-info: var(--info);
+        --color-info-foreground: var(--info-foreground);
+        --color-border: var(--border);
+        --color-input: var(--input);
+        --color-ring: var(--ring);
+
+        --focus-ring-gap: var(--background);
+        --focus-ring-shadow:
+            0 0 0 2px var(--focus-ring-gap),
+            0 0 0 3px var(--ring);
+        --popover-background: var(--popover);
+        --markdown-foreground: var(--gray-2);
+
+        /* scrollbar tokens */
+        --scrollbar-track: var(--background);
+        --scrollbar-thumb: var(--muted-foreground);
+        --scrollbar-thumb-hover: var(--foreground);
+        --scrollbar-thumb-active: var(--primary);
+        --scrollbar-corner: var(--background);
+
+        /* backdrop */
+        ::backdrop {
+            --sl-color-backdrop-overlay: color-mix(in oklab, var(--background) 80%, transparent);
+        }
+    }
+
+    :root[data-theme='dark'] {
+        --gray-1: rgb(245 245 245);
+        --gray-2: rgb(212 212 216);
+        --gray-3: rgb(166 166 166);
+        --gray-4: rgb(115 115 115);
+        --gray-5: rgb(46 46 49);
+        --gray-6: rgb(32 32 34);
+        --gray-7: rgb(18 18 20);
+        --gray-8: rgb(22 22 24);
+
+        --orange-low: rgb(69 45 19);
+        --orange: rgb(251 191 36);
+        --orange-high: rgb(253 224 71);
+        --green-low: rgb(17 55 43);
+        --green: rgb(52 211 153);
+        --green-high: rgb(110 231 183);
+        --blue-low: rgb(24 43 73);
+        --blue: rgb(96 165 250);
+        --blue-high: rgb(147 197 253);
+        --purple-low: rgb(49 38 72);
+        --purple: rgb(167 139 250);
+        --purple-high: rgb(196 181 253);
+        --red-low: rgb(73 29 34);
+        --red: rgb(248 113 113);
+        --red-high: rgb(252 165 165);
+    }
+
+    :root[data-theme='light'] {
+        --gray-1: rgb(38 38 38);
+        --gray-2: rgb(64 64 64);
+        --gray-3: rgb(92 92 92);
+        --gray-4: rgb(163 163 163);
+        --gray-5: rgb(229 229 229);
+        --gray-6: rgb(235 235 235);
+        --gray-7: rgb(245 245 245);
+        --gray-8: rgb(255 255 255);
+
+        --orange-low: rgb(255 251 235);
+        --orange: rgb(245 158 11);
+        --orange-high: rgb(180 83 9);
+        --green-low: rgb(236 253 245);
+        --green: rgb(16 185 129);
+        --green-high: rgb(4 120 87);
+        --blue-low: rgb(239 246 255);
+        --blue: rgb(59 130 246);
+        --blue-high: rgb(29 78 216);
+        --purple-low: rgb(245 243 255);
+        --purple: rgb(124 58 237);
+        --purple-high: rgb(91 33 182);
+        --red-low: rgb(254 242 242);
+        --red: rgb(239 68 68);
+        --red-high: rgb(185 28 28);
+    }
+}

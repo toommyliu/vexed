@@ -63,7 +63,7 @@ export type PlayerTargetInfo = AvatarData & {
 
 export type TargetInfo = MonsterTargetInfo | PlayerTargetInfo;
 
-export type ActiveSkillItem = {
+export type ConsumableSkillItem = {
   itemId?: number;
   name?: string;
 };

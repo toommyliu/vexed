@@ -40,9 +40,9 @@ export interface AutoZoneStateSubscriptionOptions {
 }
 
 export interface AutoZoneShape {
-  readonly enabled: Effect.Effect<boolean>;
-  readonly map: Effect.Effect<AutoZoneSupportedMap | undefined>;
   readonly getState: () => Effect.Effect<AutoZoneState>;
+  readonly isEnabled: () => Effect.Effect<boolean>;
+  readonly getMap: () => Effect.Effect<AutoZoneSupportedMap | undefined>;
   readonly onState: (
     listener: AutoZoneStateListener,
     options?: AutoZoneStateSubscriptionOptions,

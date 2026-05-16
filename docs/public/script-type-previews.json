@@ -1,0 +1,3124 @@
+{
+  "types": {
+    "army-effect": {
+      "name": "ArmyEffect",
+      "slug": "army-effect",
+      "kind": "type alias",
+      "summary": "",
+      "definition": "type ArmyEffect<A, E> = Effect.Effect<A, E | ArmyError | BridgeError>",
+      "keys": [],
+      "source": {
+        "path": "app/src/renderer/windows/game/army/Services/Army.ts:26",
+        "url": "https://github.com/toommyliu/vexed/blob/dev/app/src/renderer/windows/game/army/Services/Army.ts#L26"
+      }
+    },
+    "army-equip-set-options": {
+      "name": "ArmyEquipSetOptions",
+      "slug": "army-equip-set-options",
+      "kind": "interface",
+      "summary": "",
+      "definition": "interface ArmyEquipSetOptions",
+      "keys": [
+        {
+          "kind": "property",
+          "name": "resolveItems",
+          "signature": "readonly resolveItems?: boolean",
+          "description": "When true, items will be resolved under the `items` key of the army config."
+        }
+      ],
+      "source": {
+        "path": "app/src/renderer/windows/game/army/Services/Army.ts:35",
+        "url": "https://github.com/toommyliu/vexed/blob/dev/app/src/renderer/windows/game/army/Services/Army.ts#L35"
+      }
+    },
+    "army-error": {
+      "name": "ArmyError",
+      "slug": "army-error",
+      "kind": "class",
+      "summary": "",
+      "definition": "class ArmyError extends Error",
+      "keys": [
+        {
+          "kind": "property",
+          "name": "_tag",
+          "signature": "readonly _tag: \"ArmyError\"",
+          "description": ""
+        },
+        {
+          "kind": "property",
+          "name": "~effect/ErrorReporter/attributes",
+          "signature": "readonly ~effect/ErrorReporter/attributes?: ReadonlyRecord<string, unknown>",
+          "description": ""
+        },
+        {
+          "kind": "property",
+          "name": "~effect/ErrorReporter/ignore",
+          "signature": "readonly ~effect/ErrorReporter/ignore?: boolean",
+          "description": ""
+        },
+        {
+          "kind": "property",
+          "name": "~effect/ErrorReporter/severity",
+          "signature": "readonly ~effect/ErrorReporter/severity?: Severity",
+          "description": ""
+        },
+        {
+          "kind": "property",
+          "name": "~effect/Runtime/errorExitCode",
+          "signature": "readonly ~effect/Runtime/errorExitCode?: number",
+          "description": ""
+        },
+        {
+          "kind": "property",
+          "name": "~effect/Runtime/errorReported",
+          "signature": "readonly ~effect/Runtime/errorReported?: boolean",
+          "description": ""
+        },
+        {
+          "kind": "property",
+          "name": "cause",
+          "signature": "cause?: unknown",
+          "description": "The cause of the error."
+        },
+        {
+          "kind": "property",
+          "name": "message",
+          "signature": "message: string",
+          "description": ""
+        },
+        {
+          "kind": "property",
+          "name": "name",
+          "signature": "name: string",
+          "description": ""
+        },
+        {
+          "kind": "property",
+          "name": "stack",
+          "signature": "stack?: string",
+          "description": ""
+        }
+      ],
+      "source": {
+        "path": "app/src/renderer/windows/game/army/Services/Army.ts:9",
+        "url": "https://github.com/toommyliu/vexed/blob/dev/app/src/renderer/windows/game/army/Services/Army.ts#L9"
+      }
+    },
+    "army-run-step-options": {
+      "name": "ArmyRunStepOptions",
+      "slug": "army-run-step-options",
+      "kind": "interface",
+      "summary": "",
+      "definition": "interface ArmyRunStepOptions",
+      "keys": [
+        {
+          "kind": "property",
+          "name": "timeoutMs",
+          "signature": "readonly timeoutMs?: number",
+          "description": ""
+        }
+      ],
+      "source": {
+        "path": "app/src/renderer/windows/game/army/Services/Army.ts:31",
+        "url": "https://github.com/toommyliu/vexed/blob/dev/app/src/renderer/windows/game/army/Services/Army.ts#L31"
+      }
+    },
+    "army-session": {
+      "name": "ArmySession",
+      "slug": "army-session",
+      "kind": "type alias",
+      "summary": "",
+      "definition": "type ArmySession = ArmySessionPayload",
+      "keys": [],
+      "source": {
+        "path": "app/src/renderer/windows/game/army/Services/Army.ts:55",
+        "url": "https://github.com/toommyliu/vexed/blob/dev/app/src/renderer/windows/game/army/Services/Army.ts#L55"
+      }
+    },
+    "aura": {
+      "name": "Aura",
+      "slug": "aura",
+      "kind": "type alias",
+      "summary": "",
+      "definition": "type Aura = unknown",
+      "keys": [
+        {
+          "kind": "property",
+          "name": "duration",
+          "signature": "duration?: number",
+          "description": ""
+        },
+        {
+          "kind": "property",
+          "name": "isNew",
+          "signature": "isNew?: boolean",
+          "description": ""
+        },
+        {
+          "kind": "property",
+          "name": "name",
+          "signature": "name: string",
+          "description": ""
+        },
+        {
+          "kind": "property",
+          "name": "stack",
+          "signature": "stack?: number",
+          "description": "Number of active instances tracked for this aura name."
+        },
+        {
+          "kind": "property",
+          "name": "value",
+          "signature": "value?: number",
+          "description": "The aura's value, if applicable.\nCan be an integer or float."
+        }
+      ],
+      "source": {
+        "path": "packages/game/src/types/Aura.ts:1",
+        "url": "https://github.com/toommyliu/vexed/blob/dev/packages/game/src/types/Aura.ts#L1"
+      }
+    },
+    "auth-connect-failure-status": {
+      "name": "AuthConnectFailureStatus",
+      "slug": "auth-connect-failure-status",
+      "kind": "type alias",
+      "summary": "",
+      "definition": "type AuthConnectFailureStatus = Exclude<ConnectToSelectionStatus, \"selected\"> | \"connection-failed\" | \"connection-error\" | \"timeout\"",
+      "keys": [],
+      "source": {
+        "path": "app/src/renderer/windows/game/flash/Services/Auth.ts:6",
+        "url": "https://github.com/toommyliu/vexed/blob/dev/app/src/renderer/windows/game/flash/Services/Auth.ts#L6"
+      }
+    },
+    "auth-connect-outcome": {
+      "name": "AuthConnectOutcome",
+      "slug": "auth-connect-outcome",
+      "kind": "type alias",
+      "summary": "",
+      "definition": "type AuthConnectOutcome = { message: string; retryable: false; serverName?: string; status: \"connected\" } | { message: string; retryable: boolean; serverName?: string; status: AuthConnectFailureStatus }",
+      "keys": [],
+      "source": {
+        "path": "app/src/renderer/windows/game/flash/Services/Auth.ts:12",
+        "url": "https://github.com/toommyliu/vexed/blob/dev/app/src/renderer/windows/game/flash/Services/Auth.ts#L12"
+      }
+    },
+    "auto-zone-supported-map": {
+      "name": "AutoZoneSupportedMap",
+      "slug": "auto-zone-supported-map",
+      "kind": "type alias",
+      "summary": "",
+      "definition": "type AutoZoneSupportedMap = Schema.Schema.Type<typeof AutoZoneSupportedMap>",
+      "keys": [],
+      "source": {
+        "path": "app/src/renderer/windows/game/features/Services/AutoZone.ts:3",
+        "url": "https://github.com/toommyliu/vexed/blob/dev/app/src/renderer/windows/game/features/Services/AutoZone.ts#L3"
+      }
+    },
+    "avatar": {
+      "name": "Avatar",
+      "slug": "avatar",
+      "kind": "class",
+      "summary": "Represents a player in the world.",
+      "definition": "class Avatar extends BaseEntity",
+      "keys": [
+        {
+          "kind": "property",
+          "name": "alive",
+          "signature": "readonly alive: boolean",
+          "description": "Whether the entity is alive."
+        },
+        {
+          "kind": "property",
+          "name": "cell",
+          "signature": "readonly cell: string",
+          "description": "The cell the entity is in."
+        },
+        {
+          "kind": "property",
+          "name": "data",
+          "signature": "readonly data: AvatarData",
+          "description": ""
+        },
+        {
+          "kind": "property",
+          "name": "hp",
+          "signature": "readonly hp: number",
+          "description": "The entity's current HP."
+        },
+        {
+          "kind": "property",
+          "name": "hpPercentage",
+          "signature": "readonly hpPercentage: number",
+          "description": "The entity's current HP percentage."
+        },
+        {
+          "kind": "property",
+          "name": "level",
+          "signature": "readonly level: number",
+          "description": "The player's level."
+        },
+        {
+          "kind": "property",
+          "name": "maxHp",
+          "signature": "readonly maxHp: number",
+          "description": "The entity's max HP."
+        },
+        {
+          "kind": "property",
+          "name": "maxMp",
+          "signature": "readonly maxMp: number",
+          "description": "The player's max mp."
+        },
+        {
+          "kind": "property",
+          "name": "mp",
+          "signature": "readonly mp: number",
+          "description": "The player's current mp."
+        },
+        {
+          "kind": "property",
+          "name": "mpPercentage",
+          "signature": "readonly mpPercentage: number",
+          "description": "The player's current MP percentage."
+        },
+        {
+          "kind": "property",
+          "name": "pad",
+          "signature": "readonly pad: string",
+          "description": "The pad the player is in."
+        },
+        {
+          "kind": "property",
+          "name": "position",
+          "signature": "readonly position: [number, number]",
+          "description": "The player's position."
+        },
+        {
+          "kind": "property",
+          "name": "state",
+          "signature": "readonly state: EntityState",
+          "description": "The entity's state."
+        },
+        {
+          "kind": "property",
+          "name": "username",
+          "signature": "readonly username: string",
+          "description": "The player's username."
+        },
+        {
+          "kind": "method",
+          "name": "isAFK()",
+          "signature": "isAFK(): boolean",
+          "description": "Whether the player is AFK."
+        },
+        {
+          "kind": "method",
+          "name": "isDead()",
+          "signature": "isDead(): boolean",
+          "description": ""
+        },
+        {
+          "kind": "method",
+          "name": "isHpGreaterThan()",
+          "signature": "isHpGreaterThan(value: number): boolean",
+          "description": "Whether the entity's hp is greater than a value."
+        },
+        {
+          "kind": "method",
+          "name": "isHpLessThan()",
+          "signature": "isHpLessThan(value: number): boolean",
+          "description": "Whether the entity's hp is less than a value."
+        },
+        {
+          "kind": "method",
+          "name": "isHpPercentageGreaterThan()",
+          "signature": "isHpPercentageGreaterThan(value: number): boolean",
+          "description": "Whether the entity's hp is greater than a percentage value."
+        },
+        {
+          "kind": "method",
+          "name": "isHpPercentageLessThan()",
+          "signature": "isHpPercentageLessThan(value: number): boolean",
+          "description": "Whether the entity's hp is less than a percentage value."
+        },
+        {
+          "kind": "method",
+          "name": "isIdle()",
+          "signature": "isIdle(): boolean",
+          "description": "Whether the entity is idle."
+        },
+        {
+          "kind": "method",
+          "name": "isInCell()",
+          "signature": "isInCell(cell: string): boolean",
+          "description": "Whether the entity is in the specified cell."
+        },
+        {
+          "kind": "method",
+          "name": "isInCombat()",
+          "signature": "isInCombat(): boolean",
+          "description": "Whether the entity is in combat."
+        },
+        {
+          "kind": "method",
+          "name": "isMonster()",
+          "signature": "isMonster(): this is Monster",
+          "description": "Whether the entity is a monster."
+        },
+        {
+          "kind": "method",
+          "name": "isPlayer()",
+          "signature": "isPlayer(): this is Avatar",
+          "description": "Whether the entity is a player."
+        }
+      ],
+      "source": {
+        "path": "packages/game/src/models/Avatar.ts:7",
+        "url": "https://github.com/toommyliu/vexed/blob/dev/packages/game/src/models/Avatar.ts#L7"
+      }
+    },
+    "avatar-data": {
+      "name": "AvatarData",
+      "slug": "avatar-data",
+      "kind": "type alias",
+      "summary": "",
+      "definition": "type AvatarData = BaseEntityData & { afk: boolean; entID: number; entType: string; intLevel: number; intMP: number; intMPMax: number; strPad: string; strUsername: string; tx: number; ty: number; uoName: string }",
+      "keys": [],
+      "source": {
+        "path": "packages/game/src/types/AvatarData.ts:4",
+        "url": "https://github.com/toommyliu/vexed/blob/dev/packages/game/src/types/AvatarData.ts#L4"
+      }
+    },
+    "base-entity": {
+      "name": "BaseEntity",
+      "slug": "base-entity",
+      "kind": "class",
+      "summary": "Base class for entities in the game world.",
+      "definition": "class BaseEntity",
+      "keys": [
+        {
+          "kind": "property",
+          "name": "alive",
+          "signature": "readonly alive: boolean",
+          "description": "Whether the entity is alive."
+        },
+        {
+          "kind": "property",
+          "name": "cell",
+          "signature": "readonly cell: string",
+          "description": "The cell the entity is in."
+        },
+        {
+          "kind": "property",
+          "name": "data",
+          "signature": "readonly data: BaseEntityData",
+          "description": ""
+        },
+        {
+          "kind": "property",
+          "name": "hp",
+          "signature": "readonly hp: number",
+          "description": "The entity's current HP."
+        },
+        {
+          "kind": "property",
+          "name": "hpPercentage",
+          "signature": "readonly hpPercentage: number",
+          "description": "The entity's current HP percentage."
+        },
+        {
+          "kind": "property",
+          "name": "maxHp",
+          "signature": "readonly maxHp: number",
+          "description": "The entity's max HP."
+        },
+        {
+          "kind": "property",
+          "name": "state",
+          "signature": "readonly state: EntityState",
+          "description": "The entity's state."
+        },
+        {
+          "kind": "method",
+          "name": "isDead()",
+          "signature": "isDead(): boolean",
+          "description": ""
+        },
+        {
+          "kind": "method",
+          "name": "isHpGreaterThan()",
+          "signature": "isHpGreaterThan(value: number): boolean",
+          "description": "Whether the entity's hp is greater than a value."
+        },
+        {
+          "kind": "method",
+          "name": "isHpLessThan()",
+          "signature": "isHpLessThan(value: number): boolean",
+          "description": "Whether the entity's hp is less than a value."
+        },
+        {
+          "kind": "method",
+          "name": "isHpPercentageGreaterThan()",
+          "signature": "isHpPercentageGreaterThan(value: number): boolean",
+          "description": "Whether the entity's hp is greater than a percentage value."
+        },
+        {
+          "kind": "method",
+          "name": "isHpPercentageLessThan()",
+          "signature": "isHpPercentageLessThan(value: number): boolean",
+          "description": "Whether the entity's hp is less than a percentage value."
+        },
+        {
+          "kind": "method",
+          "name": "isIdle()",
+          "signature": "isIdle(): boolean",
+          "description": "Whether the entity is idle."
+        },
+        {
+          "kind": "method",
+          "name": "isInCell()",
+          "signature": "isInCell(cell: string): boolean",
+          "description": "Whether the entity is in the specified cell."
+        },
+        {
+          "kind": "method",
+          "name": "isInCombat()",
+          "signature": "isInCombat(): boolean",
+          "description": "Whether the entity is in combat."
+        },
+        {
+          "kind": "method",
+          "name": "isMonster()",
+          "signature": "isMonster(): this is Monster",
+          "description": "Whether the entity is a monster."
+        },
+        {
+          "kind": "method",
+          "name": "isPlayer()",
+          "signature": "isPlayer(): this is Avatar",
+          "description": "Whether the entity is a player."
+        }
+      ],
+      "source": {
+        "path": "packages/game/src/models/BaseEntity.ts:10",
+        "url": "https://github.com/toommyliu/vexed/blob/dev/packages/game/src/models/BaseEntity.ts#L10"
+      }
+    },
+    "base-entity-data": {
+      "name": "BaseEntityData",
+      "slug": "base-entity-data",
+      "kind": "type alias",
+      "summary": "",
+      "definition": "type BaseEntityData = unknown",
+      "keys": [
+        {
+          "kind": "property",
+          "name": "intHP",
+          "signature": "intHP: number",
+          "description": ""
+        },
+        {
+          "kind": "property",
+          "name": "intHPMax",
+          "signature": "intHPMax: number",
+          "description": ""
+        },
+        {
+          "kind": "property",
+          "name": "intState",
+          "signature": "intState: number",
+          "description": ""
+        },
+        {
+          "kind": "property",
+          "name": "strFrame",
+          "signature": "strFrame: string",
+          "description": ""
+        }
+      ],
+      "source": {
+        "path": "packages/game/src/types/BaseEntityData.ts:1",
+        "url": "https://github.com/toommyliu/vexed/blob/dev/packages/game/src/types/BaseEntityData.ts#L1"
+      }
+    },
+    "boost-type": {
+      "name": "BoostType",
+      "slug": "boost-type",
+      "kind": "type alias",
+      "summary": "",
+      "definition": "type BoostType = Schema.Schema.Type<typeof BoostType>",
+      "keys": [],
+      "source": {
+        "path": "packages/game/src/types/BoostType.ts:3",
+        "url": "https://github.com/toommyliu/vexed/blob/dev/packages/game/src/types/BoostType.ts#L3"
+      }
+    },
+    "bridge-effect": {
+      "name": "BridgeEffect",
+      "slug": "bridge-effect",
+      "kind": "type alias",
+      "summary": "",
+      "definition": "type BridgeEffect<A> = Effect.Effect<A, BridgeError>",
+      "keys": [],
+      "source": {
+        "path": "app/src/renderer/windows/game/flash/Services/Bridge.ts:14",
+        "url": "https://github.com/toommyliu/vexed/blob/dev/app/src/renderer/windows/game/flash/Services/Bridge.ts#L14"
+      }
+    },
+    "bridge-error": {
+      "name": "BridgeError",
+      "slug": "bridge-error",
+      "kind": "type alias",
+      "summary": "",
+      "definition": "type BridgeError = SwfUnavailableError | SwfMethodNotFoundError | SwfCallError",
+      "keys": [],
+      "source": {
+        "path": "app/src/renderer/windows/game/flash/Services/Bridge.ts:9",
+        "url": "https://github.com/toommyliu/vexed/blob/dev/app/src/renderer/windows/game/flash/Services/Bridge.ts#L9"
+      }
+    },
+    "client-packet-send-type": {
+      "name": "ClientPacketSendType",
+      "slug": "client-packet-send-type",
+      "kind": "type alias",
+      "summary": "",
+      "definition": "type ClientPacketSendType = \"str\" | \"json\" | \"xml\"",
+      "keys": [],
+      "source": {
+        "path": "app/src/renderer/windows/game/flash/Services/Packet.ts:24",
+        "url": "https://github.com/toommyliu/vexed/blob/dev/app/src/renderer/windows/game/flash/Services/Packet.ts#L24"
+      }
+    },
+    "collection": {
+      "name": "Collection",
+      "slug": "collection",
+      "kind": "class",
+      "summary": "A Map with additional utility methods.",
+      "definition": "class Collection<Key, Value> extends Map<Key, Value>",
+      "keys": [
+        {
+          "kind": "property",
+          "name": "[toStringTag]",
+          "signature": "readonly [toStringTag]: string",
+          "description": ""
+        },
+        {
+          "kind": "property",
+          "name": "constructor",
+          "signature": "constructor: typeof Collection",
+          "description": "Ambient declaration to allow references to `this.constructor` in class methods."
+        },
+        {
+          "kind": "property",
+          "name": "size",
+          "signature": "readonly size: number",
+          "description": ""
+        },
+        {
+          "kind": "method",
+          "name": "[iterator]()",
+          "signature": "[iterator](): MapIterator<[Key, Value]>",
+          "description": "Returns an iterable of entries in the map."
+        },
+        {
+          "kind": "method",
+          "name": "at()",
+          "signature": "at(index: number): Value | undefined",
+          "description": "Identical to Array.at().\nReturns the item at a given index, allowing for positive and negative integers.\nNegative integers count back from the last item in the collection."
+        },
+        {
+          "kind": "method",
+          "name": "clear()",
+          "signature": "clear(): void",
+          "description": ""
+        },
+        {
+          "kind": "method",
+          "name": "clone()",
+          "signature": "clone(): Collection<Key, Value>",
+          "description": "Creates an identical shallow copy of this collection."
+        },
+        {
+          "kind": "method",
+          "name": "concat()",
+          "signature": "concat(...collections: ReadonlyCollection<Key, Value>[]): Collection<Key, Value>",
+          "description": "Combines this collection with others into a new collection. None of the source collections are modified."
+        },
+        {
+          "kind": "method",
+          "name": "delete()",
+          "signature": "delete(key: Key): boolean",
+          "description": ""
+        },
+        {
+          "kind": "method",
+          "name": "difference()",
+          "signature": "difference(other: ReadonlyCollection<Key, any>): Collection<Key, Value>",
+          "description": "Returns a new collection containing the items where the key is present in this collection but not the other."
+        },
+        {
+          "kind": "method",
+          "name": "each()",
+          "signature": "each(fn: (value: Value, key: Key, collection: this) => void): this",
+          "description": "Identical to\nMap.forEach(),\nbut returns the collection instead of undefined."
+        },
+        {
+          "kind": "method",
+          "name": "each()",
+          "signature": "each<This>(fn: (this: This, value: Value, key: Key, collection: this) => void, thisArg: This): this",
+          "description": "Identical to\nMap.forEach(),\nbut returns the collection instead of undefined."
+        },
+        {
+          "kind": "method",
+          "name": "ensure()",
+          "signature": "ensure(key: Key, defaultValueGenerator: (key: Key, collection: this) => Value): Value",
+          "description": "Obtains the value of the given key if it exists, otherwise sets and returns the value provided by the default value generator."
+        },
+        {
+          "kind": "method",
+          "name": "entries()",
+          "signature": "entries(): MapIterator<[Key, Value]>",
+          "description": "Returns an iterable of key, value pairs for every entry in the map."
+        },
+        {
+          "kind": "method",
+          "name": "equals()",
+          "signature": "equals(collection: ReadonlyCollection<Key, Value>): boolean",
+          "description": "Checks if this collection shares identical items with another.\nThis is different to checking for equality using equal-signs, because\nthe collections may be different objects, but contain the same data."
+        },
+        {
+          "kind": "method",
+          "name": "every()",
+          "signature": "every<NewKey>(fn: (value: Value, key: Key, collection: this) => key is NewKey): this is Collection<NewKey, Value>",
+          "description": "Checks if all items passes a test. Identical in behavior to\nArray.every()."
+        },
+        {
+          "kind": "method",
+          "name": "every()",
+          "signature": "every<NewValue>(fn: (value: Value, key: Key, collection: this) => value is NewValue): this is Collection<Key, NewValue>",
+          "description": "Checks if all items passes a test. Identical in behavior to\nArray.every()."
+        },
+        {
+          "kind": "method",
+          "name": "every()",
+          "signature": "every(fn: (value: Value, key: Key, collection: this) => unknown): boolean",
+          "description": "Checks if all items passes a test. Identical in behavior to\nArray.every()."
+        },
+        {
+          "kind": "method",
+          "name": "every()",
+          "signature": "every<This, NewKey>(fn: (this: This, value: Value, key: Key, collection: this) => key is NewKey, thisArg: This): this is Collection<NewKey, Value>",
+          "description": "Checks if all items passes a test. Identical in behavior to\nArray.every()."
+        },
+        {
+          "kind": "method",
+          "name": "every()",
+          "signature": "every<This, NewValue>(fn: (this: This, value: Value, key: Key, collection: this) => value is NewValue, thisArg: This): this is Collection<Key, NewValue>",
+          "description": "Checks if all items passes a test. Identical in behavior to\nArray.every()."
+        },
+        {
+          "kind": "method",
+          "name": "every()",
+          "signature": "every<This>(fn: (this: This, value: Value, key: Key, collection: this) => unknown, thisArg: This): boolean",
+          "description": "Checks if all items passes a test. Identical in behavior to\nArray.every()."
+        },
+        {
+          "kind": "method",
+          "name": "filter()",
+          "signature": "filter<NewKey>(fn: (value: Value, key: Key, collection: this) => key is NewKey): Collection<NewKey, Value>",
+          "description": "Identical to\nArray.filter(),\nbut returns a Collection instead of an Array."
+        },
+        {
+          "kind": "method",
+          "name": "filter()",
+          "signature": "filter<NewValue>(fn: (value: Value, key: Key, collection: this) => value is NewValue): Collection<Key, NewValue>",
+          "description": "Identical to\nArray.filter(),\nbut returns a Collection instead of an Array."
+        },
+        {
+          "kind": "method",
+          "name": "filter()",
+          "signature": "filter(fn: (value: Value, key: Key, collection: this) => unknown): Collection<Key, Value>",
+          "description": "Identical to\nArray.filter(),\nbut returns a Collection instead of an Array."
+        },
+        {
+          "kind": "method",
+          "name": "filter()",
+          "signature": "filter<This, NewKey>(fn: (this: This, value: Value, key: Key, collection: this) => key is NewKey, thisArg: This): Collection<NewKey, Value>",
+          "description": "Identical to\nArray.filter(),\nbut returns a Collection instead of an Array."
+        },
+        {
+          "kind": "method",
+          "name": "filter()",
+          "signature": "filter<This, NewValue>(fn: (this: This, value: Value, key: Key, collection: this) => value is NewValue, thisArg: This): Collection<Key, NewValue>",
+          "description": "Identical to\nArray.filter(),\nbut returns a Collection instead of an Array."
+        },
+        {
+          "kind": "method",
+          "name": "filter()",
+          "signature": "filter<This>(fn: (this: This, value: Value, key: Key, collection: this) => unknown, thisArg: This): Collection<Key, Value>",
+          "description": "Identical to\nArray.filter(),\nbut returns a Collection instead of an Array."
+        },
+        {
+          "kind": "method",
+          "name": "find()",
+          "signature": "find<NewValue>(fn: (value: Value, key: Key, collection: this) => value is NewValue): NewValue | undefined",
+          "description": "Searches for a single item where the given function returns a truthy value. This behaves like\nArray.find()."
+        },
+        {
+          "kind": "method",
+          "name": "find()",
+          "signature": "find(fn: (value: Value, key: Key, collection: this) => unknown): Value | undefined",
+          "description": "Searches for a single item where the given function returns a truthy value. This behaves like\nArray.find()."
+        },
+        {
+          "kind": "method",
+          "name": "find()",
+          "signature": "find<This, NewValue>(fn: (this: This, value: Value, key: Key, collection: this) => value is NewValue, thisArg: This): NewValue | undefined",
+          "description": "Searches for a single item where the given function returns a truthy value. This behaves like\nArray.find()."
+        },
+        {
+          "kind": "method",
+          "name": "find()",
+          "signature": "find<This>(fn: (this: This, value: Value, key: Key, collection: this) => unknown, thisArg: This): Value | undefined",
+          "description": "Searches for a single item where the given function returns a truthy value. This behaves like\nArray.find()."
+        },
+        {
+          "kind": "method",
+          "name": "findKey()",
+          "signature": "findKey<NewKey>(fn: (value: Value, key: Key, collection: this) => key is NewKey): NewKey | undefined",
+          "description": "Searches for the key of a single item where the given function returns a truthy value. This behaves like\nArray.findIndex(),\nbut returns the key rather than the positional index."
+        },
+        {
+          "kind": "method",
+          "name": "findKey()",
+          "signature": "findKey(fn: (value: Value, key: Key, collection: this) => unknown): Key | undefined",
+          "description": "Searches for the key of a single item where the given function returns a truthy value. This behaves like\nArray.findIndex(),\nbut returns the key rather than the positional index."
+        },
+        {
+          "kind": "method",
+          "name": "findKey()",
+          "signature": "findKey<This, NewKey>(fn: (this: This, value: Value, key: Key, collection: this) => key is NewKey, thisArg: This): NewKey | undefined",
+          "description": "Searches for the key of a single item where the given function returns a truthy value. This behaves like\nArray.findIndex(),\nbut returns the key rather than the positional index."
+        },
+        {
+          "kind": "method",
+          "name": "findKey()",
+          "signature": "findKey<This>(fn: (this: This, value: Value, key: Key, collection: this) => unknown, thisArg: This): Key | undefined",
+          "description": "Searches for the key of a single item where the given function returns a truthy value. This behaves like\nArray.findIndex(),\nbut returns the key rather than the positional index."
+        },
+        {
+          "kind": "method",
+          "name": "findLast()",
+          "signature": "findLast<NewValue>(fn: (value: Value, key: Key, collection: this) => value is NewValue): NewValue | undefined",
+          "description": "Searches for a last item where the given function returns a truthy value. This behaves like\nArray.findLast()."
+        },
+        {
+          "kind": "method",
+          "name": "findLast()",
+          "signature": "findLast(fn: (value: Value, key: Key, collection: this) => unknown): Value | undefined",
+          "description": "Searches for a last item where the given function returns a truthy value. This behaves like\nArray.findLast()."
+        },
+        {
+          "kind": "method",
+          "name": "findLast()",
+          "signature": "findLast<This, NewValue>(fn: (this: This, value: Value, key: Key, collection: this) => value is NewValue, thisArg: This): NewValue | undefined",
+          "description": "Searches for a last item where the given function returns a truthy value. This behaves like\nArray.findLast()."
+        },
+        {
+          "kind": "method",
+          "name": "findLast()",
+          "signature": "findLast<This>(fn: (this: This, value: Value, key: Key, collection: this) => unknown, thisArg: This): Value | undefined",
+          "description": "Searches for a last item where the given function returns a truthy value. This behaves like\nArray.findLast()."
+        },
+        {
+          "kind": "method",
+          "name": "findLastKey()",
+          "signature": "findLastKey<NewKey>(fn: (value: Value, key: Key, collection: this) => key is NewKey): NewKey | undefined",
+          "description": "Searches for the key of a last item where the given function returns a truthy value. This behaves like\nArray.findLastIndex(),\nbut returns the key rather than the positional index."
+        },
+        {
+          "kind": "method",
+          "name": "findLastKey()",
+          "signature": "findLastKey(fn: (value: Value, key: Key, collection: this) => unknown): Key | undefined",
+          "description": "Searches for the key of a last item where the given function returns a truthy value. This behaves like\nArray.findLastIndex(),\nbut returns the key rather than the positional index."
+        },
+        {
+          "kind": "method",
+          "name": "findLastKey()",
+          "signature": "findLastKey<This, NewKey>(fn: (this: This, value: Value, key: Key, collection: this) => key is NewKey, thisArg: This): NewKey | undefined",
+          "description": "Searches for the key of a last item where the given function returns a truthy value. This behaves like\nArray.findLastIndex(),\nbut returns the key rather than the positional index."
+        },
+        {
+          "kind": "method",
+          "name": "findLastKey()",
+          "signature": "findLastKey<This>(fn: (this: This, value: Value, key: Key, collection: this) => unknown, thisArg: This): Key | undefined",
+          "description": "Searches for the key of a last item where the given function returns a truthy value. This behaves like\nArray.findLastIndex(),\nbut returns the key rather than the positional index."
+        },
+        {
+          "kind": "method",
+          "name": "first()",
+          "signature": "first(): Value | undefined",
+          "description": "Obtains the first value(s) in this collection."
+        },
+        {
+          "kind": "method",
+          "name": "first()",
+          "signature": "first(amount: number): Value[]",
+          "description": "Obtains the first value(s) in this collection."
+        },
+        {
+          "kind": "method",
+          "name": "firstKey()",
+          "signature": "firstKey(): Key | undefined",
+          "description": "Obtains the first key(s) in this collection."
+        },
+        {
+          "kind": "method",
+          "name": "firstKey()",
+          "signature": "firstKey(amount: number): Key[]",
+          "description": "Obtains the first key(s) in this collection."
+        },
+        {
+          "kind": "method",
+          "name": "flatMap()",
+          "signature": "flatMap<NewValue>(fn: (value: Value, key: Key, collection: this) => Collection<Key, NewValue>): Collection<Key, NewValue>",
+          "description": "Maps each item into a Collection, then joins the results into a single Collection. Identical in behavior to\nArray.flatMap()."
+        },
+        {
+          "kind": "method",
+          "name": "flatMap()",
+          "signature": "flatMap<NewValue, This>(fn: (this: This, value: Value, key: Key, collection: this) => Collection<Key, NewValue>, thisArg: This): Collection<Key, NewValue>",
+          "description": "Maps each item into a Collection, then joins the results into a single Collection. Identical in behavior to\nArray.flatMap()."
+        },
+        {
+          "kind": "method",
+          "name": "forEach()",
+          "signature": "forEach(callbackfn: (value: Value, key: Key, map: Map<Key, Value>) => void, thisArg?: any): void",
+          "description": "Executes a provided function once per each key/value pair in the Map, in insertion order."
+        },
+        {
+          "kind": "method",
+          "name": "get()",
+          "signature": "get(key: Key): Value | undefined",
+          "description": "Returns a specified element from the Map object. If the value that is associated to the provided key is an object, then you will get a reference to that object and any change made to that object will effectively modify it inside the Map."
+        },
+        {
+          "kind": "method",
+          "name": "has()",
+          "signature": "has(key: Key): boolean",
+          "description": ""
+        },
+        {
+          "kind": "method",
+          "name": "hasAll()",
+          "signature": "hasAll(...keys: Key[]): boolean",
+          "description": "Checks if all of the elements exist in the collection."
+        },
+        {
+          "kind": "method",
+          "name": "hasAny()",
+          "signature": "hasAny(...keys: Key[]): boolean",
+          "description": "Checks if any of the elements exist in the collection."
+        },
+        {
+          "kind": "method",
+          "name": "intersection()",
+          "signature": "intersection(other: ReadonlyCollection<Key, any>): Collection<Key, Value>",
+          "description": "The intersection method returns a new collection containing the items where the key is present in both collections."
+        },
+        {
+          "kind": "method",
+          "name": "keyAt()",
+          "signature": "keyAt(index: number): Key | undefined",
+          "description": "Identical to Array.at().\nReturns the key at a given index, allowing for positive and negative integers.\nNegative integers count back from the last item in the collection."
+        },
+        {
+          "kind": "method",
+          "name": "keys()",
+          "signature": "keys(): MapIterator<Key>",
+          "description": "Returns an iterable of keys in the map"
+        },
+        {
+          "kind": "method",
+          "name": "last()",
+          "signature": "last(): Value | undefined",
+          "description": "Obtains the last value(s) in this collection."
+        },
+        {
+          "kind": "method",
+          "name": "last()",
+          "signature": "last(amount: number): Value[]",
+          "description": "Obtains the last value(s) in this collection."
+        },
+        {
+          "kind": "method",
+          "name": "lastKey()",
+          "signature": "lastKey(): Key | undefined",
+          "description": "Obtains the last key(s) in this collection."
+        },
+        {
+          "kind": "method",
+          "name": "lastKey()",
+          "signature": "lastKey(amount: number): Key[]",
+          "description": "Obtains the last key(s) in this collection."
+        },
+        {
+          "kind": "method",
+          "name": "map()",
+          "signature": "map<NewValue>(fn: (value: Value, key: Key, collection: this) => NewValue): NewValue[]",
+          "description": "Maps each item to another value into an array. Identical in behavior to\nArray.map()."
+        },
+        {
+          "kind": "method",
+          "name": "map()",
+          "signature": "map<This, NewValue>(fn: (this: This, value: Value, key: Key, collection: this) => NewValue, thisArg: This): NewValue[]",
+          "description": "Maps each item to another value into an array. Identical in behavior to\nArray.map()."
+        },
+        {
+          "kind": "method",
+          "name": "mapValues()",
+          "signature": "mapValues<NewValue>(fn: (value: Value, key: Key, collection: this) => NewValue): Collection<Key, NewValue>",
+          "description": "Maps each item to another value into a collection. Identical in behavior to\nArray.map()."
+        },
+        {
+          "kind": "method",
+          "name": "mapValues()",
+          "signature": "mapValues<This, NewValue>(fn: (this: This, value: Value, key: Key, collection: this) => NewValue, thisArg: This): Collection<Key, NewValue>",
+          "description": "Maps each item to another value into a collection. Identical in behavior to\nArray.map()."
+        },
+        {
+          "kind": "method",
+          "name": "merge()",
+          "signature": "merge<OtherValue, ResultValue>(other: ReadonlyCollection<Key, OtherValue>, whenInSelf: (value: Value, key: Key) => Keep<ResultValue>, whenInOther: (valueOther: OtherValue, key: Key) => Keep<ResultValue>, whenInBoth: (value: Value, valueOther: OtherValue, key: Key) => Keep<ResultValue>): Collection<Key, ResultValue>",
+          "description": "Merges two Collections together into a new Collection."
+        },
+        {
+          "kind": "method",
+          "name": "partition()",
+          "signature": "partition<NewKey>(fn: (value: Value, key: Key, collection: this) => key is NewKey): [Collection<NewKey, Value>, Collection<Exclude<Key, NewKey>, Value>]",
+          "description": "Partitions the collection into two collections where the first collection\ncontains the items that passed and the second contains the items that failed."
+        },
+        {
+          "kind": "method",
+          "name": "partition()",
+          "signature": "partition<NewValue>(fn: (value: Value, key: Key, collection: this) => value is NewValue): [Collection<Key, NewValue>, Collection<Key, Exclude<Value, NewValue>>]",
+          "description": "Partitions the collection into two collections where the first collection\ncontains the items that passed and the second contains the items that failed."
+        },
+        {
+          "kind": "method",
+          "name": "partition()",
+          "signature": "partition(fn: (value: Value, key: Key, collection: this) => unknown): [Collection<Key, Value>, Collection<Key, Value>]",
+          "description": "Partitions the collection into two collections where the first collection\ncontains the items that passed and the second contains the items that failed."
+        },
+        {
+          "kind": "method",
+          "name": "partition()",
+          "signature": "partition<This, NewKey>(fn: (this: This, value: Value, key: Key, collection: this) => key is NewKey, thisArg: This): [Collection<NewKey, Value>, Collection<Exclude<Key, NewKey>, Value>]",
+          "description": "Partitions the collection into two collections where the first collection\ncontains the items that passed and the second contains the items that failed."
+        },
+        {
+          "kind": "method",
+          "name": "partition()",
+          "signature": "partition<This, NewValue>(fn: (this: This, value: Value, key: Key, collection: this) => value is NewValue, thisArg: This): [Collection<Key, NewValue>, Collection<Key, Exclude<Value, NewValue>>]",
+          "description": "Partitions the collection into two collections where the first collection\ncontains the items that passed and the second contains the items that failed."
+        },
+        {
+          "kind": "method",
+          "name": "partition()",
+          "signature": "partition<This>(fn: (this: This, value: Value, key: Key, collection: this) => unknown, thisArg: This): [Collection<Key, Value>, Collection<Key, Value>]",
+          "description": "Partitions the collection into two collections where the first collection\ncontains the items that passed and the second contains the items that failed."
+        },
+        {
+          "kind": "method",
+          "name": "random()",
+          "signature": "random(): Value | undefined",
+          "description": "Obtains unique random value(s) from this collection."
+        },
+        {
+          "kind": "method",
+          "name": "random()",
+          "signature": "random(amount: number): Value[]",
+          "description": "Obtains unique random value(s) from this collection."
+        },
+        {
+          "kind": "method",
+          "name": "randomKey()",
+          "signature": "randomKey(): Key | undefined",
+          "description": "Obtains unique random key(s) from this collection."
+        },
+        {
+          "kind": "method",
+          "name": "randomKey()",
+          "signature": "randomKey(amount: number): Key[]",
+          "description": "Obtains unique random key(s) from this collection."
+        },
+        {
+          "kind": "method",
+          "name": "reduce()",
+          "signature": "reduce(fn: (accumulator: Value, value: Value, key: Key, collection: this) => Value, initialValue?: Value): Value",
+          "description": "Applies a function to produce a single value. Identical in behavior to\nArray.reduce()."
+        },
+        {
+          "kind": "method",
+          "name": "reduce()",
+          "signature": "reduce<InitialValue>(fn: (accumulator: InitialValue, value: Value, key: Key, collection: this) => InitialValue, initialValue: InitialValue): InitialValue",
+          "description": "Applies a function to produce a single value. Identical in behavior to\nArray.reduce()."
+        },
+        {
+          "kind": "method",
+          "name": "reduceRight()",
+          "signature": "reduceRight(fn: (accumulator: Value, value: Value, key: Key, collection: this) => Value, initialValue?: Value): Value",
+          "description": "Applies a function to produce a single value. Identical in behavior to\nArray.reduceRight()."
+        },
+        {
+          "kind": "method",
+          "name": "reduceRight()",
+          "signature": "reduceRight<InitialValue>(fn: (accumulator: InitialValue, value: Value, key: Key, collection: this) => InitialValue, initialValue: InitialValue): InitialValue",
+          "description": "Applies a function to produce a single value. Identical in behavior to\nArray.reduceRight()."
+        },
+        {
+          "kind": "method",
+          "name": "reverse()",
+          "signature": "reverse(): Collection<Key, Value>",
+          "description": "Identical to Array.reverse()\nbut returns a Collection instead of an Array."
+        },
+        {
+          "kind": "method",
+          "name": "set()",
+          "signature": "set(key: Key, value: Value): this",
+          "description": "Adds a new element with a specified key and value to the Map. If an element with the same key already exists, the element will be updated."
+        },
+        {
+          "kind": "method",
+          "name": "some()",
+          "signature": "some(fn: (value: Value, key: Key, collection: this) => unknown): boolean",
+          "description": "Checks if there exists an item that passes a test. Identical in behavior to\nArray.some()."
+        },
+        {
+          "kind": "method",
+          "name": "some()",
+          "signature": "some<This>(fn: (this: This, value: Value, key: Key, collection: this) => unknown, thisArg: This): boolean",
+          "description": "Checks if there exists an item that passes a test. Identical in behavior to\nArray.some()."
+        },
+        {
+          "kind": "method",
+          "name": "sort()",
+          "signature": "sort(compareFunction: Comparator<Key, Value>): Collection<Key, Value>",
+          "description": "The sort method sorts the items of a collection in place and returns it.\nIf a comparison function is not provided, the function sorts by element values, using the same stringwise comparison algorithm as\nArray.sort()."
+        },
+        {
+          "kind": "method",
+          "name": "sweep()",
+          "signature": "sweep(fn: (value: Value, key: Key, collection: this) => unknown): number",
+          "description": "Removes items that satisfy the provided filter function."
+        },
+        {
+          "kind": "method",
+          "name": "sweep()",
+          "signature": "sweep<This>(fn: (this: This, value: Value, key: Key, collection: this) => unknown, thisArg: This): number",
+          "description": "Removes items that satisfy the provided filter function."
+        },
+        {
+          "kind": "method",
+          "name": "symmetricDifference()",
+          "signature": "symmetricDifference<OtherValue>(other: ReadonlyCollection<Key, OtherValue>): Collection<Key, Value | OtherValue>",
+          "description": "Returns a new collection containing only the items where the keys are present in either collection, but not both."
+        },
+        {
+          "kind": "method",
+          "name": "tap()",
+          "signature": "tap(fn: (collection: this) => void): this",
+          "description": "Runs a function on the collection and returns the collection."
+        },
+        {
+          "kind": "method",
+          "name": "tap()",
+          "signature": "tap<This>(fn: (this: This, collection: this) => void, thisArg: This): this",
+          "description": "Runs a function on the collection and returns the collection."
+        },
+        {
+          "kind": "method",
+          "name": "toJSON()",
+          "signature": "toJSON(): [Key, Value][]",
+          "description": ""
+        },
+        {
+          "kind": "method",
+          "name": "toReversed()",
+          "signature": "toReversed(): Collection<Key, Value>",
+          "description": "Identical to Array.toReversed()\nbut returns a Collection instead of an Array."
+        },
+        {
+          "kind": "method",
+          "name": "toSorted()",
+          "signature": "toSorted(compareFunction: Comparator<Key, Value>): Collection<Key, Value>",
+          "description": "The toSorted method returns a shallow copy of the collection with the items sorted.\nIf a comparison function is not provided, the function sorts by element values, using the same stringwise comparison algorithm as\nArray.sort()."
+        },
+        {
+          "kind": "method",
+          "name": "union()",
+          "signature": "union<OtherValue>(other: ReadonlyCollection<Key, OtherValue>): Collection<Key, Value | OtherValue>",
+          "description": "Returns a new collection containing the items where the key is present in either of the collections."
+        },
+        {
+          "kind": "method",
+          "name": "values()",
+          "signature": "values(): MapIterator<Value>",
+          "description": "Returns an iterable of values in the map"
+        }
+      ],
+      "source": {
+        "path": "packages/collection/src/index.ts:29",
+        "url": "https://github.com/toommyliu/vexed/blob/dev/packages/collection/src/index.ts#L29"
+      }
+    },
+    "combat-kill-options": {
+      "name": "CombatKillOptions",
+      "slug": "combat-kill-options",
+      "kind": "interface",
+      "summary": "",
+      "definition": "interface CombatKillOptions",
+      "keys": [
+        {
+          "kind": "property",
+          "name": "killPriority",
+          "signature": "readonly killPriority?: string | readonly MonsterIdentifierToken[]",
+          "description": ""
+        },
+        {
+          "kind": "property",
+          "name": "skillDelay",
+          "signature": "readonly skillDelay?: number",
+          "description": ""
+        },
+        {
+          "kind": "property",
+          "name": "skillSet",
+          "signature": "readonly skillSet?: string | readonly Skill[]",
+          "description": ""
+        },
+        {
+          "kind": "property",
+          "name": "skillWait",
+          "signature": "readonly skillWait?: boolean",
+          "description": ""
+        }
+      ],
+      "source": {
+        "path": "app/src/renderer/windows/game/flash/Services/Combat.ts:6",
+        "url": "https://github.com/toommyliu/vexed/blob/dev/app/src/renderer/windows/game/flash/Services/Combat.ts#L6"
+      }
+    },
+    "comparator": {
+      "name": "Comparator",
+      "slug": "comparator",
+      "kind": "type alias",
+      "summary": "",
+      "definition": "type Comparator<Key, Value> = (firstValue: Value, secondValue: Value, firstKey: Key, secondKey: Key) => number",
+      "keys": [],
+      "source": {
+        "path": "packages/collection/src/index.ts:1296",
+        "url": "https://github.com/toommyliu/vexed/blob/dev/packages/collection/src/index.ts#L1296"
+      }
+    },
+    "connect-to-selection-status": {
+      "name": "ConnectToSelectionStatus",
+      "slug": "connect-to-selection-status",
+      "kind": "type alias",
+      "summary": "",
+      "definition": "type ConnectToSelectionStatus = \"selected\" | \"not-ready\" | \"offline\" | \"full\" | \"member-only\" | \"chat-restricted\" | \"underage-chat\" | \"email-unconfirmed\" | \"test-client-required\" | \"not-found\"",
+      "keys": [],
+      "source": {
+        "path": "app/src/renderer/windows/game/flash/Types.ts:24",
+        "url": "https://github.com/toommyliu/vexed/blob/dev/app/src/renderer/windows/game/flash/Types.ts#L24"
+      }
+    },
+    "consumable-skill-item": {
+      "name": "ConsumableSkillItem",
+      "slug": "consumable-skill-item",
+      "kind": "type alias",
+      "summary": "",
+      "definition": "type ConsumableSkillItem = unknown",
+      "keys": [
+        {
+          "kind": "property",
+          "name": "itemId",
+          "signature": "itemId?: number",
+          "description": ""
+        },
+        {
+          "kind": "property",
+          "name": "name",
+          "signature": "name?: string",
+          "description": ""
+        }
+      ],
+      "source": {
+        "path": "app/src/renderer/windows/game/flash/Types.ts:66",
+        "url": "https://github.com/toommyliu/vexed/blob/dev/app/src/renderer/windows/game/flash/Types.ts#L66"
+      }
+    },
+    "entity-state": {
+      "name": "EntityState",
+      "slug": "entity-state",
+      "kind": "enumeration",
+      "summary": "",
+      "definition": "enum EntityState",
+      "keys": [
+        {
+          "kind": "property",
+          "name": "Dead",
+          "signature": "Dead: 0",
+          "description": "The entity is dead."
+        },
+        {
+          "kind": "property",
+          "name": "Idle",
+          "signature": "Idle: 1",
+          "description": "The entity is idle."
+        },
+        {
+          "kind": "property",
+          "name": "InCombat",
+          "signature": "InCombat: 2",
+          "description": "The entity is in combat."
+        }
+      ],
+      "source": {
+        "path": "packages/game/src/types/EntityState.ts:1",
+        "url": "https://github.com/toommyliu/vexed/blob/dev/packages/game/src/types/EntityState.ts#L1"
+      }
+    },
+    "equip-enhancement-selector": {
+      "name": "EquipEnhancementSelector",
+      "slug": "equip-enhancement-selector",
+      "kind": "type alias",
+      "summary": "",
+      "definition": "type EquipEnhancementSelector = unknown",
+      "keys": [
+        {
+          "kind": "property",
+          "name": "enhancement",
+          "signature": "readonly enhancement: string",
+          "description": "The base enhancement name to match, such as \"lucky\" or \"forge\"."
+        },
+        {
+          "kind": "property",
+          "name": "slot",
+          "signature": "readonly slot?: EquipEnhancementSelectorSlot",
+          "description": "The slot of the item, one of \"weapon\", \"cape\", \"helm\", \"class\"."
+        },
+        {
+          "kind": "property",
+          "name": "special",
+          "signature": "readonly special?: string",
+          "description": "Optional special enhancement variant, such as a weapon proc or Forge special (\"anima\", \"vainglory\")."
+        }
+      ],
+      "source": {
+        "path": "packages/game/src/util/enhancements.ts:20",
+        "url": "https://github.com/toommyliu/vexed/blob/dev/packages/game/src/util/enhancements.ts#L20"
+      }
+    },
+    "equip-enhancement-selector-slot": {
+      "name": "EquipEnhancementSelectorSlot",
+      "slug": "equip-enhancement-selector-slot",
+      "kind": "type alias",
+      "summary": "",
+      "definition": "type EquipEnhancementSelectorSlot = EquipItemTypeFilter | \"armor\"",
+      "keys": [],
+      "source": {
+        "path": "packages/game/src/util/enhancements.ts:19",
+        "url": "https://github.com/toommyliu/vexed/blob/dev/packages/game/src/util/enhancements.ts#L19"
+      }
+    },
+    "equip-item-type-filter": {
+      "name": "EquipItemTypeFilter",
+      "slug": "equip-item-type-filter",
+      "kind": "type alias",
+      "summary": "",
+      "definition": "type EquipItemTypeFilter = \"weapon\" | \"cape\" | \"helm\" | \"class\"",
+      "keys": [],
+      "source": {
+        "path": "packages/game/src/util/enhancements.ts:18",
+        "url": "https://github.com/toommyliu/vexed/blob/dev/packages/game/src/util/enhancements.ts#L18"
+      }
+    },
+    "faction": {
+      "name": "Faction",
+      "slug": "faction",
+      "kind": "class",
+      "summary": "Represents a game faction.",
+      "definition": "class Faction",
+      "keys": [
+        {
+          "kind": "property",
+          "name": "data",
+          "signature": "data: FactionData",
+          "description": "Data about this faction."
+        },
+        {
+          "kind": "property",
+          "name": "id",
+          "signature": "readonly id: number",
+          "description": "The ID of the faction."
+        },
+        {
+          "kind": "property",
+          "name": "name",
+          "signature": "readonly name: string",
+          "description": "The in-game name of the faction."
+        },
+        {
+          "kind": "property",
+          "name": "rank",
+          "signature": "readonly rank: number",
+          "description": "The rank that the player has achieved in this faction."
+        },
+        {
+          "kind": "property",
+          "name": "remainingRep",
+          "signature": "readonly remainingRep: number",
+          "description": "The remaining amount of rep required for the player to rank up."
+        },
+        {
+          "kind": "property",
+          "name": "rep",
+          "signature": "readonly rep: number",
+          "description": "The amount of rep the player has for their current rank."
+        },
+        {
+          "kind": "property",
+          "name": "requiredRep",
+          "signature": "readonly requiredRep: number",
+          "description": "The total required rep for the player to rank up."
+        },
+        {
+          "kind": "property",
+          "name": "totalRep",
+          "signature": "readonly totalRep: number",
+          "description": "The total amount of rep the player has for this faction."
+        }
+      ],
+      "source": {
+        "path": "packages/game/src/models/Faction.ts:6",
+        "url": "https://github.com/toommyliu/vexed/blob/dev/packages/game/src/models/Faction.ts#L6"
+      }
+    },
+    "faction-data": {
+      "name": "FactionData",
+      "slug": "faction-data",
+      "kind": "type alias",
+      "summary": "",
+      "definition": "type FactionData = unknown",
+      "keys": [
+        {
+          "kind": "property",
+          "name": "CharFactionID",
+          "signature": "CharFactionID: string",
+          "description": ""
+        },
+        {
+          "kind": "property",
+          "name": "FactionID",
+          "signature": "FactionID: string",
+          "description": "The ID of the faction."
+        },
+        {
+          "kind": "property",
+          "name": "iRank",
+          "signature": "iRank: number",
+          "description": "The rank that the player has achieved in this faction."
+        },
+        {
+          "kind": "property",
+          "name": "iRep",
+          "signature": "iRep: number",
+          "description": "The total amount of rep the player has for this faction."
+        },
+        {
+          "kind": "property",
+          "name": "iRepToRank",
+          "signature": "iRepToRank: number",
+          "description": "The total required rep for the player to rank up."
+        },
+        {
+          "kind": "property",
+          "name": "iSpillRep",
+          "signature": "iSpillRep: number",
+          "description": "The amount of rep the player has for their current rank."
+        },
+        {
+          "kind": "property",
+          "name": "sName",
+          "signature": "sName: string",
+          "description": "The name of the faction."
+        }
+      ],
+      "source": {
+        "path": "packages/game/src/types/FactionData.ts:1",
+        "url": "https://github.com/toommyliu/vexed/blob/dev/packages/game/src/types/FactionData.ts#L1"
+      }
+    },
+    "game-action": {
+      "name": "GameAction",
+      "slug": "game-action",
+      "kind": "type alias",
+      "summary": "",
+      "definition": "type GameAction = Schema.Schema.Type<typeof GameAction>",
+      "keys": [],
+      "source": {
+        "path": "packages/game/src/types/GameAction.ts:3",
+        "url": "https://github.com/toommyliu/vexed/blob/dev/packages/game/src/types/GameAction.ts#L3"
+      }
+    },
+    "item": {
+      "name": "Item",
+      "slug": "item",
+      "kind": "class",
+      "summary": "The base class for all-things item related.",
+      "definition": "class Item",
+      "keys": [
+        {
+          "kind": "property",
+          "name": "category",
+          "signature": "readonly category: string",
+          "description": "The category of the item."
+        },
+        {
+          "kind": "property",
+          "name": "charItemId",
+          "signature": "readonly charItemId: number",
+          "description": "The character ID of this item."
+        },
+        {
+          "kind": "property",
+          "name": "classRank",
+          "signature": "readonly classRank: number | null",
+          "description": "The class rank represented by this item's accumulated class points."
+        },
+        {
+          "kind": "property",
+          "name": "data",
+          "signature": "data: ItemData",
+          "description": "Data about this item"
+        },
+        {
+          "kind": "property",
+          "name": "description",
+          "signature": "readonly description: string",
+          "description": "The description of the item."
+        },
+        {
+          "kind": "property",
+          "name": "enhancementLevel",
+          "signature": "readonly enhancementLevel: number",
+          "description": "The enhancement level of the item."
+        },
+        {
+          "kind": "property",
+          "name": "enhancementPatternId",
+          "signature": "readonly enhancementPatternId: number",
+          "description": "The enhancement pattern ID of the item."
+        },
+        {
+          "kind": "property",
+          "name": "fileLink",
+          "signature": "readonly fileLink: string",
+          "description": "The link to the source file of the item"
+        },
+        {
+          "kind": "property",
+          "name": "fileName",
+          "signature": "readonly fileName: string",
+          "description": "The name of the source file of the item."
+        },
+        {
+          "kind": "property",
+          "name": "id",
+          "signature": "readonly id: number",
+          "description": "The ID of the item."
+        },
+        {
+          "kind": "property",
+          "name": "itemGroup",
+          "signature": "readonly itemGroup: string",
+          "description": "The group of the item."
+        },
+        {
+          "kind": "property",
+          "name": "level",
+          "signature": "readonly level: number",
+          "description": "The level of the item."
+        },
+        {
+          "kind": "property",
+          "name": "maxStack",
+          "signature": "readonly maxStack: number",
+          "description": "The maximum stack size this item can exist in."
+        },
+        {
+          "kind": "property",
+          "name": "meta",
+          "signature": "readonly meta: Record<string, number> | null",
+          "description": "The meta value of the item."
+        },
+        {
+          "kind": "property",
+          "name": "name",
+          "signature": "readonly name: string",
+          "description": "The name of the item."
+        },
+        {
+          "kind": "property",
+          "name": "quantity",
+          "signature": "readonly quantity: number",
+          "description": "The quantity of the item in this stack."
+        },
+        {
+          "kind": "method",
+          "name": "isAC()",
+          "signature": "isAC(): boolean",
+          "description": "Whether the item is AC tagged."
+        },
+        {
+          "kind": "method",
+          "name": "isArmor()",
+          "signature": "isArmor(): boolean",
+          "description": "Whether the item is type Armor."
+        },
+        {
+          "kind": "method",
+          "name": "isBoost()",
+          "signature": "isBoost(): boolean",
+          "description": "Whether the item is a boost."
+        },
+        {
+          "kind": "method",
+          "name": "isCape()",
+          "signature": "isCape(): boolean",
+          "description": "Whether the item is type Cape."
+        },
+        {
+          "kind": "method",
+          "name": "isClass()",
+          "signature": "isClass(): boolean",
+          "description": "Whether the item is type Class."
+        },
+        {
+          "kind": "method",
+          "name": "isEquipped()",
+          "signature": "isEquipped(): boolean",
+          "description": "Whether the item is equipped."
+        },
+        {
+          "kind": "method",
+          "name": "isHelm()",
+          "signature": "isHelm(): boolean",
+          "description": "Whether the item is type Helm."
+        },
+        {
+          "kind": "method",
+          "name": "isMaxed()",
+          "signature": "isMaxed(): boolean",
+          "description": "Whether the item is at its maximum stack size."
+        },
+        {
+          "kind": "method",
+          "name": "isMember()",
+          "signature": "isMember(): boolean",
+          "description": "Whether the item is member-only."
+        },
+        {
+          "kind": "method",
+          "name": "isPet()",
+          "signature": "isPet(): boolean",
+          "description": "Whether the item is type Pet."
+        },
+        {
+          "kind": "method",
+          "name": "isTemp()",
+          "signature": "isTemp(): boolean",
+          "description": "Whether the item belongs to the temp inventory."
+        },
+        {
+          "kind": "method",
+          "name": "isUpgrade()",
+          "signature": "isUpgrade(): boolean",
+          "description": "Whether the item is member-only."
+        },
+        {
+          "kind": "method",
+          "name": "isWeapon()",
+          "signature": "isWeapon(): boolean",
+          "description": "Whether the item is type Weapon."
+        },
+        {
+          "kind": "method",
+          "name": "isWearing()",
+          "signature": "isWearing(): boolean",
+          "description": "Whether the item is currently being worn."
+        }
+      ],
+      "source": {
+        "path": "packages/game/src/models/Item.ts:15",
+        "url": "https://github.com/toommyliu/vexed/blob/dev/packages/game/src/models/Item.ts#L15"
+      }
+    },
+    "item-data": {
+      "name": "ItemData",
+      "slug": "item-data",
+      "kind": "type alias",
+      "summary": "",
+      "definition": "type ItemData = unknown",
+      "keys": [
+        {
+          "kind": "property",
+          "name": "bBank",
+          "signature": "bBank: number",
+          "description": ""
+        },
+        {
+          "kind": "property",
+          "name": "bCoins",
+          "signature": "bCoins: number",
+          "description": ""
+        },
+        {
+          "kind": "property",
+          "name": "bEquip",
+          "signature": "bEquip: number",
+          "description": ""
+        },
+        {
+          "kind": "property",
+          "name": "bHouse",
+          "signature": "bHouse: number",
+          "description": ""
+        },
+        {
+          "kind": "property",
+          "name": "bStaff",
+          "signature": "bStaff: number",
+          "description": ""
+        },
+        {
+          "kind": "property",
+          "name": "bTemp",
+          "signature": "bTemp: number",
+          "description": ""
+        },
+        {
+          "kind": "property",
+          "name": "bUpg",
+          "signature": "bUpg: number",
+          "description": ""
+        },
+        {
+          "kind": "property",
+          "name": "bWear",
+          "signature": "bWear: number",
+          "description": ""
+        },
+        {
+          "kind": "property",
+          "name": "CharID",
+          "signature": "CharID: number",
+          "description": ""
+        },
+        {
+          "kind": "property",
+          "name": "CharItemID",
+          "signature": "CharItemID: number",
+          "description": ""
+        },
+        {
+          "kind": "property",
+          "name": "dPurchase",
+          "signature": "dPurchase: string",
+          "description": ""
+        },
+        {
+          "kind": "property",
+          "name": "EnhDPS",
+          "signature": "EnhDPS: number",
+          "description": ""
+        },
+        {
+          "kind": "property",
+          "name": "EnhID",
+          "signature": "EnhID: number",
+          "description": ""
+        },
+        {
+          "kind": "property",
+          "name": "EnhLvl",
+          "signature": "EnhLvl: number",
+          "description": ""
+        },
+        {
+          "kind": "property",
+          "name": "EnhPatternID",
+          "signature": "EnhPatternID: number",
+          "description": ""
+        },
+        {
+          "kind": "property",
+          "name": "EnhRng",
+          "signature": "EnhRng: number",
+          "description": ""
+        },
+        {
+          "kind": "property",
+          "name": "EnhRty",
+          "signature": "EnhRty: number",
+          "description": ""
+        },
+        {
+          "kind": "property",
+          "name": "iCost",
+          "signature": "iCost: number",
+          "description": ""
+        },
+        {
+          "kind": "property",
+          "name": "iDPS",
+          "signature": "iDPS: number",
+          "description": ""
+        },
+        {
+          "kind": "property",
+          "name": "iHrs",
+          "signature": "iHrs: number",
+          "description": ""
+        },
+        {
+          "kind": "property",
+          "name": "iLvl",
+          "signature": "iLvl: number",
+          "description": ""
+        },
+        {
+          "kind": "property",
+          "name": "iQty",
+          "signature": "iQty: number",
+          "description": ""
+        },
+        {
+          "kind": "property",
+          "name": "iRng",
+          "signature": "iRng: number",
+          "description": ""
+        },
+        {
+          "kind": "property",
+          "name": "iRty",
+          "signature": "iRty: number",
+          "description": ""
+        },
+        {
+          "kind": "property",
+          "name": "iStk",
+          "signature": "iStk: number",
+          "description": ""
+        },
+        {
+          "kind": "property",
+          "name": "ItemID",
+          "signature": "ItemID: number",
+          "description": ""
+        },
+        {
+          "kind": "property",
+          "name": "iType",
+          "signature": "iType: number",
+          "description": ""
+        },
+        {
+          "kind": "property",
+          "name": "PatternID",
+          "signature": "PatternID?: number | string",
+          "description": ""
+        },
+        {
+          "kind": "property",
+          "name": "ProcID",
+          "signature": "ProcID?: number",
+          "description": ""
+        },
+        {
+          "kind": "property",
+          "name": "sDesc",
+          "signature": "sDesc: string",
+          "description": ""
+        },
+        {
+          "kind": "property",
+          "name": "sElmt",
+          "signature": "sElmt: string",
+          "description": ""
+        },
+        {
+          "kind": "property",
+          "name": "sES",
+          "signature": "sES: string",
+          "description": ""
+        },
+        {
+          "kind": "property",
+          "name": "sFile",
+          "signature": "sFile: string",
+          "description": ""
+        },
+        {
+          "kind": "property",
+          "name": "sIcon",
+          "signature": "sIcon: string",
+          "description": ""
+        },
+        {
+          "kind": "property",
+          "name": "sLink",
+          "signature": "sLink: string",
+          "description": ""
+        },
+        {
+          "kind": "property",
+          "name": "sMeta",
+          "signature": "sMeta: string",
+          "description": ""
+        },
+        {
+          "kind": "property",
+          "name": "sName",
+          "signature": "sName: string",
+          "description": ""
+        },
+        {
+          "kind": "property",
+          "name": "sType",
+          "signature": "sType: string",
+          "description": ""
+        }
+      ],
+      "source": {
+        "path": "packages/game/src/types/ItemData.ts:1",
+        "url": "https://github.com/toommyliu/vexed/blob/dev/packages/game/src/types/ItemData.ts#L1"
+      }
+    },
+    "item-identifier-token": {
+      "name": "ItemIdentifierToken",
+      "slug": "item-identifier-token",
+      "kind": "type alias",
+      "summary": "",
+      "definition": "type ItemIdentifierToken = number | string",
+      "keys": [],
+      "source": {
+        "path": "app/src/renderer/windows/game/global.d.ts:5",
+        "url": "https://github.com/toommyliu/vexed/blob/dev/app/src/renderer/windows/game/global.d.ts#L5"
+      }
+    },
+    "keep": {
+      "name": "Keep",
+      "slug": "keep",
+      "kind": "type alias",
+      "summary": "",
+      "definition": "type Keep<Value> = { keep: false } | { keep: true; value: Value }",
+      "keys": [],
+      "source": {
+        "path": "packages/collection/src/index.ts:1294",
+        "url": "https://github.com/toommyliu/vexed/blob/dev/packages/collection/src/index.ts#L1294"
+      }
+    },
+    "monster": {
+      "name": "Monster",
+      "slug": "monster",
+      "kind": "class",
+      "summary": "Represents a monster.",
+      "definition": "class Monster extends BaseEntity",
+      "keys": [
+        {
+          "kind": "property",
+          "name": "alive",
+          "signature": "readonly alive: boolean",
+          "description": "Whether the entity is alive."
+        },
+        {
+          "kind": "property",
+          "name": "cell",
+          "signature": "readonly cell: string",
+          "description": "The cell the monster is in."
+        },
+        {
+          "kind": "property",
+          "name": "data",
+          "signature": "readonly data: MonsterData",
+          "description": ""
+        },
+        {
+          "kind": "property",
+          "name": "hp",
+          "signature": "readonly hp: number",
+          "description": "The entity's current HP."
+        },
+        {
+          "kind": "property",
+          "name": "hpPercentage",
+          "signature": "readonly hpPercentage: number",
+          "description": "The entity's current HP percentage."
+        },
+        {
+          "kind": "property",
+          "name": "id",
+          "signature": "readonly id: number",
+          "description": "The global ID of the monster."
+        },
+        {
+          "kind": "property",
+          "name": "level",
+          "signature": "readonly level: number",
+          "description": "The level of the monster."
+        },
+        {
+          "kind": "property",
+          "name": "maxHp",
+          "signature": "readonly maxHp: number",
+          "description": "The entity's max HP."
+        },
+        {
+          "kind": "property",
+          "name": "monMapId",
+          "signature": "readonly monMapId: number",
+          "description": "The monMapID of the monster."
+        },
+        {
+          "kind": "property",
+          "name": "name",
+          "signature": "readonly name: string",
+          "description": "The name of the monster."
+        },
+        {
+          "kind": "property",
+          "name": "race",
+          "signature": "readonly race: string",
+          "description": "The race of the monster."
+        },
+        {
+          "kind": "property",
+          "name": "state",
+          "signature": "readonly state: EntityState",
+          "description": "The entity's state."
+        },
+        {
+          "kind": "method",
+          "name": "isDead()",
+          "signature": "isDead(): boolean",
+          "description": ""
+        },
+        {
+          "kind": "method",
+          "name": "isHpGreaterThan()",
+          "signature": "isHpGreaterThan(value: number): boolean",
+          "description": "Whether the entity's hp is greater than a value."
+        },
+        {
+          "kind": "method",
+          "name": "isHpLessThan()",
+          "signature": "isHpLessThan(value: number): boolean",
+          "description": "Whether the entity's hp is less than a value."
+        },
+        {
+          "kind": "method",
+          "name": "isHpPercentageGreaterThan()",
+          "signature": "isHpPercentageGreaterThan(value: number): boolean",
+          "description": "Whether the entity's hp is greater than a percentage value."
+        },
+        {
+          "kind": "method",
+          "name": "isHpPercentageLessThan()",
+          "signature": "isHpPercentageLessThan(value: number): boolean",
+          "description": "Whether the entity's hp is less than a percentage value."
+        },
+        {
+          "kind": "method",
+          "name": "isIdle()",
+          "signature": "isIdle(): boolean",
+          "description": "Whether the entity is idle."
+        },
+        {
+          "kind": "method",
+          "name": "isInCell()",
+          "signature": "isInCell(cell: string): boolean",
+          "description": "Whether the entity is in the specified cell."
+        },
+        {
+          "kind": "method",
+          "name": "isInCombat()",
+          "signature": "isInCombat(): boolean",
+          "description": "Whether the entity is in combat."
+        },
+        {
+          "kind": "method",
+          "name": "isMonster()",
+          "signature": "isMonster(): this is Monster",
+          "description": "Whether the entity is a monster."
+        },
+        {
+          "kind": "method",
+          "name": "isPlayer()",
+          "signature": "isPlayer(): this is Avatar",
+          "description": "Whether the entity is a player."
+        }
+      ],
+      "source": {
+        "path": "packages/game/src/models/Monster.ts:7",
+        "url": "https://github.com/toommyliu/vexed/blob/dev/packages/game/src/models/Monster.ts#L7"
+      }
+    },
+    "monster-data": {
+      "name": "MonsterData",
+      "slug": "monster-data",
+      "kind": "type alias",
+      "summary": "",
+      "definition": "type MonsterData = BaseEntityData & { iLvl: number; intMP: number; intMPMax: number; monId: number; monMapId: number; sRace: string; strFrame: string; strMonName: string }",
+      "keys": [],
+      "source": {
+        "path": "packages/game/src/types/MonsterData.ts:3",
+        "url": "https://github.com/toommyliu/vexed/blob/dev/packages/game/src/types/MonsterData.ts#L3"
+      }
+    },
+    "monster-identifier-token": {
+      "name": "MonsterIdentifierToken",
+      "slug": "monster-identifier-token",
+      "kind": "type alias",
+      "summary": "",
+      "definition": "type MonsterIdentifierToken = MonsterName | MonsterMapID",
+      "keys": [],
+      "source": {
+        "path": "app/src/renderer/windows/game/global.d.ts:18",
+        "url": "https://github.com/toommyliu/vexed/blob/dev/app/src/renderer/windows/game/global.d.ts#L18"
+      }
+    },
+    "monster-map-id": {
+      "name": "MonsterMapID",
+      "slug": "monster-map-id",
+      "kind": "type alias",
+      "summary": "",
+      "definition": "type MonsterMapID = number",
+      "keys": [],
+      "source": {
+        "path": "app/src/renderer/windows/game/global.d.ts:17",
+        "url": "https://github.com/toommyliu/vexed/blob/dev/app/src/renderer/windows/game/global.d.ts#L17"
+      }
+    },
+    "monster-name": {
+      "name": "MonsterName",
+      "slug": "monster-name",
+      "kind": "type alias",
+      "summary": "",
+      "definition": "type MonsterName = string | `id'${number}` | `id.${number}` | `id:${number}` | `id-${number}`",
+      "keys": [],
+      "source": {
+        "path": "app/src/renderer/windows/game/global.d.ts:11",
+        "url": "https://github.com/toommyliu/vexed/blob/dev/app/src/renderer/windows/game/global.d.ts#L11"
+      }
+    },
+    "quest": {
+      "name": "Quest",
+      "slug": "quest",
+      "kind": "class",
+      "summary": "Represents a quest.",
+      "definition": "class Quest",
+      "keys": [
+        {
+          "kind": "property",
+          "name": "data",
+          "signature": "data: QuestInfo",
+          "description": ""
+        },
+        {
+          "kind": "property",
+          "name": "id",
+          "signature": "readonly id: number",
+          "description": "The ID of this quest."
+        },
+        {
+          "kind": "property",
+          "name": "name",
+          "signature": "readonly name: string",
+          "description": "The name of this quest."
+        },
+        {
+          "kind": "property",
+          "name": "once",
+          "signature": "readonly once: boolean",
+          "description": "Whether this quest can only be completed once."
+        },
+        {
+          "kind": "property",
+          "name": "requirements",
+          "signature": "readonly requirements: QuestRequirement[]",
+          "description": "The requirements needed to complete this quest."
+        },
+        {
+          "kind": "property",
+          "name": "rewards",
+          "signature": "readonly rewards: QuestReward[]",
+          "description": "The rewards for completing this quest."
+        },
+        {
+          "kind": "method",
+          "name": "isDaily()",
+          "signature": "isDaily(): boolean",
+          "description": "Whether this quest is a daily quest."
+        },
+        {
+          "kind": "method",
+          "name": "isMonthly()",
+          "signature": "isMonthly(): boolean",
+          "description": "Whether this quest is a monthly quest."
+        },
+        {
+          "kind": "method",
+          "name": "isWeekly()",
+          "signature": "isWeekly(): boolean",
+          "description": "Whether this quest is a weekly quest."
+        }
+      ],
+      "source": {
+        "path": "packages/game/src/models/Quest.ts:12",
+        "url": "https://github.com/toommyliu/vexed/blob/dev/packages/game/src/models/Quest.ts#L12"
+      }
+    },
+    "quest-bonus-reward-data": {
+      "name": "QuestBonusRewardData",
+      "slug": "quest-bonus-reward-data",
+      "kind": "type alias",
+      "summary": "Represents the raw data structure for additional quest rewards.",
+      "definition": "type QuestBonusRewardData = unknown",
+      "keys": [
+        {
+          "kind": "property",
+          "name": "DropChance",
+          "signature": "DropChance: string",
+          "description": "The drop chance of the item with a percent sign."
+        },
+        {
+          "kind": "property",
+          "name": "iQty",
+          "signature": "iQty: number",
+          "description": "The quantity of the item."
+        },
+        {
+          "kind": "property",
+          "name": "ItemID",
+          "signature": "ItemID: string",
+          "description": "The item ID."
+        },
+        {
+          "kind": "property",
+          "name": "sName",
+          "signature": "sName: string",
+          "description": "The name of the item."
+        }
+      ],
+      "source": {
+        "path": "packages/game/src/types/QuestData.ts:44",
+        "url": "https://github.com/toommyliu/vexed/blob/dev/packages/game/src/types/QuestData.ts#L44"
+      }
+    },
+    "quest-info": {
+      "name": "QuestInfo",
+      "slug": "quest-info",
+      "kind": "type alias",
+      "summary": "Represents the main quest information structure.",
+      "definition": "type QuestInfo = unknown",
+      "keys": [
+        {
+          "kind": "property",
+          "name": "bGuild",
+          "signature": "bGuild: string",
+          "description": ""
+        },
+        {
+          "kind": "property",
+          "name": "bitSuccess",
+          "signature": "bitSuccess: string",
+          "description": ""
+        },
+        {
+          "kind": "property",
+          "name": "bOnce",
+          "signature": "bOnce: string",
+          "description": "Whether this quest can only be completed once."
+        },
+        {
+          "kind": "property",
+          "name": "bStaff",
+          "signature": "bStaff: string",
+          "description": ""
+        },
+        {
+          "kind": "property",
+          "name": "bUpg",
+          "signature": "bUpg: string",
+          "description": ""
+        },
+        {
+          "kind": "property",
+          "name": "FactionID",
+          "signature": "FactionID: string",
+          "description": ""
+        },
+        {
+          "kind": "property",
+          "name": "iClass",
+          "signature": "iClass: number",
+          "description": ""
+        },
+        {
+          "kind": "property",
+          "name": "iExp",
+          "signature": "iExp: number",
+          "description": "The amount of experience rewarded for completing this quest."
+        },
+        {
+          "kind": "property",
+          "name": "iGold",
+          "signature": "iGold: number",
+          "description": "The amount of gold rewarded for completing this quest."
+        },
+        {
+          "kind": "property",
+          "name": "iIndex",
+          "signature": "iIndex?: number",
+          "description": ""
+        },
+        {
+          "kind": "property",
+          "name": "iLvl",
+          "signature": "iLvl: number",
+          "description": "The required level to accept this quest."
+        },
+        {
+          "kind": "property",
+          "name": "iRep",
+          "signature": "iRep: number",
+          "description": "The amount of reputation rewarded for completing this quest. 0 if not applicable."
+        },
+        {
+          "kind": "property",
+          "name": "iReqCP",
+          "signature": "iReqCP: number",
+          "description": "The class points required to accept this quest. 0 if not applicable."
+        },
+        {
+          "kind": "property",
+          "name": "iReqRep",
+          "signature": "iReqRep: number",
+          "description": "The required faction reputation to accept this quest."
+        },
+        {
+          "kind": "property",
+          "name": "iSlot",
+          "signature": "iSlot: number",
+          "description": ""
+        },
+        {
+          "kind": "property",
+          "name": "iValue",
+          "signature": "iValue: number",
+          "description": ""
+        },
+        {
+          "kind": "property",
+          "name": "iWar",
+          "signature": "iWar: number",
+          "description": ""
+        },
+        {
+          "kind": "property",
+          "name": "metaValues",
+          "signature": "metaValues: Record<string, string>",
+          "description": ""
+        },
+        {
+          "kind": "property",
+          "name": "oItems",
+          "signature": "oItems: Record<string, ItemData>",
+          "description": ""
+        },
+        {
+          "kind": "property",
+          "name": "oRewards",
+          "signature": "oRewards: Record<string, QuestBonusRewardData>",
+          "description": ""
+        },
+        {
+          "kind": "property",
+          "name": "QuestID",
+          "signature": "QuestID: string",
+          "description": "The ID of this quest."
+        },
+        {
+          "kind": "property",
+          "name": "RequiredItems",
+          "signature": "RequiredItems: QuestRequirementData[]",
+          "description": ""
+        },
+        {
+          "kind": "property",
+          "name": "reward",
+          "signature": "reward: QuestRewardData[]",
+          "description": ""
+        },
+        {
+          "kind": "property",
+          "name": "Rewards",
+          "signature": "Rewards: QuestBonusRewardData[]",
+          "description": ""
+        },
+        {
+          "kind": "property",
+          "name": "sDesc",
+          "signature": "sDesc: string",
+          "description": "The description of this quest."
+        },
+        {
+          "kind": "property",
+          "name": "sEndText",
+          "signature": "sEndText: string",
+          "description": "The text displayed when this quest can be completed."
+        },
+        {
+          "kind": "property",
+          "name": "sFaction",
+          "signature": "sFaction: string",
+          "description": "The name of the faction that this quest is for."
+        },
+        {
+          "kind": "property",
+          "name": "sField",
+          "signature": "sField?: string",
+          "description": ""
+        },
+        {
+          "kind": "property",
+          "name": "sName",
+          "signature": "sName: string",
+          "description": "The name of this quest."
+        },
+        {
+          "kind": "property",
+          "name": "status",
+          "signature": "status: string",
+          "description": "The status of the quest."
+        },
+        {
+          "kind": "property",
+          "name": "turnin",
+          "signature": "turnin: QuestTurnInData[]",
+          "description": ""
+        }
+      ],
+      "source": {
+        "path": "packages/game/src/types/QuestInfo.ts:12",
+        "url": "https://github.com/toommyliu/vexed/blob/dev/packages/game/src/types/QuestInfo.ts#L12"
+      }
+    },
+    "quest-requirement": {
+      "name": "QuestRequirement",
+      "slug": "quest-requirement",
+      "kind": "type alias",
+      "summary": "Represents a required item for a quest.",
+      "definition": "type QuestRequirement = unknown",
+      "keys": [
+        {
+          "kind": "property",
+          "name": "itemId",
+          "signature": "itemId: string",
+          "description": "The item ID."
+        },
+        {
+          "kind": "property",
+          "name": "itemName",
+          "signature": "itemName: string",
+          "description": "The name of the item."
+        },
+        {
+          "kind": "property",
+          "name": "quantity",
+          "signature": "quantity: number",
+          "description": "The quantity of the item."
+        }
+      ],
+      "source": {
+        "path": "packages/game/src/types/QuestInfo.ts:88",
+        "url": "https://github.com/toommyliu/vexed/blob/dev/packages/game/src/types/QuestInfo.ts#L88"
+      }
+    },
+    "quest-requirement-data": {
+      "name": "QuestRequirementData",
+      "slug": "quest-requirement-data",
+      "kind": "type alias",
+      "summary": "Represents the raw data structure for a quest's required item.",
+      "definition": "type QuestRequirementData = unknown",
+      "keys": [
+        {
+          "kind": "property",
+          "name": "iQty",
+          "signature": "iQty: number",
+          "description": "The quantity of the item."
+        },
+        {
+          "kind": "property",
+          "name": "ItemID",
+          "signature": "ItemID: string",
+          "description": "The item ID."
+        },
+        {
+          "kind": "property",
+          "name": "sName",
+          "signature": "sName: string",
+          "description": "The name of the item."
+        }
+      ],
+      "source": {
+        "path": "packages/game/src/types/QuestData.ts:26",
+        "url": "https://github.com/toommyliu/vexed/blob/dev/packages/game/src/types/QuestData.ts#L26"
+      }
+    },
+    "quest-reward": {
+      "name": "QuestReward",
+      "slug": "quest-reward",
+      "kind": "type alias",
+      "summary": "Represents a reward for a quest.",
+      "definition": "type QuestReward = unknown",
+      "keys": [
+        {
+          "kind": "property",
+          "name": "dropChance",
+          "signature": "dropChance: string",
+          "description": "The drop chance of the item with a percent sign."
+        },
+        {
+          "kind": "property",
+          "name": "itemId",
+          "signature": "itemId: string",
+          "description": "The item ID."
+        },
+        {
+          "kind": "property",
+          "name": "itemName",
+          "signature": "itemName: string",
+          "description": "The name of the item."
+        },
+        {
+          "kind": "property",
+          "name": "quantity",
+          "signature": "quantity: number",
+          "description": "The quantity of the item."
+        }
+      ],
+      "source": {
+        "path": "packages/game/src/types/QuestInfo.ts:106",
+        "url": "https://github.com/toommyliu/vexed/blob/dev/packages/game/src/types/QuestInfo.ts#L106"
+      }
+    },
+    "quest-reward-data": {
+      "name": "QuestRewardData",
+      "slug": "quest-reward-data",
+      "kind": "type alias",
+      "summary": "Represents the raw data structure for a quest reward.",
+      "definition": "type QuestRewardData = unknown",
+      "keys": [
+        {
+          "kind": "property",
+          "name": "iQty",
+          "signature": "iQty: number",
+          "description": "The quantity of the item."
+        },
+        {
+          "kind": "property",
+          "name": "iRate",
+          "signature": "iRate: string",
+          "description": "The rate of the reward without a percent sign."
+        },
+        {
+          "kind": "property",
+          "name": "ItemID",
+          "signature": "ItemID: string",
+          "description": "The item ID."
+        },
+        {
+          "kind": "property",
+          "name": "iType",
+          "signature": "iType: string",
+          "description": "The type of the reward."
+        }
+      ],
+      "source": {
+        "path": "packages/game/src/types/QuestData.ts:4",
+        "url": "https://github.com/toommyliu/vexed/blob/dev/packages/game/src/types/QuestData.ts#L4"
+      }
+    },
+    "quest-turn-in-data": {
+      "name": "QuestTurnInData",
+      "slug": "quest-turn-in-data",
+      "kind": "type alias",
+      "summary": "Represents the raw data structure for quest turn-in requirements.",
+      "definition": "type QuestTurnInData = unknown",
+      "keys": [
+        {
+          "kind": "property",
+          "name": "iQty",
+          "signature": "iQty: number",
+          "description": "The quantity of the item."
+        },
+        {
+          "kind": "property",
+          "name": "ItemID",
+          "signature": "ItemID: string",
+          "description": "The item ID."
+        }
+      ],
+      "source": {
+        "path": "packages/game/src/types/QuestData.ts:66",
+        "url": "https://github.com/toommyliu/vexed/blob/dev/packages/game/src/types/QuestData.ts#L66"
+      }
+    },
+    "readonly-collection": {
+      "name": "ReadonlyCollection",
+      "slug": "readonly-collection",
+      "kind": "type alias",
+      "summary": "Represents an immutable version of a collection",
+      "definition": "type ReadonlyCollection<Key, Value> = Omit<Collection<Key, Value>, keyof Map<Key, Value> | \"ensure\" | \"reverse\" | \"sort\" | \"sweep\"> & ReadonlyMap<Key, Value>",
+      "keys": [],
+      "source": {
+        "path": "packages/collection/src/index.ts:23",
+        "url": "https://github.com/toommyliu/vexed/blob/dev/packages/collection/src/index.ts#L23"
+      }
+    },
+    "script-enhance-item-options": {
+      "name": "ScriptEnhanceItemOptions",
+      "slug": "script-enhance-item-options",
+      "kind": "interface",
+      "summary": "",
+      "definition": "interface ScriptEnhanceItemOptions",
+      "keys": [
+        {
+          "kind": "property",
+          "name": "enhancement",
+          "signature": "readonly enhancement: string",
+          "description": ""
+        },
+        {
+          "kind": "property",
+          "name": "special",
+          "signature": "readonly special?: string",
+          "description": ""
+        }
+      ],
+      "source": {
+        "path": "app/src/renderer/windows/game/scripting/recipes.ts:50",
+        "url": "https://github.com/toommyliu/vexed/blob/dev/app/src/renderer/windows/game/scripting/recipes.ts#L50"
+      }
+    },
+    "script-equip-item-by-enhancement-options": {
+      "name": "ScriptEquipItemByEnhancementOptions",
+      "slug": "script-equip-item-by-enhancement-options",
+      "kind": "type alias",
+      "summary": "",
+      "definition": "type ScriptEquipItemByEnhancementOptions = EquipEnhancementSelector",
+      "keys": [],
+      "source": {
+        "path": "app/src/renderer/windows/game/scripting/recipes.ts:55",
+        "url": "https://github.com/toommyliu/vexed/blob/dev/app/src/renderer/windows/game/scripting/recipes.ts#L55"
+      }
+    },
+    "script-packet-disposer": {
+      "name": "ScriptPacketDisposer",
+      "slug": "script-packet-disposer",
+      "kind": "type alias",
+      "summary": "",
+      "definition": "type ScriptPacketDisposer = () => void",
+      "keys": [],
+      "source": {
+        "path": "app/src/renderer/windows/game/scripting/ScriptApi.ts:45",
+        "url": "https://github.com/toommyliu/vexed/blob/dev/app/src/renderer/windows/game/scripting/ScriptApi.ts#L45"
+      }
+    },
+    "script-packet-listener": {
+      "name": "ScriptPacketListener",
+      "slug": "script-packet-listener",
+      "kind": "type alias",
+      "summary": "",
+      "definition": "type ScriptPacketListener = (packet: string) => void | Effect.Effect<unknown, unknown> | Generator<Effect.Yieldable<any, any, never, never>, unknown, never>",
+      "keys": [],
+      "source": {
+        "path": "app/src/renderer/windows/game/scripting/ScriptApi.ts:38",
+        "url": "https://github.com/toommyliu/vexed/blob/dev/app/src/renderer/windows/game/scripting/ScriptApi.ts#L38"
+      }
+    },
+    "script-recipe-effect": {
+      "name": "ScriptRecipeEffect",
+      "slug": "script-recipe-effect",
+      "kind": "type alias",
+      "summary": "",
+      "definition": "type ScriptRecipeEffect<A> = Effect.Effect<A, unknown>",
+      "keys": [],
+      "source": {
+        "path": "app/src/renderer/windows/game/scripting/recipes.ts:32",
+        "url": "https://github.com/toommyliu/vexed/blob/dev/app/src/renderer/windows/game/scripting/recipes.ts#L32"
+      }
+    },
+    "server": {
+      "name": "Server",
+      "slug": "server",
+      "kind": "class",
+      "summary": "Represents a game server.",
+      "definition": "class Server",
+      "keys": [
+        {
+          "kind": "property",
+          "name": "data",
+          "signature": "data: ServerData",
+          "description": "Data about this server."
+        },
+        {
+          "kind": "property",
+          "name": "ip",
+          "signature": "readonly ip: string",
+          "description": "The IP address of the server."
+        },
+        {
+          "kind": "property",
+          "name": "langCode",
+          "signature": "readonly langCode: string",
+          "description": "The language of the server (en/xx/it/pt)."
+        },
+        {
+          "kind": "property",
+          "name": "maxPlayers",
+          "signature": "readonly maxPlayers: number",
+          "description": "The maximum number of players."
+        },
+        {
+          "kind": "property",
+          "name": "name",
+          "signature": "readonly name: string",
+          "description": "The name of the server."
+        },
+        {
+          "kind": "property",
+          "name": "playerCount",
+          "signature": "readonly playerCount: number",
+          "description": "The number of current players."
+        },
+        {
+          "kind": "property",
+          "name": "port",
+          "signature": "readonly port: number",
+          "description": "The port number the server is on."
+        },
+        {
+          "kind": "method",
+          "name": "isCanned()",
+          "signature": "isCanned(): boolean",
+          "description": "The chat-level restriction of the server (0=canned, 2=free)."
+        },
+        {
+          "kind": "method",
+          "name": "isFull()",
+          "signature": "isFull(): boolean",
+          "description": "Whether the server is full (at or above capacity)."
+        },
+        {
+          "kind": "method",
+          "name": "isOnline()",
+          "signature": "isOnline(): boolean",
+          "description": "Whether the server is online."
+        },
+        {
+          "kind": "method",
+          "name": "isUpgrade()",
+          "signature": "isUpgrade(): boolean",
+          "description": "Whether the server is an upgrade-only server."
+        }
+      ],
+      "source": {
+        "path": "packages/game/src/models/Server.ts:6",
+        "url": "https://github.com/toommyliu/vexed/blob/dev/packages/game/src/models/Server.ts#L6"
+      }
+    },
+    "server-data": {
+      "name": "ServerData",
+      "slug": "server-data",
+      "kind": "type alias",
+      "summary": "",
+      "definition": "type ServerData = unknown",
+      "keys": [
+        {
+          "kind": "property",
+          "name": "bOnline",
+          "signature": "bOnline: number",
+          "description": ""
+        },
+        {
+          "kind": "property",
+          "name": "bUpg",
+          "signature": "bUpg: number",
+          "description": ""
+        },
+        {
+          "kind": "property",
+          "name": "iChat",
+          "signature": "iChat: number",
+          "description": ""
+        },
+        {
+          "kind": "property",
+          "name": "iCount",
+          "signature": "iCount: number",
+          "description": ""
+        },
+        {
+          "kind": "property",
+          "name": "iLevel",
+          "signature": "iLevel: number",
+          "description": ""
+        },
+        {
+          "kind": "property",
+          "name": "iMax",
+          "signature": "iMax: number",
+          "description": ""
+        },
+        {
+          "kind": "property",
+          "name": "iPort",
+          "signature": "iPort: number",
+          "description": ""
+        },
+        {
+          "kind": "property",
+          "name": "sIP",
+          "signature": "sIP: string",
+          "description": ""
+        },
+        {
+          "kind": "property",
+          "name": "sLang",
+          "signature": "sLang: string",
+          "description": ""
+        },
+        {
+          "kind": "property",
+          "name": "sName",
+          "signature": "sName: string",
+          "description": ""
+        }
+      ],
+      "source": {
+        "path": "packages/game/src/types/ServerData.ts:1",
+        "url": "https://github.com/toommyliu/vexed/blob/dev/packages/game/src/types/ServerData.ts#L1"
+      }
+    },
+    "server-packet-send-type": {
+      "name": "ServerPacketSendType",
+      "slug": "server-packet-send-type",
+      "kind": "type alias",
+      "summary": "",
+      "definition": "type ServerPacketSendType = \"String\" | \"Json\"",
+      "keys": [],
+      "source": {
+        "path": "app/src/renderer/windows/game/flash/Services/Packet.ts:26",
+        "url": "https://github.com/toommyliu/vexed/blob/dev/app/src/renderer/windows/game/flash/Services/Packet.ts#L26"
+      }
+    },
+    "shop-info": {
+      "name": "ShopInfo",
+      "slug": "shop-info",
+      "kind": "type alias",
+      "summary": "",
+      "definition": "type ShopInfo = unknown",
+      "keys": [
+        {
+          "kind": "property",
+          "name": "bHouse",
+          "signature": "bHouse: string",
+          "description": ""
+        },
+        {
+          "kind": "property",
+          "name": "bStaff",
+          "signature": "bStaff: string",
+          "description": ""
+        },
+        {
+          "kind": "property",
+          "name": "bUpgrd",
+          "signature": "bUpgrd: string",
+          "description": ""
+        },
+        {
+          "kind": "property",
+          "name": "iIndex",
+          "signature": "iIndex: string",
+          "description": ""
+        },
+        {
+          "kind": "property",
+          "name": "items",
+          "signature": "items: ShopItemData[]",
+          "description": ""
+        },
+        {
+          "kind": "property",
+          "name": "Location",
+          "signature": "Location: string",
+          "description": ""
+        },
+        {
+          "kind": "property",
+          "name": "sField",
+          "signature": "sField: string",
+          "description": ""
+        },
+        {
+          "kind": "property",
+          "name": "ShopID",
+          "signature": "ShopID: string",
+          "description": ""
+        },
+        {
+          "kind": "property",
+          "name": "sName",
+          "signature": "sName: string",
+          "description": ""
+        }
+      ],
+      "source": {
+        "path": "packages/game/src/types/ShopInfo.ts:3",
+        "url": "https://github.com/toommyliu/vexed/blob/dev/packages/game/src/types/ShopInfo.ts#L3"
+      }
+    },
+    "shop-item": {
+      "name": "ShopItem",
+      "slug": "shop-item",
+      "kind": "class",
+      "summary": "The base class for all-things item related.",
+      "definition": "class ShopItem extends Item",
+      "keys": [
+        {
+          "kind": "property",
+          "name": "category",
+          "signature": "readonly category: string",
+          "description": "The category of the item."
+        },
+        {
+          "kind": "property",
+          "name": "charItemId",
+          "signature": "readonly charItemId: number",
+          "description": "The character ID of this item."
+        },
+        {
+          "kind": "property",
+          "name": "classRank",
+          "signature": "readonly classRank: number | null",
+          "description": "The class rank represented by this item's accumulated class points."
+        },
+        {
+          "kind": "property",
+          "name": "data",
+          "signature": "data: ShopItemData",
+          "description": "Data about this item"
+        },
+        {
+          "kind": "property",
+          "name": "description",
+          "signature": "readonly description: string",
+          "description": "The description of the item."
+        },
+        {
+          "kind": "property",
+          "name": "enhancementLevel",
+          "signature": "readonly enhancementLevel: number",
+          "description": "The enhancement level of the item."
+        },
+        {
+          "kind": "property",
+          "name": "enhancementPatternId",
+          "signature": "readonly enhancementPatternId: number",
+          "description": "The enhancement pattern ID of the item."
+        },
+        {
+          "kind": "property",
+          "name": "fileLink",
+          "signature": "readonly fileLink: string",
+          "description": "The link to the source file of the item"
+        },
+        {
+          "kind": "property",
+          "name": "fileName",
+          "signature": "readonly fileName: string",
+          "description": "The name of the source file of the item."
+        },
+        {
+          "kind": "property",
+          "name": "id",
+          "signature": "readonly id: number",
+          "description": "The ID of the item."
+        },
+        {
+          "kind": "property",
+          "name": "itemGroup",
+          "signature": "readonly itemGroup: string",
+          "description": "The group of the item."
+        },
+        {
+          "kind": "property",
+          "name": "level",
+          "signature": "readonly level: number",
+          "description": "The level of the item."
+        },
+        {
+          "kind": "property",
+          "name": "maxStack",
+          "signature": "readonly maxStack: number",
+          "description": "The maximum stack size this item can exist in."
+        },
+        {
+          "kind": "property",
+          "name": "meta",
+          "signature": "readonly meta: Record<string, number> | null",
+          "description": "The meta value of the item."
+        },
+        {
+          "kind": "property",
+          "name": "name",
+          "signature": "readonly name: string",
+          "description": "The name of the item."
+        },
+        {
+          "kind": "property",
+          "name": "quantity",
+          "signature": "readonly quantity: number",
+          "description": "The quantity of the item in this stack."
+        },
+        {
+          "kind": "method",
+          "name": "isAC()",
+          "signature": "isAC(): boolean",
+          "description": "Whether the item is AC tagged."
+        },
+        {
+          "kind": "method",
+          "name": "isArmor()",
+          "signature": "isArmor(): boolean",
+          "description": "Whether the item is type Armor."
+        },
+        {
+          "kind": "method",
+          "name": "isBoost()",
+          "signature": "isBoost(): boolean",
+          "description": "Whether the item is a boost."
+        },
+        {
+          "kind": "method",
+          "name": "isCape()",
+          "signature": "isCape(): boolean",
+          "description": "Whether the item is type Cape."
+        },
+        {
+          "kind": "method",
+          "name": "isClass()",
+          "signature": "isClass(): boolean",
+          "description": "Whether the item is type Class."
+        },
+        {
+          "kind": "method",
+          "name": "isEquipped()",
+          "signature": "isEquipped(): boolean",
+          "description": "Whether the item is equipped."
+        },
+        {
+          "kind": "method",
+          "name": "isHelm()",
+          "signature": "isHelm(): boolean",
+          "description": "Whether the item is type Helm."
+        },
+        {
+          "kind": "method",
+          "name": "isMaxed()",
+          "signature": "isMaxed(): boolean",
+          "description": "Whether the item is at its maximum stack size."
+        },
+        {
+          "kind": "method",
+          "name": "isMember()",
+          "signature": "isMember(): boolean",
+          "description": "Whether the item is member-only."
+        },
+        {
+          "kind": "method",
+          "name": "isPet()",
+          "signature": "isPet(): boolean",
+          "description": "Whether the item is type Pet."
+        },
+        {
+          "kind": "method",
+          "name": "isTemp()",
+          "signature": "isTemp(): boolean",
+          "description": "Whether the item belongs to the temp inventory."
+        },
+        {
+          "kind": "method",
+          "name": "isUpgrade()",
+          "signature": "isUpgrade(): boolean",
+          "description": "Whether the item is member-only."
+        },
+        {
+          "kind": "method",
+          "name": "isWeapon()",
+          "signature": "isWeapon(): boolean",
+          "description": "Whether the item is type Weapon."
+        },
+        {
+          "kind": "method",
+          "name": "isWearing()",
+          "signature": "isWearing(): boolean",
+          "description": "Whether the item is currently being worn."
+        }
+      ],
+      "source": {
+        "path": "packages/game/src/models/ShopItem.ts:4",
+        "url": "https://github.com/toommyliu/vexed/blob/dev/packages/game/src/models/ShopItem.ts#L4"
+      }
+    },
+    "shop-item-data": {
+      "name": "ShopItemData",
+      "slug": "shop-item-data",
+      "kind": "type alias",
+      "summary": "Represents the data structure for an item.",
+      "definition": "type ShopItemData = ItemData & { bEnhShop?: boolean; bHouse: string; FactionID: string; iClass: string; iQSindex: string; iQSvalue: string; iQtyRemain: string; iReqCP: string; iReqRep: string; ItemProcID?: string; sFaction: string; ShopItemID: string; sQuest?: string; turnin?: { iQty: string; ItemID: string; sName: string }[] }",
+      "keys": [],
+      "source": {
+        "path": "packages/game/src/types/ShopItemData.ts:6",
+        "url": "https://github.com/toommyliu/vexed/blob/dev/packages/game/src/types/ShopItemData.ts#L6"
+      }
+    },
+    "skill": {
+      "name": "Skill",
+      "slug": "skill",
+      "kind": "type alias",
+      "summary": "",
+      "definition": "type Skill = number | string",
+      "keys": [],
+      "source": {
+        "path": "app/src/renderer/windows/game/global.d.ts:19",
+        "url": "https://github.com/toommyliu/vexed/blob/dev/app/src/renderer/windows/game/global.d.ts#L19"
+      }
+    }
+  }
+}

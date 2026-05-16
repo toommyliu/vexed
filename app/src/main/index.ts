@@ -18,6 +18,7 @@ import { createAppearanceSnapshot } from "../shared/appearance-snapshot";
 import { ScriptingIpcChannels, type ScriptExecutePayload } from "../shared/ipc";
 import { WindowIds } from "../shared/windows";
 import { registerAccountManagerIpcHandlers } from "./account-manager-ipc";
+import { registerArmyIpcHandlers } from "./army-ipc";
 import {
   getArtixLauncherRequestHeaders,
   getArtixLauncherUserAgent,
@@ -164,7 +165,7 @@ const openScriptDialog = async (
     title: "Open script",
     defaultPath: scriptsPath,
     filters: [
-      { name: "JavaScript", extensions: ["js", "mjs", "cjs", "ts"] },
+      { name: "JavaScript", extensions: ["js", "cjs"] },
       { name: "All Files", extensions: ["*"] },
     ],
     properties: ["openFile"],
@@ -354,6 +355,7 @@ app.whenReady().then(() => {
   ): Promise<A> => Effect.runPromise(effect.pipe(Effect.provide(windowLayer)));
 
   registerScriptingIpcHandlers();
+  registerArmyIpcHandlers();
   registerAccountManagerIpcHandlers(runConfiguredWindowEffect);
   registerSettingsIpcHandlers();
   registerWindowIpcHandlers(runConfiguredWindowEffect);

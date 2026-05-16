@@ -18,8 +18,17 @@ export type EnhancementSlot = "weapon" | "cape" | "helm" | "class";
 export type EquipItemTypeFilter = "weapon" | "cape" | "helm" | "class";
 export type EquipEnhancementSelectorSlot = EquipItemTypeFilter | "armor";
 export type EquipEnhancementSelector = {
+  /**
+   * The base enhancement name to match, such as "lucky" or "forge".
+   */
   readonly enhancement: string;
+  /**
+   * The slot of the item, one of "weapon", "cape", "helm", "class".
+   */
   readonly slot?: EquipEnhancementSelectorSlot;
+  /**
+   * Optional special enhancement variant, such as a weapon proc or Forge special ("anima", "vainglory").
+   */
   readonly special?: string;
 };
 

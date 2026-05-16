@@ -4,15 +4,69 @@ on:
   push:
     branches: [main]
     paths:
-      - 'app/src/renderer/game/scripting/Commands/**/*.ts'
-      - 'app/src/renderer/game/scripting/Types.ts'
+      - '.github/workflows/docgen.yml'
+      - 'app/package.json'
+      - 'app/src/shared/**/*.ts'
+      - 'app/src/renderer/windows/game/**/*.d.ts'
+      - 'app/src/renderer/windows/game/**/*.ts'
+      - 'app/tsconfig.json'
+      - 'packages/collection/package.json'
+      - 'packages/collection/src/**/*.ts'
+      - 'packages/collection/tsconfig.json'
+      - 'packages/game/package.json'
+      - 'packages/game/src/**/*.ts'
+      - 'packages/game/tsconfig.json'
+      - 'packages/shared/package.json'
+      - 'packages/shared/src/**/*.ts'
+      - 'packages/shared/tsconfig.json'
       - 'scripts/docgen.ts'
+      - 'scripts/gen-script-types.ts'
+      - 'docs/astro.config.mjs'
+      - 'docs/package.json'
+      - 'docs/src/content.config.ts'
       - 'package.json'
       - 'pnpm-lock.yaml'
+      - 'pnpm-workspace.yaml'
+      - 'tsconfig.base.json'
+      - 'tsconfig.json'
+  pull_request:
+    paths:
+      - '.github/workflows/docgen.yml'
+      - 'app/package.json'
+      - 'app/src/shared/**/*.ts'
+      - 'app/src/renderer/windows/game/**/*.d.ts'
+      - 'app/src/renderer/windows/game/**/*.ts'
+      - 'app/tsconfig.json'
+      - 'packages/collection/package.json'
+      - 'packages/collection/src/**/*.ts'
+      - 'packages/collection/tsconfig.json'
+      - 'packages/game/package.json'
+      - 'packages/game/src/**/*.ts'
+      - 'packages/game/tsconfig.json'
+      - 'packages/shared/package.json'
+      - 'packages/shared/src/**/*.ts'
+      - 'packages/shared/tsconfig.json'
+      - 'scripts/docgen.ts'
+      - 'scripts/gen-script-types.ts'
+      - 'docs/astro.config.mjs'
+      - 'docs/package.json'
+      - 'docs/src/content.config.ts'
+      - 'package.json'
+      - 'pnpm-lock.yaml'
+      - 'pnpm-workspace.yaml'
+      - 'tsconfig.base.json'
+      - 'tsconfig.json'
   workflow_dispatch:
 
 permissions:
+  checks: write
   contents: write
+  issues: write
+  pull-requests: write
+
+concurrency:
+  group: docgen-${{ github.ref }}
+  cancel-in-progress: true
 
 jobs:
   generate-docs:
@@ -21,31 +75,173 @@ jobs:
 
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
         with:
           fetch-depth: 0
 
       - name: Setup pnpm
-        uses: pnpm/action-setup@v4
-        with:
-          version: 10.17.0
+        uses: pnpm/action-setup@v6
 
       - name: Setup Node.js
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@v6
         with:
-          node-version: '24.8.0'
+          node-version: '24.x'
+          cache: pnpm
 
       - name: Install dependencies
-        run: pnpm install
+        run: pnpm install --frozen-lockfile
 
       - name: Generate documentation
+        env:
+          DOCGEN_SOURCE_REF: ${{ github.event_name == 'pull_request' && github.event.pull_request.head.sha || github.sha }}
         run: pnpm run docgen
 
-      - name: Commit and push documentation updates
+      - name: Report generated documentation drift
+        id: docgen-drift
+        if: github.event_name == 'pull_request'
         run: |
-          git config --local user.email "action@github.com"
-          git config --local user.name "GitHub Action"
-          git add .
+          doc_paths=(
+            docs/public/script-api.d.ts
+            docs/public/script-type-previews.json
+            docs/src/content/docs/scripting
+            docs/src/generated/script-source-links.ts
+          )
+
+          status="$(git status --porcelain -- "${doc_paths[@]}")"
+          if [ -z "$status" ]; then
+            echo "stale=false" >> "$GITHUB_OUTPUT"
+            echo "Generated scripting docs are up to date." >> "$GITHUB_STEP_SUMMARY"
+            exit 0
+          fi
+
+          echo "stale=true" >> "$GITHUB_OUTPUT"
+          git diff --stat -- "${doc_paths[@]}"
+          git status --short -- "${doc_paths[@]}"
+          echo "::warning title=Generated docs are stale::Run pnpm run docgen and commit the generated docs."
+
+          {
+            echo "### Generated scripting docs need an update"
+            echo
+            echo 'Run `pnpm run docgen` locally and commit the generated docs.'
+            echo
+            echo "Changed generated files:"
+            echo '```'
+            git status --short -- "${doc_paths[@]}"
+            echo '```'
+          } >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Update PR documentation drift comment
+        if: github.event_name == 'pull_request'
+        env:
+          GH_TOKEN: ${{ github.token }}
+          COMMENT_MARKER: '<!-- vexed-docgen-drift -->'
+          PR_NUMBER: ${{ github.event.pull_request.number }}
+          STALE_DOCS: ${{ steps.docgen-drift.outputs.stale }}
+        run: |
+          gh_error="${RUNNER_TEMP}/docgen-comment-error.log"
+          existing_comment_id="$(
+            gh api --paginate "repos/${GITHUB_REPOSITORY}/issues/${PR_NUMBER}/comments" \
+              --jq '.[] | select(.user.type == "Bot" and (.body | contains(env.COMMENT_MARKER))) | .id' \
+              2> "$gh_error" \
+              | tail -n 1 \
+              || true
+          )"
+          if [ -s "$gh_error" ]; then
+            echo "::notice title=Unable to read docgen PR comments::$(tr '\n' ' ' < "$gh_error")"
+            rm -f "$gh_error"
+          fi
+
+          if [ "$STALE_DOCS" != "true" ]; then
+            if [ -n "$existing_comment_id" ]; then
+              if ! gh api \
+                --method DELETE \
+                "repos/${GITHUB_REPOSITORY}/issues/comments/${existing_comment_id}" \
+                --silent \
+                2> "$gh_error"; then
+                echo "::notice title=Unable to delete stale docgen PR comment::$(tr '\n' ' ' < "$gh_error")"
+              fi
+            fi
+            exit 0
+          fi
+
+          doc_paths=(
+            docs/public/script-api.d.ts
+            docs/public/script-type-previews.json
+            docs/src/content/docs/scripting
+            docs/src/generated/script-source-links.ts
+          )
+          body_file="${RUNNER_TEMP}/docgen-drift-comment.md"
+
+          {
+            echo "$COMMENT_MARKER"
+            echo "### Generated scripting docs need an update"
+            echo
+            echo 'Run `pnpm run docgen` locally and commit the generated docs.'
+            echo
+            echo "Changed generated files:"
+            echo '```'
+            git status --short -- "${doc_paths[@]}"
+            echo '```'
+          } > "$body_file"
+
+          if [ -n "$existing_comment_id" ]; then
+            if ! gh api \
+              --method PATCH \
+              "repos/${GITHUB_REPOSITORY}/issues/comments/${existing_comment_id}" \
+              --field body=@"$body_file" \
+              --silent \
+              2> "$gh_error"; then
+              echo "::notice title=Unable to update docgen PR comment::$(tr '\n' ' ' < "$gh_error")"
+            fi
+          else
+            if ! gh api \
+              --method POST \
+              "repos/${GITHUB_REPOSITORY}/issues/${PR_NUMBER}/comments" \
+              --field body=@"$body_file" \
+              --silent \
+              2> "$gh_error"; then
+              echo "::notice title=Unable to create docgen PR comment::$(tr '\n' ' ' < "$gh_error")"
+            fi
+          fi
+
+      - name: Publish docgen artifact check
+        if: github.event_name == 'pull_request'
+        env:
+          GH_TOKEN: ${{ github.token }}
+          HEAD_SHA: ${{ github.event.pull_request.head.sha }}
+          STALE_DOCS: ${{ steps.docgen-drift.outputs.stale }}
+        run: |
+          gh_error="${RUNNER_TEMP}/docgen-check-error.log"
+          if [ "$STALE_DOCS" = "true" ]; then
+            conclusion="neutral"
+            title="Generated scripting docs need an update"
+            summary="Run \`pnpm run docgen\` locally and commit the generated docs."
+          else
+            conclusion="success"
+            title="Generated scripting docs are up to date"
+            summary="No generated doc artifacts changed after running docgen."
+          fi
+
+          if ! gh api \
+            --method POST \
+            "repos/${GITHUB_REPOSITORY}/check-runs" \
+            --field name="Docgen artifacts" \
+            --field head_sha="$HEAD_SHA" \
+            --field status="completed" \
+            --field conclusion="$conclusion" \
+            --field "output[title]=$title" \
+            --field "output[summary]=$summary" \
+            --silent \
+            2> "$gh_error"; then
+            echo "::notice title=Unable to publish docgen artifact check::$(tr '\n' ' ' < "$gh_error")"
+          fi
+
+      - name: Commit and push documentation updates
+        if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+        run: |
+          git config --local user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git config --local user.name "github-actions[bot]"
+          git add -A docs/public/script-api.d.ts docs/public/script-type-previews.json docs/src/content/docs/scripting docs/src/generated/script-source-links.ts
           if ! git diff --staged --quiet; then
             git commit -m "docs: auto-update API documentation"
             git push

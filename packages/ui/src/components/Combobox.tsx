@@ -162,7 +162,7 @@ export function ComboboxInput(props: ComboboxInputProps): JSX.Element {
                 <X />
               </ComboboxClear>
             )}
-            {local.showTrigger !== false && !hasSelection() && (
+            {local.showTrigger !== false && (
               <ComboboxTrigger
                 class="combobox__trigger"
                 {...local.triggerProps}

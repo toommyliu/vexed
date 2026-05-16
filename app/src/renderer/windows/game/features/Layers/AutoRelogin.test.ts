@@ -50,7 +50,10 @@ type HarnessOptions = {
   readonly iUpgDays?: number;
   readonly password?: string;
   readonly playerReadyAfterConnectDelayMs?: number;
+  readonly playerReadyAfterReload?: boolean;
   readonly playerReadyFailures?: number;
+  readonly playerReadyOnConnect?: boolean;
+  readonly playerReloadSucceeds?: boolean;
   readonly serverInfo?: string;
   readonly serverSelectStalls?: boolean;
   readonly servers?: readonly ServerData[];
@@ -65,6 +68,7 @@ type Harness = {
   };
   readonly emitConnection: (status: ConnectionStatus) => void;
   readonly manualLogin: (server?: ServerData) => void;
+  readonly playerReloads: readonly string[];
   readonly settingsPatches: readonly unknown[];
 };
 
@@ -76,6 +80,7 @@ const withAutoRelogin = async <A>(
   ) => Effect.Effect<A, unknown>,
 ): Promise<A> => {
   const authCalls: string[] = [];
+  const playerReloads: string[] = [];
   const settingsPatches: unknown[] = [];
   const connectionHandlers = new Set<(status: ConnectionStatus) => void>();
   const jobsState: {
@@ -172,7 +177,9 @@ const withAutoRelogin = async <A>(
             `${options.playerReadyAfterConnectDelayMs} millis`,
           );
         }
-        playerReady = true;
+        if (options.playerReadyOnConnect !== false) {
+          playerReady = true;
+        }
         return connectedOutcome(server);
       });
     },
@@ -256,6 +263,15 @@ const withAutoRelogin = async <A>(
         return playerReady;
       });
     },
+    reloadAvatar() {
+      return Effect.sync(() => {
+        playerReloads.push("reloadAvatar");
+        if (options.playerReadyAfterReload === true) {
+          playerReady = true;
+        }
+        return options.playerReloadSucceeds ?? true;
+      });
+    },
   } as unknown as PlayerShape;
 
   const settings = {
@@ -308,6 +324,7 @@ const withAutoRelogin = async <A>(
               handler("OnConnection");
             }
           },
+          playerReloads,
           settingsPatches,
         });
       }),
@@ -354,7 +371,7 @@ test("enabling preserves a selected target server", async () => {
         yield* autoRelogin.captureCurrentSession();
         yield* autoRelogin.setServer("Yorumi");
         yield* autoRelogin.enable();
-        yield* autoRelogin.setDelayMs(0);
+        yield* autoRelogin.setDelay(0);
         yield* harness.jobsState.task!;
         yield* harness.jobsState.task!;
         return {
@@ -433,7 +450,7 @@ test("successful task logs in and connects to captured server", async () => {
   const harness = await withAutoRelogin({}, (autoRelogin, currentHarness) =>
     Effect.gen(function* () {
       yield* autoRelogin.enable();
-      yield* autoRelogin.setDelayMs(0);
+      yield* autoRelogin.setDelay(0);
       yield* currentHarness.jobsState.task!;
       return currentHarness;
     }),
@@ -494,6 +511,30 @@ test("direct login with a server waits for player readiness", async () => {
   ]);
 });
 
+test("direct login reloads avatar art when connected player stays unready", async () => {
+  const result = await withAutoRelogin(
+    {
+      playerReadyAfterReload: true,
+      playerReadyOnConnect: false,
+    },
+    (autoRelogin, harness) =>
+      Effect.gen(function* () {
+        const outcome = yield* autoRelogin.login({
+          username: "Hero",
+          password: "secret-password",
+          server: "Twig",
+        });
+        return {
+          outcome,
+          reloads: harness.playerReloads,
+        };
+      }),
+  );
+
+  expect(result.outcome).toEqual({ stage: "player-ready" });
+  expect(result.reloads).toEqual(["reloadAvatar"]);
+}, 15_000);
+
 test("socket connection during relogin does not interrupt before player ready", async () => {
   const result = await withAutoRelogin(
     {
@@ -503,7 +544,7 @@ test("socket connection during relogin does not interrupt before player ready", 
     (autoRelogin, harness) =>
       Effect.gen(function* () {
         yield* autoRelogin.enable();
-        yield* autoRelogin.setDelayMs(0);
+        yield* autoRelogin.setDelay(0);
         yield* harness.jobsState.task!;
         return {
           calls: harness.authCalls,
@@ -527,7 +568,7 @@ test("waits delayMs after logout before attempting", async () => {
   const result = await withAutoRelogin({}, (autoRelogin, harness) =>
     Effect.gen(function* () {
       yield* autoRelogin.enable();
-      yield* autoRelogin.setDelayMs(50);
+      yield* autoRelogin.setDelay(50);
       yield* harness.jobsState.task!;
       const beforeDelay = [...harness.authCalls];
       yield* Effect.sleep("60 millis");
@@ -550,7 +591,7 @@ test("does not start logout delay while connected but still loading", async () =
   const harness = await withAutoRelogin({}, (autoRelogin, currentHarness) =>
     Effect.gen(function* () {
       yield* autoRelogin.enable();
-      yield* autoRelogin.setDelayMs(0);
+      yield* autoRelogin.setDelay(0);
       currentHarness.emitConnection("OnConnection");
       yield* Effect.sleep("10 millis");
       yield* currentHarness.jobsState.task!;
@@ -565,7 +606,7 @@ test("starts delay from connection lost event", async () => {
   const result = await withAutoRelogin({}, (autoRelogin, harness) =>
     Effect.gen(function* () {
       yield* autoRelogin.enable();
-      yield* autoRelogin.setDelayMs(50);
+      yield* autoRelogin.setDelay(50);
       harness.emitConnection("OnConnection");
       yield* Effect.sleep("10 millis");
       harness.emitConnection("OnConnectionLost");
@@ -584,7 +625,7 @@ test("transient player readiness bridge failures do not fail relogin", async () 
     (autoRelogin, harness) =>
       Effect.gen(function* () {
         yield* autoRelogin.enable();
-        yield* autoRelogin.setDelayMs(0);
+        yield* autoRelogin.setDelay(0);
         yield* harness.jobsState.task!;
         return {
           calls: harness.authCalls,
@@ -606,7 +647,7 @@ test("temporary setting failures do not block relogin", async () => {
     (autoRelogin, harness) =>
       Effect.gen(function* () {
         yield* autoRelogin.enable();
-        yield* autoRelogin.setDelayMs(0);
+        yield* autoRelogin.setDelay(0);
         yield* harness.jobsState.task!;
         return {
           calls: harness.authCalls,
@@ -635,7 +676,7 @@ test("non-retryable connect outcome stops relogin after one attempt", async () =
     (autoRelogin, harness) =>
       Effect.gen(function* () {
         yield* autoRelogin.enable();
-        yield* autoRelogin.setDelayMs(0);
+        yield* autoRelogin.setDelay(0);
         yield* harness.jobsState.task!;
         return {
           calls: harness.authCalls,
@@ -657,7 +698,7 @@ test("server selection during attempt is ignored", async () => {
     (autoRelogin, harness) =>
       Effect.gen(function* () {
         yield* autoRelogin.enable();
-        yield* autoRelogin.setDelayMs(0);
+        yield* autoRelogin.setDelay(0);
         const fiber = yield* Effect.forkDetach(harness.jobsState.task!, {
           startImmediately: true,
         });
@@ -691,7 +732,7 @@ test("manual login during attempt interrupts without reconnecting captured serve
     (autoRelogin, harness) =>
       Effect.gen(function* () {
         yield* autoRelogin.enable();
-        yield* autoRelogin.setDelayMs(0);
+        yield* autoRelogin.setDelay(0);
         const fiber = yield* Effect.forkDetach(harness.jobsState.task!, {
           startImmediately: true,
         });
@@ -722,7 +763,7 @@ test("manual login during owned connection interrupts when server changes", asyn
     (autoRelogin, harness) =>
       Effect.gen(function* () {
         yield* autoRelogin.enable();
-        yield* autoRelogin.setDelayMs(0);
+        yield* autoRelogin.setDelay(0);
         const fiber = yield* Effect.forkDetach(harness.jobsState.task!, {
           startImmediately: true,
         });
@@ -753,7 +794,7 @@ test("disable during attempt interrupts without reconnecting", async () => {
     (autoRelogin, harness) =>
       Effect.gen(function* () {
         yield* autoRelogin.enable();
-        yield* autoRelogin.setDelayMs(0);
+        yield* autoRelogin.setDelay(0);
         const fiber = yield* Effect.forkDetach(harness.jobsState.task!, {
           startImmediately: true,
         });
@@ -781,7 +822,7 @@ test("does not choose another server when captured server is unavailable", async
     (autoRelogin, harness) =>
       Effect.gen(function* () {
         yield* autoRelogin.enable();
-        yield* autoRelogin.setDelayMs(0);
+        yield* autoRelogin.setDelay(0);
         yield* harness.jobsState.task!;
         return {
           calls: harness.authCalls,
@@ -810,7 +851,7 @@ test("rejects member-only server when iUpgDays is negative", async () => {
     (autoRelogin, harness) =>
       Effect.gen(function* () {
         yield* autoRelogin.enable();
-        yield* autoRelogin.setDelayMs(0);
+        yield* autoRelogin.setDelay(0);
         yield* harness.jobsState.task!;
         return {
           calls: harness.authCalls,
@@ -830,7 +871,7 @@ test("missing captured session does not attempt login", async () => {
     (autoRelogin, currentHarness) =>
       Effect.gen(function* () {
         yield* autoRelogin.enable();
-        yield* autoRelogin.setDelayMs(0);
+        yield* autoRelogin.setDelay(0);
         yield* currentHarness.jobsState.task!;
         return currentHarness;
       }),

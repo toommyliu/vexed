@@ -555,6 +555,14 @@ const make = Effect.gen(function* () {
         return;
       }
 
+      if (
+        !(yield* player
+          .isAlive()
+          .pipe(Effect.catch(() => Effect.succeed(false))))
+      ) {
+        return;
+      }
+
       const targetBeforeWait = yield* getCurrentTargetMonMapId();
       if (
         targetBeforeWait !== undefined &&
@@ -566,6 +574,14 @@ const make = Effect.gen(function* () {
 
       if (wait) {
         yield* waitForSkillReady(idx);
+      }
+
+      if (
+        !(yield* player
+          .isAlive()
+          .pipe(Effect.catch(() => Effect.succeed(false))))
+      ) {
+        return;
       }
 
       const targetBeforeCast = yield* getCurrentTargetMonMapId();
@@ -597,23 +613,19 @@ const make = Effect.gen(function* () {
       return cooldown === 0;
     });
 
-  const getActiveSkillItem: CombatShape["getActiveSkillItem"] = (index) =>
-    Effect.gen(function* () {
-      const idx =
-        typeof index === "number" ? index : Number.parseInt(index, 10);
-      if (!isValidSkillIndex(idx)) {
-        return null;
-      }
-
-      return yield* bridge.call("combat.getActiveSkillItem", [idx]);
-    });
+  const getConsumableSkillItem: CombatShape["getConsumableSkillItem"] = () =>
+    bridge.call("combat.getConsumableSkillItem");
 
   const hasTarget: CombatShape["hasTarget"] = () =>
-    bridge.call("combat.hasTarget");
+    bridge
+      .call("combat.hasTarget")
+      .pipe(Effect.catchTag("SwfCallError", () => Effect.succeed(false)));
 
   const getTarget: CombatShape["getTarget"] = () =>
     Effect.gen(function* () {
-      const target = yield* bridge.call("combat.getTarget");
+      const target = yield* bridge
+        .call("combat.getTarget")
+        .pipe(Effect.catchTag("SwfCallError", () => Effect.succeed(null)));
       if (!target) {
         return null;
       }
@@ -658,15 +670,6 @@ const make = Effect.gen(function* () {
         resolvedTarget,
       ];
 
-      const waitUntilPlayerAlive = () =>
-        Effect.repeat(
-          world.players.withSelf((me) => me.alive),
-          {
-            schedule: Schedule.spaced("250 millis"),
-            until: (alive) => Option.isSome(alive) && alive.value,
-          },
-        ).pipe(Effect.asVoid);
-
       const getCurrentCell = () =>
         world.players
           .withSelf((me) => me.cell)
@@ -675,6 +678,55 @@ const make = Effect.gen(function* () {
               Option.isSome(cell) ? cell.value : undefined,
             ),
           );
+
+      const getCurrentPad = () =>
+        world.players
+          .withSelf((me) => me.pad)
+          .pipe(
+            Effect.map((pad) => (Option.isSome(pad) ? pad.value : undefined)),
+          );
+
+      const combatCell = yield* getCurrentCell();
+      const combatPad = yield* getCurrentPad();
+
+      const waitUntilPlayerReady = () =>
+        Effect.gen(function* () {
+          let recovered = false;
+
+          const alive = () =>
+            world.players
+              .withSelf((me) => me.alive)
+              .pipe(Effect.map((value) => Option.isSome(value) && value.value));
+
+          if (!(yield* alive())) {
+            recovered = true;
+            yield* Effect.repeat(alive(), {
+              schedule: Schedule.spaced("250 millis"),
+              until: (isAlive) => isAlive,
+            }).pipe(Effect.asVoid);
+          }
+
+          if (combatCell === undefined) {
+            return recovered;
+          }
+
+          const currentCell = yield* getCurrentCell();
+          const currentPad = yield* getCurrentPad();
+          const cellChanged =
+            currentCell !== undefined &&
+            currentCell.toLowerCase() !== combatCell.toLowerCase();
+          const padChanged =
+            combatPad !== undefined &&
+            currentPad !== undefined &&
+            currentPad.toLowerCase() !== combatPad.toLowerCase();
+
+          if (cellChanged || padChanged) {
+            yield* player.jumpToCell(combatCell, combatPad, true);
+            recovered = true;
+          }
+
+          return recovered;
+        });
 
       const getMonsterNameByMonMapId = (monMapId: number) =>
         world.monsters
@@ -842,7 +894,7 @@ const make = Effect.gen(function* () {
       }
 
       while (!didKillTarget) {
-        yield* waitUntilPlayerAlive();
+        const recovered = yield* waitUntilPlayerReady();
 
         if (targetMonMapId === undefined && resolvedTarget.kind === "name") {
           targetMonMapId = yield* resolveAliveMonMapId(resolvedTarget, false);
@@ -867,6 +919,11 @@ const make = Effect.gen(function* () {
         } else if (nextAttack?.kind === "blocked") {
           yield* stopCombat;
         } else if (nextAttack === undefined) {
+          if (recovered) {
+            yield* Effect.sleep(COUNTER_ATTACK_WAIT_MS);
+            continue;
+          }
+
           return;
         }
 
@@ -1032,7 +1089,7 @@ const make = Effect.gen(function* () {
     useSkill,
     canUseSkill,
     exit,
-    getActiveSkillItem,
+    getConsumableSkillItem,
     getTarget,
     hasTarget,
     kill,

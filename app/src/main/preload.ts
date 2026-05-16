@@ -5,6 +5,7 @@ import {
 } from "../shared/appearance-snapshot";
 import {
   AccountManagerIpcChannels,
+  ArmyIpcChannels,
   SettingsIpcChannels,
   ScriptingIpcChannels,
   WindowIpcChannels,
@@ -15,6 +16,13 @@ import {
   type AccountManagerState,
   type AccountScriptStatusUpdate,
   type AppBridge,
+  type ArmyBarrierPayload,
+  type ArmyConfigPayload,
+  type ArmyLeavePayload,
+  type ArmySessionPayload,
+  type ArmyStartPayload,
+  type ArmyStatusPayload,
+  type ArmyStatusResult,
   type AppSettings,
   type AppPlatform,
   type AppearancePatch,
@@ -179,6 +187,32 @@ const bridge: AppBridge = {
       return () => {
         accountGameLaunchListeners.delete(listener);
       };
+    },
+  },
+  army: {
+    loadConfig: async (fileName: string) => {
+      return (await ipcRenderer.invoke(
+        ArmyIpcChannels.loadConfig,
+        fileName,
+      )) as ArmyConfigPayload;
+    },
+    start: async (payload: ArmyStartPayload) => {
+      return (await ipcRenderer.invoke(
+        ArmyIpcChannels.start,
+        payload,
+      )) as ArmySessionPayload;
+    },
+    leave: async (payload: ArmyLeavePayload) => {
+      await ipcRenderer.invoke(ArmyIpcChannels.leave, payload);
+    },
+    barrier: async (payload: ArmyBarrierPayload) => {
+      await ipcRenderer.invoke(ArmyIpcChannels.barrier, payload);
+    },
+    status: async (payload: ArmyStatusPayload) => {
+      return (await ipcRenderer.invoke(
+        ArmyIpcChannels.status,
+        payload,
+      )) as ArmyStatusResult;
     },
   },
   platform: {

@@ -96,7 +96,11 @@ const childOptions = (
   stdout: "inherit",
   stderr: "inherit",
   shell: process.platform === "win32",
-  detached: false,
+  // On POSIX, run each managed command as a process-group leader so cleanup
+  // kills pnpm plus grandchildren such as tsx/esbuild and Electron. With
+  // detached: false, restarts can kill only the pnpm wrapper and leave orphaned
+  // Electron app bundles behind, which shows up as multiple Dock icons.
+  detached: process.platform !== "win32",
   forceKillAfter: FORCE_KILL_AFTER,
 });
 

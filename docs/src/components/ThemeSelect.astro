@@ -1,0 +1,238 @@
+---
+
+---
+
+<docs-theme-select>
+    <button
+        aria-label={Astro.locals.t('themeSelect.accessibleLabel')}
+        aria-describedby="theme-select-tooltip"
+        aria-live="polite"
+        class="sl-flex button"
+        title="Toggle theme (T)"
+        type="button"
+        data-variant="ghost"
+    >
+        <svg
+            xmlns="http://www.w3.org/2000/svg"
+            width="24"
+            height="24"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            class="sun"
+        >
+            <circle cx="12" cy="12" r="4"></circle>
+            <path d="M12 2v2"></path>
+            <path d="M12 20v2"></path>
+            <path d="m4.93 4.93 1.41 1.41"></path>
+            <path d="m17.66 17.66 1.41 1.41"></path>
+            <path d="M2 12h2"></path>
+            <path d="M20 12h2"></path>
+            <path d="m6.34 17.66-1.41 1.41"></path>
+            <path d="m19.07 4.93-1.41 1.41"></path>
+        </svg>
+
+        <svg
+            xmlns="http://www.w3.org/2000/svg"
+            width="24"
+            height="24"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            class="moon"
+            ><path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"> </path>
+        </svg>
+
+        <span class="sr-only">Toggle theme</span>
+        <span id="theme-select-tooltip" class="tooltip" role="tooltip">Toggle theme (T)</span>
+    </button>
+</docs-theme-select>
+
+<style>
+    docs-theme-select {
+        position: relative;
+        display: inline-flex;
+    }
+
+    button {
+        all: unset;
+        position: relative;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        width: 2rem;
+        height: 2rem;
+        border-radius: calc(var(--radius) - 2px);
+        cursor: pointer;
+        color: color-mix(in oklab, var(--foreground) 76%, var(--muted-foreground));
+        background-color: transparent;
+    }
+    button:hover {
+        color: var(--accent-foreground);
+        background-color: color-mix(in oklab, var(--accent) 80%, transparent);
+    }
+    button:focus-visible {
+        outline: 2px solid var(--ring);
+        outline-offset: 2px;
+    }
+    svg {
+        flex-shrink: 0;
+        width: 1rem;
+        height: 1rem;
+        pointer-events: none;
+    }
+    .tooltip {
+        position: absolute;
+        top: calc(100% + 0.5rem);
+        right: 0;
+        z-index: 10;
+        width: max-content;
+        max-width: min(12rem, calc(100vw - 2rem));
+        padding: 0.375rem 0.5rem;
+        border: 1px solid var(--border);
+        border-radius: calc(var(--radius) - 2px);
+        color: var(--popover-foreground);
+        background-color: var(--popover);
+        font-size: 0.75rem;
+        line-height: 1;
+        opacity: 0;
+        pointer-events: none;
+        transform: translateY(-0.125rem);
+        transition:
+            opacity 120ms ease,
+            transform 120ms ease;
+    }
+    button:hover .tooltip,
+    button:focus-visible .tooltip {
+        opacity: 1;
+        transform: translateY(0);
+    }
+
+    svg.moon {
+        display: none;
+    }
+
+    :global([data-theme='dark']) svg.sun {
+        display: none;
+    }
+
+    :global([data-theme='dark']) svg.moon {
+        display: block;
+    }
+</style>
+
+{/* Inlined to avoid FOUC. Uses global scope from `ThemeProvider.astro` */}
+<script is:inline>
+    // eslint-disable-next-line no-undef
+    StarlightThemeProvider.updatePickers();
+</script>
+
+<script>
+    type Theme = 'auto' | 'dark' | 'light';
+
+    /** Key in `localStorage` to store color theme preference at. */
+    const storageKey = 'starlight-theme';
+
+    /** Get a typesafe theme string from any JS value (unknown values are coerced to `'auto'`). */
+    function parseTheme(theme: unknown): Theme {
+        return theme === 'auto' || theme === 'dark' || theme === 'light' ? theme : 'auto';
+    }
+
+    /** Load the user’s preference from `localStorage`. */
+    function loadTheme(): Theme {
+        return parseTheme(typeof localStorage !== 'undefined' && localStorage.getItem(storageKey));
+    }
+
+    /** Store the user’s preference in `localStorage`. */
+    function storeTheme(theme: Theme): void {
+        if (typeof localStorage !== 'undefined') {
+            localStorage.setItem(storageKey, theme === 'light' || theme === 'dark' ? theme : '');
+        }
+    }
+
+    /** Get the preferred system color scheme. */
+    function getPreferredColorScheme(): Theme {
+        return matchMedia('(prefers-color-scheme: light)').matches ? 'light' : 'dark';
+    }
+
+    /** Update select menu UI, document theme, and local storage state. */
+    function onThemeChange(theme: Theme): void {
+        StarlightThemeProvider.updatePickers(theme);
+        document.documentElement.dataset.theme =
+            theme === 'auto' ? getPreferredColorScheme() : theme;
+        storeTheme(theme);
+    }
+
+    function getToggledTheme(): Theme {
+        const theme = parseTheme(document.documentElement.dataset.theme);
+        return theme === 'dark' ? 'light' : 'dark';
+    }
+
+    function updateThemeButton(button: HTMLButtonElement, theme: Theme): void {
+        button.setAttribute('aria-label', `Switch to ${theme} theme`);
+        button.title = `Switch to ${theme} theme (T)`;
+    }
+
+    function toggleTheme(button: HTMLButtonElement): void {
+        const newTheme = getToggledTheme();
+        onThemeChange(newTheme);
+        updateThemeButton(button, getToggledTheme());
+    }
+
+    function isEditableTarget(target: EventTarget | null): boolean {
+        if (!(target instanceof HTMLElement)) {
+            return false;
+        }
+
+        return (
+            target.isContentEditable ||
+            target.closest('input, textarea, select, [contenteditable="true"]') !== null
+        );
+    }
+
+    // React to changes in system color scheme.
+    matchMedia(`(prefers-color-scheme: light)`).addEventListener('change', () => {
+        if (loadTheme() === 'auto') {
+            onThemeChange('auto');
+        }
+    });
+
+    customElements.define(
+        'docs-theme-select',
+        class DocsThemeSelect extends HTMLElement {
+            constructor() {
+                super();
+                const button = this.querySelector('button');
+                if (!(button instanceof HTMLButtonElement)) {
+                    return;
+                }
+
+                updateThemeButton(button, getToggledTheme());
+                button?.addEventListener('click', () => {
+                    toggleTheme(button);
+                });
+                document.addEventListener('keydown', (event) => {
+                    if (
+                        event.key.toLowerCase() !== 't' ||
+                        event.altKey ||
+                        event.ctrlKey ||
+                        event.metaKey ||
+                        event.shiftKey ||
+                        isEditableTarget(event.target)
+                    ) {
+                        return;
+                    }
+
+                    event.preventDefault();
+                    toggleTheme(button);
+                });
+            }
+        }
+    );
+</script>

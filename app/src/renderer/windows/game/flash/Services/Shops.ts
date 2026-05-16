@@ -3,7 +3,7 @@ import type { ShopInfo, ShopItem } from "@vexed/game";
 import type { BridgeEffect } from "./Bridge";
 
 export interface ShopsShape {
-  buyById(id: unknown, quantity?: number): BridgeEffect<boolean>;
+  buyById(id: number, quantity?: number): BridgeEffect<boolean>;
   buyByName(name: string, quantity?: number): BridgeEffect<boolean>;
   canBuyItem(key: ItemIdentifierToken, quantity?: number): BridgeEffect<boolean>;
   close(shopId?: number): BridgeEffect<boolean>;
@@ -16,7 +16,7 @@ export interface ShopsShape {
   load(shopId: number): BridgeEffect<void>;
   loadArmorCustomize(): BridgeEffect<void>;
   loadHairShop(shopId: number): BridgeEffect<void>;
-  sellById(id: unknown, quantity?: number): BridgeEffect<boolean>;
+  sellById(id: number, quantity?: number): BridgeEffect<boolean>;
   sellByName(name: string, quantity?: number): BridgeEffect<boolean>;
 }
 

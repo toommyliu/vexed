@@ -22,7 +22,7 @@ Long term maintainability is a core priority. If you add new functionality, firs
 ## Package Roles
 
 - `app/src/main` : The main entrypoint for the project. Contains the electron main process.
-- `app/src/renderer`: The main entrypoint for the renderer process. Contains the Svelte app(s) and related client side behaviors.
+- `app/src/renderer`: The main entrypoint for the renderer process. Contains the SolidJS app(s) and related client side behaviors.
 - `app/src/shared`: Shared code between main and renderer processes. This includes shared types, utilities, and any logic that needs to be used in both contexts.
 - `packages/`: Shared packages consumed by the app.
 

@@ -1,0 +1,19 @@
+---
+import fs from "node:fs/promises";
+
+type TypePreviews = {
+  readonly types: Record<string, unknown>;
+};
+
+export const getStaticPaths = async () => {
+  const previewFile = new URL("../../../public/script-type-previews.json", import.meta.url);
+  const previews = JSON.parse(await fs.readFile(previewFile, "utf8")) as TypePreviews;
+
+  return Object.keys(previews.types).map((slug) => ({
+    params: { slug },
+  }));
+};
+
+const { slug } = Astro.params;
+return Astro.redirect(`/scripting/types/${slug}/`);
+---

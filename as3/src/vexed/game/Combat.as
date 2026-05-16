@@ -4,6 +4,7 @@ package vexed.game {
 
   [BridgeNamespace("combat")]
   public class Combat {
+    private static const CONSUMABLE_SKILL_INDEX:int = 5;
     private static var game:Object = Main.getInstance().getGame();
 
     [BridgeExport]
@@ -77,10 +78,14 @@ package vexed.game {
     }
 
     [BridgeExport]
-    [BridgeTsReturnType("FlashTypes.ActiveSkillItem | null")]
-    public static function getActiveSkillItem(index:int):Object {
-      var skill:Object = game.world.actions.active[index];
-      if (!skill || skill.sArg1 == null) {
+    [BridgeTsReturnType("FlashTypes.ConsumableSkillItem | null")]
+    public static function getConsumableSkillItem():Object {
+      if (!game.world.actions || !game.world.actions.active) {
+        return null;
+      }
+
+      var skill:Object = game.world.actions.active[CONSUMABLE_SKILL_INDEX];
+      if (!skill || skill.ref != "i1" || skill.sArg1 == null) {
         return null;
       }
 

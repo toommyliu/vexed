@@ -10,7 +10,10 @@
   },
   "dependencies": {
     "@astrojs/starlight": "^0.38.4",
+    "@lucide/astro": "^1.16.0",
+    "@pagefind/default-ui": "^1.5.2",
     "@vercel/analytics": "^2.0.1",
+    "@vexed/ui": "workspace:*",
     "astro": "^6.1.9",
     "sharp": "^0.34.5"
   },

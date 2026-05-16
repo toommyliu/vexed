@@ -1,7 +1,11 @@
 ---
 import Default from "@astrojs/starlight/components/Head.astro";
 import Analytics from "@vercel/analytics/astro";
+import interFontUrl from "@fontsource-variable/inter/files/inter-latin-wght-normal.woff2?url";
+import jetbrainsMonoFontUrl from "@fontsource-variable/jetbrains-mono/files/jetbrains-mono-latin-wght-normal.woff2?url";
 ---
 
+<link rel="preload" href={interFontUrl} as="font" type="font/woff2" crossorigin />
+<link rel="preload" href={jetbrainsMonoFontUrl} as="font" type="font/woff2" crossorigin />
 <Default />
 <Analytics />

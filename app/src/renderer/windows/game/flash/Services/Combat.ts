@@ -1,7 +1,7 @@
 import { ServiceMap } from "effect";
 import type { Avatar, Monster } from "@vexed/game";
 import type { BridgeEffect } from "./Bridge";
-import type { ActiveSkillItem } from "../Types";
+import type { ConsumableSkillItem } from "../Types";
 
 export interface CombatKillOptions {
   readonly killPriority?: readonly MonsterIdentifierToken[] | string;
@@ -16,9 +16,7 @@ export interface CombatShape {
   cancelTarget(): BridgeEffect<void>;
   canUseSkill(index: number | string): BridgeEffect<boolean>;
   exit(): BridgeEffect<boolean>;
-  getActiveSkillItem(
-    index: number | string,
-  ): BridgeEffect<ActiveSkillItem | null>;
+  getConsumableSkillItem(): BridgeEffect<ConsumableSkillItem | null>;
   getTarget(): BridgeEffect<Monster | Avatar | null>;
   hasTarget(): BridgeEffect<boolean>;
   kill(

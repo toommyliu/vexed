@@ -1,137 +1,132 @@
-// if you want to complete the daily:
-// cmd.accept_quest(8152..8154)
-// cmd.complete_quest(8152..8154)
-
-cmd.set_delay(0)
-cmd.goto_house()
-cmd.set_fps(10)
-cmd.enable_lagkiller()
-cmd.enable_infiniterange()
-cmd.enable_anticounter()
-cmd.army_set_config('army_config')
-cmd.army_init()
-cmd.set_delay(1000)
-
-let opts = {
-  skillAction() {
-    let a = []
-    let i = 0
-    let h
-
-    switch (this.bot.player.className) {
-      case 'LEGION REVENANT':
-        a = [3, 1, 2, 4, 5]
-        break
-      case 'CHAOS AVENGER':
-        a = [5, 1, 3, 4, 2]
-        break
-      case 'LORD OF ORDER':
-        a = [1, 3, 4, 5]
-        h = 2
-        break
-      case 'ARCHPALADIN':
-        a = [1, 3, 4, 5]
-        h = 2
-    }
-
-    return async function () {
-      for (const plyr of this.bot.army.players) {
-        const p = this.bot.world.players.get(plyr)
-        if (p.isHpPercentageLessThan(70) && h) {
-          await this.bot.combat.useSkill(h)
-          return
-        }
-      }
-
-      // for reliability, archpaladin should have exclusive taunt on Ultra Avatar Tyndarius
-      if (
-        this.bot?.combat?.target?.name === 'Ultra Avatar Tyndarius' &&
-        this.bot.player.className !== 'ARCHPALADIN' &&
-        a[i] === 5
-      ) {
-        i = (i + 1) % a.length
-        return
-      }
-
-      await this.bot.combat.useSkill(a[i])
-      i = (i + 1) % a.length
-    }
-  },
+function getSkillPlan(className) {
+  switch (className) {
+    case 'LEGION REVENANT':
+      return { rotation: [3, 1, 2, 4, 5] }
+    case 'CHAOS AVENGER':
+      return { rotation: [5, 1, 3, 4, 2] }
+    case 'LORD OF ORDER':
+    case 'ARCHPALADIN':
+      return { rotation: [1, 3, 4, 5], healSkill: 2 }
+    default:
+      return { rotation: [1, 2, 3, 4] }
+  }
 }
 
-cmd.army_join('ultraezrajal')
-cmd.army_equip_set('UltraEzrajal', true)
-cmd.buff()
-cmd.hunt('Ultra Ezrajal')
-cmd.set_spawn()
-cmd.army_kill_for('Ultra Ezrajal', 'Ultra Ezrajal Defeated', 1, true, opts)
-cmd.move_to_cell('Enter', 'Spawn')
+function* healIfNeeded(api, healSkill) {
+  if (!healSkill) return false
 
-cmd.army_join('ultrawarden')
-cmd.army_equip_set('UltraWarden', true)
-cmd.buff()
-cmd.hunt('Ultra Warden')
-cmd.set_spawn()
-cmd.army_kill_for('Ultra Warden', 'Ultra Warden Defeated', 1, true, opts)
-cmd.move_to_cell('Enter')
+  const players = yield* api.world.players.getAll()
+  for (const player of players.values()) {
+    if (player.isHpPercentageLessThan(70)) {
+      yield* api.combat.useSkill(healSkill)
+      return true
+    }
+  }
 
-cmd.army_join('ultraengineer')
-cmd.army_equip_set('UltraEngineer', true)
-cmd.buff()
-cmd.hunt('Ultra Engineer')
-cmd.set_spawn()
-cmd.army_kill_for('id.3', 'Ultra Engineer Defeated', 1, true, {
-  killPriority: ['id.1', 'id.2'],
-  ...opts,
-})
-cmd.move_to_cell('Enter')
+  return false
+}
 
-cmd.army_join('ultratyndarius')
-cmd.army_equip_set('UltraTyndarius', true)
-cmd.buff()
-cmd.hunt('Ultra Avatar Tyndarius')
-cmd.set_spawn()
+function* killForTempItem(api, script, target, item, options = {}) {
+  const className = yield* api.player.getClassName()
+  const { rotation, healSkill } = getSkillPlan(className)
+  let index = 0
 
-cmd.is_player_number(1)
-cmd.goto_label('tyn-p1')
-cmd.is_player_number(2)
-cmd.goto_label('tyn-p2')
-cmd.is_player_number(3)
-cmd.goto_label('tyn-p3')
-cmd.is_player_number(4)
-cmd.goto_label('tyn-p4')
-cmd.stop_bot()
+  while (!(yield* api.tempInventory.contains(item, 1))) {
+    if (!(yield* api.player.isAlive())) {
+      yield* script.sleep(1000)
+      continue
+    }
 
-// id.1, 3 are the orbs
-// id.2 is the boss
+    if (yield* healIfNeeded(api, healSkill)) {
+      yield* script.sleep(100)
+      continue
+    }
 
-cmd.label('tyn-p1')
-cmd.army_kill_for('id.2', 'Ultra Avatar Tyndarius Defeated', 1, true, {
-  killPriority: ['id.1', 'id.3'], // orbs first, then boss
-  ...opts,
-})
-cmd.goto_label('tyn-dead')
+    let skill = rotation[index]
+    index = (index + 1) % rotation.length
 
-cmd.label('tyn-p2')
-cmd.army_kill_for('id.2', 'Ultra Avatar Tyndarius Defeated', 1, true, {
-  killPriority: ['id.1', 'id.3'],
-  ...opts,
-})
-cmd.goto_label('tyn-dead')
+    const currentTarget = yield* api.combat.getTarget()
+    if (
+      options.archpaladinOnlyTyndariusTaunt &&
+      currentTarget?.name === 'Ultra Avatar Tyndarius' &&
+      className !== 'ARCHPALADIN' &&
+      skill === 5
+    ) {
+      skill = rotation[index]
+      index = (index + 1) % rotation.length
+    }
 
-cmd.label('tyn-p3')
-cmd.army_kill_for('id.2', 'Ultra Avatar Tyndarius Defeated', 1, true, {
-  killPriority: ['id.3', 'id.1'],
-  ...opts,
-})
-cmd.goto_label('tyn-dead')
+    yield* api.combat.kill(target, {
+      killPriority: options.killPriority,
+      skillSet: [skill],
+      skillWait: true,
+    })
+    yield* script.sleep(100)
+  }
+}
 
-cmd.label('tyn-p4')
-cmd.army_kill_for('id.2', 'Ultra Avatar Tyndarius Defeated', 1, true, { // focus boss
-  ...opts,
-})
-cmd.goto_label('tyn-dead')
+function* runUltra(api, script, map, setName, target, item, options = {}) {
+  yield* api.army.joinMap(map)
+  yield* api.army.equipSet(setName, { resolveItems: true })
+  yield* api.recipes.buff()
+  yield* api.combat.hunt(target)
+  yield* api.world.map.setSpawnPoint()
+  yield* killForTempItem(api, script, target, item, options)
+  yield* api.player.jumpToCell('Enter', options.enterPad)
+}
 
-cmd.label('tyn-dead')
-cmd.move_to_cell('Enter')
-cmd.goto_house()
+function tyndariusPriority(playerNumber) {
+  if (playerNumber === 3) return ['id.3', 'id.1']
+  if (playerNumber === 4) return undefined
+  return ['id.1', 'id.3']
+}
+
+module.exports = function* run({ api, script }) {
+  yield* api.recipes.goToHouse()
+  yield* api.settings.setFrameRate(10)
+  yield* api.settings.setLagKillerEnabled(true)
+  yield* api.settings.setInfiniteRange(true)
+  yield* api.army.start('config')
+
+  yield* runUltra(
+    api,
+    script,
+    'ultraezrajal',
+    'UltraEzrajal',
+    'Ultra Ezrajal',
+    'Ultra Ezrajal Defeated',
+    { enterPad: 'Spawn' },
+  )
+  yield* runUltra(
+    api,
+    script,
+    'ultrawarden',
+    'UltraWarden',
+    'Ultra Warden',
+    'Ultra Warden Defeated',
+  )
+  yield* runUltra(
+    api,
+    script,
+    'ultraengineer',
+    'UltraEngineer',
+    'id.3',
+    'Ultra Engineer Defeated',
+    { killPriority: ['id.1', 'id.2'] },
+  )
+
+  yield* api.army.joinMap('ultratyndarius')
+  yield* api.army.equipSet('UltraTyndarius', { resolveItems: true })
+  yield* api.recipes.buff()
+  yield* api.combat.hunt('Ultra Avatar Tyndarius')
+  yield* api.world.map.setSpawnPoint()
+
+  const playerNumber = yield* api.army.getPlayerNumber()
+  yield* killForTempItem(api, script, 'id.2', 'Ultra Avatar Tyndarius Defeated', {
+    killPriority: tyndariusPriority(playerNumber),
+    archpaladinOnlyTyndariusTaunt: true,
+  })
+
+  yield* api.player.jumpToCell('Enter')
+  yield* api.recipes.goToHouse()
+}

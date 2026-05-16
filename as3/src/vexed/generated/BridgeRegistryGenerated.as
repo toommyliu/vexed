@@ -42,7 +42,7 @@ package vexed.generated
       external.externalize("combat.cancelAutoAttack", Combat.cancelAutoAttack);
       external.externalize("combat.cancelTarget", Combat.cancelTarget);
       external.externalize("combat.forceUseSkill", Combat.forceUseSkill);
-      external.externalize("combat.getActiveSkillItem", Combat.getActiveSkillItem);
+      external.externalize("combat.getConsumableSkillItem", Combat.getConsumableSkillItem);
       external.externalize("combat.getSkillCooldownRemaining", Combat.getSkillCooldownRemaining);
       external.externalize("combat.getTarget", Combat.getTarget);
       external.externalize("combat.hasTarget", Combat.hasTarget);
@@ -103,6 +103,7 @@ package vexed.generated
       external.externalize("player.isMember", Player.isMember);
       external.externalize("player.joinMap", Player.joinMap);
       external.externalize("player.jump", Player.jump);
+      external.externalize("player.reloadAvatar", Player.reloadAvatar);
       external.externalize("player.rest", Player.rest);
       external.externalize("player.useBoost", Player.useBoost);
       external.externalize("player.walkTo", Player.walkTo);

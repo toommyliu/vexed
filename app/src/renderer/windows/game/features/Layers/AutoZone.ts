@@ -327,9 +327,9 @@ const make = Effect.gen(function* () {
 
   yield* Effect.addFinalizer(() => Effect.sync(dispose));
 
-  const enabled: AutoZoneShape["enabled"] = Ref.get(enabledRef);
+  const isEnabled: AutoZoneShape["isEnabled"] = () => Ref.get(enabledRef);
 
-  const map: AutoZoneShape["map"] = Ref.get(mapRef);
+  const getMap: AutoZoneShape["getMap"] = () => Ref.get(mapRef);
 
   const setMap: AutoZoneShape["setMap"] = (map) =>
     updateState(Ref.set(mapRef, map)).pipe(Effect.asVoid);
@@ -358,9 +358,9 @@ const make = Effect.gen(function* () {
     });
 
   return {
-    enabled,
-    map,
     getState,
+    isEnabled,
+    getMap,
     onState,
     setMap,
     setEnabled,

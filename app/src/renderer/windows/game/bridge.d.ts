@@ -29,7 +29,7 @@ declare global {
       "combat.cancelAutoAttack": () => void;
       "combat.cancelTarget": () => void;
       "combat.forceUseSkill": (index: string) => void;
-      "combat.getActiveSkillItem": (index: number) => FlashTypes.ActiveSkillItem | null;
+      "combat.getConsumableSkillItem": () => FlashTypes.ConsumableSkillItem | null;
       "combat.getSkillCooldownRemaining": (index: number) => number;
       "combat.getTarget": () => FlashTypes.TargetInfo | null;
       "combat.hasTarget": () => boolean;
@@ -53,9 +53,17 @@ declare global {
       "flash.isTextFieldFocused": () => boolean;
       "flash.selectArrayObjects": (path: string, selector: string) => string;
       "flash.sendClientPacket": (packet: string, type: string) => void;
-      "flash.setArrayObject": (path: string, index: number, value: unknown) => void;
+      "flash.setArrayObject": (
+        path: string,
+        index: number,
+        value: unknown,
+      ) => void;
       "flash.setGameObject": (path: string, value: unknown) => void;
-      "flash.setGameObjectKey": (path: string, key: string, value: unknown) => void;
+      "flash.setGameObjectKey": (
+        path: string,
+        key: string,
+        value: unknown,
+      ) => void;
       "house.getItem": (item: unknown) => Record<string, unknown>;
       "house.getItems": () => unknown[];
       "house.getSlots": () => number;
@@ -90,20 +98,30 @@ declare global {
       "player.isMember": () => boolean;
       "player.joinMap": (map: string, cell?: string, pad?: string) => void;
       "player.jump": (cell: string, pad?: string) => void;
+      "player.reloadAvatar": () => boolean;
       "player.rest": () => void;
       "player.useBoost": (itemId: number) => boolean;
       "player.walkTo": (x: number, y: number, walkSpeed?: unknown) => boolean;
       "quests.abandon": (questId: number) => void;
       "quests.accept": (questId: number) => void;
       "quests.canComplete": (questId: number) => boolean;
-      "quests.complete": (questId: number, turnIns?: number, itemId?: number, special?: boolean) => void;
+      "quests.complete": (
+        questId: number,
+        turnIns?: number,
+        itemId?: number,
+        special?: boolean,
+      ) => void;
       "quests.get": (questId: number) => void;
       "quests.getAccepted": () => unknown[];
       "quests.getMaxTurnIns": (questId: number) => number;
       "quests.getMultiple": (questIds: string) => void;
-      "quests.getQuestValidationString": (questObj: Record<string, unknown>) => string;
+      "quests.getQuestValidationString": (
+        questObj: Record<string, unknown>,
+      ) => string;
       "quests.getTree": () => unknown[];
-      "quests.hasRequiredItemsForQuest": (questObj: Record<string, unknown>) => boolean;
+      "quests.hasRequiredItemsForQuest": (
+        questObj: Record<string, unknown>,
+      ) => boolean;
       "quests.isAvailable": (questId: number) => boolean;
       "quests.isInProgress": (questId: number) => boolean;
       "quests.isOneTimeQuestDone": (questId: number) => boolean;
@@ -121,7 +139,7 @@ declare global {
       "settings.setOtherPlayersVisible": (visible: boolean) => void;
       "settings.setWalkSpeed": (speed: number) => void;
       "settings.skipCutscenes": () => void;
-      "shops.buyById": (id: unknown, quantity?: number) => boolean;
+      "shops.buyById": (id: number, quantity?: number) => boolean;
       "shops.buyByName": (name: string, quantity?: number) => boolean;
       "shops.canBuyItem": (key: unknown, quantity?: number) => boolean;
       "shops.close": (shopId?: number) => boolean;
@@ -132,7 +150,7 @@ declare global {
       "shops.load": (shopId: number) => void;
       "shops.loadArmorCustomize": () => void;
       "shops.loadHairShop": (shopId: number) => void;
-      "shops.sellById": (id: unknown, quantity?: number) => boolean;
+      "shops.sellById": (id: number, quantity?: number) => boolean;
       "shops.sellByName": (name: string, quantity?: number) => boolean;
       "tempInventory.contains": (item: unknown, quantity?: number) => boolean;
       "tempInventory.getItem": (item: unknown) => Record<string, unknown>;
@@ -140,7 +158,9 @@ declare global {
       "world.getCellPads": () => unknown[];
       "world.getCells": () => unknown[];
       "world.getMapItem": (itemId: number) => void;
-      "world.getMonsterByMonMapId": (monMapId: unknown) => Record<string, unknown>;
+      "world.getMonsterByMonMapId": (
+        monMapId: unknown,
+      ) => Record<string, unknown>;
       "world.getMonsterByName": (name: string) => Record<string, unknown>;
       "world.isActionAvailable": (gameAction: string) => boolean;
       "world.isLoaded": () => boolean;
@@ -149,12 +169,12 @@ declare global {
       "world.reload": () => void;
       "world.setSpawnPoint": (cell?: string, pad?: string) => void;
     };
-    "onConnection"?: (status: string) => void;
-    "onDebug"?: (message: string) => void;
-    "onExtensionResponse"?: (packet: string) => void;
-    "onLoaded"?: () => void;
-    "onProgress"?: (percent: number) => void;
-    "packetFromClient"?: (packet: string) => void;
-    "packetFromServer"?: (packet: string) => void;
+    onConnection?: (status: string) => void;
+    onDebug?: (message: string) => void;
+    onExtensionResponse?: (packet: string) => void;
+    onLoaded?: () => void;
+    onProgress?: (percent: number) => void;
+    packetFromClient?: (packet: string) => void;
+    packetFromServer?: (packet: string) => void;
   }
 }

@@ -81,19 +81,8 @@
 }
 
 .account-manager__server-field .combobox__control {
-  background: transparent;
-  border: none;
-  box-shadow: none;
-  height: 100%;
-  min-height: 0;
   min-width: 0;
-  padding: 0 0.75rem;
   width: 100%;
-}
-
-.account-manager__server-field .combobox__control:focus-within {
-  border-color: transparent;
-  box-shadow: none;
 }
 
 .account-manager__server-field .combobox__input {
@@ -101,7 +90,6 @@
   box-shadow: none;
   font-size: var(--text-base);
   font-weight: 500;
-  height: 100%;
   min-width: 0;
   outline: none;
   transition: opacity 180ms ease;
@@ -116,6 +104,7 @@
   box-shadow: none;
   outline: none;
 }
+
 
 .account-manager__field .input-group__addon {
   background: transparent;
@@ -176,7 +165,7 @@
   top: 50%;
   transform: translateY(-50%);
   width: max-content;
-  z-index: 2;
+  z-index: 0;
 }
 
 .account-manager__selection-actions {
@@ -195,7 +184,9 @@
 
 .account-manager__server-content {
   min-width: min(22rem, var(--available-width));
+  position: relative;
   width: max-content;
+  z-index: 100;
 }
 
 .account-manager__server-error,
@@ -372,7 +363,7 @@
 .card.account-row {
   align-items: center;
   animation: account-row-enter 380ms cubic-bezier(0.22, 1, 0.36, 1) both;
-  border-radius: 0.5rem;
+  border-radius: var(--radius-xl);
   box-shadow: none;
   display: grid;
   flex-direction: unset;
@@ -386,7 +377,7 @@
 .account-row__identity {
   background: transparent;
   border: 0;
-  border-radius: var(--radius-sm);
+  border-radius: var(--radius-md);
   color: inherit;
   cursor: var(--cursor-interactive);
   display: grid;

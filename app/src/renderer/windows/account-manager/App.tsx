@@ -161,6 +161,93 @@ const statusVariant = (
   }
 };
 
+const sameAccount = (previous: ManagedAccount, next: ManagedAccount): boolean =>
+  previous.label === next.label &&
+  previous.username === next.username &&
+  previous.password === next.password;
+
+const sameVisibleSession = (
+  previous: AccountScriptSession,
+  next: AccountScriptSession,
+): boolean =>
+  previous.username === next.username &&
+  previous.gameWindowId === next.gameWindowId &&
+  previous.status === next.status &&
+  previous.scriptName === next.scriptName &&
+  previous.message === next.message;
+
+const reconcileAccounts = (
+  previousAccounts: readonly ManagedAccount[],
+  nextAccounts: readonly ManagedAccount[],
+): readonly ManagedAccount[] => {
+  const previousByUsername = new Map(
+    previousAccounts.map((account) => [account.username, account]),
+  );
+  let changed = previousAccounts.length !== nextAccounts.length;
+  const accounts = nextAccounts.map((account, index) => {
+    const previous = previousByUsername.get(account.username);
+    if (previous !== undefined && sameAccount(previous, account)) {
+      changed ||= previousAccounts[index] !== previous;
+      return previous;
+    }
+
+    changed = true;
+    return account;
+  });
+
+  return changed ? accounts : previousAccounts;
+};
+
+const reconcileSessions = (
+  previousSessions: readonly AccountScriptSession[],
+  nextSessions: readonly AccountScriptSession[],
+): readonly AccountScriptSession[] => {
+  const previousByUsername = new Map(
+    previousSessions.map((session) => [session.username, session]),
+  );
+  let changed = previousSessions.length !== nextSessions.length;
+  const sessions = nextSessions.map((session, index) => {
+    const previous = previousByUsername.get(session.username);
+    if (previous !== undefined && sameVisibleSession(previous, session)) {
+      changed ||= previousSessions[index] !== previous;
+      return previous;
+    }
+
+    changed = true;
+    return session;
+  });
+
+  return changed ? sessions : previousSessions;
+};
+
+const reconcileAccountManagerState = (
+  previousState: AccountManagerState,
+  nextState: AccountManagerState,
+): AccountManagerState => {
+  const accounts = reconcileAccounts(
+    previousState.accounts,
+    nextState.accounts,
+  );
+  const sessions = reconcileSessions(
+    previousState.sessions,
+    nextState.sessions,
+  );
+
+  if (
+    previousState.storagePath === nextState.storagePath &&
+    previousState.accounts === accounts &&
+    previousState.sessions === sessions
+  ) {
+    return previousState;
+  }
+
+  return {
+    accounts,
+    sessions,
+    storagePath: nextState.storagePath,
+  };
+};
+
 function AccountActionButton(props: {
   readonly "aria-label": string;
   readonly children: JSX.Element;
@@ -178,7 +265,7 @@ function AccountActionButton(props: {
               children: props.children,
               disabled: props.disabled,
               onClick: props.onClick,
-              size: "icon-lg",
+              size: "icon",
               type: "button",
               variant: "ghost",
             } as ButtonProps) as ButtonProps)}
@@ -337,20 +424,32 @@ function App(): JSX.Element {
     }
   });
 
-  const applyState = (nextState: AccountManagerState) => {
-    setState(nextState);
+  const applyState = (incomingState: AccountManagerState) => {
+    const previousState = state();
+    const nextState = reconcileAccountManagerState(
+      previousState,
+      incomingState,
+    );
+    if (nextState !== previousState) {
+      setState(nextState);
+    }
     setStateLoaded(true);
+
     const usernames = new Set(
       nextState.accounts.map((account) => account.username),
     );
     setSelectedAccountUsernames((previous) => {
+      let removed = false;
       const next = new Set<string>();
       for (const username of previous) {
         if (usernames.has(username)) {
           next.add(username);
+        } else {
+          removed = true;
         }
       }
-      return next;
+
+      return removed ? next : previous;
     });
 
     const currentEditingUsername = editingUsername();
@@ -449,6 +548,8 @@ function App(): JSX.Element {
       return;
     }
     if (normalizedPath === selectedScriptPath() && selectedScript() !== null) {
+      setScriptPathDraft(scriptPathInput());
+      setScriptPathEditing(false);
       setScriptError("");
       return;
     }
@@ -782,9 +883,8 @@ function App(): JSX.Element {
                     <TooltipContent>Refresh servers</TooltipContent>
                   </Tooltip>
                 </div>
-                <InputGroup class="account-manager__server-field account-manager__field">
-                  <Combobox
-                    class="account-manager__server-combobox"
+                <Combobox
+                  class="account-manager__server-field account-manager__field account-manager__server-combobox"
                     value={[launchServer() || NO_SERVER_VALUE]}
                     disabled={serversLoading() || serverError() !== ""}
                     inputBehavior="autohighlight"
@@ -813,6 +913,7 @@ function App(): JSX.Element {
                       }}
                       placeholder="Choose server..."
                       showClear={false}
+                      size="lg"
                       value={serverInputValue()}
                       onInput={(event) => {
                         const value = event.currentTarget.value;
@@ -868,7 +969,6 @@ function App(): JSX.Element {
                       </ComboboxList>
                     </ComboboxContent>
                   </Combobox>
-                </InputGroup>
               </div>
 
               <div class="account-manager__field-container">
@@ -915,9 +1015,7 @@ function App(): JSX.Element {
                           )}
                         />
                         <Show when={scriptPathInput() !== ""}>
-                          <TooltipContent>
-                            {scriptPathInput()}
-                          </TooltipContent>
+                          <TooltipContent>{scriptPathInput()}</TooltipContent>
                         </Show>
                       </Tooltip>
                     }
@@ -1099,7 +1197,10 @@ function App(): JSX.Element {
                       aria-busy="true"
                     >
                       <div class="account-list__loading-content">
-                        <Spinner class="account-list__loading-spinner" size="xl" />
+                        <Spinner
+                          class="account-list__loading-spinner"
+                          size="xl"
+                        />
                         <span>Loading...</span>
                       </div>
                     </div>

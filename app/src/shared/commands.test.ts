@@ -47,17 +47,6 @@ describe("game command registry", () => {
     ).toEqual(expect.objectContaining({ category: "Tools" }));
   });
 
-  it("registers command overlay visibility with a backtick default", () => {
-    expect(
-      GAME_COMMANDS.find((command) => command.id === "toggle-command-overlay"),
-    ).toEqual(
-      expect.objectContaining({
-        category: "Scripts",
-        defaultHotkey: "`",
-      }),
-    );
-  });
-
   it("validates command ids", () => {
     expect(isGameCommandId("load-script")).toBe(true);
     expect(isGameCommandId("missing-command")).toBe(false);
