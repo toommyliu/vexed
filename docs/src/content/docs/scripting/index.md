@@ -1,8 +1,8 @@
 ---
-title: Scripting API
-description: Generated vexed scripting context reference.
+title: "Scripting API"
+description: ""
 sidebar:
-  label: Overview
+  label: "Overview"
 tableOfContents:
   minHeadingLevel: 2
   maxHeadingLevel: 3
@@ -19,6 +19,8 @@ module.exports = function* run({ api, autoZone, autoRelogin }) {
 }
 ```
 
+TL;DR: every API call must be yielded with `yield*`. If you are used to `async`/`await`, read `yield*` as "wait for this action and give me its result".
+
 ## Editor IntelliSense
 
 Download the generated declaration file [`script-api.d.ts`](/script-api.d.ts) and place it beside your scripts. These typings are not perfect, but they should be good enough for editor autocomplete and catching common mistakes.
@@ -32,7 +34,7 @@ module.exports = function* run({ api }) {
 }
 ```
 
-For a folder full of scripts, put `script-api.d.ts` in that folder and add a `jsconfig.json`. Keep `checkJs` off to get autocomplete without diagnostics noise; add `// @ts-check` only to files where you want type errors reported.
+For a folder full of scripts, put `script-api.d.ts` beside them and add `jsconfig.json` to the folder. Keep `checkJs` off to get autocomplete without diagnostics noise, and add `// @ts-check` only to files where you want type errors reported.
 
 ```json
 {

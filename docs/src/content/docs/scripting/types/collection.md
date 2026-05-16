@@ -1,8 +1,8 @@
 ---
-title: Collection
-description: Generated vexed scripting reference for Collection.
+title: "Collection"
+description: "A Map with additional utility methods."
 sidebar:
-  label: Collection
+  label: "Collection"
 tableOfContents:
   minHeadingLevel: 2
   maxHeadingLevel: 3
@@ -12,8 +12,6 @@ tableOfContents:
 
 A Map with additional utility methods.
 
-**Source:** [`packages/collection/src/index.ts:29`](https://github.com/toommyliu/vexed/blob/ee7dea4922d10259289c35ce1638a1553a17b577/packages/collection/src/index.ts#L29)
-
 ```ts
 class Collection<Key, Value> extends Map<Key, Value>
 ```
@@ -22,9 +20,7 @@ class Collection<Key, Value> extends Map<Key, Value>
 
 <a id="property-tostringtag"></a>
 
-### `[toStringTag]`
-
-**Source:** [`node_modules/typescript/lib/lib.es2015.symbol.wellknown.d.ts:137`](https://github.com/toommyliu/vexed/blob/ee7dea4922d10259289c35ce1638a1553a17b577/node_modules/typescript/lib/lib.es2015.symbol.wellknown.d.ts#L137)
+### `[toStringTag]` <a class="source-reference__heading-link" style="float: right; display: inline-flex; align-items: center; justify-content: center; width: 2rem; height: 2rem; margin-block: -0.125rem; margin-inline-start: 0.5rem; border-radius: var(--radius-sm); text-decoration: none;" href="https://github.com/toommyliu/vexed/blob/69e580bf8bbae374ead5a6f3cb3d3e064ac2735d/node_modules/typescript/lib/lib.es2015.symbol.wellknown.d.ts#L137" tabindex="-1" aria-hidden="true" title="Open source: node_modules/typescript/lib/lib.es2015.symbol.wellknown.d.ts:137" target="_blank" rel="noreferrer"><svg class="source-reference__icon" width="16" height="16" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m18 16 4-4-4-4"></path><path d="m6 8-4 4 4 4"></path><path d="m14.5 4-5 16"></path></svg></a>
 
 ```ts
 readonly [toStringTag]: string
@@ -32,11 +28,9 @@ readonly [toStringTag]: string
 
 <a id="property-constructor"></a>
 
-### `constructor`
+### `constructor` <a class="source-reference__heading-link" style="float: right; display: inline-flex; align-items: center; justify-content: center; width: 2rem; height: 2rem; margin-block: -0.125rem; margin-inline-start: 0.5rem; border-radius: var(--radius-sm); text-decoration: none;" href="https://github.com/toommyliu/vexed/blob/69e580bf8bbae374ead5a6f3cb3d3e064ac2735d/packages/collection/src/index.ts#L35" tabindex="-1" aria-hidden="true" title="Open source: packages/collection/src/index.ts:35" target="_blank" rel="noreferrer"><svg class="source-reference__icon" width="16" height="16" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m18 16 4-4-4-4"></path><path d="m6 8-4 4 4 4"></path><path d="m14.5 4-5 16"></path></svg></a>
 
 Ambient declaration to allow references to `this.constructor` in class methods.
-
-**Source:** [`packages/collection/src/index.ts:35`](https://github.com/toommyliu/vexed/blob/ee7dea4922d10259289c35ce1638a1553a17b577/packages/collection/src/index.ts#L35)
 
 ```ts
 constructor: typeof Collection
@@ -44,9 +38,7 @@ constructor: typeof Collection
 
 <a id="property-size"></a>
 
-### `size`
-
-**Source:** [`node_modules/typescript/lib/lib.es2015.collection.d.ts:45`](https://github.com/toommyliu/vexed/blob/ee7dea4922d10259289c35ce1638a1553a17b577/node_modules/typescript/lib/lib.es2015.collection.d.ts#L45)
+### `size` <a class="source-reference__heading-link" style="float: right; display: inline-flex; align-items: center; justify-content: center; width: 2rem; height: 2rem; margin-block: -0.125rem; margin-inline-start: 0.5rem; border-radius: var(--radius-sm); text-decoration: none;" href="https://github.com/toommyliu/vexed/blob/69e580bf8bbae374ead5a6f3cb3d3e064ac2735d/node_modules/typescript/lib/lib.es2015.collection.d.ts#L45" tabindex="-1" aria-hidden="true" title="Open source: node_modules/typescript/lib/lib.es2015.collection.d.ts:45" target="_blank" rel="noreferrer"><svg class="source-reference__icon" width="16" height="16" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m18 16 4-4-4-4"></path><path d="m6 8-4 4 4 4"></path><path d="m14.5 4-5 16"></path></svg></a>
 
 ```ts
 readonly size: number
@@ -56,11 +48,9 @@ readonly size: number
 
 <a id="method-iterator"></a>
 
-### `[iterator]()`
+### `[iterator]()` <a class="source-reference__heading-link" style="float: right; display: inline-flex; align-items: center; justify-content: center; width: 2rem; height: 2rem; margin-block: -0.125rem; margin-inline-start: 0.5rem; border-radius: var(--radius-sm); text-decoration: none;" href="https://github.com/toommyliu/vexed/blob/69e580bf8bbae374ead5a6f3cb3d3e064ac2735d/node_modules/typescript/lib/lib.es2015.iterable.d.ts#L143" tabindex="-1" aria-hidden="true" title="Open source: node_modules/typescript/lib/lib.es2015.iterable.d.ts:143" target="_blank" rel="noreferrer"><svg class="source-reference__icon" width="16" height="16" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m18 16 4-4-4-4"></path><path d="m6 8-4 4 4 4"></path><path d="m14.5 4-5 16"></path></svg></a>
 
 Returns an iterable of entries in the map.
-
-**Source:** [`node_modules/typescript/lib/lib.es2015.iterable.d.ts:143`](https://github.com/toommyliu/vexed/blob/ee7dea4922d10259289c35ce1638a1553a17b577/node_modules/typescript/lib/lib.es2015.iterable.d.ts#L143)
 
 ```ts
 [iterator](): MapIterator<[Key, Value]>
@@ -68,13 +58,11 @@ Returns an iterable of entries in the map.
 
 <a id="method-at"></a>
 
-### `at()`
+### `at()` <a class="source-reference__heading-link" style="float: right; display: inline-flex; align-items: center; justify-content: center; width: 2rem; height: 2rem; margin-block: -0.125rem; margin-inline-start: 0.5rem; border-radius: var(--radius-sm); text-decoration: none;" href="https://github.com/toommyliu/vexed/blob/69e580bf8bbae374ead5a6f3cb3d3e064ac2735d/packages/collection/src/index.ts#L178" tabindex="-1" aria-hidden="true" title="Open source: packages/collection/src/index.ts:178" target="_blank" rel="noreferrer"><svg class="source-reference__icon" width="16" height="16" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m18 16 4-4-4-4"></path><path d="m6 8-4 4 4 4"></path><path d="m14.5 4-5 16"></path></svg></a>
 
 Identical to Array.at().
 Returns the item at a given index, allowing for positive and negative integers.
 Negative integers count back from the last item in the collection.
-
-**Source:** [`packages/collection/src/index.ts:178`](https://github.com/toommyliu/vexed/blob/ee7dea4922d10259289c35ce1638a1553a17b577/packages/collection/src/index.ts#L178)
 
 ```ts
 at(index: number): Value | undefined
@@ -82,9 +70,7 @@ at(index: number): Value | undefined
 
 <a id="method-clear"></a>
 
-### `clear()`
-
-**Source:** [`node_modules/typescript/lib/lib.es2015.collection.d.ts:20`](https://github.com/toommyliu/vexed/blob/ee7dea4922d10259289c35ce1638a1553a17b577/node_modules/typescript/lib/lib.es2015.collection.d.ts#L20)
+### `clear()` <a class="source-reference__heading-link" style="float: right; display: inline-flex; align-items: center; justify-content: center; width: 2rem; height: 2rem; margin-block: -0.125rem; margin-inline-start: 0.5rem; border-radius: var(--radius-sm); text-decoration: none;" href="https://github.com/toommyliu/vexed/blob/69e580bf8bbae374ead5a6f3cb3d3e064ac2735d/node_modules/typescript/lib/lib.es2015.collection.d.ts#L20" tabindex="-1" aria-hidden="true" title="Open source: node_modules/typescript/lib/lib.es2015.collection.d.ts:20" target="_blank" rel="noreferrer"><svg class="source-reference__icon" width="16" height="16" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m18 16 4-4-4-4"></path><path d="m6 8-4 4 4 4"></path><path d="m14.5 4-5 16"></path></svg></a>
 
 ```ts
 clear(): void
@@ -92,11 +78,9 @@ clear(): void
 
 <a id="method-clone"></a>
 
-### `clone()`
+### `clone()` <a class="source-reference__heading-link" style="float: right; display: inline-flex; align-items: center; justify-content: center; width: 2rem; height: 2rem; margin-block: -0.125rem; margin-inline-start: 0.5rem; border-radius: var(--radius-sm); text-decoration: none;" href="https://github.com/toommyliu/vexed/blob/69e580bf8bbae374ead5a6f3cb3d3e064ac2735d/packages/collection/src/index.ts#L951" tabindex="-1" aria-hidden="true" title="Open source: packages/collection/src/index.ts:951" target="_blank" rel="noreferrer"><svg class="source-reference__icon" width="16" height="16" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m18 16 4-4-4-4"></path><path d="m6 8-4 4 4 4"></path><path d="m14.5 4-5 16"></path></svg></a>
 
 Creates an identical shallow copy of this collection.
-
-**Source:** [`packages/collection/src/index.ts:951`](https://github.com/toommyliu/vexed/blob/ee7dea4922d10259289c35ce1638a1553a17b577/packages/collection/src/index.ts#L951)
 
 ```ts
 clone(): Collection<Key, Value>
@@ -104,11 +88,9 @@ clone(): Collection<Key, Value>
 
 <a id="method-concat"></a>
 
-### `concat()`
+### `concat()` <a class="source-reference__heading-link" style="float: right; display: inline-flex; align-items: center; justify-content: center; width: 2rem; height: 2rem; margin-block: -0.125rem; margin-inline-start: 0.5rem; border-radius: var(--radius-sm); text-decoration: none;" href="https://github.com/toommyliu/vexed/blob/69e580bf8bbae374ead5a6f3cb3d3e064ac2735d/packages/collection/src/index.ts#L964" tabindex="-1" aria-hidden="true" title="Open source: packages/collection/src/index.ts:964" target="_blank" rel="noreferrer"><svg class="source-reference__icon" width="16" height="16" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m18 16 4-4-4-4"></path><path d="m6 8-4 4 4 4"></path><path d="m14.5 4-5 16"></path></svg></a>
 
 Combines this collection with others into a new collection. None of the source collections are modified.
-
-**Source:** [`packages/collection/src/index.ts:964`](https://github.com/toommyliu/vexed/blob/ee7dea4922d10259289c35ce1638a1553a17b577/packages/collection/src/index.ts#L964)
 
 ```ts
 concat(...collections: ReadonlyCollection<Key, Value>[]): Collection<Key, Value>
@@ -116,9 +98,7 @@ concat(...collections: ReadonlyCollection<Key, Value>[]): Collection<Key, Value>
 
 <a id="method-delete"></a>
 
-### `delete()`
-
-**Source:** [`node_modules/typescript/lib/lib.es2015.collection.d.ts:24`](https://github.com/toommyliu/vexed/blob/ee7dea4922d10259289c35ce1638a1553a17b577/node_modules/typescript/lib/lib.es2015.collection.d.ts#L24)
+### `delete()` <a class="source-reference__heading-link" style="float: right; display: inline-flex; align-items: center; justify-content: center; width: 2rem; height: 2rem; margin-block: -0.125rem; margin-inline-start: 0.5rem; border-radius: var(--radius-sm); text-decoration: none;" href="https://github.com/toommyliu/vexed/blob/69e580bf8bbae374ead5a6f3cb3d3e064ac2735d/node_modules/typescript/lib/lib.es2015.collection.d.ts#L24" tabindex="-1" aria-hidden="true" title="Open source: node_modules/typescript/lib/lib.es2015.collection.d.ts:24" target="_blank" rel="noreferrer"><svg class="source-reference__icon" width="16" height="16" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m18 16 4-4-4-4"></path><path d="m6 8-4 4 4 4"></path><path d="m14.5 4-5 16"></path></svg></a>
 
 ```ts
 delete(key: Key): boolean
@@ -126,11 +106,9 @@ delete(key: Key): boolean
 
 <a id="method-difference"></a>
 
-### `difference()`
+### `difference()` <a class="source-reference__heading-link" style="float: right; display: inline-flex; align-items: center; justify-content: center; width: 2rem; height: 2rem; margin-block: -0.125rem; margin-inline-start: 0.5rem; border-radius: var(--radius-sm); text-decoration: none;" href="https://github.com/toommyliu/vexed/blob/69e580bf8bbae374ead5a6f3cb3d3e064ac2735d/packages/collection/src/index.ts#L1092" tabindex="-1" aria-hidden="true" title="Open source: packages/collection/src/index.ts:1092" target="_blank" rel="noreferrer"><svg class="source-reference__icon" width="16" height="16" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m18 16 4-4-4-4"></path><path d="m6 8-4 4 4 4"></path><path d="m14.5 4-5 16"></path></svg></a>
 
 Returns a new collection containing the items where the key is present in this collection but not the other.
-
-**Source:** [`packages/collection/src/index.ts:1092`](https://github.com/toommyliu/vexed/blob/ee7dea4922d10259289c35ce1638a1553a17b577/packages/collection/src/index.ts#L1092)
 
 ```ts
 difference(other: ReadonlyCollection<Key, any>): Collection<Key, Value>
@@ -138,13 +116,11 @@ difference(other: ReadonlyCollection<Key, any>): Collection<Key, Value>
 
 <a id="method-each"></a>
 
-### `each()`
+### `each()` <a class="source-reference__heading-link" style="float: right; display: inline-flex; align-items: center; justify-content: center; width: 2rem; height: 2rem; margin-block: -0.125rem; margin-inline-start: 0.5rem; border-radius: var(--radius-sm); text-decoration: none;" href="https://github.com/toommyliu/vexed/blob/69e580bf8bbae374ead5a6f3cb3d3e064ac2735d/packages/collection/src/index.ts#L897" tabindex="-1" aria-hidden="true" title="Open source: packages/collection/src/index.ts:897" target="_blank" rel="noreferrer"><svg class="source-reference__icon" width="16" height="16" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m18 16 4-4-4-4"></path><path d="m6 8-4 4 4 4"></path><path d="m14.5 4-5 16"></path></svg></a>
 
 Identical to
 Map.forEach(),
 but returns the collection instead of undefined.
-
-**Source:** [`packages/collection/src/index.ts:897`](https://github.com/toommyliu/vexed/blob/ee7dea4922d10259289c35ce1638a1553a17b577/packages/collection/src/index.ts#L897)
 
 ```ts
 each(fn: (value: Value, key: Key, collection: this) => void): this
@@ -152,13 +128,11 @@ each(fn: (value: Value, key: Key, collection: this) => void): this
 
 <a id="method-each"></a>
 
-### `each()`
+### `each()` <a class="source-reference__heading-link" style="float: right; display: inline-flex; align-items: center; justify-content: center; width: 2rem; height: 2rem; margin-block: -0.125rem; margin-inline-start: 0.5rem; border-radius: var(--radius-sm); text-decoration: none;" href="https://github.com/toommyliu/vexed/blob/69e580bf8bbae374ead5a6f3cb3d3e064ac2735d/packages/collection/src/index.ts#L898" tabindex="-1" aria-hidden="true" title="Open source: packages/collection/src/index.ts:898" target="_blank" rel="noreferrer"><svg class="source-reference__icon" width="16" height="16" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m18 16 4-4-4-4"></path><path d="m6 8-4 4 4 4"></path><path d="m14.5 4-5 16"></path></svg></a>
 
 Identical to
 Map.forEach(),
 but returns the collection instead of undefined.
-
-**Source:** [`packages/collection/src/index.ts:898`](https://github.com/toommyliu/vexed/blob/ee7dea4922d10259289c35ce1638a1553a17b577/packages/collection/src/index.ts#L898)
 
 ```ts
 each<This>(fn: (this: This, value: Value, key: Key, collection: this) => void, thisArg: This): this
@@ -166,11 +140,9 @@ each<This>(fn: (this: This, value: Value, key: Key, collection: this) => void, t
 
 <a id="method-ensure"></a>
 
-### `ensure()`
+### `ensure()` <a class="source-reference__heading-link" style="float: right; display: inline-flex; align-items: center; justify-content: center; width: 2rem; height: 2rem; margin-block: -0.125rem; margin-inline-start: 0.5rem; border-radius: var(--radius-sm); text-decoration: none;" href="https://github.com/toommyliu/vexed/blob/69e580bf8bbae374ead5a6f3cb3d3e064ac2735d/packages/collection/src/index.ts#L56" tabindex="-1" aria-hidden="true" title="Open source: packages/collection/src/index.ts:56" target="_blank" rel="noreferrer"><svg class="source-reference__icon" width="16" height="16" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m18 16 4-4-4-4"></path><path d="m6 8-4 4 4 4"></path><path d="m14.5 4-5 16"></path></svg></a>
 
 Obtains the value of the given key if it exists, otherwise sets and returns the value provided by the default value generator.
-
-**Source:** [`packages/collection/src/index.ts:56`](https://github.com/toommyliu/vexed/blob/ee7dea4922d10259289c35ce1638a1553a17b577/packages/collection/src/index.ts#L56)
 
 ```ts
 ensure(key: Key, defaultValueGenerator: (key: Key, collection: this) => Value): Value
@@ -178,11 +150,9 @@ ensure(key: Key, defaultValueGenerator: (key: Key, collection: this) => Value): 
 
 <a id="method-entries"></a>
 
-### `entries()`
+### `entries()` <a class="source-reference__heading-link" style="float: right; display: inline-flex; align-items: center; justify-content: center; width: 2rem; height: 2rem; margin-block: -0.125rem; margin-inline-start: 0.5rem; border-radius: var(--radius-sm); text-decoration: none;" href="https://github.com/toommyliu/vexed/blob/69e580bf8bbae374ead5a6f3cb3d3e064ac2735d/node_modules/typescript/lib/lib.es2015.iterable.d.ts#L148" tabindex="-1" aria-hidden="true" title="Open source: node_modules/typescript/lib/lib.es2015.iterable.d.ts:148" target="_blank" rel="noreferrer"><svg class="source-reference__icon" width="16" height="16" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m18 16 4-4-4-4"></path><path d="m6 8-4 4 4 4"></path><path d="m14.5 4-5 16"></path></svg></a>
 
 Returns an iterable of key, value pairs for every entry in the map.
-
-**Source:** [`node_modules/typescript/lib/lib.es2015.iterable.d.ts:148`](https://github.com/toommyliu/vexed/blob/ee7dea4922d10259289c35ce1638a1553a17b577/node_modules/typescript/lib/lib.es2015.iterable.d.ts#L148)
 
 ```ts
 entries(): MapIterator<[Key, Value]>
@@ -190,13 +160,11 @@ entries(): MapIterator<[Key, Value]>
 
 <a id="method-equals"></a>
 
-### `equals()`
+### `equals()` <a class="source-reference__heading-link" style="float: right; display: inline-flex; align-items: center; justify-content: center; width: 2rem; height: 2rem; margin-block: -0.125rem; margin-inline-start: 0.5rem; border-radius: var(--radius-sm); text-decoration: none;" href="https://github.com/toommyliu/vexed/blob/69e580bf8bbae374ead5a6f3cb3d3e064ac2735d/packages/collection/src/index.ts#L981" tabindex="-1" aria-hidden="true" title="Open source: packages/collection/src/index.ts:981" target="_blank" rel="noreferrer"><svg class="source-reference__icon" width="16" height="16" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m18 16 4-4-4-4"></path><path d="m6 8-4 4 4 4"></path><path d="m14.5 4-5 16"></path></svg></a>
 
 Checks if this collection shares identical items with another.
 This is different to checking for equality using equal-signs, because
 the collections may be different objects, but contain the same data.
-
-**Source:** [`packages/collection/src/index.ts:981`](https://github.com/toommyliu/vexed/blob/ee7dea4922d10259289c35ce1638a1553a17b577/packages/collection/src/index.ts#L981)
 
 ```ts
 equals(collection: ReadonlyCollection<Key, Value>): boolean
@@ -204,12 +172,10 @@ equals(collection: ReadonlyCollection<Key, Value>): boolean
 
 <a id="method-every"></a>
 
-### `every()`
+### `every()` <a class="source-reference__heading-link" style="float: right; display: inline-flex; align-items: center; justify-content: center; width: 2rem; height: 2rem; margin-block: -0.125rem; margin-inline-start: 0.5rem; border-radius: var(--radius-sm); text-decoration: none;" href="https://github.com/toommyliu/vexed/blob/69e580bf8bbae374ead5a6f3cb3d3e064ac2735d/packages/collection/src/index.ts#L734" tabindex="-1" aria-hidden="true" title="Open source: packages/collection/src/index.ts:734" target="_blank" rel="noreferrer"><svg class="source-reference__icon" width="16" height="16" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m18 16 4-4-4-4"></path><path d="m6 8-4 4 4 4"></path><path d="m14.5 4-5 16"></path></svg></a>
 
 Checks if all items passes a test. Identical in behavior to
 Array.every().
-
-**Source:** [`packages/collection/src/index.ts:734`](https://github.com/toommyliu/vexed/blob/ee7dea4922d10259289c35ce1638a1553a17b577/packages/collection/src/index.ts#L734)
 
 ```ts
 every<NewKey>(fn: (value: Value, key: Key, collection: this) => key is NewKey): this is Collection<NewKey, Value>
@@ -217,12 +183,10 @@ every<NewKey>(fn: (value: Value, key: Key, collection: this) => key is NewKey): 
 
 <a id="method-every"></a>
 
-### `every()`
+### `every()` <a class="source-reference__heading-link" style="float: right; display: inline-flex; align-items: center; justify-content: center; width: 2rem; height: 2rem; margin-block: -0.125rem; margin-inline-start: 0.5rem; border-radius: var(--radius-sm); text-decoration: none;" href="https://github.com/toommyliu/vexed/blob/69e580bf8bbae374ead5a6f3cb3d3e064ac2735d/packages/collection/src/index.ts#L737" tabindex="-1" aria-hidden="true" title="Open source: packages/collection/src/index.ts:737" target="_blank" rel="noreferrer"><svg class="source-reference__icon" width="16" height="16" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m18 16 4-4-4-4"></path><path d="m6 8-4 4 4 4"></path><path d="m14.5 4-5 16"></path></svg></a>
 
 Checks if all items passes a test. Identical in behavior to
 Array.every().
-
-**Source:** [`packages/collection/src/index.ts:737`](https://github.com/toommyliu/vexed/blob/ee7dea4922d10259289c35ce1638a1553a17b577/packages/collection/src/index.ts#L737)
 
 ```ts
 every<NewValue>(fn: (value: Value, key: Key, collection: this) => value is NewValue): this is Collection<Key, NewValue>
@@ -230,12 +194,10 @@ every<NewValue>(fn: (value: Value, key: Key, collection: this) => value is NewVa
 
 <a id="method-every"></a>
 
-### `every()`
+### `every()` <a class="source-reference__heading-link" style="float: right; display: inline-flex; align-items: center; justify-content: center; width: 2rem; height: 2rem; margin-block: -0.125rem; margin-inline-start: 0.5rem; border-radius: var(--radius-sm); text-decoration: none;" href="https://github.com/toommyliu/vexed/blob/69e580bf8bbae374ead5a6f3cb3d3e064ac2735d/packages/collection/src/index.ts#L740" tabindex="-1" aria-hidden="true" title="Open source: packages/collection/src/index.ts:740" target="_blank" rel="noreferrer"><svg class="source-reference__icon" width="16" height="16" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m18 16 4-4-4-4"></path><path d="m6 8-4 4 4 4"></path><path d="m14.5 4-5 16"></path></svg></a>
 
 Checks if all items passes a test. Identical in behavior to
 Array.every().
-
-**Source:** [`packages/collection/src/index.ts:740`](https://github.com/toommyliu/vexed/blob/ee7dea4922d10259289c35ce1638a1553a17b577/packages/collection/src/index.ts#L740)
 
 ```ts
 every(fn: (value: Value, key: Key, collection: this) => unknown): boolean
@@ -243,12 +205,10 @@ every(fn: (value: Value, key: Key, collection: this) => unknown): boolean
 
 <a id="method-every"></a>
 
-### `every()`
+### `every()` <a class="source-reference__heading-link" style="float: right; display: inline-flex; align-items: center; justify-content: center; width: 2rem; height: 2rem; margin-block: -0.125rem; margin-inline-start: 0.5rem; border-radius: var(--radius-sm); text-decoration: none;" href="https://github.com/toommyliu/vexed/blob/69e580bf8bbae374ead5a6f3cb3d3e064ac2735d/packages/collection/src/index.ts#L743" tabindex="-1" aria-hidden="true" title="Open source: packages/collection/src/index.ts:743" target="_blank" rel="noreferrer"><svg class="source-reference__icon" width="16" height="16" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m18 16 4-4-4-4"></path><path d="m6 8-4 4 4 4"></path><path d="m14.5 4-5 16"></path></svg></a>
 
 Checks if all items passes a test. Identical in behavior to
 Array.every().
-
-**Source:** [`packages/collection/src/index.ts:743`](https://github.com/toommyliu/vexed/blob/ee7dea4922d10259289c35ce1638a1553a17b577/packages/collection/src/index.ts#L743)
 
 ```ts
 every<This, NewKey>(fn: (this: This, value: Value, key: Key, collection: this) => key is NewKey, thisArg: This): this is Collection<NewKey, Value>
@@ -256,12 +216,10 @@ every<This, NewKey>(fn: (this: This, value: Value, key: Key, collection: this) =
 
 <a id="method-every"></a>
 
-### `every()`
+### `every()` <a class="source-reference__heading-link" style="float: right; display: inline-flex; align-items: center; justify-content: center; width: 2rem; height: 2rem; margin-block: -0.125rem; margin-inline-start: 0.5rem; border-radius: var(--radius-sm); text-decoration: none;" href="https://github.com/toommyliu/vexed/blob/69e580bf8bbae374ead5a6f3cb3d3e064ac2735d/packages/collection/src/index.ts#L747" tabindex="-1" aria-hidden="true" title="Open source: packages/collection/src/index.ts:747" target="_blank" rel="noreferrer"><svg class="source-reference__icon" width="16" height="16" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m18 16 4-4-4-4"></path><path d="m6 8-4 4 4 4"></path><path d="m14.5 4-5 16"></path></svg></a>
 
 Checks if all items passes a test. Identical in behavior to
 Array.every().
-
-**Source:** [`packages/collection/src/index.ts:747`](https://github.com/toommyliu/vexed/blob/ee7dea4922d10259289c35ce1638a1553a17b577/packages/collection/src/index.ts#L747)
 
 ```ts
 every<This, NewValue>(fn: (this: This, value: Value, key: Key, collection: this) => value is NewValue, thisArg: This): this is Collection<Key, NewValue>
@@ -269,12 +227,10 @@ every<This, NewValue>(fn: (this: This, value: Value, key: Key, collection: this)
 
 <a id="method-every"></a>
 
-### `every()`
+### `every()` <a class="source-reference__heading-link" style="float: right; display: inline-flex; align-items: center; justify-content: center; width: 2rem; height: 2rem; margin-block: -0.125rem; margin-inline-start: 0.5rem; border-radius: var(--radius-sm); text-decoration: none;" href="https://github.com/toommyliu/vexed/blob/69e580bf8bbae374ead5a6f3cb3d3e064ac2735d/packages/collection/src/index.ts#L756" tabindex="-1" aria-hidden="true" title="Open source: packages/collection/src/index.ts:756" target="_blank" rel="noreferrer"><svg class="source-reference__icon" width="16" height="16" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m18 16 4-4-4-4"></path><path d="m6 8-4 4 4 4"></path><path d="m14.5 4-5 16"></path></svg></a>
 
 Checks if all items passes a test. Identical in behavior to
 Array.every().
-
-**Source:** [`packages/collection/src/index.ts:756`](https://github.com/toommyliu/vexed/blob/ee7dea4922d10259289c35ce1638a1553a17b577/packages/collection/src/index.ts#L756)
 
 ```ts
 every<This>(fn: (this: This, value: Value, key: Key, collection: this) => unknown, thisArg: This): boolean
@@ -282,13 +238,11 @@ every<This>(fn: (this: This, value: Value, key: Key, collection: this) => unknow
 
 <a id="method-filter"></a>
 
-### `filter()`
+### `filter()` <a class="source-reference__heading-link" style="float: right; display: inline-flex; align-items: center; justify-content: center; width: 2rem; height: 2rem; margin-block: -0.125rem; margin-inline-start: 0.5rem; border-radius: var(--radius-sm); text-decoration: none;" href="https://github.com/toommyliu/vexed/blob/69e580bf8bbae374ead5a6f3cb3d3e064ac2735d/packages/collection/src/index.ts#L491" tabindex="-1" aria-hidden="true" title="Open source: packages/collection/src/index.ts:491" target="_blank" rel="noreferrer"><svg class="source-reference__icon" width="16" height="16" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m18 16 4-4-4-4"></path><path d="m6 8-4 4 4 4"></path><path d="m14.5 4-5 16"></path></svg></a>
 
 Identical to
 Array.filter(),
 but returns a Collection instead of an Array.
-
-**Source:** [`packages/collection/src/index.ts:491`](https://github.com/toommyliu/vexed/blob/ee7dea4922d10259289c35ce1638a1553a17b577/packages/collection/src/index.ts#L491)
 
 ```ts
 filter<NewKey>(fn: (value: Value, key: Key, collection: this) => key is NewKey): Collection<NewKey, Value>
@@ -296,13 +250,11 @@ filter<NewKey>(fn: (value: Value, key: Key, collection: this) => key is NewKey):
 
 <a id="method-filter"></a>
 
-### `filter()`
+### `filter()` <a class="source-reference__heading-link" style="float: right; display: inline-flex; align-items: center; justify-content: center; width: 2rem; height: 2rem; margin-block: -0.125rem; margin-inline-start: 0.5rem; border-radius: var(--radius-sm); text-decoration: none;" href="https://github.com/toommyliu/vexed/blob/69e580bf8bbae374ead5a6f3cb3d3e064ac2735d/packages/collection/src/index.ts#L494" tabindex="-1" aria-hidden="true" title="Open source: packages/collection/src/index.ts:494" target="_blank" rel="noreferrer"><svg class="source-reference__icon" width="16" height="16" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m18 16 4-4-4-4"></path><path d="m6 8-4 4 4 4"></path><path d="m14.5 4-5 16"></path></svg></a>
 
 Identical to
 Array.filter(),
 but returns a Collection instead of an Array.
-
-**Source:** [`packages/collection/src/index.ts:494`](https://github.com/toommyliu/vexed/blob/ee7dea4922d10259289c35ce1638a1553a17b577/packages/collection/src/index.ts#L494)
 
 ```ts
 filter<NewValue>(fn: (value: Value, key: Key, collection: this) => value is NewValue): Collection<Key, NewValue>
@@ -310,13 +262,11 @@ filter<NewValue>(fn: (value: Value, key: Key, collection: this) => value is NewV
 
 <a id="method-filter"></a>
 
-### `filter()`
+### `filter()` <a class="source-reference__heading-link" style="float: right; display: inline-flex; align-items: center; justify-content: center; width: 2rem; height: 2rem; margin-block: -0.125rem; margin-inline-start: 0.5rem; border-radius: var(--radius-sm); text-decoration: none;" href="https://github.com/toommyliu/vexed/blob/69e580bf8bbae374ead5a6f3cb3d3e064ac2735d/packages/collection/src/index.ts#L497" tabindex="-1" aria-hidden="true" title="Open source: packages/collection/src/index.ts:497" target="_blank" rel="noreferrer"><svg class="source-reference__icon" width="16" height="16" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m18 16 4-4-4-4"></path><path d="m6 8-4 4 4 4"></path><path d="m14.5 4-5 16"></path></svg></a>
 
 Identical to
 Array.filter(),
 but returns a Collection instead of an Array.
-
-**Source:** [`packages/collection/src/index.ts:497`](https://github.com/toommyliu/vexed/blob/ee7dea4922d10259289c35ce1638a1553a17b577/packages/collection/src/index.ts#L497)
 
 ```ts
 filter(fn: (value: Value, key: Key, collection: this) => unknown): Collection<Key, Value>
@@ -324,13 +274,11 @@ filter(fn: (value: Value, key: Key, collection: this) => unknown): Collection<Ke
 
 <a id="method-filter"></a>
 
-### `filter()`
+### `filter()` <a class="source-reference__heading-link" style="float: right; display: inline-flex; align-items: center; justify-content: center; width: 2rem; height: 2rem; margin-block: -0.125rem; margin-inline-start: 0.5rem; border-radius: var(--radius-sm); text-decoration: none;" href="https://github.com/toommyliu/vexed/blob/69e580bf8bbae374ead5a6f3cb3d3e064ac2735d/packages/collection/src/index.ts#L500" tabindex="-1" aria-hidden="true" title="Open source: packages/collection/src/index.ts:500" target="_blank" rel="noreferrer"><svg class="source-reference__icon" width="16" height="16" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m18 16 4-4-4-4"></path><path d="m6 8-4 4 4 4"></path><path d="m14.5 4-5 16"></path></svg></a>
 
 Identical to
 Array.filter(),
 but returns a Collection instead of an Array.
-
-**Source:** [`packages/collection/src/index.ts:500`](https://github.com/toommyliu/vexed/blob/ee7dea4922d10259289c35ce1638a1553a17b577/packages/collection/src/index.ts#L500)
 
 ```ts
 filter<This, NewKey>(fn: (this: This, value: Value, key: Key, collection: this) => key is NewKey, thisArg: This): Collection<NewKey, Value>
@@ -338,13 +286,11 @@ filter<This, NewKey>(fn: (this: This, value: Value, key: Key, collection: this) 
 
 <a id="method-filter"></a>
 
-### `filter()`
+### `filter()` <a class="source-reference__heading-link" style="float: right; display: inline-flex; align-items: center; justify-content: center; width: 2rem; height: 2rem; margin-block: -0.125rem; margin-inline-start: 0.5rem; border-radius: var(--radius-sm); text-decoration: none;" href="https://github.com/toommyliu/vexed/blob/69e580bf8bbae374ead5a6f3cb3d3e064ac2735d/packages/collection/src/index.ts#L504" tabindex="-1" aria-hidden="true" title="Open source: packages/collection/src/index.ts:504" target="_blank" rel="noreferrer"><svg class="source-reference__icon" width="16" height="16" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m18 16 4-4-4-4"></path><path d="m6 8-4 4 4 4"></path><path d="m14.5 4-5 16"></path></svg></a>
 
 Identical to
 Array.filter(),
 but returns a Collection instead of an Array.
-
-**Source:** [`packages/collection/src/index.ts:504`](https://github.com/toommyliu/vexed/blob/ee7dea4922d10259289c35ce1638a1553a17b577/packages/collection/src/index.ts#L504)
 
 ```ts
 filter<This, NewValue>(fn: (this: This, value: Value, key: Key, collection: this) => value is NewValue, thisArg: This): Collection<Key, NewValue>
@@ -352,13 +298,11 @@ filter<This, NewValue>(fn: (this: This, value: Value, key: Key, collection: this
 
 <a id="method-filter"></a>
 
-### `filter()`
+### `filter()` <a class="source-reference__heading-link" style="float: right; display: inline-flex; align-items: center; justify-content: center; width: 2rem; height: 2rem; margin-block: -0.125rem; margin-inline-start: 0.5rem; border-radius: var(--radius-sm); text-decoration: none;" href="https://github.com/toommyliu/vexed/blob/69e580bf8bbae374ead5a6f3cb3d3e064ac2735d/packages/collection/src/index.ts#L513" tabindex="-1" aria-hidden="true" title="Open source: packages/collection/src/index.ts:513" target="_blank" rel="noreferrer"><svg class="source-reference__icon" width="16" height="16" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m18 16 4-4-4-4"></path><path d="m6 8-4 4 4 4"></path><path d="m14.5 4-5 16"></path></svg></a>
 
 Identical to
 Array.filter(),
 but returns a Collection instead of an Array.
-
-**Source:** [`packages/collection/src/index.ts:513`](https://github.com/toommyliu/vexed/blob/ee7dea4922d10259289c35ce1638a1553a17b577/packages/collection/src/index.ts#L513)
 
 ```ts
 filter<This>(fn: (this: This, value: Value, key: Key, collection: this) => unknown, thisArg: This): Collection<Key, Value>
@@ -366,12 +310,10 @@ filter<This>(fn: (this: This, value: Value, key: Key, collection: this) => unkno
 
 <a id="method-find"></a>
 
-### `find()`
+### `find()` <a class="source-reference__heading-link" style="float: right; display: inline-flex; align-items: center; justify-content: center; width: 2rem; height: 2rem; margin-block: -0.125rem; margin-inline-start: 0.5rem; border-radius: var(--radius-sm); text-decoration: none;" href="https://github.com/toommyliu/vexed/blob/69e580bf8bbae374ead5a6f3cb3d3e064ac2735d/packages/collection/src/index.ts#L295" tabindex="-1" aria-hidden="true" title="Open source: packages/collection/src/index.ts:295" target="_blank" rel="noreferrer"><svg class="source-reference__icon" width="16" height="16" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m18 16 4-4-4-4"></path><path d="m6 8-4 4 4 4"></path><path d="m14.5 4-5 16"></path></svg></a>
 
 Searches for a single item where the given function returns a truthy value. This behaves like
 Array.find().
-
-**Source:** [`packages/collection/src/index.ts:295`](https://github.com/toommyliu/vexed/blob/ee7dea4922d10259289c35ce1638a1553a17b577/packages/collection/src/index.ts#L295)
 
 ```ts
 find<NewValue>(fn: (value: Value, key: Key, collection: this) => value is NewValue): NewValue | undefined
@@ -379,12 +321,10 @@ find<NewValue>(fn: (value: Value, key: Key, collection: this) => value is NewVal
 
 <a id="method-find"></a>
 
-### `find()`
+### `find()` <a class="source-reference__heading-link" style="float: right; display: inline-flex; align-items: center; justify-content: center; width: 2rem; height: 2rem; margin-block: -0.125rem; margin-inline-start: 0.5rem; border-radius: var(--radius-sm); text-decoration: none;" href="https://github.com/toommyliu/vexed/blob/69e580bf8bbae374ead5a6f3cb3d3e064ac2735d/packages/collection/src/index.ts#L298" tabindex="-1" aria-hidden="true" title="Open source: packages/collection/src/index.ts:298" target="_blank" rel="noreferrer"><svg class="source-reference__icon" width="16" height="16" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m18 16 4-4-4-4"></path><path d="m6 8-4 4 4 4"></path><path d="m14.5 4-5 16"></path></svg></a>
 
 Searches for a single item where the given function returns a truthy value. This behaves like
 Array.find().
-
-**Source:** [`packages/collection/src/index.ts:298`](https://github.com/toommyliu/vexed/blob/ee7dea4922d10259289c35ce1638a1553a17b577/packages/collection/src/index.ts#L298)
 
 ```ts
 find(fn: (value: Value, key: Key, collection: this) => unknown): Value | undefined
@@ -392,12 +332,10 @@ find(fn: (value: Value, key: Key, collection: this) => unknown): Value | undefin
 
 <a id="method-find"></a>
 
-### `find()`
+### `find()` <a class="source-reference__heading-link" style="float: right; display: inline-flex; align-items: center; justify-content: center; width: 2rem; height: 2rem; margin-block: -0.125rem; margin-inline-start: 0.5rem; border-radius: var(--radius-sm); text-decoration: none;" href="https://github.com/toommyliu/vexed/blob/69e580bf8bbae374ead5a6f3cb3d3e064ac2735d/packages/collection/src/index.ts#L301" tabindex="-1" aria-hidden="true" title="Open source: packages/collection/src/index.ts:301" target="_blank" rel="noreferrer"><svg class="source-reference__icon" width="16" height="16" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m18 16 4-4-4-4"></path><path d="m6 8-4 4 4 4"></path><path d="m14.5 4-5 16"></path></svg></a>
 
 Searches for a single item where the given function returns a truthy value. This behaves like
 Array.find().
-
-**Source:** [`packages/collection/src/index.ts:301`](https://github.com/toommyliu/vexed/blob/ee7dea4922d10259289c35ce1638a1553a17b577/packages/collection/src/index.ts#L301)
 
 ```ts
 find<This, NewValue>(fn: (this: This, value: Value, key: Key, collection: this) => value is NewValue, thisArg: This): NewValue | undefined
@@ -405,12 +343,10 @@ find<This, NewValue>(fn: (this: This, value: Value, key: Key, collection: this) 
 
 <a id="method-find"></a>
 
-### `find()`
+### `find()` <a class="source-reference__heading-link" style="float: right; display: inline-flex; align-items: center; justify-content: center; width: 2rem; height: 2rem; margin-block: -0.125rem; margin-inline-start: 0.5rem; border-radius: var(--radius-sm); text-decoration: none;" href="https://github.com/toommyliu/vexed/blob/69e580bf8bbae374ead5a6f3cb3d3e064ac2735d/packages/collection/src/index.ts#L310" tabindex="-1" aria-hidden="true" title="Open source: packages/collection/src/index.ts:310" target="_blank" rel="noreferrer"><svg class="source-reference__icon" width="16" height="16" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m18 16 4-4-4-4"></path><path d="m6 8-4 4 4 4"></path><path d="m14.5 4-5 16"></path></svg></a>
 
 Searches for a single item where the given function returns a truthy value. This behaves like
 Array.find().
-
-**Source:** [`packages/collection/src/index.ts:310`](https://github.com/toommyliu/vexed/blob/ee7dea4922d10259289c35ce1638a1553a17b577/packages/collection/src/index.ts#L310)
 
 ```ts
 find<This>(fn: (this: This, value: Value, key: Key, collection: this) => unknown, thisArg: This): Value | undefined
@@ -418,13 +354,11 @@ find<This>(fn: (this: This, value: Value, key: Key, collection: this) => unknown
 
 <a id="method-findkey"></a>
 
-### `findKey()`
+### `findKey()` <a class="source-reference__heading-link" style="float: right; display: inline-flex; align-items: center; justify-content: center; width: 2rem; height: 2rem; margin-block: -0.125rem; margin-inline-start: 0.5rem; border-radius: var(--radius-sm); text-decoration: none;" href="https://github.com/toommyliu/vexed/blob/69e580bf8bbae374ead5a6f3cb3d3e064ac2735d/packages/collection/src/index.ts#L340" tabindex="-1" aria-hidden="true" title="Open source: packages/collection/src/index.ts:340" target="_blank" rel="noreferrer"><svg class="source-reference__icon" width="16" height="16" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m18 16 4-4-4-4"></path><path d="m6 8-4 4 4 4"></path><path d="m14.5 4-5 16"></path></svg></a>
 
 Searches for the key of a single item where the given function returns a truthy value. This behaves like
 Array.findIndex(),
 but returns the key rather than the positional index.
-
-**Source:** [`packages/collection/src/index.ts:340`](https://github.com/toommyliu/vexed/blob/ee7dea4922d10259289c35ce1638a1553a17b577/packages/collection/src/index.ts#L340)
 
 ```ts
 findKey<NewKey>(fn: (value: Value, key: Key, collection: this) => key is NewKey): NewKey | undefined
@@ -432,13 +366,11 @@ findKey<NewKey>(fn: (value: Value, key: Key, collection: this) => key is NewKey)
 
 <a id="method-findkey"></a>
 
-### `findKey()`
+### `findKey()` <a class="source-reference__heading-link" style="float: right; display: inline-flex; align-items: center; justify-content: center; width: 2rem; height: 2rem; margin-block: -0.125rem; margin-inline-start: 0.5rem; border-radius: var(--radius-sm); text-decoration: none;" href="https://github.com/toommyliu/vexed/blob/69e580bf8bbae374ead5a6f3cb3d3e064ac2735d/packages/collection/src/index.ts#L343" tabindex="-1" aria-hidden="true" title="Open source: packages/collection/src/index.ts:343" target="_blank" rel="noreferrer"><svg class="source-reference__icon" width="16" height="16" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m18 16 4-4-4-4"></path><path d="m6 8-4 4 4 4"></path><path d="m14.5 4-5 16"></path></svg></a>
 
 Searches for the key of a single item where the given function returns a truthy value. This behaves like
 Array.findIndex(),
 but returns the key rather than the positional index.
-
-**Source:** [`packages/collection/src/index.ts:343`](https://github.com/toommyliu/vexed/blob/ee7dea4922d10259289c35ce1638a1553a17b577/packages/collection/src/index.ts#L343)
 
 ```ts
 findKey(fn: (value: Value, key: Key, collection: this) => unknown): Key | undefined
@@ -446,13 +378,11 @@ findKey(fn: (value: Value, key: Key, collection: this) => unknown): Key | undefi
 
 <a id="method-findkey"></a>
 
-### `findKey()`
+### `findKey()` <a class="source-reference__heading-link" style="float: right; display: inline-flex; align-items: center; justify-content: center; width: 2rem; height: 2rem; margin-block: -0.125rem; margin-inline-start: 0.5rem; border-radius: var(--radius-sm); text-decoration: none;" href="https://github.com/toommyliu/vexed/blob/69e580bf8bbae374ead5a6f3cb3d3e064ac2735d/packages/collection/src/index.ts#L346" tabindex="-1" aria-hidden="true" title="Open source: packages/collection/src/index.ts:346" target="_blank" rel="noreferrer"><svg class="source-reference__icon" width="16" height="16" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m18 16 4-4-4-4"></path><path d="m6 8-4 4 4 4"></path><path d="m14.5 4-5 16"></path></svg></a>
 
 Searches for the key of a single item where the given function returns a truthy value. This behaves like
 Array.findIndex(),
 but returns the key rather than the positional index.
-
-**Source:** [`packages/collection/src/index.ts:346`](https://github.com/toommyliu/vexed/blob/ee7dea4922d10259289c35ce1638a1553a17b577/packages/collection/src/index.ts#L346)
 
 ```ts
 findKey<This, NewKey>(fn: (this: This, value: Value, key: Key, collection: this) => key is NewKey, thisArg: This): NewKey | undefined
@@ -460,13 +390,11 @@ findKey<This, NewKey>(fn: (this: This, value: Value, key: Key, collection: this)
 
 <a id="method-findkey"></a>
 
-### `findKey()`
+### `findKey()` <a class="source-reference__heading-link" style="float: right; display: inline-flex; align-items: center; justify-content: center; width: 2rem; height: 2rem; margin-block: -0.125rem; margin-inline-start: 0.5rem; border-radius: var(--radius-sm); text-decoration: none;" href="https://github.com/toommyliu/vexed/blob/69e580bf8bbae374ead5a6f3cb3d3e064ac2735d/packages/collection/src/index.ts#L350" tabindex="-1" aria-hidden="true" title="Open source: packages/collection/src/index.ts:350" target="_blank" rel="noreferrer"><svg class="source-reference__icon" width="16" height="16" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m18 16 4-4-4-4"></path><path d="m6 8-4 4 4 4"></path><path d="m14.5 4-5 16"></path></svg></a>
 
 Searches for the key of a single item where the given function returns a truthy value. This behaves like
 Array.findIndex(),
 but returns the key rather than the positional index.
-
-**Source:** [`packages/collection/src/index.ts:350`](https://github.com/toommyliu/vexed/blob/ee7dea4922d10259289c35ce1638a1553a17b577/packages/collection/src/index.ts#L350)
 
 ```ts
 findKey<This>(fn: (this: This, value: Value, key: Key, collection: this) => unknown, thisArg: This): Key | undefined
@@ -474,12 +402,10 @@ findKey<This>(fn: (this: This, value: Value, key: Key, collection: this) => unkn
 
 <a id="method-findlast"></a>
 
-### `findLast()`
+### `findLast()` <a class="source-reference__heading-link" style="float: right; display: inline-flex; align-items: center; justify-content: center; width: 2rem; height: 2rem; margin-block: -0.125rem; margin-inline-start: 0.5rem; border-radius: var(--radius-sm); text-decoration: none;" href="https://github.com/toommyliu/vexed/blob/69e580bf8bbae374ead5a6f3cb3d3e064ac2735d/packages/collection/src/index.ts#L375" tabindex="-1" aria-hidden="true" title="Open source: packages/collection/src/index.ts:375" target="_blank" rel="noreferrer"><svg class="source-reference__icon" width="16" height="16" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m18 16 4-4-4-4"></path><path d="m6 8-4 4 4 4"></path><path d="m14.5 4-5 16"></path></svg></a>
 
 Searches for a last item where the given function returns a truthy value. This behaves like
 Array.findLast().
-
-**Source:** [`packages/collection/src/index.ts:375`](https://github.com/toommyliu/vexed/blob/ee7dea4922d10259289c35ce1638a1553a17b577/packages/collection/src/index.ts#L375)
 
 ```ts
 findLast<NewValue>(fn: (value: Value, key: Key, collection: this) => value is NewValue): NewValue | undefined
@@ -487,12 +413,10 @@ findLast<NewValue>(fn: (value: Value, key: Key, collection: this) => value is Ne
 
 <a id="method-findlast"></a>
 
-### `findLast()`
+### `findLast()` <a class="source-reference__heading-link" style="float: right; display: inline-flex; align-items: center; justify-content: center; width: 2rem; height: 2rem; margin-block: -0.125rem; margin-inline-start: 0.5rem; border-radius: var(--radius-sm); text-decoration: none;" href="https://github.com/toommyliu/vexed/blob/69e580bf8bbae374ead5a6f3cb3d3e064ac2735d/packages/collection/src/index.ts#L378" tabindex="-1" aria-hidden="true" title="Open source: packages/collection/src/index.ts:378" target="_blank" rel="noreferrer"><svg class="source-reference__icon" width="16" height="16" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m18 16 4-4-4-4"></path><path d="m6 8-4 4 4 4"></path><path d="m14.5 4-5 16"></path></svg></a>
 
 Searches for a last item where the given function returns a truthy value. This behaves like
 Array.findLast().
-
-**Source:** [`packages/collection/src/index.ts:378`](https://github.com/toommyliu/vexed/blob/ee7dea4922d10259289c35ce1638a1553a17b577/packages/collection/src/index.ts#L378)
 
 ```ts
 findLast(fn: (value: Value, key: Key, collection: this) => unknown): Value | undefined
@@ -500,12 +424,10 @@ findLast(fn: (value: Value, key: Key, collection: this) => unknown): Value | und
 
 <a id="method-findlast"></a>
 
-### `findLast()`
+### `findLast()` <a class="source-reference__heading-link" style="float: right; display: inline-flex; align-items: center; justify-content: center; width: 2rem; height: 2rem; margin-block: -0.125rem; margin-inline-start: 0.5rem; border-radius: var(--radius-sm); text-decoration: none;" href="https://github.com/toommyliu/vexed/blob/69e580bf8bbae374ead5a6f3cb3d3e064ac2735d/packages/collection/src/index.ts#L381" tabindex="-1" aria-hidden="true" title="Open source: packages/collection/src/index.ts:381" target="_blank" rel="noreferrer"><svg class="source-reference__icon" width="16" height="16" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m18 16 4-4-4-4"></path><path d="m6 8-4 4 4 4"></path><path d="m14.5 4-5 16"></path></svg></a>
 
 Searches for a last item where the given function returns a truthy value. This behaves like
 Array.findLast().
-
-**Source:** [`packages/collection/src/index.ts:381`](https://github.com/toommyliu/vexed/blob/ee7dea4922d10259289c35ce1638a1553a17b577/packages/collection/src/index.ts#L381)
 
 ```ts
 findLast<This, NewValue>(fn: (this: This, value: Value, key: Key, collection: this) => value is NewValue, thisArg: This): NewValue | undefined
@@ -513,12 +435,10 @@ findLast<This, NewValue>(fn: (this: This, value: Value, key: Key, collection: th
 
 <a id="method-findlast"></a>
 
-### `findLast()`
+### `findLast()` <a class="source-reference__heading-link" style="float: right; display: inline-flex; align-items: center; justify-content: center; width: 2rem; height: 2rem; margin-block: -0.125rem; margin-inline-start: 0.5rem; border-radius: var(--radius-sm); text-decoration: none;" href="https://github.com/toommyliu/vexed/blob/69e580bf8bbae374ead5a6f3cb3d3e064ac2735d/packages/collection/src/index.ts#L390" tabindex="-1" aria-hidden="true" title="Open source: packages/collection/src/index.ts:390" target="_blank" rel="noreferrer"><svg class="source-reference__icon" width="16" height="16" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m18 16 4-4-4-4"></path><path d="m6 8-4 4 4 4"></path><path d="m14.5 4-5 16"></path></svg></a>
 
 Searches for a last item where the given function returns a truthy value. This behaves like
 Array.findLast().
-
-**Source:** [`packages/collection/src/index.ts:390`](https://github.com/toommyliu/vexed/blob/ee7dea4922d10259289c35ce1638a1553a17b577/packages/collection/src/index.ts#L390)
 
 ```ts
 findLast<This>(fn: (this: This, value: Value, key: Key, collection: this) => unknown, thisArg: This): Value | undefined
@@ -526,13 +446,11 @@ findLast<This>(fn: (this: This, value: Value, key: Key, collection: this) => unk
 
 <a id="method-findlastkey"></a>
 
-### `findLastKey()`
+### `findLastKey()` <a class="source-reference__heading-link" style="float: right; display: inline-flex; align-items: center; justify-content: center; width: 2rem; height: 2rem; margin-block: -0.125rem; margin-inline-start: 0.5rem; border-radius: var(--radius-sm); text-decoration: none;" href="https://github.com/toommyliu/vexed/blob/69e580bf8bbae374ead5a6f3cb3d3e064ac2735d/packages/collection/src/index.ts#L419" tabindex="-1" aria-hidden="true" title="Open source: packages/collection/src/index.ts:419" target="_blank" rel="noreferrer"><svg class="source-reference__icon" width="16" height="16" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m18 16 4-4-4-4"></path><path d="m6 8-4 4 4 4"></path><path d="m14.5 4-5 16"></path></svg></a>
 
 Searches for the key of a last item where the given function returns a truthy value. This behaves like
 Array.findLastIndex(),
 but returns the key rather than the positional index.
-
-**Source:** [`packages/collection/src/index.ts:419`](https://github.com/toommyliu/vexed/blob/ee7dea4922d10259289c35ce1638a1553a17b577/packages/collection/src/index.ts#L419)
 
 ```ts
 findLastKey<NewKey>(fn: (value: Value, key: Key, collection: this) => key is NewKey): NewKey | undefined
@@ -540,13 +458,11 @@ findLastKey<NewKey>(fn: (value: Value, key: Key, collection: this) => key is New
 
 <a id="method-findlastkey"></a>
 
-### `findLastKey()`
+### `findLastKey()` <a class="source-reference__heading-link" style="float: right; display: inline-flex; align-items: center; justify-content: center; width: 2rem; height: 2rem; margin-block: -0.125rem; margin-inline-start: 0.5rem; border-radius: var(--radius-sm); text-decoration: none;" href="https://github.com/toommyliu/vexed/blob/69e580bf8bbae374ead5a6f3cb3d3e064ac2735d/packages/collection/src/index.ts#L422" tabindex="-1" aria-hidden="true" title="Open source: packages/collection/src/index.ts:422" target="_blank" rel="noreferrer"><svg class="source-reference__icon" width="16" height="16" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m18 16 4-4-4-4"></path><path d="m6 8-4 4 4 4"></path><path d="m14.5 4-5 16"></path></svg></a>
 
 Searches for the key of a last item where the given function returns a truthy value. This behaves like
 Array.findLastIndex(),
 but returns the key rather than the positional index.
-
-**Source:** [`packages/collection/src/index.ts:422`](https://github.com/toommyliu/vexed/blob/ee7dea4922d10259289c35ce1638a1553a17b577/packages/collection/src/index.ts#L422)
 
 ```ts
 findLastKey(fn: (value: Value, key: Key, collection: this) => unknown): Key | undefined
@@ -554,13 +470,11 @@ findLastKey(fn: (value: Value, key: Key, collection: this) => unknown): Key | un
 
 <a id="method-findlastkey"></a>
 
-### `findLastKey()`
+### `findLastKey()` <a class="source-reference__heading-link" style="float: right; display: inline-flex; align-items: center; justify-content: center; width: 2rem; height: 2rem; margin-block: -0.125rem; margin-inline-start: 0.5rem; border-radius: var(--radius-sm); text-decoration: none;" href="https://github.com/toommyliu/vexed/blob/69e580bf8bbae374ead5a6f3cb3d3e064ac2735d/packages/collection/src/index.ts#L425" tabindex="-1" aria-hidden="true" title="Open source: packages/collection/src/index.ts:425" target="_blank" rel="noreferrer"><svg class="source-reference__icon" width="16" height="16" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m18 16 4-4-4-4"></path><path d="m6 8-4 4 4 4"></path><path d="m14.5 4-5 16"></path></svg></a>
 
 Searches for the key of a last item where the given function returns a truthy value. This behaves like
 Array.findLastIndex(),
 but returns the key rather than the positional index.
-
-**Source:** [`packages/collection/src/index.ts:425`](https://github.com/toommyliu/vexed/blob/ee7dea4922d10259289c35ce1638a1553a17b577/packages/collection/src/index.ts#L425)
 
 ```ts
 findLastKey<This, NewKey>(fn: (this: This, value: Value, key: Key, collection: this) => key is NewKey, thisArg: This): NewKey | undefined
@@ -568,13 +482,11 @@ findLastKey<This, NewKey>(fn: (this: This, value: Value, key: Key, collection: t
 
 <a id="method-findlastkey"></a>
 
-### `findLastKey()`
+### `findLastKey()` <a class="source-reference__heading-link" style="float: right; display: inline-flex; align-items: center; justify-content: center; width: 2rem; height: 2rem; margin-block: -0.125rem; margin-inline-start: 0.5rem; border-radius: var(--radius-sm); text-decoration: none;" href="https://github.com/toommyliu/vexed/blob/69e580bf8bbae374ead5a6f3cb3d3e064ac2735d/packages/collection/src/index.ts#L429" tabindex="-1" aria-hidden="true" title="Open source: packages/collection/src/index.ts:429" target="_blank" rel="noreferrer"><svg class="source-reference__icon" width="16" height="16" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m18 16 4-4-4-4"></path><path d="m6 8-4 4 4 4"></path><path d="m14.5 4-5 16"></path></svg></a>
 
 Searches for the key of a last item where the given function returns a truthy value. This behaves like
 Array.findLastIndex(),
 but returns the key rather than the positional index.
-
-**Source:** [`packages/collection/src/index.ts:429`](https://github.com/toommyliu/vexed/blob/ee7dea4922d10259289c35ce1638a1553a17b577/packages/collection/src/index.ts#L429)
 
 ```ts
 findLastKey<This>(fn: (this: This, value: Value, key: Key, collection: this) => unknown, thisArg: This): Key | undefined
@@ -582,11 +494,9 @@ findLastKey<This>(fn: (this: This, value: Value, key: Key, collection: this) => 
 
 <a id="method-first"></a>
 
-### `first()`
+### `first()` <a class="source-reference__heading-link" style="float: right; display: inline-flex; align-items: center; justify-content: center; width: 2rem; height: 2rem; margin-block: -0.125rem; margin-inline-start: 0.5rem; border-radius: var(--radius-sm); text-decoration: none;" href="https://github.com/toommyliu/vexed/blob/69e580bf8bbae374ead5a6f3cb3d3e064ac2735d/packages/collection/src/index.ts#L94" tabindex="-1" aria-hidden="true" title="Open source: packages/collection/src/index.ts:94" target="_blank" rel="noreferrer"><svg class="source-reference__icon" width="16" height="16" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m18 16 4-4-4-4"></path><path d="m6 8-4 4 4 4"></path><path d="m14.5 4-5 16"></path></svg></a>
 
 Obtains the first value(s) in this collection.
-
-**Source:** [`packages/collection/src/index.ts:94`](https://github.com/toommyliu/vexed/blob/ee7dea4922d10259289c35ce1638a1553a17b577/packages/collection/src/index.ts#L94)
 
 ```ts
 first(): Value | undefined
@@ -594,11 +504,9 @@ first(): Value | undefined
 
 <a id="method-first"></a>
 
-### `first()`
+### `first()` <a class="source-reference__heading-link" style="float: right; display: inline-flex; align-items: center; justify-content: center; width: 2rem; height: 2rem; margin-block: -0.125rem; margin-inline-start: 0.5rem; border-radius: var(--radius-sm); text-decoration: none;" href="https://github.com/toommyliu/vexed/blob/69e580bf8bbae374ead5a6f3cb3d3e064ac2735d/packages/collection/src/index.ts#L95" tabindex="-1" aria-hidden="true" title="Open source: packages/collection/src/index.ts:95" target="_blank" rel="noreferrer"><svg class="source-reference__icon" width="16" height="16" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m18 16 4-4-4-4"></path><path d="m6 8-4 4 4 4"></path><path d="m14.5 4-5 16"></path></svg></a>
 
 Obtains the first value(s) in this collection.
-
-**Source:** [`packages/collection/src/index.ts:95`](https://github.com/toommyliu/vexed/blob/ee7dea4922d10259289c35ce1638a1553a17b577/packages/collection/src/index.ts#L95)
 
 ```ts
 first(amount: number): Value[]
@@ -606,11 +514,9 @@ first(amount: number): Value[]
 
 <a id="method-firstkey"></a>
 
-### `firstKey()`
+### `firstKey()` <a class="source-reference__heading-link" style="float: right; display: inline-flex; align-items: center; justify-content: center; width: 2rem; height: 2rem; margin-block: -0.125rem; margin-inline-start: 0.5rem; border-radius: var(--radius-sm); text-decoration: none;" href="https://github.com/toommyliu/vexed/blob/69e580bf8bbae374ead5a6f3cb3d3e064ac2735d/packages/collection/src/index.ts#L118" tabindex="-1" aria-hidden="true" title="Open source: packages/collection/src/index.ts:118" target="_blank" rel="noreferrer"><svg class="source-reference__icon" width="16" height="16" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m18 16 4-4-4-4"></path><path d="m6 8-4 4 4 4"></path><path d="m14.5 4-5 16"></path></svg></a>
 
 Obtains the first key(s) in this collection.
-
-**Source:** [`packages/collection/src/index.ts:118`](https://github.com/toommyliu/vexed/blob/ee7dea4922d10259289c35ce1638a1553a17b577/packages/collection/src/index.ts#L118)
 
 ```ts
 firstKey(): Key | undefined
@@ -618,11 +524,9 @@ firstKey(): Key | undefined
 
 <a id="method-firstkey"></a>
 
-### `firstKey()`
+### `firstKey()` <a class="source-reference__heading-link" style="float: right; display: inline-flex; align-items: center; justify-content: center; width: 2rem; height: 2rem; margin-block: -0.125rem; margin-inline-start: 0.5rem; border-radius: var(--radius-sm); text-decoration: none;" href="https://github.com/toommyliu/vexed/blob/69e580bf8bbae374ead5a6f3cb3d3e064ac2735d/packages/collection/src/index.ts#L119" tabindex="-1" aria-hidden="true" title="Open source: packages/collection/src/index.ts:119" target="_blank" rel="noreferrer"><svg class="source-reference__icon" width="16" height="16" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m18 16 4-4-4-4"></path><path d="m6 8-4 4 4 4"></path><path d="m14.5 4-5 16"></path></svg></a>
 
 Obtains the first key(s) in this collection.
-
-**Source:** [`packages/collection/src/index.ts:119`](https://github.com/toommyliu/vexed/blob/ee7dea4922d10259289c35ce1638a1553a17b577/packages/collection/src/index.ts#L119)
 
 ```ts
 firstKey(amount: number): Key[]
@@ -630,12 +534,10 @@ firstKey(amount: number): Key[]
 
 <a id="method-flatmap"></a>
 
-### `flatMap()`
+### `flatMap()` <a class="source-reference__heading-link" style="float: right; display: inline-flex; align-items: center; justify-content: center; width: 2rem; height: 2rem; margin-block: -0.125rem; margin-inline-start: 0.5rem; border-radius: var(--radius-sm); text-decoration: none;" href="https://github.com/toommyliu/vexed/blob/69e580bf8bbae374ead5a6f3cb3d3e064ac2735d/packages/collection/src/index.ts#L602" tabindex="-1" aria-hidden="true" title="Open source: packages/collection/src/index.ts:602" target="_blank" rel="noreferrer"><svg class="source-reference__icon" width="16" height="16" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m18 16 4-4-4-4"></path><path d="m6 8-4 4 4 4"></path><path d="m14.5 4-5 16"></path></svg></a>
 
 Maps each item into a Collection, then joins the results into a single Collection. Identical in behavior to
 Array.flatMap().
-
-**Source:** [`packages/collection/src/index.ts:602`](https://github.com/toommyliu/vexed/blob/ee7dea4922d10259289c35ce1638a1553a17b577/packages/collection/src/index.ts#L602)
 
 ```ts
 flatMap<NewValue>(fn: (value: Value, key: Key, collection: this) => Collection<Key, NewValue>): Collection<Key, NewValue>
@@ -643,12 +545,10 @@ flatMap<NewValue>(fn: (value: Value, key: Key, collection: this) => Collection<K
 
 <a id="method-flatmap"></a>
 
-### `flatMap()`
+### `flatMap()` <a class="source-reference__heading-link" style="float: right; display: inline-flex; align-items: center; justify-content: center; width: 2rem; height: 2rem; margin-block: -0.125rem; margin-inline-start: 0.5rem; border-radius: var(--radius-sm); text-decoration: none;" href="https://github.com/toommyliu/vexed/blob/69e580bf8bbae374ead5a6f3cb3d3e064ac2735d/packages/collection/src/index.ts#L605" tabindex="-1" aria-hidden="true" title="Open source: packages/collection/src/index.ts:605" target="_blank" rel="noreferrer"><svg class="source-reference__icon" width="16" height="16" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m18 16 4-4-4-4"></path><path d="m6 8-4 4 4 4"></path><path d="m14.5 4-5 16"></path></svg></a>
 
 Maps each item into a Collection, then joins the results into a single Collection. Identical in behavior to
 Array.flatMap().
-
-**Source:** [`packages/collection/src/index.ts:605`](https://github.com/toommyliu/vexed/blob/ee7dea4922d10259289c35ce1638a1553a17b577/packages/collection/src/index.ts#L605)
 
 ```ts
 flatMap<NewValue, This>(fn: (this: This, value: Value, key: Key, collection: this) => Collection<Key, NewValue>, thisArg: This): Collection<Key, NewValue>
@@ -656,11 +556,9 @@ flatMap<NewValue, This>(fn: (this: This, value: Value, key: Key, collection: thi
 
 <a id="method-foreach"></a>
 
-### `forEach()`
+### `forEach()` <a class="source-reference__heading-link" style="float: right; display: inline-flex; align-items: center; justify-content: center; width: 2rem; height: 2rem; margin-block: -0.125rem; margin-inline-start: 0.5rem; border-radius: var(--radius-sm); text-decoration: none;" href="https://github.com/toommyliu/vexed/blob/69e580bf8bbae374ead5a6f3cb3d3e064ac2735d/node_modules/typescript/lib/lib.es2015.collection.d.ts#L28" tabindex="-1" aria-hidden="true" title="Open source: node_modules/typescript/lib/lib.es2015.collection.d.ts:28" target="_blank" rel="noreferrer"><svg class="source-reference__icon" width="16" height="16" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m18 16 4-4-4-4"></path><path d="m6 8-4 4 4 4"></path><path d="m14.5 4-5 16"></path></svg></a>
 
 Executes a provided function once per each key/value pair in the Map, in insertion order.
-
-**Source:** [`node_modules/typescript/lib/lib.es2015.collection.d.ts:28`](https://github.com/toommyliu/vexed/blob/ee7dea4922d10259289c35ce1638a1553a17b577/node_modules/typescript/lib/lib.es2015.collection.d.ts#L28)
 
 ```ts
 forEach(callbackfn: (value: Value, key: Key, map: Map<Key, Value>) => void, thisArg?: any): void
@@ -668,11 +566,9 @@ forEach(callbackfn: (value: Value, key: Key, map: Map<Key, Value>) => void, this
 
 <a id="method-get"></a>
 
-### `get()`
+### `get()` <a class="source-reference__heading-link" style="float: right; display: inline-flex; align-items: center; justify-content: center; width: 2rem; height: 2rem; margin-block: -0.125rem; margin-inline-start: 0.5rem; border-radius: var(--radius-sm); text-decoration: none;" href="https://github.com/toommyliu/vexed/blob/69e580bf8bbae374ead5a6f3cb3d3e064ac2735d/node_modules/typescript/lib/lib.es2015.collection.d.ts#L33" tabindex="-1" aria-hidden="true" title="Open source: node_modules/typescript/lib/lib.es2015.collection.d.ts:33" target="_blank" rel="noreferrer"><svg class="source-reference__icon" width="16" height="16" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m18 16 4-4-4-4"></path><path d="m6 8-4 4 4 4"></path><path d="m14.5 4-5 16"></path></svg></a>
 
 Returns a specified element from the Map object. If the value that is associated to the provided key is an object, then you will get a reference to that object and any change made to that object will effectively modify it inside the Map.
-
-**Source:** [`node_modules/typescript/lib/lib.es2015.collection.d.ts:33`](https://github.com/toommyliu/vexed/blob/ee7dea4922d10259289c35ce1638a1553a17b577/node_modules/typescript/lib/lib.es2015.collection.d.ts#L33)
 
 ```ts
 get(key: Key): Value | undefined
@@ -680,9 +576,7 @@ get(key: Key): Value | undefined
 
 <a id="method-has"></a>
 
-### `has()`
-
-**Source:** [`node_modules/typescript/lib/lib.es2015.collection.d.ts:37`](https://github.com/toommyliu/vexed/blob/ee7dea4922d10259289c35ce1638a1553a17b577/node_modules/typescript/lib/lib.es2015.collection.d.ts#L37)
+### `has()` <a class="source-reference__heading-link" style="float: right; display: inline-flex; align-items: center; justify-content: center; width: 2rem; height: 2rem; margin-block: -0.125rem; margin-inline-start: 0.5rem; border-radius: var(--radius-sm); text-decoration: none;" href="https://github.com/toommyliu/vexed/blob/69e580bf8bbae374ead5a6f3cb3d3e064ac2735d/node_modules/typescript/lib/lib.es2015.collection.d.ts#L37" tabindex="-1" aria-hidden="true" title="Open source: node_modules/typescript/lib/lib.es2015.collection.d.ts:37" target="_blank" rel="noreferrer"><svg class="source-reference__icon" width="16" height="16" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m18 16 4-4-4-4"></path><path d="m6 8-4 4 4 4"></path><path d="m14.5 4-5 16"></path></svg></a>
 
 ```ts
 has(key: Key): boolean
@@ -690,11 +584,9 @@ has(key: Key): boolean
 
 <a id="method-hasall"></a>
 
-### `hasAll()`
+### `hasAll()` <a class="source-reference__heading-link" style="float: right; display: inline-flex; align-items: center; justify-content: center; width: 2rem; height: 2rem; margin-block: -0.125rem; margin-inline-start: 0.5rem; border-radius: var(--radius-sm); text-decoration: none;" href="https://github.com/toommyliu/vexed/blob/69e580bf8bbae374ead5a6f3cb3d3e064ac2735d/packages/collection/src/index.ts#L74" tabindex="-1" aria-hidden="true" title="Open source: packages/collection/src/index.ts:74" target="_blank" rel="noreferrer"><svg class="source-reference__icon" width="16" height="16" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m18 16 4-4-4-4"></path><path d="m6 8-4 4 4 4"></path><path d="m14.5 4-5 16"></path></svg></a>
 
 Checks if all of the elements exist in the collection.
-
-**Source:** [`packages/collection/src/index.ts:74`](https://github.com/toommyliu/vexed/blob/ee7dea4922d10259289c35ce1638a1553a17b577/packages/collection/src/index.ts#L74)
 
 ```ts
 hasAll(...keys: Key[]): boolean
@@ -702,11 +594,9 @@ hasAll(...keys: Key[]): boolean
 
 <a id="method-hasany"></a>
 
-### `hasAny()`
+### `hasAny()` <a class="source-reference__heading-link" style="float: right; display: inline-flex; align-items: center; justify-content: center; width: 2rem; height: 2rem; margin-block: -0.125rem; margin-inline-start: 0.5rem; border-radius: var(--radius-sm); text-decoration: none;" href="https://github.com/toommyliu/vexed/blob/69e580bf8bbae374ead5a6f3cb3d3e064ac2735d/packages/collection/src/index.ts#L84" tabindex="-1" aria-hidden="true" title="Open source: packages/collection/src/index.ts:84" target="_blank" rel="noreferrer"><svg class="source-reference__icon" width="16" height="16" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m18 16 4-4-4-4"></path><path d="m6 8-4 4 4 4"></path><path d="m14.5 4-5 16"></path></svg></a>
 
 Checks if any of the elements exist in the collection.
-
-**Source:** [`packages/collection/src/index.ts:84`](https://github.com/toommyliu/vexed/blob/ee7dea4922d10259289c35ce1638a1553a17b577/packages/collection/src/index.ts#L84)
 
 ```ts
 hasAny(...keys: Key[]): boolean
@@ -714,11 +604,9 @@ hasAny(...keys: Key[]): boolean
 
 <a id="method-intersection"></a>
 
-### `intersection()`
+### `intersection()` <a class="source-reference__heading-link" style="float: right; display: inline-flex; align-items: center; justify-content: center; width: 2rem; height: 2rem; margin-block: -0.125rem; margin-inline-start: 0.5rem; border-radius: var(--radius-sm); text-decoration: none;" href="https://github.com/toommyliu/vexed/blob/69e580bf8bbae374ead5a6f3cb3d3e064ac2735d/packages/collection/src/index.ts#L1036" tabindex="-1" aria-hidden="true" title="Open source: packages/collection/src/index.ts:1036" target="_blank" rel="noreferrer"><svg class="source-reference__icon" width="16" height="16" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m18 16 4-4-4-4"></path><path d="m6 8-4 4 4 4"></path><path d="m14.5 4-5 16"></path></svg></a>
 
 The intersection method returns a new collection containing the items where the key is present in both collections.
-
-**Source:** [`packages/collection/src/index.ts:1036`](https://github.com/toommyliu/vexed/blob/ee7dea4922d10259289c35ce1638a1553a17b577/packages/collection/src/index.ts#L1036)
 
 ```ts
 intersection(other: ReadonlyCollection<Key, any>): Collection<Key, Value>
@@ -726,13 +614,11 @@ intersection(other: ReadonlyCollection<Key, any>): Collection<Key, Value>
 
 <a id="method-keyat"></a>
 
-### `keyAt()`
+### `keyAt()` <a class="source-reference__heading-link" style="float: right; display: inline-flex; align-items: center; justify-content: center; width: 2rem; height: 2rem; margin-block: -0.125rem; margin-inline-start: 0.5rem; border-radius: var(--radius-sm); text-decoration: none;" href="https://github.com/toommyliu/vexed/blob/69e580bf8bbae374ead5a6f3cb3d3e064ac2735d/packages/collection/src/index.ts#L202" tabindex="-1" aria-hidden="true" title="Open source: packages/collection/src/index.ts:202" target="_blank" rel="noreferrer"><svg class="source-reference__icon" width="16" height="16" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m18 16 4-4-4-4"></path><path d="m6 8-4 4 4 4"></path><path d="m14.5 4-5 16"></path></svg></a>
 
 Identical to Array.at().
 Returns the key at a given index, allowing for positive and negative integers.
 Negative integers count back from the last item in the collection.
-
-**Source:** [`packages/collection/src/index.ts:202`](https://github.com/toommyliu/vexed/blob/ee7dea4922d10259289c35ce1638a1553a17b577/packages/collection/src/index.ts#L202)
 
 ```ts
 keyAt(index: number): Key | undefined
@@ -740,11 +626,9 @@ keyAt(index: number): Key | undefined
 
 <a id="method-keys"></a>
 
-### `keys()`
+### `keys()` <a class="source-reference__heading-link" style="float: right; display: inline-flex; align-items: center; justify-content: center; width: 2rem; height: 2rem; margin-block: -0.125rem; margin-inline-start: 0.5rem; border-radius: var(--radius-sm); text-decoration: none;" href="https://github.com/toommyliu/vexed/blob/69e580bf8bbae374ead5a6f3cb3d3e064ac2735d/node_modules/typescript/lib/lib.es2015.iterable.d.ts#L153" tabindex="-1" aria-hidden="true" title="Open source: node_modules/typescript/lib/lib.es2015.iterable.d.ts:153" target="_blank" rel="noreferrer"><svg class="source-reference__icon" width="16" height="16" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m18 16 4-4-4-4"></path><path d="m6 8-4 4 4 4"></path><path d="m14.5 4-5 16"></path></svg></a>
 
 Returns an iterable of keys in the map
-
-**Source:** [`node_modules/typescript/lib/lib.es2015.iterable.d.ts:153`](https://github.com/toommyliu/vexed/blob/ee7dea4922d10259289c35ce1638a1553a17b577/node_modules/typescript/lib/lib.es2015.iterable.d.ts#L153)
 
 ```ts
 keys(): MapIterator<Key>
@@ -752,11 +636,9 @@ keys(): MapIterator<Key>
 
 <a id="method-last"></a>
 
-### `last()`
+### `last()` <a class="source-reference__heading-link" style="float: right; display: inline-flex; align-items: center; justify-content: center; width: 2rem; height: 2rem; margin-block: -0.125rem; margin-inline-start: 0.5rem; border-radius: var(--radius-sm); text-decoration: none;" href="https://github.com/toommyliu/vexed/blob/69e580bf8bbae374ead5a6f3cb3d3e064ac2735d/packages/collection/src/index.ts#L142" tabindex="-1" aria-hidden="true" title="Open source: packages/collection/src/index.ts:142" target="_blank" rel="noreferrer"><svg class="source-reference__icon" width="16" height="16" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m18 16 4-4-4-4"></path><path d="m6 8-4 4 4 4"></path><path d="m14.5 4-5 16"></path></svg></a>
 
 Obtains the last value(s) in this collection.
-
-**Source:** [`packages/collection/src/index.ts:142`](https://github.com/toommyliu/vexed/blob/ee7dea4922d10259289c35ce1638a1553a17b577/packages/collection/src/index.ts#L142)
 
 ```ts
 last(): Value | undefined
@@ -764,11 +646,9 @@ last(): Value | undefined
 
 <a id="method-last"></a>
 
-### `last()`
+### `last()` <a class="source-reference__heading-link" style="float: right; display: inline-flex; align-items: center; justify-content: center; width: 2rem; height: 2rem; margin-block: -0.125rem; margin-inline-start: 0.5rem; border-radius: var(--radius-sm); text-decoration: none;" href="https://github.com/toommyliu/vexed/blob/69e580bf8bbae374ead5a6f3cb3d3e064ac2735d/packages/collection/src/index.ts#L143" tabindex="-1" aria-hidden="true" title="Open source: packages/collection/src/index.ts:143" target="_blank" rel="noreferrer"><svg class="source-reference__icon" width="16" height="16" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m18 16 4-4-4-4"></path><path d="m6 8-4 4 4 4"></path><path d="m14.5 4-5 16"></path></svg></a>
 
 Obtains the last value(s) in this collection.
-
-**Source:** [`packages/collection/src/index.ts:143`](https://github.com/toommyliu/vexed/blob/ee7dea4922d10259289c35ce1638a1553a17b577/packages/collection/src/index.ts#L143)
 
 ```ts
 last(amount: number): Value[]
@@ -776,11 +656,9 @@ last(amount: number): Value[]
 
 <a id="method-lastkey"></a>
 
-### `lastKey()`
+### `lastKey()` <a class="source-reference__heading-link" style="float: right; display: inline-flex; align-items: center; justify-content: center; width: 2rem; height: 2rem; margin-block: -0.125rem; margin-inline-start: 0.5rem; border-radius: var(--radius-sm); text-decoration: none;" href="https://github.com/toommyliu/vexed/blob/69e580bf8bbae374ead5a6f3cb3d3e064ac2735d/packages/collection/src/index.ts#L160" tabindex="-1" aria-hidden="true" title="Open source: packages/collection/src/index.ts:160" target="_blank" rel="noreferrer"><svg class="source-reference__icon" width="16" height="16" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m18 16 4-4-4-4"></path><path d="m6 8-4 4 4 4"></path><path d="m14.5 4-5 16"></path></svg></a>
 
 Obtains the last key(s) in this collection.
-
-**Source:** [`packages/collection/src/index.ts:160`](https://github.com/toommyliu/vexed/blob/ee7dea4922d10259289c35ce1638a1553a17b577/packages/collection/src/index.ts#L160)
 
 ```ts
 lastKey(): Key | undefined
@@ -788,11 +666,9 @@ lastKey(): Key | undefined
 
 <a id="method-lastkey"></a>
 
-### `lastKey()`
+### `lastKey()` <a class="source-reference__heading-link" style="float: right; display: inline-flex; align-items: center; justify-content: center; width: 2rem; height: 2rem; margin-block: -0.125rem; margin-inline-start: 0.5rem; border-radius: var(--radius-sm); text-decoration: none;" href="https://github.com/toommyliu/vexed/blob/69e580bf8bbae374ead5a6f3cb3d3e064ac2735d/packages/collection/src/index.ts#L161" tabindex="-1" aria-hidden="true" title="Open source: packages/collection/src/index.ts:161" target="_blank" rel="noreferrer"><svg class="source-reference__icon" width="16" height="16" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m18 16 4-4-4-4"></path><path d="m6 8-4 4 4 4"></path><path d="m14.5 4-5 16"></path></svg></a>
 
 Obtains the last key(s) in this collection.
-
-**Source:** [`packages/collection/src/index.ts:161`](https://github.com/toommyliu/vexed/blob/ee7dea4922d10259289c35ce1638a1553a17b577/packages/collection/src/index.ts#L161)
 
 ```ts
 lastKey(amount: number): Key[]
@@ -800,12 +676,10 @@ lastKey(amount: number): Key[]
 
 <a id="method-map"></a>
 
-### `map()`
+### `map()` <a class="source-reference__heading-link" style="float: right; display: inline-flex; align-items: center; justify-content: center; width: 2rem; height: 2rem; margin-block: -0.125rem; margin-inline-start: 0.5rem; border-radius: var(--radius-sm); text-decoration: none;" href="https://github.com/toommyliu/vexed/blob/69e580bf8bbae374ead5a6f3cb3d3e064ac2735d/packages/collection/src/index.ts#L636" tabindex="-1" aria-hidden="true" title="Open source: packages/collection/src/index.ts:636" target="_blank" rel="noreferrer"><svg class="source-reference__icon" width="16" height="16" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m18 16 4-4-4-4"></path><path d="m6 8-4 4 4 4"></path><path d="m14.5 4-5 16"></path></svg></a>
 
 Maps each item to another value into an array. Identical in behavior to
 Array.map().
-
-**Source:** [`packages/collection/src/index.ts:636`](https://github.com/toommyliu/vexed/blob/ee7dea4922d10259289c35ce1638a1553a17b577/packages/collection/src/index.ts#L636)
 
 ```ts
 map<NewValue>(fn: (value: Value, key: Key, collection: this) => NewValue): NewValue[]
@@ -813,12 +687,10 @@ map<NewValue>(fn: (value: Value, key: Key, collection: this) => NewValue): NewVa
 
 <a id="method-map"></a>
 
-### `map()`
+### `map()` <a class="source-reference__heading-link" style="float: right; display: inline-flex; align-items: center; justify-content: center; width: 2rem; height: 2rem; margin-block: -0.125rem; margin-inline-start: 0.5rem; border-radius: var(--radius-sm); text-decoration: none;" href="https://github.com/toommyliu/vexed/blob/69e580bf8bbae374ead5a6f3cb3d3e064ac2735d/packages/collection/src/index.ts#L639" tabindex="-1" aria-hidden="true" title="Open source: packages/collection/src/index.ts:639" target="_blank" rel="noreferrer"><svg class="source-reference__icon" width="16" height="16" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m18 16 4-4-4-4"></path><path d="m6 8-4 4 4 4"></path><path d="m14.5 4-5 16"></path></svg></a>
 
 Maps each item to another value into an array. Identical in behavior to
 Array.map().
-
-**Source:** [`packages/collection/src/index.ts:639`](https://github.com/toommyliu/vexed/blob/ee7dea4922d10259289c35ce1638a1553a17b577/packages/collection/src/index.ts#L639)
 
 ```ts
 map<This, NewValue>(fn: (this: This, value: Value, key: Key, collection: this) => NewValue, thisArg: This): NewValue[]
@@ -826,12 +698,10 @@ map<This, NewValue>(fn: (this: This, value: Value, key: Key, collection: this) =
 
 <a id="method-mapvalues"></a>
 
-### `mapValues()`
+### `mapValues()` <a class="source-reference__heading-link" style="float: right; display: inline-flex; align-items: center; justify-content: center; width: 2rem; height: 2rem; margin-block: -0.125rem; margin-inline-start: 0.5rem; border-radius: var(--radius-sm); text-decoration: none;" href="https://github.com/toommyliu/vexed/blob/69e580bf8bbae374ead5a6f3cb3d3e064ac2735d/packages/collection/src/index.ts#L672" tabindex="-1" aria-hidden="true" title="Open source: packages/collection/src/index.ts:672" target="_blank" rel="noreferrer"><svg class="source-reference__icon" width="16" height="16" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m18 16 4-4-4-4"></path><path d="m6 8-4 4 4 4"></path><path d="m14.5 4-5 16"></path></svg></a>
 
 Maps each item to another value into a collection. Identical in behavior to
 Array.map().
-
-**Source:** [`packages/collection/src/index.ts:672`](https://github.com/toommyliu/vexed/blob/ee7dea4922d10259289c35ce1638a1553a17b577/packages/collection/src/index.ts#L672)
 
 ```ts
 mapValues<NewValue>(fn: (value: Value, key: Key, collection: this) => NewValue): Collection<Key, NewValue>
@@ -839,12 +709,10 @@ mapValues<NewValue>(fn: (value: Value, key: Key, collection: this) => NewValue):
 
 <a id="method-mapvalues"></a>
 
-### `mapValues()`
+### `mapValues()` <a class="source-reference__heading-link" style="float: right; display: inline-flex; align-items: center; justify-content: center; width: 2rem; height: 2rem; margin-block: -0.125rem; margin-inline-start: 0.5rem; border-radius: var(--radius-sm); text-decoration: none;" href="https://github.com/toommyliu/vexed/blob/69e580bf8bbae374ead5a6f3cb3d3e064ac2735d/packages/collection/src/index.ts#L675" tabindex="-1" aria-hidden="true" title="Open source: packages/collection/src/index.ts:675" target="_blank" rel="noreferrer"><svg class="source-reference__icon" width="16" height="16" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m18 16 4-4-4-4"></path><path d="m6 8-4 4 4 4"></path><path d="m14.5 4-5 16"></path></svg></a>
 
 Maps each item to another value into a collection. Identical in behavior to
 Array.map().
-
-**Source:** [`packages/collection/src/index.ts:675`](https://github.com/toommyliu/vexed/blob/ee7dea4922d10259289c35ce1638a1553a17b577/packages/collection/src/index.ts#L675)
 
 ```ts
 mapValues<This, NewValue>(fn: (this: This, value: Value, key: Key, collection: this) => NewValue, thisArg: This): Collection<Key, NewValue>
@@ -852,11 +720,9 @@ mapValues<This, NewValue>(fn: (this: This, value: Value, key: Key, collection: t
 
 <a id="method-merge"></a>
 
-### `merge()`
+### `merge()` <a class="source-reference__heading-link" style="float: right; display: inline-flex; align-items: center; justify-content: center; width: 2rem; height: 2rem; margin-block: -0.125rem; margin-inline-start: 0.5rem; border-radius: var(--radius-sm); text-decoration: none;" href="https://github.com/toommyliu/vexed/blob/69e580bf8bbae374ead5a6f3cb3d3e064ac2735d/packages/collection/src/index.ts#L1164" tabindex="-1" aria-hidden="true" title="Open source: packages/collection/src/index.ts:1164" target="_blank" rel="noreferrer"><svg class="source-reference__icon" width="16" height="16" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m18 16 4-4-4-4"></path><path d="m6 8-4 4 4 4"></path><path d="m14.5 4-5 16"></path></svg></a>
 
 Merges two Collections together into a new Collection.
-
-**Source:** [`packages/collection/src/index.ts:1164`](https://github.com/toommyliu/vexed/blob/ee7dea4922d10259289c35ce1638a1553a17b577/packages/collection/src/index.ts#L1164)
 
 ```ts
 merge<OtherValue, ResultValue>(other: ReadonlyCollection<Key, OtherValue>, whenInSelf: (value: Value, key: Key) => Keep<ResultValue>, whenInOther: (valueOther: OtherValue, key: Key) => Keep<ResultValue>, whenInBoth: (value: Value, valueOther: OtherValue, key: Key) => Keep<ResultValue>): Collection<Key, ResultValue>
@@ -864,12 +730,10 @@ merge<OtherValue, ResultValue>(other: ReadonlyCollection<Key, OtherValue>, whenI
 
 <a id="method-partition"></a>
 
-### `partition()`
+### `partition()` <a class="source-reference__heading-link" style="float: right; display: inline-flex; align-items: center; justify-content: center; width: 2rem; height: 2rem; margin-block: -0.125rem; margin-inline-start: 0.5rem; border-radius: var(--radius-sm); text-decoration: none;" href="https://github.com/toommyliu/vexed/blob/69e580bf8bbae374ead5a6f3cb3d3e064ac2735d/packages/collection/src/index.ts#L543" tabindex="-1" aria-hidden="true" title="Open source: packages/collection/src/index.ts:543" target="_blank" rel="noreferrer"><svg class="source-reference__icon" width="16" height="16" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m18 16 4-4-4-4"></path><path d="m6 8-4 4 4 4"></path><path d="m14.5 4-5 16"></path></svg></a>
 
 Partitions the collection into two collections where the first collection
 contains the items that passed and the second contains the items that failed.
-
-**Source:** [`packages/collection/src/index.ts:543`](https://github.com/toommyliu/vexed/blob/ee7dea4922d10259289c35ce1638a1553a17b577/packages/collection/src/index.ts#L543)
 
 ```ts
 partition<NewKey>(fn: (value: Value, key: Key, collection: this) => key is NewKey): [Collection<NewKey, Value>, Collection<Exclude<Key, NewKey>, Value>]
@@ -877,12 +741,10 @@ partition<NewKey>(fn: (value: Value, key: Key, collection: this) => key is NewKe
 
 <a id="method-partition"></a>
 
-### `partition()`
+### `partition()` <a class="source-reference__heading-link" style="float: right; display: inline-flex; align-items: center; justify-content: center; width: 2rem; height: 2rem; margin-block: -0.125rem; margin-inline-start: 0.5rem; border-radius: var(--radius-sm); text-decoration: none;" href="https://github.com/toommyliu/vexed/blob/69e580bf8bbae374ead5a6f3cb3d3e064ac2735d/packages/collection/src/index.ts#L546" tabindex="-1" aria-hidden="true" title="Open source: packages/collection/src/index.ts:546" target="_blank" rel="noreferrer"><svg class="source-reference__icon" width="16" height="16" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m18 16 4-4-4-4"></path><path d="m6 8-4 4 4 4"></path><path d="m14.5 4-5 16"></path></svg></a>
 
 Partitions the collection into two collections where the first collection
 contains the items that passed and the second contains the items that failed.
-
-**Source:** [`packages/collection/src/index.ts:546`](https://github.com/toommyliu/vexed/blob/ee7dea4922d10259289c35ce1638a1553a17b577/packages/collection/src/index.ts#L546)
 
 ```ts
 partition<NewValue>(fn: (value: Value, key: Key, collection: this) => value is NewValue): [Collection<Key, NewValue>, Collection<Key, Exclude<Value, NewValue>>]
@@ -890,12 +752,10 @@ partition<NewValue>(fn: (value: Value, key: Key, collection: this) => value is N
 
 <a id="method-partition"></a>
 
-### `partition()`
+### `partition()` <a class="source-reference__heading-link" style="float: right; display: inline-flex; align-items: center; justify-content: center; width: 2rem; height: 2rem; margin-block: -0.125rem; margin-inline-start: 0.5rem; border-radius: var(--radius-sm); text-decoration: none;" href="https://github.com/toommyliu/vexed/blob/69e580bf8bbae374ead5a6f3cb3d3e064ac2735d/packages/collection/src/index.ts#L549" tabindex="-1" aria-hidden="true" title="Open source: packages/collection/src/index.ts:549" target="_blank" rel="noreferrer"><svg class="source-reference__icon" width="16" height="16" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m18 16 4-4-4-4"></path><path d="m6 8-4 4 4 4"></path><path d="m14.5 4-5 16"></path></svg></a>
 
 Partitions the collection into two collections where the first collection
 contains the items that passed and the second contains the items that failed.
-
-**Source:** [`packages/collection/src/index.ts:549`](https://github.com/toommyliu/vexed/blob/ee7dea4922d10259289c35ce1638a1553a17b577/packages/collection/src/index.ts#L549)
 
 ```ts
 partition(fn: (value: Value, key: Key, collection: this) => unknown): [Collection<Key, Value>, Collection<Key, Value>]
@@ -903,12 +763,10 @@ partition(fn: (value: Value, key: Key, collection: this) => unknown): [Collectio
 
 <a id="method-partition"></a>
 
-### `partition()`
+### `partition()` <a class="source-reference__heading-link" style="float: right; display: inline-flex; align-items: center; justify-content: center; width: 2rem; height: 2rem; margin-block: -0.125rem; margin-inline-start: 0.5rem; border-radius: var(--radius-sm); text-decoration: none;" href="https://github.com/toommyliu/vexed/blob/69e580bf8bbae374ead5a6f3cb3d3e064ac2735d/packages/collection/src/index.ts#L552" tabindex="-1" aria-hidden="true" title="Open source: packages/collection/src/index.ts:552" target="_blank" rel="noreferrer"><svg class="source-reference__icon" width="16" height="16" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m18 16 4-4-4-4"></path><path d="m6 8-4 4 4 4"></path><path d="m14.5 4-5 16"></path></svg></a>
 
 Partitions the collection into two collections where the first collection
 contains the items that passed and the second contains the items that failed.
-
-**Source:** [`packages/collection/src/index.ts:552`](https://github.com/toommyliu/vexed/blob/ee7dea4922d10259289c35ce1638a1553a17b577/packages/collection/src/index.ts#L552)
 
 ```ts
 partition<This, NewKey>(fn: (this: This, value: Value, key: Key, collection: this) => key is NewKey, thisArg: This): [Collection<NewKey, Value>, Collection<Exclude<Key, NewKey>, Value>]
@@ -916,12 +774,10 @@ partition<This, NewKey>(fn: (this: This, value: Value, key: Key, collection: thi
 
 <a id="method-partition"></a>
 
-### `partition()`
+### `partition()` <a class="source-reference__heading-link" style="float: right; display: inline-flex; align-items: center; justify-content: center; width: 2rem; height: 2rem; margin-block: -0.125rem; margin-inline-start: 0.5rem; border-radius: var(--radius-sm); text-decoration: none;" href="https://github.com/toommyliu/vexed/blob/69e580bf8bbae374ead5a6f3cb3d3e064ac2735d/packages/collection/src/index.ts#L556" tabindex="-1" aria-hidden="true" title="Open source: packages/collection/src/index.ts:556" target="_blank" rel="noreferrer"><svg class="source-reference__icon" width="16" height="16" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m18 16 4-4-4-4"></path><path d="m6 8-4 4 4 4"></path><path d="m14.5 4-5 16"></path></svg></a>
 
 Partitions the collection into two collections where the first collection
 contains the items that passed and the second contains the items that failed.
-
-**Source:** [`packages/collection/src/index.ts:556`](https://github.com/toommyliu/vexed/blob/ee7dea4922d10259289c35ce1638a1553a17b577/packages/collection/src/index.ts#L556)
 
 ```ts
 partition<This, NewValue>(fn: (this: This, value: Value, key: Key, collection: this) => value is NewValue, thisArg: This): [Collection<Key, NewValue>, Collection<Key, Exclude<Value, NewValue>>]
@@ -929,12 +785,10 @@ partition<This, NewValue>(fn: (this: This, value: Value, key: Key, collection: t
 
 <a id="method-partition"></a>
 
-### `partition()`
+### `partition()` <a class="source-reference__heading-link" style="float: right; display: inline-flex; align-items: center; justify-content: center; width: 2rem; height: 2rem; margin-block: -0.125rem; margin-inline-start: 0.5rem; border-radius: var(--radius-sm); text-decoration: none;" href="https://github.com/toommyliu/vexed/blob/69e580bf8bbae374ead5a6f3cb3d3e064ac2735d/packages/collection/src/index.ts#L565" tabindex="-1" aria-hidden="true" title="Open source: packages/collection/src/index.ts:565" target="_blank" rel="noreferrer"><svg class="source-reference__icon" width="16" height="16" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m18 16 4-4-4-4"></path><path d="m6 8-4 4 4 4"></path><path d="m14.5 4-5 16"></path></svg></a>
 
 Partitions the collection into two collections where the first collection
 contains the items that passed and the second contains the items that failed.
-
-**Source:** [`packages/collection/src/index.ts:565`](https://github.com/toommyliu/vexed/blob/ee7dea4922d10259289c35ce1638a1553a17b577/packages/collection/src/index.ts#L565)
 
 ```ts
 partition<This>(fn: (this: This, value: Value, key: Key, collection: this) => unknown, thisArg: This): [Collection<Key, Value>, Collection<Key, Value>]
@@ -942,11 +796,9 @@ partition<This>(fn: (this: This, value: Value, key: Key, collection: this) => un
 
 <a id="method-random"></a>
 
-### `random()`
+### `random()` <a class="source-reference__heading-link" style="float: right; display: inline-flex; align-items: center; justify-content: center; width: 2rem; height: 2rem; margin-block: -0.125rem; margin-inline-start: 0.5rem; border-radius: var(--radius-sm); text-decoration: none;" href="https://github.com/toommyliu/vexed/blob/69e580bf8bbae374ead5a6f3cb3d3e064ac2735d/packages/collection/src/index.ts#L225" tabindex="-1" aria-hidden="true" title="Open source: packages/collection/src/index.ts:225" target="_blank" rel="noreferrer"><svg class="source-reference__icon" width="16" height="16" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m18 16 4-4-4-4"></path><path d="m6 8-4 4 4 4"></path><path d="m14.5 4-5 16"></path></svg></a>
 
 Obtains unique random value(s) from this collection.
-
-**Source:** [`packages/collection/src/index.ts:225`](https://github.com/toommyliu/vexed/blob/ee7dea4922d10259289c35ce1638a1553a17b577/packages/collection/src/index.ts#L225)
 
 ```ts
 random(): Value | undefined
@@ -954,11 +806,9 @@ random(): Value | undefined
 
 <a id="method-random"></a>
 
-### `random()`
+### `random()` <a class="source-reference__heading-link" style="float: right; display: inline-flex; align-items: center; justify-content: center; width: 2rem; height: 2rem; margin-block: -0.125rem; margin-inline-start: 0.5rem; border-radius: var(--radius-sm); text-decoration: none;" href="https://github.com/toommyliu/vexed/blob/69e580bf8bbae374ead5a6f3cb3d3e064ac2735d/packages/collection/src/index.ts#L226" tabindex="-1" aria-hidden="true" title="Open source: packages/collection/src/index.ts:226" target="_blank" rel="noreferrer"><svg class="source-reference__icon" width="16" height="16" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m18 16 4-4-4-4"></path><path d="m6 8-4 4 4 4"></path><path d="m14.5 4-5 16"></path></svg></a>
 
 Obtains unique random value(s) from this collection.
-
-**Source:** [`packages/collection/src/index.ts:226`](https://github.com/toommyliu/vexed/blob/ee7dea4922d10259289c35ce1638a1553a17b577/packages/collection/src/index.ts#L226)
 
 ```ts
 random(amount: number): Value[]
@@ -966,11 +816,9 @@ random(amount: number): Value[]
 
 <a id="method-randomkey"></a>
 
-### `randomKey()`
+### `randomKey()` <a class="source-reference__heading-link" style="float: right; display: inline-flex; align-items: center; justify-content: center; width: 2rem; height: 2rem; margin-block: -0.125rem; margin-inline-start: 0.5rem; border-radius: var(--radius-sm); text-decoration: none;" href="https://github.com/toommyliu/vexed/blob/69e580bf8bbae374ead5a6f3cb3d3e064ac2735d/packages/collection/src/index.ts#L252" tabindex="-1" aria-hidden="true" title="Open source: packages/collection/src/index.ts:252" target="_blank" rel="noreferrer"><svg class="source-reference__icon" width="16" height="16" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m18 16 4-4-4-4"></path><path d="m6 8-4 4 4 4"></path><path d="m14.5 4-5 16"></path></svg></a>
 
 Obtains unique random key(s) from this collection.
-
-**Source:** [`packages/collection/src/index.ts:252`](https://github.com/toommyliu/vexed/blob/ee7dea4922d10259289c35ce1638a1553a17b577/packages/collection/src/index.ts#L252)
 
 ```ts
 randomKey(): Key | undefined
@@ -978,11 +826,9 @@ randomKey(): Key | undefined
 
 <a id="method-randomkey"></a>
 
-### `randomKey()`
+### `randomKey()` <a class="source-reference__heading-link" style="float: right; display: inline-flex; align-items: center; justify-content: center; width: 2rem; height: 2rem; margin-block: -0.125rem; margin-inline-start: 0.5rem; border-radius: var(--radius-sm); text-decoration: none;" href="https://github.com/toommyliu/vexed/blob/69e580bf8bbae374ead5a6f3cb3d3e064ac2735d/packages/collection/src/index.ts#L253" tabindex="-1" aria-hidden="true" title="Open source: packages/collection/src/index.ts:253" target="_blank" rel="noreferrer"><svg class="source-reference__icon" width="16" height="16" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m18 16 4-4-4-4"></path><path d="m6 8-4 4 4 4"></path><path d="m14.5 4-5 16"></path></svg></a>
 
 Obtains unique random key(s) from this collection.
-
-**Source:** [`packages/collection/src/index.ts:253`](https://github.com/toommyliu/vexed/blob/ee7dea4922d10259289c35ce1638a1553a17b577/packages/collection/src/index.ts#L253)
 
 ```ts
 randomKey(amount: number): Key[]
@@ -990,12 +836,10 @@ randomKey(amount: number): Key[]
 
 <a id="method-reduce"></a>
 
-### `reduce()`
+### `reduce()` <a class="source-reference__heading-link" style="float: right; display: inline-flex; align-items: center; justify-content: center; width: 2rem; height: 2rem; margin-block: -0.125rem; margin-inline-start: 0.5rem; border-radius: var(--radius-sm); text-decoration: none;" href="https://github.com/toommyliu/vexed/blob/69e580bf8bbae374ead5a6f3cb3d3e064ac2735d/packages/collection/src/index.ts#L786" tabindex="-1" aria-hidden="true" title="Open source: packages/collection/src/index.ts:786" target="_blank" rel="noreferrer"><svg class="source-reference__icon" width="16" height="16" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m18 16 4-4-4-4"></path><path d="m6 8-4 4 4 4"></path><path d="m14.5 4-5 16"></path></svg></a>
 
 Applies a function to produce a single value. Identical in behavior to
 Array.reduce().
-
-**Source:** [`packages/collection/src/index.ts:786`](https://github.com/toommyliu/vexed/blob/ee7dea4922d10259289c35ce1638a1553a17b577/packages/collection/src/index.ts#L786)
 
 ```ts
 reduce(fn: (accumulator: Value, value: Value, key: Key, collection: this) => Value, initialValue?: Value): Value
@@ -1003,12 +847,10 @@ reduce(fn: (accumulator: Value, value: Value, key: Key, collection: this) => Val
 
 <a id="method-reduce"></a>
 
-### `reduce()`
+### `reduce()` <a class="source-reference__heading-link" style="float: right; display: inline-flex; align-items: center; justify-content: center; width: 2rem; height: 2rem; margin-block: -0.125rem; margin-inline-start: 0.5rem; border-radius: var(--radius-sm); text-decoration: none;" href="https://github.com/toommyliu/vexed/blob/69e580bf8bbae374ead5a6f3cb3d3e064ac2735d/packages/collection/src/index.ts#L790" tabindex="-1" aria-hidden="true" title="Open source: packages/collection/src/index.ts:790" target="_blank" rel="noreferrer"><svg class="source-reference__icon" width="16" height="16" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m18 16 4-4-4-4"></path><path d="m6 8-4 4 4 4"></path><path d="m14.5 4-5 16"></path></svg></a>
 
 Applies a function to produce a single value. Identical in behavior to
 Array.reduce().
-
-**Source:** [`packages/collection/src/index.ts:790`](https://github.com/toommyliu/vexed/blob/ee7dea4922d10259289c35ce1638a1553a17b577/packages/collection/src/index.ts#L790)
 
 ```ts
 reduce<InitialValue>(fn: (accumulator: InitialValue, value: Value, key: Key, collection: this) => InitialValue, initialValue: InitialValue): InitialValue
@@ -1016,12 +858,10 @@ reduce<InitialValue>(fn: (accumulator: InitialValue, value: Value, key: Key, col
 
 <a id="method-reduceright"></a>
 
-### `reduceRight()`
+### `reduceRight()` <a class="source-reference__heading-link" style="float: right; display: inline-flex; align-items: center; justify-content: center; width: 2rem; height: 2rem; margin-block: -0.125rem; margin-inline-start: 0.5rem; border-radius: var(--radius-sm); text-decoration: none;" href="https://github.com/toommyliu/vexed/blob/69e580bf8bbae374ead5a6f3cb3d3e064ac2735d/packages/collection/src/index.ts#L835" tabindex="-1" aria-hidden="true" title="Open source: packages/collection/src/index.ts:835" target="_blank" rel="noreferrer"><svg class="source-reference__icon" width="16" height="16" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m18 16 4-4-4-4"></path><path d="m6 8-4 4 4 4"></path><path d="m14.5 4-5 16"></path></svg></a>
 
 Applies a function to produce a single value. Identical in behavior to
 Array.reduceRight().
-
-**Source:** [`packages/collection/src/index.ts:835`](https://github.com/toommyliu/vexed/blob/ee7dea4922d10259289c35ce1638a1553a17b577/packages/collection/src/index.ts#L835)
 
 ```ts
 reduceRight(fn: (accumulator: Value, value: Value, key: Key, collection: this) => Value, initialValue?: Value): Value
@@ -1029,12 +869,10 @@ reduceRight(fn: (accumulator: Value, value: Value, key: Key, collection: this) =
 
 <a id="method-reduceright"></a>
 
-### `reduceRight()`
+### `reduceRight()` <a class="source-reference__heading-link" style="float: right; display: inline-flex; align-items: center; justify-content: center; width: 2rem; height: 2rem; margin-block: -0.125rem; margin-inline-start: 0.5rem; border-radius: var(--radius-sm); text-decoration: none;" href="https://github.com/toommyliu/vexed/blob/69e580bf8bbae374ead5a6f3cb3d3e064ac2735d/packages/collection/src/index.ts#L839" tabindex="-1" aria-hidden="true" title="Open source: packages/collection/src/index.ts:839" target="_blank" rel="noreferrer"><svg class="source-reference__icon" width="16" height="16" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m18 16 4-4-4-4"></path><path d="m6 8-4 4 4 4"></path><path d="m14.5 4-5 16"></path></svg></a>
 
 Applies a function to produce a single value. Identical in behavior to
 Array.reduceRight().
-
-**Source:** [`packages/collection/src/index.ts:839`](https://github.com/toommyliu/vexed/blob/ee7dea4922d10259289c35ce1638a1553a17b577/packages/collection/src/index.ts#L839)
 
 ```ts
 reduceRight<InitialValue>(fn: (accumulator: InitialValue, value: Value, key: Key, collection: this) => InitialValue, initialValue: InitialValue): InitialValue
@@ -1042,12 +880,10 @@ reduceRight<InitialValue>(fn: (accumulator: InitialValue, value: Value, key: Key
 
 <a id="method-reverse"></a>
 
-### `reverse()`
+### `reverse()` <a class="source-reference__heading-link" style="float: right; display: inline-flex; align-items: center; justify-content: center; width: 2rem; height: 2rem; margin-block: -0.125rem; margin-inline-start: 0.5rem; border-radius: var(--radius-sm); text-decoration: none;" href="https://github.com/toommyliu/vexed/blob/69e580bf8bbae374ead5a6f3cb3d3e064ac2735d/packages/collection/src/index.ts#L277" tabindex="-1" aria-hidden="true" title="Open source: packages/collection/src/index.ts:277" target="_blank" rel="noreferrer"><svg class="source-reference__icon" width="16" height="16" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m18 16 4-4-4-4"></path><path d="m6 8-4 4 4 4"></path><path d="m14.5 4-5 16"></path></svg></a>
 
 Identical to Array.reverse()
 but returns a Collection instead of an Array.
-
-**Source:** [`packages/collection/src/index.ts:277`](https://github.com/toommyliu/vexed/blob/ee7dea4922d10259289c35ce1638a1553a17b577/packages/collection/src/index.ts#L277)
 
 ```ts
 reverse(): Collection<Key, Value>
@@ -1055,11 +891,9 @@ reverse(): Collection<Key, Value>
 
 <a id="method-set"></a>
 
-### `set()`
+### `set()` <a class="source-reference__heading-link" style="float: right; display: inline-flex; align-items: center; justify-content: center; width: 2rem; height: 2rem; margin-block: -0.125rem; margin-inline-start: 0.5rem; border-radius: var(--radius-sm); text-decoration: none;" href="https://github.com/toommyliu/vexed/blob/69e580bf8bbae374ead5a6f3cb3d3e064ac2735d/node_modules/typescript/lib/lib.es2015.collection.d.ts#L41" tabindex="-1" aria-hidden="true" title="Open source: node_modules/typescript/lib/lib.es2015.collection.d.ts:41" target="_blank" rel="noreferrer"><svg class="source-reference__icon" width="16" height="16" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m18 16 4-4-4-4"></path><path d="m6 8-4 4 4 4"></path><path d="m14.5 4-5 16"></path></svg></a>
 
 Adds a new element with a specified key and value to the Map. If an element with the same key already exists, the element will be updated.
-
-**Source:** [`node_modules/typescript/lib/lib.es2015.collection.d.ts:41`](https://github.com/toommyliu/vexed/blob/ee7dea4922d10259289c35ce1638a1553a17b577/node_modules/typescript/lib/lib.es2015.collection.d.ts#L41)
 
 ```ts
 set(key: Key, value: Value): this
@@ -1067,12 +901,10 @@ set(key: Key, value: Value): this
 
 <a id="method-some"></a>
 
-### `some()`
+### `some()` <a class="source-reference__heading-link" style="float: right; display: inline-flex; align-items: center; justify-content: center; width: 2rem; height: 2rem; margin-block: -0.125rem; margin-inline-start: 0.5rem; border-radius: var(--radius-sm); text-decoration: none;" href="https://github.com/toommyliu/vexed/blob/69e580bf8bbae374ead5a6f3cb3d3e064ac2735d/packages/collection/src/index.ts#L702" tabindex="-1" aria-hidden="true" title="Open source: packages/collection/src/index.ts:702" target="_blank" rel="noreferrer"><svg class="source-reference__icon" width="16" height="16" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m18 16 4-4-4-4"></path><path d="m6 8-4 4 4 4"></path><path d="m14.5 4-5 16"></path></svg></a>
 
 Checks if there exists an item that passes a test. Identical in behavior to
 Array.some().
-
-**Source:** [`packages/collection/src/index.ts:702`](https://github.com/toommyliu/vexed/blob/ee7dea4922d10259289c35ce1638a1553a17b577/packages/collection/src/index.ts#L702)
 
 ```ts
 some(fn: (value: Value, key: Key, collection: this) => unknown): boolean
@@ -1080,12 +912,10 @@ some(fn: (value: Value, key: Key, collection: this) => unknown): boolean
 
 <a id="method-some"></a>
 
-### `some()`
+### `some()` <a class="source-reference__heading-link" style="float: right; display: inline-flex; align-items: center; justify-content: center; width: 2rem; height: 2rem; margin-block: -0.125rem; margin-inline-start: 0.5rem; border-radius: var(--radius-sm); text-decoration: none;" href="https://github.com/toommyliu/vexed/blob/69e580bf8bbae374ead5a6f3cb3d3e064ac2735d/packages/collection/src/index.ts#L705" tabindex="-1" aria-hidden="true" title="Open source: packages/collection/src/index.ts:705" target="_blank" rel="noreferrer"><svg class="source-reference__icon" width="16" height="16" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m18 16 4-4-4-4"></path><path d="m6 8-4 4 4 4"></path><path d="m14.5 4-5 16"></path></svg></a>
 
 Checks if there exists an item that passes a test. Identical in behavior to
 Array.some().
-
-**Source:** [`packages/collection/src/index.ts:705`](https://github.com/toommyliu/vexed/blob/ee7dea4922d10259289c35ce1638a1553a17b577/packages/collection/src/index.ts#L705)
 
 ```ts
 some<This>(fn: (this: This, value: Value, key: Key, collection: this) => unknown, thisArg: This): boolean
@@ -1093,13 +923,11 @@ some<This>(fn: (this: This, value: Value, key: Key, collection: this) => unknown
 
 <a id="method-sort"></a>
 
-### `sort()`
+### `sort()` <a class="source-reference__heading-link" style="float: right; display: inline-flex; align-items: center; justify-content: center; width: 2rem; height: 2rem; margin-block: -0.125rem; margin-inline-start: 0.5rem; border-radius: var(--radius-sm); text-decoration: none;" href="https://github.com/toommyliu/vexed/blob/69e580bf8bbae374ead5a6f3cb3d3e064ac2735d/packages/collection/src/index.ts#L1006" tabindex="-1" aria-hidden="true" title="Open source: packages/collection/src/index.ts:1006" target="_blank" rel="noreferrer"><svg class="source-reference__icon" width="16" height="16" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m18 16 4-4-4-4"></path><path d="m6 8-4 4 4 4"></path><path d="m14.5 4-5 16"></path></svg></a>
 
 The sort method sorts the items of a collection in place and returns it.
 If a comparison function is not provided, the function sorts by element values, using the same stringwise comparison algorithm as
 Array.sort().
-
-**Source:** [`packages/collection/src/index.ts:1006`](https://github.com/toommyliu/vexed/blob/ee7dea4922d10259289c35ce1638a1553a17b577/packages/collection/src/index.ts#L1006)
 
 ```ts
 sort(compareFunction: Comparator<Key, Value>): Collection<Key, Value>
@@ -1107,11 +935,9 @@ sort(compareFunction: Comparator<Key, Value>): Collection<Key, Value>
 
 <a id="method-sweep"></a>
 
-### `sweep()`
+### `sweep()` <a class="source-reference__heading-link" style="float: right; display: inline-flex; align-items: center; justify-content: center; width: 2rem; height: 2rem; margin-block: -0.125rem; margin-inline-start: 0.5rem; border-radius: var(--radius-sm); text-decoration: none;" href="https://github.com/toommyliu/vexed/blob/69e580bf8bbae374ead5a6f3cb3d3e064ac2735d/packages/collection/src/index.ts#L457" tabindex="-1" aria-hidden="true" title="Open source: packages/collection/src/index.ts:457" target="_blank" rel="noreferrer"><svg class="source-reference__icon" width="16" height="16" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m18 16 4-4-4-4"></path><path d="m6 8-4 4 4 4"></path><path d="m14.5 4-5 16"></path></svg></a>
 
 Removes items that satisfy the provided filter function.
-
-**Source:** [`packages/collection/src/index.ts:457`](https://github.com/toommyliu/vexed/blob/ee7dea4922d10259289c35ce1638a1553a17b577/packages/collection/src/index.ts#L457)
 
 ```ts
 sweep(fn: (value: Value, key: Key, collection: this) => unknown): number
@@ -1119,11 +945,9 @@ sweep(fn: (value: Value, key: Key, collection: this) => unknown): number
 
 <a id="method-sweep"></a>
 
-### `sweep()`
+### `sweep()` <a class="source-reference__heading-link" style="float: right; display: inline-flex; align-items: center; justify-content: center; width: 2rem; height: 2rem; margin-block: -0.125rem; margin-inline-start: 0.5rem; border-radius: var(--radius-sm); text-decoration: none;" href="https://github.com/toommyliu/vexed/blob/69e580bf8bbae374ead5a6f3cb3d3e064ac2735d/packages/collection/src/index.ts#L460" tabindex="-1" aria-hidden="true" title="Open source: packages/collection/src/index.ts:460" target="_blank" rel="noreferrer"><svg class="source-reference__icon" width="16" height="16" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m18 16 4-4-4-4"></path><path d="m6 8-4 4 4 4"></path><path d="m14.5 4-5 16"></path></svg></a>
 
 Removes items that satisfy the provided filter function.
-
-**Source:** [`packages/collection/src/index.ts:460`](https://github.com/toommyliu/vexed/blob/ee7dea4922d10259289c35ce1638a1553a17b577/packages/collection/src/index.ts#L460)
 
 ```ts
 sweep<This>(fn: (this: This, value: Value, key: Key, collection: this) => unknown, thisArg: This): number
@@ -1131,11 +955,9 @@ sweep<This>(fn: (this: This, value: Value, key: Key, collection: this) => unknow
 
 <a id="method-symmetricdifference"></a>
 
-### `symmetricDifference()`
+### `symmetricDifference()` <a class="source-reference__heading-link" style="float: right; display: inline-flex; align-items: center; justify-content: center; width: 2rem; height: 2rem; margin-block: -0.125rem; margin-inline-start: 0.5rem; border-radius: var(--radius-sm); text-decoration: none;" href="https://github.com/toommyliu/vexed/blob/69e580bf8bbae374ead5a6f3cb3d3e064ac2735d/packages/collection/src/index.ts#L1117" tabindex="-1" aria-hidden="true" title="Open source: packages/collection/src/index.ts:1117" target="_blank" rel="noreferrer"><svg class="source-reference__icon" width="16" height="16" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m18 16 4-4-4-4"></path><path d="m6 8-4 4 4 4"></path><path d="m14.5 4-5 16"></path></svg></a>
 
 Returns a new collection containing only the items where the keys are present in either collection, but not both.
-
-**Source:** [`packages/collection/src/index.ts:1117`](https://github.com/toommyliu/vexed/blob/ee7dea4922d10259289c35ce1638a1553a17b577/packages/collection/src/index.ts#L1117)
 
 ```ts
 symmetricDifference<OtherValue>(other: ReadonlyCollection<Key, OtherValue>): Collection<Key, Value | OtherValue>
@@ -1143,11 +965,9 @@ symmetricDifference<OtherValue>(other: ReadonlyCollection<Key, OtherValue>): Col
 
 <a id="method-tap"></a>
 
-### `tap()`
+### `tap()` <a class="source-reference__heading-link" style="float: right; display: inline-flex; align-items: center; justify-content: center; width: 2rem; height: 2rem; margin-block: -0.125rem; margin-inline-start: 0.5rem; border-radius: var(--radius-sm); text-decoration: none;" href="https://github.com/toommyliu/vexed/blob/69e580bf8bbae374ead5a6f3cb3d3e064ac2735d/packages/collection/src/index.ts#L930" tabindex="-1" aria-hidden="true" title="Open source: packages/collection/src/index.ts:930" target="_blank" rel="noreferrer"><svg class="source-reference__icon" width="16" height="16" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m18 16 4-4-4-4"></path><path d="m6 8-4 4 4 4"></path><path d="m14.5 4-5 16"></path></svg></a>
 
 Runs a function on the collection and returns the collection.
-
-**Source:** [`packages/collection/src/index.ts:930`](https://github.com/toommyliu/vexed/blob/ee7dea4922d10259289c35ce1638a1553a17b577/packages/collection/src/index.ts#L930)
 
 ```ts
 tap(fn: (collection: this) => void): this
@@ -1155,11 +975,9 @@ tap(fn: (collection: this) => void): this
 
 <a id="method-tap"></a>
 
-### `tap()`
+### `tap()` <a class="source-reference__heading-link" style="float: right; display: inline-flex; align-items: center; justify-content: center; width: 2rem; height: 2rem; margin-block: -0.125rem; margin-inline-start: 0.5rem; border-radius: var(--radius-sm); text-decoration: none;" href="https://github.com/toommyliu/vexed/blob/69e580bf8bbae374ead5a6f3cb3d3e064ac2735d/packages/collection/src/index.ts#L931" tabindex="-1" aria-hidden="true" title="Open source: packages/collection/src/index.ts:931" target="_blank" rel="noreferrer"><svg class="source-reference__icon" width="16" height="16" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m18 16 4-4-4-4"></path><path d="m6 8-4 4 4 4"></path><path d="m14.5 4-5 16"></path></svg></a>
 
 Runs a function on the collection and returns the collection.
-
-**Source:** [`packages/collection/src/index.ts:931`](https://github.com/toommyliu/vexed/blob/ee7dea4922d10259289c35ce1638a1553a17b577/packages/collection/src/index.ts#L931)
 
 ```ts
 tap<This>(fn: (this: This, collection: this) => void, thisArg: This): this
@@ -1167,9 +985,7 @@ tap<This>(fn: (this: This, collection: this) => void, thisArg: This): this
 
 <a id="method-tojson"></a>
 
-### `toJSON()`
-
-**Source:** [`packages/collection/src/index.ts:1224`](https://github.com/toommyliu/vexed/blob/ee7dea4922d10259289c35ce1638a1553a17b577/packages/collection/src/index.ts#L1224)
+### `toJSON()` <a class="source-reference__heading-link" style="float: right; display: inline-flex; align-items: center; justify-content: center; width: 2rem; height: 2rem; margin-block: -0.125rem; margin-inline-start: 0.5rem; border-radius: var(--radius-sm); text-decoration: none;" href="https://github.com/toommyliu/vexed/blob/69e580bf8bbae374ead5a6f3cb3d3e064ac2735d/packages/collection/src/index.ts#L1224" tabindex="-1" aria-hidden="true" title="Open source: packages/collection/src/index.ts:1224" target="_blank" rel="noreferrer"><svg class="source-reference__icon" width="16" height="16" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m18 16 4-4-4-4"></path><path d="m6 8-4 4 4 4"></path><path d="m14.5 4-5 16"></path></svg></a>
 
 ```ts
 toJSON(): [Key, Value][]
@@ -1177,12 +993,10 @@ toJSON(): [Key, Value][]
 
 <a id="method-toreversed"></a>
 
-### `toReversed()`
+### `toReversed()` <a class="source-reference__heading-link" style="float: right; display: inline-flex; align-items: center; justify-content: center; width: 2rem; height: 2rem; margin-block: -0.125rem; margin-inline-start: 0.5rem; border-radius: var(--radius-sm); text-decoration: none;" href="https://github.com/toommyliu/vexed/blob/69e580bf8bbae374ead5a6f3cb3d3e064ac2735d/packages/collection/src/index.ts#L1202" tabindex="-1" aria-hidden="true" title="Open source: packages/collection/src/index.ts:1202" target="_blank" rel="noreferrer"><svg class="source-reference__icon" width="16" height="16" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m18 16 4-4-4-4"></path><path d="m6 8-4 4 4 4"></path><path d="m14.5 4-5 16"></path></svg></a>
 
 Identical to Array.toReversed()
 but returns a Collection instead of an Array.
-
-**Source:** [`packages/collection/src/index.ts:1202`](https://github.com/toommyliu/vexed/blob/ee7dea4922d10259289c35ce1638a1553a17b577/packages/collection/src/index.ts#L1202)
 
 ```ts
 toReversed(): Collection<Key, Value>
@@ -1190,13 +1004,11 @@ toReversed(): Collection<Key, Value>
 
 <a id="method-tosorted"></a>
 
-### `toSorted()`
+### `toSorted()` <a class="source-reference__heading-link" style="float: right; display: inline-flex; align-items: center; justify-content: center; width: 2rem; height: 2rem; margin-block: -0.125rem; margin-inline-start: 0.5rem; border-radius: var(--radius-sm); text-decoration: none;" href="https://github.com/toommyliu/vexed/blob/69e580bf8bbae374ead5a6f3cb3d3e064ac2735d/packages/collection/src/index.ts#L1218" tabindex="-1" aria-hidden="true" title="Open source: packages/collection/src/index.ts:1218" target="_blank" rel="noreferrer"><svg class="source-reference__icon" width="16" height="16" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m18 16 4-4-4-4"></path><path d="m6 8-4 4 4 4"></path><path d="m14.5 4-5 16"></path></svg></a>
 
 The toSorted method returns a shallow copy of the collection with the items sorted.
 If a comparison function is not provided, the function sorts by element values, using the same stringwise comparison algorithm as
 Array.sort().
-
-**Source:** [`packages/collection/src/index.ts:1218`](https://github.com/toommyliu/vexed/blob/ee7dea4922d10259289c35ce1638a1553a17b577/packages/collection/src/index.ts#L1218)
 
 ```ts
 toSorted(compareFunction: Comparator<Key, Value>): Collection<Key, Value>
@@ -1204,11 +1016,9 @@ toSorted(compareFunction: Comparator<Key, Value>): Collection<Key, Value>
 
 <a id="method-union"></a>
 
-### `union()`
+### `union()` <a class="source-reference__heading-link" style="float: right; display: inline-flex; align-items: center; justify-content: center; width: 2rem; height: 2rem; margin-block: -0.125rem; margin-inline-start: 0.5rem; border-radius: var(--radius-sm); text-decoration: none;" href="https://github.com/toommyliu/vexed/blob/69e580bf8bbae374ead5a6f3cb3d3e064ac2735d/packages/collection/src/index.ts#L1064" tabindex="-1" aria-hidden="true" title="Open source: packages/collection/src/index.ts:1064" target="_blank" rel="noreferrer"><svg class="source-reference__icon" width="16" height="16" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m18 16 4-4-4-4"></path><path d="m6 8-4 4 4 4"></path><path d="m14.5 4-5 16"></path></svg></a>
 
 Returns a new collection containing the items where the key is present in either of the collections.
-
-**Source:** [`packages/collection/src/index.ts:1064`](https://github.com/toommyliu/vexed/blob/ee7dea4922d10259289c35ce1638a1553a17b577/packages/collection/src/index.ts#L1064)
 
 ```ts
 union<OtherValue>(other: ReadonlyCollection<Key, OtherValue>): Collection<Key, Value | OtherValue>
@@ -1216,11 +1026,9 @@ union<OtherValue>(other: ReadonlyCollection<Key, OtherValue>): Collection<Key, V
 
 <a id="method-values"></a>
 
-### `values()`
+### `values()` <a class="source-reference__heading-link" style="float: right; display: inline-flex; align-items: center; justify-content: center; width: 2rem; height: 2rem; margin-block: -0.125rem; margin-inline-start: 0.5rem; border-radius: var(--radius-sm); text-decoration: none;" href="https://github.com/toommyliu/vexed/blob/69e580bf8bbae374ead5a6f3cb3d3e064ac2735d/node_modules/typescript/lib/lib.es2015.iterable.d.ts#L158" tabindex="-1" aria-hidden="true" title="Open source: node_modules/typescript/lib/lib.es2015.iterable.d.ts:158" target="_blank" rel="noreferrer"><svg class="source-reference__icon" width="16" height="16" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m18 16 4-4-4-4"></path><path d="m6 8-4 4 4 4"></path><path d="m14.5 4-5 16"></path></svg></a>
 
 Returns an iterable of values in the map
-
-**Source:** [`node_modules/typescript/lib/lib.es2015.iterable.d.ts:158`](https://github.com/toommyliu/vexed/blob/ee7dea4922d10259289c35ce1638a1553a17b577/node_modules/typescript/lib/lib.es2015.iterable.d.ts#L158)
 
 ```ts
 values(): MapIterator<Value>

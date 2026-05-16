@@ -1,8 +1,8 @@
 ---
-title: Quest
-description: Generated vexed scripting reference for Quest.
+title: "Quest"
+description: "Represents a quest."
 sidebar:
-  label: Quest
+  label: "Quest"
 tableOfContents:
   minHeadingLevel: 2
   maxHeadingLevel: 3
@@ -12,8 +12,6 @@ tableOfContents:
 
 Represents a quest.
 
-**Source:** [`packages/game/src/models/Quest.ts:12`](https://github.com/toommyliu/vexed/blob/ee7dea4922d10259289c35ce1638a1553a17b577/packages/game/src/models/Quest.ts#L12)
-
 ```ts
 class Quest
 ```
@@ -22,9 +20,7 @@ class Quest
 
 <a id="property-data"></a>
 
-### `data`
-
-**Source:** [`packages/game/src/models/Quest.ts:13`](https://github.com/toommyliu/vexed/blob/ee7dea4922d10259289c35ce1638a1553a17b577/packages/game/src/models/Quest.ts#L13)
+### `data` <a class="source-reference__heading-link" style="float: right; display: inline-flex; align-items: center; justify-content: center; width: 2rem; height: 2rem; margin-block: -0.125rem; margin-inline-start: 0.5rem; border-radius: var(--radius-sm); text-decoration: none;" href="https://github.com/toommyliu/vexed/blob/69e580bf8bbae374ead5a6f3cb3d3e064ac2735d/packages/game/src/models/Quest.ts#L13" tabindex="-1" aria-hidden="true" title="Open source: packages/game/src/models/Quest.ts:13" target="_blank" rel="noreferrer"><svg class="source-reference__icon" width="16" height="16" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m18 16 4-4-4-4"></path><path d="m6 8-4 4 4 4"></path><path d="m14.5 4-5 16"></path></svg></a>
 
 ```ts
 data: QuestInfo
@@ -32,11 +28,9 @@ data: QuestInfo
 
 <a id="property-id"></a>
 
-### `id`
+### `id` <a class="source-reference__heading-link" style="float: right; display: inline-flex; align-items: center; justify-content: center; width: 2rem; height: 2rem; margin-block: -0.125rem; margin-inline-start: 0.5rem; border-radius: var(--radius-sm); text-decoration: none;" href="https://github.com/toommyliu/vexed/blob/69e580bf8bbae374ead5a6f3cb3d3e064ac2735d/packages/game/src/models/Quest.ts#L25" tabindex="-1" aria-hidden="true" title="Open source: packages/game/src/models/Quest.ts:25" target="_blank" rel="noreferrer"><svg class="source-reference__icon" width="16" height="16" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m18 16 4-4-4-4"></path><path d="m6 8-4 4 4 4"></path><path d="m14.5 4-5 16"></path></svg></a>
 
 The ID of this quest.
-
-**Source:** [`packages/game/src/models/Quest.ts:25`](https://github.com/toommyliu/vexed/blob/ee7dea4922d10259289c35ce1638a1553a17b577/packages/game/src/models/Quest.ts#L25)
 
 ```ts
 readonly id: number
@@ -44,11 +38,9 @@ readonly id: number
 
 <a id="property-name"></a>
 
-### `name`
+### `name` <a class="source-reference__heading-link" style="float: right; display: inline-flex; align-items: center; justify-content: center; width: 2rem; height: 2rem; margin-block: -0.125rem; margin-inline-start: 0.5rem; border-radius: var(--radius-sm); text-decoration: none;" href="https://github.com/toommyliu/vexed/blob/69e580bf8bbae374ead5a6f3cb3d3e064ac2735d/packages/game/src/models/Quest.ts#L18" tabindex="-1" aria-hidden="true" title="Open source: packages/game/src/models/Quest.ts:18" target="_blank" rel="noreferrer"><svg class="source-reference__icon" width="16" height="16" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m18 16 4-4-4-4"></path><path d="m6 8-4 4 4 4"></path><path d="m14.5 4-5 16"></path></svg></a>
 
 The name of this quest.
-
-**Source:** [`packages/game/src/models/Quest.ts:18`](https://github.com/toommyliu/vexed/blob/ee7dea4922d10259289c35ce1638a1553a17b577/packages/game/src/models/Quest.ts#L18)
 
 ```ts
 readonly name: string
@@ -56,11 +48,9 @@ readonly name: string
 
 <a id="property-once"></a>
 
-### `once`
+### `once` <a class="source-reference__heading-link" style="float: right; display: inline-flex; align-items: center; justify-content: center; width: 2rem; height: 2rem; margin-block: -0.125rem; margin-inline-start: 0.5rem; border-radius: var(--radius-sm); text-decoration: none;" href="https://github.com/toommyliu/vexed/blob/69e580bf8bbae374ead5a6f3cb3d3e064ac2735d/packages/game/src/models/Quest.ts#L32" tabindex="-1" aria-hidden="true" title="Open source: packages/game/src/models/Quest.ts:32" target="_blank" rel="noreferrer"><svg class="source-reference__icon" width="16" height="16" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m18 16 4-4-4-4"></path><path d="m6 8-4 4 4 4"></path><path d="m14.5 4-5 16"></path></svg></a>
 
 Whether this quest can only be completed once.
-
-**Source:** [`packages/game/src/models/Quest.ts:32`](https://github.com/toommyliu/vexed/blob/ee7dea4922d10259289c35ce1638a1553a17b577/packages/game/src/models/Quest.ts#L32)
 
 ```ts
 readonly once: boolean
@@ -68,11 +58,9 @@ readonly once: boolean
 
 <a id="property-requirements"></a>
 
-### `requirements`
+### `requirements` <a class="source-reference__heading-link" style="float: right; display: inline-flex; align-items: center; justify-content: center; width: 2rem; height: 2rem; margin-block: -0.125rem; margin-inline-start: 0.5rem; border-radius: var(--radius-sm); text-decoration: none;" href="https://github.com/toommyliu/vexed/blob/69e580bf8bbae374ead5a6f3cb3d3e064ac2735d/packages/game/src/models/Quest.ts#L52" tabindex="-1" aria-hidden="true" title="Open source: packages/game/src/models/Quest.ts:52" target="_blank" rel="noreferrer"><svg class="source-reference__icon" width="16" height="16" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m18 16 4-4-4-4"></path><path d="m6 8-4 4 4 4"></path><path d="m14.5 4-5 16"></path></svg></a>
 
 The requirements needed to complete this quest.
-
-**Source:** [`packages/game/src/models/Quest.ts:52`](https://github.com/toommyliu/vexed/blob/ee7dea4922d10259289c35ce1638a1553a17b577/packages/game/src/models/Quest.ts#L52)
 
 ```ts
 readonly requirements: QuestRequirement[]
@@ -80,11 +68,9 @@ readonly requirements: QuestRequirement[]
 
 <a id="property-rewards"></a>
 
-### `rewards`
+### `rewards` <a class="source-reference__heading-link" style="float: right; display: inline-flex; align-items: center; justify-content: center; width: 2rem; height: 2rem; margin-block: -0.125rem; margin-inline-start: 0.5rem; border-radius: var(--radius-sm); text-decoration: none;" href="https://github.com/toommyliu/vexed/blob/69e580bf8bbae374ead5a6f3cb3d3e064ac2735d/packages/game/src/models/Quest.ts#L39" tabindex="-1" aria-hidden="true" title="Open source: packages/game/src/models/Quest.ts:39" target="_blank" rel="noreferrer"><svg class="source-reference__icon" width="16" height="16" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m18 16 4-4-4-4"></path><path d="m6 8-4 4 4 4"></path><path d="m14.5 4-5 16"></path></svg></a>
 
 The rewards for completing this quest.
-
-**Source:** [`packages/game/src/models/Quest.ts:39`](https://github.com/toommyliu/vexed/blob/ee7dea4922d10259289c35ce1638a1553a17b577/packages/game/src/models/Quest.ts#L39)
 
 ```ts
 readonly rewards: QuestReward[]
@@ -94,11 +80,9 @@ readonly rewards: QuestReward[]
 
 <a id="method-isdaily"></a>
 
-### `isDaily()`
+### `isDaily()` <a class="source-reference__heading-link" style="float: right; display: inline-flex; align-items: center; justify-content: center; width: 2rem; height: 2rem; margin-block: -0.125rem; margin-inline-start: 0.5rem; border-radius: var(--radius-sm); text-decoration: none;" href="https://github.com/toommyliu/vexed/blob/69e580bf8bbae374ead5a6f3cb3d3e064ac2735d/packages/game/src/models/Quest.ts#L64" tabindex="-1" aria-hidden="true" title="Open source: packages/game/src/models/Quest.ts:64" target="_blank" rel="noreferrer"><svg class="source-reference__icon" width="16" height="16" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m18 16 4-4-4-4"></path><path d="m6 8-4 4 4 4"></path><path d="m14.5 4-5 16"></path></svg></a>
 
 Whether this quest is a daily quest.
-
-**Source:** [`packages/game/src/models/Quest.ts:64`](https://github.com/toommyliu/vexed/blob/ee7dea4922d10259289c35ce1638a1553a17b577/packages/game/src/models/Quest.ts#L64)
 
 ```ts
 isDaily(): boolean
@@ -106,11 +90,9 @@ isDaily(): boolean
 
 <a id="method-ismonthly"></a>
 
-### `isMonthly()`
+### `isMonthly()` <a class="source-reference__heading-link" style="float: right; display: inline-flex; align-items: center; justify-content: center; width: 2rem; height: 2rem; margin-block: -0.125rem; margin-inline-start: 0.5rem; border-radius: var(--radius-sm); text-decoration: none;" href="https://github.com/toommyliu/vexed/blob/69e580bf8bbae374ead5a6f3cb3d3e064ac2735d/packages/game/src/models/Quest.ts#L78" tabindex="-1" aria-hidden="true" title="Open source: packages/game/src/models/Quest.ts:78" target="_blank" rel="noreferrer"><svg class="source-reference__icon" width="16" height="16" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m18 16 4-4-4-4"></path><path d="m6 8-4 4 4 4"></path><path d="m14.5 4-5 16"></path></svg></a>
 
 Whether this quest is a monthly quest.
-
-**Source:** [`packages/game/src/models/Quest.ts:78`](https://github.com/toommyliu/vexed/blob/ee7dea4922d10259289c35ce1638a1553a17b577/packages/game/src/models/Quest.ts#L78)
 
 ```ts
 isMonthly(): boolean
@@ -118,11 +100,9 @@ isMonthly(): boolean
 
 <a id="method-isweekly"></a>
 
-### `isWeekly()`
+### `isWeekly()` <a class="source-reference__heading-link" style="float: right; display: inline-flex; align-items: center; justify-content: center; width: 2rem; height: 2rem; margin-block: -0.125rem; margin-inline-start: 0.5rem; border-radius: var(--radius-sm); text-decoration: none;" href="https://github.com/toommyliu/vexed/blob/69e580bf8bbae374ead5a6f3cb3d3e064ac2735d/packages/game/src/models/Quest.ts#L71" tabindex="-1" aria-hidden="true" title="Open source: packages/game/src/models/Quest.ts:71" target="_blank" rel="noreferrer"><svg class="source-reference__icon" width="16" height="16" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m18 16 4-4-4-4"></path><path d="m6 8-4 4 4 4"></path><path d="m14.5 4-5 16"></path></svg></a>
 
 Whether this quest is a weekly quest.
-
-**Source:** [`packages/game/src/models/Quest.ts:71`](https://github.com/toommyliu/vexed/blob/ee7dea4922d10259289c35ce1638a1553a17b577/packages/game/src/models/Quest.ts#L71)
 
 ```ts
 isWeekly(): boolean

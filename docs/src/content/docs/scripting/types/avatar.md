@@ -1,8 +1,8 @@
 ---
-title: Avatar
-description: Generated vexed scripting reference for Avatar.
+title: "Avatar"
+description: "Represents a player in the world."
 sidebar:
-  label: Avatar
+  label: "Avatar"
 tableOfContents:
   minHeadingLevel: 2
   maxHeadingLevel: 3
@@ -12,8 +12,6 @@ tableOfContents:
 
 Represents a player in the world.
 
-**Source:** [`packages/game/src/models/Avatar.ts:7`](https://github.com/toommyliu/vexed/blob/ee7dea4922d10259289c35ce1638a1553a17b577/packages/game/src/models/Avatar.ts#L7)
-
 ```ts
 class Avatar extends BaseEntity
 ```
@@ -22,11 +20,9 @@ class Avatar extends BaseEntity
 
 <a id="property-alive"></a>
 
-### `alive`
+### `alive` <a class="source-reference__heading-link" style="float: right; display: inline-flex; align-items: center; justify-content: center; width: 2rem; height: 2rem; margin-block: -0.125rem; margin-inline-start: 0.5rem; border-radius: var(--radius-sm); text-decoration: none;" href="https://github.com/toommyliu/vexed/blob/69e580bf8bbae374ead5a6f3cb3d3e064ac2735d/packages/game/src/models/BaseEntity.ts#L53" tabindex="-1" aria-hidden="true" title="Open source: packages/game/src/models/BaseEntity.ts:53" target="_blank" rel="noreferrer"><svg class="source-reference__icon" width="16" height="16" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m18 16 4-4-4-4"></path><path d="m6 8-4 4 4 4"></path><path d="m14.5 4-5 16"></path></svg></a>
 
 Whether the entity is alive.
-
-**Source:** [`packages/game/src/models/BaseEntity.ts:53`](https://github.com/toommyliu/vexed/blob/ee7dea4922d10259289c35ce1638a1553a17b577/packages/game/src/models/BaseEntity.ts#L53)
 
 ```ts
 readonly alive: boolean
@@ -34,11 +30,9 @@ readonly alive: boolean
 
 <a id="property-cell"></a>
 
-### `cell`
+### `cell` <a class="source-reference__heading-link" style="float: right; display: inline-flex; align-items: center; justify-content: center; width: 2rem; height: 2rem; margin-block: -0.125rem; margin-inline-start: 0.5rem; border-radius: var(--radius-sm); text-decoration: none;" href="https://github.com/toommyliu/vexed/blob/69e580bf8bbae374ead5a6f3cb3d3e064ac2735d/packages/game/src/models/BaseEntity.ts#L138" tabindex="-1" aria-hidden="true" title="Open source: packages/game/src/models/BaseEntity.ts:138" target="_blank" rel="noreferrer"><svg class="source-reference__icon" width="16" height="16" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m18 16 4-4-4-4"></path><path d="m6 8-4 4 4 4"></path><path d="m14.5 4-5 16"></path></svg></a>
 
 The cell the entity is in.
-
-**Source:** [`packages/game/src/models/BaseEntity.ts:138`](https://github.com/toommyliu/vexed/blob/ee7dea4922d10259289c35ce1638a1553a17b577/packages/game/src/models/BaseEntity.ts#L138)
 
 ```ts
 readonly cell: string
@@ -46,9 +40,7 @@ readonly cell: string
 
 <a id="property-data"></a>
 
-### `data`
-
-**Source:** [`packages/game/src/models/Avatar.ts:20`](https://github.com/toommyliu/vexed/blob/ee7dea4922d10259289c35ce1638a1553a17b577/packages/game/src/models/Avatar.ts#L20)
+### `data` <a class="source-reference__heading-link" style="float: right; display: inline-flex; align-items: center; justify-content: center; width: 2rem; height: 2rem; margin-block: -0.125rem; margin-inline-start: 0.5rem; border-radius: var(--radius-sm); text-decoration: none;" href="https://github.com/toommyliu/vexed/blob/69e580bf8bbae374ead5a6f3cb3d3e064ac2735d/packages/game/src/models/Avatar.ts#L20" tabindex="-1" aria-hidden="true" title="Open source: packages/game/src/models/Avatar.ts:20" target="_blank" rel="noreferrer"><svg class="source-reference__icon" width="16" height="16" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m18 16 4-4-4-4"></path><path d="m6 8-4 4 4 4"></path><path d="m14.5 4-5 16"></path></svg></a>
 
 ```ts
 readonly data: AvatarData
@@ -56,11 +48,9 @@ readonly data: AvatarData
 
 <a id="property-hp"></a>
 
-### `hp`
+### `hp` <a class="source-reference__heading-link" style="float: right; display: inline-flex; align-items: center; justify-content: center; width: 2rem; height: 2rem; margin-block: -0.125rem; margin-inline-start: 0.5rem; border-radius: var(--radius-sm); text-decoration: none;" href="https://github.com/toommyliu/vexed/blob/69e580bf8bbae374ead5a6f3cb3d3e064ac2735d/packages/game/src/models/BaseEntity.ts#L24" tabindex="-1" aria-hidden="true" title="Open source: packages/game/src/models/BaseEntity.ts:24" target="_blank" rel="noreferrer"><svg class="source-reference__icon" width="16" height="16" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m18 16 4-4-4-4"></path><path d="m6 8-4 4 4 4"></path><path d="m14.5 4-5 16"></path></svg></a>
 
 The entity's current HP.
-
-**Source:** [`packages/game/src/models/BaseEntity.ts:24`](https://github.com/toommyliu/vexed/blob/ee7dea4922d10259289c35ce1638a1553a17b577/packages/game/src/models/BaseEntity.ts#L24)
 
 ```ts
 readonly hp: number
@@ -68,11 +58,9 @@ readonly hp: number
 
 <a id="property-hppercentage"></a>
 
-### `hpPercentage`
+### `hpPercentage` <a class="source-reference__heading-link" style="float: right; display: inline-flex; align-items: center; justify-content: center; width: 2rem; height: 2rem; margin-block: -0.125rem; margin-inline-start: 0.5rem; border-radius: var(--radius-sm); text-decoration: none;" href="https://github.com/toommyliu/vexed/blob/69e580bf8bbae374ead5a6f3cb3d3e064ac2735d/packages/game/src/models/BaseEntity.ts#L38" tabindex="-1" aria-hidden="true" title="Open source: packages/game/src/models/BaseEntity.ts:38" target="_blank" rel="noreferrer"><svg class="source-reference__icon" width="16" height="16" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m18 16 4-4-4-4"></path><path d="m6 8-4 4 4 4"></path><path d="m14.5 4-5 16"></path></svg></a>
 
 The entity's current HP percentage.
-
-**Source:** [`packages/game/src/models/BaseEntity.ts:38`](https://github.com/toommyliu/vexed/blob/ee7dea4922d10259289c35ce1638a1553a17b577/packages/game/src/models/BaseEntity.ts#L38)
 
 ```ts
 readonly hpPercentage: number
@@ -80,11 +68,9 @@ readonly hpPercentage: number
 
 <a id="property-level"></a>
 
-### `level`
+### `level` <a class="source-reference__heading-link" style="float: right; display: inline-flex; align-items: center; justify-content: center; width: 2rem; height: 2rem; margin-block: -0.125rem; margin-inline-start: 0.5rem; border-radius: var(--radius-sm); text-decoration: none;" href="https://github.com/toommyliu/vexed/blob/69e580bf8bbae374ead5a6f3cb3d3e064ac2735d/packages/game/src/models/Avatar.ts#L56" tabindex="-1" aria-hidden="true" title="Open source: packages/game/src/models/Avatar.ts:56" target="_blank" rel="noreferrer"><svg class="source-reference__icon" width="16" height="16" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m18 16 4-4-4-4"></path><path d="m6 8-4 4 4 4"></path><path d="m14.5 4-5 16"></path></svg></a>
 
 The player's level.
-
-**Source:** [`packages/game/src/models/Avatar.ts:56`](https://github.com/toommyliu/vexed/blob/ee7dea4922d10259289c35ce1638a1553a17b577/packages/game/src/models/Avatar.ts#L56)
 
 ```ts
 readonly level: number
@@ -92,11 +78,9 @@ readonly level: number
 
 <a id="property-maxhp"></a>
 
-### `maxHp`
+### `maxHp` <a class="source-reference__heading-link" style="float: right; display: inline-flex; align-items: center; justify-content: center; width: 2rem; height: 2rem; margin-block: -0.125rem; margin-inline-start: 0.5rem; border-radius: var(--radius-sm); text-decoration: none;" href="https://github.com/toommyliu/vexed/blob/69e580bf8bbae374ead5a6f3cb3d3e064ac2735d/packages/game/src/models/BaseEntity.ts#L31" tabindex="-1" aria-hidden="true" title="Open source: packages/game/src/models/BaseEntity.ts:31" target="_blank" rel="noreferrer"><svg class="source-reference__icon" width="16" height="16" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m18 16 4-4-4-4"></path><path d="m6 8-4 4 4 4"></path><path d="m14.5 4-5 16"></path></svg></a>
 
 The entity's max HP.
-
-**Source:** [`packages/game/src/models/BaseEntity.ts:31`](https://github.com/toommyliu/vexed/blob/ee7dea4922d10259289c35ce1638a1553a17b577/packages/game/src/models/BaseEntity.ts#L31)
 
 ```ts
 readonly maxHp: number
@@ -104,11 +88,9 @@ readonly maxHp: number
 
 <a id="property-maxmp"></a>
 
-### `maxMp`
+### `maxMp` <a class="source-reference__heading-link" style="float: right; display: inline-flex; align-items: center; justify-content: center; width: 2rem; height: 2rem; margin-block: -0.125rem; margin-inline-start: 0.5rem; border-radius: var(--radius-sm); text-decoration: none;" href="https://github.com/toommyliu/vexed/blob/69e580bf8bbae374ead5a6f3cb3d3e064ac2735d/packages/game/src/models/Avatar.ts#L41" tabindex="-1" aria-hidden="true" title="Open source: packages/game/src/models/Avatar.ts:41" target="_blank" rel="noreferrer"><svg class="source-reference__icon" width="16" height="16" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m18 16 4-4-4-4"></path><path d="m6 8-4 4 4 4"></path><path d="m14.5 4-5 16"></path></svg></a>
 
 The player's max mp.
-
-**Source:** [`packages/game/src/models/Avatar.ts:41`](https://github.com/toommyliu/vexed/blob/ee7dea4922d10259289c35ce1638a1553a17b577/packages/game/src/models/Avatar.ts#L41)
 
 ```ts
 readonly maxMp: number
@@ -116,11 +98,9 @@ readonly maxMp: number
 
 <a id="property-mp"></a>
 
-### `mp`
+### `mp` <a class="source-reference__heading-link" style="float: right; display: inline-flex; align-items: center; justify-content: center; width: 2rem; height: 2rem; margin-block: -0.125rem; margin-inline-start: 0.5rem; border-radius: var(--radius-sm); text-decoration: none;" href="https://github.com/toommyliu/vexed/blob/69e580bf8bbae374ead5a6f3cb3d3e064ac2735d/packages/game/src/models/Avatar.ts#L34" tabindex="-1" aria-hidden="true" title="Open source: packages/game/src/models/Avatar.ts:34" target="_blank" rel="noreferrer"><svg class="source-reference__icon" width="16" height="16" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m18 16 4-4-4-4"></path><path d="m6 8-4 4 4 4"></path><path d="m14.5 4-5 16"></path></svg></a>
 
 The player's current mp.
-
-**Source:** [`packages/game/src/models/Avatar.ts:34`](https://github.com/toommyliu/vexed/blob/ee7dea4922d10259289c35ce1638a1553a17b577/packages/game/src/models/Avatar.ts#L34)
 
 ```ts
 readonly mp: number
@@ -128,11 +108,9 @@ readonly mp: number
 
 <a id="property-mppercentage"></a>
 
-### `mpPercentage`
+### `mpPercentage` <a class="source-reference__heading-link" style="float: right; display: inline-flex; align-items: center; justify-content: center; width: 2rem; height: 2rem; margin-block: -0.125rem; margin-inline-start: 0.5rem; border-radius: var(--radius-sm); text-decoration: none;" href="https://github.com/toommyliu/vexed/blob/69e580bf8bbae374ead5a6f3cb3d3e064ac2735d/packages/game/src/models/Avatar.ts#L48" tabindex="-1" aria-hidden="true" title="Open source: packages/game/src/models/Avatar.ts:48" target="_blank" rel="noreferrer"><svg class="source-reference__icon" width="16" height="16" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m18 16 4-4-4-4"></path><path d="m6 8-4 4 4 4"></path><path d="m14.5 4-5 16"></path></svg></a>
 
 The player's current MP percentage.
-
-**Source:** [`packages/game/src/models/Avatar.ts:48`](https://github.com/toommyliu/vexed/blob/ee7dea4922d10259289c35ce1638a1553a17b577/packages/game/src/models/Avatar.ts#L48)
 
 ```ts
 readonly mpPercentage: number
@@ -140,11 +118,9 @@ readonly mpPercentage: number
 
 <a id="property-pad"></a>
 
-### `pad`
+### `pad` <a class="source-reference__heading-link" style="float: right; display: inline-flex; align-items: center; justify-content: center; width: 2rem; height: 2rem; margin-block: -0.125rem; margin-inline-start: 0.5rem; border-radius: var(--radius-sm); text-decoration: none;" href="https://github.com/toommyliu/vexed/blob/69e580bf8bbae374ead5a6f3cb3d3e064ac2735d/packages/game/src/models/Avatar.ts#L27" tabindex="-1" aria-hidden="true" title="Open source: packages/game/src/models/Avatar.ts:27" target="_blank" rel="noreferrer"><svg class="source-reference__icon" width="16" height="16" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m18 16 4-4-4-4"></path><path d="m6 8-4 4 4 4"></path><path d="m14.5 4-5 16"></path></svg></a>
 
 The pad the player is in.
-
-**Source:** [`packages/game/src/models/Avatar.ts:27`](https://github.com/toommyliu/vexed/blob/ee7dea4922d10259289c35ce1638a1553a17b577/packages/game/src/models/Avatar.ts#L27)
 
 ```ts
 readonly pad: string
@@ -152,11 +128,9 @@ readonly pad: string
 
 <a id="property-position"></a>
 
-### `position`
+### `position` <a class="source-reference__heading-link" style="float: right; display: inline-flex; align-items: center; justify-content: center; width: 2rem; height: 2rem; margin-block: -0.125rem; margin-inline-start: 0.5rem; border-radius: var(--radius-sm); text-decoration: none;" href="https://github.com/toommyliu/vexed/blob/69e580bf8bbae374ead5a6f3cb3d3e064ac2735d/packages/game/src/models/Avatar.ts#L77" tabindex="-1" aria-hidden="true" title="Open source: packages/game/src/models/Avatar.ts:77" target="_blank" rel="noreferrer"><svg class="source-reference__icon" width="16" height="16" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m18 16 4-4-4-4"></path><path d="m6 8-4 4 4 4"></path><path d="m14.5 4-5 16"></path></svg></a>
 
 The player's position.
-
-**Source:** [`packages/game/src/models/Avatar.ts:77`](https://github.com/toommyliu/vexed/blob/ee7dea4922d10259289c35ce1638a1553a17b577/packages/game/src/models/Avatar.ts#L77)
 
 ```ts
 readonly position: [number, number]
@@ -164,11 +138,9 @@ readonly position: [number, number]
 
 <a id="property-state"></a>
 
-### `state`
+### `state` <a class="source-reference__heading-link" style="float: right; display: inline-flex; align-items: center; justify-content: center; width: 2rem; height: 2rem; margin-block: -0.125rem; margin-inline-start: 0.5rem; border-radius: var(--radius-sm); text-decoration: none;" href="https://github.com/toommyliu/vexed/blob/69e580bf8bbae374ead5a6f3cb3d3e064ac2735d/packages/game/src/models/BaseEntity.ts#L46" tabindex="-1" aria-hidden="true" title="Open source: packages/game/src/models/BaseEntity.ts:46" target="_blank" rel="noreferrer"><svg class="source-reference__icon" width="16" height="16" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m18 16 4-4-4-4"></path><path d="m6 8-4 4 4 4"></path><path d="m14.5 4-5 16"></path></svg></a>
 
 The entity's state.
-
-**Source:** [`packages/game/src/models/BaseEntity.ts:46`](https://github.com/toommyliu/vexed/blob/ee7dea4922d10259289c35ce1638a1553a17b577/packages/game/src/models/BaseEntity.ts#L46)
 
 ```ts
 readonly state: EntityState
@@ -176,11 +148,9 @@ readonly state: EntityState
 
 <a id="property-username"></a>
 
-### `username`
+### `username` <a class="source-reference__heading-link" style="float: right; display: inline-flex; align-items: center; justify-content: center; width: 2rem; height: 2rem; margin-block: -0.125rem; margin-inline-start: 0.5rem; border-radius: var(--radius-sm); text-decoration: none;" href="https://github.com/toommyliu/vexed/blob/69e580bf8bbae374ead5a6f3cb3d3e064ac2735d/packages/game/src/models/Avatar.ts#L63" tabindex="-1" aria-hidden="true" title="Open source: packages/game/src/models/Avatar.ts:63" target="_blank" rel="noreferrer"><svg class="source-reference__icon" width="16" height="16" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m18 16 4-4-4-4"></path><path d="m6 8-4 4 4 4"></path><path d="m14.5 4-5 16"></path></svg></a>
 
 The player's username.
-
-**Source:** [`packages/game/src/models/Avatar.ts:63`](https://github.com/toommyliu/vexed/blob/ee7dea4922d10259289c35ce1638a1553a17b577/packages/game/src/models/Avatar.ts#L63)
 
 ```ts
 readonly username: string
@@ -190,11 +160,9 @@ readonly username: string
 
 <a id="method-isafk"></a>
 
-### `isAFK()`
+### `isAFK()` <a class="source-reference__heading-link" style="float: right; display: inline-flex; align-items: center; justify-content: center; width: 2rem; height: 2rem; margin-block: -0.125rem; margin-inline-start: 0.5rem; border-radius: var(--radius-sm); text-decoration: none;" href="https://github.com/toommyliu/vexed/blob/69e580bf8bbae374ead5a6f3cb3d3e064ac2735d/packages/game/src/models/Avatar.ts#L70" tabindex="-1" aria-hidden="true" title="Open source: packages/game/src/models/Avatar.ts:70" target="_blank" rel="noreferrer"><svg class="source-reference__icon" width="16" height="16" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m18 16 4-4-4-4"></path><path d="m6 8-4 4 4 4"></path><path d="m14.5 4-5 16"></path></svg></a>
 
 Whether the player is AFK.
-
-**Source:** [`packages/game/src/models/Avatar.ts:70`](https://github.com/toommyliu/vexed/blob/ee7dea4922d10259289c35ce1638a1553a17b577/packages/game/src/models/Avatar.ts#L70)
 
 ```ts
 isAFK(): boolean
@@ -202,9 +170,7 @@ isAFK(): boolean
 
 <a id="method-isdead"></a>
 
-### `isDead()`
-
-**Source:** [`packages/game/src/models/BaseEntity.ts:106`](https://github.com/toommyliu/vexed/blob/ee7dea4922d10259289c35ce1638a1553a17b577/packages/game/src/models/BaseEntity.ts#L106)
+### `isDead()` <a class="source-reference__heading-link" style="float: right; display: inline-flex; align-items: center; justify-content: center; width: 2rem; height: 2rem; margin-block: -0.125rem; margin-inline-start: 0.5rem; border-radius: var(--radius-sm); text-decoration: none;" href="https://github.com/toommyliu/vexed/blob/69e580bf8bbae374ead5a6f3cb3d3e064ac2735d/packages/game/src/models/BaseEntity.ts#L106" tabindex="-1" aria-hidden="true" title="Open source: packages/game/src/models/BaseEntity.ts:106" target="_blank" rel="noreferrer"><svg class="source-reference__icon" width="16" height="16" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m18 16 4-4-4-4"></path><path d="m6 8-4 4 4 4"></path><path d="m14.5 4-5 16"></path></svg></a>
 
 ```ts
 isDead(): boolean
@@ -212,11 +178,9 @@ isDead(): boolean
 
 <a id="method-ishpgreaterthan"></a>
 
-### `isHpGreaterThan()`
+### `isHpGreaterThan()` <a class="source-reference__heading-link" style="float: right; display: inline-flex; align-items: center; justify-content: center; width: 2rem; height: 2rem; margin-block: -0.125rem; margin-inline-start: 0.5rem; border-radius: var(--radius-sm); text-decoration: none;" href="https://github.com/toommyliu/vexed/blob/69e580bf8bbae374ead5a6f3cb3d3e064ac2735d/packages/game/src/models/BaseEntity.ts#L73" tabindex="-1" aria-hidden="true" title="Open source: packages/game/src/models/BaseEntity.ts:73" target="_blank" rel="noreferrer"><svg class="source-reference__icon" width="16" height="16" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m18 16 4-4-4-4"></path><path d="m6 8-4 4 4 4"></path><path d="m14.5 4-5 16"></path></svg></a>
 
 Whether the entity's hp is greater than a value.
-
-**Source:** [`packages/game/src/models/BaseEntity.ts:73`](https://github.com/toommyliu/vexed/blob/ee7dea4922d10259289c35ce1638a1553a17b577/packages/game/src/models/BaseEntity.ts#L73)
 
 ```ts
 isHpGreaterThan(value: number): boolean
@@ -224,11 +188,9 @@ isHpGreaterThan(value: number): boolean
 
 <a id="method-ishplessthan"></a>
 
-### `isHpLessThan()`
+### `isHpLessThan()` <a class="source-reference__heading-link" style="float: right; display: inline-flex; align-items: center; justify-content: center; width: 2rem; height: 2rem; margin-block: -0.125rem; margin-inline-start: 0.5rem; border-radius: var(--radius-sm); text-decoration: none;" href="https://github.com/toommyliu/vexed/blob/69e580bf8bbae374ead5a6f3cb3d3e064ac2735d/packages/game/src/models/BaseEntity.ts#L63" tabindex="-1" aria-hidden="true" title="Open source: packages/game/src/models/BaseEntity.ts:63" target="_blank" rel="noreferrer"><svg class="source-reference__icon" width="16" height="16" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m18 16 4-4-4-4"></path><path d="m6 8-4 4 4 4"></path><path d="m14.5 4-5 16"></path></svg></a>
 
 Whether the entity's hp is less than a value.
-
-**Source:** [`packages/game/src/models/BaseEntity.ts:63`](https://github.com/toommyliu/vexed/blob/ee7dea4922d10259289c35ce1638a1553a17b577/packages/game/src/models/BaseEntity.ts#L63)
 
 ```ts
 isHpLessThan(value: number): boolean
@@ -236,11 +198,9 @@ isHpLessThan(value: number): boolean
 
 <a id="method-ishppercentagegreaterthan"></a>
 
-### `isHpPercentageGreaterThan()`
+### `isHpPercentageGreaterThan()` <a class="source-reference__heading-link" style="float: right; display: inline-flex; align-items: center; justify-content: center; width: 2rem; height: 2rem; margin-block: -0.125rem; margin-inline-start: 0.5rem; border-radius: var(--radius-sm); text-decoration: none;" href="https://github.com/toommyliu/vexed/blob/69e580bf8bbae374ead5a6f3cb3d3e064ac2735d/packages/game/src/models/BaseEntity.ts#L93" tabindex="-1" aria-hidden="true" title="Open source: packages/game/src/models/BaseEntity.ts:93" target="_blank" rel="noreferrer"><svg class="source-reference__icon" width="16" height="16" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m18 16 4-4-4-4"></path><path d="m6 8-4 4 4 4"></path><path d="m14.5 4-5 16"></path></svg></a>
 
 Whether the entity's hp is greater than a percentage value.
-
-**Source:** [`packages/game/src/models/BaseEntity.ts:93`](https://github.com/toommyliu/vexed/blob/ee7dea4922d10259289c35ce1638a1553a17b577/packages/game/src/models/BaseEntity.ts#L93)
 
 ```ts
 isHpPercentageGreaterThan(value: number): boolean
@@ -248,11 +208,9 @@ isHpPercentageGreaterThan(value: number): boolean
 
 <a id="method-ishppercentagelessthan"></a>
 
-### `isHpPercentageLessThan()`
+### `isHpPercentageLessThan()` <a class="source-reference__heading-link" style="float: right; display: inline-flex; align-items: center; justify-content: center; width: 2rem; height: 2rem; margin-block: -0.125rem; margin-inline-start: 0.5rem; border-radius: var(--radius-sm); text-decoration: none;" href="https://github.com/toommyliu/vexed/blob/69e580bf8bbae374ead5a6f3cb3d3e064ac2735d/packages/game/src/models/BaseEntity.ts#L83" tabindex="-1" aria-hidden="true" title="Open source: packages/game/src/models/BaseEntity.ts:83" target="_blank" rel="noreferrer"><svg class="source-reference__icon" width="16" height="16" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m18 16 4-4-4-4"></path><path d="m6 8-4 4 4 4"></path><path d="m14.5 4-5 16"></path></svg></a>
 
 Whether the entity's hp is less than a percentage value.
-
-**Source:** [`packages/game/src/models/BaseEntity.ts:83`](https://github.com/toommyliu/vexed/blob/ee7dea4922d10259289c35ce1638a1553a17b577/packages/game/src/models/BaseEntity.ts#L83)
 
 ```ts
 isHpPercentageLessThan(value: number): boolean
@@ -260,11 +218,9 @@ isHpPercentageLessThan(value: number): boolean
 
 <a id="method-isidle"></a>
 
-### `isIdle()`
+### `isIdle()` <a class="source-reference__heading-link" style="float: right; display: inline-flex; align-items: center; justify-content: center; width: 2rem; height: 2rem; margin-block: -0.125rem; margin-inline-start: 0.5rem; border-radius: var(--radius-sm); text-decoration: none;" href="https://github.com/toommyliu/vexed/blob/69e580bf8bbae374ead5a6f3cb3d3e064ac2735d/packages/game/src/models/BaseEntity.ts#L113" tabindex="-1" aria-hidden="true" title="Open source: packages/game/src/models/BaseEntity.ts:113" target="_blank" rel="noreferrer"><svg class="source-reference__icon" width="16" height="16" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m18 16 4-4-4-4"></path><path d="m6 8-4 4 4 4"></path><path d="m14.5 4-5 16"></path></svg></a>
 
 Whether the entity is idle.
-
-**Source:** [`packages/game/src/models/BaseEntity.ts:113`](https://github.com/toommyliu/vexed/blob/ee7dea4922d10259289c35ce1638a1553a17b577/packages/game/src/models/BaseEntity.ts#L113)
 
 ```ts
 isIdle(): boolean
@@ -272,11 +228,9 @@ isIdle(): boolean
 
 <a id="method-isincell"></a>
 
-### `isInCell()`
+### `isInCell()` <a class="source-reference__heading-link" style="float: right; display: inline-flex; align-items: center; justify-content: center; width: 2rem; height: 2rem; margin-block: -0.125rem; margin-inline-start: 0.5rem; border-radius: var(--radius-sm); text-decoration: none;" href="https://github.com/toommyliu/vexed/blob/69e580bf8bbae374ead5a6f3cb3d3e064ac2735d/packages/game/src/models/BaseEntity.ts#L148" tabindex="-1" aria-hidden="true" title="Open source: packages/game/src/models/BaseEntity.ts:148" target="_blank" rel="noreferrer"><svg class="source-reference__icon" width="16" height="16" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m18 16 4-4-4-4"></path><path d="m6 8-4 4 4 4"></path><path d="m14.5 4-5 16"></path></svg></a>
 
 Whether the entity is in the specified cell.
-
-**Source:** [`packages/game/src/models/BaseEntity.ts:148`](https://github.com/toommyliu/vexed/blob/ee7dea4922d10259289c35ce1638a1553a17b577/packages/game/src/models/BaseEntity.ts#L148)
 
 ```ts
 isInCell(cell: string): boolean
@@ -284,11 +238,9 @@ isInCell(cell: string): boolean
 
 <a id="method-isincombat"></a>
 
-### `isInCombat()`
+### `isInCombat()` <a class="source-reference__heading-link" style="float: right; display: inline-flex; align-items: center; justify-content: center; width: 2rem; height: 2rem; margin-block: -0.125rem; margin-inline-start: 0.5rem; border-radius: var(--radius-sm); text-decoration: none;" href="https://github.com/toommyliu/vexed/blob/69e580bf8bbae374ead5a6f3cb3d3e064ac2735d/packages/game/src/models/BaseEntity.ts#L102" tabindex="-1" aria-hidden="true" title="Open source: packages/game/src/models/BaseEntity.ts:102" target="_blank" rel="noreferrer"><svg class="source-reference__icon" width="16" height="16" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m18 16 4-4-4-4"></path><path d="m6 8-4 4 4 4"></path><path d="m14.5 4-5 16"></path></svg></a>
 
 Whether the entity is in combat.
-
-**Source:** [`packages/game/src/models/BaseEntity.ts:102`](https://github.com/toommyliu/vexed/blob/ee7dea4922d10259289c35ce1638a1553a17b577/packages/game/src/models/BaseEntity.ts#L102)
 
 ```ts
 isInCombat(): boolean
@@ -296,11 +248,9 @@ isInCombat(): boolean
 
 <a id="method-ismonster"></a>
 
-### `isMonster()`
+### `isMonster()` <a class="source-reference__heading-link" style="float: right; display: inline-flex; align-items: center; justify-content: center; width: 2rem; height: 2rem; margin-block: -0.125rem; margin-inline-start: 0.5rem; border-radius: var(--radius-sm); text-decoration: none;" href="https://github.com/toommyliu/vexed/blob/69e580bf8bbae374ead5a6f3cb3d3e064ac2735d/packages/game/src/models/BaseEntity.ts#L131" tabindex="-1" aria-hidden="true" title="Open source: packages/game/src/models/BaseEntity.ts:131" target="_blank" rel="noreferrer"><svg class="source-reference__icon" width="16" height="16" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m18 16 4-4-4-4"></path><path d="m6 8-4 4 4 4"></path><path d="m14.5 4-5 16"></path></svg></a>
 
 Whether the entity is a monster.
-
-**Source:** [`packages/game/src/models/BaseEntity.ts:131`](https://github.com/toommyliu/vexed/blob/ee7dea4922d10259289c35ce1638a1553a17b577/packages/game/src/models/BaseEntity.ts#L131)
 
 ```ts
 isMonster(): this is Monster
@@ -308,11 +258,9 @@ isMonster(): this is Monster
 
 <a id="method-isplayer"></a>
 
-### `isPlayer()`
+### `isPlayer()` <a class="source-reference__heading-link" style="float: right; display: inline-flex; align-items: center; justify-content: center; width: 2rem; height: 2rem; margin-block: -0.125rem; margin-inline-start: 0.5rem; border-radius: var(--radius-sm); text-decoration: none;" href="https://github.com/toommyliu/vexed/blob/69e580bf8bbae374ead5a6f3cb3d3e064ac2735d/packages/game/src/models/BaseEntity.ts#L122" tabindex="-1" aria-hidden="true" title="Open source: packages/game/src/models/BaseEntity.ts:122" target="_blank" rel="noreferrer"><svg class="source-reference__icon" width="16" height="16" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m18 16 4-4-4-4"></path><path d="m6 8-4 4 4 4"></path><path d="m14.5 4-5 16"></path></svg></a>
 
 Whether the entity is a player.
-
-**Source:** [`packages/game/src/models/BaseEntity.ts:122`](https://github.com/toommyliu/vexed/blob/ee7dea4922d10259289c35ce1638a1553a17b577/packages/game/src/models/BaseEntity.ts#L122)
 
 ```ts
 isPlayer(): this is Avatar

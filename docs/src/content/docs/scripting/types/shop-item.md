@@ -1,8 +1,8 @@
 ---
-title: ShopItem
-description: Generated vexed scripting reference for ShopItem.
+title: "ShopItem"
+description: "The base class for all-things item related."
 sidebar:
-  label: ShopItem
+  label: "ShopItem"
 tableOfContents:
   minHeadingLevel: 2
   maxHeadingLevel: 3
@@ -12,8 +12,6 @@ tableOfContents:
 
 The base class for all-things item related.
 
-**Source:** [`packages/game/src/models/ShopItem.ts:4`](https://github.com/toommyliu/vexed/blob/ee7dea4922d10259289c35ce1638a1553a17b577/packages/game/src/models/ShopItem.ts#L4)
-
 ```ts
 class ShopItem extends Item
 ```
@@ -22,11 +20,9 @@ class ShopItem extends Item
 
 <a id="property-category"></a>
 
-### `category`
+### `category` <a class="source-reference__heading-link" style="float: right; display: inline-flex; align-items: center; justify-content: center; width: 2rem; height: 2rem; margin-block: -0.125rem; margin-inline-start: 0.5rem; border-radius: var(--radius-sm); text-decoration: none;" href="https://github.com/toommyliu/vexed/blob/69e580bf8bbae374ead5a6f3cb3d3e064ac2735d/packages/game/src/models/Item.ts#L75" tabindex="-1" aria-hidden="true" title="Open source: packages/game/src/models/Item.ts:75" target="_blank" rel="noreferrer"><svg class="source-reference__icon" width="16" height="16" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m18 16 4-4-4-4"></path><path d="m6 8-4 4 4 4"></path><path d="m14.5 4-5 16"></path></svg></a>
 
 The category of the item.
-
-**Source:** [`packages/game/src/models/Item.ts:75`](https://github.com/toommyliu/vexed/blob/ee7dea4922d10259289c35ce1638a1553a17b577/packages/game/src/models/Item.ts#L75)
 
 ```ts
 readonly category: string
@@ -34,11 +30,9 @@ readonly category: string
 
 <a id="property-charitemid"></a>
 
-### `charItemId`
+### `charItemId` <a class="source-reference__heading-link" style="float: right; display: inline-flex; align-items: center; justify-content: center; width: 2rem; height: 2rem; margin-block: -0.125rem; margin-inline-start: 0.5rem; border-radius: var(--radius-sm); text-decoration: none;" href="https://github.com/toommyliu/vexed/blob/69e580bf8bbae374ead5a6f3cb3d3e064ac2735d/packages/game/src/models/Item.ts#L212" tabindex="-1" aria-hidden="true" title="Open source: packages/game/src/models/Item.ts:212" target="_blank" rel="noreferrer"><svg class="source-reference__icon" width="16" height="16" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m18 16 4-4-4-4"></path><path d="m6 8-4 4 4 4"></path><path d="m14.5 4-5 16"></path></svg></a>
 
 The character ID of this item.
-
-**Source:** [`packages/game/src/models/Item.ts:212`](https://github.com/toommyliu/vexed/blob/ee7dea4922d10259289c35ce1638a1553a17b577/packages/game/src/models/Item.ts#L212)
 
 ```ts
 readonly charItemId: number
@@ -46,11 +40,9 @@ readonly charItemId: number
 
 <a id="property-classrank"></a>
 
-### `classRank`
+### `classRank` <a class="source-reference__heading-link" style="float: right; display: inline-flex; align-items: center; justify-content: center; width: 2rem; height: 2rem; margin-block: -0.125rem; margin-inline-start: 0.5rem; border-radius: var(--radius-sm); text-decoration: none;" href="https://github.com/toommyliu/vexed/blob/69e580bf8bbae374ead5a6f3cb3d3e064ac2735d/packages/game/src/models/Item.ts#L186" tabindex="-1" aria-hidden="true" title="Open source: packages/game/src/models/Item.ts:186" target="_blank" rel="noreferrer"><svg class="source-reference__icon" width="16" height="16" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m18 16 4-4-4-4"></path><path d="m6 8-4 4 4 4"></path><path d="m14.5 4-5 16"></path></svg></a>
 
 The class rank represented by this item's accumulated class points.
-
-**Source:** [`packages/game/src/models/Item.ts:186`](https://github.com/toommyliu/vexed/blob/ee7dea4922d10259289c35ce1638a1553a17b577/packages/game/src/models/Item.ts#L186)
 
 ```ts
 readonly classRank: number | null
@@ -58,11 +50,9 @@ readonly classRank: number | null
 
 <a id="property-data"></a>
 
-### `data`
+### `data` <a class="source-reference__heading-link" style="float: right; display: inline-flex; align-items: center; justify-content: center; width: 2rem; height: 2rem; margin-block: -0.125rem; margin-inline-start: 0.5rem; border-radius: var(--radius-sm); text-decoration: none;" href="https://github.com/toommyliu/vexed/blob/69e580bf8bbae374ead5a6f3cb3d3e064ac2735d/packages/game/src/models/ShopItem.ts#L5" tabindex="-1" aria-hidden="true" title="Open source: packages/game/src/models/ShopItem.ts:5" target="_blank" rel="noreferrer"><svg class="source-reference__icon" width="16" height="16" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m18 16 4-4-4-4"></path><path d="m6 8-4 4 4 4"></path><path d="m14.5 4-5 16"></path></svg></a>
 
 Data about this item
-
-**Source:** [`packages/game/src/models/ShopItem.ts:5`](https://github.com/toommyliu/vexed/blob/ee7dea4922d10259289c35ce1638a1553a17b577/packages/game/src/models/ShopItem.ts#L5)
 
 ```ts
 data: ShopItemData
@@ -70,11 +60,9 @@ data: ShopItemData
 
 <a id="property-description"></a>
 
-### `description`
+### `description` <a class="source-reference__heading-link" style="float: right; display: inline-flex; align-items: center; justify-content: center; width: 2rem; height: 2rem; margin-block: -0.125rem; margin-inline-start: 0.5rem; border-radius: var(--radius-sm); text-decoration: none;" href="https://github.com/toommyliu/vexed/blob/69e580bf8bbae374ead5a6f3cb3d3e064ac2735d/packages/game/src/models/Item.ts#L40" tabindex="-1" aria-hidden="true" title="Open source: packages/game/src/models/Item.ts:40" target="_blank" rel="noreferrer"><svg class="source-reference__icon" width="16" height="16" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m18 16 4-4-4-4"></path><path d="m6 8-4 4 4 4"></path><path d="m14.5 4-5 16"></path></svg></a>
 
 The description of the item.
-
-**Source:** [`packages/game/src/models/Item.ts:40`](https://github.com/toommyliu/vexed/blob/ee7dea4922d10259289c35ce1638a1553a17b577/packages/game/src/models/Item.ts#L40)
 
 ```ts
 readonly description: string
@@ -82,11 +70,9 @@ readonly description: string
 
 <a id="property-enhancementlevel"></a>
 
-### `enhancementLevel`
+### `enhancementLevel` <a class="source-reference__heading-link" style="float: right; display: inline-flex; align-items: center; justify-content: center; width: 2rem; height: 2rem; margin-block: -0.125rem; margin-inline-start: 0.5rem; border-radius: var(--radius-sm); text-decoration: none;" href="https://github.com/toommyliu/vexed/blob/69e580bf8bbae374ead5a6f3cb3d3e064ac2735d/packages/game/src/models/Item.ts#L240" tabindex="-1" aria-hidden="true" title="Open source: packages/game/src/models/Item.ts:240" target="_blank" rel="noreferrer"><svg class="source-reference__icon" width="16" height="16" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m18 16 4-4-4-4"></path><path d="m6 8-4 4 4 4"></path><path d="m14.5 4-5 16"></path></svg></a>
 
 The enhancement level of the item.
-
-**Source:** [`packages/game/src/models/Item.ts:240`](https://github.com/toommyliu/vexed/blob/ee7dea4922d10259289c35ce1638a1553a17b577/packages/game/src/models/Item.ts#L240)
 
 ```ts
 readonly enhancementLevel: number
@@ -94,11 +80,9 @@ readonly enhancementLevel: number
 
 <a id="property-enhancementpatternid"></a>
 
-### `enhancementPatternId`
+### `enhancementPatternId` <a class="source-reference__heading-link" style="float: right; display: inline-flex; align-items: center; justify-content: center; width: 2rem; height: 2rem; margin-block: -0.125rem; margin-inline-start: 0.5rem; border-radius: var(--radius-sm); text-decoration: none;" href="https://github.com/toommyliu/vexed/blob/69e580bf8bbae374ead5a6f3cb3d3e064ac2735d/packages/game/src/models/Item.ts#L268" tabindex="-1" aria-hidden="true" title="Open source: packages/game/src/models/Item.ts:268" target="_blank" rel="noreferrer"><svg class="source-reference__icon" width="16" height="16" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m18 16 4-4-4-4"></path><path d="m6 8-4 4 4 4"></path><path d="m14.5 4-5 16"></path></svg></a>
 
 The enhancement pattern ID of the item.
-
-**Source:** [`packages/game/src/models/Item.ts:268`](https://github.com/toommyliu/vexed/blob/ee7dea4922d10259289c35ce1638a1553a17b577/packages/game/src/models/Item.ts#L268)
 
 ```ts
 readonly enhancementPatternId: number
@@ -106,11 +90,9 @@ readonly enhancementPatternId: number
 
 <a id="property-filelink"></a>
 
-### `fileLink`
+### `fileLink` <a class="source-reference__heading-link" style="float: right; display: inline-flex; align-items: center; justify-content: center; width: 2rem; height: 2rem; margin-block: -0.125rem; margin-inline-start: 0.5rem; border-radius: var(--radius-sm); text-decoration: none;" href="https://github.com/toommyliu/vexed/blob/69e580bf8bbae374ead5a6f3cb3d3e064ac2735d/packages/game/src/models/Item.ts#L156" tabindex="-1" aria-hidden="true" title="Open source: packages/game/src/models/Item.ts:156" target="_blank" rel="noreferrer"><svg class="source-reference__icon" width="16" height="16" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m18 16 4-4-4-4"></path><path d="m6 8-4 4 4 4"></path><path d="m14.5 4-5 16"></path></svg></a>
 
 The link to the source file of the item
-
-**Source:** [`packages/game/src/models/Item.ts:156`](https://github.com/toommyliu/vexed/blob/ee7dea4922d10259289c35ce1638a1553a17b577/packages/game/src/models/Item.ts#L156)
 
 ```ts
 readonly fileLink: string
@@ -118,11 +100,9 @@ readonly fileLink: string
 
 <a id="property-filename"></a>
 
-### `fileName`
+### `fileName` <a class="source-reference__heading-link" style="float: right; display: inline-flex; align-items: center; justify-content: center; width: 2rem; height: 2rem; margin-block: -0.125rem; margin-inline-start: 0.5rem; border-radius: var(--radius-sm); text-decoration: none;" href="https://github.com/toommyliu/vexed/blob/69e580bf8bbae374ead5a6f3cb3d3e064ac2735d/packages/game/src/models/Item.ts#L149" tabindex="-1" aria-hidden="true" title="Open source: packages/game/src/models/Item.ts:149" target="_blank" rel="noreferrer"><svg class="source-reference__icon" width="16" height="16" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m18 16 4-4-4-4"></path><path d="m6 8-4 4 4 4"></path><path d="m14.5 4-5 16"></path></svg></a>
 
 The name of the source file of the item.
-
-**Source:** [`packages/game/src/models/Item.ts:149`](https://github.com/toommyliu/vexed/blob/ee7dea4922d10259289c35ce1638a1553a17b577/packages/game/src/models/Item.ts#L149)
 
 ```ts
 readonly fileName: string
@@ -130,11 +110,9 @@ readonly fileName: string
 
 <a id="property-id"></a>
 
-### `id`
+### `id` <a class="source-reference__heading-link" style="float: right; display: inline-flex; align-items: center; justify-content: center; width: 2rem; height: 2rem; margin-block: -0.125rem; margin-inline-start: 0.5rem; border-radius: var(--radius-sm); text-decoration: none;" href="https://github.com/toommyliu/vexed/blob/69e580bf8bbae374ead5a6f3cb3d3e064ac2735d/packages/game/src/models/Item.ts#L26" tabindex="-1" aria-hidden="true" title="Open source: packages/game/src/models/Item.ts:26" target="_blank" rel="noreferrer"><svg class="source-reference__icon" width="16" height="16" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m18 16 4-4-4-4"></path><path d="m6 8-4 4 4 4"></path><path d="m14.5 4-5 16"></path></svg></a>
 
 The ID of the item.
-
-**Source:** [`packages/game/src/models/Item.ts:26`](https://github.com/toommyliu/vexed/blob/ee7dea4922d10259289c35ce1638a1553a17b577/packages/game/src/models/Item.ts#L26)
 
 ```ts
 readonly id: number
@@ -142,11 +120,9 @@ readonly id: number
 
 <a id="property-itemgroup"></a>
 
-### `itemGroup`
+### `itemGroup` <a class="source-reference__heading-link" style="float: right; display: inline-flex; align-items: center; justify-content: center; width: 2rem; height: 2rem; margin-block: -0.125rem; margin-inline-start: 0.5rem; border-radius: var(--radius-sm); text-decoration: none;" href="https://github.com/toommyliu/vexed/blob/69e580bf8bbae374ead5a6f3cb3d3e064ac2735d/packages/game/src/models/Item.ts#L100" tabindex="-1" aria-hidden="true" title="Open source: packages/game/src/models/Item.ts:100" target="_blank" rel="noreferrer"><svg class="source-reference__icon" width="16" height="16" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m18 16 4-4-4-4"></path><path d="m6 8-4 4 4 4"></path><path d="m14.5 4-5 16"></path></svg></a>
 
 The group of the item.
-
-**Source:** [`packages/game/src/models/Item.ts:100`](https://github.com/toommyliu/vexed/blob/ee7dea4922d10259289c35ce1638a1553a17b577/packages/game/src/models/Item.ts#L100)
 
 ```ts
 readonly itemGroup: string
@@ -154,11 +130,9 @@ readonly itemGroup: string
 
 <a id="property-level"></a>
 
-### `level`
+### `level` <a class="source-reference__heading-link" style="float: right; display: inline-flex; align-items: center; justify-content: center; width: 2rem; height: 2rem; margin-block: -0.125rem; margin-inline-start: 0.5rem; border-radius: var(--radius-sm); text-decoration: none;" href="https://github.com/toommyliu/vexed/blob/69e580bf8bbae374ead5a6f3cb3d3e064ac2735d/packages/game/src/models/Item.ts#L233" tabindex="-1" aria-hidden="true" title="Open source: packages/game/src/models/Item.ts:233" target="_blank" rel="noreferrer"><svg class="source-reference__icon" width="16" height="16" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m18 16 4-4-4-4"></path><path d="m6 8-4 4 4 4"></path><path d="m14.5 4-5 16"></path></svg></a>
 
 The level of the item.
-
-**Source:** [`packages/game/src/models/Item.ts:233`](https://github.com/toommyliu/vexed/blob/ee7dea4922d10259289c35ce1638a1553a17b577/packages/game/src/models/Item.ts#L233)
 
 ```ts
 readonly level: number
@@ -166,11 +140,9 @@ readonly level: number
 
 <a id="property-maxstack"></a>
 
-### `maxStack`
+### `maxStack` <a class="source-reference__heading-link" style="float: right; display: inline-flex; align-items: center; justify-content: center; width: 2rem; height: 2rem; margin-block: -0.125rem; margin-inline-start: 0.5rem; border-radius: var(--radius-sm); text-decoration: none;" href="https://github.com/toommyliu/vexed/blob/69e580bf8bbae374ead5a6f3cb3d3e064ac2735d/packages/game/src/models/Item.ts#L54" tabindex="-1" aria-hidden="true" title="Open source: packages/game/src/models/Item.ts:54" target="_blank" rel="noreferrer"><svg class="source-reference__icon" width="16" height="16" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m18 16 4-4-4-4"></path><path d="m6 8-4 4 4 4"></path><path d="m14.5 4-5 16"></path></svg></a>
 
 The maximum stack size this item can exist in.
-
-**Source:** [`packages/game/src/models/Item.ts:54`](https://github.com/toommyliu/vexed/blob/ee7dea4922d10259289c35ce1638a1553a17b577/packages/game/src/models/Item.ts#L54)
 
 ```ts
 readonly maxStack: number
@@ -178,11 +150,9 @@ readonly maxStack: number
 
 <a id="property-meta"></a>
 
-### `meta`
+### `meta` <a class="source-reference__heading-link" style="float: right; display: inline-flex; align-items: center; justify-content: center; width: 2rem; height: 2rem; margin-block: -0.125rem; margin-inline-start: 0.5rem; border-radius: var(--radius-sm); text-decoration: none;" href="https://github.com/toommyliu/vexed/blob/69e580bf8bbae374ead5a6f3cb3d3e064ac2735d/packages/game/src/models/Item.ts#L167" tabindex="-1" aria-hidden="true" title="Open source: packages/game/src/models/Item.ts:167" target="_blank" rel="noreferrer"><svg class="source-reference__icon" width="16" height="16" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m18 16 4-4-4-4"></path><path d="m6 8-4 4 4 4"></path><path d="m14.5 4-5 16"></path></svg></a>
 
 The meta value of the item.
-
-**Source:** [`packages/game/src/models/Item.ts:167`](https://github.com/toommyliu/vexed/blob/ee7dea4922d10259289c35ce1638a1553a17b577/packages/game/src/models/Item.ts#L167)
 
 ```ts
 readonly meta: Record<string, number> | null
@@ -190,11 +160,9 @@ readonly meta: Record<string, number> | null
 
 <a id="property-name"></a>
 
-### `name`
+### `name` <a class="source-reference__heading-link" style="float: right; display: inline-flex; align-items: center; justify-content: center; width: 2rem; height: 2rem; margin-block: -0.125rem; margin-inline-start: 0.5rem; border-radius: var(--radius-sm); text-decoration: none;" href="https://github.com/toommyliu/vexed/blob/69e580bf8bbae374ead5a6f3cb3d3e064ac2735d/packages/game/src/models/Item.ts#L33" tabindex="-1" aria-hidden="true" title="Open source: packages/game/src/models/Item.ts:33" target="_blank" rel="noreferrer"><svg class="source-reference__icon" width="16" height="16" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m18 16 4-4-4-4"></path><path d="m6 8-4 4 4 4"></path><path d="m14.5 4-5 16"></path></svg></a>
 
 The name of the item.
-
-**Source:** [`packages/game/src/models/Item.ts:33`](https://github.com/toommyliu/vexed/blob/ee7dea4922d10259289c35ce1638a1553a17b577/packages/game/src/models/Item.ts#L33)
 
 ```ts
 readonly name: string
@@ -202,11 +170,9 @@ readonly name: string
 
 <a id="property-quantity"></a>
 
-### `quantity`
+### `quantity` <a class="source-reference__heading-link" style="float: right; display: inline-flex; align-items: center; justify-content: center; width: 2rem; height: 2rem; margin-block: -0.125rem; margin-inline-start: 0.5rem; border-radius: var(--radius-sm); text-decoration: none;" href="https://github.com/toommyliu/vexed/blob/69e580bf8bbae374ead5a6f3cb3d3e064ac2735d/packages/game/src/models/Item.ts#L47" tabindex="-1" aria-hidden="true" title="Open source: packages/game/src/models/Item.ts:47" target="_blank" rel="noreferrer"><svg class="source-reference__icon" width="16" height="16" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m18 16 4-4-4-4"></path><path d="m6 8-4 4 4 4"></path><path d="m14.5 4-5 16"></path></svg></a>
 
 The quantity of the item in this stack.
-
-**Source:** [`packages/game/src/models/Item.ts:47`](https://github.com/toommyliu/vexed/blob/ee7dea4922d10259289c35ce1638a1553a17b577/packages/game/src/models/Item.ts#L47)
 
 ```ts
 readonly quantity: number
@@ -216,11 +182,9 @@ readonly quantity: number
 
 <a id="method-isac"></a>
 
-### `isAC()`
+### `isAC()` <a class="source-reference__heading-link" style="float: right; display: inline-flex; align-items: center; justify-content: center; width: 2rem; height: 2rem; margin-block: -0.125rem; margin-inline-start: 0.5rem; border-radius: var(--radius-sm); text-decoration: none;" href="https://github.com/toommyliu/vexed/blob/69e580bf8bbae374ead5a6f3cb3d3e064ac2735d/packages/game/src/models/Item.ts#L68" tabindex="-1" aria-hidden="true" title="Open source: packages/game/src/models/Item.ts:68" target="_blank" rel="noreferrer"><svg class="source-reference__icon" width="16" height="16" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m18 16 4-4-4-4"></path><path d="m6 8-4 4 4 4"></path><path d="m14.5 4-5 16"></path></svg></a>
 
 Whether the item is AC tagged.
-
-**Source:** [`packages/game/src/models/Item.ts:68`](https://github.com/toommyliu/vexed/blob/ee7dea4922d10259289c35ce1638a1553a17b577/packages/game/src/models/Item.ts#L68)
 
 ```ts
 isAC(): boolean
@@ -228,11 +192,9 @@ isAC(): boolean
 
 <a id="method-isarmor"></a>
 
-### `isArmor()`
+### `isArmor()` <a class="source-reference__heading-link" style="float: right; display: inline-flex; align-items: center; justify-content: center; width: 2rem; height: 2rem; margin-block: -0.125rem; margin-inline-start: 0.5rem; border-radius: var(--radius-sm); text-decoration: none;" href="https://github.com/toommyliu/vexed/blob/69e580bf8bbae374ead5a6f3cb3d3e064ac2735d/packages/game/src/models/Item.ts#L107" tabindex="-1" aria-hidden="true" title="Open source: packages/game/src/models/Item.ts:107" target="_blank" rel="noreferrer"><svg class="source-reference__icon" width="16" height="16" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m18 16 4-4-4-4"></path><path d="m6 8-4 4 4 4"></path><path d="m14.5 4-5 16"></path></svg></a>
 
 Whether the item is type Armor.
-
-**Source:** [`packages/game/src/models/Item.ts:107`](https://github.com/toommyliu/vexed/blob/ee7dea4922d10259289c35ce1638a1553a17b577/packages/game/src/models/Item.ts#L107)
 
 ```ts
 isArmor(): boolean
@@ -240,11 +202,9 @@ isArmor(): boolean
 
 <a id="method-isboost"></a>
 
-### `isBoost()`
+### `isBoost()` <a class="source-reference__heading-link" style="float: right; display: inline-flex; align-items: center; justify-content: center; width: 2rem; height: 2rem; margin-block: -0.125rem; margin-inline-start: 0.5rem; border-radius: var(--radius-sm); text-decoration: none;" href="https://github.com/toommyliu/vexed/blob/69e580bf8bbae374ead5a6f3cb3d3e064ac2735d/packages/game/src/models/Item.ts#L275" tabindex="-1" aria-hidden="true" title="Open source: packages/game/src/models/Item.ts:275" target="_blank" rel="noreferrer"><svg class="source-reference__icon" width="16" height="16" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m18 16 4-4-4-4"></path><path d="m6 8-4 4 4 4"></path><path d="m14.5 4-5 16"></path></svg></a>
 
 Whether the item is a boost.
-
-**Source:** [`packages/game/src/models/Item.ts:275`](https://github.com/toommyliu/vexed/blob/ee7dea4922d10259289c35ce1638a1553a17b577/packages/game/src/models/Item.ts#L275)
 
 ```ts
 isBoost(): boolean
@@ -252,11 +212,9 @@ isBoost(): boolean
 
 <a id="method-iscape"></a>
 
-### `isCape()`
+### `isCape()` <a class="source-reference__heading-link" style="float: right; display: inline-flex; align-items: center; justify-content: center; width: 2rem; height: 2rem; margin-block: -0.125rem; margin-inline-start: 0.5rem; border-radius: var(--radius-sm); text-decoration: none;" href="https://github.com/toommyliu/vexed/blob/69e580bf8bbae374ead5a6f3cb3d3e064ac2735d/packages/game/src/models/Item.ts#L121" tabindex="-1" aria-hidden="true" title="Open source: packages/game/src/models/Item.ts:121" target="_blank" rel="noreferrer"><svg class="source-reference__icon" width="16" height="16" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m18 16 4-4-4-4"></path><path d="m6 8-4 4 4 4"></path><path d="m14.5 4-5 16"></path></svg></a>
 
 Whether the item is type Cape.
-
-**Source:** [`packages/game/src/models/Item.ts:121`](https://github.com/toommyliu/vexed/blob/ee7dea4922d10259289c35ce1638a1553a17b577/packages/game/src/models/Item.ts#L121)
 
 ```ts
 isCape(): boolean
@@ -264,11 +222,9 @@ isCape(): boolean
 
 <a id="method-isclass"></a>
 
-### `isClass()`
+### `isClass()` <a class="source-reference__heading-link" style="float: right; display: inline-flex; align-items: center; justify-content: center; width: 2rem; height: 2rem; margin-block: -0.125rem; margin-inline-start: 0.5rem; border-radius: var(--radius-sm); text-decoration: none;" href="https://github.com/toommyliu/vexed/blob/69e580bf8bbae374ead5a6f3cb3d3e064ac2735d/packages/game/src/models/Item.ts#L114" tabindex="-1" aria-hidden="true" title="Open source: packages/game/src/models/Item.ts:114" target="_blank" rel="noreferrer"><svg class="source-reference__icon" width="16" height="16" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m18 16 4-4-4-4"></path><path d="m6 8-4 4 4 4"></path><path d="m14.5 4-5 16"></path></svg></a>
 
 Whether the item is type Class.
-
-**Source:** [`packages/game/src/models/Item.ts:114`](https://github.com/toommyliu/vexed/blob/ee7dea4922d10259289c35ce1638a1553a17b577/packages/game/src/models/Item.ts#L114)
 
 ```ts
 isClass(): boolean
@@ -276,11 +232,9 @@ isClass(): boolean
 
 <a id="method-isequipped"></a>
 
-### `isEquipped()`
+### `isEquipped()` <a class="source-reference__heading-link" style="float: right; display: inline-flex; align-items: center; justify-content: center; width: 2rem; height: 2rem; margin-block: -0.125rem; margin-inline-start: 0.5rem; border-radius: var(--radius-sm); text-decoration: none;" href="https://github.com/toommyliu/vexed/blob/69e580bf8bbae374ead5a6f3cb3d3e064ac2735d/packages/game/src/models/Item.ts#L219" tabindex="-1" aria-hidden="true" title="Open source: packages/game/src/models/Item.ts:219" target="_blank" rel="noreferrer"><svg class="source-reference__icon" width="16" height="16" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m18 16 4-4-4-4"></path><path d="m6 8-4 4 4 4"></path><path d="m14.5 4-5 16"></path></svg></a>
 
 Whether the item is equipped.
-
-**Source:** [`packages/game/src/models/Item.ts:219`](https://github.com/toommyliu/vexed/blob/ee7dea4922d10259289c35ce1638a1553a17b577/packages/game/src/models/Item.ts#L219)
 
 ```ts
 isEquipped(): boolean
@@ -288,11 +242,9 @@ isEquipped(): boolean
 
 <a id="method-ishelm"></a>
 
-### `isHelm()`
+### `isHelm()` <a class="source-reference__heading-link" style="float: right; display: inline-flex; align-items: center; justify-content: center; width: 2rem; height: 2rem; margin-block: -0.125rem; margin-inline-start: 0.5rem; border-radius: var(--radius-sm); text-decoration: none;" href="https://github.com/toommyliu/vexed/blob/69e580bf8bbae374ead5a6f3cb3d3e064ac2735d/packages/game/src/models/Item.ts#L128" tabindex="-1" aria-hidden="true" title="Open source: packages/game/src/models/Item.ts:128" target="_blank" rel="noreferrer"><svg class="source-reference__icon" width="16" height="16" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m18 16 4-4-4-4"></path><path d="m6 8-4 4 4 4"></path><path d="m14.5 4-5 16"></path></svg></a>
 
 Whether the item is type Helm.
-
-**Source:** [`packages/game/src/models/Item.ts:128`](https://github.com/toommyliu/vexed/blob/ee7dea4922d10259289c35ce1638a1553a17b577/packages/game/src/models/Item.ts#L128)
 
 ```ts
 isHelm(): boolean
@@ -300,11 +252,9 @@ isHelm(): boolean
 
 <a id="method-ismaxed"></a>
 
-### `isMaxed()`
+### `isMaxed()` <a class="source-reference__heading-link" style="float: right; display: inline-flex; align-items: center; justify-content: center; width: 2rem; height: 2rem; margin-block: -0.125rem; margin-inline-start: 0.5rem; border-radius: var(--radius-sm); text-decoration: none;" href="https://github.com/toommyliu/vexed/blob/69e580bf8bbae374ead5a6f3cb3d3e064ac2735d/packages/game/src/models/Item.ts#L193" tabindex="-1" aria-hidden="true" title="Open source: packages/game/src/models/Item.ts:193" target="_blank" rel="noreferrer"><svg class="source-reference__icon" width="16" height="16" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m18 16 4-4-4-4"></path><path d="m6 8-4 4 4 4"></path><path d="m14.5 4-5 16"></path></svg></a>
 
 Whether the item is at its maximum stack size.
-
-**Source:** [`packages/game/src/models/Item.ts:193`](https://github.com/toommyliu/vexed/blob/ee7dea4922d10259289c35ce1638a1553a17b577/packages/game/src/models/Item.ts#L193)
 
 ```ts
 isMaxed(): boolean
@@ -312,11 +262,9 @@ isMaxed(): boolean
 
 <a id="method-ismember"></a>
 
-### `isMember()`
+### `isMember()` <a class="source-reference__heading-link" style="float: right; display: inline-flex; align-items: center; justify-content: center; width: 2rem; height: 2rem; margin-block: -0.125rem; margin-inline-start: 0.5rem; border-radius: var(--radius-sm); text-decoration: none;" href="https://github.com/toommyliu/vexed/blob/69e580bf8bbae374ead5a6f3cb3d3e064ac2735d/packages/game/src/models/Item.ts#L205" tabindex="-1" aria-hidden="true" title="Open source: packages/game/src/models/Item.ts:205" target="_blank" rel="noreferrer"><svg class="source-reference__icon" width="16" height="16" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m18 16 4-4-4-4"></path><path d="m6 8-4 4 4 4"></path><path d="m14.5 4-5 16"></path></svg></a>
 
 Whether the item is member-only.
-
-**Source:** [`packages/game/src/models/Item.ts:205`](https://github.com/toommyliu/vexed/blob/ee7dea4922d10259289c35ce1638a1553a17b577/packages/game/src/models/Item.ts#L205)
 
 ```ts
 isMember(): boolean
@@ -324,11 +272,9 @@ isMember(): boolean
 
 <a id="method-ispet"></a>
 
-### `isPet()`
+### `isPet()` <a class="source-reference__heading-link" style="float: right; display: inline-flex; align-items: center; justify-content: center; width: 2rem; height: 2rem; margin-block: -0.125rem; margin-inline-start: 0.5rem; border-radius: var(--radius-sm); text-decoration: none;" href="https://github.com/toommyliu/vexed/blob/69e580bf8bbae374ead5a6f3cb3d3e064ac2735d/packages/game/src/models/Item.ts#L135" tabindex="-1" aria-hidden="true" title="Open source: packages/game/src/models/Item.ts:135" target="_blank" rel="noreferrer"><svg class="source-reference__icon" width="16" height="16" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m18 16 4-4-4-4"></path><path d="m6 8-4 4 4 4"></path><path d="m14.5 4-5 16"></path></svg></a>
 
 Whether the item is type Pet.
-
-**Source:** [`packages/game/src/models/Item.ts:135`](https://github.com/toommyliu/vexed/blob/ee7dea4922d10259289c35ce1638a1553a17b577/packages/game/src/models/Item.ts#L135)
 
 ```ts
 isPet(): boolean
@@ -336,11 +282,9 @@ isPet(): boolean
 
 <a id="method-istemp"></a>
 
-### `isTemp()`
+### `isTemp()` <a class="source-reference__heading-link" style="float: right; display: inline-flex; align-items: center; justify-content: center; width: 2rem; height: 2rem; margin-block: -0.125rem; margin-inline-start: 0.5rem; border-radius: var(--radius-sm); text-decoration: none;" href="https://github.com/toommyliu/vexed/blob/69e580bf8bbae374ead5a6f3cb3d3e064ac2735d/packages/game/src/models/Item.ts#L82" tabindex="-1" aria-hidden="true" title="Open source: packages/game/src/models/Item.ts:82" target="_blank" rel="noreferrer"><svg class="source-reference__icon" width="16" height="16" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m18 16 4-4-4-4"></path><path d="m6 8-4 4 4 4"></path><path d="m14.5 4-5 16"></path></svg></a>
 
 Whether the item belongs to the temp inventory.
-
-**Source:** [`packages/game/src/models/Item.ts:82`](https://github.com/toommyliu/vexed/blob/ee7dea4922d10259289c35ce1638a1553a17b577/packages/game/src/models/Item.ts#L82)
 
 ```ts
 isTemp(): boolean
@@ -348,11 +292,9 @@ isTemp(): boolean
 
 <a id="method-isupgrade"></a>
 
-### `isUpgrade()`
+### `isUpgrade()` <a class="source-reference__heading-link" style="float: right; display: inline-flex; align-items: center; justify-content: center; width: 2rem; height: 2rem; margin-block: -0.125rem; margin-inline-start: 0.5rem; border-radius: var(--radius-sm); text-decoration: none;" href="https://github.com/toommyliu/vexed/blob/69e580bf8bbae374ead5a6f3cb3d3e064ac2735d/packages/game/src/models/Item.ts#L61" tabindex="-1" aria-hidden="true" title="Open source: packages/game/src/models/Item.ts:61" target="_blank" rel="noreferrer"><svg class="source-reference__icon" width="16" height="16" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m18 16 4-4-4-4"></path><path d="m6 8-4 4 4 4"></path><path d="m14.5 4-5 16"></path></svg></a>
 
 Whether the item is member-only.
-
-**Source:** [`packages/game/src/models/Item.ts:61`](https://github.com/toommyliu/vexed/blob/ee7dea4922d10259289c35ce1638a1553a17b577/packages/game/src/models/Item.ts#L61)
 
 ```ts
 isUpgrade(): boolean
@@ -360,11 +302,9 @@ isUpgrade(): boolean
 
 <a id="method-isweapon"></a>
 
-### `isWeapon()`
+### `isWeapon()` <a class="source-reference__heading-link" style="float: right; display: inline-flex; align-items: center; justify-content: center; width: 2rem; height: 2rem; margin-block: -0.125rem; margin-inline-start: 0.5rem; border-radius: var(--radius-sm); text-decoration: none;" href="https://github.com/toommyliu/vexed/blob/69e580bf8bbae374ead5a6f3cb3d3e064ac2735d/packages/game/src/models/Item.ts#L142" tabindex="-1" aria-hidden="true" title="Open source: packages/game/src/models/Item.ts:142" target="_blank" rel="noreferrer"><svg class="source-reference__icon" width="16" height="16" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m18 16 4-4-4-4"></path><path d="m6 8-4 4 4 4"></path><path d="m14.5 4-5 16"></path></svg></a>
 
 Whether the item is type Weapon.
-
-**Source:** [`packages/game/src/models/Item.ts:142`](https://github.com/toommyliu/vexed/blob/ee7dea4922d10259289c35ce1638a1553a17b577/packages/game/src/models/Item.ts#L142)
 
 ```ts
 isWeapon(): boolean
@@ -372,11 +312,9 @@ isWeapon(): boolean
 
 <a id="method-iswearing"></a>
 
-### `isWearing()`
+### `isWearing()` <a class="source-reference__heading-link" style="float: right; display: inline-flex; align-items: center; justify-content: center; width: 2rem; height: 2rem; margin-block: -0.125rem; margin-inline-start: 0.5rem; border-radius: var(--radius-sm); text-decoration: none;" href="https://github.com/toommyliu/vexed/blob/69e580bf8bbae374ead5a6f3cb3d3e064ac2735d/packages/game/src/models/Item.ts#L226" tabindex="-1" aria-hidden="true" title="Open source: packages/game/src/models/Item.ts:226" target="_blank" rel="noreferrer"><svg class="source-reference__icon" width="16" height="16" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m18 16 4-4-4-4"></path><path d="m6 8-4 4 4 4"></path><path d="m14.5 4-5 16"></path></svg></a>
 
 Whether the item is currently being worn.
-
-**Source:** [`packages/game/src/models/Item.ts:226`](https://github.com/toommyliu/vexed/blob/ee7dea4922d10259289c35ce1638a1553a17b577/packages/game/src/models/Item.ts#L226)
 
 ```ts
 isWearing(): boolean

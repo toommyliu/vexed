@@ -1,0 +1,179 @@
+---
+import '@astrojs/starlight/style/markdown.css';
+---
+
+<div class="markdown-wrapper">
+    <div class="sl-markdown-content">
+        <slot />
+    </div>
+</div>
+
+<script>
+    const legacyRequiredMark = String.fromCodePoint(Number.parseInt('2713', 16));
+    const apiSignaturePattern = /^(api(?:\.[A-Za-z_$][\w$]*)+)\((.*)\):\s*BridgeEffect<[\s\S]+>$/;
+
+    const getParameterName = (parameter) => {
+        const withoutDefault = parameter.split('=')[0]?.trim() ?? '';
+        const withoutType = withoutDefault.split(':')[0]?.trim() ?? '';
+        const withoutOptional = withoutType.replace(/\?$/, '').trim();
+        return withoutOptional.replace(/^\.\.\./, '').trim();
+    };
+
+    const splitParameters = (parameters) => {
+        const parts = [];
+        let current = '';
+        let depth = 0;
+        let quote = '';
+
+        for (const character of parameters) {
+            if (quote) {
+                current += character;
+                if (character === quote) quote = '';
+                continue;
+            }
+
+            if (character === "'" || character === '"' || character === '`') {
+                quote = character;
+                current += character;
+                continue;
+            }
+
+            if (character === '<' || character === '(' || character === '[' || character === '{') {
+                depth += 1;
+                current += character;
+                continue;
+            }
+
+            if (character === '>' || character === ')' || character === ']' || character === '}') {
+                depth = Math.max(0, depth - 1);
+                current += character;
+                continue;
+            }
+
+            if (character === ',' && depth === 0) {
+                parts.push(current.trim());
+                current = '';
+                continue;
+            }
+
+            current += character;
+        }
+
+        if (current.trim()) parts.push(current.trim());
+        return parts;
+    };
+
+    const createApiCallSnippet = (signature) => {
+        const match = signature.trim().match(apiSignaturePattern);
+        if (!match) return null;
+
+        const [, callee, parameters] = match;
+        const argumentNames = splitParameters(parameters)
+            .map(getParameterName)
+            .filter(Boolean);
+
+        return `${callee}(${argumentNames.join(', ')})`;
+    };
+
+    const writeToClipboard = async (text) => {
+        if (navigator.clipboard) {
+            await navigator.clipboard.writeText(text);
+            return;
+        }
+
+        const textArea = document.createElement('textarea');
+        textArea.value = text;
+        textArea.setAttribute('readonly', '');
+        textArea.style.position = 'fixed';
+        textArea.style.inset = '0 auto auto 0';
+        textArea.style.opacity = '0';
+        document.body.append(textArea);
+        textArea.select();
+
+        try {
+            document.execCommand('copy');
+        } finally {
+            textArea.remove();
+        }
+    };
+
+    const upgradeRequiredMarks = () => {
+        for (const table of document.querySelectorAll('.sl-markdown-content table')) {
+            const headers = Array.from(table.querySelectorAll('thead th'));
+            const requiredColumnIndex = headers.findIndex(
+                (header) => header.textContent?.trim() === 'Required'
+            );
+
+            if (requiredColumnIndex === -1) continue;
+
+            for (const row of table.querySelectorAll('tbody tr')) {
+                const cell = row.children.item(requiredColumnIndex);
+                if (cell?.textContent?.trim() !== legacyRequiredMark) continue;
+
+                cell.textContent = '';
+                const mark = document.createElement('span');
+                mark.className = 'required-mark';
+                mark.setAttribute('role', 'img');
+                mark.setAttribute('aria-label', 'Required');
+                cell.append(mark);
+            }
+        }
+    };
+
+    const upgradeApiSignatureCopyButtons = () => {
+        for (const block of document.querySelectorAll('.sl-markdown-content .expressive-code')) {
+            const code = block.querySelector('pre code');
+            const copyButton = block.querySelector('.copy button');
+            if (!code || !copyButton) continue;
+
+            const snippet = createApiCallSnippet(code.textContent ?? '');
+            if (!snippet) continue;
+
+            copyButton.dataset.copySnippet = snippet;
+            copyButton.setAttribute('aria-label', 'Copy call');
+            copyButton.setAttribute('title', 'Copy call');
+        }
+    };
+
+    const upgradeDecorativeHeadingSourceLinks = () => {
+        for (const link of document.querySelectorAll(
+            '.sl-markdown-content .source-reference__heading-link'
+        )) {
+            link.setAttribute('tabindex', '-1');
+            link.setAttribute('aria-hidden', 'true');
+        }
+    };
+
+    const copyApiCallSnippet = async (event) => {
+        const copyButton = event.target?.closest?.('.copy button[data-copy-snippet]');
+        if (!copyButton) return;
+
+        event.preventDefault();
+        event.stopPropagation();
+        event.stopImmediatePropagation();
+
+        await writeToClipboard(copyButton.dataset.copySnippet ?? '');
+
+        const feedback = copyButton.closest('.copy')?.querySelector('.feedback');
+        feedback?.classList.add('show');
+        window.setTimeout(() => feedback?.classList.remove('show'), 1000);
+    };
+
+    const upgradeMarkdownContent = () => {
+        upgradeRequiredMarks();
+        upgradeApiSignatureCopyButtons();
+        upgradeDecorativeHeadingSourceLinks();
+    };
+
+    document.addEventListener('click', copyApiCallSnippet, true);
+    upgradeMarkdownContent();
+    document.addEventListener('astro:after-swap', upgradeMarkdownContent);
+</script>
+
+<style>
+    .markdown-wrapper {
+        --foreground: var(--markdown-foreground, var(--foreground));
+
+        color: var(--foreground);
+    }
+</style>

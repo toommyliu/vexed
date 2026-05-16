@@ -1,8 +1,8 @@
 ---
-title: Server
-description: Generated vexed scripting reference for Server.
+title: "Server"
+description: "Represents a game server."
 sidebar:
-  label: Server
+  label: "Server"
 tableOfContents:
   minHeadingLevel: 2
   maxHeadingLevel: 3
@@ -12,8 +12,6 @@ tableOfContents:
 
 Represents a game server.
 
-**Source:** [`packages/game/src/models/Server.ts:6`](https://github.com/toommyliu/vexed/blob/ee7dea4922d10259289c35ce1638a1553a17b577/packages/game/src/models/Server.ts#L6)
-
 ```ts
 class Server
 ```
@@ -22,11 +20,9 @@ class Server
 
 <a id="property-data"></a>
 
-### `data`
+### `data` <a class="source-reference__heading-link" style="float: right; display: inline-flex; align-items: center; justify-content: center; width: 2rem; height: 2rem; margin-block: -0.125rem; margin-inline-start: 0.5rem; border-radius: var(--radius-sm); text-decoration: none;" href="https://github.com/toommyliu/vexed/blob/69e580bf8bbae374ead5a6f3cb3d3e064ac2735d/packages/game/src/models/Server.ts#L10" tabindex="-1" aria-hidden="true" title="Open source: packages/game/src/models/Server.ts:10" target="_blank" rel="noreferrer"><svg class="source-reference__icon" width="16" height="16" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m18 16 4-4-4-4"></path><path d="m6 8-4 4 4 4"></path><path d="m14.5 4-5 16"></path></svg></a>
 
 Data about this server.
-
-**Source:** [`packages/game/src/models/Server.ts:10`](https://github.com/toommyliu/vexed/blob/ee7dea4922d10259289c35ce1638a1553a17b577/packages/game/src/models/Server.ts#L10)
 
 ```ts
 data: ServerData
@@ -34,11 +30,9 @@ data: ServerData
 
 <a id="property-ip"></a>
 
-### `ip`
+### `ip` <a class="source-reference__heading-link" style="float: right; display: inline-flex; align-items: center; justify-content: center; width: 2rem; height: 2rem; margin-block: -0.125rem; margin-inline-start: 0.5rem; border-radius: var(--radius-sm); text-decoration: none;" href="https://github.com/toommyliu/vexed/blob/69e580bf8bbae374ead5a6f3cb3d3e064ac2735d/packages/game/src/models/Server.ts#L44" tabindex="-1" aria-hidden="true" title="Open source: packages/game/src/models/Server.ts:44" target="_blank" rel="noreferrer"><svg class="source-reference__icon" width="16" height="16" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m18 16 4-4-4-4"></path><path d="m6 8-4 4 4 4"></path><path d="m14.5 4-5 16"></path></svg></a>
 
 The IP address of the server.
-
-**Source:** [`packages/game/src/models/Server.ts:44`](https://github.com/toommyliu/vexed/blob/ee7dea4922d10259289c35ce1638a1553a17b577/packages/game/src/models/Server.ts#L44)
 
 ```ts
 readonly ip: string
@@ -46,11 +40,9 @@ readonly ip: string
 
 <a id="property-langcode"></a>
 
-### `langCode`
+### `langCode` <a class="source-reference__heading-link" style="float: right; display: inline-flex; align-items: center; justify-content: center; width: 2rem; height: 2rem; margin-block: -0.125rem; margin-inline-start: 0.5rem; border-radius: var(--radius-sm); text-decoration: none;" href="https://github.com/toommyliu/vexed/blob/69e580bf8bbae374ead5a6f3cb3d3e064ac2735d/packages/game/src/models/Server.ts#L30" tabindex="-1" aria-hidden="true" title="Open source: packages/game/src/models/Server.ts:30" target="_blank" rel="noreferrer"><svg class="source-reference__icon" width="16" height="16" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m18 16 4-4-4-4"></path><path d="m6 8-4 4 4 4"></path><path d="m14.5 4-5 16"></path></svg></a>
 
 The language of the server (en/xx/it/pt).
-
-**Source:** [`packages/game/src/models/Server.ts:30`](https://github.com/toommyliu/vexed/blob/ee7dea4922d10259289c35ce1638a1553a17b577/packages/game/src/models/Server.ts#L30)
 
 ```ts
 readonly langCode: string
@@ -58,11 +50,9 @@ readonly langCode: string
 
 <a id="property-maxplayers"></a>
 
-### `maxPlayers`
+### `maxPlayers` <a class="source-reference__heading-link" style="float: right; display: inline-flex; align-items: center; justify-content: center; width: 2rem; height: 2rem; margin-block: -0.125rem; margin-inline-start: 0.5rem; border-radius: var(--radius-sm); text-decoration: none;" href="https://github.com/toommyliu/vexed/blob/69e580bf8bbae374ead5a6f3cb3d3e064ac2735d/packages/game/src/models/Server.ts#L16" tabindex="-1" aria-hidden="true" title="Open source: packages/game/src/models/Server.ts:16" target="_blank" rel="noreferrer"><svg class="source-reference__icon" width="16" height="16" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m18 16 4-4-4-4"></path><path d="m6 8-4 4 4 4"></path><path d="m14.5 4-5 16"></path></svg></a>
 
 The maximum number of players.
-
-**Source:** [`packages/game/src/models/Server.ts:16`](https://github.com/toommyliu/vexed/blob/ee7dea4922d10259289c35ce1638a1553a17b577/packages/game/src/models/Server.ts#L16)
 
 ```ts
 readonly maxPlayers: number
@@ -70,11 +60,9 @@ readonly maxPlayers: number
 
 <a id="property-name"></a>
 
-### `name`
+### `name` <a class="source-reference__heading-link" style="float: right; display: inline-flex; align-items: center; justify-content: center; width: 2rem; height: 2rem; margin-block: -0.125rem; margin-inline-start: 0.5rem; border-radius: var(--radius-sm); text-decoration: none;" href="https://github.com/toommyliu/vexed/blob/69e580bf8bbae374ead5a6f3cb3d3e064ac2735d/packages/game/src/models/Server.ts#L37" tabindex="-1" aria-hidden="true" title="Open source: packages/game/src/models/Server.ts:37" target="_blank" rel="noreferrer"><svg class="source-reference__icon" width="16" height="16" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m18 16 4-4-4-4"></path><path d="m6 8-4 4 4 4"></path><path d="m14.5 4-5 16"></path></svg></a>
 
 The name of the server.
-
-**Source:** [`packages/game/src/models/Server.ts:37`](https://github.com/toommyliu/vexed/blob/ee7dea4922d10259289c35ce1638a1553a17b577/packages/game/src/models/Server.ts#L37)
 
 ```ts
 readonly name: string
@@ -82,11 +70,9 @@ readonly name: string
 
 <a id="property-playercount"></a>
 
-### `playerCount`
+### `playerCount` <a class="source-reference__heading-link" style="float: right; display: inline-flex; align-items: center; justify-content: center; width: 2rem; height: 2rem; margin-block: -0.125rem; margin-inline-start: 0.5rem; border-radius: var(--radius-sm); text-decoration: none;" href="https://github.com/toommyliu/vexed/blob/69e580bf8bbae374ead5a6f3cb3d3e064ac2735d/packages/game/src/models/Server.ts#L51" tabindex="-1" aria-hidden="true" title="Open source: packages/game/src/models/Server.ts:51" target="_blank" rel="noreferrer"><svg class="source-reference__icon" width="16" height="16" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m18 16 4-4-4-4"></path><path d="m6 8-4 4 4 4"></path><path d="m14.5 4-5 16"></path></svg></a>
 
 The number of current players.
-
-**Source:** [`packages/game/src/models/Server.ts:51`](https://github.com/toommyliu/vexed/blob/ee7dea4922d10259289c35ce1638a1553a17b577/packages/game/src/models/Server.ts#L51)
 
 ```ts
 readonly playerCount: number
@@ -94,11 +80,9 @@ readonly playerCount: number
 
 <a id="property-port"></a>
 
-### `port`
+### `port` <a class="source-reference__heading-link" style="float: right; display: inline-flex; align-items: center; justify-content: center; width: 2rem; height: 2rem; margin-block: -0.125rem; margin-inline-start: 0.5rem; border-radius: var(--radius-sm); text-decoration: none;" href="https://github.com/toommyliu/vexed/blob/69e580bf8bbae374ead5a6f3cb3d3e064ac2735d/packages/game/src/models/Server.ts#L23" tabindex="-1" aria-hidden="true" title="Open source: packages/game/src/models/Server.ts:23" target="_blank" rel="noreferrer"><svg class="source-reference__icon" width="16" height="16" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m18 16 4-4-4-4"></path><path d="m6 8-4 4 4 4"></path><path d="m14.5 4-5 16"></path></svg></a>
 
 The port number the server is on.
-
-**Source:** [`packages/game/src/models/Server.ts:23`](https://github.com/toommyliu/vexed/blob/ee7dea4922d10259289c35ce1638a1553a17b577/packages/game/src/models/Server.ts#L23)
 
 ```ts
 readonly port: number
@@ -108,11 +92,9 @@ readonly port: number
 
 <a id="method-iscanned"></a>
 
-### `isCanned()`
+### `isCanned()` <a class="source-reference__heading-link" style="float: right; display: inline-flex; align-items: center; justify-content: center; width: 2rem; height: 2rem; margin-block: -0.125rem; margin-inline-start: 0.5rem; border-radius: var(--radius-sm); text-decoration: none;" href="https://github.com/toommyliu/vexed/blob/69e580bf8bbae374ead5a6f3cb3d3e064ac2735d/packages/game/src/models/Server.ts#L65" tabindex="-1" aria-hidden="true" title="Open source: packages/game/src/models/Server.ts:65" target="_blank" rel="noreferrer"><svg class="source-reference__icon" width="16" height="16" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m18 16 4-4-4-4"></path><path d="m6 8-4 4 4 4"></path><path d="m14.5 4-5 16"></path></svg></a>
 
 The chat-level restriction of the server (0=canned, 2=free).
-
-**Source:** [`packages/game/src/models/Server.ts:65`](https://github.com/toommyliu/vexed/blob/ee7dea4922d10259289c35ce1638a1553a17b577/packages/game/src/models/Server.ts#L65)
 
 ```ts
 isCanned(): boolean
@@ -120,11 +102,9 @@ isCanned(): boolean
 
 <a id="method-isfull"></a>
 
-### `isFull()`
+### `isFull()` <a class="source-reference__heading-link" style="float: right; display: inline-flex; align-items: center; justify-content: center; width: 2rem; height: 2rem; margin-block: -0.125rem; margin-inline-start: 0.5rem; border-radius: var(--radius-sm); text-decoration: none;" href="https://github.com/toommyliu/vexed/blob/69e580bf8bbae374ead5a6f3cb3d3e064ac2735d/packages/game/src/models/Server.ts#L79" tabindex="-1" aria-hidden="true" title="Open source: packages/game/src/models/Server.ts:79" target="_blank" rel="noreferrer"><svg class="source-reference__icon" width="16" height="16" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m18 16 4-4-4-4"></path><path d="m6 8-4 4 4 4"></path><path d="m14.5 4-5 16"></path></svg></a>
 
 Whether the server is full (at or above capacity).
-
-**Source:** [`packages/game/src/models/Server.ts:79`](https://github.com/toommyliu/vexed/blob/ee7dea4922d10259289c35ce1638a1553a17b577/packages/game/src/models/Server.ts#L79)
 
 ```ts
 isFull(): boolean
@@ -132,11 +112,9 @@ isFull(): boolean
 
 <a id="method-isonline"></a>
 
-### `isOnline()`
+### `isOnline()` <a class="source-reference__heading-link" style="float: right; display: inline-flex; align-items: center; justify-content: center; width: 2rem; height: 2rem; margin-block: -0.125rem; margin-inline-start: 0.5rem; border-radius: var(--radius-sm); text-decoration: none;" href="https://github.com/toommyliu/vexed/blob/69e580bf8bbae374ead5a6f3cb3d3e064ac2735d/packages/game/src/models/Server.ts#L72" tabindex="-1" aria-hidden="true" title="Open source: packages/game/src/models/Server.ts:72" target="_blank" rel="noreferrer"><svg class="source-reference__icon" width="16" height="16" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m18 16 4-4-4-4"></path><path d="m6 8-4 4 4 4"></path><path d="m14.5 4-5 16"></path></svg></a>
 
 Whether the server is online.
-
-**Source:** [`packages/game/src/models/Server.ts:72`](https://github.com/toommyliu/vexed/blob/ee7dea4922d10259289c35ce1638a1553a17b577/packages/game/src/models/Server.ts#L72)
 
 ```ts
 isOnline(): boolean
@@ -144,11 +122,9 @@ isOnline(): boolean
 
 <a id="method-isupgrade"></a>
 
-### `isUpgrade()`
+### `isUpgrade()` <a class="source-reference__heading-link" style="float: right; display: inline-flex; align-items: center; justify-content: center; width: 2rem; height: 2rem; margin-block: -0.125rem; margin-inline-start: 0.5rem; border-radius: var(--radius-sm); text-decoration: none;" href="https://github.com/toommyliu/vexed/blob/69e580bf8bbae374ead5a6f3cb3d3e064ac2735d/packages/game/src/models/Server.ts#L58" tabindex="-1" aria-hidden="true" title="Open source: packages/game/src/models/Server.ts:58" target="_blank" rel="noreferrer"><svg class="source-reference__icon" width="16" height="16" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m18 16 4-4-4-4"></path><path d="m6 8-4 4 4 4"></path><path d="m14.5 4-5 16"></path></svg></a>
 
 Whether the server is an upgrade-only server.
-
-**Source:** [`packages/game/src/models/Server.ts:58`](https://github.com/toommyliu/vexed/blob/ee7dea4922d10259289c35ce1638a1553a17b577/packages/game/src/models/Server.ts#L58)
 
 ```ts
 isUpgrade(): boolean

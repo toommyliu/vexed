@@ -1,8 +1,8 @@
 ---
-title: autoRelogin
-description: Generated vexed scripting reference for autoRelogin.
+title: "autoRelogin"
+description: "Feature controls available as `autoRelogin` on the script context."
 sidebar:
-  label: Auto Relogin
+  label: "Auto Relogin"
 tableOfContents:
   minHeadingLevel: 2
   maxHeadingLevel: 3
@@ -12,25 +12,11 @@ tableOfContents:
 
 Feature controls available as `autoRelogin` on the script context.
 
-## Reference Index
-
-| Member |
-| --- |
-| [`autoRelogin.disable`](#member-autorelogin-disable) |
-| [`autoRelogin.enable`](#member-autorelogin-enable) |
-| [`autoRelogin.getDelay`](#member-autorelogin-getdelay) |
-| [`autoRelogin.getServer`](#member-autorelogin-getserver) |
-| [`autoRelogin.isEnabled`](#member-autorelogin-isenabled) |
-| [`autoRelogin.setDelay`](#member-autorelogin-setdelay) |
-| [`autoRelogin.setServer`](#member-autorelogin-setserver) |
-
 ## Members
 
 <a id="member-autorelogin-disable"></a>
 
-### `autoRelogin.disable()`
-
-**Source:** [`app/src/renderer/windows/game/scripting/ScriptApi.ts:147`](https://github.com/toommyliu/vexed/blob/ee7dea4922d10259289c35ce1638a1553a17b577/app/src/renderer/windows/game/scripting/ScriptApi.ts#L147)
+### `autoRelogin.disable()` <a class="source-reference__heading-link" style="float: right; display: inline-flex; align-items: center; justify-content: center; width: 2rem; height: 2rem; margin-block: -0.125rem; margin-inline-start: 0.5rem; border-radius: var(--radius-sm); text-decoration: none;" href="https://github.com/toommyliu/vexed/blob/69e580bf8bbae374ead5a6f3cb3d3e064ac2735d/app/src/renderer/windows/game/scripting/ScriptApi.ts#L147" tabindex="-1" aria-hidden="true" title="Open source: app/src/renderer/windows/game/scripting/ScriptApi.ts:147" target="_blank" rel="noreferrer"><svg class="source-reference__icon" width="16" height="16" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m18 16 4-4-4-4"></path><path d="m6 8-4 4 4 4"></path><path d="m14.5 4-5 16"></path></svg></a>
 
 ```ts
 autoRelogin.disable(): Effect.Effect<void, never, never>
@@ -42,9 +28,7 @@ autoRelogin.disable(): Effect.Effect<void, never, never>
 
 <a id="member-autorelogin-enable"></a>
 
-### `autoRelogin.enable()`
-
-**Source:** [`app/src/renderer/windows/game/scripting/ScriptApi.ts:146`](https://github.com/toommyliu/vexed/blob/ee7dea4922d10259289c35ce1638a1553a17b577/app/src/renderer/windows/game/scripting/ScriptApi.ts#L146)
+### `autoRelogin.enable()` <a class="source-reference__heading-link" style="float: right; display: inline-flex; align-items: center; justify-content: center; width: 2rem; height: 2rem; margin-block: -0.125rem; margin-inline-start: 0.5rem; border-radius: var(--radius-sm); text-decoration: none;" href="https://github.com/toommyliu/vexed/blob/69e580bf8bbae374ead5a6f3cb3d3e064ac2735d/app/src/renderer/windows/game/scripting/ScriptApi.ts#L146" tabindex="-1" aria-hidden="true" title="Open source: app/src/renderer/windows/game/scripting/ScriptApi.ts:146" target="_blank" rel="noreferrer"><svg class="source-reference__icon" width="16" height="16" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m18 16 4-4-4-4"></path><path d="m6 8-4 4 4 4"></path><path d="m14.5 4-5 16"></path></svg></a>
 
 ```ts
 autoRelogin.enable(): Effect.Effect<void, never, never>
@@ -56,9 +40,7 @@ autoRelogin.enable(): Effect.Effect<void, never, never>
 
 <a id="member-autorelogin-getdelay"></a>
 
-### `autoRelogin.getDelay()`
-
-**Source:** [`app/src/renderer/windows/game/scripting/ScriptApi.ts:148`](https://github.com/toommyliu/vexed/blob/ee7dea4922d10259289c35ce1638a1553a17b577/app/src/renderer/windows/game/scripting/ScriptApi.ts#L148)
+### `autoRelogin.getDelay()` <a class="source-reference__heading-link" style="float: right; display: inline-flex; align-items: center; justify-content: center; width: 2rem; height: 2rem; margin-block: -0.125rem; margin-inline-start: 0.5rem; border-radius: var(--radius-sm); text-decoration: none;" href="https://github.com/toommyliu/vexed/blob/69e580bf8bbae374ead5a6f3cb3d3e064ac2735d/app/src/renderer/windows/game/scripting/ScriptApi.ts#L148" tabindex="-1" aria-hidden="true" title="Open source: app/src/renderer/windows/game/scripting/ScriptApi.ts:148" target="_blank" rel="noreferrer"><svg class="source-reference__icon" width="16" height="16" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m18 16 4-4-4-4"></path><path d="m6 8-4 4 4 4"></path><path d="m14.5 4-5 16"></path></svg></a>
 
 ```ts
 autoRelogin.getDelay(): Effect.Effect<number, never, never>
@@ -70,9 +52,7 @@ autoRelogin.getDelay(): Effect.Effect<number, never, never>
 
 <a id="member-autorelogin-getserver"></a>
 
-### `autoRelogin.getServer()`
-
-**Source:** [`app/src/renderer/windows/game/scripting/ScriptApi.ts:150`](https://github.com/toommyliu/vexed/blob/ee7dea4922d10259289c35ce1638a1553a17b577/app/src/renderer/windows/game/scripting/ScriptApi.ts#L150)
+### `autoRelogin.getServer()` <a class="source-reference__heading-link" style="float: right; display: inline-flex; align-items: center; justify-content: center; width: 2rem; height: 2rem; margin-block: -0.125rem; margin-inline-start: 0.5rem; border-radius: var(--radius-sm); text-decoration: none;" href="https://github.com/toommyliu/vexed/blob/69e580bf8bbae374ead5a6f3cb3d3e064ac2735d/app/src/renderer/windows/game/scripting/ScriptApi.ts#L150" tabindex="-1" aria-hidden="true" title="Open source: app/src/renderer/windows/game/scripting/ScriptApi.ts:150" target="_blank" rel="noreferrer"><svg class="source-reference__icon" width="16" height="16" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m18 16 4-4-4-4"></path><path d="m6 8-4 4 4 4"></path><path d="m14.5 4-5 16"></path></svg></a>
 
 ```ts
 autoRelogin.getServer(): Effect.Effect<string | undefined, never, never>
@@ -84,9 +64,7 @@ autoRelogin.getServer(): Effect.Effect<string | undefined, never, never>
 
 <a id="member-autorelogin-isenabled"></a>
 
-### `autoRelogin.isEnabled()`
-
-**Source:** [`app/src/renderer/windows/game/scripting/ScriptApi.ts:145`](https://github.com/toommyliu/vexed/blob/ee7dea4922d10259289c35ce1638a1553a17b577/app/src/renderer/windows/game/scripting/ScriptApi.ts#L145)
+### `autoRelogin.isEnabled()` <a class="source-reference__heading-link" style="float: right; display: inline-flex; align-items: center; justify-content: center; width: 2rem; height: 2rem; margin-block: -0.125rem; margin-inline-start: 0.5rem; border-radius: var(--radius-sm); text-decoration: none;" href="https://github.com/toommyliu/vexed/blob/69e580bf8bbae374ead5a6f3cb3d3e064ac2735d/app/src/renderer/windows/game/scripting/ScriptApi.ts#L145" tabindex="-1" aria-hidden="true" title="Open source: app/src/renderer/windows/game/scripting/ScriptApi.ts:145" target="_blank" rel="noreferrer"><svg class="source-reference__icon" width="16" height="16" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m18 16 4-4-4-4"></path><path d="m6 8-4 4 4 4"></path><path d="m14.5 4-5 16"></path></svg></a>
 
 ```ts
 autoRelogin.isEnabled(): Effect.Effect<boolean, never, never>
@@ -98,9 +76,7 @@ autoRelogin.isEnabled(): Effect.Effect<boolean, never, never>
 
 <a id="member-autorelogin-setdelay"></a>
 
-### `autoRelogin.setDelay()`
-
-**Source:** [`app/src/renderer/windows/game/scripting/ScriptApi.ts:149`](https://github.com/toommyliu/vexed/blob/ee7dea4922d10259289c35ce1638a1553a17b577/app/src/renderer/windows/game/scripting/ScriptApi.ts#L149)
+### `autoRelogin.setDelay()` <a class="source-reference__heading-link" style="float: right; display: inline-flex; align-items: center; justify-content: center; width: 2rem; height: 2rem; margin-block: -0.125rem; margin-inline-start: 0.5rem; border-radius: var(--radius-sm); text-decoration: none;" href="https://github.com/toommyliu/vexed/blob/69e580bf8bbae374ead5a6f3cb3d3e064ac2735d/app/src/renderer/windows/game/scripting/ScriptApi.ts#L149" tabindex="-1" aria-hidden="true" title="Open source: app/src/renderer/windows/game/scripting/ScriptApi.ts:149" target="_blank" rel="noreferrer"><svg class="source-reference__icon" width="16" height="16" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m18 16 4-4-4-4"></path><path d="m6 8-4 4 4 4"></path><path d="m14.5 4-5 16"></path></svg></a>
 
 ```ts
 autoRelogin.setDelay(delayMs: number): Effect.Effect<void, never, never>
@@ -108,7 +84,7 @@ autoRelogin.setDelay(delayMs: number): Effect.Effect<void, never, never>
 
 | Name | Type | Required | Description |
 | --- | --- | --- | --- |
-| `delayMs` | `number` | ✓ |  |
+| `delayMs` | `number` | <span class="required-mark" role="img" aria-label="Required"></span> |  |
 
 **Yields:** `void`
 
@@ -116,9 +92,7 @@ autoRelogin.setDelay(delayMs: number): Effect.Effect<void, never, never>
 
 <a id="member-autorelogin-setserver"></a>
 
-### `autoRelogin.setServer()`
-
-**Source:** [`app/src/renderer/windows/game/scripting/ScriptApi.ts:151`](https://github.com/toommyliu/vexed/blob/ee7dea4922d10259289c35ce1638a1553a17b577/app/src/renderer/windows/game/scripting/ScriptApi.ts#L151)
+### `autoRelogin.setServer()` <a class="source-reference__heading-link" style="float: right; display: inline-flex; align-items: center; justify-content: center; width: 2rem; height: 2rem; margin-block: -0.125rem; margin-inline-start: 0.5rem; border-radius: var(--radius-sm); text-decoration: none;" href="https://github.com/toommyliu/vexed/blob/69e580bf8bbae374ead5a6f3cb3d3e064ac2735d/app/src/renderer/windows/game/scripting/ScriptApi.ts#L151" tabindex="-1" aria-hidden="true" title="Open source: app/src/renderer/windows/game/scripting/ScriptApi.ts:151" target="_blank" rel="noreferrer"><svg class="source-reference__icon" width="16" height="16" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m18 16 4-4-4-4"></path><path d="m6 8-4 4 4 4"></path><path d="m14.5 4-5 16"></path></svg></a>
 
 ```ts
 autoRelogin.setServer(serverName: string): Effect.Effect<void, never, never>
@@ -126,7 +100,7 @@ autoRelogin.setServer(serverName: string): Effect.Effect<void, never, never>
 
 | Name | Type | Required | Description |
 | --- | --- | --- | --- |
-| `serverName` | `string` | ✓ |  |
+| `serverName` | `string` | <span class="required-mark" role="img" aria-label="Required"></span> |  |
 
 **Yields:** `void`
 

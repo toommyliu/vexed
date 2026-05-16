@@ -189,6 +189,9 @@ export interface ScriptApi {
   readonly packet: ScriptPacketApi;
   readonly player: EffectValue<PlayerShape>;
   readonly quests: EffectValue<QuestsShape>;
+  /**
+   * High-level helpers for multi-step gameplay actions.
+   */
   readonly recipes: EffectValue<ScriptRecipesShape>;
   readonly settings: EffectValue<ScriptSettingsShape>;
   readonly shops: EffectValue<ShopsShape>;

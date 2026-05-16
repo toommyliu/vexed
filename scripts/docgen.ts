@@ -25,6 +25,7 @@ const DEFAULT_SOURCE_FILE =
   "app/src/renderer/windows/game/scripting/ScriptApi.ts";
 const DEFAULT_OUTPUT_DIR = "docs/src/content/docs/scripting";
 const LEGACY_OUTPUT_DIR = "docs/src/content/docs/script-commands";
+const SOURCE_LINKS_OUTPUT = "docs/src/generated/script-source-links.ts";
 const APP_TSCONFIG = "app/tsconfig.json";
 const GAME_API_ENTRYPOINT = "packages/game/src/index.ts";
 const COLLECTION_API_ENTRYPOINT = "packages/collection/src/index.ts";
@@ -142,7 +143,7 @@ type ApiGroup = {
   readonly id: string;
   readonly title: string;
   readonly label: string;
-  readonly contextPath: string;
+  readonly description: string;
   readonly summary: string;
   readonly members: readonly MemberDoc[];
   readonly typeReferences: readonly string[];
@@ -341,8 +342,20 @@ const escapeTableCell = (value: string): string =>
     .replaceAll("|", "\\|")
     .replace(/\r?\n/g, "<br>");
 
+const escapeHtml = (value: string): string =>
+  value
+    .replaceAll("&", "&amp;")
+    .replaceAll("<", "&lt;")
+    .replaceAll(">", "&gt;")
+    .replaceAll('"', "&quot;")
+    .replaceAll("'", "&#39;");
+
 const renderCode = (value: string): string => `\`${escapeTableCell(value)}\``;
-const renderBooleanMark = (value: boolean): string => (value ? "✓" : "");
+const lucideCheckIcon =
+  '<span class="required-mark" role="img" aria-label="Required"></span>';
+
+const renderBooleanMark = (value: boolean): string =>
+  value ? lucideCheckIcon : "";
 
 const getText = (
   value:
@@ -1016,13 +1029,13 @@ const collectApiGroups = (
       href: `./${kebabCase(name)}/`,
       sourceType: shapeName,
     });
+    const summary = getSummary(member);
     groups.push({
       id,
       title: `api.${name}`,
       label: titleCase(name),
-      contextPath: `api.${name}`,
-      // summary: `Members available under \`${`api.${name}`}\`.`,
-      summary: "",
+      description: summary || `Reference for ${`api.${name}`}.`,
+      summary,
       members,
       typeReferences: Array.from(typeReferences),
     });
@@ -1054,12 +1067,15 @@ const collectApiGroups = (
       typeReferences,
     );
 
+    const summary =
+      getSummary(member) ||
+      `Feature controls available as \`${name}\` on the script context.`;
     groups.push({
       id: kebabCase(name),
       title: name,
       label: titleCase(name),
-      contextPath: name,
-      summary: `Feature controls available as \`${name}\` on the script context.`,
+      description: summary,
+      summary,
       members,
       typeReferences: Array.from(typeReferences),
     });
@@ -1526,10 +1542,35 @@ const buildTypeLinks = (
 ): ReadonlyMap<string, string> =>
   new Map(types.map((type) => [type.name, `${prefix}${type.slug}/`]));
 
-const renderSource = (source: SourceInfo): string =>
-  source.sourceUrl
-    ? `**Source:** [\`${source.sourcePath}:${source.sourceLine}\`](${source.sourceUrl})`
-    : `**Source:** \`${source.sourcePath}:${source.sourceLine}\``;
+const renderSourceLink = (
+  source: SourceInfo,
+  className = "source-reference__link",
+): string => {
+  const sourceReference = `${source.sourcePath}:${source.sourceLine}`;
+  const isHeadingLink = className === "source-reference__heading-link";
+  const headingStyle = isHeadingLink
+    ? ` style="float: right; display: inline-flex; align-items: center; justify-content: center; width: 2rem; height: 2rem; margin-block: -0.125rem; margin-inline-start: 0.5rem; border-radius: var(--radius-sm); text-decoration: none;"`
+    : "";
+  const headingAttributes = isHeadingLink
+    ? ` tabindex="-1" aria-hidden="true"`
+    : ` aria-label="Open source: ${escapeHtml(sourceReference)}"`;
+  const icon = `<svg class="source-reference__icon" width="16" height="16" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m18 16 4-4-4-4"></path><path d="m6 8-4 4 4 4"></path><path d="m14.5 4-5 16"></path></svg>`;
+  return source.sourceUrl
+    ? `<a class="${className}"${headingStyle} href="${escapeHtml(source.sourceUrl)}"${headingAttributes} title="Open source: ${escapeHtml(sourceReference)}" target="_blank" rel="noreferrer">${icon}</a>`
+    : "";
+};
+
+const renderHeadingSourceLink = (source: SourceInfo): string => {
+  const sourceLink = renderSourceLink(source, "source-reference__heading-link");
+  return sourceLink === "" ? "" : ` ${sourceLink}`;
+};
+
+const renderSource = (source: SourceInfo): string => {
+  const sourceReference = `${source.sourcePath}:${source.sourceLine}`;
+  const sourcePath = `<code class="source-reference__path">${escapeHtml(sourceReference)}</code>`;
+
+  return `<p class="source-reference"><span class="source-reference__label">Source</span>${sourcePath}${renderSourceLink(source)}</p>`;
+};
 
 const renderMember = (
   lines: string[],
@@ -1538,7 +1579,7 @@ const renderMember = (
 ) => {
   lines.push(`<a id="${memberAnchor(member.path)}"></a>`, "");
   lines.push(
-    `### \`${member.path}${member.kind === "method" ? "()" : ""}\``,
+    `### \`${member.path}${member.kind === "method" ? "()" : ""}\`${renderHeadingSourceLink(member)}`,
     "",
   );
 
@@ -1546,7 +1587,10 @@ const renderMember = (
     lines.push(member.summary, "");
   }
 
-  lines.push(renderSource(member), "");
+  if (member.sourceUrl === null) {
+    lines.push(renderSource(member), "");
+  }
+
   lines.push("```ts", member.signature, "```", "");
 
   if (member.parameters.length > 0) {
@@ -1584,7 +1628,7 @@ const renderTypeProperty = (lines: string[], property: TypeMemberDoc) => {
   lines.push(
     `<a id="${typeMemberAnchor("property", property.name)}"></a>`,
     "",
-    `### \`${property.name}\``,
+    `### \`${property.name}\`${renderHeadingSourceLink(property)}`,
     "",
   );
 
@@ -1592,7 +1636,11 @@ const renderTypeProperty = (lines: string[], property: TypeMemberDoc) => {
     lines.push(property.summary, "");
   }
 
-  lines.push(renderSource(property), "", "```ts");
+  if (property.sourceUrl === null) {
+    lines.push(renderSource(property), "");
+  }
+
+  lines.push("```ts");
   lines.push(
     `${property.readonly ? "readonly " : ""}${property.name}${
       property.optional ? "?" : ""
@@ -1605,7 +1653,7 @@ const renderTypeMethod = (lines: string[], method: TypeMethodDoc) => {
   lines.push(
     `<a id="${typeMemberAnchor("method", method.name)}"></a>`,
     "",
-    `### \`${method.name}()\``,
+    `### \`${method.name}()\`${renderHeadingSourceLink(method)}`,
     "",
   );
 
@@ -1613,16 +1661,23 @@ const renderTypeMethod = (lines: string[], method: TypeMethodDoc) => {
     lines.push(method.summary, "");
   }
 
-  lines.push(renderSource(method), "", "```ts", method.signature, "```", "");
+  if (method.sourceUrl === null) {
+    lines.push(renderSource(method), "");
+  }
+
+  lines.push("```ts", method.signature, "```", "");
 };
 
 const frontmatter = (
   title: string,
   description: string,
   label?: string,
+  extraFields = "",
 ): string => {
-  const sidebar = label === undefined ? "" : `sidebar:\n  label: ${label}\n`;
-  return `---\ntitle: ${title}\ndescription: ${description}\n${sidebar}tableOfContents:\n  minHeadingLevel: 2\n  maxHeadingLevel: 3\n---`;
+  const yamlString = (value: string): string => JSON.stringify(value);
+  const sidebar =
+    label === undefined ? "" : `sidebar:\n  label: ${yamlString(label)}\n`;
+  return `---\ntitle: ${yamlString(title)}\ndescription: ${yamlString(description)}\n${sidebar}${extraFields}tableOfContents:\n  minHeadingLevel: 2\n  maxHeadingLevel: 3\n---`;
 };
 
 const finalizeMarkdown = (lines: readonly string[]): string =>
@@ -1635,7 +1690,7 @@ const renderIndex = (namespaces: readonly ApiNamespace[]): string => {
   const lines = [
     frontmatter(
       "Scripting API",
-      "Generated vexed scripting context reference.",
+      "",
       "Overview",
     ),
     "",
@@ -1650,6 +1705,8 @@ const renderIndex = (namespaces: readonly ApiNamespace[]): string => {
     "}",
     "```",
     "",
+    "TL;DR: every API call must be yielded with `yield*`. If you are used to `async`/`await`, read `yield*` as \"wait for this action and give me its result\".",
+    "",
     "## Editor IntelliSense",
     "",
     "Download the generated declaration file [`script-api.d.ts`](/script-api.d.ts) and place it beside your scripts. These typings are not perfect, but they should be good enough for editor autocomplete and catching common mistakes.",
@@ -1663,7 +1720,7 @@ const renderIndex = (namespaces: readonly ApiNamespace[]): string => {
     "}",
     "```",
     "",
-    "For a folder full of scripts, put `script-api.d.ts` in that folder and add a `jsconfig.json`. Keep `checkJs` off to get autocomplete without diagnostics noise; add `// @ts-check` only to files where you want type errors reported.",
+    "For a folder full of scripts, put `script-api.d.ts` beside them and add `jsconfig.json` to the folder. Keep `checkJs` off to get autocomplete without diagnostics noise, and add `// @ts-check` only to files where you want type errors reported.",
     "",
     "```json",
     "{",
@@ -1711,7 +1768,7 @@ const renderApiOverview = (
   const lines = [
     frontmatter(
       "API Namespace",
-      "Generated vexed core script API namespace reference.",
+      "",
       "API",
     ),
     "",
@@ -1744,11 +1801,7 @@ const renderGroup = (
   typeLinks: ReadonlyMap<string, string>,
 ): string => {
   const lines = [
-    frontmatter(
-      group.title,
-      `Generated vexed scripting reference for ${group.contextPath}.`,
-      group.label,
-    ),
+    frontmatter(group.title, group.description, group.label),
     "",
     GENERATED_HEADER,
     "",
@@ -1757,22 +1810,7 @@ const renderGroup = (
   ];
 
   if (group.members.length > 0) {
-    const hasSummaries = group.members.some((member) => member.summary !== "");
-    lines.push("## Reference Index", "");
-    if (hasSummaries) {
-      lines.push("| Member | Summary |", "| --- | --- |");
-    } else {
-      lines.push("| Member |", "| --- |");
-    }
-    for (const member of group.members) {
-      const memberLink = `[\`${member.path}\`](#${memberAnchor(member.path)})`;
-      lines.push(
-        hasSummaries
-          ? `| ${memberLink} | ${escapeTableCell(member.summary)} |`
-          : `| ${memberLink} |`,
-      );
-    }
-    lines.push("", "## Members", "");
+    lines.push("## Members", "");
     for (const member of group.members) {
       renderMember(lines, member, typeLinks);
     }
@@ -1785,7 +1823,7 @@ const renderTypesIndex = (types: readonly ReferencedTypeDoc[]): string => {
   const lines = [
     frontmatter(
       "Referenced Types",
-      "Generated vexed scripting data type reference.",
+      "",
       "Types",
     ),
     "",
@@ -1809,7 +1847,7 @@ const renderTypePage = (type: ReferencedTypeDoc): string => {
   const lines = [
     frontmatter(
       type.name,
-      `Generated vexed scripting reference for ${type.name}.`,
+      type.summary || `Reference for ${type.name}.`,
       type.name,
     ),
     "",
@@ -1821,7 +1859,11 @@ const renderTypePage = (type: ReferencedTypeDoc): string => {
     lines.push(type.summary, "");
   }
 
-  lines.push(renderSource(type), "", "```ts", type.definition, "```", "");
+  if (type.sourceUrl === null) {
+    lines.push(renderSource(type), "");
+  }
+
+  lines.push("```ts", type.definition, "```", "");
 
   if (type.properties.length > 0) {
     lines.push("## Properties", "");
@@ -1838,6 +1880,25 @@ const renderTypePage = (type: ReferencedTypeDoc): string => {
   }
 
   return finalizeMarkdown(lines);
+};
+
+const renderSourceLinksModule = (
+  types: readonly ReferencedTypeDoc[],
+): string => {
+  const entries = types
+    .filter((type) => type.sourceUrl !== null)
+    .map((type) => {
+      const sourceReference = `${type.sourcePath}:${type.sourceLine}`;
+      return `  ${JSON.stringify(`scripting/types/${type.slug}`)}: { path: ${JSON.stringify(sourceReference)}, url: ${JSON.stringify(type.sourceUrl)} },`;
+    })
+    .sort();
+
+  return `${GENERATED_HEADER.replace("<!--", "//").replace("-->", "")}
+
+export const scriptSourceLinks: Record<string, { path: string; url: string }> = {
+${entries.join("\n")}
+};
+`;
 };
 
 const renderFiles = (
@@ -1874,6 +1935,10 @@ const renderFiles = (
       path: join(options.outputDir, `types/${type.slug}.md`),
       content: renderTypePage(type),
     })),
+    {
+      path: resolve(options.repoRoot, SOURCE_LINKS_OUTPUT),
+      content: renderSourceLinksModule(types),
+    },
   ];
 };
 

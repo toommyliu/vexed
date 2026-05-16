@@ -1,8 +1,8 @@
 ---
-title: QuestInfo
-description: Generated vexed scripting reference for QuestInfo.
+title: "QuestInfo"
+description: "Represents the main quest information structure."
 sidebar:
-  label: QuestInfo
+  label: "QuestInfo"
 tableOfContents:
   minHeadingLevel: 2
   maxHeadingLevel: 3
@@ -12,8 +12,6 @@ tableOfContents:
 
 Represents the main quest information structure.
 
-**Source:** [`packages/game/src/types/QuestInfo.ts:12`](https://github.com/toommyliu/vexed/blob/ee7dea4922d10259289c35ce1638a1553a17b577/packages/game/src/types/QuestInfo.ts#L12)
-
 ```ts
 type QuestInfo = unknown
 ```
@@ -22,9 +20,7 @@ type QuestInfo = unknown
 
 <a id="property-bguild"></a>
 
-### `bGuild`
-
-**Source:** [`packages/game/src/types/QuestInfo.ts:20`](https://github.com/toommyliu/vexed/blob/ee7dea4922d10259289c35ce1638a1553a17b577/packages/game/src/types/QuestInfo.ts#L20)
+### `bGuild` <a class="source-reference__heading-link" style="float: right; display: inline-flex; align-items: center; justify-content: center; width: 2rem; height: 2rem; margin-block: -0.125rem; margin-inline-start: 0.5rem; border-radius: var(--radius-sm); text-decoration: none;" href="https://github.com/toommyliu/vexed/blob/69e580bf8bbae374ead5a6f3cb3d3e064ac2735d/packages/game/src/types/QuestInfo.ts#L20" tabindex="-1" aria-hidden="true" title="Open source: packages/game/src/types/QuestInfo.ts:20" target="_blank" rel="noreferrer"><svg class="source-reference__icon" width="16" height="16" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m18 16 4-4-4-4"></path><path d="m6 8-4 4 4 4"></path><path d="m14.5 4-5 16"></path></svg></a>
 
 ```ts
 bGuild: string
@@ -32,9 +28,7 @@ bGuild: string
 
 <a id="property-bitsuccess"></a>
 
-### `bitSuccess`
-
-**Source:** [`packages/game/src/types/QuestInfo.ts:27`](https://github.com/toommyliu/vexed/blob/ee7dea4922d10259289c35ce1638a1553a17b577/packages/game/src/types/QuestInfo.ts#L27)
+### `bitSuccess` <a class="source-reference__heading-link" style="float: right; display: inline-flex; align-items: center; justify-content: center; width: 2rem; height: 2rem; margin-block: -0.125rem; margin-inline-start: 0.5rem; border-radius: var(--radius-sm); text-decoration: none;" href="https://github.com/toommyliu/vexed/blob/69e580bf8bbae374ead5a6f3cb3d3e064ac2735d/packages/game/src/types/QuestInfo.ts#L27" tabindex="-1" aria-hidden="true" title="Open source: packages/game/src/types/QuestInfo.ts:27" target="_blank" rel="noreferrer"><svg class="source-reference__icon" width="16" height="16" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m18 16 4-4-4-4"></path><path d="m6 8-4 4 4 4"></path><path d="m14.5 4-5 16"></path></svg></a>
 
 ```ts
 bitSuccess: string
@@ -42,11 +36,9 @@ bitSuccess: string
 
 <a id="property-bonce"></a>
 
-### `bOnce`
+### `bOnce` <a class="source-reference__heading-link" style="float: right; display: inline-flex; align-items: center; justify-content: center; width: 2rem; height: 2rem; margin-block: -0.125rem; margin-inline-start: 0.5rem; border-radius: var(--radius-sm); text-decoration: none;" href="https://github.com/toommyliu/vexed/blob/69e580bf8bbae374ead5a6f3cb3d3e064ac2735d/packages/game/src/types/QuestInfo.ts#L24" tabindex="-1" aria-hidden="true" title="Open source: packages/game/src/types/QuestInfo.ts:24" target="_blank" rel="noreferrer"><svg class="source-reference__icon" width="16" height="16" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m18 16 4-4-4-4"></path><path d="m6 8-4 4 4 4"></path><path d="m14.5 4-5 16"></path></svg></a>
 
 Whether this quest can only be completed once.
-
-**Source:** [`packages/game/src/types/QuestInfo.ts:24`](https://github.com/toommyliu/vexed/blob/ee7dea4922d10259289c35ce1638a1553a17b577/packages/game/src/types/QuestInfo.ts#L24)
 
 ```ts
 bOnce: string
@@ -54,9 +46,7 @@ bOnce: string
 
 <a id="property-bstaff"></a>
 
-### `bStaff`
-
-**Source:** [`packages/game/src/types/QuestInfo.ts:25`](https://github.com/toommyliu/vexed/blob/ee7dea4922d10259289c35ce1638a1553a17b577/packages/game/src/types/QuestInfo.ts#L25)
+### `bStaff` <a class="source-reference__heading-link" style="float: right; display: inline-flex; align-items: center; justify-content: center; width: 2rem; height: 2rem; margin-block: -0.125rem; margin-inline-start: 0.5rem; border-radius: var(--radius-sm); text-decoration: none;" href="https://github.com/toommyliu/vexed/blob/69e580bf8bbae374ead5a6f3cb3d3e064ac2735d/packages/game/src/types/QuestInfo.ts#L25" tabindex="-1" aria-hidden="true" title="Open source: packages/game/src/types/QuestInfo.ts:25" target="_blank" rel="noreferrer"><svg class="source-reference__icon" width="16" height="16" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m18 16 4-4-4-4"></path><path d="m6 8-4 4 4 4"></path><path d="m14.5 4-5 16"></path></svg></a>
 
 ```ts
 bStaff: string
@@ -64,9 +54,7 @@ bStaff: string
 
 <a id="property-bupg"></a>
 
-### `bUpg`
-
-**Source:** [`packages/game/src/types/QuestInfo.ts:26`](https://github.com/toommyliu/vexed/blob/ee7dea4922d10259289c35ce1638a1553a17b577/packages/game/src/types/QuestInfo.ts#L26)
+### `bUpg` <a class="source-reference__heading-link" style="float: right; display: inline-flex; align-items: center; justify-content: center; width: 2rem; height: 2rem; margin-block: -0.125rem; margin-inline-start: 0.5rem; border-radius: var(--radius-sm); text-decoration: none;" href="https://github.com/toommyliu/vexed/blob/69e580bf8bbae374ead5a6f3cb3d3e064ac2735d/packages/game/src/types/QuestInfo.ts#L26" tabindex="-1" aria-hidden="true" title="Open source: packages/game/src/types/QuestInfo.ts:26" target="_blank" rel="noreferrer"><svg class="source-reference__icon" width="16" height="16" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m18 16 4-4-4-4"></path><path d="m6 8-4 4 4 4"></path><path d="m14.5 4-5 16"></path></svg></a>
 
 ```ts
 bUpg: string
@@ -74,9 +62,7 @@ bUpg: string
 
 <a id="property-factionid"></a>
 
-### `FactionID`
-
-**Source:** [`packages/game/src/types/QuestInfo.ts:13`](https://github.com/toommyliu/vexed/blob/ee7dea4922d10259289c35ce1638a1553a17b577/packages/game/src/types/QuestInfo.ts#L13)
+### `FactionID` <a class="source-reference__heading-link" style="float: right; display: inline-flex; align-items: center; justify-content: center; width: 2rem; height: 2rem; margin-block: -0.125rem; margin-inline-start: 0.5rem; border-radius: var(--radius-sm); text-decoration: none;" href="https://github.com/toommyliu/vexed/blob/69e580bf8bbae374ead5a6f3cb3d3e064ac2735d/packages/game/src/types/QuestInfo.ts#L13" tabindex="-1" aria-hidden="true" title="Open source: packages/game/src/types/QuestInfo.ts:13" target="_blank" rel="noreferrer"><svg class="source-reference__icon" width="16" height="16" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m18 16 4-4-4-4"></path><path d="m6 8-4 4 4 4"></path><path d="m14.5 4-5 16"></path></svg></a>
 
 ```ts
 FactionID: string
@@ -84,9 +70,7 @@ FactionID: string
 
 <a id="property-iclass"></a>
 
-### `iClass`
-
-**Source:** [`packages/game/src/types/QuestInfo.ts:28`](https://github.com/toommyliu/vexed/blob/ee7dea4922d10259289c35ce1638a1553a17b577/packages/game/src/types/QuestInfo.ts#L28)
+### `iClass` <a class="source-reference__heading-link" style="float: right; display: inline-flex; align-items: center; justify-content: center; width: 2rem; height: 2rem; margin-block: -0.125rem; margin-inline-start: 0.5rem; border-radius: var(--radius-sm); text-decoration: none;" href="https://github.com/toommyliu/vexed/blob/69e580bf8bbae374ead5a6f3cb3d3e064ac2735d/packages/game/src/types/QuestInfo.ts#L28" tabindex="-1" aria-hidden="true" title="Open source: packages/game/src/types/QuestInfo.ts:28" target="_blank" rel="noreferrer"><svg class="source-reference__icon" width="16" height="16" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m18 16 4-4-4-4"></path><path d="m6 8-4 4 4 4"></path><path d="m14.5 4-5 16"></path></svg></a>
 
 ```ts
 iClass: number
@@ -94,11 +78,9 @@ iClass: number
 
 <a id="property-iexp"></a>
 
-### `iExp`
+### `iExp` <a class="source-reference__heading-link" style="float: right; display: inline-flex; align-items: center; justify-content: center; width: 2rem; height: 2rem; margin-block: -0.125rem; margin-inline-start: 0.5rem; border-radius: var(--radius-sm); text-decoration: none;" href="https://github.com/toommyliu/vexed/blob/69e580bf8bbae374ead5a6f3cb3d3e064ac2735d/packages/game/src/types/QuestInfo.ts#L32" tabindex="-1" aria-hidden="true" title="Open source: packages/game/src/types/QuestInfo.ts:32" target="_blank" rel="noreferrer"><svg class="source-reference__icon" width="16" height="16" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m18 16 4-4-4-4"></path><path d="m6 8-4 4 4 4"></path><path d="m14.5 4-5 16"></path></svg></a>
 
 The amount of experience rewarded for completing this quest.
-
-**Source:** [`packages/game/src/types/QuestInfo.ts:32`](https://github.com/toommyliu/vexed/blob/ee7dea4922d10259289c35ce1638a1553a17b577/packages/game/src/types/QuestInfo.ts#L32)
 
 ```ts
 iExp: number
@@ -106,11 +88,9 @@ iExp: number
 
 <a id="property-igold"></a>
 
-### `iGold`
+### `iGold` <a class="source-reference__heading-link" style="float: right; display: inline-flex; align-items: center; justify-content: center; width: 2rem; height: 2rem; margin-block: -0.125rem; margin-inline-start: 0.5rem; border-radius: var(--radius-sm); text-decoration: none;" href="https://github.com/toommyliu/vexed/blob/69e580bf8bbae374ead5a6f3cb3d3e064ac2735d/packages/game/src/types/QuestInfo.ts#L36" tabindex="-1" aria-hidden="true" title="Open source: packages/game/src/types/QuestInfo.ts:36" target="_blank" rel="noreferrer"><svg class="source-reference__icon" width="16" height="16" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m18 16 4-4-4-4"></path><path d="m6 8-4 4 4 4"></path><path d="m14.5 4-5 16"></path></svg></a>
 
 The amount of gold rewarded for completing this quest.
-
-**Source:** [`packages/game/src/types/QuestInfo.ts:36`](https://github.com/toommyliu/vexed/blob/ee7dea4922d10259289c35ce1638a1553a17b577/packages/game/src/types/QuestInfo.ts#L36)
 
 ```ts
 iGold: number
@@ -118,9 +98,7 @@ iGold: number
 
 <a id="property-iindex"></a>
 
-### `iIndex`
-
-**Source:** [`packages/game/src/types/QuestInfo.ts:37`](https://github.com/toommyliu/vexed/blob/ee7dea4922d10259289c35ce1638a1553a17b577/packages/game/src/types/QuestInfo.ts#L37)
+### `iIndex` <a class="source-reference__heading-link" style="float: right; display: inline-flex; align-items: center; justify-content: center; width: 2rem; height: 2rem; margin-block: -0.125rem; margin-inline-start: 0.5rem; border-radius: var(--radius-sm); text-decoration: none;" href="https://github.com/toommyliu/vexed/blob/69e580bf8bbae374ead5a6f3cb3d3e064ac2735d/packages/game/src/types/QuestInfo.ts#L37" tabindex="-1" aria-hidden="true" title="Open source: packages/game/src/types/QuestInfo.ts:37" target="_blank" rel="noreferrer"><svg class="source-reference__icon" width="16" height="16" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m18 16 4-4-4-4"></path><path d="m6 8-4 4 4 4"></path><path d="m14.5 4-5 16"></path></svg></a>
 
 ```ts
 iIndex?: number
@@ -128,11 +106,9 @@ iIndex?: number
 
 <a id="property-ilvl"></a>
 
-### `iLvl`
+### `iLvl` <a class="source-reference__heading-link" style="float: right; display: inline-flex; align-items: center; justify-content: center; width: 2rem; height: 2rem; margin-block: -0.125rem; margin-inline-start: 0.5rem; border-radius: var(--radius-sm); text-decoration: none;" href="https://github.com/toommyliu/vexed/blob/69e580bf8bbae374ead5a6f3cb3d3e064ac2735d/packages/game/src/types/QuestInfo.ts#L41" tabindex="-1" aria-hidden="true" title="Open source: packages/game/src/types/QuestInfo.ts:41" target="_blank" rel="noreferrer"><svg class="source-reference__icon" width="16" height="16" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m18 16 4-4-4-4"></path><path d="m6 8-4 4 4 4"></path><path d="m14.5 4-5 16"></path></svg></a>
 
 The required level to accept this quest.
-
-**Source:** [`packages/game/src/types/QuestInfo.ts:41`](https://github.com/toommyliu/vexed/blob/ee7dea4922d10259289c35ce1638a1553a17b577/packages/game/src/types/QuestInfo.ts#L41)
 
 ```ts
 iLvl: number
@@ -140,11 +116,9 @@ iLvl: number
 
 <a id="property-irep"></a>
 
-### `iRep`
+### `iRep` <a class="source-reference__heading-link" style="float: right; display: inline-flex; align-items: center; justify-content: center; width: 2rem; height: 2rem; margin-block: -0.125rem; margin-inline-start: 0.5rem; border-radius: var(--radius-sm); text-decoration: none;" href="https://github.com/toommyliu/vexed/blob/69e580bf8bbae374ead5a6f3cb3d3e064ac2735d/packages/game/src/types/QuestInfo.ts#L45" tabindex="-1" aria-hidden="true" title="Open source: packages/game/src/types/QuestInfo.ts:45" target="_blank" rel="noreferrer"><svg class="source-reference__icon" width="16" height="16" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m18 16 4-4-4-4"></path><path d="m6 8-4 4 4 4"></path><path d="m14.5 4-5 16"></path></svg></a>
 
 The amount of reputation rewarded for completing this quest. 0 if not applicable.
-
-**Source:** [`packages/game/src/types/QuestInfo.ts:45`](https://github.com/toommyliu/vexed/blob/ee7dea4922d10259289c35ce1638a1553a17b577/packages/game/src/types/QuestInfo.ts#L45)
 
 ```ts
 iRep: number
@@ -152,11 +126,9 @@ iRep: number
 
 <a id="property-ireqcp"></a>
 
-### `iReqCP`
+### `iReqCP` <a class="source-reference__heading-link" style="float: right; display: inline-flex; align-items: center; justify-content: center; width: 2rem; height: 2rem; margin-block: -0.125rem; margin-inline-start: 0.5rem; border-radius: var(--radius-sm); text-decoration: none;" href="https://github.com/toommyliu/vexed/blob/69e580bf8bbae374ead5a6f3cb3d3e064ac2735d/packages/game/src/types/QuestInfo.ts#L49" tabindex="-1" aria-hidden="true" title="Open source: packages/game/src/types/QuestInfo.ts:49" target="_blank" rel="noreferrer"><svg class="source-reference__icon" width="16" height="16" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m18 16 4-4-4-4"></path><path d="m6 8-4 4 4 4"></path><path d="m14.5 4-5 16"></path></svg></a>
 
 The class points required to accept this quest. 0 if not applicable.
-
-**Source:** [`packages/game/src/types/QuestInfo.ts:49`](https://github.com/toommyliu/vexed/blob/ee7dea4922d10259289c35ce1638a1553a17b577/packages/game/src/types/QuestInfo.ts#L49)
 
 ```ts
 iReqCP: number
@@ -164,11 +136,9 @@ iReqCP: number
 
 <a id="property-ireqrep"></a>
 
-### `iReqRep`
+### `iReqRep` <a class="source-reference__heading-link" style="float: right; display: inline-flex; align-items: center; justify-content: center; width: 2rem; height: 2rem; margin-block: -0.125rem; margin-inline-start: 0.5rem; border-radius: var(--radius-sm); text-decoration: none;" href="https://github.com/toommyliu/vexed/blob/69e580bf8bbae374ead5a6f3cb3d3e064ac2735d/packages/game/src/types/QuestInfo.ts#L53" tabindex="-1" aria-hidden="true" title="Open source: packages/game/src/types/QuestInfo.ts:53" target="_blank" rel="noreferrer"><svg class="source-reference__icon" width="16" height="16" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m18 16 4-4-4-4"></path><path d="m6 8-4 4 4 4"></path><path d="m14.5 4-5 16"></path></svg></a>
 
 The required faction reputation to accept this quest.
-
-**Source:** [`packages/game/src/types/QuestInfo.ts:53`](https://github.com/toommyliu/vexed/blob/ee7dea4922d10259289c35ce1638a1553a17b577/packages/game/src/types/QuestInfo.ts#L53)
 
 ```ts
 iReqRep: number
@@ -176,9 +146,7 @@ iReqRep: number
 
 <a id="property-islot"></a>
 
-### `iSlot`
-
-**Source:** [`packages/game/src/types/QuestInfo.ts:54`](https://github.com/toommyliu/vexed/blob/ee7dea4922d10259289c35ce1638a1553a17b577/packages/game/src/types/QuestInfo.ts#L54)
+### `iSlot` <a class="source-reference__heading-link" style="float: right; display: inline-flex; align-items: center; justify-content: center; width: 2rem; height: 2rem; margin-block: -0.125rem; margin-inline-start: 0.5rem; border-radius: var(--radius-sm); text-decoration: none;" href="https://github.com/toommyliu/vexed/blob/69e580bf8bbae374ead5a6f3cb3d3e064ac2735d/packages/game/src/types/QuestInfo.ts#L54" tabindex="-1" aria-hidden="true" title="Open source: packages/game/src/types/QuestInfo.ts:54" target="_blank" rel="noreferrer"><svg class="source-reference__icon" width="16" height="16" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m18 16 4-4-4-4"></path><path d="m6 8-4 4 4 4"></path><path d="m14.5 4-5 16"></path></svg></a>
 
 ```ts
 iSlot: number
@@ -186,9 +154,7 @@ iSlot: number
 
 <a id="property-ivalue"></a>
 
-### `iValue`
-
-**Source:** [`packages/game/src/types/QuestInfo.ts:55`](https://github.com/toommyliu/vexed/blob/ee7dea4922d10259289c35ce1638a1553a17b577/packages/game/src/types/QuestInfo.ts#L55)
+### `iValue` <a class="source-reference__heading-link" style="float: right; display: inline-flex; align-items: center; justify-content: center; width: 2rem; height: 2rem; margin-block: -0.125rem; margin-inline-start: 0.5rem; border-radius: var(--radius-sm); text-decoration: none;" href="https://github.com/toommyliu/vexed/blob/69e580bf8bbae374ead5a6f3cb3d3e064ac2735d/packages/game/src/types/QuestInfo.ts#L55" tabindex="-1" aria-hidden="true" title="Open source: packages/game/src/types/QuestInfo.ts:55" target="_blank" rel="noreferrer"><svg class="source-reference__icon" width="16" height="16" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m18 16 4-4-4-4"></path><path d="m6 8-4 4 4 4"></path><path d="m14.5 4-5 16"></path></svg></a>
 
 ```ts
 iValue: number
@@ -196,9 +162,7 @@ iValue: number
 
 <a id="property-iwar"></a>
 
-### `iWar`
-
-**Source:** [`packages/game/src/types/QuestInfo.ts:56`](https://github.com/toommyliu/vexed/blob/ee7dea4922d10259289c35ce1638a1553a17b577/packages/game/src/types/QuestInfo.ts#L56)
+### `iWar` <a class="source-reference__heading-link" style="float: right; display: inline-flex; align-items: center; justify-content: center; width: 2rem; height: 2rem; margin-block: -0.125rem; margin-inline-start: 0.5rem; border-radius: var(--radius-sm); text-decoration: none;" href="https://github.com/toommyliu/vexed/blob/69e580bf8bbae374ead5a6f3cb3d3e064ac2735d/packages/game/src/types/QuestInfo.ts#L56" tabindex="-1" aria-hidden="true" title="Open source: packages/game/src/types/QuestInfo.ts:56" target="_blank" rel="noreferrer"><svg class="source-reference__icon" width="16" height="16" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m18 16 4-4-4-4"></path><path d="m6 8-4 4 4 4"></path><path d="m14.5 4-5 16"></path></svg></a>
 
 ```ts
 iWar: number
@@ -206,9 +170,7 @@ iWar: number
 
 <a id="property-metavalues"></a>
 
-### `metaValues`
-
-**Source:** [`packages/game/src/types/QuestInfo.ts:57`](https://github.com/toommyliu/vexed/blob/ee7dea4922d10259289c35ce1638a1553a17b577/packages/game/src/types/QuestInfo.ts#L57)
+### `metaValues` <a class="source-reference__heading-link" style="float: right; display: inline-flex; align-items: center; justify-content: center; width: 2rem; height: 2rem; margin-block: -0.125rem; margin-inline-start: 0.5rem; border-radius: var(--radius-sm); text-decoration: none;" href="https://github.com/toommyliu/vexed/blob/69e580bf8bbae374ead5a6f3cb3d3e064ac2735d/packages/game/src/types/QuestInfo.ts#L57" tabindex="-1" aria-hidden="true" title="Open source: packages/game/src/types/QuestInfo.ts:57" target="_blank" rel="noreferrer"><svg class="source-reference__icon" width="16" height="16" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m18 16 4-4-4-4"></path><path d="m6 8-4 4 4 4"></path><path d="m14.5 4-5 16"></path></svg></a>
 
 ```ts
 metaValues: Record<string, string>
@@ -216,9 +178,7 @@ metaValues: Record<string, string>
 
 <a id="property-oitems"></a>
 
-### `oItems`
-
-**Source:** [`packages/game/src/types/QuestInfo.ts:58`](https://github.com/toommyliu/vexed/blob/ee7dea4922d10259289c35ce1638a1553a17b577/packages/game/src/types/QuestInfo.ts#L58)
+### `oItems` <a class="source-reference__heading-link" style="float: right; display: inline-flex; align-items: center; justify-content: center; width: 2rem; height: 2rem; margin-block: -0.125rem; margin-inline-start: 0.5rem; border-radius: var(--radius-sm); text-decoration: none;" href="https://github.com/toommyliu/vexed/blob/69e580bf8bbae374ead5a6f3cb3d3e064ac2735d/packages/game/src/types/QuestInfo.ts#L58" tabindex="-1" aria-hidden="true" title="Open source: packages/game/src/types/QuestInfo.ts:58" target="_blank" rel="noreferrer"><svg class="source-reference__icon" width="16" height="16" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m18 16 4-4-4-4"></path><path d="m6 8-4 4 4 4"></path><path d="m14.5 4-5 16"></path></svg></a>
 
 ```ts
 oItems: Record<string, ItemData>
@@ -226,9 +186,7 @@ oItems: Record<string, ItemData>
 
 <a id="property-orewards"></a>
 
-### `oRewards`
-
-**Source:** [`packages/game/src/types/QuestInfo.ts:59`](https://github.com/toommyliu/vexed/blob/ee7dea4922d10259289c35ce1638a1553a17b577/packages/game/src/types/QuestInfo.ts#L59)
+### `oRewards` <a class="source-reference__heading-link" style="float: right; display: inline-flex; align-items: center; justify-content: center; width: 2rem; height: 2rem; margin-block: -0.125rem; margin-inline-start: 0.5rem; border-radius: var(--radius-sm); text-decoration: none;" href="https://github.com/toommyliu/vexed/blob/69e580bf8bbae374ead5a6f3cb3d3e064ac2735d/packages/game/src/types/QuestInfo.ts#L59" tabindex="-1" aria-hidden="true" title="Open source: packages/game/src/types/QuestInfo.ts:59" target="_blank" rel="noreferrer"><svg class="source-reference__icon" width="16" height="16" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m18 16 4-4-4-4"></path><path d="m6 8-4 4 4 4"></path><path d="m14.5 4-5 16"></path></svg></a>
 
 ```ts
 oRewards: Record<string, QuestBonusRewardData>
@@ -236,11 +194,9 @@ oRewards: Record<string, QuestBonusRewardData>
 
 <a id="property-questid"></a>
 
-### `QuestID`
+### `QuestID` <a class="source-reference__heading-link" style="float: right; display: inline-flex; align-items: center; justify-content: center; width: 2rem; height: 2rem; margin-block: -0.125rem; margin-inline-start: 0.5rem; border-radius: var(--radius-sm); text-decoration: none;" href="https://github.com/toommyliu/vexed/blob/69e580bf8bbae374ead5a6f3cb3d3e064ac2735d/packages/game/src/types/QuestInfo.ts#L17" tabindex="-1" aria-hidden="true" title="Open source: packages/game/src/types/QuestInfo.ts:17" target="_blank" rel="noreferrer"><svg class="source-reference__icon" width="16" height="16" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m18 16 4-4-4-4"></path><path d="m6 8-4 4 4 4"></path><path d="m14.5 4-5 16"></path></svg></a>
 
 The ID of this quest.
-
-**Source:** [`packages/game/src/types/QuestInfo.ts:17`](https://github.com/toommyliu/vexed/blob/ee7dea4922d10259289c35ce1638a1553a17b577/packages/game/src/types/QuestInfo.ts#L17)
 
 ```ts
 QuestID: string
@@ -248,9 +204,7 @@ QuestID: string
 
 <a id="property-requireditems"></a>
 
-### `RequiredItems`
-
-**Source:** [`packages/game/src/types/QuestInfo.ts:18`](https://github.com/toommyliu/vexed/blob/ee7dea4922d10259289c35ce1638a1553a17b577/packages/game/src/types/QuestInfo.ts#L18)
+### `RequiredItems` <a class="source-reference__heading-link" style="float: right; display: inline-flex; align-items: center; justify-content: center; width: 2rem; height: 2rem; margin-block: -0.125rem; margin-inline-start: 0.5rem; border-radius: var(--radius-sm); text-decoration: none;" href="https://github.com/toommyliu/vexed/blob/69e580bf8bbae374ead5a6f3cb3d3e064ac2735d/packages/game/src/types/QuestInfo.ts#L18" tabindex="-1" aria-hidden="true" title="Open source: packages/game/src/types/QuestInfo.ts:18" target="_blank" rel="noreferrer"><svg class="source-reference__icon" width="16" height="16" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m18 16 4-4-4-4"></path><path d="m6 8-4 4 4 4"></path><path d="m14.5 4-5 16"></path></svg></a>
 
 ```ts
 RequiredItems: QuestRequirementData[]
@@ -258,9 +212,7 @@ RequiredItems: QuestRequirementData[]
 
 <a id="property-reward"></a>
 
-### `reward`
-
-**Source:** [`packages/game/src/types/QuestInfo.ts:60`](https://github.com/toommyliu/vexed/blob/ee7dea4922d10259289c35ce1638a1553a17b577/packages/game/src/types/QuestInfo.ts#L60)
+### `reward` <a class="source-reference__heading-link" style="float: right; display: inline-flex; align-items: center; justify-content: center; width: 2rem; height: 2rem; margin-block: -0.125rem; margin-inline-start: 0.5rem; border-radius: var(--radius-sm); text-decoration: none;" href="https://github.com/toommyliu/vexed/blob/69e580bf8bbae374ead5a6f3cb3d3e064ac2735d/packages/game/src/types/QuestInfo.ts#L60" tabindex="-1" aria-hidden="true" title="Open source: packages/game/src/types/QuestInfo.ts:60" target="_blank" rel="noreferrer"><svg class="source-reference__icon" width="16" height="16" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m18 16 4-4-4-4"></path><path d="m6 8-4 4 4 4"></path><path d="m14.5 4-5 16"></path></svg></a>
 
 ```ts
 reward: QuestRewardData[]
@@ -268,9 +220,7 @@ reward: QuestRewardData[]
 
 <a id="property-rewards"></a>
 
-### `Rewards`
-
-**Source:** [`packages/game/src/types/QuestInfo.ts:19`](https://github.com/toommyliu/vexed/blob/ee7dea4922d10259289c35ce1638a1553a17b577/packages/game/src/types/QuestInfo.ts#L19)
+### `Rewards` <a class="source-reference__heading-link" style="float: right; display: inline-flex; align-items: center; justify-content: center; width: 2rem; height: 2rem; margin-block: -0.125rem; margin-inline-start: 0.5rem; border-radius: var(--radius-sm); text-decoration: none;" href="https://github.com/toommyliu/vexed/blob/69e580bf8bbae374ead5a6f3cb3d3e064ac2735d/packages/game/src/types/QuestInfo.ts#L19" tabindex="-1" aria-hidden="true" title="Open source: packages/game/src/types/QuestInfo.ts:19" target="_blank" rel="noreferrer"><svg class="source-reference__icon" width="16" height="16" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m18 16 4-4-4-4"></path><path d="m6 8-4 4 4 4"></path><path d="m14.5 4-5 16"></path></svg></a>
 
 ```ts
 Rewards: QuestBonusRewardData[]
@@ -278,11 +228,9 @@ Rewards: QuestBonusRewardData[]
 
 <a id="property-sdesc"></a>
 
-### `sDesc`
+### `sDesc` <a class="source-reference__heading-link" style="float: right; display: inline-flex; align-items: center; justify-content: center; width: 2rem; height: 2rem; margin-block: -0.125rem; margin-inline-start: 0.5rem; border-radius: var(--radius-sm); text-decoration: none;" href="https://github.com/toommyliu/vexed/blob/69e580bf8bbae374ead5a6f3cb3d3e064ac2735d/packages/game/src/types/QuestInfo.ts#L64" tabindex="-1" aria-hidden="true" title="Open source: packages/game/src/types/QuestInfo.ts:64" target="_blank" rel="noreferrer"><svg class="source-reference__icon" width="16" height="16" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m18 16 4-4-4-4"></path><path d="m6 8-4 4 4 4"></path><path d="m14.5 4-5 16"></path></svg></a>
 
 The description of this quest.
-
-**Source:** [`packages/game/src/types/QuestInfo.ts:64`](https://github.com/toommyliu/vexed/blob/ee7dea4922d10259289c35ce1638a1553a17b577/packages/game/src/types/QuestInfo.ts#L64)
 
 ```ts
 sDesc: string
@@ -290,11 +238,9 @@ sDesc: string
 
 <a id="property-sendtext"></a>
 
-### `sEndText`
+### `sEndText` <a class="source-reference__heading-link" style="float: right; display: inline-flex; align-items: center; justify-content: center; width: 2rem; height: 2rem; margin-block: -0.125rem; margin-inline-start: 0.5rem; border-radius: var(--radius-sm); text-decoration: none;" href="https://github.com/toommyliu/vexed/blob/69e580bf8bbae374ead5a6f3cb3d3e064ac2735d/packages/game/src/types/QuestInfo.ts#L68" tabindex="-1" aria-hidden="true" title="Open source: packages/game/src/types/QuestInfo.ts:68" target="_blank" rel="noreferrer"><svg class="source-reference__icon" width="16" height="16" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m18 16 4-4-4-4"></path><path d="m6 8-4 4 4 4"></path><path d="m14.5 4-5 16"></path></svg></a>
 
 The text displayed when this quest can be completed.
-
-**Source:** [`packages/game/src/types/QuestInfo.ts:68`](https://github.com/toommyliu/vexed/blob/ee7dea4922d10259289c35ce1638a1553a17b577/packages/game/src/types/QuestInfo.ts#L68)
 
 ```ts
 sEndText: string
@@ -302,11 +248,9 @@ sEndText: string
 
 <a id="property-sfaction"></a>
 
-### `sFaction`
+### `sFaction` <a class="source-reference__heading-link" style="float: right; display: inline-flex; align-items: center; justify-content: center; width: 2rem; height: 2rem; margin-block: -0.125rem; margin-inline-start: 0.5rem; border-radius: var(--radius-sm); text-decoration: none;" href="https://github.com/toommyliu/vexed/blob/69e580bf8bbae374ead5a6f3cb3d3e064ac2735d/packages/game/src/types/QuestInfo.ts#L72" tabindex="-1" aria-hidden="true" title="Open source: packages/game/src/types/QuestInfo.ts:72" target="_blank" rel="noreferrer"><svg class="source-reference__icon" width="16" height="16" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m18 16 4-4-4-4"></path><path d="m6 8-4 4 4 4"></path><path d="m14.5 4-5 16"></path></svg></a>
 
 The name of the faction that this quest is for.
-
-**Source:** [`packages/game/src/types/QuestInfo.ts:72`](https://github.com/toommyliu/vexed/blob/ee7dea4922d10259289c35ce1638a1553a17b577/packages/game/src/types/QuestInfo.ts#L72)
 
 ```ts
 sFaction: string
@@ -314,9 +258,7 @@ sFaction: string
 
 <a id="property-sfield"></a>
 
-### `sField`
-
-**Source:** [`packages/game/src/types/QuestInfo.ts:73`](https://github.com/toommyliu/vexed/blob/ee7dea4922d10259289c35ce1638a1553a17b577/packages/game/src/types/QuestInfo.ts#L73)
+### `sField` <a class="source-reference__heading-link" style="float: right; display: inline-flex; align-items: center; justify-content: center; width: 2rem; height: 2rem; margin-block: -0.125rem; margin-inline-start: 0.5rem; border-radius: var(--radius-sm); text-decoration: none;" href="https://github.com/toommyliu/vexed/blob/69e580bf8bbae374ead5a6f3cb3d3e064ac2735d/packages/game/src/types/QuestInfo.ts#L73" tabindex="-1" aria-hidden="true" title="Open source: packages/game/src/types/QuestInfo.ts:73" target="_blank" rel="noreferrer"><svg class="source-reference__icon" width="16" height="16" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m18 16 4-4-4-4"></path><path d="m6 8-4 4 4 4"></path><path d="m14.5 4-5 16"></path></svg></a>
 
 ```ts
 sField?: string
@@ -324,11 +266,9 @@ sField?: string
 
 <a id="property-sname"></a>
 
-### `sName`
+### `sName` <a class="source-reference__heading-link" style="float: right; display: inline-flex; align-items: center; justify-content: center; width: 2rem; height: 2rem; margin-block: -0.125rem; margin-inline-start: 0.5rem; border-radius: var(--radius-sm); text-decoration: none;" href="https://github.com/toommyliu/vexed/blob/69e580bf8bbae374ead5a6f3cb3d3e064ac2735d/packages/game/src/types/QuestInfo.ts#L77" tabindex="-1" aria-hidden="true" title="Open source: packages/game/src/types/QuestInfo.ts:77" target="_blank" rel="noreferrer"><svg class="source-reference__icon" width="16" height="16" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m18 16 4-4-4-4"></path><path d="m6 8-4 4 4 4"></path><path d="m14.5 4-5 16"></path></svg></a>
 
 The name of this quest.
-
-**Source:** [`packages/game/src/types/QuestInfo.ts:77`](https://github.com/toommyliu/vexed/blob/ee7dea4922d10259289c35ce1638a1553a17b577/packages/game/src/types/QuestInfo.ts#L77)
 
 ```ts
 sName: string
@@ -336,11 +276,9 @@ sName: string
 
 <a id="property-status"></a>
 
-### `status`
+### `status` <a class="source-reference__heading-link" style="float: right; display: inline-flex; align-items: center; justify-content: center; width: 2rem; height: 2rem; margin-block: -0.125rem; margin-inline-start: 0.5rem; border-radius: var(--radius-sm); text-decoration: none;" href="https://github.com/toommyliu/vexed/blob/69e580bf8bbae374ead5a6f3cb3d3e064ac2735d/packages/game/src/types/QuestInfo.ts#L81" tabindex="-1" aria-hidden="true" title="Open source: packages/game/src/types/QuestInfo.ts:81" target="_blank" rel="noreferrer"><svg class="source-reference__icon" width="16" height="16" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m18 16 4-4-4-4"></path><path d="m6 8-4 4 4 4"></path><path d="m14.5 4-5 16"></path></svg></a>
 
 The status of the quest.
-
-**Source:** [`packages/game/src/types/QuestInfo.ts:81`](https://github.com/toommyliu/vexed/blob/ee7dea4922d10259289c35ce1638a1553a17b577/packages/game/src/types/QuestInfo.ts#L81)
 
 ```ts
 status: string
@@ -348,9 +286,7 @@ status: string
 
 <a id="property-turnin"></a>
 
-### `turnin`
-
-**Source:** [`packages/game/src/types/QuestInfo.ts:82`](https://github.com/toommyliu/vexed/blob/ee7dea4922d10259289c35ce1638a1553a17b577/packages/game/src/types/QuestInfo.ts#L82)
+### `turnin` <a class="source-reference__heading-link" style="float: right; display: inline-flex; align-items: center; justify-content: center; width: 2rem; height: 2rem; margin-block: -0.125rem; margin-inline-start: 0.5rem; border-radius: var(--radius-sm); text-decoration: none;" href="https://github.com/toommyliu/vexed/blob/69e580bf8bbae374ead5a6f3cb3d3e064ac2735d/packages/game/src/types/QuestInfo.ts#L82" tabindex="-1" aria-hidden="true" title="Open source: packages/game/src/types/QuestInfo.ts:82" target="_blank" rel="noreferrer"><svg class="source-reference__icon" width="16" height="16" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m18 16 4-4-4-4"></path><path d="m6 8-4 4 4 4"></path><path d="m14.5 4-5 16"></path></svg></a>
 
 ```ts
 turnin: QuestTurnInData[]

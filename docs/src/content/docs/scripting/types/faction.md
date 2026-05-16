@@ -1,8 +1,8 @@
 ---
-title: Faction
-description: Generated vexed scripting reference for Faction.
+title: "Faction"
+description: "Represents a game faction."
 sidebar:
-  label: Faction
+  label: "Faction"
 tableOfContents:
   minHeadingLevel: 2
   maxHeadingLevel: 3
@@ -12,8 +12,6 @@ tableOfContents:
 
 Represents a game faction.
 
-**Source:** [`packages/game/src/models/Faction.ts:6`](https://github.com/toommyliu/vexed/blob/ee7dea4922d10259289c35ce1638a1553a17b577/packages/game/src/models/Faction.ts#L6)
-
 ```ts
 class Faction
 ```
@@ -22,11 +20,9 @@ class Faction
 
 <a id="property-data"></a>
 
-### `data`
+### `data` <a class="source-reference__heading-link" style="float: right; display: inline-flex; align-items: center; justify-content: center; width: 2rem; height: 2rem; margin-block: -0.125rem; margin-inline-start: 0.5rem; border-radius: var(--radius-sm); text-decoration: none;" href="https://github.com/toommyliu/vexed/blob/69e580bf8bbae374ead5a6f3cb3d3e064ac2735d/packages/game/src/models/Faction.ts#L10" tabindex="-1" aria-hidden="true" title="Open source: packages/game/src/models/Faction.ts:10" target="_blank" rel="noreferrer"><svg class="source-reference__icon" width="16" height="16" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m18 16 4-4-4-4"></path><path d="m6 8-4 4 4 4"></path><path d="m14.5 4-5 16"></path></svg></a>
 
 Data about this faction.
-
-**Source:** [`packages/game/src/models/Faction.ts:10`](https://github.com/toommyliu/vexed/blob/ee7dea4922d10259289c35ce1638a1553a17b577/packages/game/src/models/Faction.ts#L10)
 
 ```ts
 data: FactionData
@@ -34,11 +30,9 @@ data: FactionData
 
 <a id="property-id"></a>
 
-### `id`
+### `id` <a class="source-reference__heading-link" style="float: right; display: inline-flex; align-items: center; justify-content: center; width: 2rem; height: 2rem; margin-block: -0.125rem; margin-inline-start: 0.5rem; border-radius: var(--radius-sm); text-decoration: none;" href="https://github.com/toommyliu/vexed/blob/69e580bf8bbae374ead5a6f3cb3d3e064ac2735d/packages/game/src/models/Faction.ts#L16" tabindex="-1" aria-hidden="true" title="Open source: packages/game/src/models/Faction.ts:16" target="_blank" rel="noreferrer"><svg class="source-reference__icon" width="16" height="16" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m18 16 4-4-4-4"></path><path d="m6 8-4 4 4 4"></path><path d="m14.5 4-5 16"></path></svg></a>
 
 The ID of the faction.
-
-**Source:** [`packages/game/src/models/Faction.ts:16`](https://github.com/toommyliu/vexed/blob/ee7dea4922d10259289c35ce1638a1553a17b577/packages/game/src/models/Faction.ts#L16)
 
 ```ts
 readonly id: number
@@ -46,11 +40,9 @@ readonly id: number
 
 <a id="property-name"></a>
 
-### `name`
+### `name` <a class="source-reference__heading-link" style="float: right; display: inline-flex; align-items: center; justify-content: center; width: 2rem; height: 2rem; margin-block: -0.125rem; margin-inline-start: 0.5rem; border-radius: var(--radius-sm); text-decoration: none;" href="https://github.com/toommyliu/vexed/blob/69e580bf8bbae374ead5a6f3cb3d3e064ac2735d/packages/game/src/models/Faction.ts#L23" tabindex="-1" aria-hidden="true" title="Open source: packages/game/src/models/Faction.ts:23" target="_blank" rel="noreferrer"><svg class="source-reference__icon" width="16" height="16" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m18 16 4-4-4-4"></path><path d="m6 8-4 4 4 4"></path><path d="m14.5 4-5 16"></path></svg></a>
 
 The in-game name of the faction.
-
-**Source:** [`packages/game/src/models/Faction.ts:23`](https://github.com/toommyliu/vexed/blob/ee7dea4922d10259289c35ce1638a1553a17b577/packages/game/src/models/Faction.ts#L23)
 
 ```ts
 readonly name: string
@@ -58,11 +50,9 @@ readonly name: string
 
 <a id="property-rank"></a>
 
-### `rank`
+### `rank` <a class="source-reference__heading-link" style="float: right; display: inline-flex; align-items: center; justify-content: center; width: 2rem; height: 2rem; margin-block: -0.125rem; margin-inline-start: 0.5rem; border-radius: var(--radius-sm); text-decoration: none;" href="https://github.com/toommyliu/vexed/blob/69e580bf8bbae374ead5a6f3cb3d3e064ac2735d/packages/game/src/models/Faction.ts#L30" tabindex="-1" aria-hidden="true" title="Open source: packages/game/src/models/Faction.ts:30" target="_blank" rel="noreferrer"><svg class="source-reference__icon" width="16" height="16" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m18 16 4-4-4-4"></path><path d="m6 8-4 4 4 4"></path><path d="m14.5 4-5 16"></path></svg></a>
 
 The rank that the player has achieved in this faction.
-
-**Source:** [`packages/game/src/models/Faction.ts:30`](https://github.com/toommyliu/vexed/blob/ee7dea4922d10259289c35ce1638a1553a17b577/packages/game/src/models/Faction.ts#L30)
 
 ```ts
 readonly rank: number
@@ -70,11 +60,9 @@ readonly rank: number
 
 <a id="property-remainingrep"></a>
 
-### `remainingRep`
+### `remainingRep` <a class="source-reference__heading-link" style="float: right; display: inline-flex; align-items: center; justify-content: center; width: 2rem; height: 2rem; margin-block: -0.125rem; margin-inline-start: 0.5rem; border-radius: var(--radius-sm); text-decoration: none;" href="https://github.com/toommyliu/vexed/blob/69e580bf8bbae374ead5a6f3cb3d3e064ac2735d/packages/game/src/models/Faction.ts#L58" tabindex="-1" aria-hidden="true" title="Open source: packages/game/src/models/Faction.ts:58" target="_blank" rel="noreferrer"><svg class="source-reference__icon" width="16" height="16" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m18 16 4-4-4-4"></path><path d="m6 8-4 4 4 4"></path><path d="m14.5 4-5 16"></path></svg></a>
 
 The remaining amount of rep required for the player to rank up.
-
-**Source:** [`packages/game/src/models/Faction.ts:58`](https://github.com/toommyliu/vexed/blob/ee7dea4922d10259289c35ce1638a1553a17b577/packages/game/src/models/Faction.ts#L58)
 
 ```ts
 readonly remainingRep: number
@@ -82,11 +70,9 @@ readonly remainingRep: number
 
 <a id="property-rep"></a>
 
-### `rep`
+### `rep` <a class="source-reference__heading-link" style="float: right; display: inline-flex; align-items: center; justify-content: center; width: 2rem; height: 2rem; margin-block: -0.125rem; margin-inline-start: 0.5rem; border-radius: var(--radius-sm); text-decoration: none;" href="https://github.com/toommyliu/vexed/blob/69e580bf8bbae374ead5a6f3cb3d3e064ac2735d/packages/game/src/models/Faction.ts#L44" tabindex="-1" aria-hidden="true" title="Open source: packages/game/src/models/Faction.ts:44" target="_blank" rel="noreferrer"><svg class="source-reference__icon" width="16" height="16" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m18 16 4-4-4-4"></path><path d="m6 8-4 4 4 4"></path><path d="m14.5 4-5 16"></path></svg></a>
 
 The amount of rep the player has for their current rank.
-
-**Source:** [`packages/game/src/models/Faction.ts:44`](https://github.com/toommyliu/vexed/blob/ee7dea4922d10259289c35ce1638a1553a17b577/packages/game/src/models/Faction.ts#L44)
 
 ```ts
 readonly rep: number
@@ -94,11 +80,9 @@ readonly rep: number
 
 <a id="property-requiredrep"></a>
 
-### `requiredRep`
+### `requiredRep` <a class="source-reference__heading-link" style="float: right; display: inline-flex; align-items: center; justify-content: center; width: 2rem; height: 2rem; margin-block: -0.125rem; margin-inline-start: 0.5rem; border-radius: var(--radius-sm); text-decoration: none;" href="https://github.com/toommyliu/vexed/blob/69e580bf8bbae374ead5a6f3cb3d3e064ac2735d/packages/game/src/models/Faction.ts#L51" tabindex="-1" aria-hidden="true" title="Open source: packages/game/src/models/Faction.ts:51" target="_blank" rel="noreferrer"><svg class="source-reference__icon" width="16" height="16" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m18 16 4-4-4-4"></path><path d="m6 8-4 4 4 4"></path><path d="m14.5 4-5 16"></path></svg></a>
 
 The total required rep for the player to rank up.
-
-**Source:** [`packages/game/src/models/Faction.ts:51`](https://github.com/toommyliu/vexed/blob/ee7dea4922d10259289c35ce1638a1553a17b577/packages/game/src/models/Faction.ts#L51)
 
 ```ts
 readonly requiredRep: number
@@ -106,11 +90,9 @@ readonly requiredRep: number
 
 <a id="property-totalrep"></a>
 
-### `totalRep`
+### `totalRep` <a class="source-reference__heading-link" style="float: right; display: inline-flex; align-items: center; justify-content: center; width: 2rem; height: 2rem; margin-block: -0.125rem; margin-inline-start: 0.5rem; border-radius: var(--radius-sm); text-decoration: none;" href="https://github.com/toommyliu/vexed/blob/69e580bf8bbae374ead5a6f3cb3d3e064ac2735d/packages/game/src/models/Faction.ts#L37" tabindex="-1" aria-hidden="true" title="Open source: packages/game/src/models/Faction.ts:37" target="_blank" rel="noreferrer"><svg class="source-reference__icon" width="16" height="16" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m18 16 4-4-4-4"></path><path d="m6 8-4 4 4 4"></path><path d="m14.5 4-5 16"></path></svg></a>
 
 The total amount of rep the player has for this faction.
-
-**Source:** [`packages/game/src/models/Faction.ts:37`](https://github.com/toommyliu/vexed/blob/ee7dea4922d10259289c35ce1638a1553a17b577/packages/game/src/models/Faction.ts#L37)
 
 ```ts
 readonly totalRep: number

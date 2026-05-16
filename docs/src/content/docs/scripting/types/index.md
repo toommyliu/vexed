@@ -1,8 +1,8 @@
 ---
-title: Referenced Types
-description: Generated vexed scripting data type reference.
+title: "Referenced Types"
+description: ""
 sidebar:
-  label: Types
+  label: "Types"
 tableOfContents:
   minHeadingLevel: 2
   maxHeadingLevel: 3
