@@ -477,8 +477,17 @@ type ConsumableSkillItem = {
   name?: string;
 };
 type EquipEnhancementSelector = {
+  /**
+   * The name of the enhancement, i.e. Lucky or Forge.
+   */
   readonly enhancement: string;
+  /**
+   * The slot of the item. One of "weapon", "cape", "helm", "class".
+   */
   readonly slot?: EquipEnhancementSelectorSlot;
+  /**
+   * Typically the proc name for the enhancement. 
+   */
   readonly special?: string;
 };
 interface Faction {
@@ -637,7 +646,11 @@ type Keep<Value> = {
     keep: true;
     value: Value;
 };
+interface Lucky { readonly [key: string]: unknown; }
+interface Forge { readonly [key: string]: unknown; }
+interface One { readonly [key: string]: unknown; }
 type EquipEnhancementSelectorSlot = EquipItemTypeFilter | "armor";
+interface Typically { readonly [key: string]: unknown; }
 type FactionData = {
   CharFactionID: string;
   /**
@@ -990,7 +1003,6 @@ type QuestTurnInData = {
   iQty: number;
 };
 interface Proc { readonly [key: string]: unknown; }
-interface Forge { readonly [key: string]: unknown; }
 interface Awe { readonly [key: string]: unknown; }
 interface ItemProcID { readonly [key: string]: unknown; }
 interface Shop { readonly [key: string]: unknown; }
