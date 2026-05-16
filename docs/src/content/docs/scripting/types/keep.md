@@ -1,6 +1,6 @@
 ---
 title: "Keep"
-description: "Reference for Keep."
+description: ""
 sidebar:
   label: "Keep"
 tableOfContents:

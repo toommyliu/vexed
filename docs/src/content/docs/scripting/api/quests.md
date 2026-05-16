@@ -1,6 +1,6 @@
 ---
 title: "api.quests"
-description: "Reference for api.quests."
+description: ""
 sidebar:
   label: "Quests"
 tableOfContents:
@@ -14,7 +14,7 @@ tableOfContents:
 
 <a id="member-api-quests-abandon"></a>
 
-### `api.quests.abandon()` <a class="source-reference__heading-link" style="float: right; display: inline-flex; align-items: center; justify-content: center; width: 2rem; height: 2rem; margin-block: -0.125rem; margin-inline-start: 0.5rem; border-radius: var(--radius-sm); text-decoration: none;" href="https://github.com/toommyliu/vexed/blob/fc1a69128bf47b1844397eca622869e1b37943ad/app/src/renderer/windows/game/flash/Services/Quests.ts#L8" tabindex="-1" aria-hidden="true" title="Open source: app/src/renderer/windows/game/flash/Services/Quests.ts:8" target="_blank" rel="noreferrer"><svg class="source-reference__icon" width="16" height="16" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m18 16 4-4-4-4"></path><path d="m6 8-4 4 4 4"></path><path d="m14.5 4-5 16"></path></svg></a>
+### `api.quests.abandon()` <a class="source-reference__heading-link" style="float: right; display: inline-flex; align-items: center; justify-content: center; width: 2rem; height: 2rem; margin-block: -0.125rem; margin-inline-start: 0.5rem; border-radius: var(--radius-sm); text-decoration: none;" href="https://github.com/toommyliu/vexed/blob/dev/app/src/renderer/windows/game/flash/Services/Quests.ts#L8" tabindex="-1" aria-hidden="true" title="Open source: app/src/renderer/windows/game/flash/Services/Quests.ts:8" target="_blank" rel="noreferrer"><svg class="source-reference__icon" width="16" height="16" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m18 16 4-4-4-4"></path><path d="m6 8-4 4 4 4"></path><path d="m14.5 4-5 16"></path></svg></a>
 
 ```ts
 api.quests.abandon(questId: number): BridgeEffect<void>
@@ -26,11 +26,11 @@ api.quests.abandon(questId: number): BridgeEffect<void>
 
 **Yields:** `void`
 
-**Errors:** [`BridgeError`](../../types/bridge-error/)
+**Errors:** <a href="/scripting/types/bridge-error/" data-script-type="bridge-error"><code>BridgeError</code></a>
 
 <a id="member-api-quests-accept"></a>
 
-### `api.quests.accept()` <a class="source-reference__heading-link" style="float: right; display: inline-flex; align-items: center; justify-content: center; width: 2rem; height: 2rem; margin-block: -0.125rem; margin-inline-start: 0.5rem; border-radius: var(--radius-sm); text-decoration: none;" href="https://github.com/toommyliu/vexed/blob/fc1a69128bf47b1844397eca622869e1b37943ad/app/src/renderer/windows/game/flash/Services/Quests.ts#L9" tabindex="-1" aria-hidden="true" title="Open source: app/src/renderer/windows/game/flash/Services/Quests.ts:9" target="_blank" rel="noreferrer"><svg class="source-reference__icon" width="16" height="16" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m18 16 4-4-4-4"></path><path d="m6 8-4 4 4 4"></path><path d="m14.5 4-5 16"></path></svg></a>
+### `api.quests.accept()` <a class="source-reference__heading-link" style="float: right; display: inline-flex; align-items: center; justify-content: center; width: 2rem; height: 2rem; margin-block: -0.125rem; margin-inline-start: 0.5rem; border-radius: var(--radius-sm); text-decoration: none;" href="https://github.com/toommyliu/vexed/blob/dev/app/src/renderer/windows/game/flash/Services/Quests.ts#L9" tabindex="-1" aria-hidden="true" title="Open source: app/src/renderer/windows/game/flash/Services/Quests.ts:9" target="_blank" rel="noreferrer"><svg class="source-reference__icon" width="16" height="16" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m18 16 4-4-4-4"></path><path d="m6 8-4 4 4 4"></path><path d="m14.5 4-5 16"></path></svg></a>
 
 ```ts
 api.quests.accept(questId: number, silent?: boolean): BridgeEffect<void>
@@ -43,11 +43,11 @@ api.quests.accept(questId: number, silent?: boolean): BridgeEffect<void>
 
 **Yields:** `void`
 
-**Errors:** [`BridgeError`](../../types/bridge-error/)
+**Errors:** <a href="/scripting/types/bridge-error/" data-script-type="bridge-error"><code>BridgeError</code></a>
 
 <a id="member-api-quests-cancomplete"></a>
 
-### `api.quests.canComplete()` <a class="source-reference__heading-link" style="float: right; display: inline-flex; align-items: center; justify-content: center; width: 2rem; height: 2rem; margin-block: -0.125rem; margin-inline-start: 0.5rem; border-radius: var(--radius-sm); text-decoration: none;" href="https://github.com/toommyliu/vexed/blob/fc1a69128bf47b1844397eca622869e1b37943ad/app/src/renderer/windows/game/flash/Services/Quests.ts#L10" tabindex="-1" aria-hidden="true" title="Open source: app/src/renderer/windows/game/flash/Services/Quests.ts:10" target="_blank" rel="noreferrer"><svg class="source-reference__icon" width="16" height="16" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m18 16 4-4-4-4"></path><path d="m6 8-4 4 4 4"></path><path d="m14.5 4-5 16"></path></svg></a>
+### `api.quests.canComplete()` <a class="source-reference__heading-link" style="float: right; display: inline-flex; align-items: center; justify-content: center; width: 2rem; height: 2rem; margin-block: -0.125rem; margin-inline-start: 0.5rem; border-radius: var(--radius-sm); text-decoration: none;" href="https://github.com/toommyliu/vexed/blob/dev/app/src/renderer/windows/game/flash/Services/Quests.ts#L10" tabindex="-1" aria-hidden="true" title="Open source: app/src/renderer/windows/game/flash/Services/Quests.ts:10" target="_blank" rel="noreferrer"><svg class="source-reference__icon" width="16" height="16" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m18 16 4-4-4-4"></path><path d="m6 8-4 4 4 4"></path><path d="m14.5 4-5 16"></path></svg></a>
 
 ```ts
 api.quests.canComplete(questId: number): BridgeEffect<boolean>
@@ -59,11 +59,11 @@ api.quests.canComplete(questId: number): BridgeEffect<boolean>
 
 **Yields:** `boolean`
 
-**Errors:** [`BridgeError`](../../types/bridge-error/)
+**Errors:** <a href="/scripting/types/bridge-error/" data-script-type="bridge-error"><code>BridgeError</code></a>
 
 <a id="member-api-quests-complete"></a>
 
-### `api.quests.complete()` <a class="source-reference__heading-link" style="float: right; display: inline-flex; align-items: center; justify-content: center; width: 2rem; height: 2rem; margin-block: -0.125rem; margin-inline-start: 0.5rem; border-radius: var(--radius-sm); text-decoration: none;" href="https://github.com/toommyliu/vexed/blob/fc1a69128bf47b1844397eca622869e1b37943ad/app/src/renderer/windows/game/flash/Services/Quests.ts#L11" tabindex="-1" aria-hidden="true" title="Open source: app/src/renderer/windows/game/flash/Services/Quests.ts:11" target="_blank" rel="noreferrer"><svg class="source-reference__icon" width="16" height="16" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m18 16 4-4-4-4"></path><path d="m6 8-4 4 4 4"></path><path d="m14.5 4-5 16"></path></svg></a>
+### `api.quests.complete()` <a class="source-reference__heading-link" style="float: right; display: inline-flex; align-items: center; justify-content: center; width: 2rem; height: 2rem; margin-block: -0.125rem; margin-inline-start: 0.5rem; border-radius: var(--radius-sm); text-decoration: none;" href="https://github.com/toommyliu/vexed/blob/dev/app/src/renderer/windows/game/flash/Services/Quests.ts#L11" tabindex="-1" aria-hidden="true" title="Open source: app/src/renderer/windows/game/flash/Services/Quests.ts:11" target="_blank" rel="noreferrer"><svg class="source-reference__icon" width="16" height="16" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m18 16 4-4-4-4"></path><path d="m6 8-4 4 4 4"></path><path d="m14.5 4-5 16"></path></svg></a>
 
 ```ts
 api.quests.complete(questId: number, turnIns?: number, itemId?: number, special?: boolean): BridgeEffect<void>
@@ -78,23 +78,23 @@ api.quests.complete(questId: number, turnIns?: number, itemId?: number, special?
 
 **Yields:** `void`
 
-**Errors:** [`BridgeError`](../../types/bridge-error/)
+**Errors:** <a href="/scripting/types/bridge-error/" data-script-type="bridge-error"><code>BridgeError</code></a>
 
 <a id="member-api-quests-getaccepted"></a>
 
-### `api.quests.getAccepted()` <a class="source-reference__heading-link" style="float: right; display: inline-flex; align-items: center; justify-content: center; width: 2rem; height: 2rem; margin-block: -0.125rem; margin-inline-start: 0.5rem; border-radius: var(--radius-sm); text-decoration: none;" href="https://github.com/toommyliu/vexed/blob/fc1a69128bf47b1844397eca622869e1b37943ad/app/src/renderer/windows/game/flash/Services/Quests.ts#L22" tabindex="-1" aria-hidden="true" title="Open source: app/src/renderer/windows/game/flash/Services/Quests.ts:22" target="_blank" rel="noreferrer"><svg class="source-reference__icon" width="16" height="16" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m18 16 4-4-4-4"></path><path d="m6 8-4 4 4 4"></path><path d="m14.5 4-5 16"></path></svg></a>
+### `api.quests.getAccepted()` <a class="source-reference__heading-link" style="float: right; display: inline-flex; align-items: center; justify-content: center; width: 2rem; height: 2rem; margin-block: -0.125rem; margin-inline-start: 0.5rem; border-radius: var(--radius-sm); text-decoration: none;" href="https://github.com/toommyliu/vexed/blob/dev/app/src/renderer/windows/game/flash/Services/Quests.ts#L22" tabindex="-1" aria-hidden="true" title="Open source: app/src/renderer/windows/game/flash/Services/Quests.ts:22" target="_blank" rel="noreferrer"><svg class="source-reference__icon" width="16" height="16" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m18 16 4-4-4-4"></path><path d="m6 8-4 4 4 4"></path><path d="m14.5 4-5 16"></path></svg></a>
 
 ```ts
 api.quests.getAccepted(): BridgeEffect<Quest[]>
 ```
 
-**Yields:** [`Quest`](../../types/quest/)[]
+**Yields:** <a href="/scripting/types/quest/" data-script-type="quest"><code>Quest</code></a>[]
 
-**Errors:** [`BridgeError`](../../types/bridge-error/)
+**Errors:** <a href="/scripting/types/bridge-error/" data-script-type="bridge-error"><code>BridgeError</code></a>
 
 <a id="member-api-quests-getmaxturnins"></a>
 
-### `api.quests.getMaxTurnIns()` <a class="source-reference__heading-link" style="float: right; display: inline-flex; align-items: center; justify-content: center; width: 2rem; height: 2rem; margin-block: -0.125rem; margin-inline-start: 0.5rem; border-radius: var(--radius-sm); text-decoration: none;" href="https://github.com/toommyliu/vexed/blob/fc1a69128bf47b1844397eca622869e1b37943ad/app/src/renderer/windows/game/flash/Services/Quests.ts#L17" tabindex="-1" aria-hidden="true" title="Open source: app/src/renderer/windows/game/flash/Services/Quests.ts:17" target="_blank" rel="noreferrer"><svg class="source-reference__icon" width="16" height="16" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m18 16 4-4-4-4"></path><path d="m6 8-4 4 4 4"></path><path d="m14.5 4-5 16"></path></svg></a>
+### `api.quests.getMaxTurnIns()` <a class="source-reference__heading-link" style="float: right; display: inline-flex; align-items: center; justify-content: center; width: 2rem; height: 2rem; margin-block: -0.125rem; margin-inline-start: 0.5rem; border-radius: var(--radius-sm); text-decoration: none;" href="https://github.com/toommyliu/vexed/blob/dev/app/src/renderer/windows/game/flash/Services/Quests.ts#L17" tabindex="-1" aria-hidden="true" title="Open source: app/src/renderer/windows/game/flash/Services/Quests.ts:17" target="_blank" rel="noreferrer"><svg class="source-reference__icon" width="16" height="16" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m18 16 4-4-4-4"></path><path d="m6 8-4 4 4 4"></path><path d="m14.5 4-5 16"></path></svg></a>
 
 ```ts
 api.quests.getMaxTurnIns(questId: number): BridgeEffect<number>
@@ -106,23 +106,23 @@ api.quests.getMaxTurnIns(questId: number): BridgeEffect<number>
 
 **Yields:** `number`
 
-**Errors:** [`BridgeError`](../../types/bridge-error/)
+**Errors:** <a href="/scripting/types/bridge-error/" data-script-type="bridge-error"><code>BridgeError</code></a>
 
 <a id="member-api-quests-gettree"></a>
 
-### `api.quests.getTree()` <a class="source-reference__heading-link" style="float: right; display: inline-flex; align-items: center; justify-content: center; width: 2rem; height: 2rem; margin-block: -0.125rem; margin-inline-start: 0.5rem; border-radius: var(--radius-sm); text-decoration: none;" href="https://github.com/toommyliu/vexed/blob/fc1a69128bf47b1844397eca622869e1b37943ad/app/src/renderer/windows/game/flash/Services/Quests.ts#L20" tabindex="-1" aria-hidden="true" title="Open source: app/src/renderer/windows/game/flash/Services/Quests.ts:20" target="_blank" rel="noreferrer"><svg class="source-reference__icon" width="16" height="16" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m18 16 4-4-4-4"></path><path d="m6 8-4 4 4 4"></path><path d="m14.5 4-5 16"></path></svg></a>
+### `api.quests.getTree()` <a class="source-reference__heading-link" style="float: right; display: inline-flex; align-items: center; justify-content: center; width: 2rem; height: 2rem; margin-block: -0.125rem; margin-inline-start: 0.5rem; border-radius: var(--radius-sm); text-decoration: none;" href="https://github.com/toommyliu/vexed/blob/dev/app/src/renderer/windows/game/flash/Services/Quests.ts#L20" tabindex="-1" aria-hidden="true" title="Open source: app/src/renderer/windows/game/flash/Services/Quests.ts:20" target="_blank" rel="noreferrer"><svg class="source-reference__icon" width="16" height="16" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m18 16 4-4-4-4"></path><path d="m6 8-4 4 4 4"></path><path d="m14.5 4-5 16"></path></svg></a>
 
 ```ts
 api.quests.getTree(): Effect.Effect<Collection<number, Quest>, never, never>
 ```
 
-**Yields:** [`Collection`](../../types/collection/)&lt;`number`, [`Quest`](../../types/quest/)&gt;
+**Yields:** <a href="/scripting/types/collection/" data-script-type="collection"><code>Collection</code></a>&lt;`number`, <a href="/scripting/types/quest/" data-script-type="quest"><code>Quest</code></a>&gt;
 
 **Errors:** `never`
 
 <a id="member-api-quests-has"></a>
 
-### `api.quests.has()` <a class="source-reference__heading-link" style="float: right; display: inline-flex; align-items: center; justify-content: center; width: 2rem; height: 2rem; margin-block: -0.125rem; margin-inline-start: 0.5rem; border-radius: var(--radius-sm); text-decoration: none;" href="https://github.com/toommyliu/vexed/blob/fc1a69128bf47b1844397eca622869e1b37943ad/app/src/renderer/windows/game/flash/Services/Quests.ts#L21" tabindex="-1" aria-hidden="true" title="Open source: app/src/renderer/windows/game/flash/Services/Quests.ts:21" target="_blank" rel="noreferrer"><svg class="source-reference__icon" width="16" height="16" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m18 16 4-4-4-4"></path><path d="m6 8-4 4 4 4"></path><path d="m14.5 4-5 16"></path></svg></a>
+### `api.quests.has()` <a class="source-reference__heading-link" style="float: right; display: inline-flex; align-items: center; justify-content: center; width: 2rem; height: 2rem; margin-block: -0.125rem; margin-inline-start: 0.5rem; border-radius: var(--radius-sm); text-decoration: none;" href="https://github.com/toommyliu/vexed/blob/dev/app/src/renderer/windows/game/flash/Services/Quests.ts#L21" tabindex="-1" aria-hidden="true" title="Open source: app/src/renderer/windows/game/flash/Services/Quests.ts:21" target="_blank" rel="noreferrer"><svg class="source-reference__icon" width="16" height="16" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m18 16 4-4-4-4"></path><path d="m6 8-4 4 4 4"></path><path d="m14.5 4-5 16"></path></svg></a>
 
 ```ts
 api.quests.has(questId: number): Effect.Effect<boolean, never, never>
@@ -138,7 +138,7 @@ api.quests.has(questId: number): Effect.Effect<boolean, never, never>
 
 <a id="member-api-quests-isavailable"></a>
 
-### `api.quests.isAvailable()` <a class="source-reference__heading-link" style="float: right; display: inline-flex; align-items: center; justify-content: center; width: 2rem; height: 2rem; margin-block: -0.125rem; margin-inline-start: 0.5rem; border-radius: var(--radius-sm); text-decoration: none;" href="https://github.com/toommyliu/vexed/blob/fc1a69128bf47b1844397eca622869e1b37943ad/app/src/renderer/windows/game/flash/Services/Quests.ts#L23" tabindex="-1" aria-hidden="true" title="Open source: app/src/renderer/windows/game/flash/Services/Quests.ts:23" target="_blank" rel="noreferrer"><svg class="source-reference__icon" width="16" height="16" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m18 16 4-4-4-4"></path><path d="m6 8-4 4 4 4"></path><path d="m14.5 4-5 16"></path></svg></a>
+### `api.quests.isAvailable()` <a class="source-reference__heading-link" style="float: right; display: inline-flex; align-items: center; justify-content: center; width: 2rem; height: 2rem; margin-block: -0.125rem; margin-inline-start: 0.5rem; border-radius: var(--radius-sm); text-decoration: none;" href="https://github.com/toommyliu/vexed/blob/dev/app/src/renderer/windows/game/flash/Services/Quests.ts#L23" tabindex="-1" aria-hidden="true" title="Open source: app/src/renderer/windows/game/flash/Services/Quests.ts:23" target="_blank" rel="noreferrer"><svg class="source-reference__icon" width="16" height="16" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m18 16 4-4-4-4"></path><path d="m6 8-4 4 4 4"></path><path d="m14.5 4-5 16"></path></svg></a>
 
 ```ts
 api.quests.isAvailable(questId: number): BridgeEffect<boolean>
@@ -150,11 +150,11 @@ api.quests.isAvailable(questId: number): BridgeEffect<boolean>
 
 **Yields:** `boolean`
 
-**Errors:** [`BridgeError`](../../types/bridge-error/)
+**Errors:** <a href="/scripting/types/bridge-error/" data-script-type="bridge-error"><code>BridgeError</code></a>
 
 <a id="member-api-quests-isinprogress"></a>
 
-### `api.quests.isInProgress()` <a class="source-reference__heading-link" style="float: right; display: inline-flex; align-items: center; justify-content: center; width: 2rem; height: 2rem; margin-block: -0.125rem; margin-inline-start: 0.5rem; border-radius: var(--radius-sm); text-decoration: none;" href="https://github.com/toommyliu/vexed/blob/fc1a69128bf47b1844397eca622869e1b37943ad/app/src/renderer/windows/game/flash/Services/Quests.ts#L24" tabindex="-1" aria-hidden="true" title="Open source: app/src/renderer/windows/game/flash/Services/Quests.ts:24" target="_blank" rel="noreferrer"><svg class="source-reference__icon" width="16" height="16" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m18 16 4-4-4-4"></path><path d="m6 8-4 4 4 4"></path><path d="m14.5 4-5 16"></path></svg></a>
+### `api.quests.isInProgress()` <a class="source-reference__heading-link" style="float: right; display: inline-flex; align-items: center; justify-content: center; width: 2rem; height: 2rem; margin-block: -0.125rem; margin-inline-start: 0.5rem; border-radius: var(--radius-sm); text-decoration: none;" href="https://github.com/toommyliu/vexed/blob/dev/app/src/renderer/windows/game/flash/Services/Quests.ts#L24" tabindex="-1" aria-hidden="true" title="Open source: app/src/renderer/windows/game/flash/Services/Quests.ts:24" target="_blank" rel="noreferrer"><svg class="source-reference__icon" width="16" height="16" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m18 16 4-4-4-4"></path><path d="m6 8-4 4 4 4"></path><path d="m14.5 4-5 16"></path></svg></a>
 
 ```ts
 api.quests.isInProgress(questId: number): BridgeEffect<boolean>
@@ -166,11 +166,11 @@ api.quests.isInProgress(questId: number): BridgeEffect<boolean>
 
 **Yields:** `boolean`
 
-**Errors:** [`BridgeError`](../../types/bridge-error/)
+**Errors:** <a href="/scripting/types/bridge-error/" data-script-type="bridge-error"><code>BridgeError</code></a>
 
 <a id="member-api-quests-load"></a>
 
-### `api.quests.load()` <a class="source-reference__heading-link" style="float: right; display: inline-flex; align-items: center; justify-content: center; width: 2rem; height: 2rem; margin-block: -0.125rem; margin-inline-start: 0.5rem; border-radius: var(--radius-sm); text-decoration: none;" href="https://github.com/toommyliu/vexed/blob/fc1a69128bf47b1844397eca622869e1b37943ad/app/src/renderer/windows/game/flash/Services/Quests.ts#L18" tabindex="-1" aria-hidden="true" title="Open source: app/src/renderer/windows/game/flash/Services/Quests.ts:18" target="_blank" rel="noreferrer"><svg class="source-reference__icon" width="16" height="16" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m18 16 4-4-4-4"></path><path d="m6 8-4 4 4 4"></path><path d="m14.5 4-5 16"></path></svg></a>
+### `api.quests.load()` <a class="source-reference__heading-link" style="float: right; display: inline-flex; align-items: center; justify-content: center; width: 2rem; height: 2rem; margin-block: -0.125rem; margin-inline-start: 0.5rem; border-radius: var(--radius-sm); text-decoration: none;" href="https://github.com/toommyliu/vexed/blob/dev/app/src/renderer/windows/game/flash/Services/Quests.ts#L18" tabindex="-1" aria-hidden="true" title="Open source: app/src/renderer/windows/game/flash/Services/Quests.ts:18" target="_blank" rel="noreferrer"><svg class="source-reference__icon" width="16" height="16" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m18 16 4-4-4-4"></path><path d="m6 8-4 4 4 4"></path><path d="m14.5 4-5 16"></path></svg></a>
 
 ```ts
 api.quests.load(questId: number, silent?: boolean): BridgeEffect<void>
@@ -183,11 +183,11 @@ api.quests.load(questId: number, silent?: boolean): BridgeEffect<void>
 
 **Yields:** `void`
 
-**Errors:** [`BridgeError`](../../types/bridge-error/)
+**Errors:** <a href="/scripting/types/bridge-error/" data-script-type="bridge-error"><code>BridgeError</code></a>
 
 <a id="member-api-quests-loadmany"></a>
 
-### `api.quests.loadMany()` <a class="source-reference__heading-link" style="float: right; display: inline-flex; align-items: center; justify-content: center; width: 2rem; height: 2rem; margin-block: -0.125rem; margin-inline-start: 0.5rem; border-radius: var(--radius-sm); text-decoration: none;" href="https://github.com/toommyliu/vexed/blob/fc1a69128bf47b1844397eca622869e1b37943ad/app/src/renderer/windows/game/flash/Services/Quests.ts#L19" tabindex="-1" aria-hidden="true" title="Open source: app/src/renderer/windows/game/flash/Services/Quests.ts:19" target="_blank" rel="noreferrer"><svg class="source-reference__icon" width="16" height="16" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m18 16 4-4-4-4"></path><path d="m6 8-4 4 4 4"></path><path d="m14.5 4-5 16"></path></svg></a>
+### `api.quests.loadMany()` <a class="source-reference__heading-link" style="float: right; display: inline-flex; align-items: center; justify-content: center; width: 2rem; height: 2rem; margin-block: -0.125rem; margin-inline-start: 0.5rem; border-radius: var(--radius-sm); text-decoration: none;" href="https://github.com/toommyliu/vexed/blob/dev/app/src/renderer/windows/game/flash/Services/Quests.ts#L19" tabindex="-1" aria-hidden="true" title="Open source: app/src/renderer/windows/game/flash/Services/Quests.ts:19" target="_blank" rel="noreferrer"><svg class="source-reference__icon" width="16" height="16" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m18 16 4-4-4-4"></path><path d="m6 8-4 4 4 4"></path><path d="m14.5 4-5 16"></path></svg></a>
 
 ```ts
 api.quests.loadMany(questIds: number[], silent?: boolean): BridgeEffect<void>
@@ -200,4 +200,4 @@ api.quests.loadMany(questIds: number[], silent?: boolean): BridgeEffect<void>
 
 **Yields:** `void`
 
-**Errors:** [`BridgeError`](../../types/bridge-error/)
+**Errors:** <a href="/scripting/types/bridge-error/" data-script-type="bridge-error"><code>BridgeError</code></a>

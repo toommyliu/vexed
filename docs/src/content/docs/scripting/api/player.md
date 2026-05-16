@@ -1,6 +1,6 @@
 ---
 title: "api.player"
-description: "Reference for api.player."
+description: ""
 sidebar:
   label: "Player"
 tableOfContents:
@@ -14,7 +14,7 @@ tableOfContents:
 
 <a id="member-api-player-getcell"></a>
 
-### `api.player.getCell()` <a class="source-reference__heading-link" style="float: right; display: inline-flex; align-items: center; justify-content: center; width: 2rem; height: 2rem; margin-block: -0.125rem; margin-inline-start: 0.5rem; border-radius: var(--radius-sm); text-decoration: none;" href="https://github.com/toommyliu/vexed/blob/fc1a69128bf47b1844397eca622869e1b37943ad/app/src/renderer/windows/game/flash/Services/Player.ts#L7" tabindex="-1" aria-hidden="true" title="Open source: app/src/renderer/windows/game/flash/Services/Player.ts:7" target="_blank" rel="noreferrer"><svg class="source-reference__icon" width="16" height="16" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m18 16 4-4-4-4"></path><path d="m6 8-4 4 4 4"></path><path d="m14.5 4-5 16"></path></svg></a>
+### `api.player.getCell()` <a class="source-reference__heading-link" style="float: right; display: inline-flex; align-items: center; justify-content: center; width: 2rem; height: 2rem; margin-block: -0.125rem; margin-inline-start: 0.5rem; border-radius: var(--radius-sm); text-decoration: none;" href="https://github.com/toommyliu/vexed/blob/dev/app/src/renderer/windows/game/flash/Services/Player.ts#L7" tabindex="-1" aria-hidden="true" title="Open source: app/src/renderer/windows/game/flash/Services/Player.ts:7" target="_blank" rel="noreferrer"><svg class="source-reference__icon" width="16" height="16" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m18 16 4-4-4-4"></path><path d="m6 8-4 4 4 4"></path><path d="m14.5 4-5 16"></path></svg></a>
 
 ```ts
 api.player.getCell(): BridgeEffect<string>
@@ -22,11 +22,11 @@ api.player.getCell(): BridgeEffect<string>
 
 **Yields:** `string`
 
-**Errors:** [`BridgeError`](../../types/bridge-error/)
+**Errors:** <a href="/scripting/types/bridge-error/" data-script-type="bridge-error"><code>BridgeError</code></a>
 
 <a id="member-api-player-getclassname"></a>
 
-### `api.player.getClassName()` <a class="source-reference__heading-link" style="float: right; display: inline-flex; align-items: center; justify-content: center; width: 2rem; height: 2rem; margin-block: -0.125rem; margin-inline-start: 0.5rem; border-radius: var(--radius-sm); text-decoration: none;" href="https://github.com/toommyliu/vexed/blob/fc1a69128bf47b1844397eca622869e1b37943ad/app/src/renderer/windows/game/flash/Services/Player.ts#L11" tabindex="-1" aria-hidden="true" title="Open source: app/src/renderer/windows/game/flash/Services/Player.ts:11" target="_blank" rel="noreferrer"><svg class="source-reference__icon" width="16" height="16" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m18 16 4-4-4-4"></path><path d="m6 8-4 4 4 4"></path><path d="m14.5 4-5 16"></path></svg></a>
+### `api.player.getClassName()` <a class="source-reference__heading-link" style="float: right; display: inline-flex; align-items: center; justify-content: center; width: 2rem; height: 2rem; margin-block: -0.125rem; margin-inline-start: 0.5rem; border-radius: var(--radius-sm); text-decoration: none;" href="https://github.com/toommyliu/vexed/blob/dev/app/src/renderer/windows/game/flash/Services/Player.ts#L11" tabindex="-1" aria-hidden="true" title="Open source: app/src/renderer/windows/game/flash/Services/Player.ts:11" target="_blank" rel="noreferrer"><svg class="source-reference__icon" width="16" height="16" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m18 16 4-4-4-4"></path><path d="m6 8-4 4 4 4"></path><path d="m14.5 4-5 16"></path></svg></a>
 
 Uppercased class name.
 
@@ -36,23 +36,23 @@ api.player.getClassName(): BridgeEffect<string>
 
 **Yields:** `string`
 
-**Errors:** [`BridgeError`](../../types/bridge-error/)
+**Errors:** <a href="/scripting/types/bridge-error/" data-script-type="bridge-error"><code>BridgeError</code></a>
 
 <a id="member-api-player-getfactions"></a>
 
-### `api.player.getFactions()` <a class="source-reference__heading-link" style="float: right; display: inline-flex; align-items: center; justify-content: center; width: 2rem; height: 2rem; margin-block: -0.125rem; margin-inline-start: 0.5rem; border-radius: var(--radius-sm); text-decoration: none;" href="https://github.com/toommyliu/vexed/blob/fc1a69128bf47b1844397eca622869e1b37943ad/app/src/renderer/windows/game/flash/Services/Player.ts#L12" tabindex="-1" aria-hidden="true" title="Open source: app/src/renderer/windows/game/flash/Services/Player.ts:12" target="_blank" rel="noreferrer"><svg class="source-reference__icon" width="16" height="16" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m18 16 4-4-4-4"></path><path d="m6 8-4 4 4 4"></path><path d="m14.5 4-5 16"></path></svg></a>
+### `api.player.getFactions()` <a class="source-reference__heading-link" style="float: right; display: inline-flex; align-items: center; justify-content: center; width: 2rem; height: 2rem; margin-block: -0.125rem; margin-inline-start: 0.5rem; border-radius: var(--radius-sm); text-decoration: none;" href="https://github.com/toommyliu/vexed/blob/dev/app/src/renderer/windows/game/flash/Services/Player.ts#L12" tabindex="-1" aria-hidden="true" title="Open source: app/src/renderer/windows/game/flash/Services/Player.ts:12" target="_blank" rel="noreferrer"><svg class="source-reference__icon" width="16" height="16" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m18 16 4-4-4-4"></path><path d="m6 8-4 4 4 4"></path><path d="m14.5 4-5 16"></path></svg></a>
 
 ```ts
 api.player.getFactions(): BridgeEffect<Collection<string, Faction>>
 ```
 
-**Yields:** [`Collection`](../../types/collection/)&lt;`string`, [`Faction`](../../types/faction/)&gt;
+**Yields:** <a href="/scripting/types/collection/" data-script-type="collection"><code>Collection</code></a>&lt;`string`, <a href="/scripting/types/faction/" data-script-type="faction"><code>Faction</code></a>&gt;
 
-**Errors:** [`BridgeError`](../../types/bridge-error/)
+**Errors:** <a href="/scripting/types/bridge-error/" data-script-type="bridge-error"><code>BridgeError</code></a>
 
 <a id="member-api-player-getgender"></a>
 
-### `api.player.getGender()` <a class="source-reference__heading-link" style="float: right; display: inline-flex; align-items: center; justify-content: center; width: 2rem; height: 2rem; margin-block: -0.125rem; margin-inline-start: 0.5rem; border-radius: var(--radius-sm); text-decoration: none;" href="https://github.com/toommyliu/vexed/blob/fc1a69128bf47b1844397eca622869e1b37943ad/app/src/renderer/windows/game/flash/Services/Player.ts#L13" tabindex="-1" aria-hidden="true" title="Open source: app/src/renderer/windows/game/flash/Services/Player.ts:13" target="_blank" rel="noreferrer"><svg class="source-reference__icon" width="16" height="16" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m18 16 4-4-4-4"></path><path d="m6 8-4 4 4 4"></path><path d="m14.5 4-5 16"></path></svg></a>
+### `api.player.getGender()` <a class="source-reference__heading-link" style="float: right; display: inline-flex; align-items: center; justify-content: center; width: 2rem; height: 2rem; margin-block: -0.125rem; margin-inline-start: 0.5rem; border-radius: var(--radius-sm); text-decoration: none;" href="https://github.com/toommyliu/vexed/blob/dev/app/src/renderer/windows/game/flash/Services/Player.ts#L13" tabindex="-1" aria-hidden="true" title="Open source: app/src/renderer/windows/game/flash/Services/Player.ts:13" target="_blank" rel="noreferrer"><svg class="source-reference__icon" width="16" height="16" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m18 16 4-4-4-4"></path><path d="m6 8-4 4 4 4"></path><path d="m14.5 4-5 16"></path></svg></a>
 
 ```ts
 api.player.getGender(): BridgeEffect<string>
@@ -60,11 +60,11 @@ api.player.getGender(): BridgeEffect<string>
 
 **Yields:** `string`
 
-**Errors:** [`BridgeError`](../../types/bridge-error/)
+**Errors:** <a href="/scripting/types/bridge-error/" data-script-type="bridge-error"><code>BridgeError</code></a>
 
 <a id="member-api-player-getgold"></a>
 
-### `api.player.getGold()` <a class="source-reference__heading-link" style="float: right; display: inline-flex; align-items: center; justify-content: center; width: 2rem; height: 2rem; margin-block: -0.125rem; margin-inline-start: 0.5rem; border-radius: var(--radius-sm); text-decoration: none;" href="https://github.com/toommyliu/vexed/blob/fc1a69128bf47b1844397eca622869e1b37943ad/app/src/renderer/windows/game/flash/Services/Player.ts#L14" tabindex="-1" aria-hidden="true" title="Open source: app/src/renderer/windows/game/flash/Services/Player.ts:14" target="_blank" rel="noreferrer"><svg class="source-reference__icon" width="16" height="16" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m18 16 4-4-4-4"></path><path d="m6 8-4 4 4 4"></path><path d="m14.5 4-5 16"></path></svg></a>
+### `api.player.getGold()` <a class="source-reference__heading-link" style="float: right; display: inline-flex; align-items: center; justify-content: center; width: 2rem; height: 2rem; margin-block: -0.125rem; margin-inline-start: 0.5rem; border-radius: var(--radius-sm); text-decoration: none;" href="https://github.com/toommyliu/vexed/blob/dev/app/src/renderer/windows/game/flash/Services/Player.ts#L14" tabindex="-1" aria-hidden="true" title="Open source: app/src/renderer/windows/game/flash/Services/Player.ts:14" target="_blank" rel="noreferrer"><svg class="source-reference__icon" width="16" height="16" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m18 16 4-4-4-4"></path><path d="m6 8-4 4 4 4"></path><path d="m14.5 4-5 16"></path></svg></a>
 
 ```ts
 api.player.getGold(): BridgeEffect<number>
@@ -72,11 +72,11 @@ api.player.getGold(): BridgeEffect<number>
 
 **Yields:** `number`
 
-**Errors:** [`BridgeError`](../../types/bridge-error/)
+**Errors:** <a href="/scripting/types/bridge-error/" data-script-type="bridge-error"><code>BridgeError</code></a>
 
 <a id="member-api-player-gethp"></a>
 
-### `api.player.getHp()` <a class="source-reference__heading-link" style="float: right; display: inline-flex; align-items: center; justify-content: center; width: 2rem; height: 2rem; margin-block: -0.125rem; margin-inline-start: 0.5rem; border-radius: var(--radius-sm); text-decoration: none;" href="https://github.com/toommyliu/vexed/blob/fc1a69128bf47b1844397eca622869e1b37943ad/app/src/renderer/windows/game/flash/Services/Player.ts#L15" tabindex="-1" aria-hidden="true" title="Open source: app/src/renderer/windows/game/flash/Services/Player.ts:15" target="_blank" rel="noreferrer"><svg class="source-reference__icon" width="16" height="16" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m18 16 4-4-4-4"></path><path d="m6 8-4 4 4 4"></path><path d="m14.5 4-5 16"></path></svg></a>
+### `api.player.getHp()` <a class="source-reference__heading-link" style="float: right; display: inline-flex; align-items: center; justify-content: center; width: 2rem; height: 2rem; margin-block: -0.125rem; margin-inline-start: 0.5rem; border-radius: var(--radius-sm); text-decoration: none;" href="https://github.com/toommyliu/vexed/blob/dev/app/src/renderer/windows/game/flash/Services/Player.ts#L15" tabindex="-1" aria-hidden="true" title="Open source: app/src/renderer/windows/game/flash/Services/Player.ts:15" target="_blank" rel="noreferrer"><svg class="source-reference__icon" width="16" height="16" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m18 16 4-4-4-4"></path><path d="m6 8-4 4 4 4"></path><path d="m14.5 4-5 16"></path></svg></a>
 
 ```ts
 api.player.getHp(): BridgeEffect<number>
@@ -84,11 +84,11 @@ api.player.getHp(): BridgeEffect<number>
 
 **Yields:** `number`
 
-**Errors:** [`BridgeError`](../../types/bridge-error/)
+**Errors:** <a href="/scripting/types/bridge-error/" data-script-type="bridge-error"><code>BridgeError</code></a>
 
 <a id="member-api-player-getlevel"></a>
 
-### `api.player.getLevel()` <a class="source-reference__heading-link" style="float: right; display: inline-flex; align-items: center; justify-content: center; width: 2rem; height: 2rem; margin-block: -0.125rem; margin-inline-start: 0.5rem; border-radius: var(--radius-sm); text-decoration: none;" href="https://github.com/toommyliu/vexed/blob/fc1a69128bf47b1844397eca622869e1b37943ad/app/src/renderer/windows/game/flash/Services/Player.ts#L16" tabindex="-1" aria-hidden="true" title="Open source: app/src/renderer/windows/game/flash/Services/Player.ts:16" target="_blank" rel="noreferrer"><svg class="source-reference__icon" width="16" height="16" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m18 16 4-4-4-4"></path><path d="m6 8-4 4 4 4"></path><path d="m14.5 4-5 16"></path></svg></a>
+### `api.player.getLevel()` <a class="source-reference__heading-link" style="float: right; display: inline-flex; align-items: center; justify-content: center; width: 2rem; height: 2rem; margin-block: -0.125rem; margin-inline-start: 0.5rem; border-radius: var(--radius-sm); text-decoration: none;" href="https://github.com/toommyliu/vexed/blob/dev/app/src/renderer/windows/game/flash/Services/Player.ts#L16" tabindex="-1" aria-hidden="true" title="Open source: app/src/renderer/windows/game/flash/Services/Player.ts:16" target="_blank" rel="noreferrer"><svg class="source-reference__icon" width="16" height="16" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m18 16 4-4-4-4"></path><path d="m6 8-4 4 4 4"></path><path d="m14.5 4-5 16"></path></svg></a>
 
 ```ts
 api.player.getLevel(): BridgeEffect<number>
@@ -96,11 +96,11 @@ api.player.getLevel(): BridgeEffect<number>
 
 **Yields:** `number`
 
-**Errors:** [`BridgeError`](../../types/bridge-error/)
+**Errors:** <a href="/scripting/types/bridge-error/" data-script-type="bridge-error"><code>BridgeError</code></a>
 
 <a id="member-api-player-getmaxhp"></a>
 
-### `api.player.getMaxHp()` <a class="source-reference__heading-link" style="float: right; display: inline-flex; align-items: center; justify-content: center; width: 2rem; height: 2rem; margin-block: -0.125rem; margin-inline-start: 0.5rem; border-radius: var(--radius-sm); text-decoration: none;" href="https://github.com/toommyliu/vexed/blob/fc1a69128bf47b1844397eca622869e1b37943ad/app/src/renderer/windows/game/flash/Services/Player.ts#L17" tabindex="-1" aria-hidden="true" title="Open source: app/src/renderer/windows/game/flash/Services/Player.ts:17" target="_blank" rel="noreferrer"><svg class="source-reference__icon" width="16" height="16" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m18 16 4-4-4-4"></path><path d="m6 8-4 4 4 4"></path><path d="m14.5 4-5 16"></path></svg></a>
+### `api.player.getMaxHp()` <a class="source-reference__heading-link" style="float: right; display: inline-flex; align-items: center; justify-content: center; width: 2rem; height: 2rem; margin-block: -0.125rem; margin-inline-start: 0.5rem; border-radius: var(--radius-sm); text-decoration: none;" href="https://github.com/toommyliu/vexed/blob/dev/app/src/renderer/windows/game/flash/Services/Player.ts#L17" tabindex="-1" aria-hidden="true" title="Open source: app/src/renderer/windows/game/flash/Services/Player.ts:17" target="_blank" rel="noreferrer"><svg class="source-reference__icon" width="16" height="16" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m18 16 4-4-4-4"></path><path d="m6 8-4 4 4 4"></path><path d="m14.5 4-5 16"></path></svg></a>
 
 ```ts
 api.player.getMaxHp(): BridgeEffect<number>
@@ -108,11 +108,11 @@ api.player.getMaxHp(): BridgeEffect<number>
 
 **Yields:** `number`
 
-**Errors:** [`BridgeError`](../../types/bridge-error/)
+**Errors:** <a href="/scripting/types/bridge-error/" data-script-type="bridge-error"><code>BridgeError</code></a>
 
 <a id="member-api-player-getmaxmp"></a>
 
-### `api.player.getMaxMp()` <a class="source-reference__heading-link" style="float: right; display: inline-flex; align-items: center; justify-content: center; width: 2rem; height: 2rem; margin-block: -0.125rem; margin-inline-start: 0.5rem; border-radius: var(--radius-sm); text-decoration: none;" href="https://github.com/toommyliu/vexed/blob/fc1a69128bf47b1844397eca622869e1b37943ad/app/src/renderer/windows/game/flash/Services/Player.ts#L18" tabindex="-1" aria-hidden="true" title="Open source: app/src/renderer/windows/game/flash/Services/Player.ts:18" target="_blank" rel="noreferrer"><svg class="source-reference__icon" width="16" height="16" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m18 16 4-4-4-4"></path><path d="m6 8-4 4 4 4"></path><path d="m14.5 4-5 16"></path></svg></a>
+### `api.player.getMaxMp()` <a class="source-reference__heading-link" style="float: right; display: inline-flex; align-items: center; justify-content: center; width: 2rem; height: 2rem; margin-block: -0.125rem; margin-inline-start: 0.5rem; border-radius: var(--radius-sm); text-decoration: none;" href="https://github.com/toommyliu/vexed/blob/dev/app/src/renderer/windows/game/flash/Services/Player.ts#L18" tabindex="-1" aria-hidden="true" title="Open source: app/src/renderer/windows/game/flash/Services/Player.ts:18" target="_blank" rel="noreferrer"><svg class="source-reference__icon" width="16" height="16" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m18 16 4-4-4-4"></path><path d="m6 8-4 4 4 4"></path><path d="m14.5 4-5 16"></path></svg></a>
 
 ```ts
 api.player.getMaxMp(): BridgeEffect<number>
@@ -120,11 +120,11 @@ api.player.getMaxMp(): BridgeEffect<number>
 
 **Yields:** `number`
 
-**Errors:** [`BridgeError`](../../types/bridge-error/)
+**Errors:** <a href="/scripting/types/bridge-error/" data-script-type="bridge-error"><code>BridgeError</code></a>
 
 <a id="member-api-player-getmp"></a>
 
-### `api.player.getMp()` <a class="source-reference__heading-link" style="float: right; display: inline-flex; align-items: center; justify-content: center; width: 2rem; height: 2rem; margin-block: -0.125rem; margin-inline-start: 0.5rem; border-radius: var(--radius-sm); text-decoration: none;" href="https://github.com/toommyliu/vexed/blob/fc1a69128bf47b1844397eca622869e1b37943ad/app/src/renderer/windows/game/flash/Services/Player.ts#L19" tabindex="-1" aria-hidden="true" title="Open source: app/src/renderer/windows/game/flash/Services/Player.ts:19" target="_blank" rel="noreferrer"><svg class="source-reference__icon" width="16" height="16" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m18 16 4-4-4-4"></path><path d="m6 8-4 4 4 4"></path><path d="m14.5 4-5 16"></path></svg></a>
+### `api.player.getMp()` <a class="source-reference__heading-link" style="float: right; display: inline-flex; align-items: center; justify-content: center; width: 2rem; height: 2rem; margin-block: -0.125rem; margin-inline-start: 0.5rem; border-radius: var(--radius-sm); text-decoration: none;" href="https://github.com/toommyliu/vexed/blob/dev/app/src/renderer/windows/game/flash/Services/Player.ts#L19" tabindex="-1" aria-hidden="true" title="Open source: app/src/renderer/windows/game/flash/Services/Player.ts:19" target="_blank" rel="noreferrer"><svg class="source-reference__icon" width="16" height="16" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m18 16 4-4-4-4"></path><path d="m6 8-4 4 4 4"></path><path d="m14.5 4-5 16"></path></svg></a>
 
 ```ts
 api.player.getMp(): BridgeEffect<number>
@@ -132,11 +132,11 @@ api.player.getMp(): BridgeEffect<number>
 
 **Yields:** `number`
 
-**Errors:** [`BridgeError`](../../types/bridge-error/)
+**Errors:** <a href="/scripting/types/bridge-error/" data-script-type="bridge-error"><code>BridgeError</code></a>
 
 <a id="member-api-player-getpad"></a>
 
-### `api.player.getPad()` <a class="source-reference__heading-link" style="float: right; display: inline-flex; align-items: center; justify-content: center; width: 2rem; height: 2rem; margin-block: -0.125rem; margin-inline-start: 0.5rem; border-radius: var(--radius-sm); text-decoration: none;" href="https://github.com/toommyliu/vexed/blob/fc1a69128bf47b1844397eca622869e1b37943ad/app/src/renderer/windows/game/flash/Services/Player.ts#L20" tabindex="-1" aria-hidden="true" title="Open source: app/src/renderer/windows/game/flash/Services/Player.ts:20" target="_blank" rel="noreferrer"><svg class="source-reference__icon" width="16" height="16" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m18 16 4-4-4-4"></path><path d="m6 8-4 4 4 4"></path><path d="m14.5 4-5 16"></path></svg></a>
+### `api.player.getPad()` <a class="source-reference__heading-link" style="float: right; display: inline-flex; align-items: center; justify-content: center; width: 2rem; height: 2rem; margin-block: -0.125rem; margin-inline-start: 0.5rem; border-radius: var(--radius-sm); text-decoration: none;" href="https://github.com/toommyliu/vexed/blob/dev/app/src/renderer/windows/game/flash/Services/Player.ts#L20" tabindex="-1" aria-hidden="true" title="Open source: app/src/renderer/windows/game/flash/Services/Player.ts:20" target="_blank" rel="noreferrer"><svg class="source-reference__icon" width="16" height="16" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m18 16 4-4-4-4"></path><path d="m6 8-4 4 4 4"></path><path d="m14.5 4-5 16"></path></svg></a>
 
 ```ts
 api.player.getPad(): BridgeEffect<string>
@@ -144,11 +144,11 @@ api.player.getPad(): BridgeEffect<string>
 
 **Yields:** `string`
 
-**Errors:** [`BridgeError`](../../types/bridge-error/)
+**Errors:** <a href="/scripting/types/bridge-error/" data-script-type="bridge-error"><code>BridgeError</code></a>
 
 <a id="member-api-player-getposition"></a>
 
-### `api.player.getPosition()` <a class="source-reference__heading-link" style="float: right; display: inline-flex; align-items: center; justify-content: center; width: 2rem; height: 2rem; margin-block: -0.125rem; margin-inline-start: 0.5rem; border-radius: var(--radius-sm); text-decoration: none;" href="https://github.com/toommyliu/vexed/blob/fc1a69128bf47b1844397eca622869e1b37943ad/app/src/renderer/windows/game/flash/Services/Player.ts#L21" tabindex="-1" aria-hidden="true" title="Open source: app/src/renderer/windows/game/flash/Services/Player.ts:21" target="_blank" rel="noreferrer"><svg class="source-reference__icon" width="16" height="16" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m18 16 4-4-4-4"></path><path d="m6 8-4 4 4 4"></path><path d="m14.5 4-5 16"></path></svg></a>
+### `api.player.getPosition()` <a class="source-reference__heading-link" style="float: right; display: inline-flex; align-items: center; justify-content: center; width: 2rem; height: 2rem; margin-block: -0.125rem; margin-inline-start: 0.5rem; border-radius: var(--radius-sm); text-decoration: none;" href="https://github.com/toommyliu/vexed/blob/dev/app/src/renderer/windows/game/flash/Services/Player.ts#L21" tabindex="-1" aria-hidden="true" title="Open source: app/src/renderer/windows/game/flash/Services/Player.ts:21" target="_blank" rel="noreferrer"><svg class="source-reference__icon" width="16" height="16" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m18 16 4-4-4-4"></path><path d="m6 8-4 4 4 4"></path><path d="m14.5 4-5 16"></path></svg></a>
 
 ```ts
 api.player.getPosition(): BridgeEffect<[number, number]>
@@ -156,11 +156,11 @@ api.player.getPosition(): BridgeEffect<[number, number]>
 
 **Yields:** [`number`, `number`]
 
-**Errors:** [`BridgeError`](../../types/bridge-error/)
+**Errors:** <a href="/scripting/types/bridge-error/" data-script-type="bridge-error"><code>BridgeError</code></a>
 
 <a id="member-api-player-getstate"></a>
 
-### `api.player.getState()` <a class="source-reference__heading-link" style="float: right; display: inline-flex; align-items: center; justify-content: center; width: 2rem; height: 2rem; margin-block: -0.125rem; margin-inline-start: 0.5rem; border-radius: var(--radius-sm); text-decoration: none;" href="https://github.com/toommyliu/vexed/blob/fc1a69128bf47b1844397eca622869e1b37943ad/app/src/renderer/windows/game/flash/Services/Player.ts#L22" tabindex="-1" aria-hidden="true" title="Open source: app/src/renderer/windows/game/flash/Services/Player.ts:22" target="_blank" rel="noreferrer"><svg class="source-reference__icon" width="16" height="16" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m18 16 4-4-4-4"></path><path d="m6 8-4 4 4 4"></path><path d="m14.5 4-5 16"></path></svg></a>
+### `api.player.getState()` <a class="source-reference__heading-link" style="float: right; display: inline-flex; align-items: center; justify-content: center; width: 2rem; height: 2rem; margin-block: -0.125rem; margin-inline-start: 0.5rem; border-radius: var(--radius-sm); text-decoration: none;" href="https://github.com/toommyliu/vexed/blob/dev/app/src/renderer/windows/game/flash/Services/Player.ts#L22" tabindex="-1" aria-hidden="true" title="Open source: app/src/renderer/windows/game/flash/Services/Player.ts:22" target="_blank" rel="noreferrer"><svg class="source-reference__icon" width="16" height="16" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m18 16 4-4-4-4"></path><path d="m6 8-4 4 4 4"></path><path d="m14.5 4-5 16"></path></svg></a>
 
 ```ts
 api.player.getState(): BridgeEffect<number>
@@ -168,11 +168,11 @@ api.player.getState(): BridgeEffect<number>
 
 **Yields:** `number`
 
-**Errors:** [`BridgeError`](../../types/bridge-error/)
+**Errors:** <a href="/scripting/types/bridge-error/" data-script-type="bridge-error"><code>BridgeError</code></a>
 
 <a id="member-api-player-gotoplayer"></a>
 
-### `api.player.goToPlayer()` <a class="source-reference__heading-link" style="float: right; display: inline-flex; align-items: center; justify-content: center; width: 2rem; height: 2rem; margin-block: -0.125rem; margin-inline-start: 0.5rem; border-radius: var(--radius-sm); text-decoration: none;" href="https://github.com/toommyliu/vexed/blob/fc1a69128bf47b1844397eca622869e1b37943ad/app/src/renderer/windows/game/flash/Services/Player.ts#L32" tabindex="-1" aria-hidden="true" title="Open source: app/src/renderer/windows/game/flash/Services/Player.ts:32" target="_blank" rel="noreferrer"><svg class="source-reference__icon" width="16" height="16" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m18 16 4-4-4-4"></path><path d="m6 8-4 4 4 4"></path><path d="m14.5 4-5 16"></path></svg></a>
+### `api.player.goToPlayer()` <a class="source-reference__heading-link" style="float: right; display: inline-flex; align-items: center; justify-content: center; width: 2rem; height: 2rem; margin-block: -0.125rem; margin-inline-start: 0.5rem; border-radius: var(--radius-sm); text-decoration: none;" href="https://github.com/toommyliu/vexed/blob/dev/app/src/renderer/windows/game/flash/Services/Player.ts#L32" tabindex="-1" aria-hidden="true" title="Open source: app/src/renderer/windows/game/flash/Services/Player.ts:32" target="_blank" rel="noreferrer"><svg class="source-reference__icon" width="16" height="16" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m18 16 4-4-4-4"></path><path d="m6 8-4 4 4 4"></path><path d="m14.5 4-5 16"></path></svg></a>
 
 ```ts
 api.player.goToPlayer(name: string): BridgeEffect<void>
@@ -184,11 +184,11 @@ api.player.goToPlayer(name: string): BridgeEffect<void>
 
 **Yields:** `void`
 
-**Errors:** [`BridgeError`](../../types/bridge-error/)
+**Errors:** <a href="/scripting/types/bridge-error/" data-script-type="bridge-error"><code>BridgeError</code></a>
 
 <a id="member-api-player-hasactiveboost"></a>
 
-### `api.player.hasActiveBoost()` <a class="source-reference__heading-link" style="float: right; display: inline-flex; align-items: center; justify-content: center; width: 2rem; height: 2rem; margin-block: -0.125rem; margin-inline-start: 0.5rem; border-radius: var(--radius-sm); text-decoration: none;" href="https://github.com/toommyliu/vexed/blob/fc1a69128bf47b1844397eca622869e1b37943ad/app/src/renderer/windows/game/flash/Services/Player.ts#L35" tabindex="-1" aria-hidden="true" title="Open source: app/src/renderer/windows/game/flash/Services/Player.ts:35" target="_blank" rel="noreferrer"><svg class="source-reference__icon" width="16" height="16" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m18 16 4-4-4-4"></path><path d="m6 8-4 4 4 4"></path><path d="m14.5 4-5 16"></path></svg></a>
+### `api.player.hasActiveBoost()` <a class="source-reference__heading-link" style="float: right; display: inline-flex; align-items: center; justify-content: center; width: 2rem; height: 2rem; margin-block: -0.125rem; margin-inline-start: 0.5rem; border-radius: var(--radius-sm); text-decoration: none;" href="https://github.com/toommyliu/vexed/blob/dev/app/src/renderer/windows/game/flash/Services/Player.ts#L35" tabindex="-1" aria-hidden="true" title="Open source: app/src/renderer/windows/game/flash/Services/Player.ts:35" target="_blank" rel="noreferrer"><svg class="source-reference__icon" width="16" height="16" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m18 16 4-4-4-4"></path><path d="m6 8-4 4 4 4"></path><path d="m14.5 4-5 16"></path></svg></a>
 
 ```ts
 api.player.hasActiveBoost(boostType: 'classPoints' | 'exp' | 'gold' | 'rep'): BridgeEffect<boolean>
@@ -200,11 +200,11 @@ api.player.hasActiveBoost(boostType: 'classPoints' | 'exp' | 'gold' | 'rep'): Br
 
 **Yields:** `boolean`
 
-**Errors:** [`BridgeError`](../../types/bridge-error/)
+**Errors:** <a href="/scripting/types/bridge-error/" data-script-type="bridge-error"><code>BridgeError</code></a>
 
 <a id="member-api-player-isafk"></a>
 
-### `api.player.isAfk()` <a class="source-reference__heading-link" style="float: right; display: inline-flex; align-items: center; justify-content: center; width: 2rem; height: 2rem; margin-block: -0.125rem; margin-inline-start: 0.5rem; border-radius: var(--radius-sm); text-decoration: none;" href="https://github.com/toommyliu/vexed/blob/fc1a69128bf47b1844397eca622869e1b37943ad/app/src/renderer/windows/game/flash/Services/Player.ts#L23" tabindex="-1" aria-hidden="true" title="Open source: app/src/renderer/windows/game/flash/Services/Player.ts:23" target="_blank" rel="noreferrer"><svg class="source-reference__icon" width="16" height="16" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m18 16 4-4-4-4"></path><path d="m6 8-4 4 4 4"></path><path d="m14.5 4-5 16"></path></svg></a>
+### `api.player.isAfk()` <a class="source-reference__heading-link" style="float: right; display: inline-flex; align-items: center; justify-content: center; width: 2rem; height: 2rem; margin-block: -0.125rem; margin-inline-start: 0.5rem; border-radius: var(--radius-sm); text-decoration: none;" href="https://github.com/toommyliu/vexed/blob/dev/app/src/renderer/windows/game/flash/Services/Player.ts#L23" tabindex="-1" aria-hidden="true" title="Open source: app/src/renderer/windows/game/flash/Services/Player.ts:23" target="_blank" rel="noreferrer"><svg class="source-reference__icon" width="16" height="16" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m18 16 4-4-4-4"></path><path d="m6 8-4 4 4 4"></path><path d="m14.5 4-5 16"></path></svg></a>
 
 ```ts
 api.player.isAfk(): BridgeEffect<boolean>
@@ -212,11 +212,11 @@ api.player.isAfk(): BridgeEffect<boolean>
 
 **Yields:** `boolean`
 
-**Errors:** [`BridgeError`](../../types/bridge-error/)
+**Errors:** <a href="/scripting/types/bridge-error/" data-script-type="bridge-error"><code>BridgeError</code></a>
 
 <a id="member-api-player-isalive"></a>
 
-### `api.player.isAlive()` <a class="source-reference__heading-link" style="float: right; display: inline-flex; align-items: center; justify-content: center; width: 2rem; height: 2rem; margin-block: -0.125rem; margin-inline-start: 0.5rem; border-radius: var(--radius-sm); text-decoration: none;" href="https://github.com/toommyliu/vexed/blob/fc1a69128bf47b1844397eca622869e1b37943ad/app/src/renderer/windows/game/flash/Services/Player.ts#L36" tabindex="-1" aria-hidden="true" title="Open source: app/src/renderer/windows/game/flash/Services/Player.ts:36" target="_blank" rel="noreferrer"><svg class="source-reference__icon" width="16" height="16" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m18 16 4-4-4-4"></path><path d="m6 8-4 4 4 4"></path><path d="m14.5 4-5 16"></path></svg></a>
+### `api.player.isAlive()` <a class="source-reference__heading-link" style="float: right; display: inline-flex; align-items: center; justify-content: center; width: 2rem; height: 2rem; margin-block: -0.125rem; margin-inline-start: 0.5rem; border-radius: var(--radius-sm); text-decoration: none;" href="https://github.com/toommyliu/vexed/blob/dev/app/src/renderer/windows/game/flash/Services/Player.ts#L36" tabindex="-1" aria-hidden="true" title="Open source: app/src/renderer/windows/game/flash/Services/Player.ts:36" target="_blank" rel="noreferrer"><svg class="source-reference__icon" width="16" height="16" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m18 16 4-4-4-4"></path><path d="m6 8-4 4 4 4"></path><path d="m14.5 4-5 16"></path></svg></a>
 
 ```ts
 api.player.isAlive(): BridgeEffect<boolean>
@@ -224,11 +224,11 @@ api.player.isAlive(): BridgeEffect<boolean>
 
 **Yields:** `boolean`
 
-**Errors:** [`BridgeError`](../../types/bridge-error/)
+**Errors:** <a href="/scripting/types/bridge-error/" data-script-type="bridge-error"><code>BridgeError</code></a>
 
 <a id="member-api-player-ismember"></a>
 
-### `api.player.isMember()` <a class="source-reference__heading-link" style="float: right; display: inline-flex; align-items: center; justify-content: center; width: 2rem; height: 2rem; margin-block: -0.125rem; margin-inline-start: 0.5rem; border-radius: var(--radius-sm); text-decoration: none;" href="https://github.com/toommyliu/vexed/blob/fc1a69128bf47b1844397eca622869e1b37943ad/app/src/renderer/windows/game/flash/Services/Player.ts#L25" tabindex="-1" aria-hidden="true" title="Open source: app/src/renderer/windows/game/flash/Services/Player.ts:25" target="_blank" rel="noreferrer"><svg class="source-reference__icon" width="16" height="16" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m18 16 4-4-4-4"></path><path d="m6 8-4 4 4 4"></path><path d="m14.5 4-5 16"></path></svg></a>
+### `api.player.isMember()` <a class="source-reference__heading-link" style="float: right; display: inline-flex; align-items: center; justify-content: center; width: 2rem; height: 2rem; margin-block: -0.125rem; margin-inline-start: 0.5rem; border-radius: var(--radius-sm); text-decoration: none;" href="https://github.com/toommyliu/vexed/blob/dev/app/src/renderer/windows/game/flash/Services/Player.ts#L25" tabindex="-1" aria-hidden="true" title="Open source: app/src/renderer/windows/game/flash/Services/Player.ts:25" target="_blank" rel="noreferrer"><svg class="source-reference__icon" width="16" height="16" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m18 16 4-4-4-4"></path><path d="m6 8-4 4 4 4"></path><path d="m14.5 4-5 16"></path></svg></a>
 
 ```ts
 api.player.isMember(): BridgeEffect<boolean>
@@ -236,11 +236,11 @@ api.player.isMember(): BridgeEffect<boolean>
 
 **Yields:** `boolean`
 
-**Errors:** [`BridgeError`](../../types/bridge-error/)
+**Errors:** <a href="/scripting/types/bridge-error/" data-script-type="bridge-error"><code>BridgeError</code></a>
 
 <a id="member-api-player-isready"></a>
 
-### `api.player.isReady()` <a class="source-reference__heading-link" style="float: right; display: inline-flex; align-items: center; justify-content: center; width: 2rem; height: 2rem; margin-block: -0.125rem; margin-inline-start: 0.5rem; border-radius: var(--radius-sm); text-decoration: none;" href="https://github.com/toommyliu/vexed/blob/fc1a69128bf47b1844397eca622869e1b37943ad/app/src/renderer/windows/game/flash/Services/Player.ts#L24" tabindex="-1" aria-hidden="true" title="Open source: app/src/renderer/windows/game/flash/Services/Player.ts:24" target="_blank" rel="noreferrer"><svg class="source-reference__icon" width="16" height="16" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m18 16 4-4-4-4"></path><path d="m6 8-4 4 4 4"></path><path d="m14.5 4-5 16"></path></svg></a>
+### `api.player.isReady()` <a class="source-reference__heading-link" style="float: right; display: inline-flex; align-items: center; justify-content: center; width: 2rem; height: 2rem; margin-block: -0.125rem; margin-inline-start: 0.5rem; border-radius: var(--radius-sm); text-decoration: none;" href="https://github.com/toommyliu/vexed/blob/dev/app/src/renderer/windows/game/flash/Services/Player.ts#L24" tabindex="-1" aria-hidden="true" title="Open source: app/src/renderer/windows/game/flash/Services/Player.ts:24" target="_blank" rel="noreferrer"><svg class="source-reference__icon" width="16" height="16" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m18 16 4-4-4-4"></path><path d="m6 8-4 4 4 4"></path><path d="m14.5 4-5 16"></path></svg></a>
 
 ```ts
 api.player.isReady(): BridgeEffect<boolean>
@@ -248,11 +248,11 @@ api.player.isReady(): BridgeEffect<boolean>
 
 **Yields:** `boolean`
 
-**Errors:** [`BridgeError`](../../types/bridge-error/)
+**Errors:** <a href="/scripting/types/bridge-error/" data-script-type="bridge-error"><code>BridgeError</code></a>
 
 <a id="member-api-player-joinmap"></a>
 
-### `api.player.joinMap()` <a class="source-reference__heading-link" style="float: right; display: inline-flex; align-items: center; justify-content: center; width: 2rem; height: 2rem; margin-block: -0.125rem; margin-inline-start: 0.5rem; border-radius: var(--radius-sm); text-decoration: none;" href="https://github.com/toommyliu/vexed/blob/fc1a69128bf47b1844397eca622869e1b37943ad/app/src/renderer/windows/game/flash/Services/Player.ts#L31" tabindex="-1" aria-hidden="true" title="Open source: app/src/renderer/windows/game/flash/Services/Player.ts:31" target="_blank" rel="noreferrer"><svg class="source-reference__icon" width="16" height="16" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m18 16 4-4-4-4"></path><path d="m6 8-4 4 4 4"></path><path d="m14.5 4-5 16"></path></svg></a>
+### `api.player.joinMap()` <a class="source-reference__heading-link" style="float: right; display: inline-flex; align-items: center; justify-content: center; width: 2rem; height: 2rem; margin-block: -0.125rem; margin-inline-start: 0.5rem; border-radius: var(--radius-sm); text-decoration: none;" href="https://github.com/toommyliu/vexed/blob/dev/app/src/renderer/windows/game/flash/Services/Player.ts#L31" tabindex="-1" aria-hidden="true" title="Open source: app/src/renderer/windows/game/flash/Services/Player.ts:31" target="_blank" rel="noreferrer"><svg class="source-reference__icon" width="16" height="16" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m18 16 4-4-4-4"></path><path d="m6 8-4 4 4 4"></path><path d="m14.5 4-5 16"></path></svg></a>
 
 ```ts
 api.player.joinMap(map: string, cell?: string, pad?: string): BridgeEffect<void>
@@ -266,11 +266,11 @@ api.player.joinMap(map: string, cell?: string, pad?: string): BridgeEffect<void>
 
 **Yields:** `void`
 
-**Errors:** [`BridgeError`](../../types/bridge-error/)
+**Errors:** <a href="/scripting/types/bridge-error/" data-script-type="bridge-error"><code>BridgeError</code></a>
 
 <a id="member-api-player-jumptocell"></a>
 
-### `api.player.jumpToCell()` <a class="source-reference__heading-link" style="float: right; display: inline-flex; align-items: center; justify-content: center; width: 2rem; height: 2rem; margin-block: -0.125rem; margin-inline-start: 0.5rem; border-radius: var(--radius-sm); text-decoration: none;" href="https://github.com/toommyliu/vexed/blob/fc1a69128bf47b1844397eca622869e1b37943ad/app/src/renderer/windows/game/flash/Services/Player.ts#L26" tabindex="-1" aria-hidden="true" title="Open source: app/src/renderer/windows/game/flash/Services/Player.ts:26" target="_blank" rel="noreferrer"><svg class="source-reference__icon" width="16" height="16" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m18 16 4-4-4-4"></path><path d="m6 8-4 4 4 4"></path><path d="m14.5 4-5 16"></path></svg></a>
+### `api.player.jumpToCell()` <a class="source-reference__heading-link" style="float: right; display: inline-flex; align-items: center; justify-content: center; width: 2rem; height: 2rem; margin-block: -0.125rem; margin-inline-start: 0.5rem; border-radius: var(--radius-sm); text-decoration: none;" href="https://github.com/toommyliu/vexed/blob/dev/app/src/renderer/windows/game/flash/Services/Player.ts#L26" tabindex="-1" aria-hidden="true" title="Open source: app/src/renderer/windows/game/flash/Services/Player.ts:26" target="_blank" rel="noreferrer"><svg class="source-reference__icon" width="16" height="16" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m18 16 4-4-4-4"></path><path d="m6 8-4 4 4 4"></path><path d="m14.5 4-5 16"></path></svg></a>
 
 ```ts
 api.player.jumpToCell(cell: string, pad?: string, correction?: boolean): BridgeEffect<void>
@@ -284,11 +284,11 @@ api.player.jumpToCell(cell: string, pad?: string, correction?: boolean): BridgeE
 
 **Yields:** `void`
 
-**Errors:** [`BridgeError`](../../types/bridge-error/)
+**Errors:** <a href="/scripting/types/bridge-error/" data-script-type="bridge-error"><code>BridgeError</code></a>
 
 <a id="member-api-player-rest"></a>
 
-### `api.player.rest()` <a class="source-reference__heading-link" style="float: right; display: inline-flex; align-items: center; justify-content: center; width: 2rem; height: 2rem; margin-block: -0.125rem; margin-inline-start: 0.5rem; border-radius: var(--radius-sm); text-decoration: none;" href="https://github.com/toommyliu/vexed/blob/fc1a69128bf47b1844397eca622869e1b37943ad/app/src/renderer/windows/game/flash/Services/Player.ts#L33" tabindex="-1" aria-hidden="true" title="Open source: app/src/renderer/windows/game/flash/Services/Player.ts:33" target="_blank" rel="noreferrer"><svg class="source-reference__icon" width="16" height="16" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m18 16 4-4-4-4"></path><path d="m6 8-4 4 4 4"></path><path d="m14.5 4-5 16"></path></svg></a>
+### `api.player.rest()` <a class="source-reference__heading-link" style="float: right; display: inline-flex; align-items: center; justify-content: center; width: 2rem; height: 2rem; margin-block: -0.125rem; margin-inline-start: 0.5rem; border-radius: var(--radius-sm); text-decoration: none;" href="https://github.com/toommyliu/vexed/blob/dev/app/src/renderer/windows/game/flash/Services/Player.ts#L33" tabindex="-1" aria-hidden="true" title="Open source: app/src/renderer/windows/game/flash/Services/Player.ts:33" target="_blank" rel="noreferrer"><svg class="source-reference__icon" width="16" height="16" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m18 16 4-4-4-4"></path><path d="m6 8-4 4 4 4"></path><path d="m14.5 4-5 16"></path></svg></a>
 
 ```ts
 api.player.rest(full?: boolean): BridgeEffect<void>
@@ -300,11 +300,11 @@ api.player.rest(full?: boolean): BridgeEffect<void>
 
 **Yields:** `void`
 
-**Errors:** [`BridgeError`](../../types/bridge-error/)
+**Errors:** <a href="/scripting/types/bridge-error/" data-script-type="bridge-error"><code>BridgeError</code></a>
 
 <a id="member-api-player-useboost"></a>
 
-### `api.player.useBoost()` <a class="source-reference__heading-link" style="float: right; display: inline-flex; align-items: center; justify-content: center; width: 2rem; height: 2rem; margin-block: -0.125rem; margin-inline-start: 0.5rem; border-radius: var(--radius-sm); text-decoration: none;" href="https://github.com/toommyliu/vexed/blob/fc1a69128bf47b1844397eca622869e1b37943ad/app/src/renderer/windows/game/flash/Services/Player.ts#L34" tabindex="-1" aria-hidden="true" title="Open source: app/src/renderer/windows/game/flash/Services/Player.ts:34" target="_blank" rel="noreferrer"><svg class="source-reference__icon" width="16" height="16" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m18 16 4-4-4-4"></path><path d="m6 8-4 4 4 4"></path><path d="m14.5 4-5 16"></path></svg></a>
+### `api.player.useBoost()` <a class="source-reference__heading-link" style="float: right; display: inline-flex; align-items: center; justify-content: center; width: 2rem; height: 2rem; margin-block: -0.125rem; margin-inline-start: 0.5rem; border-radius: var(--radius-sm); text-decoration: none;" href="https://github.com/toommyliu/vexed/blob/dev/app/src/renderer/windows/game/flash/Services/Player.ts#L34" tabindex="-1" aria-hidden="true" title="Open source: app/src/renderer/windows/game/flash/Services/Player.ts:34" target="_blank" rel="noreferrer"><svg class="source-reference__icon" width="16" height="16" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m18 16 4-4-4-4"></path><path d="m6 8-4 4 4 4"></path><path d="m14.5 4-5 16"></path></svg></a>
 
 ```ts
 api.player.useBoost(boost: ItemIdentifierToken): BridgeEffect<boolean>
@@ -312,15 +312,15 @@ api.player.useBoost(boost: ItemIdentifierToken): BridgeEffect<boolean>
 
 | Name | Type | Required | Description |
 | --- | --- | --- | --- |
-| `boost` | [`ItemIdentifierToken`](../../types/item-identifier-token/) | <span class="required-mark" role="img" aria-label="Required"></span> |  |
+| `boost` | <a href="/scripting/types/item-identifier-token/" data-script-type="item-identifier-token"><code>ItemIdentifierToken</code></a> | <span class="required-mark" role="img" aria-label="Required"></span> |  |
 
 **Yields:** `boolean`
 
-**Errors:** [`BridgeError`](../../types/bridge-error/)
+**Errors:** <a href="/scripting/types/bridge-error/" data-script-type="bridge-error"><code>BridgeError</code></a>
 
 <a id="member-api-player-walkto"></a>
 
-### `api.player.walkTo()` <a class="source-reference__heading-link" style="float: right; display: inline-flex; align-items: center; justify-content: center; width: 2rem; height: 2rem; margin-block: -0.125rem; margin-inline-start: 0.5rem; border-radius: var(--radius-sm); text-decoration: none;" href="https://github.com/toommyliu/vexed/blob/fc1a69128bf47b1844397eca622869e1b37943ad/app/src/renderer/windows/game/flash/Services/Player.ts#L37" tabindex="-1" aria-hidden="true" title="Open source: app/src/renderer/windows/game/flash/Services/Player.ts:37" target="_blank" rel="noreferrer"><svg class="source-reference__icon" width="16" height="16" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m18 16 4-4-4-4"></path><path d="m6 8-4 4 4 4"></path><path d="m14.5 4-5 16"></path></svg></a>
+### `api.player.walkTo()` <a class="source-reference__heading-link" style="float: right; display: inline-flex; align-items: center; justify-content: center; width: 2rem; height: 2rem; margin-block: -0.125rem; margin-inline-start: 0.5rem; border-radius: var(--radius-sm); text-decoration: none;" href="https://github.com/toommyliu/vexed/blob/dev/app/src/renderer/windows/game/flash/Services/Player.ts#L37" tabindex="-1" aria-hidden="true" title="Open source: app/src/renderer/windows/game/flash/Services/Player.ts:37" target="_blank" rel="noreferrer"><svg class="source-reference__icon" width="16" height="16" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m18 16 4-4-4-4"></path><path d="m6 8-4 4 4 4"></path><path d="m14.5 4-5 16"></path></svg></a>
 
 ```ts
 api.player.walkTo(x: number, y: number, walkSpeed?: number): BridgeEffect<boolean>
@@ -334,4 +334,4 @@ api.player.walkTo(x: number, y: number, walkSpeed?: number): BridgeEffect<boolea
 
 **Yields:** `boolean`
 
-**Errors:** [`BridgeError`](../../types/bridge-error/)
+**Errors:** <a href="/scripting/types/bridge-error/" data-script-type="bridge-error"><code>BridgeError</code></a>

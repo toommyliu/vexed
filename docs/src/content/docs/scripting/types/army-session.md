@@ -1,6 +1,6 @@
 ---
 title: "ArmySession"
-description: "Reference for ArmySession."
+description: ""
 sidebar:
   label: "ArmySession"
 tableOfContents:

@@ -1,6 +1,6 @@
 ---
 title: "ScriptEquipItemByEnhancementOptions"
-description: "Reference for ScriptEquipItemByEnhancementOptions."
+description: ""
 sidebar:
   label: "ScriptEquipItemByEnhancementOptions"
 tableOfContents:

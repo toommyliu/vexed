@@ -1,6 +1,6 @@
 ---
 title: "ConnectToSelectionStatus"
-description: "Reference for ConnectToSelectionStatus."
+description: ""
 sidebar:
   label: "ConnectToSelectionStatus"
 tableOfContents:

@@ -1,6 +1,6 @@
 ---
 title: "api.inventory"
-description: "Reference for api.inventory."
+description: ""
 sidebar:
   label: "Inventory"
 tableOfContents:
@@ -14,7 +14,7 @@ tableOfContents:
 
 <a id="member-api-inventory-contains"></a>
 
-### `api.inventory.contains()` <a class="source-reference__heading-link" style="float: right; display: inline-flex; align-items: center; justify-content: center; width: 2rem; height: 2rem; margin-block: -0.125rem; margin-inline-start: 0.5rem; border-radius: var(--radius-sm); text-decoration: none;" href="https://github.com/toommyliu/vexed/blob/fc1a69128bf47b1844397eca622869e1b37943ad/app/src/renderer/windows/game/flash/Services/Inventory.ts#L6" tabindex="-1" aria-hidden="true" title="Open source: app/src/renderer/windows/game/flash/Services/Inventory.ts:6" target="_blank" rel="noreferrer"><svg class="source-reference__icon" width="16" height="16" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m18 16 4-4-4-4"></path><path d="m6 8-4 4 4 4"></path><path d="m14.5 4-5 16"></path></svg></a>
+### `api.inventory.contains()` <a class="source-reference__heading-link" style="float: right; display: inline-flex; align-items: center; justify-content: center; width: 2rem; height: 2rem; margin-block: -0.125rem; margin-inline-start: 0.5rem; border-radius: var(--radius-sm); text-decoration: none;" href="https://github.com/toommyliu/vexed/blob/dev/app/src/renderer/windows/game/flash/Services/Inventory.ts#L6" tabindex="-1" aria-hidden="true" title="Open source: app/src/renderer/windows/game/flash/Services/Inventory.ts:6" target="_blank" rel="noreferrer"><svg class="source-reference__icon" width="16" height="16" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m18 16 4-4-4-4"></path><path d="m6 8-4 4 4 4"></path><path d="m14.5 4-5 16"></path></svg></a>
 
 ```ts
 api.inventory.contains(item: ItemIdentifierToken, quantity?: number): BridgeEffect<boolean>
@@ -22,16 +22,16 @@ api.inventory.contains(item: ItemIdentifierToken, quantity?: number): BridgeEffe
 
 | Name | Type | Required | Description |
 | --- | --- | --- | --- |
-| `item` | [`ItemIdentifierToken`](../../types/item-identifier-token/) | <span class="required-mark" role="img" aria-label="Required"></span> |  |
+| `item` | <a href="/scripting/types/item-identifier-token/" data-script-type="item-identifier-token"><code>ItemIdentifierToken</code></a> | <span class="required-mark" role="img" aria-label="Required"></span> |  |
 | `quantity` | `number` |  |  |
 
 **Yields:** `boolean`
 
-**Errors:** [`BridgeError`](../../types/bridge-error/)
+**Errors:** <a href="/scripting/types/bridge-error/" data-script-type="bridge-error"><code>BridgeError</code></a>
 
 <a id="member-api-inventory-equip"></a>
 
-### `api.inventory.equip()` <a class="source-reference__heading-link" style="float: right; display: inline-flex; align-items: center; justify-content: center; width: 2rem; height: 2rem; margin-block: -0.125rem; margin-inline-start: 0.5rem; border-radius: var(--radius-sm); text-decoration: none;" href="https://github.com/toommyliu/vexed/blob/fc1a69128bf47b1844397eca622869e1b37943ad/app/src/renderer/windows/game/flash/Services/Inventory.ts#L7" tabindex="-1" aria-hidden="true" title="Open source: app/src/renderer/windows/game/flash/Services/Inventory.ts:7" target="_blank" rel="noreferrer"><svg class="source-reference__icon" width="16" height="16" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m18 16 4-4-4-4"></path><path d="m6 8-4 4 4 4"></path><path d="m14.5 4-5 16"></path></svg></a>
+### `api.inventory.equip()` <a class="source-reference__heading-link" style="float: right; display: inline-flex; align-items: center; justify-content: center; width: 2rem; height: 2rem; margin-block: -0.125rem; margin-inline-start: 0.5rem; border-radius: var(--radius-sm); text-decoration: none;" href="https://github.com/toommyliu/vexed/blob/dev/app/src/renderer/windows/game/flash/Services/Inventory.ts#L7" tabindex="-1" aria-hidden="true" title="Open source: app/src/renderer/windows/game/flash/Services/Inventory.ts:7" target="_blank" rel="noreferrer"><svg class="source-reference__icon" width="16" height="16" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m18 16 4-4-4-4"></path><path d="m6 8-4 4 4 4"></path><path d="m14.5 4-5 16"></path></svg></a>
 
 ```ts
 api.inventory.equip(item: ItemIdentifierToken): BridgeEffect<boolean>
@@ -39,15 +39,15 @@ api.inventory.equip(item: ItemIdentifierToken): BridgeEffect<boolean>
 
 | Name | Type | Required | Description |
 | --- | --- | --- | --- |
-| `item` | [`ItemIdentifierToken`](../../types/item-identifier-token/) | <span class="required-mark" role="img" aria-label="Required"></span> |  |
+| `item` | <a href="/scripting/types/item-identifier-token/" data-script-type="item-identifier-token"><code>ItemIdentifierToken</code></a> | <span class="required-mark" role="img" aria-label="Required"></span> |  |
 
 **Yields:** `boolean`
 
-**Errors:** [`BridgeError`](../../types/bridge-error/)
+**Errors:** <a href="/scripting/types/bridge-error/" data-script-type="bridge-error"><code>BridgeError</code></a>
 
 <a id="member-api-inventory-getavailableslots"></a>
 
-### `api.inventory.getAvailableSlots()` <a class="source-reference__heading-link" style="float: right; display: inline-flex; align-items: center; justify-content: center; width: 2rem; height: 2rem; margin-block: -0.125rem; margin-inline-start: 0.5rem; border-radius: var(--radius-sm); text-decoration: none;" href="https://github.com/toommyliu/vexed/blob/fc1a69128bf47b1844397eca622869e1b37943ad/app/src/renderer/windows/game/flash/Services/Inventory.ts#L12" tabindex="-1" aria-hidden="true" title="Open source: app/src/renderer/windows/game/flash/Services/Inventory.ts:12" target="_blank" rel="noreferrer"><svg class="source-reference__icon" width="16" height="16" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m18 16 4-4-4-4"></path><path d="m6 8-4 4 4 4"></path><path d="m14.5 4-5 16"></path></svg></a>
+### `api.inventory.getAvailableSlots()` <a class="source-reference__heading-link" style="float: right; display: inline-flex; align-items: center; justify-content: center; width: 2rem; height: 2rem; margin-block: -0.125rem; margin-inline-start: 0.5rem; border-radius: var(--radius-sm); text-decoration: none;" href="https://github.com/toommyliu/vexed/blob/dev/app/src/renderer/windows/game/flash/Services/Inventory.ts#L12" tabindex="-1" aria-hidden="true" title="Open source: app/src/renderer/windows/game/flash/Services/Inventory.ts:12" target="_blank" rel="noreferrer"><svg class="source-reference__icon" width="16" height="16" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m18 16 4-4-4-4"></path><path d="m6 8-4 4 4 4"></path><path d="m14.5 4-5 16"></path></svg></a>
 
 ```ts
 api.inventory.getAvailableSlots(): BridgeEffect<number>
@@ -55,11 +55,11 @@ api.inventory.getAvailableSlots(): BridgeEffect<number>
 
 **Yields:** `number`
 
-**Errors:** [`BridgeError`](../../types/bridge-error/)
+**Errors:** <a href="/scripting/types/bridge-error/" data-script-type="bridge-error"><code>BridgeError</code></a>
 
 <a id="member-api-inventory-getitem"></a>
 
-### `api.inventory.getItem()` <a class="source-reference__heading-link" style="float: right; display: inline-flex; align-items: center; justify-content: center; width: 2rem; height: 2rem; margin-block: -0.125rem; margin-inline-start: 0.5rem; border-radius: var(--radius-sm); text-decoration: none;" href="https://github.com/toommyliu/vexed/blob/fc1a69128bf47b1844397eca622869e1b37943ad/app/src/renderer/windows/game/flash/Services/Inventory.ts#L8" tabindex="-1" aria-hidden="true" title="Open source: app/src/renderer/windows/game/flash/Services/Inventory.ts:8" target="_blank" rel="noreferrer"><svg class="source-reference__icon" width="16" height="16" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m18 16 4-4-4-4"></path><path d="m6 8-4 4 4 4"></path><path d="m14.5 4-5 16"></path></svg></a>
+### `api.inventory.getItem()` <a class="source-reference__heading-link" style="float: right; display: inline-flex; align-items: center; justify-content: center; width: 2rem; height: 2rem; margin-block: -0.125rem; margin-inline-start: 0.5rem; border-radius: var(--radius-sm); text-decoration: none;" href="https://github.com/toommyliu/vexed/blob/dev/app/src/renderer/windows/game/flash/Services/Inventory.ts#L8" tabindex="-1" aria-hidden="true" title="Open source: app/src/renderer/windows/game/flash/Services/Inventory.ts:8" target="_blank" rel="noreferrer"><svg class="source-reference__icon" width="16" height="16" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m18 16 4-4-4-4"></path><path d="m6 8-4 4 4 4"></path><path d="m14.5 4-5 16"></path></svg></a>
 
 ```ts
 api.inventory.getItem(item: ItemIdentifierToken): BridgeEffect<Item | null>
@@ -67,27 +67,27 @@ api.inventory.getItem(item: ItemIdentifierToken): BridgeEffect<Item | null>
 
 | Name | Type | Required | Description |
 | --- | --- | --- | --- |
-| `item` | [`ItemIdentifierToken`](../../types/item-identifier-token/) | <span class="required-mark" role="img" aria-label="Required"></span> |  |
+| `item` | <a href="/scripting/types/item-identifier-token/" data-script-type="item-identifier-token"><code>ItemIdentifierToken</code></a> | <span class="required-mark" role="img" aria-label="Required"></span> |  |
 
-**Yields:** [`Item`](../../types/item/) \| `null`
+**Yields:** <a href="/scripting/types/item/" data-script-type="item"><code>Item</code></a> \| `null`
 
-**Errors:** [`BridgeError`](../../types/bridge-error/)
+**Errors:** <a href="/scripting/types/bridge-error/" data-script-type="bridge-error"><code>BridgeError</code></a>
 
 <a id="member-api-inventory-getitems"></a>
 
-### `api.inventory.getItems()` <a class="source-reference__heading-link" style="float: right; display: inline-flex; align-items: center; justify-content: center; width: 2rem; height: 2rem; margin-block: -0.125rem; margin-inline-start: 0.5rem; border-radius: var(--radius-sm); text-decoration: none;" href="https://github.com/toommyliu/vexed/blob/fc1a69128bf47b1844397eca622869e1b37943ad/app/src/renderer/windows/game/flash/Services/Inventory.ts#L9" tabindex="-1" aria-hidden="true" title="Open source: app/src/renderer/windows/game/flash/Services/Inventory.ts:9" target="_blank" rel="noreferrer"><svg class="source-reference__icon" width="16" height="16" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m18 16 4-4-4-4"></path><path d="m6 8-4 4 4 4"></path><path d="m14.5 4-5 16"></path></svg></a>
+### `api.inventory.getItems()` <a class="source-reference__heading-link" style="float: right; display: inline-flex; align-items: center; justify-content: center; width: 2rem; height: 2rem; margin-block: -0.125rem; margin-inline-start: 0.5rem; border-radius: var(--radius-sm); text-decoration: none;" href="https://github.com/toommyliu/vexed/blob/dev/app/src/renderer/windows/game/flash/Services/Inventory.ts#L9" tabindex="-1" aria-hidden="true" title="Open source: app/src/renderer/windows/game/flash/Services/Inventory.ts:9" target="_blank" rel="noreferrer"><svg class="source-reference__icon" width="16" height="16" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m18 16 4-4-4-4"></path><path d="m6 8-4 4 4 4"></path><path d="m14.5 4-5 16"></path></svg></a>
 
 ```ts
 api.inventory.getItems(): BridgeEffect<readonly Item[]>
 ```
 
-**Yields:** `readonly` [`Item`](../../types/item/)[]
+**Yields:** `readonly` <a href="/scripting/types/item/" data-script-type="item"><code>Item</code></a>[]
 
-**Errors:** [`BridgeError`](../../types/bridge-error/)
+**Errors:** <a href="/scripting/types/bridge-error/" data-script-type="bridge-error"><code>BridgeError</code></a>
 
 <a id="member-api-inventory-getslots"></a>
 
-### `api.inventory.getSlots()` <a class="source-reference__heading-link" style="float: right; display: inline-flex; align-items: center; justify-content: center; width: 2rem; height: 2rem; margin-block: -0.125rem; margin-inline-start: 0.5rem; border-radius: var(--radius-sm); text-decoration: none;" href="https://github.com/toommyliu/vexed/blob/fc1a69128bf47b1844397eca622869e1b37943ad/app/src/renderer/windows/game/flash/Services/Inventory.ts#L10" tabindex="-1" aria-hidden="true" title="Open source: app/src/renderer/windows/game/flash/Services/Inventory.ts:10" target="_blank" rel="noreferrer"><svg class="source-reference__icon" width="16" height="16" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m18 16 4-4-4-4"></path><path d="m6 8-4 4 4 4"></path><path d="m14.5 4-5 16"></path></svg></a>
+### `api.inventory.getSlots()` <a class="source-reference__heading-link" style="float: right; display: inline-flex; align-items: center; justify-content: center; width: 2rem; height: 2rem; margin-block: -0.125rem; margin-inline-start: 0.5rem; border-radius: var(--radius-sm); text-decoration: none;" href="https://github.com/toommyliu/vexed/blob/dev/app/src/renderer/windows/game/flash/Services/Inventory.ts#L10" tabindex="-1" aria-hidden="true" title="Open source: app/src/renderer/windows/game/flash/Services/Inventory.ts:10" target="_blank" rel="noreferrer"><svg class="source-reference__icon" width="16" height="16" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m18 16 4-4-4-4"></path><path d="m6 8-4 4 4 4"></path><path d="m14.5 4-5 16"></path></svg></a>
 
 ```ts
 api.inventory.getSlots(): BridgeEffect<number>
@@ -95,11 +95,11 @@ api.inventory.getSlots(): BridgeEffect<number>
 
 **Yields:** `number`
 
-**Errors:** [`BridgeError`](../../types/bridge-error/)
+**Errors:** <a href="/scripting/types/bridge-error/" data-script-type="bridge-error"><code>BridgeError</code></a>
 
 <a id="member-api-inventory-getusedslots"></a>
 
-### `api.inventory.getUsedSlots()` <a class="source-reference__heading-link" style="float: right; display: inline-flex; align-items: center; justify-content: center; width: 2rem; height: 2rem; margin-block: -0.125rem; margin-inline-start: 0.5rem; border-radius: var(--radius-sm); text-decoration: none;" href="https://github.com/toommyliu/vexed/blob/fc1a69128bf47b1844397eca622869e1b37943ad/app/src/renderer/windows/game/flash/Services/Inventory.ts#L11" tabindex="-1" aria-hidden="true" title="Open source: app/src/renderer/windows/game/flash/Services/Inventory.ts:11" target="_blank" rel="noreferrer"><svg class="source-reference__icon" width="16" height="16" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m18 16 4-4-4-4"></path><path d="m6 8-4 4 4 4"></path><path d="m14.5 4-5 16"></path></svg></a>
+### `api.inventory.getUsedSlots()` <a class="source-reference__heading-link" style="float: right; display: inline-flex; align-items: center; justify-content: center; width: 2rem; height: 2rem; margin-block: -0.125rem; margin-inline-start: 0.5rem; border-radius: var(--radius-sm); text-decoration: none;" href="https://github.com/toommyliu/vexed/blob/dev/app/src/renderer/windows/game/flash/Services/Inventory.ts#L11" tabindex="-1" aria-hidden="true" title="Open source: app/src/renderer/windows/game/flash/Services/Inventory.ts:11" target="_blank" rel="noreferrer"><svg class="source-reference__icon" width="16" height="16" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m18 16 4-4-4-4"></path><path d="m6 8-4 4 4 4"></path><path d="m14.5 4-5 16"></path></svg></a>
 
 ```ts
 api.inventory.getUsedSlots(): BridgeEffect<number>
@@ -107,4 +107,4 @@ api.inventory.getUsedSlots(): BridgeEffect<number>
 
 **Yields:** `number`
 
-**Errors:** [`BridgeError`](../../types/bridge-error/)
+**Errors:** <a href="/scripting/types/bridge-error/" data-script-type="bridge-error"><code>BridgeError</code></a>

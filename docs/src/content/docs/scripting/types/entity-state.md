@@ -1,6 +1,6 @@
 ---
 title: "EntityState"
-description: "Reference for EntityState."
+description: ""
 sidebar:
   label: "EntityState"
 tableOfContents:
@@ -18,7 +18,7 @@ enum EntityState
 
 <a id="property-dead"></a>
 
-### `Dead` <a class="source-reference__heading-link" style="float: right; display: inline-flex; align-items: center; justify-content: center; width: 2rem; height: 2rem; margin-block: -0.125rem; margin-inline-start: 0.5rem; border-radius: var(--radius-sm); text-decoration: none;" href="https://github.com/toommyliu/vexed/blob/fc1a69128bf47b1844397eca622869e1b37943ad/packages/game/src/types/EntityState.ts#L5" tabindex="-1" aria-hidden="true" title="Open source: packages/game/src/types/EntityState.ts:5" target="_blank" rel="noreferrer"><svg class="source-reference__icon" width="16" height="16" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m18 16 4-4-4-4"></path><path d="m6 8-4 4 4 4"></path><path d="m14.5 4-5 16"></path></svg></a>
+### `Dead` <a class="source-reference__heading-link" style="float: right; display: inline-flex; align-items: center; justify-content: center; width: 2rem; height: 2rem; margin-block: -0.125rem; margin-inline-start: 0.5rem; border-radius: var(--radius-sm); text-decoration: none;" href="https://github.com/toommyliu/vexed/blob/dev/packages/game/src/types/EntityState.ts#L5" tabindex="-1" aria-hidden="true" title="Open source: packages/game/src/types/EntityState.ts:5" target="_blank" rel="noreferrer"><svg class="source-reference__icon" width="16" height="16" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m18 16 4-4-4-4"></path><path d="m6 8-4 4 4 4"></path><path d="m14.5 4-5 16"></path></svg></a>
 
 The entity is dead.
 
@@ -28,7 +28,7 @@ Dead: 0
 
 <a id="property-idle"></a>
 
-### `Idle` <a class="source-reference__heading-link" style="float: right; display: inline-flex; align-items: center; justify-content: center; width: 2rem; height: 2rem; margin-block: -0.125rem; margin-inline-start: 0.5rem; border-radius: var(--radius-sm); text-decoration: none;" href="https://github.com/toommyliu/vexed/blob/fc1a69128bf47b1844397eca622869e1b37943ad/packages/game/src/types/EntityState.ts#L9" tabindex="-1" aria-hidden="true" title="Open source: packages/game/src/types/EntityState.ts:9" target="_blank" rel="noreferrer"><svg class="source-reference__icon" width="16" height="16" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m18 16 4-4-4-4"></path><path d="m6 8-4 4 4 4"></path><path d="m14.5 4-5 16"></path></svg></a>
+### `Idle` <a class="source-reference__heading-link" style="float: right; display: inline-flex; align-items: center; justify-content: center; width: 2rem; height: 2rem; margin-block: -0.125rem; margin-inline-start: 0.5rem; border-radius: var(--radius-sm); text-decoration: none;" href="https://github.com/toommyliu/vexed/blob/dev/packages/game/src/types/EntityState.ts#L9" tabindex="-1" aria-hidden="true" title="Open source: packages/game/src/types/EntityState.ts:9" target="_blank" rel="noreferrer"><svg class="source-reference__icon" width="16" height="16" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m18 16 4-4-4-4"></path><path d="m6 8-4 4 4 4"></path><path d="m14.5 4-5 16"></path></svg></a>
 
 The entity is idle.
 
@@ -38,7 +38,7 @@ Idle: 1
 
 <a id="property-incombat"></a>
 
-### `InCombat` <a class="source-reference__heading-link" style="float: right; display: inline-flex; align-items: center; justify-content: center; width: 2rem; height: 2rem; margin-block: -0.125rem; margin-inline-start: 0.5rem; border-radius: var(--radius-sm); text-decoration: none;" href="https://github.com/toommyliu/vexed/blob/fc1a69128bf47b1844397eca622869e1b37943ad/packages/game/src/types/EntityState.ts#L13" tabindex="-1" aria-hidden="true" title="Open source: packages/game/src/types/EntityState.ts:13" target="_blank" rel="noreferrer"><svg class="source-reference__icon" width="16" height="16" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m18 16 4-4-4-4"></path><path d="m6 8-4 4 4 4"></path><path d="m14.5 4-5 16"></path></svg></a>
+### `InCombat` <a class="source-reference__heading-link" style="float: right; display: inline-flex; align-items: center; justify-content: center; width: 2rem; height: 2rem; margin-block: -0.125rem; margin-inline-start: 0.5rem; border-radius: var(--radius-sm); text-decoration: none;" href="https://github.com/toommyliu/vexed/blob/dev/packages/game/src/types/EntityState.ts#L13" tabindex="-1" aria-hidden="true" title="Open source: packages/game/src/types/EntityState.ts:13" target="_blank" rel="noreferrer"><svg class="source-reference__icon" width="16" height="16" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m18 16 4-4-4-4"></path><path d="m6 8-4 4 4 4"></path><path d="m14.5 4-5 16"></path></svg></a>
 
 The entity is in combat.
 

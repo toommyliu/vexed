@@ -1,6 +1,6 @@
 ---
 title: "ShopInfo"
-description: "Reference for ShopInfo."
+description: ""
 sidebar:
   label: "ShopInfo"
 tableOfContents:
@@ -18,7 +18,7 @@ type ShopInfo = unknown
 
 <a id="property-bhouse"></a>
 
-### `bHouse` <a class="source-reference__heading-link" style="float: right; display: inline-flex; align-items: center; justify-content: center; width: 2rem; height: 2rem; margin-block: -0.125rem; margin-inline-start: 0.5rem; border-radius: var(--radius-sm); text-decoration: none;" href="https://github.com/toommyliu/vexed/blob/fc1a69128bf47b1844397eca622869e1b37943ad/packages/game/src/types/ShopInfo.ts#L6" tabindex="-1" aria-hidden="true" title="Open source: packages/game/src/types/ShopInfo.ts:6" target="_blank" rel="noreferrer"><svg class="source-reference__icon" width="16" height="16" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m18 16 4-4-4-4"></path><path d="m6 8-4 4 4 4"></path><path d="m14.5 4-5 16"></path></svg></a>
+### `bHouse` <a class="source-reference__heading-link" style="float: right; display: inline-flex; align-items: center; justify-content: center; width: 2rem; height: 2rem; margin-block: -0.125rem; margin-inline-start: 0.5rem; border-radius: var(--radius-sm); text-decoration: none;" href="https://github.com/toommyliu/vexed/blob/dev/packages/game/src/types/ShopInfo.ts#L6" tabindex="-1" aria-hidden="true" title="Open source: packages/game/src/types/ShopInfo.ts:6" target="_blank" rel="noreferrer"><svg class="source-reference__icon" width="16" height="16" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m18 16 4-4-4-4"></path><path d="m6 8-4 4 4 4"></path><path d="m14.5 4-5 16"></path></svg></a>
 
 ```ts
 bHouse: string
@@ -26,7 +26,7 @@ bHouse: string
 
 <a id="property-bstaff"></a>
 
-### `bStaff` <a class="source-reference__heading-link" style="float: right; display: inline-flex; align-items: center; justify-content: center; width: 2rem; height: 2rem; margin-block: -0.125rem; margin-inline-start: 0.5rem; border-radius: var(--radius-sm); text-decoration: none;" href="https://github.com/toommyliu/vexed/blob/fc1a69128bf47b1844397eca622869e1b37943ad/packages/game/src/types/ShopInfo.ts#L7" tabindex="-1" aria-hidden="true" title="Open source: packages/game/src/types/ShopInfo.ts:7" target="_blank" rel="noreferrer"><svg class="source-reference__icon" width="16" height="16" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m18 16 4-4-4-4"></path><path d="m6 8-4 4 4 4"></path><path d="m14.5 4-5 16"></path></svg></a>
+### `bStaff` <a class="source-reference__heading-link" style="float: right; display: inline-flex; align-items: center; justify-content: center; width: 2rem; height: 2rem; margin-block: -0.125rem; margin-inline-start: 0.5rem; border-radius: var(--radius-sm); text-decoration: none;" href="https://github.com/toommyliu/vexed/blob/dev/packages/game/src/types/ShopInfo.ts#L7" tabindex="-1" aria-hidden="true" title="Open source: packages/game/src/types/ShopInfo.ts:7" target="_blank" rel="noreferrer"><svg class="source-reference__icon" width="16" height="16" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m18 16 4-4-4-4"></path><path d="m6 8-4 4 4 4"></path><path d="m14.5 4-5 16"></path></svg></a>
 
 ```ts
 bStaff: string
@@ -34,7 +34,7 @@ bStaff: string
 
 <a id="property-bupgrd"></a>
 
-### `bUpgrd` <a class="source-reference__heading-link" style="float: right; display: inline-flex; align-items: center; justify-content: center; width: 2rem; height: 2rem; margin-block: -0.125rem; margin-inline-start: 0.5rem; border-radius: var(--radius-sm); text-decoration: none;" href="https://github.com/toommyliu/vexed/blob/fc1a69128bf47b1844397eca622869e1b37943ad/packages/game/src/types/ShopInfo.ts#L8" tabindex="-1" aria-hidden="true" title="Open source: packages/game/src/types/ShopInfo.ts:8" target="_blank" rel="noreferrer"><svg class="source-reference__icon" width="16" height="16" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m18 16 4-4-4-4"></path><path d="m6 8-4 4 4 4"></path><path d="m14.5 4-5 16"></path></svg></a>
+### `bUpgrd` <a class="source-reference__heading-link" style="float: right; display: inline-flex; align-items: center; justify-content: center; width: 2rem; height: 2rem; margin-block: -0.125rem; margin-inline-start: 0.5rem; border-radius: var(--radius-sm); text-decoration: none;" href="https://github.com/toommyliu/vexed/blob/dev/packages/game/src/types/ShopInfo.ts#L8" tabindex="-1" aria-hidden="true" title="Open source: packages/game/src/types/ShopInfo.ts:8" target="_blank" rel="noreferrer"><svg class="source-reference__icon" width="16" height="16" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m18 16 4-4-4-4"></path><path d="m6 8-4 4 4 4"></path><path d="m14.5 4-5 16"></path></svg></a>
 
 ```ts
 bUpgrd: string
@@ -42,7 +42,7 @@ bUpgrd: string
 
 <a id="property-iindex"></a>
 
-### `iIndex` <a class="source-reference__heading-link" style="float: right; display: inline-flex; align-items: center; justify-content: center; width: 2rem; height: 2rem; margin-block: -0.125rem; margin-inline-start: 0.5rem; border-radius: var(--radius-sm); text-decoration: none;" href="https://github.com/toommyliu/vexed/blob/fc1a69128bf47b1844397eca622869e1b37943ad/packages/game/src/types/ShopInfo.ts#L9" tabindex="-1" aria-hidden="true" title="Open source: packages/game/src/types/ShopInfo.ts:9" target="_blank" rel="noreferrer"><svg class="source-reference__icon" width="16" height="16" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m18 16 4-4-4-4"></path><path d="m6 8-4 4 4 4"></path><path d="m14.5 4-5 16"></path></svg></a>
+### `iIndex` <a class="source-reference__heading-link" style="float: right; display: inline-flex; align-items: center; justify-content: center; width: 2rem; height: 2rem; margin-block: -0.125rem; margin-inline-start: 0.5rem; border-radius: var(--radius-sm); text-decoration: none;" href="https://github.com/toommyliu/vexed/blob/dev/packages/game/src/types/ShopInfo.ts#L9" tabindex="-1" aria-hidden="true" title="Open source: packages/game/src/types/ShopInfo.ts:9" target="_blank" rel="noreferrer"><svg class="source-reference__icon" width="16" height="16" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m18 16 4-4-4-4"></path><path d="m6 8-4 4 4 4"></path><path d="m14.5 4-5 16"></path></svg></a>
 
 ```ts
 iIndex: string
@@ -50,7 +50,7 @@ iIndex: string
 
 <a id="property-items"></a>
 
-### `items` <a class="source-reference__heading-link" style="float: right; display: inline-flex; align-items: center; justify-content: center; width: 2rem; height: 2rem; margin-block: -0.125rem; margin-inline-start: 0.5rem; border-radius: var(--radius-sm); text-decoration: none;" href="https://github.com/toommyliu/vexed/blob/fc1a69128bf47b1844397eca622869e1b37943ad/packages/game/src/types/ShopInfo.ts#L10" tabindex="-1" aria-hidden="true" title="Open source: packages/game/src/types/ShopInfo.ts:10" target="_blank" rel="noreferrer"><svg class="source-reference__icon" width="16" height="16" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m18 16 4-4-4-4"></path><path d="m6 8-4 4 4 4"></path><path d="m14.5 4-5 16"></path></svg></a>
+### `items` <a class="source-reference__heading-link" style="float: right; display: inline-flex; align-items: center; justify-content: center; width: 2rem; height: 2rem; margin-block: -0.125rem; margin-inline-start: 0.5rem; border-radius: var(--radius-sm); text-decoration: none;" href="https://github.com/toommyliu/vexed/blob/dev/packages/game/src/types/ShopInfo.ts#L10" tabindex="-1" aria-hidden="true" title="Open source: packages/game/src/types/ShopInfo.ts:10" target="_blank" rel="noreferrer"><svg class="source-reference__icon" width="16" height="16" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m18 16 4-4-4-4"></path><path d="m6 8-4 4 4 4"></path><path d="m14.5 4-5 16"></path></svg></a>
 
 ```ts
 items: ShopItemData[]
@@ -58,7 +58,7 @@ items: ShopItemData[]
 
 <a id="property-location"></a>
 
-### `Location` <a class="source-reference__heading-link" style="float: right; display: inline-flex; align-items: center; justify-content: center; width: 2rem; height: 2rem; margin-block: -0.125rem; margin-inline-start: 0.5rem; border-radius: var(--radius-sm); text-decoration: none;" href="https://github.com/toommyliu/vexed/blob/fc1a69128bf47b1844397eca622869e1b37943ad/packages/game/src/types/ShopInfo.ts#L4" tabindex="-1" aria-hidden="true" title="Open source: packages/game/src/types/ShopInfo.ts:4" target="_blank" rel="noreferrer"><svg class="source-reference__icon" width="16" height="16" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m18 16 4-4-4-4"></path><path d="m6 8-4 4 4 4"></path><path d="m14.5 4-5 16"></path></svg></a>
+### `Location` <a class="source-reference__heading-link" style="float: right; display: inline-flex; align-items: center; justify-content: center; width: 2rem; height: 2rem; margin-block: -0.125rem; margin-inline-start: 0.5rem; border-radius: var(--radius-sm); text-decoration: none;" href="https://github.com/toommyliu/vexed/blob/dev/packages/game/src/types/ShopInfo.ts#L4" tabindex="-1" aria-hidden="true" title="Open source: packages/game/src/types/ShopInfo.ts:4" target="_blank" rel="noreferrer"><svg class="source-reference__icon" width="16" height="16" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m18 16 4-4-4-4"></path><path d="m6 8-4 4 4 4"></path><path d="m14.5 4-5 16"></path></svg></a>
 
 ```ts
 Location: string
@@ -66,7 +66,7 @@ Location: string
 
 <a id="property-sfield"></a>
 
-### `sField` <a class="source-reference__heading-link" style="float: right; display: inline-flex; align-items: center; justify-content: center; width: 2rem; height: 2rem; margin-block: -0.125rem; margin-inline-start: 0.5rem; border-radius: var(--radius-sm); text-decoration: none;" href="https://github.com/toommyliu/vexed/blob/fc1a69128bf47b1844397eca622869e1b37943ad/packages/game/src/types/ShopInfo.ts#L11" tabindex="-1" aria-hidden="true" title="Open source: packages/game/src/types/ShopInfo.ts:11" target="_blank" rel="noreferrer"><svg class="source-reference__icon" width="16" height="16" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m18 16 4-4-4-4"></path><path d="m6 8-4 4 4 4"></path><path d="m14.5 4-5 16"></path></svg></a>
+### `sField` <a class="source-reference__heading-link" style="float: right; display: inline-flex; align-items: center; justify-content: center; width: 2rem; height: 2rem; margin-block: -0.125rem; margin-inline-start: 0.5rem; border-radius: var(--radius-sm); text-decoration: none;" href="https://github.com/toommyliu/vexed/blob/dev/packages/game/src/types/ShopInfo.ts#L11" tabindex="-1" aria-hidden="true" title="Open source: packages/game/src/types/ShopInfo.ts:11" target="_blank" rel="noreferrer"><svg class="source-reference__icon" width="16" height="16" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m18 16 4-4-4-4"></path><path d="m6 8-4 4 4 4"></path><path d="m14.5 4-5 16"></path></svg></a>
 
 ```ts
 sField: string
@@ -74,7 +74,7 @@ sField: string
 
 <a id="property-shopid"></a>
 
-### `ShopID` <a class="source-reference__heading-link" style="float: right; display: inline-flex; align-items: center; justify-content: center; width: 2rem; height: 2rem; margin-block: -0.125rem; margin-inline-start: 0.5rem; border-radius: var(--radius-sm); text-decoration: none;" href="https://github.com/toommyliu/vexed/blob/fc1a69128bf47b1844397eca622869e1b37943ad/packages/game/src/types/ShopInfo.ts#L5" tabindex="-1" aria-hidden="true" title="Open source: packages/game/src/types/ShopInfo.ts:5" target="_blank" rel="noreferrer"><svg class="source-reference__icon" width="16" height="16" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m18 16 4-4-4-4"></path><path d="m6 8-4 4 4 4"></path><path d="m14.5 4-5 16"></path></svg></a>
+### `ShopID` <a class="source-reference__heading-link" style="float: right; display: inline-flex; align-items: center; justify-content: center; width: 2rem; height: 2rem; margin-block: -0.125rem; margin-inline-start: 0.5rem; border-radius: var(--radius-sm); text-decoration: none;" href="https://github.com/toommyliu/vexed/blob/dev/packages/game/src/types/ShopInfo.ts#L5" tabindex="-1" aria-hidden="true" title="Open source: packages/game/src/types/ShopInfo.ts:5" target="_blank" rel="noreferrer"><svg class="source-reference__icon" width="16" height="16" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m18 16 4-4-4-4"></path><path d="m6 8-4 4 4 4"></path><path d="m14.5 4-5 16"></path></svg></a>
 
 ```ts
 ShopID: string
@@ -82,7 +82,7 @@ ShopID: string
 
 <a id="property-sname"></a>
 
-### `sName` <a class="source-reference__heading-link" style="float: right; display: inline-flex; align-items: center; justify-content: center; width: 2rem; height: 2rem; margin-block: -0.125rem; margin-inline-start: 0.5rem; border-radius: var(--radius-sm); text-decoration: none;" href="https://github.com/toommyliu/vexed/blob/fc1a69128bf47b1844397eca622869e1b37943ad/packages/game/src/types/ShopInfo.ts#L12" tabindex="-1" aria-hidden="true" title="Open source: packages/game/src/types/ShopInfo.ts:12" target="_blank" rel="noreferrer"><svg class="source-reference__icon" width="16" height="16" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m18 16 4-4-4-4"></path><path d="m6 8-4 4 4 4"></path><path d="m14.5 4-5 16"></path></svg></a>
+### `sName` <a class="source-reference__heading-link" style="float: right; display: inline-flex; align-items: center; justify-content: center; width: 2rem; height: 2rem; margin-block: -0.125rem; margin-inline-start: 0.5rem; border-radius: var(--radius-sm); text-decoration: none;" href="https://github.com/toommyliu/vexed/blob/dev/packages/game/src/types/ShopInfo.ts#L12" tabindex="-1" aria-hidden="true" title="Open source: packages/game/src/types/ShopInfo.ts:12" target="_blank" rel="noreferrer"><svg class="source-reference__icon" width="16" height="16" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m18 16 4-4-4-4"></path><path d="m6 8-4 4 4 4"></path><path d="m14.5 4-5 16"></path></svg></a>
 
 ```ts
 sName: string

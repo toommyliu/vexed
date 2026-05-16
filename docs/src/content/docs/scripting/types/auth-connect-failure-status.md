@@ -1,6 +1,6 @@
 ---
 title: "AuthConnectFailureStatus"
-description: "Reference for AuthConnectFailureStatus."
+description: ""
 sidebar:
   label: "AuthConnectFailureStatus"
 tableOfContents:

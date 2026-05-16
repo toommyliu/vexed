@@ -1,6 +1,6 @@
 ---
 title: "AvatarData"
-description: "Reference for AvatarData."
+description: ""
 sidebar:
   label: "AvatarData"
 tableOfContents:

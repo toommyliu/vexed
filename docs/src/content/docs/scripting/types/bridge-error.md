@@ -1,6 +1,6 @@
 ---
 title: "BridgeError"
-description: "Reference for BridgeError."
+description: ""
 sidebar:
   label: "BridgeError"
 tableOfContents:

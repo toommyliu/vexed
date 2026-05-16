@@ -1,6 +1,6 @@
 ---
 title: "ScriptRecipeEffect"
-description: "Reference for ScriptRecipeEffect."
+description: ""
 sidebar:
   label: "ScriptRecipeEffect"
 tableOfContents:

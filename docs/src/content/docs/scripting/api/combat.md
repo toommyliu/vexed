@@ -1,6 +1,6 @@
 ---
 title: "api.combat"
-description: "Reference for api.combat."
+description: ""
 sidebar:
   label: "Combat"
 tableOfContents:
@@ -14,7 +14,7 @@ tableOfContents:
 
 <a id="member-api-combat-attackmonster"></a>
 
-### `api.combat.attackMonster()` <a class="source-reference__heading-link" style="float: right; display: inline-flex; align-items: center; justify-content: center; width: 2rem; height: 2rem; margin-block: -0.125rem; margin-inline-start: 0.5rem; border-radius: var(--radius-sm); text-decoration: none;" href="https://github.com/toommyliu/vexed/blob/fc1a69128bf47b1844397eca622869e1b37943ad/app/src/renderer/windows/game/flash/Services/Combat.ts#L14" tabindex="-1" aria-hidden="true" title="Open source: app/src/renderer/windows/game/flash/Services/Combat.ts:14" target="_blank" rel="noreferrer"><svg class="source-reference__icon" width="16" height="16" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m18 16 4-4-4-4"></path><path d="m6 8-4 4 4 4"></path><path d="m14.5 4-5 16"></path></svg></a>
+### `api.combat.attackMonster()` <a class="source-reference__heading-link" style="float: right; display: inline-flex; align-items: center; justify-content: center; width: 2rem; height: 2rem; margin-block: -0.125rem; margin-inline-start: 0.5rem; border-radius: var(--radius-sm); text-decoration: none;" href="https://github.com/toommyliu/vexed/blob/dev/app/src/renderer/windows/game/flash/Services/Combat.ts#L14" tabindex="-1" aria-hidden="true" title="Open source: app/src/renderer/windows/game/flash/Services/Combat.ts:14" target="_blank" rel="noreferrer"><svg class="source-reference__icon" width="16" height="16" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m18 16 4-4-4-4"></path><path d="m6 8-4 4 4 4"></path><path d="m14.5 4-5 16"></path></svg></a>
 
 ```ts
 api.combat.attackMonster(monster: MonsterIdentifierToken): BridgeEffect<void>
@@ -22,15 +22,15 @@ api.combat.attackMonster(monster: MonsterIdentifierToken): BridgeEffect<void>
 
 | Name | Type | Required | Description |
 | --- | --- | --- | --- |
-| `monster` | [`MonsterIdentifierToken`](../../types/monster-identifier-token/) | <span class="required-mark" role="img" aria-label="Required"></span> |  |
+| `monster` | <a href="/scripting/types/monster-identifier-token/" data-script-type="monster-identifier-token"><code>MonsterIdentifierToken</code></a> | <span class="required-mark" role="img" aria-label="Required"></span> |  |
 
 **Yields:** `void`
 
-**Errors:** [`BridgeError`](../../types/bridge-error/)
+**Errors:** <a href="/scripting/types/bridge-error/" data-script-type="bridge-error"><code>BridgeError</code></a>
 
 <a id="member-api-combat-cancelautoattack"></a>
 
-### `api.combat.cancelAutoAttack()` <a class="source-reference__heading-link" style="float: right; display: inline-flex; align-items: center; justify-content: center; width: 2rem; height: 2rem; margin-block: -0.125rem; margin-inline-start: 0.5rem; border-radius: var(--radius-sm); text-decoration: none;" href="https://github.com/toommyliu/vexed/blob/fc1a69128bf47b1844397eca622869e1b37943ad/app/src/renderer/windows/game/flash/Services/Combat.ts#L15" tabindex="-1" aria-hidden="true" title="Open source: app/src/renderer/windows/game/flash/Services/Combat.ts:15" target="_blank" rel="noreferrer"><svg class="source-reference__icon" width="16" height="16" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m18 16 4-4-4-4"></path><path d="m6 8-4 4 4 4"></path><path d="m14.5 4-5 16"></path></svg></a>
+### `api.combat.cancelAutoAttack()` <a class="source-reference__heading-link" style="float: right; display: inline-flex; align-items: center; justify-content: center; width: 2rem; height: 2rem; margin-block: -0.125rem; margin-inline-start: 0.5rem; border-radius: var(--radius-sm); text-decoration: none;" href="https://github.com/toommyliu/vexed/blob/dev/app/src/renderer/windows/game/flash/Services/Combat.ts#L15" tabindex="-1" aria-hidden="true" title="Open source: app/src/renderer/windows/game/flash/Services/Combat.ts:15" target="_blank" rel="noreferrer"><svg class="source-reference__icon" width="16" height="16" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m18 16 4-4-4-4"></path><path d="m6 8-4 4 4 4"></path><path d="m14.5 4-5 16"></path></svg></a>
 
 ```ts
 api.combat.cancelAutoAttack(): BridgeEffect<void>
@@ -38,11 +38,11 @@ api.combat.cancelAutoAttack(): BridgeEffect<void>
 
 **Yields:** `void`
 
-**Errors:** [`BridgeError`](../../types/bridge-error/)
+**Errors:** <a href="/scripting/types/bridge-error/" data-script-type="bridge-error"><code>BridgeError</code></a>
 
 <a id="member-api-combat-canceltarget"></a>
 
-### `api.combat.cancelTarget()` <a class="source-reference__heading-link" style="float: right; display: inline-flex; align-items: center; justify-content: center; width: 2rem; height: 2rem; margin-block: -0.125rem; margin-inline-start: 0.5rem; border-radius: var(--radius-sm); text-decoration: none;" href="https://github.com/toommyliu/vexed/blob/fc1a69128bf47b1844397eca622869e1b37943ad/app/src/renderer/windows/game/flash/Services/Combat.ts#L16" tabindex="-1" aria-hidden="true" title="Open source: app/src/renderer/windows/game/flash/Services/Combat.ts:16" target="_blank" rel="noreferrer"><svg class="source-reference__icon" width="16" height="16" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m18 16 4-4-4-4"></path><path d="m6 8-4 4 4 4"></path><path d="m14.5 4-5 16"></path></svg></a>
+### `api.combat.cancelTarget()` <a class="source-reference__heading-link" style="float: right; display: inline-flex; align-items: center; justify-content: center; width: 2rem; height: 2rem; margin-block: -0.125rem; margin-inline-start: 0.5rem; border-radius: var(--radius-sm); text-decoration: none;" href="https://github.com/toommyliu/vexed/blob/dev/app/src/renderer/windows/game/flash/Services/Combat.ts#L16" tabindex="-1" aria-hidden="true" title="Open source: app/src/renderer/windows/game/flash/Services/Combat.ts:16" target="_blank" rel="noreferrer"><svg class="source-reference__icon" width="16" height="16" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m18 16 4-4-4-4"></path><path d="m6 8-4 4 4 4"></path><path d="m14.5 4-5 16"></path></svg></a>
 
 ```ts
 api.combat.cancelTarget(): BridgeEffect<void>
@@ -50,11 +50,11 @@ api.combat.cancelTarget(): BridgeEffect<void>
 
 **Yields:** `void`
 
-**Errors:** [`BridgeError`](../../types/bridge-error/)
+**Errors:** <a href="/scripting/types/bridge-error/" data-script-type="bridge-error"><code>BridgeError</code></a>
 
 <a id="member-api-combat-canuseskill"></a>
 
-### `api.combat.canUseSkill()` <a class="source-reference__heading-link" style="float: right; display: inline-flex; align-items: center; justify-content: center; width: 2rem; height: 2rem; margin-block: -0.125rem; margin-inline-start: 0.5rem; border-radius: var(--radius-sm); text-decoration: none;" href="https://github.com/toommyliu/vexed/blob/fc1a69128bf47b1844397eca622869e1b37943ad/app/src/renderer/windows/game/flash/Services/Combat.ts#L17" tabindex="-1" aria-hidden="true" title="Open source: app/src/renderer/windows/game/flash/Services/Combat.ts:17" target="_blank" rel="noreferrer"><svg class="source-reference__icon" width="16" height="16" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m18 16 4-4-4-4"></path><path d="m6 8-4 4 4 4"></path><path d="m14.5 4-5 16"></path></svg></a>
+### `api.combat.canUseSkill()` <a class="source-reference__heading-link" style="float: right; display: inline-flex; align-items: center; justify-content: center; width: 2rem; height: 2rem; margin-block: -0.125rem; margin-inline-start: 0.5rem; border-radius: var(--radius-sm); text-decoration: none;" href="https://github.com/toommyliu/vexed/blob/dev/app/src/renderer/windows/game/flash/Services/Combat.ts#L17" tabindex="-1" aria-hidden="true" title="Open source: app/src/renderer/windows/game/flash/Services/Combat.ts:17" target="_blank" rel="noreferrer"><svg class="source-reference__icon" width="16" height="16" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m18 16 4-4-4-4"></path><path d="m6 8-4 4 4 4"></path><path d="m14.5 4-5 16"></path></svg></a>
 
 ```ts
 api.combat.canUseSkill(index: string | number): BridgeEffect<boolean>
@@ -66,11 +66,11 @@ api.combat.canUseSkill(index: string | number): BridgeEffect<boolean>
 
 **Yields:** `boolean`
 
-**Errors:** [`BridgeError`](../../types/bridge-error/)
+**Errors:** <a href="/scripting/types/bridge-error/" data-script-type="bridge-error"><code>BridgeError</code></a>
 
 <a id="member-api-combat-exit"></a>
 
-### `api.combat.exit()` <a class="source-reference__heading-link" style="float: right; display: inline-flex; align-items: center; justify-content: center; width: 2rem; height: 2rem; margin-block: -0.125rem; margin-inline-start: 0.5rem; border-radius: var(--radius-sm); text-decoration: none;" href="https://github.com/toommyliu/vexed/blob/fc1a69128bf47b1844397eca622869e1b37943ad/app/src/renderer/windows/game/flash/Services/Combat.ts#L18" tabindex="-1" aria-hidden="true" title="Open source: app/src/renderer/windows/game/flash/Services/Combat.ts:18" target="_blank" rel="noreferrer"><svg class="source-reference__icon" width="16" height="16" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m18 16 4-4-4-4"></path><path d="m6 8-4 4 4 4"></path><path d="m14.5 4-5 16"></path></svg></a>
+### `api.combat.exit()` <a class="source-reference__heading-link" style="float: right; display: inline-flex; align-items: center; justify-content: center; width: 2rem; height: 2rem; margin-block: -0.125rem; margin-inline-start: 0.5rem; border-radius: var(--radius-sm); text-decoration: none;" href="https://github.com/toommyliu/vexed/blob/dev/app/src/renderer/windows/game/flash/Services/Combat.ts#L18" tabindex="-1" aria-hidden="true" title="Open source: app/src/renderer/windows/game/flash/Services/Combat.ts:18" target="_blank" rel="noreferrer"><svg class="source-reference__icon" width="16" height="16" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m18 16 4-4-4-4"></path><path d="m6 8-4 4 4 4"></path><path d="m14.5 4-5 16"></path></svg></a>
 
 ```ts
 api.combat.exit(): BridgeEffect<boolean>
@@ -78,35 +78,35 @@ api.combat.exit(): BridgeEffect<boolean>
 
 **Yields:** `boolean`
 
-**Errors:** [`BridgeError`](../../types/bridge-error/)
+**Errors:** <a href="/scripting/types/bridge-error/" data-script-type="bridge-error"><code>BridgeError</code></a>
 
 <a id="member-api-combat-getconsumableskillitem"></a>
 
-### `api.combat.getConsumableSkillItem()` <a class="source-reference__heading-link" style="float: right; display: inline-flex; align-items: center; justify-content: center; width: 2rem; height: 2rem; margin-block: -0.125rem; margin-inline-start: 0.5rem; border-radius: var(--radius-sm); text-decoration: none;" href="https://github.com/toommyliu/vexed/blob/fc1a69128bf47b1844397eca622869e1b37943ad/app/src/renderer/windows/game/flash/Services/Combat.ts#L19" tabindex="-1" aria-hidden="true" title="Open source: app/src/renderer/windows/game/flash/Services/Combat.ts:19" target="_blank" rel="noreferrer"><svg class="source-reference__icon" width="16" height="16" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m18 16 4-4-4-4"></path><path d="m6 8-4 4 4 4"></path><path d="m14.5 4-5 16"></path></svg></a>
+### `api.combat.getConsumableSkillItem()` <a class="source-reference__heading-link" style="float: right; display: inline-flex; align-items: center; justify-content: center; width: 2rem; height: 2rem; margin-block: -0.125rem; margin-inline-start: 0.5rem; border-radius: var(--radius-sm); text-decoration: none;" href="https://github.com/toommyliu/vexed/blob/dev/app/src/renderer/windows/game/flash/Services/Combat.ts#L19" tabindex="-1" aria-hidden="true" title="Open source: app/src/renderer/windows/game/flash/Services/Combat.ts:19" target="_blank" rel="noreferrer"><svg class="source-reference__icon" width="16" height="16" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m18 16 4-4-4-4"></path><path d="m6 8-4 4 4 4"></path><path d="m14.5 4-5 16"></path></svg></a>
 
 ```ts
 api.combat.getConsumableSkillItem(): BridgeEffect<ConsumableSkillItem | null>
 ```
 
-**Yields:** [`ConsumableSkillItem`](../../types/consumable-skill-item/) \| `null`
+**Yields:** <a href="/scripting/types/consumable-skill-item/" data-script-type="consumable-skill-item"><code>ConsumableSkillItem</code></a> \| `null`
 
-**Errors:** [`BridgeError`](../../types/bridge-error/)
+**Errors:** <a href="/scripting/types/bridge-error/" data-script-type="bridge-error"><code>BridgeError</code></a>
 
 <a id="member-api-combat-gettarget"></a>
 
-### `api.combat.getTarget()` <a class="source-reference__heading-link" style="float: right; display: inline-flex; align-items: center; justify-content: center; width: 2rem; height: 2rem; margin-block: -0.125rem; margin-inline-start: 0.5rem; border-radius: var(--radius-sm); text-decoration: none;" href="https://github.com/toommyliu/vexed/blob/fc1a69128bf47b1844397eca622869e1b37943ad/app/src/renderer/windows/game/flash/Services/Combat.ts#L20" tabindex="-1" aria-hidden="true" title="Open source: app/src/renderer/windows/game/flash/Services/Combat.ts:20" target="_blank" rel="noreferrer"><svg class="source-reference__icon" width="16" height="16" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m18 16 4-4-4-4"></path><path d="m6 8-4 4 4 4"></path><path d="m14.5 4-5 16"></path></svg></a>
+### `api.combat.getTarget()` <a class="source-reference__heading-link" style="float: right; display: inline-flex; align-items: center; justify-content: center; width: 2rem; height: 2rem; margin-block: -0.125rem; margin-inline-start: 0.5rem; border-radius: var(--radius-sm); text-decoration: none;" href="https://github.com/toommyliu/vexed/blob/dev/app/src/renderer/windows/game/flash/Services/Combat.ts#L20" tabindex="-1" aria-hidden="true" title="Open source: app/src/renderer/windows/game/flash/Services/Combat.ts:20" target="_blank" rel="noreferrer"><svg class="source-reference__icon" width="16" height="16" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m18 16 4-4-4-4"></path><path d="m6 8-4 4 4 4"></path><path d="m14.5 4-5 16"></path></svg></a>
 
 ```ts
 api.combat.getTarget(): BridgeEffect<Monster | Avatar | null>
 ```
 
-**Yields:** [`Monster`](../../types/monster/) \| [`Avatar`](../../types/avatar/) \| `null`
+**Yields:** <a href="/scripting/types/monster/" data-script-type="monster"><code>Monster</code></a> \| <a href="/scripting/types/avatar/" data-script-type="avatar"><code>Avatar</code></a> \| `null`
 
-**Errors:** [`BridgeError`](../../types/bridge-error/)
+**Errors:** <a href="/scripting/types/bridge-error/" data-script-type="bridge-error"><code>BridgeError</code></a>
 
 <a id="member-api-combat-hastarget"></a>
 
-### `api.combat.hasTarget()` <a class="source-reference__heading-link" style="float: right; display: inline-flex; align-items: center; justify-content: center; width: 2rem; height: 2rem; margin-block: -0.125rem; margin-inline-start: 0.5rem; border-radius: var(--radius-sm); text-decoration: none;" href="https://github.com/toommyliu/vexed/blob/fc1a69128bf47b1844397eca622869e1b37943ad/app/src/renderer/windows/game/flash/Services/Combat.ts#L21" tabindex="-1" aria-hidden="true" title="Open source: app/src/renderer/windows/game/flash/Services/Combat.ts:21" target="_blank" rel="noreferrer"><svg class="source-reference__icon" width="16" height="16" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m18 16 4-4-4-4"></path><path d="m6 8-4 4 4 4"></path><path d="m14.5 4-5 16"></path></svg></a>
+### `api.combat.hasTarget()` <a class="source-reference__heading-link" style="float: right; display: inline-flex; align-items: center; justify-content: center; width: 2rem; height: 2rem; margin-block: -0.125rem; margin-inline-start: 0.5rem; border-radius: var(--radius-sm); text-decoration: none;" href="https://github.com/toommyliu/vexed/blob/dev/app/src/renderer/windows/game/flash/Services/Combat.ts#L21" tabindex="-1" aria-hidden="true" title="Open source: app/src/renderer/windows/game/flash/Services/Combat.ts:21" target="_blank" rel="noreferrer"><svg class="source-reference__icon" width="16" height="16" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m18 16 4-4-4-4"></path><path d="m6 8-4 4 4 4"></path><path d="m14.5 4-5 16"></path></svg></a>
 
 ```ts
 api.combat.hasTarget(): BridgeEffect<boolean>
@@ -114,11 +114,11 @@ api.combat.hasTarget(): BridgeEffect<boolean>
 
 **Yields:** `boolean`
 
-**Errors:** [`BridgeError`](../../types/bridge-error/)
+**Errors:** <a href="/scripting/types/bridge-error/" data-script-type="bridge-error"><code>BridgeError</code></a>
 
 <a id="member-api-combat-hunt"></a>
 
-### `api.combat.hunt()` <a class="source-reference__heading-link" style="float: right; display: inline-flex; align-items: center; justify-content: center; width: 2rem; height: 2rem; margin-block: -0.125rem; margin-inline-start: 0.5rem; border-radius: var(--radius-sm); text-decoration: none;" href="https://github.com/toommyliu/vexed/blob/fc1a69128bf47b1844397eca622869e1b37943ad/app/src/renderer/windows/game/flash/Services/Combat.ts#L43" tabindex="-1" aria-hidden="true" title="Open source: app/src/renderer/windows/game/flash/Services/Combat.ts:43" target="_blank" rel="noreferrer"><svg class="source-reference__icon" width="16" height="16" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m18 16 4-4-4-4"></path><path d="m6 8-4 4 4 4"></path><path d="m14.5 4-5 16"></path></svg></a>
+### `api.combat.hunt()` <a class="source-reference__heading-link" style="float: right; display: inline-flex; align-items: center; justify-content: center; width: 2rem; height: 2rem; margin-block: -0.125rem; margin-inline-start: 0.5rem; border-radius: var(--radius-sm); text-decoration: none;" href="https://github.com/toommyliu/vexed/blob/dev/app/src/renderer/windows/game/flash/Services/Combat.ts#L43" tabindex="-1" aria-hidden="true" title="Open source: app/src/renderer/windows/game/flash/Services/Combat.ts:43" target="_blank" rel="noreferrer"><svg class="source-reference__icon" width="16" height="16" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m18 16 4-4-4-4"></path><path d="m6 8-4 4 4 4"></path><path d="m14.5 4-5 16"></path></svg></a>
 
 ```ts
 api.combat.hunt(target: MonsterIdentifierToken, findMost?: boolean): BridgeEffect<string>
@@ -126,16 +126,16 @@ api.combat.hunt(target: MonsterIdentifierToken, findMost?: boolean): BridgeEffec
 
 | Name | Type | Required | Description |
 | --- | --- | --- | --- |
-| `target` | [`MonsterIdentifierToken`](../../types/monster-identifier-token/) | <span class="required-mark" role="img" aria-label="Required"></span> |  |
+| `target` | <a href="/scripting/types/monster-identifier-token/" data-script-type="monster-identifier-token"><code>MonsterIdentifierToken</code></a> | <span class="required-mark" role="img" aria-label="Required"></span> |  |
 | `findMost` | `boolean` |  |  |
 
 **Yields:** `string`
 
-**Errors:** [`BridgeError`](../../types/bridge-error/)
+**Errors:** <a href="/scripting/types/bridge-error/" data-script-type="bridge-error"><code>BridgeError</code></a>
 
 <a id="member-api-combat-kill"></a>
 
-### `api.combat.kill()` <a class="source-reference__heading-link" style="float: right; display: inline-flex; align-items: center; justify-content: center; width: 2rem; height: 2rem; margin-block: -0.125rem; margin-inline-start: 0.5rem; border-radius: var(--radius-sm); text-decoration: none;" href="https://github.com/toommyliu/vexed/blob/fc1a69128bf47b1844397eca622869e1b37943ad/app/src/renderer/windows/game/flash/Services/Combat.ts#L22" tabindex="-1" aria-hidden="true" title="Open source: app/src/renderer/windows/game/flash/Services/Combat.ts:22" target="_blank" rel="noreferrer"><svg class="source-reference__icon" width="16" height="16" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m18 16 4-4-4-4"></path><path d="m6 8-4 4 4 4"></path><path d="m14.5 4-5 16"></path></svg></a>
+### `api.combat.kill()` <a class="source-reference__heading-link" style="float: right; display: inline-flex; align-items: center; justify-content: center; width: 2rem; height: 2rem; margin-block: -0.125rem; margin-inline-start: 0.5rem; border-radius: var(--radius-sm); text-decoration: none;" href="https://github.com/toommyliu/vexed/blob/dev/app/src/renderer/windows/game/flash/Services/Combat.ts#L22" tabindex="-1" aria-hidden="true" title="Open source: app/src/renderer/windows/game/flash/Services/Combat.ts:22" target="_blank" rel="noreferrer"><svg class="source-reference__icon" width="16" height="16" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m18 16 4-4-4-4"></path><path d="m6 8-4 4 4 4"></path><path d="m14.5 4-5 16"></path></svg></a>
 
 ```ts
 api.combat.kill(target: MonsterIdentifierToken, options?: CombatKillOptions): BridgeEffect<void>
@@ -143,16 +143,16 @@ api.combat.kill(target: MonsterIdentifierToken, options?: CombatKillOptions): Br
 
 | Name | Type | Required | Description |
 | --- | --- | --- | --- |
-| `target` | [`MonsterIdentifierToken`](../../types/monster-identifier-token/) | <span class="required-mark" role="img" aria-label="Required"></span> |  |
-| `options` | [`CombatKillOptions`](../../types/combat-kill-options/) |  |  |
+| `target` | <a href="/scripting/types/monster-identifier-token/" data-script-type="monster-identifier-token"><code>MonsterIdentifierToken</code></a> | <span class="required-mark" role="img" aria-label="Required"></span> |  |
+| `options` | <a href="/scripting/types/combat-kill-options/" data-script-type="combat-kill-options"><code>CombatKillOptions</code></a> |  |  |
 
 **Yields:** `void`
 
-**Errors:** [`BridgeError`](../../types/bridge-error/)
+**Errors:** <a href="/scripting/types/bridge-error/" data-script-type="bridge-error"><code>BridgeError</code></a>
 
 <a id="member-api-combat-killforitem"></a>
 
-### `api.combat.killForItem()` <a class="source-reference__heading-link" style="float: right; display: inline-flex; align-items: center; justify-content: center; width: 2rem; height: 2rem; margin-block: -0.125rem; margin-inline-start: 0.5rem; border-radius: var(--radius-sm); text-decoration: none;" href="https://github.com/toommyliu/vexed/blob/fc1a69128bf47b1844397eca622869e1b37943ad/app/src/renderer/windows/game/flash/Services/Combat.ts#L26" tabindex="-1" aria-hidden="true" title="Open source: app/src/renderer/windows/game/flash/Services/Combat.ts:26" target="_blank" rel="noreferrer"><svg class="source-reference__icon" width="16" height="16" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m18 16 4-4-4-4"></path><path d="m6 8-4 4 4 4"></path><path d="m14.5 4-5 16"></path></svg></a>
+### `api.combat.killForItem()` <a class="source-reference__heading-link" style="float: right; display: inline-flex; align-items: center; justify-content: center; width: 2rem; height: 2rem; margin-block: -0.125rem; margin-inline-start: 0.5rem; border-radius: var(--radius-sm); text-decoration: none;" href="https://github.com/toommyliu/vexed/blob/dev/app/src/renderer/windows/game/flash/Services/Combat.ts#L26" tabindex="-1" aria-hidden="true" title="Open source: app/src/renderer/windows/game/flash/Services/Combat.ts:26" target="_blank" rel="noreferrer"><svg class="source-reference__icon" width="16" height="16" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m18 16 4-4-4-4"></path><path d="m6 8-4 4 4 4"></path><path d="m14.5 4-5 16"></path></svg></a>
 
 ```ts
 api.combat.killForItem(target: MonsterIdentifierToken, item: ItemIdentifierToken, quantity?: number, options?: CombatKillOptions): BridgeEffect<void>
@@ -160,18 +160,18 @@ api.combat.killForItem(target: MonsterIdentifierToken, item: ItemIdentifierToken
 
 | Name | Type | Required | Description |
 | --- | --- | --- | --- |
-| `target` | [`MonsterIdentifierToken`](../../types/monster-identifier-token/) | <span class="required-mark" role="img" aria-label="Required"></span> |  |
-| `item` | [`ItemIdentifierToken`](../../types/item-identifier-token/) | <span class="required-mark" role="img" aria-label="Required"></span> |  |
+| `target` | <a href="/scripting/types/monster-identifier-token/" data-script-type="monster-identifier-token"><code>MonsterIdentifierToken</code></a> | <span class="required-mark" role="img" aria-label="Required"></span> |  |
+| `item` | <a href="/scripting/types/item-identifier-token/" data-script-type="item-identifier-token"><code>ItemIdentifierToken</code></a> | <span class="required-mark" role="img" aria-label="Required"></span> |  |
 | `quantity` | `number` |  |  |
-| `options` | [`CombatKillOptions`](../../types/combat-kill-options/) |  |  |
+| `options` | <a href="/scripting/types/combat-kill-options/" data-script-type="combat-kill-options"><code>CombatKillOptions</code></a> |  |  |
 
 **Yields:** `void`
 
-**Errors:** [`BridgeError`](../../types/bridge-error/)
+**Errors:** <a href="/scripting/types/bridge-error/" data-script-type="bridge-error"><code>BridgeError</code></a>
 
 <a id="member-api-combat-killfortempitem"></a>
 
-### `api.combat.killForTempItem()` <a class="source-reference__heading-link" style="float: right; display: inline-flex; align-items: center; justify-content: center; width: 2rem; height: 2rem; margin-block: -0.125rem; margin-inline-start: 0.5rem; border-radius: var(--radius-sm); text-decoration: none;" href="https://github.com/toommyliu/vexed/blob/fc1a69128bf47b1844397eca622869e1b37943ad/app/src/renderer/windows/game/flash/Services/Combat.ts#L32" tabindex="-1" aria-hidden="true" title="Open source: app/src/renderer/windows/game/flash/Services/Combat.ts:32" target="_blank" rel="noreferrer"><svg class="source-reference__icon" width="16" height="16" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m18 16 4-4-4-4"></path><path d="m6 8-4 4 4 4"></path><path d="m14.5 4-5 16"></path></svg></a>
+### `api.combat.killForTempItem()` <a class="source-reference__heading-link" style="float: right; display: inline-flex; align-items: center; justify-content: center; width: 2rem; height: 2rem; margin-block: -0.125rem; margin-inline-start: 0.5rem; border-radius: var(--radius-sm); text-decoration: none;" href="https://github.com/toommyliu/vexed/blob/dev/app/src/renderer/windows/game/flash/Services/Combat.ts#L32" tabindex="-1" aria-hidden="true" title="Open source: app/src/renderer/windows/game/flash/Services/Combat.ts:32" target="_blank" rel="noreferrer"><svg class="source-reference__icon" width="16" height="16" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m18 16 4-4-4-4"></path><path d="m6 8-4 4 4 4"></path><path d="m14.5 4-5 16"></path></svg></a>
 
 ```ts
 api.combat.killForTempItem(target: MonsterIdentifierToken, item: ItemIdentifierToken, quantity?: number, options?: CombatKillOptions): BridgeEffect<void>
@@ -179,18 +179,18 @@ api.combat.killForTempItem(target: MonsterIdentifierToken, item: ItemIdentifierT
 
 | Name | Type | Required | Description |
 | --- | --- | --- | --- |
-| `target` | [`MonsterIdentifierToken`](../../types/monster-identifier-token/) | <span class="required-mark" role="img" aria-label="Required"></span> |  |
-| `item` | [`ItemIdentifierToken`](../../types/item-identifier-token/) | <span class="required-mark" role="img" aria-label="Required"></span> |  |
+| `target` | <a href="/scripting/types/monster-identifier-token/" data-script-type="monster-identifier-token"><code>MonsterIdentifierToken</code></a> | <span class="required-mark" role="img" aria-label="Required"></span> |  |
+| `item` | <a href="/scripting/types/item-identifier-token/" data-script-type="item-identifier-token"><code>ItemIdentifierToken</code></a> | <span class="required-mark" role="img" aria-label="Required"></span> |  |
 | `quantity` | `number` |  |  |
-| `options` | [`CombatKillOptions`](../../types/combat-kill-options/) |  |  |
+| `options` | <a href="/scripting/types/combat-kill-options/" data-script-type="combat-kill-options"><code>CombatKillOptions</code></a> |  |  |
 
 **Yields:** `void`
 
-**Errors:** [`BridgeError`](../../types/bridge-error/)
+**Errors:** <a href="/scripting/types/bridge-error/" data-script-type="bridge-error"><code>BridgeError</code></a>
 
 <a id="member-api-combat-useskill"></a>
 
-### `api.combat.useSkill()` <a class="source-reference__heading-link" style="float: right; display: inline-flex; align-items: center; justify-content: center; width: 2rem; height: 2rem; margin-block: -0.125rem; margin-inline-start: 0.5rem; border-radius: var(--radius-sm); text-decoration: none;" href="https://github.com/toommyliu/vexed/blob/fc1a69128bf47b1844397eca622869e1b37943ad/app/src/renderer/windows/game/flash/Services/Combat.ts#L38" tabindex="-1" aria-hidden="true" title="Open source: app/src/renderer/windows/game/flash/Services/Combat.ts:38" target="_blank" rel="noreferrer"><svg class="source-reference__icon" width="16" height="16" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m18 16 4-4-4-4"></path><path d="m6 8-4 4 4 4"></path><path d="m14.5 4-5 16"></path></svg></a>
+### `api.combat.useSkill()` <a class="source-reference__heading-link" style="float: right; display: inline-flex; align-items: center; justify-content: center; width: 2rem; height: 2rem; margin-block: -0.125rem; margin-inline-start: 0.5rem; border-radius: var(--radius-sm); text-decoration: none;" href="https://github.com/toommyliu/vexed/blob/dev/app/src/renderer/windows/game/flash/Services/Combat.ts#L38" tabindex="-1" aria-hidden="true" title="Open source: app/src/renderer/windows/game/flash/Services/Combat.ts:38" target="_blank" rel="noreferrer"><svg class="source-reference__icon" width="16" height="16" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m18 16 4-4-4-4"></path><path d="m6 8-4 4 4 4"></path><path d="m14.5 4-5 16"></path></svg></a>
 
 ```ts
 api.combat.useSkill(index: string | number, force?: boolean, wait?: boolean): BridgeEffect<void>
@@ -204,4 +204,4 @@ api.combat.useSkill(index: string | number, force?: boolean, wait?: boolean): Br
 
 **Yields:** `void`
 
-**Errors:** [`BridgeError`](../../types/bridge-error/)
+**Errors:** <a href="/scripting/types/bridge-error/" data-script-type="bridge-error"><code>BridgeError</code></a>

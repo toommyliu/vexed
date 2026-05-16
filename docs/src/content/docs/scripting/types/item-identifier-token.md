@@ -1,6 +1,6 @@
 ---
 title: "ItemIdentifierToken"
-description: "Reference for ItemIdentifierToken."
+description: ""
 sidebar:
   label: "ItemIdentifierToken"
 tableOfContents:

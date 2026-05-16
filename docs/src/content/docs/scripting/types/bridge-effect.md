@@ -1,6 +1,6 @@
 ---
 title: "BridgeEffect"
-description: "Reference for BridgeEffect."
+description: ""
 sidebar:
   label: "BridgeEffect"
 tableOfContents:

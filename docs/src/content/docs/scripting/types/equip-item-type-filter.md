@@ -1,6 +1,6 @@
 ---
 title: "EquipItemTypeFilter"
-description: "Reference for EquipItemTypeFilter."
+description: ""
 sidebar:
   label: "EquipItemTypeFilter"
 tableOfContents:

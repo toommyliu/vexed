@@ -1,6 +1,6 @@
 ---
 title: "api.packet"
-description: "Reference for api.packet."
+description: ""
 sidebar:
   label: "Packet"
 tableOfContents:
@@ -14,7 +14,7 @@ tableOfContents:
 
 <a id="member-api-packet-onextensionresponse"></a>
 
-### `api.packet.onExtensionResponse()` <a class="source-reference__heading-link" style="float: right; display: inline-flex; align-items: center; justify-content: center; width: 2rem; height: 2rem; margin-block: -0.125rem; margin-inline-start: 0.5rem; border-radius: var(--radius-sm); text-decoration: none;" href="https://github.com/toommyliu/vexed/blob/fc1a69128bf47b1844397eca622869e1b37943ad/app/src/renderer/windows/game/scripting/ScriptApi.ts#L66" tabindex="-1" aria-hidden="true" title="Open source: app/src/renderer/windows/game/scripting/ScriptApi.ts:66" target="_blank" rel="noreferrer"><svg class="source-reference__icon" width="16" height="16" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m18 16 4-4-4-4"></path><path d="m6 8-4 4 4 4"></path><path d="m14.5 4-5 16"></path></svg></a>
+### `api.packet.onExtensionResponse()` <a class="source-reference__heading-link" style="float: right; display: inline-flex; align-items: center; justify-content: center; width: 2rem; height: 2rem; margin-block: -0.125rem; margin-inline-start: 0.5rem; border-radius: var(--radius-sm); text-decoration: none;" href="https://github.com/toommyliu/vexed/blob/dev/app/src/renderer/windows/game/scripting/ScriptApi.ts#L66" tabindex="-1" aria-hidden="true" title="Open source: app/src/renderer/windows/game/scripting/ScriptApi.ts:66" target="_blank" rel="noreferrer"><svg class="source-reference__icon" width="16" height="16" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m18 16 4-4-4-4"></path><path d="m6 8-4 4 4 4"></path><path d="m14.5 4-5 16"></path></svg></a>
 
 ```ts
 api.packet.onExtensionResponse(handler: ScriptPacketListener): Effect.Effect<ScriptPacketDisposer, ScriptNotReadyError, never>
@@ -22,15 +22,15 @@ api.packet.onExtensionResponse(handler: ScriptPacketListener): Effect.Effect<Scr
 
 | Name | Type | Required | Description |
 | --- | --- | --- | --- |
-| `handler` | [`ScriptPacketListener`](../../types/script-packet-listener/) | <span class="required-mark" role="img" aria-label="Required"></span> |  |
+| `handler` | <a href="/scripting/types/script-packet-listener/" data-script-type="script-packet-listener"><code>ScriptPacketListener</code></a> | <span class="required-mark" role="img" aria-label="Required"></span> |  |
 
-**Yields:** [`ScriptPacketDisposer`](../../types/script-packet-disposer/)
+**Yields:** <a href="/scripting/types/script-packet-disposer/" data-script-type="script-packet-disposer"><code>ScriptPacketDisposer</code></a>
 
 **Errors:** `ScriptNotReadyError`
 
 <a id="member-api-packet-packetfromclient"></a>
 
-### `api.packet.packetFromClient()` <a class="source-reference__heading-link" style="float: right; display: inline-flex; align-items: center; justify-content: center; width: 2rem; height: 2rem; margin-block: -0.125rem; margin-inline-start: 0.5rem; border-radius: var(--radius-sm); text-decoration: none;" href="https://github.com/toommyliu/vexed/blob/fc1a69128bf47b1844397eca622869e1b37943ad/app/src/renderer/windows/game/scripting/ScriptApi.ts#L60" tabindex="-1" aria-hidden="true" title="Open source: app/src/renderer/windows/game/scripting/ScriptApi.ts:60" target="_blank" rel="noreferrer"><svg class="source-reference__icon" width="16" height="16" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m18 16 4-4-4-4"></path><path d="m6 8-4 4 4 4"></path><path d="m14.5 4-5 16"></path></svg></a>
+### `api.packet.packetFromClient()` <a class="source-reference__heading-link" style="float: right; display: inline-flex; align-items: center; justify-content: center; width: 2rem; height: 2rem; margin-block: -0.125rem; margin-inline-start: 0.5rem; border-radius: var(--radius-sm); text-decoration: none;" href="https://github.com/toommyliu/vexed/blob/dev/app/src/renderer/windows/game/scripting/ScriptApi.ts#L60" tabindex="-1" aria-hidden="true" title="Open source: app/src/renderer/windows/game/scripting/ScriptApi.ts:60" target="_blank" rel="noreferrer"><svg class="source-reference__icon" width="16" height="16" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m18 16 4-4-4-4"></path><path d="m6 8-4 4 4 4"></path><path d="m14.5 4-5 16"></path></svg></a>
 
 ```ts
 api.packet.packetFromClient(handler: ScriptPacketListener): Effect.Effect<ScriptPacketDisposer, ScriptNotReadyError, never>
@@ -38,15 +38,15 @@ api.packet.packetFromClient(handler: ScriptPacketListener): Effect.Effect<Script
 
 | Name | Type | Required | Description |
 | --- | --- | --- | --- |
-| `handler` | [`ScriptPacketListener`](../../types/script-packet-listener/) | <span class="required-mark" role="img" aria-label="Required"></span> |  |
+| `handler` | <a href="/scripting/types/script-packet-listener/" data-script-type="script-packet-listener"><code>ScriptPacketListener</code></a> | <span class="required-mark" role="img" aria-label="Required"></span> |  |
 
-**Yields:** [`ScriptPacketDisposer`](../../types/script-packet-disposer/)
+**Yields:** <a href="/scripting/types/script-packet-disposer/" data-script-type="script-packet-disposer"><code>ScriptPacketDisposer</code></a>
 
 **Errors:** `ScriptNotReadyError`
 
 <a id="member-api-packet-packetfromserver"></a>
 
-### `api.packet.packetFromServer()` <a class="source-reference__heading-link" style="float: right; display: inline-flex; align-items: center; justify-content: center; width: 2rem; height: 2rem; margin-block: -0.125rem; margin-inline-start: 0.5rem; border-radius: var(--radius-sm); text-decoration: none;" href="https://github.com/toommyliu/vexed/blob/fc1a69128bf47b1844397eca622869e1b37943ad/app/src/renderer/windows/game/scripting/ScriptApi.ts#L63" tabindex="-1" aria-hidden="true" title="Open source: app/src/renderer/windows/game/scripting/ScriptApi.ts:63" target="_blank" rel="noreferrer"><svg class="source-reference__icon" width="16" height="16" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m18 16 4-4-4-4"></path><path d="m6 8-4 4 4 4"></path><path d="m14.5 4-5 16"></path></svg></a>
+### `api.packet.packetFromServer()` <a class="source-reference__heading-link" style="float: right; display: inline-flex; align-items: center; justify-content: center; width: 2rem; height: 2rem; margin-block: -0.125rem; margin-inline-start: 0.5rem; border-radius: var(--radius-sm); text-decoration: none;" href="https://github.com/toommyliu/vexed/blob/dev/app/src/renderer/windows/game/scripting/ScriptApi.ts#L63" tabindex="-1" aria-hidden="true" title="Open source: app/src/renderer/windows/game/scripting/ScriptApi.ts:63" target="_blank" rel="noreferrer"><svg class="source-reference__icon" width="16" height="16" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m18 16 4-4-4-4"></path><path d="m6 8-4 4 4 4"></path><path d="m14.5 4-5 16"></path></svg></a>
 
 ```ts
 api.packet.packetFromServer(handler: ScriptPacketListener): Effect.Effect<ScriptPacketDisposer, ScriptNotReadyError, never>
@@ -54,15 +54,15 @@ api.packet.packetFromServer(handler: ScriptPacketListener): Effect.Effect<Script
 
 | Name | Type | Required | Description |
 | --- | --- | --- | --- |
-| `handler` | [`ScriptPacketListener`](../../types/script-packet-listener/) | <span class="required-mark" role="img" aria-label="Required"></span> |  |
+| `handler` | <a href="/scripting/types/script-packet-listener/" data-script-type="script-packet-listener"><code>ScriptPacketListener</code></a> | <span class="required-mark" role="img" aria-label="Required"></span> |  |
 
-**Yields:** [`ScriptPacketDisposer`](../../types/script-packet-disposer/)
+**Yields:** <a href="/scripting/types/script-packet-disposer/" data-script-type="script-packet-disposer"><code>ScriptPacketDisposer</code></a>
 
 **Errors:** `ScriptNotReadyError`
 
 <a id="member-api-packet-sendclient"></a>
 
-### `api.packet.sendClient()` <a class="source-reference__heading-link" style="float: right; display: inline-flex; align-items: center; justify-content: center; width: 2rem; height: 2rem; margin-block: -0.125rem; margin-inline-start: 0.5rem; border-radius: var(--radius-sm); text-decoration: none;" href="https://github.com/toommyliu/vexed/blob/fc1a69128bf47b1844397eca622869e1b37943ad/app/src/renderer/windows/game/flash/Services/Packet.ts#L29" tabindex="-1" aria-hidden="true" title="Open source: app/src/renderer/windows/game/flash/Services/Packet.ts:29" target="_blank" rel="noreferrer"><svg class="source-reference__icon" width="16" height="16" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m18 16 4-4-4-4"></path><path d="m6 8-4 4 4 4"></path><path d="m14.5 4-5 16"></path></svg></a>
+### `api.packet.sendClient()` <a class="source-reference__heading-link" style="float: right; display: inline-flex; align-items: center; justify-content: center; width: 2rem; height: 2rem; margin-block: -0.125rem; margin-inline-start: 0.5rem; border-radius: var(--radius-sm); text-decoration: none;" href="https://github.com/toommyliu/vexed/blob/dev/app/src/renderer/windows/game/flash/Services/Packet.ts#L29" tabindex="-1" aria-hidden="true" title="Open source: app/src/renderer/windows/game/flash/Services/Packet.ts:29" target="_blank" rel="noreferrer"><svg class="source-reference__icon" width="16" height="16" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m18 16 4-4-4-4"></path><path d="m6 8-4 4 4 4"></path><path d="m14.5 4-5 16"></path></svg></a>
 
 ```ts
 api.packet.sendClient(packet: string, type?: ClientPacketSendType): BridgeEffect<void>
@@ -71,15 +71,15 @@ api.packet.sendClient(packet: string, type?: ClientPacketSendType): BridgeEffect
 | Name | Type | Required | Description |
 | --- | --- | --- | --- |
 | `packet` | `string` | <span class="required-mark" role="img" aria-label="Required"></span> |  |
-| `type` | [`ClientPacketSendType`](../../types/client-packet-send-type/) |  |  |
+| `type` | <a href="/scripting/types/client-packet-send-type/" data-script-type="client-packet-send-type"><code>ClientPacketSendType</code></a> |  |  |
 
 **Yields:** `void`
 
-**Errors:** [`BridgeError`](../../types/bridge-error/)
+**Errors:** <a href="/scripting/types/bridge-error/" data-script-type="bridge-error"><code>BridgeError</code></a>
 
 <a id="member-api-packet-sendserver"></a>
 
-### `api.packet.sendServer()` <a class="source-reference__heading-link" style="float: right; display: inline-flex; align-items: center; justify-content: center; width: 2rem; height: 2rem; margin-block: -0.125rem; margin-inline-start: 0.5rem; border-radius: var(--radius-sm); text-decoration: none;" href="https://github.com/toommyliu/vexed/blob/fc1a69128bf47b1844397eca622869e1b37943ad/app/src/renderer/windows/game/flash/Services/Packet.ts#L30" tabindex="-1" aria-hidden="true" title="Open source: app/src/renderer/windows/game/flash/Services/Packet.ts:30" target="_blank" rel="noreferrer"><svg class="source-reference__icon" width="16" height="16" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m18 16 4-4-4-4"></path><path d="m6 8-4 4 4 4"></path><path d="m14.5 4-5 16"></path></svg></a>
+### `api.packet.sendServer()` <a class="source-reference__heading-link" style="float: right; display: inline-flex; align-items: center; justify-content: center; width: 2rem; height: 2rem; margin-block: -0.125rem; margin-inline-start: 0.5rem; border-radius: var(--radius-sm); text-decoration: none;" href="https://github.com/toommyliu/vexed/blob/dev/app/src/renderer/windows/game/flash/Services/Packet.ts#L30" tabindex="-1" aria-hidden="true" title="Open source: app/src/renderer/windows/game/flash/Services/Packet.ts:30" target="_blank" rel="noreferrer"><svg class="source-reference__icon" width="16" height="16" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m18 16 4-4-4-4"></path><path d="m6 8-4 4 4 4"></path><path d="m14.5 4-5 16"></path></svg></a>
 
 ```ts
 api.packet.sendServer(packet: string, type?: ServerPacketSendType): BridgeEffect<void>
@@ -88,8 +88,8 @@ api.packet.sendServer(packet: string, type?: ServerPacketSendType): BridgeEffect
 | Name | Type | Required | Description |
 | --- | --- | --- | --- |
 | `packet` | `string` | <span class="required-mark" role="img" aria-label="Required"></span> |  |
-| `type` | [`ServerPacketSendType`](../../types/server-packet-send-type/) |  |  |
+| `type` | <a href="/scripting/types/server-packet-send-type/" data-script-type="server-packet-send-type"><code>ServerPacketSendType</code></a> |  |  |
 
 **Yields:** `void`
 
-**Errors:** [`BridgeError`](../../types/bridge-error/)
+**Errors:** <a href="/scripting/types/bridge-error/" data-script-type="bridge-error"><code>BridgeError</code></a>

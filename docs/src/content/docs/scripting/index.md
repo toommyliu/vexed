@@ -52,32 +52,32 @@ For a folder full of scripts, put `script-api.d.ts` beside them and add `jsconfi
 
 | Member | Description |
 | --- | --- |
-| [`api`](./api/) | Core game and service APIs, grouped by namespace. |
-| [`autoZone`](./auto-zone/) | Auto Zone feature controls. |
-| [`autoRelogin`](./auto-relogin/) | Auto Relogin feature controls. |
+| [`api`](/scripting/api/) | Core game and service APIs, grouped by namespace. |
+| [`autoZone`](/scripting/auto-zone/) | Auto Zone feature controls. |
+| [`autoRelogin`](/scripting/auto-relogin/) | Auto Relogin feature controls. |
 
 ## Reference
 
 | Page | Description |
 | --- | --- |
-| [`types`](./types/) | Referenced scripting data types and public class surfaces. |
+| [`types`](/scripting/types/) | Referenced scripting data types and public class surfaces. |
 
 ## API Namespaces
 
 | Namespace | Source Type |
 | --- | --- |
-| [`api.army`](./api/army/) | `ArmyShape` |
-| [`api.auth`](./api/auth/) | `ScriptAuthShape` |
-| [`api.bank`](./api/bank/) | `BankShape` |
-| [`api.combat`](./api/combat/) | `CombatShape` |
-| [`api.drops`](./api/drops/) | `DropsShape` |
-| [`api.house`](./api/house/) | `HouseShape` |
-| [`api.inventory`](./api/inventory/) | `InventoryShape` |
-| [`api.packet`](./api/packet/) | `ScriptPacketApi` |
-| [`api.player`](./api/player/) | `PlayerShape` |
-| [`api.quests`](./api/quests/) | `QuestsShape` |
-| [`api.recipes`](./api/recipes/) | `ScriptRecipesShape` |
-| [`api.settings`](./api/settings/) | `ScriptSettingsShape` |
-| [`api.shops`](./api/shops/) | `ShopsShape` |
-| [`api.tempInventory`](./api/temp-inventory/) | `TempInventoryShape` |
-| [`api.world`](./api/world/) | `ScriptWorldShape` |
+| [`api.army`](/scripting/api/army/) | `ArmyShape` |
+| [`api.auth`](/scripting/api/auth/) | `ScriptAuthShape` |
+| [`api.bank`](/scripting/api/bank/) | `BankShape` |
+| [`api.combat`](/scripting/api/combat/) | `CombatShape` |
+| [`api.drops`](/scripting/api/drops/) | `DropsShape` |
+| [`api.house`](/scripting/api/house/) | `HouseShape` |
+| [`api.inventory`](/scripting/api/inventory/) | `InventoryShape` |
+| [`api.packet`](/scripting/api/packet/) | `ScriptPacketApi` |
+| [`api.player`](/scripting/api/player/) | `PlayerShape` |
+| [`api.quests`](/scripting/api/quests/) | `QuestsShape` |
+| [`api.recipes`](/scripting/api/recipes/) | `ScriptRecipesShape` |
+| [`api.settings`](/scripting/api/settings/) | `ScriptSettingsShape` |
+| [`api.shops`](/scripting/api/shops/) | `ShopsShape` |
+| [`api.tempInventory`](/scripting/api/temp-inventory/) | `TempInventoryShape` |
+| [`api.world`](/scripting/api/world/) | `ScriptWorldShape` |

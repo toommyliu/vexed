@@ -16,27 +16,27 @@ tableOfContents:
 
 | Namespace | Source Type |
 | --- | --- |
-| [`api.army`](./army/) | `ArmyShape` |
-| [`api.auth`](./auth/) | `ScriptAuthShape` |
-| [`api.bank`](./bank/) | `BankShape` |
-| [`api.combat`](./combat/) | `CombatShape` |
-| [`api.drops`](./drops/) | `DropsShape` |
-| [`api.house`](./house/) | `HouseShape` |
-| [`api.inventory`](./inventory/) | `InventoryShape` |
-| [`api.packet`](./packet/) | `ScriptPacketApi` |
-| [`api.player`](./player/) | `PlayerShape` |
-| [`api.quests`](./quests/) | `QuestsShape` |
-| [`api.recipes`](./recipes/) | `ScriptRecipesShape` |
-| [`api.settings`](./settings/) | `ScriptSettingsShape` |
-| [`api.shops`](./shops/) | `ShopsShape` |
-| [`api.tempInventory`](./temp-inventory/) | `TempInventoryShape` |
-| [`api.world`](./world/) | `ScriptWorldShape` |
+| [`api.army`](/scripting/api/army/) | `ArmyShape` |
+| [`api.auth`](/scripting/api/auth/) | `ScriptAuthShape` |
+| [`api.bank`](/scripting/api/bank/) | `BankShape` |
+| [`api.combat`](/scripting/api/combat/) | `CombatShape` |
+| [`api.drops`](/scripting/api/drops/) | `DropsShape` |
+| [`api.house`](/scripting/api/house/) | `HouseShape` |
+| [`api.inventory`](/scripting/api/inventory/) | `InventoryShape` |
+| [`api.packet`](/scripting/api/packet/) | `ScriptPacketApi` |
+| [`api.player`](/scripting/api/player/) | `PlayerShape` |
+| [`api.quests`](/scripting/api/quests/) | `QuestsShape` |
+| [`api.recipes`](/scripting/api/recipes/) | `ScriptRecipesShape` |
+| [`api.settings`](/scripting/api/settings/) | `ScriptSettingsShape` |
+| [`api.shops`](/scripting/api/shops/) | `ShopsShape` |
+| [`api.tempInventory`](/scripting/api/temp-inventory/) | `TempInventoryShape` |
+| [`api.world`](/scripting/api/world/) | `ScriptWorldShape` |
 
 ## Helpers
 
 <a id="member-api-log"></a>
 
-### `api.log()` <a class="source-reference__heading-link" style="float: right; display: inline-flex; align-items: center; justify-content: center; width: 2rem; height: 2rem; margin-block: -0.125rem; margin-inline-start: 0.5rem; border-radius: var(--radius-sm); text-decoration: none;" href="https://github.com/toommyliu/vexed/blob/fc1a69128bf47b1844397eca622869e1b37943ad/app/src/renderer/windows/game/scripting/ScriptApi.ts#L173" tabindex="-1" aria-hidden="true" title="Open source: app/src/renderer/windows/game/scripting/ScriptApi.ts:173" target="_blank" rel="noreferrer"><svg class="source-reference__icon" width="16" height="16" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m18 16 4-4-4-4"></path><path d="m6 8-4 4 4 4"></path><path d="m14.5 4-5 16"></path></svg></a>
+### `api.log()` <a class="source-reference__heading-link" style="float: right; display: inline-flex; align-items: center; justify-content: center; width: 2rem; height: 2rem; margin-block: -0.125rem; margin-inline-start: 0.5rem; border-radius: var(--radius-sm); text-decoration: none;" href="https://github.com/toommyliu/vexed/blob/dev/app/src/renderer/windows/game/scripting/ScriptApi.ts#L173" tabindex="-1" aria-hidden="true" title="Open source: app/src/renderer/windows/game/scripting/ScriptApi.ts:173" target="_blank" rel="noreferrer"><svg class="source-reference__icon" width="16" height="16" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m18 16 4-4-4-4"></path><path d="m6 8-4 4 4 4"></path><path d="m14.5 4-5 16"></path></svg></a>
 
 ```ts
 api.log(message: string): void
@@ -50,7 +50,7 @@ api.log(message: string): void
 
 <a id="member-api-signal"></a>
 
-### `api.signal` <a class="source-reference__heading-link" style="float: right; display: inline-flex; align-items: center; justify-content: center; width: 2rem; height: 2rem; margin-block: -0.125rem; margin-inline-start: 0.5rem; border-radius: var(--radius-sm); text-decoration: none;" href="https://github.com/toommyliu/vexed/blob/fc1a69128bf47b1844397eca622869e1b37943ad/app/src/renderer/windows/game/scripting/ScriptApi.ts#L172" tabindex="-1" aria-hidden="true" title="Open source: app/src/renderer/windows/game/scripting/ScriptApi.ts:172" target="_blank" rel="noreferrer"><svg class="source-reference__icon" width="16" height="16" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m18 16 4-4-4-4"></path><path d="m6 8-4 4 4 4"></path><path d="m14.5 4-5 16"></path></svg></a>
+### `api.signal` <a class="source-reference__heading-link" style="float: right; display: inline-flex; align-items: center; justify-content: center; width: 2rem; height: 2rem; margin-block: -0.125rem; margin-inline-start: 0.5rem; border-radius: var(--radius-sm); text-decoration: none;" href="https://github.com/toommyliu/vexed/blob/dev/app/src/renderer/windows/game/scripting/ScriptApi.ts#L172" tabindex="-1" aria-hidden="true" title="Open source: app/src/renderer/windows/game/scripting/ScriptApi.ts:172" target="_blank" rel="noreferrer"><svg class="source-reference__icon" width="16" height="16" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m18 16 4-4-4-4"></path><path d="m6 8-4 4 4 4"></path><path d="m14.5 4-5 16"></path></svg></a>
 
 Aborts when the script stops. Pass this to APIs that support cancellation.
 
@@ -62,7 +62,7 @@ api.signal: AbortSignal
 
 <a id="member-api-sleep"></a>
 
-### `api.sleep()` <a class="source-reference__heading-link" style="float: right; display: inline-flex; align-items: center; justify-content: center; width: 2rem; height: 2rem; margin-block: -0.125rem; margin-inline-start: 0.5rem; border-radius: var(--radius-sm); text-decoration: none;" href="https://github.com/toommyliu/vexed/blob/fc1a69128bf47b1844397eca622869e1b37943ad/app/src/renderer/windows/game/scripting/ScriptApi.ts#L181" tabindex="-1" aria-hidden="true" title="Open source: app/src/renderer/windows/game/scripting/ScriptApi.ts:181" target="_blank" rel="noreferrer"><svg class="source-reference__icon" width="16" height="16" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m18 16 4-4-4-4"></path><path d="m6 8-4 4 4 4"></path><path d="m14.5 4-5 16"></path></svg></a>
+### `api.sleep()` <a class="source-reference__heading-link" style="float: right; display: inline-flex; align-items: center; justify-content: center; width: 2rem; height: 2rem; margin-block: -0.125rem; margin-inline-start: 0.5rem; border-radius: var(--radius-sm); text-decoration: none;" href="https://github.com/toommyliu/vexed/blob/dev/app/src/renderer/windows/game/scripting/ScriptApi.ts#L181" tabindex="-1" aria-hidden="true" title="Open source: app/src/renderer/windows/game/scripting/ScriptApi.ts:181" target="_blank" rel="noreferrer"><svg class="source-reference__icon" width="16" height="16" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m18 16 4-4-4-4"></path><path d="m6 8-4 4 4 4"></path><path d="m14.5 4-5 16"></path></svg></a>
 
 Waits for milliseconds and cancels when the script stops.
 
@@ -80,7 +80,7 @@ api.sleep(ms: number): Effect.Effect<void, ScriptExecutionError, never>
 
 <a id="member-api-stop"></a>
 
-### `api.stop()` <a class="source-reference__heading-link" style="float: right; display: inline-flex; align-items: center; justify-content: center; width: 2rem; height: 2rem; margin-block: -0.125rem; margin-inline-start: 0.5rem; border-radius: var(--radius-sm); text-decoration: none;" href="https://github.com/toommyliu/vexed/blob/fc1a69128bf47b1844397eca622869e1b37943ad/app/src/renderer/windows/game/scripting/ScriptApi.ts#L177" tabindex="-1" aria-hidden="true" title="Open source: app/src/renderer/windows/game/scripting/ScriptApi.ts:177" target="_blank" rel="noreferrer"><svg class="source-reference__icon" width="16" height="16" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m18 16 4-4-4-4"></path><path d="m6 8-4 4 4 4"></path><path d="m14.5 4-5 16"></path></svg></a>
+### `api.stop()` <a class="source-reference__heading-link" style="float: right; display: inline-flex; align-items: center; justify-content: center; width: 2rem; height: 2rem; margin-block: -0.125rem; margin-inline-start: 0.5rem; border-radius: var(--radius-sm); text-decoration: none;" href="https://github.com/toommyliu/vexed/blob/dev/app/src/renderer/windows/game/scripting/ScriptApi.ts#L177" tabindex="-1" aria-hidden="true" title="Open source: app/src/renderer/windows/game/scripting/ScriptApi.ts:177" target="_blank" rel="noreferrer"><svg class="source-reference__icon" width="16" height="16" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m18 16 4-4-4-4"></path><path d="m6 8-4 4 4 4"></path><path d="m14.5 4-5 16"></path></svg></a>
 
 Stops the current script.
 

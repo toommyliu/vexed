@@ -31,6 +31,9 @@ const hasCurrentEntry = (entries: StarlightRouteData['sidebar']): boolean =>
 
 const shouldOpenGroup = (label: string, entries: StarlightRouteData['sidebar']): boolean =>
     !nested || hasCurrentEntry(entries) || defaultOpenNestedGroups.has(label.trim().toLowerCase());
+
+const getScriptTypeSlug = (href: string): string | undefined =>
+    href.match(/^\/scripting\/types\/([^/]+)\/?$/)?.[1];
 ---
 
 {
@@ -42,6 +45,7 @@ const shouldOpenGroup = (label: string, entries: StarlightRouteData['sidebar']):
                     aria-current={entry.isCurrent && 'page'}
                     class:list={['entry-link', entry.attrs.class]}
                     data-nested={nested ? '' : undefined}
+                    data-script-type={getScriptTypeSlug(entry.href)}
                     {...entry.attrs}
                 >
                     <span class="entry-link-inner">

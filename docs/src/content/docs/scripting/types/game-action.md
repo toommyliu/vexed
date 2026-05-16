@@ -1,6 +1,6 @@
 ---
 title: "GameAction"
-description: "Reference for GameAction."
+description: ""
 sidebar:
   label: "GameAction"
 tableOfContents:

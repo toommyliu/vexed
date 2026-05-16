@@ -102,6 +102,7 @@ jobs:
         run: |
           doc_paths=(
             docs/public/script-api.d.ts
+            docs/public/script-type-previews.json
             docs/src/content/docs/scripting
             docs/src/generated/script-source-links.ts
           )
@@ -165,6 +166,7 @@ jobs:
 
           doc_paths=(
             docs/public/script-api.d.ts
+            docs/public/script-type-previews.json
             docs/src/content/docs/scripting
             docs/src/generated/script-source-links.ts
           )
@@ -239,7 +241,7 @@ jobs:
         run: |
           git config --local user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git config --local user.name "github-actions[bot]"
-          git add -A docs/public/script-api.d.ts docs/src/content/docs/scripting docs/src/generated/script-source-links.ts
+          git add -A docs/public/script-api.d.ts docs/public/script-type-previews.json docs/src/content/docs/scripting docs/src/generated/script-source-links.ts
           if ! git diff --staged --quiet; then
             git commit -m "docs: auto-update API documentation"
             git push

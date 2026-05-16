@@ -1,6 +1,6 @@
 ---
 title: "MonsterMapID"
-description: "Reference for MonsterMapID."
+description: ""
 sidebar:
   label: "MonsterMapID"
 tableOfContents:

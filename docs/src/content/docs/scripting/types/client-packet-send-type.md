@@ -1,6 +1,6 @@
 ---
 title: "ClientPacketSendType"
-description: "Reference for ClientPacketSendType."
+description: ""
 sidebar:
   label: "ClientPacketSendType"
 tableOfContents:

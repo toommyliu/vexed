@@ -1,6 +1,6 @@
 ---
 title: "MonsterName"
-description: "Reference for MonsterName."
+description: ""
 sidebar:
   label: "MonsterName"
 tableOfContents:

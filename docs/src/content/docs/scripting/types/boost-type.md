@@ -1,6 +1,6 @@
 ---
 title: "BoostType"
-description: "Reference for BoostType."
+description: ""
 sidebar:
   label: "BoostType"
 tableOfContents:

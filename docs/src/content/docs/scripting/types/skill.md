@@ -1,6 +1,6 @@
 ---
 title: "Skill"
-description: "Reference for Skill."
+description: ""
 sidebar:
   label: "Skill"
 tableOfContents:

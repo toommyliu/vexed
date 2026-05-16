@@ -1,6 +1,6 @@
 ---
 title: "Comparator"
-description: "Reference for Comparator."
+description: ""
 sidebar:
   label: "Comparator"
 tableOfContents:

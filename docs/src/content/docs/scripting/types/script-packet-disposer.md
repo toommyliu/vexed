@@ -1,6 +1,6 @@
 ---
 title: "ScriptPacketDisposer"
-description: "Reference for ScriptPacketDisposer."
+description: ""
 sidebar:
   label: "ScriptPacketDisposer"
 tableOfContents:

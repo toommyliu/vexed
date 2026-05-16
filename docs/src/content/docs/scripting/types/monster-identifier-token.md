@@ -1,6 +1,6 @@
 ---
 title: "MonsterIdentifierToken"
-description: "Reference for MonsterIdentifierToken."
+description: ""
 sidebar:
   label: "MonsterIdentifierToken"
 tableOfContents:

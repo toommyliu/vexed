@@ -1,6 +1,6 @@
 ---
 title: "EquipEnhancementSelectorSlot"
-description: "Reference for EquipEnhancementSelectorSlot."
+description: ""
 sidebar:
   label: "EquipEnhancementSelectorSlot"
 tableOfContents:

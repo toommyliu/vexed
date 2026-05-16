@@ -1,6 +1,6 @@
 ---
 title: "ArmyEffect"
-description: "Reference for ArmyEffect."
+description: ""
 sidebar:
   label: "ArmyEffect"
 tableOfContents:

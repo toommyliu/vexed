@@ -14,62 +14,62 @@ These are the public data shapes and classes referenced by the scripting API.
 
 | Type | Kind | Summary |
 | --- | --- | --- |
-| [`ArmyEffect`](./army-effect/) | type alias |  |
-| [`ArmyEquipSetOptions`](./army-equip-set-options/) | interface |  |
-| [`ArmyError`](./army-error/) | class |  |
-| [`ArmyRunStepOptions`](./army-run-step-options/) | interface |  |
-| [`ArmySession`](./army-session/) | type alias |  |
-| [`Aura`](./aura/) | type alias |  |
-| [`AuthConnectFailureStatus`](./auth-connect-failure-status/) | type alias |  |
-| [`AuthConnectOutcome`](./auth-connect-outcome/) | type alias |  |
-| [`AutoZoneSupportedMap`](./auto-zone-supported-map/) | type alias |  |
-| [`Avatar`](./avatar/) | class | Represents a player in the world. |
-| [`AvatarData`](./avatar-data/) | type alias |  |
-| [`BaseEntity`](./base-entity/) | class | Base class for entities in the game world. |
-| [`BaseEntityData`](./base-entity-data/) | type alias |  |
-| [`BoostType`](./boost-type/) | type alias |  |
-| [`BridgeEffect`](./bridge-effect/) | type alias |  |
-| [`BridgeError`](./bridge-error/) | type alias |  |
-| [`ClientPacketSendType`](./client-packet-send-type/) | type alias |  |
-| [`Collection`](./collection/) | class | A Map with additional utility methods. |
-| [`CombatKillOptions`](./combat-kill-options/) | interface |  |
-| [`Comparator`](./comparator/) | type alias |  |
-| [`ConnectToSelectionStatus`](./connect-to-selection-status/) | type alias |  |
-| [`ConsumableSkillItem`](./consumable-skill-item/) | type alias |  |
-| [`EntityState`](./entity-state/) | enumeration |  |
-| [`EquipEnhancementSelector`](./equip-enhancement-selector/) | type alias |  |
-| [`EquipEnhancementSelectorSlot`](./equip-enhancement-selector-slot/) | type alias |  |
-| [`EquipItemTypeFilter`](./equip-item-type-filter/) | type alias |  |
-| [`Faction`](./faction/) | class | Represents a game faction. |
-| [`FactionData`](./faction-data/) | type alias |  |
-| [`GameAction`](./game-action/) | type alias |  |
-| [`Item`](./item/) | class | The base class for all-things item related. |
-| [`ItemData`](./item-data/) | type alias |  |
-| [`ItemIdentifierToken`](./item-identifier-token/) | type alias |  |
-| [`Keep`](./keep/) | type alias |  |
-| [`Monster`](./monster/) | class | Represents a monster. |
-| [`MonsterData`](./monster-data/) | type alias |  |
-| [`MonsterIdentifierToken`](./monster-identifier-token/) | type alias |  |
-| [`MonsterMapID`](./monster-map-id/) | type alias |  |
-| [`MonsterName`](./monster-name/) | type alias |  |
-| [`Quest`](./quest/) | class | Represents a quest. |
-| [`QuestBonusRewardData`](./quest-bonus-reward-data/) | type alias | Represents the raw data structure for additional quest rewards. |
-| [`QuestInfo`](./quest-info/) | type alias | Represents the main quest information structure. |
-| [`QuestRequirement`](./quest-requirement/) | type alias | Represents a required item for a quest. |
-| [`QuestRequirementData`](./quest-requirement-data/) | type alias | Represents the raw data structure for a quest's required item. |
-| [`QuestReward`](./quest-reward/) | type alias | Represents a reward for a quest. |
-| [`QuestRewardData`](./quest-reward-data/) | type alias | Represents the raw data structure for a quest reward. |
-| [`QuestTurnInData`](./quest-turn-in-data/) | type alias | Represents the raw data structure for quest turn-in requirements. |
-| [`ReadonlyCollection`](./readonly-collection/) | type alias | Represents an immutable version of a collection |
-| [`ScriptEnhanceItemOptions`](./script-enhance-item-options/) | interface |  |
-| [`ScriptEquipItemByEnhancementOptions`](./script-equip-item-by-enhancement-options/) | type alias |  |
-| [`ScriptPacketDisposer`](./script-packet-disposer/) | type alias |  |
-| [`ScriptPacketListener`](./script-packet-listener/) | type alias |  |
-| [`ScriptRecipeEffect`](./script-recipe-effect/) | type alias |  |
-| [`Server`](./server/) | class | Represents a game server. |
-| [`ServerData`](./server-data/) | type alias |  |
-| [`ServerPacketSendType`](./server-packet-send-type/) | type alias |  |
-| [`ShopInfo`](./shop-info/) | type alias |  |
-| [`ShopItem`](./shop-item/) | class | The base class for all-things item related. |
-| [`ShopItemData`](./shop-item-data/) | type alias | Represents the data structure for an item. |
-| [`Skill`](./skill/) | type alias |  |
+| <a href="/scripting/types/army-effect/" data-script-type="army-effect"><code>ArmyEffect</code></a> | type alias |  |
+| <a href="/scripting/types/army-equip-set-options/" data-script-type="army-equip-set-options"><code>ArmyEquipSetOptions</code></a> | interface |  |
+| <a href="/scripting/types/army-error/" data-script-type="army-error"><code>ArmyError</code></a> | class |  |
+| <a href="/scripting/types/army-run-step-options/" data-script-type="army-run-step-options"><code>ArmyRunStepOptions</code></a> | interface |  |
+| <a href="/scripting/types/army-session/" data-script-type="army-session"><code>ArmySession</code></a> | type alias |  |
+| <a href="/scripting/types/aura/" data-script-type="aura"><code>Aura</code></a> | type alias |  |
+| <a href="/scripting/types/auth-connect-failure-status/" data-script-type="auth-connect-failure-status"><code>AuthConnectFailureStatus</code></a> | type alias |  |
+| <a href="/scripting/types/auth-connect-outcome/" data-script-type="auth-connect-outcome"><code>AuthConnectOutcome</code></a> | type alias |  |
+| <a href="/scripting/types/auto-zone-supported-map/" data-script-type="auto-zone-supported-map"><code>AutoZoneSupportedMap</code></a> | type alias |  |
+| <a href="/scripting/types/avatar/" data-script-type="avatar"><code>Avatar</code></a> | class | Represents a player in the world. |
+| <a href="/scripting/types/avatar-data/" data-script-type="avatar-data"><code>AvatarData</code></a> | type alias |  |
+| <a href="/scripting/types/base-entity/" data-script-type="base-entity"><code>BaseEntity</code></a> | class | Base class for entities in the game world. |
+| <a href="/scripting/types/base-entity-data/" data-script-type="base-entity-data"><code>BaseEntityData</code></a> | type alias |  |
+| <a href="/scripting/types/boost-type/" data-script-type="boost-type"><code>BoostType</code></a> | type alias |  |
+| <a href="/scripting/types/bridge-effect/" data-script-type="bridge-effect"><code>BridgeEffect</code></a> | type alias |  |
+| <a href="/scripting/types/bridge-error/" data-script-type="bridge-error"><code>BridgeError</code></a> | type alias |  |
+| <a href="/scripting/types/client-packet-send-type/" data-script-type="client-packet-send-type"><code>ClientPacketSendType</code></a> | type alias |  |
+| <a href="/scripting/types/collection/" data-script-type="collection"><code>Collection</code></a> | class | A Map with additional utility methods. |
+| <a href="/scripting/types/combat-kill-options/" data-script-type="combat-kill-options"><code>CombatKillOptions</code></a> | interface |  |
+| <a href="/scripting/types/comparator/" data-script-type="comparator"><code>Comparator</code></a> | type alias |  |
+| <a href="/scripting/types/connect-to-selection-status/" data-script-type="connect-to-selection-status"><code>ConnectToSelectionStatus</code></a> | type alias |  |
+| <a href="/scripting/types/consumable-skill-item/" data-script-type="consumable-skill-item"><code>ConsumableSkillItem</code></a> | type alias |  |
+| <a href="/scripting/types/entity-state/" data-script-type="entity-state"><code>EntityState</code></a> | enumeration |  |
+| <a href="/scripting/types/equip-enhancement-selector/" data-script-type="equip-enhancement-selector"><code>EquipEnhancementSelector</code></a> | type alias |  |
+| <a href="/scripting/types/equip-enhancement-selector-slot/" data-script-type="equip-enhancement-selector-slot"><code>EquipEnhancementSelectorSlot</code></a> | type alias |  |
+| <a href="/scripting/types/equip-item-type-filter/" data-script-type="equip-item-type-filter"><code>EquipItemTypeFilter</code></a> | type alias |  |
+| <a href="/scripting/types/faction/" data-script-type="faction"><code>Faction</code></a> | class | Represents a game faction. |
+| <a href="/scripting/types/faction-data/" data-script-type="faction-data"><code>FactionData</code></a> | type alias |  |
+| <a href="/scripting/types/game-action/" data-script-type="game-action"><code>GameAction</code></a> | type alias |  |
+| <a href="/scripting/types/item/" data-script-type="item"><code>Item</code></a> | class | The base class for all-things item related. |
+| <a href="/scripting/types/item-data/" data-script-type="item-data"><code>ItemData</code></a> | type alias |  |
+| <a href="/scripting/types/item-identifier-token/" data-script-type="item-identifier-token"><code>ItemIdentifierToken</code></a> | type alias |  |
+| <a href="/scripting/types/keep/" data-script-type="keep"><code>Keep</code></a> | type alias |  |
+| <a href="/scripting/types/monster/" data-script-type="monster"><code>Monster</code></a> | class | Represents a monster. |
+| <a href="/scripting/types/monster-data/" data-script-type="monster-data"><code>MonsterData</code></a> | type alias |  |
+| <a href="/scripting/types/monster-identifier-token/" data-script-type="monster-identifier-token"><code>MonsterIdentifierToken</code></a> | type alias |  |
+| <a href="/scripting/types/monster-map-id/" data-script-type="monster-map-id"><code>MonsterMapID</code></a> | type alias |  |
+| <a href="/scripting/types/monster-name/" data-script-type="monster-name"><code>MonsterName</code></a> | type alias |  |
+| <a href="/scripting/types/quest/" data-script-type="quest"><code>Quest</code></a> | class | Represents a quest. |
+| <a href="/scripting/types/quest-bonus-reward-data/" data-script-type="quest-bonus-reward-data"><code>QuestBonusRewardData</code></a> | type alias | Represents the raw data structure for additional quest rewards. |
+| <a href="/scripting/types/quest-info/" data-script-type="quest-info"><code>QuestInfo</code></a> | type alias | Represents the main quest information structure. |
+| <a href="/scripting/types/quest-requirement/" data-script-type="quest-requirement"><code>QuestRequirement</code></a> | type alias | Represents a required item for a quest. |
+| <a href="/scripting/types/quest-requirement-data/" data-script-type="quest-requirement-data"><code>QuestRequirementData</code></a> | type alias | Represents the raw data structure for a quest's required item. |
+| <a href="/scripting/types/quest-reward/" data-script-type="quest-reward"><code>QuestReward</code></a> | type alias | Represents a reward for a quest. |
+| <a href="/scripting/types/quest-reward-data/" data-script-type="quest-reward-data"><code>QuestRewardData</code></a> | type alias | Represents the raw data structure for a quest reward. |
+| <a href="/scripting/types/quest-turn-in-data/" data-script-type="quest-turn-in-data"><code>QuestTurnInData</code></a> | type alias | Represents the raw data structure for quest turn-in requirements. |
+| <a href="/scripting/types/readonly-collection/" data-script-type="readonly-collection"><code>ReadonlyCollection</code></a> | type alias | Represents an immutable version of a collection |
+| <a href="/scripting/types/script-enhance-item-options/" data-script-type="script-enhance-item-options"><code>ScriptEnhanceItemOptions</code></a> | interface |  |
+| <a href="/scripting/types/script-equip-item-by-enhancement-options/" data-script-type="script-equip-item-by-enhancement-options"><code>ScriptEquipItemByEnhancementOptions</code></a> | type alias |  |
+| <a href="/scripting/types/script-packet-disposer/" data-script-type="script-packet-disposer"><code>ScriptPacketDisposer</code></a> | type alias |  |
+| <a href="/scripting/types/script-packet-listener/" data-script-type="script-packet-listener"><code>ScriptPacketListener</code></a> | type alias |  |
+| <a href="/scripting/types/script-recipe-effect/" data-script-type="script-recipe-effect"><code>ScriptRecipeEffect</code></a> | type alias |  |
+| <a href="/scripting/types/server/" data-script-type="server"><code>Server</code></a> | class | Represents a game server. |
+| <a href="/scripting/types/server-data/" data-script-type="server-data"><code>ServerData</code></a> | type alias |  |
+| <a href="/scripting/types/server-packet-send-type/" data-script-type="server-packet-send-type"><code>ServerPacketSendType</code></a> | type alias |  |
+| <a href="/scripting/types/shop-info/" data-script-type="shop-info"><code>ShopInfo</code></a> | type alias |  |
+| <a href="/scripting/types/shop-item/" data-script-type="shop-item"><code>ShopItem</code></a> | class | The base class for all-things item related. |
+| <a href="/scripting/types/shop-item-data/" data-script-type="shop-item-data"><code>ShopItemData</code></a> | type alias | Represents the data structure for an item. |
+| <a href="/scripting/types/skill/" data-script-type="skill"><code>Skill</code></a> | type alias |  |

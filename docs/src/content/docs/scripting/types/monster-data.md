@@ -1,6 +1,6 @@
 ---
 title: "MonsterData"
-description: "Reference for MonsterData."
+description: ""
 sidebar:
   label: "MonsterData"
 tableOfContents:

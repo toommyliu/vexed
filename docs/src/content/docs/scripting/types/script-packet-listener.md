@@ -1,6 +1,6 @@
 ---
 title: "ScriptPacketListener"
-description: "Reference for ScriptPacketListener."
+description: ""
 sidebar:
   label: "ScriptPacketListener"
 tableOfContents:

@@ -1,6 +1,6 @@
 ---
 title: "ServerPacketSendType"
-description: "Reference for ServerPacketSendType."
+description: ""
 sidebar:
   label: "ServerPacketSendType"
 tableOfContents:

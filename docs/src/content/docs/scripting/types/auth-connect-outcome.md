@@ -1,6 +1,6 @@
 ---
 title: "AuthConnectOutcome"
-description: "Reference for AuthConnectOutcome."
+description: ""
 sidebar:
   label: "AuthConnectOutcome"
 tableOfContents:

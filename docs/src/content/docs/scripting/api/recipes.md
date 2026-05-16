@@ -16,7 +16,7 @@ High-level helpers for multi-step gameplay actions.
 
 <a id="member-api-recipes-beep"></a>
 
-### `api.recipes.beep()` <a class="source-reference__heading-link" style="float: right; display: inline-flex; align-items: center; justify-content: center; width: 2rem; height: 2rem; margin-block: -0.125rem; margin-inline-start: 0.5rem; border-radius: var(--radius-sm); text-decoration: none;" href="https://github.com/toommyliu/vexed/blob/fc1a69128bf47b1844397eca622869e1b37943ad/app/src/renderer/windows/game/scripting/recipes.ts#L69" tabindex="-1" aria-hidden="true" title="Open source: app/src/renderer/windows/game/scripting/recipes.ts:69" target="_blank" rel="noreferrer"><svg class="source-reference__icon" width="16" height="16" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m18 16 4-4-4-4"></path><path d="m6 8-4 4 4 4"></path><path d="m14.5 4-5 16"></path></svg></a>
+### `api.recipes.beep()` <a class="source-reference__heading-link" style="float: right; display: inline-flex; align-items: center; justify-content: center; width: 2rem; height: 2rem; margin-block: -0.125rem; margin-inline-start: 0.5rem; border-radius: var(--radius-sm); text-decoration: none;" href="https://github.com/toommyliu/vexed/blob/dev/app/src/renderer/windows/game/scripting/recipes.ts#L69" tabindex="-1" aria-hidden="true" title="Open source: app/src/renderer/windows/game/scripting/recipes.ts:69" target="_blank" rel="noreferrer"><svg class="source-reference__icon" width="16" height="16" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m18 16 4-4-4-4"></path><path d="m6 8-4 4 4 4"></path><path d="m14.5 4-5 16"></path></svg></a>
 
 ```ts
 api.recipes.beep(times?: number): ScriptRecipeEffect<void>
@@ -26,11 +26,11 @@ api.recipes.beep(times?: number): ScriptRecipeEffect<void>
 | --- | --- | --- | --- |
 | `times` | `number` |  |  |
 
-**Returns:** [`ScriptRecipeEffect`](../../types/script-recipe-effect/)&lt;`void`&gt;
+**Returns:** <a href="/scripting/types/script-recipe-effect/" data-script-type="script-recipe-effect"><code>ScriptRecipeEffect</code></a>&lt;`void`&gt;
 
 <a id="member-api-recipes-buff"></a>
 
-### `api.recipes.buff()` <a class="source-reference__heading-link" style="float: right; display: inline-flex; align-items: center; justify-content: center; width: 2rem; height: 2rem; margin-block: -0.125rem; margin-inline-start: 0.5rem; border-radius: var(--radius-sm); text-decoration: none;" href="https://github.com/toommyliu/vexed/blob/fc1a69128bf47b1844397eca622869e1b37943ad/app/src/renderer/windows/game/scripting/recipes.ts#L58" tabindex="-1" aria-hidden="true" title="Open source: app/src/renderer/windows/game/scripting/recipes.ts:58" target="_blank" rel="noreferrer"><svg class="source-reference__icon" width="16" height="16" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m18 16 4-4-4-4"></path><path d="m6 8-4 4 4 4"></path><path d="m14.5 4-5 16"></path></svg></a>
+### `api.recipes.buff()` <a class="source-reference__heading-link" style="float: right; display: inline-flex; align-items: center; justify-content: center; width: 2rem; height: 2rem; margin-block: -0.125rem; margin-inline-start: 0.5rem; border-radius: var(--radius-sm); text-decoration: none;" href="https://github.com/toommyliu/vexed/blob/dev/app/src/renderer/windows/game/scripting/recipes.ts#L58" tabindex="-1" aria-hidden="true" title="Open source: app/src/renderer/windows/game/scripting/recipes.ts:58" target="_blank" rel="noreferrer"><svg class="source-reference__icon" width="16" height="16" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m18 16 4-4-4-4"></path><path d="m6 8-4 4 4 4"></path><path d="m14.5 4-5 16"></path></svg></a>
 
 ```ts
 api.recipes.buff(skillList?: readonly number[] | null, wait?: boolean): ScriptRecipeEffect<void>
@@ -41,11 +41,11 @@ api.recipes.buff(skillList?: readonly number[] | null, wait?: boolean): ScriptRe
 | `skillList` | `readonly` `number`[] \| `null` |  |  |
 | `wait` | `boolean` |  |  |
 
-**Returns:** [`ScriptRecipeEffect`](../../types/script-recipe-effect/)&lt;`void`&gt;
+**Returns:** <a href="/scripting/types/script-recipe-effect/" data-script-type="script-recipe-effect"><code>ScriptRecipeEffect</code></a>&lt;`void`&gt;
 
 <a id="member-api-recipes-dowheelofdoom"></a>
 
-### `api.recipes.doWheelOfDoom()` <a class="source-reference__heading-link" style="float: right; display: inline-flex; align-items: center; justify-content: center; width: 2rem; height: 2rem; margin-block: -0.125rem; margin-inline-start: 0.5rem; border-radius: var(--radius-sm); text-decoration: none;" href="https://github.com/toommyliu/vexed/blob/fc1a69128bf47b1844397eca622869e1b37943ad/app/src/renderer/windows/game/scripting/recipes.ts#L70" tabindex="-1" aria-hidden="true" title="Open source: app/src/renderer/windows/game/scripting/recipes.ts:70" target="_blank" rel="noreferrer"><svg class="source-reference__icon" width="16" height="16" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m18 16 4-4-4-4"></path><path d="m6 8-4 4 4 4"></path><path d="m14.5 4-5 16"></path></svg></a>
+### `api.recipes.doWheelOfDoom()` <a class="source-reference__heading-link" style="float: right; display: inline-flex; align-items: center; justify-content: center; width: 2rem; height: 2rem; margin-block: -0.125rem; margin-inline-start: 0.5rem; border-radius: var(--radius-sm); text-decoration: none;" href="https://github.com/toommyliu/vexed/blob/dev/app/src/renderer/windows/game/scripting/recipes.ts#L70" tabindex="-1" aria-hidden="true" title="Open source: app/src/renderer/windows/game/scripting/recipes.ts:70" target="_blank" rel="noreferrer"><svg class="source-reference__icon" width="16" height="16" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m18 16 4-4-4-4"></path><path d="m6 8-4 4 4 4"></path><path d="m14.5 4-5 16"></path></svg></a>
 
 ```ts
 api.recipes.doWheelOfDoom(toBank?: boolean): ScriptRecipeEffect<void>
@@ -55,11 +55,11 @@ api.recipes.doWheelOfDoom(toBank?: boolean): ScriptRecipeEffect<void>
 | --- | --- | --- | --- |
 | `toBank` | `boolean` |  |  |
 
-**Returns:** [`ScriptRecipeEffect`](../../types/script-recipe-effect/)&lt;`void`&gt;
+**Returns:** <a href="/scripting/types/script-recipe-effect/" data-script-type="script-recipe-effect"><code>ScriptRecipeEffect</code></a>&lt;`void`&gt;
 
 <a id="member-api-recipes-enhanceitem"></a>
 
-### `api.recipes.enhanceItem()` <a class="source-reference__heading-link" style="float: right; display: inline-flex; align-items: center; justify-content: center; width: 2rem; height: 2rem; margin-block: -0.125rem; margin-inline-start: 0.5rem; border-radius: var(--radius-sm); text-decoration: none;" href="https://github.com/toommyliu/vexed/blob/fc1a69128bf47b1844397eca622869e1b37943ad/app/src/renderer/windows/game/scripting/recipes.ts#L75" tabindex="-1" aria-hidden="true" title="Open source: app/src/renderer/windows/game/scripting/recipes.ts:75" target="_blank" rel="noreferrer"><svg class="source-reference__icon" width="16" height="16" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m18 16 4-4-4-4"></path><path d="m6 8-4 4 4 4"></path><path d="m14.5 4-5 16"></path></svg></a>
+### `api.recipes.enhanceItem()` <a class="source-reference__heading-link" style="float: right; display: inline-flex; align-items: center; justify-content: center; width: 2rem; height: 2rem; margin-block: -0.125rem; margin-inline-start: 0.5rem; border-radius: var(--radius-sm); text-decoration: none;" href="https://github.com/toommyliu/vexed/blob/dev/app/src/renderer/windows/game/scripting/recipes.ts#L75" tabindex="-1" aria-hidden="true" title="Open source: app/src/renderer/windows/game/scripting/recipes.ts:75" target="_blank" rel="noreferrer"><svg class="source-reference__icon" width="16" height="16" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m18 16 4-4-4-4"></path><path d="m6 8-4 4 4 4"></path><path d="m14.5 4-5 16"></path></svg></a>
 
 ```ts
 api.recipes.enhanceItem(item: string, options: ScriptEnhanceItemOptions): ScriptRecipeEffect<void>
@@ -68,13 +68,13 @@ api.recipes.enhanceItem(item: string, options: ScriptEnhanceItemOptions): Script
 | Name | Type | Required | Description |
 | --- | --- | --- | --- |
 | `item` | `string` | <span class="required-mark" role="img" aria-label="Required"></span> |  |
-| `options` | [`ScriptEnhanceItemOptions`](../../types/script-enhance-item-options/) | <span class="required-mark" role="img" aria-label="Required"></span> |  |
+| `options` | <a href="/scripting/types/script-enhance-item-options/" data-script-type="script-enhance-item-options"><code>ScriptEnhanceItemOptions</code></a> | <span class="required-mark" role="img" aria-label="Required"></span> |  |
 
-**Returns:** [`ScriptRecipeEffect`](../../types/script-recipe-effect/)&lt;`void`&gt;
+**Returns:** <a href="/scripting/types/script-recipe-effect/" data-script-type="script-recipe-effect"><code>ScriptRecipeEffect</code></a>&lt;`void`&gt;
 
 <a id="member-api-recipes-ensurelifesteal"></a>
 
-### `api.recipes.ensureLifeSteal()` <a class="source-reference__heading-link" style="float: right; display: inline-flex; align-items: center; justify-content: center; width: 2rem; height: 2rem; margin-block: -0.125rem; margin-inline-start: 0.5rem; border-radius: var(--radius-sm); text-decoration: none;" href="https://github.com/toommyliu/vexed/blob/fc1a69128bf47b1844397eca622869e1b37943ad/app/src/renderer/windows/game/scripting/recipes.ts#L62" tabindex="-1" aria-hidden="true" title="Open source: app/src/renderer/windows/game/scripting/recipes.ts:62" target="_blank" rel="noreferrer"><svg class="source-reference__icon" width="16" height="16" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m18 16 4-4-4-4"></path><path d="m6 8-4 4 4 4"></path><path d="m14.5 4-5 16"></path></svg></a>
+### `api.recipes.ensureLifeSteal()` <a class="source-reference__heading-link" style="float: right; display: inline-flex; align-items: center; justify-content: center; width: 2rem; height: 2rem; margin-block: -0.125rem; margin-inline-start: 0.5rem; border-radius: var(--radius-sm); text-decoration: none;" href="https://github.com/toommyliu/vexed/blob/dev/app/src/renderer/windows/game/scripting/recipes.ts#L62" tabindex="-1" aria-hidden="true" title="Open source: app/src/renderer/windows/game/scripting/recipes.ts:62" target="_blank" rel="noreferrer"><svg class="source-reference__icon" width="16" height="16" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m18 16 4-4-4-4"></path><path d="m6 8-4 4 4 4"></path><path d="m14.5 4-5 16"></path></svg></a>
 
 ```ts
 api.recipes.ensureLifeSteal(quantity: number): ScriptRecipeEffect<void>
@@ -84,11 +84,11 @@ api.recipes.ensureLifeSteal(quantity: number): ScriptRecipeEffect<void>
 | --- | --- | --- | --- |
 | `quantity` | `number` | <span class="required-mark" role="img" aria-label="Required"></span> |  |
 
-**Returns:** [`ScriptRecipeEffect`](../../types/script-recipe-effect/)&lt;`void`&gt;
+**Returns:** <a href="/scripting/types/script-recipe-effect/" data-script-type="script-recipe-effect"><code>ScriptRecipeEffect</code></a>&lt;`void`&gt;
 
 <a id="member-api-recipes-ensurescrollofenrage"></a>
 
-### `api.recipes.ensureScrollOfEnrage()` <a class="source-reference__heading-link" style="float: right; display: inline-flex; align-items: center; justify-content: center; width: 2rem; height: 2rem; margin-block: -0.125rem; margin-inline-start: 0.5rem; border-radius: var(--radius-sm); text-decoration: none;" href="https://github.com/toommyliu/vexed/blob/fc1a69128bf47b1844397eca622869e1b37943ad/app/src/renderer/windows/game/scripting/recipes.ts#L63" tabindex="-1" aria-hidden="true" title="Open source: app/src/renderer/windows/game/scripting/recipes.ts:63" target="_blank" rel="noreferrer"><svg class="source-reference__icon" width="16" height="16" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m18 16 4-4-4-4"></path><path d="m6 8-4 4 4 4"></path><path d="m14.5 4-5 16"></path></svg></a>
+### `api.recipes.ensureScrollOfEnrage()` <a class="source-reference__heading-link" style="float: right; display: inline-flex; align-items: center; justify-content: center; width: 2rem; height: 2rem; margin-block: -0.125rem; margin-inline-start: 0.5rem; border-radius: var(--radius-sm); text-decoration: none;" href="https://github.com/toommyliu/vexed/blob/dev/app/src/renderer/windows/game/scripting/recipes.ts#L63" tabindex="-1" aria-hidden="true" title="Open source: app/src/renderer/windows/game/scripting/recipes.ts:63" target="_blank" rel="noreferrer"><svg class="source-reference__icon" width="16" height="16" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m18 16 4-4-4-4"></path><path d="m6 8-4 4 4 4"></path><path d="m14.5 4-5 16"></path></svg></a>
 
 ```ts
 api.recipes.ensureScrollOfEnrage(quantity: number): ScriptRecipeEffect<void>
@@ -98,11 +98,11 @@ api.recipes.ensureScrollOfEnrage(quantity: number): ScriptRecipeEffect<void>
 | --- | --- | --- | --- |
 | `quantity` | `number` | <span class="required-mark" role="img" aria-label="Required"></span> |  |
 
-**Returns:** [`ScriptRecipeEffect`](../../types/script-recipe-effect/)&lt;`void`&gt;
+**Returns:** <a href="/scripting/types/script-recipe-effect/" data-script-type="script-recipe-effect"><code>ScriptRecipeEffect</code></a>&lt;`void`&gt;
 
 <a id="member-api-recipes-equipitembyenhancement"></a>
 
-### `api.recipes.equipItemByEnhancement()` <a class="source-reference__heading-link" style="float: right; display: inline-flex; align-items: center; justify-content: center; width: 2rem; height: 2rem; margin-block: -0.125rem; margin-inline-start: 0.5rem; border-radius: var(--radius-sm); text-decoration: none;" href="https://github.com/toommyliu/vexed/blob/fc1a69128bf47b1844397eca622869e1b37943ad/app/src/renderer/windows/game/scripting/recipes.ts#L72" tabindex="-1" aria-hidden="true" title="Open source: app/src/renderer/windows/game/scripting/recipes.ts:72" target="_blank" rel="noreferrer"><svg class="source-reference__icon" width="16" height="16" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m18 16 4-4-4-4"></path><path d="m6 8-4 4 4 4"></path><path d="m14.5 4-5 16"></path></svg></a>
+### `api.recipes.equipItemByEnhancement()` <a class="source-reference__heading-link" style="float: right; display: inline-flex; align-items: center; justify-content: center; width: 2rem; height: 2rem; margin-block: -0.125rem; margin-inline-start: 0.5rem; border-radius: var(--radius-sm); text-decoration: none;" href="https://github.com/toommyliu/vexed/blob/dev/app/src/renderer/windows/game/scripting/recipes.ts#L72" tabindex="-1" aria-hidden="true" title="Open source: app/src/renderer/windows/game/scripting/recipes.ts:72" target="_blank" rel="noreferrer"><svg class="source-reference__icon" width="16" height="16" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m18 16 4-4-4-4"></path><path d="m6 8-4 4 4 4"></path><path d="m14.5 4-5 16"></path></svg></a>
 
 ```ts
 api.recipes.equipItemByEnhancement(options: EquipEnhancementSelector): ScriptRecipeEffect<void>
@@ -110,13 +110,13 @@ api.recipes.equipItemByEnhancement(options: EquipEnhancementSelector): ScriptRec
 
 | Name | Type | Required | Description |
 | --- | --- | --- | --- |
-| `options` | [`EquipEnhancementSelector`](../../types/equip-enhancement-selector/) | <span class="required-mark" role="img" aria-label="Required"></span> |  |
+| `options` | <a href="/scripting/types/equip-enhancement-selector/" data-script-type="equip-enhancement-selector"><code>EquipEnhancementSelector</code></a> | <span class="required-mark" role="img" aria-label="Required"></span> |  |
 
-**Returns:** [`ScriptRecipeEffect`](../../types/script-recipe-effect/)&lt;`void`&gt;
+**Returns:** <a href="/scripting/types/script-recipe-effect/" data-script-type="script-recipe-effect"><code>ScriptRecipeEffect</code></a>&lt;`void`&gt;
 
 <a id="member-api-recipes-gotohouse"></a>
 
-### `api.recipes.goToHouse()` <a class="source-reference__heading-link" style="float: right; display: inline-flex; align-items: center; justify-content: center; width: 2rem; height: 2rem; margin-block: -0.125rem; margin-inline-start: 0.5rem; border-radius: var(--radius-sm); text-decoration: none;" href="https://github.com/toommyliu/vexed/blob/fc1a69128bf47b1844397eca622869e1b37943ad/app/src/renderer/windows/game/scripting/recipes.ts#L68" tabindex="-1" aria-hidden="true" title="Open source: app/src/renderer/windows/game/scripting/recipes.ts:68" target="_blank" rel="noreferrer"><svg class="source-reference__icon" width="16" height="16" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m18 16 4-4-4-4"></path><path d="m6 8-4 4 4 4"></path><path d="m14.5 4-5 16"></path></svg></a>
+### `api.recipes.goToHouse()` <a class="source-reference__heading-link" style="float: right; display: inline-flex; align-items: center; justify-content: center; width: 2rem; height: 2rem; margin-block: -0.125rem; margin-inline-start: 0.5rem; border-radius: var(--radius-sm); text-decoration: none;" href="https://github.com/toommyliu/vexed/blob/dev/app/src/renderer/windows/game/scripting/recipes.ts#L68" tabindex="-1" aria-hidden="true" title="Open source: app/src/renderer/windows/game/scripting/recipes.ts:68" target="_blank" rel="noreferrer"><svg class="source-reference__icon" width="16" height="16" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m18 16 4-4-4-4"></path><path d="m6 8-4 4 4 4"></path><path d="m14.5 4-5 16"></path></svg></a>
 
 ```ts
 api.recipes.goToHouse(player?: string): ScriptRecipeEffect<void>
@@ -126,11 +126,11 @@ api.recipes.goToHouse(player?: string): ScriptRecipeEffect<void>
 | --- | --- | --- | --- |
 | `player` | `string` |  |  |
 
-**Returns:** [`ScriptRecipeEffect`](../../types/script-recipe-effect/)&lt;`void`&gt;
+**Returns:** <a href="/scripting/types/script-recipe-effect/" data-script-type="script-recipe-effect"><code>ScriptRecipeEffect</code></a>&lt;`void`&gt;
 
 <a id="member-api-recipes-useconsumables"></a>
 
-### `api.recipes.useConsumables()` <a class="source-reference__heading-link" style="float: right; display: inline-flex; align-items: center; justify-content: center; width: 2rem; height: 2rem; margin-block: -0.125rem; margin-inline-start: 0.5rem; border-radius: var(--radius-sm); text-decoration: none;" href="https://github.com/toommyliu/vexed/blob/fc1a69128bf47b1844397eca622869e1b37943ad/app/src/renderer/windows/game/scripting/recipes.ts#L64" tabindex="-1" aria-hidden="true" title="Open source: app/src/renderer/windows/game/scripting/recipes.ts:64" target="_blank" rel="noreferrer"><svg class="source-reference__icon" width="16" height="16" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m18 16 4-4-4-4"></path><path d="m6 8-4 4 4 4"></path><path d="m14.5 4-5 16"></path></svg></a>
+### `api.recipes.useConsumables()` <a class="source-reference__heading-link" style="float: right; display: inline-flex; align-items: center; justify-content: center; width: 2rem; height: 2rem; margin-block: -0.125rem; margin-inline-start: 0.5rem; border-radius: var(--radius-sm); text-decoration: none;" href="https://github.com/toommyliu/vexed/blob/dev/app/src/renderer/windows/game/scripting/recipes.ts#L64" tabindex="-1" aria-hidden="true" title="Open source: app/src/renderer/windows/game/scripting/recipes.ts:64" target="_blank" rel="noreferrer"><svg class="source-reference__icon" width="16" height="16" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m18 16 4-4-4-4"></path><path d="m6 8-4 4 4 4"></path><path d="m14.5 4-5 16"></path></svg></a>
 
 ```ts
 api.recipes.useConsumables(items: string | readonly string[], equipAfter?: string): ScriptRecipeEffect<void>
@@ -141,11 +141,11 @@ api.recipes.useConsumables(items: string | readonly string[], equipAfter?: strin
 | `items` | `string` \| `readonly` `string`[] | <span class="required-mark" role="img" aria-label="Required"></span> |  |
 | `equipAfter` | `string` |  |  |
 
-**Returns:** [`ScriptRecipeEffect`](../../types/script-recipe-effect/)&lt;`void`&gt;
+**Returns:** <a href="/scripting/types/script-recipe-effect/" data-script-type="script-recipe-effect"><code>ScriptRecipeEffect</code></a>&lt;`void`&gt;
 
 <a id="member-api-recipes-waitforplayercount"></a>
 
-### `api.recipes.waitForPlayerCount()` <a class="source-reference__heading-link" style="float: right; display: inline-flex; align-items: center; justify-content: center; width: 2rem; height: 2rem; margin-block: -0.125rem; margin-inline-start: 0.5rem; border-radius: var(--radius-sm); text-decoration: none;" href="https://github.com/toommyliu/vexed/blob/fc1a69128bf47b1844397eca622869e1b37943ad/app/src/renderer/windows/game/scripting/recipes.ts#L71" tabindex="-1" aria-hidden="true" title="Open source: app/src/renderer/windows/game/scripting/recipes.ts:71" target="_blank" rel="noreferrer"><svg class="source-reference__icon" width="16" height="16" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m18 16 4-4-4-4"></path><path d="m6 8-4 4 4 4"></path><path d="m14.5 4-5 16"></path></svg></a>
+### `api.recipes.waitForPlayerCount()` <a class="source-reference__heading-link" style="float: right; display: inline-flex; align-items: center; justify-content: center; width: 2rem; height: 2rem; margin-block: -0.125rem; margin-inline-start: 0.5rem; border-radius: var(--radius-sm); text-decoration: none;" href="https://github.com/toommyliu/vexed/blob/dev/app/src/renderer/windows/game/scripting/recipes.ts#L71" tabindex="-1" aria-hidden="true" title="Open source: app/src/renderer/windows/game/scripting/recipes.ts:71" target="_blank" rel="noreferrer"><svg class="source-reference__icon" width="16" height="16" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m18 16 4-4-4-4"></path><path d="m6 8-4 4 4 4"></path><path d="m14.5 4-5 16"></path></svg></a>
 
 ```ts
 api.recipes.waitForPlayerCount(count: number, exact?: boolean): ScriptRecipeEffect<void>
@@ -156,4 +156,4 @@ api.recipes.waitForPlayerCount(count: number, exact?: boolean): ScriptRecipeEffe
 | `count` | `number` | <span class="required-mark" role="img" aria-label="Required"></span> |  |
 | `exact` | `boolean` |  |  |
 
-**Returns:** [`ScriptRecipeEffect`](../../types/script-recipe-effect/)&lt;`void`&gt;
+**Returns:** <a href="/scripting/types/script-recipe-effect/" data-script-type="script-recipe-effect"><code>ScriptRecipeEffect</code></a>&lt;`void`&gt;
