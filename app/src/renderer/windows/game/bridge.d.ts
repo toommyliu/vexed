@@ -121,7 +121,7 @@ declare global {
       "settings.setOtherPlayersVisible": (visible: boolean) => void;
       "settings.setWalkSpeed": (speed: number) => void;
       "settings.skipCutscenes": () => void;
-      "shops.buyById": (id: unknown, quantity?: number) => boolean;
+      "shops.buyById": (id: number, quantity?: number) => boolean;
       "shops.buyByName": (name: string, quantity?: number) => boolean;
       "shops.canBuyItem": (key: unknown, quantity?: number) => boolean;
       "shops.close": (shopId?: number) => boolean;
@@ -132,7 +132,7 @@ declare global {
       "shops.load": (shopId: number) => void;
       "shops.loadArmorCustomize": () => void;
       "shops.loadHairShop": (shopId: number) => void;
-      "shops.sellById": (id: unknown, quantity?: number) => boolean;
+      "shops.sellById": (id: number, quantity?: number) => boolean;
       "shops.sellByName": (name: string, quantity?: number) => boolean;
       "tempInventory.contains": (item: unknown, quantity?: number) => boolean;
       "tempInventory.getItem": (item: unknown) => Record<string, unknown>;

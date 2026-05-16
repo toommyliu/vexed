@@ -259,7 +259,7 @@ interface SettingsApi {
     setFrameRate(fps: number): Effect<void, BridgeError>;
 }
 interface ShopsApi {
-    buyById(id: unknown, quantity?: number): Effect<boolean, BridgeError>;
+    buyById(id: number, quantity?: number): Effect<boolean, BridgeError>;
     buyByName(name: string, quantity?: number): Effect<boolean, BridgeError>;
     canBuyItem(key: ItemIdentifierToken, quantity?: number): Effect<boolean, BridgeError>;
     close(shopId?: number): Effect<boolean, BridgeError>;
@@ -272,7 +272,7 @@ interface ShopsApi {
     load(shopId: number): Effect<void, BridgeError>;
     loadArmorCustomize(): Effect<void, BridgeError>;
     loadHairShop(shopId: number): Effect<void, BridgeError>;
-    sellById(id: unknown, quantity?: number): Effect<boolean, BridgeError>;
+    sellById(id: number, quantity?: number): Effect<boolean, BridgeError>;
     sellByName(name: string, quantity?: number): Effect<boolean, BridgeError>;
 }
 interface TempInventoryApi {

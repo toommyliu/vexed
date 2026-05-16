@@ -159,12 +159,8 @@ package vexed.game {
     }
 
     [BridgeExport]
-    public static function buyById(id:*, quantity:int = 1):Boolean {
-      if (!id || quantity <= 0) {
-        return false;
-      }
-
-      if (!(id is String) && !(id is int) && !(id is Number)) {
+    public static function buyById(id:int, quantity:int = 1):Boolean {
+      if (id <= 0 || quantity <= 0) {
         return false;
       }
 
@@ -193,12 +189,8 @@ package vexed.game {
     }
 
     [BridgeExport]
-    public static function sellById(id:*, quantity:int = -1):Boolean {
-      if (!id || (quantity !== -1 && quantity <= 0)) {
-        return false;
-      }
-
-      if (!(id is String) && !(id is int) && !(id is Number)) {
+    public static function sellById(id:int, quantity:int = -1):Boolean {
+      if (id <= 0 || (quantity !== -1 && quantity <= 0)) {
         return false;
       }
 
