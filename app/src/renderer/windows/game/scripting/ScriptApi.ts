@@ -161,13 +161,19 @@ export interface ScriptAutoZoneShape {
 
 export interface ScriptContext {
   readonly api: ScriptApi;
+  /**
+   * Controls automatic relogin behavior from scripts.
+   */
   readonly autoRelogin: EffectValue<ScriptAutoReloginShape>;
+  /**
+   * Controls automatic boss zone movement from scripts.
+   */
   readonly autoZone: EffectValue<ScriptAutoZoneShape>;
 }
 
 export interface ScriptApi {
   /**
-   * Aborts when the script stops. Pass this to APIs that support cancellation.
+   * Current script cancellation signal; aborted when the script stops.
    */
   readonly signal: AbortSignal;
   log(message: string): void;

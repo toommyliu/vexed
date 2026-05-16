@@ -13,15 +13,30 @@ tableOfContents:
 Scripts export a CommonJS generator function and receive one context object.
 
 ```js
-module.exports = function* run({ api, autoZone, autoRelogin }) {
+module.exports = function* run(ctx) {
+  const { api, autoZone, autoRelogin } = ctx
   api.log("started")
   yield* api.player.joinMap("battleon")
 }
 ```
 
-TL;DR: every API call must be yielded with `yield*`. If you are used to `async`/`await`, read `yield*` as "wait for this action and give me its result".
+## Context
 
-## Editor IntelliSense
+The context is the object passed to your script. It gives you access to the main scripting API and scriptable feature controls.
+
+| Member | Description |
+| --- | --- |
+| [`api`](/scripting/api/) | Access to our script API. |
+| [`autoZone`](/scripting/auto-zone/) | Auto Zone feature controls. |
+| [`autoRelogin`](/scripting/auto-relogin/) | Auto Relogin feature controls. |
+
+## Reference
+
+| Page | Description |
+| --- | --- |
+| [`types`](/scripting/types/) | Referenced scripting data types and public class surfaces. |
+
+## Editor Integration
 
 Download the generated declaration file [`script-api.d.ts`](/script-api.d.ts) and place it beside your scripts. These typings are not perfect, but they should be good enough for editor autocomplete and catching common mistakes.
 
@@ -47,37 +62,3 @@ For a folder full of scripts, put `script-api.d.ts` beside them and add `jsconfi
   "include": ["**/*.js", "script-api.d.ts"]
 }
 ```
-
-## Context
-
-| Member | Description |
-| --- | --- |
-| [`api`](/scripting/api/) | Core game and service APIs, grouped by namespace. |
-| [`autoZone`](/scripting/auto-zone/) | Auto Zone feature controls. |
-| [`autoRelogin`](/scripting/auto-relogin/) | Auto Relogin feature controls. |
-
-## Reference
-
-| Page | Description |
-| --- | --- |
-| [`types`](/scripting/types/) | Referenced scripting data types and public class surfaces. |
-
-## API Namespaces
-
-| Namespace | Source Type |
-| --- | --- |
-| [`api.army`](/scripting/api/army/) | `ArmyShape` |
-| [`api.auth`](/scripting/api/auth/) | `ScriptAuthShape` |
-| [`api.bank`](/scripting/api/bank/) | `BankShape` |
-| [`api.combat`](/scripting/api/combat/) | `CombatShape` |
-| [`api.drops`](/scripting/api/drops/) | `DropsShape` |
-| [`api.house`](/scripting/api/house/) | `HouseShape` |
-| [`api.inventory`](/scripting/api/inventory/) | `InventoryShape` |
-| [`api.packet`](/scripting/api/packet/) | `ScriptPacketApi` |
-| [`api.player`](/scripting/api/player/) | `PlayerShape` |
-| [`api.quests`](/scripting/api/quests/) | `QuestsShape` |
-| [`api.recipes`](/scripting/api/recipes/) | `ScriptRecipesShape` |
-| [`api.settings`](/scripting/api/settings/) | `ScriptSettingsShape` |
-| [`api.shops`](/scripting/api/shops/) | `ShopsShape` |
-| [`api.tempInventory`](/scripting/api/temp-inventory/) | `TempInventoryShape` |
-| [`api.world`](/scripting/api/world/) | `ScriptWorldShape` |

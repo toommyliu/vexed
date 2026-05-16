@@ -62,10 +62,40 @@ export default defineConfig({
         { link: "/", label: "Overview" },
         {
           label: "Scripting API",
-          autogenerate: {
-            directory: "scripting",
-            collapsed: false,
-          },
+          items: [
+            { link: "/scripting/", label: "Overview" },
+            { link: "/scripting/auto-zone/", label: "Auto Zone" },
+            { link: "/scripting/auto-relogin/", label: "Auto Relogin" },
+            {
+              label: "API",
+              items: [
+                { link: "/scripting/api/", label: "API" },
+                { link: "/scripting/api/army/", label: "Army" },
+                { link: "/scripting/api/auth/", label: "Auth" },
+                { link: "/scripting/api/bank/", label: "Bank" },
+                { link: "/scripting/api/combat/", label: "Combat" },
+                { link: "/scripting/api/drops/", label: "Drops" },
+                { link: "/scripting/api/house/", label: "House" },
+                { link: "/scripting/api/inventory/", label: "Inventory" },
+                { link: "/scripting/api/packet/", label: "Packet" },
+                { link: "/scripting/api/player/", label: "Player" },
+                { link: "/scripting/api/quests/", label: "Quests" },
+                { link: "/scripting/api/recipes/", label: "Recipes" },
+                { link: "/scripting/api/settings/", label: "Settings" },
+                { link: "/scripting/api/shops/", label: "Shops" },
+                { link: "/scripting/api/temp-inventory/", label: "Temp Inventory" },
+                { link: "/scripting/api/world/", label: "World" },
+              ],
+            },
+            {
+              label: "Types",
+              collapsed: true,
+              autogenerate: {
+                directory: "scripting/types",
+                collapsed: true,
+              },
+            },
+          ],
         },
       ],
       social: [

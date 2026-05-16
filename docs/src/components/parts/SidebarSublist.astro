@@ -5,12 +5,11 @@ import { ChevronRight } from '@lucide/astro';
 interface Props {
     sublist: StarlightRouteData['sidebar'];
     nested?: boolean;
+    nestedDepth?: number;
     path?: readonly string[];
 }
 
-const { sublist, nested = false, path = [] } = Astro.props;
-
-const defaultOpenNestedGroups = new Set(['api']);
+const { sublist, nested = false, nestedDepth = 0, path = [] } = Astro.props;
 
 const toSidebarGroupKey = (segments: readonly string[]): string =>
     segments
@@ -29,11 +28,23 @@ const hasCurrentEntry = (entries: StarlightRouteData['sidebar']): boolean =>
         entry.type === 'link' ? entry.isCurrent : hasCurrentEntry(entry.entries)
     );
 
-const shouldOpenGroup = (label: string, entries: StarlightRouteData['sidebar']): boolean =>
-    !nested || hasCurrentEntry(entries) || defaultOpenNestedGroups.has(label.trim().toLowerCase());
+const shouldOpenGroup = (
+    entries: StarlightRouteData['sidebar'],
+    collapsed: boolean
+): boolean => !nested || hasCurrentEntry(entries) || !collapsed;
 
 const getScriptTypeSlug = (href: string): string | undefined =>
     href.match(/^\/scripting\/types\/([^/]+)\/?$/)?.[1];
+
+const getLinkLabel = (entry: StarlightRouteData['sidebar'][number]): string =>
+    entry.type === 'link' && entry.href === '/scripting/types/' && entry.label === 'Types'
+        ? 'Overview'
+        : entry.label;
+
+const isGroupHeaderLink = (
+    groupLabel: string,
+    entry: StarlightRouteData['sidebar'][number] | undefined
+) => groupLabel === 'API' && entry?.type === 'link' && entry.label === groupLabel;
 ---
 
 {
@@ -45,11 +56,12 @@ const getScriptTypeSlug = (href: string): string | undefined =>
                     aria-current={entry.isCurrent && 'page'}
                     class:list={['entry-link', entry.attrs.class]}
                     data-nested={nested ? '' : undefined}
+                    data-depth={nested ? nestedDepth : undefined}
                     data-script-type={getScriptTypeSlug(entry.href)}
                     {...entry.attrs}
                 >
                     <span class="entry-link-inner">
-                        {entry.label}
+                        {getLinkLabel(entry)}
                         {entry.badge && <span class="entry-badge">{entry.badge.text}</span>}
                     </span>
                 </a>
@@ -59,14 +71,49 @@ const getScriptTypeSlug = (href: string): string | undefined =>
         const entryPath = [...path, entry.label];
         const entryKey = toSidebarGroupKey(entryPath);
         const hasCurrentChild = hasCurrentEntry(entry.entries);
+        const headerLink = isGroupHeaderLink(entry.label, entry.entries[0]) ? entry.entries[0] : undefined;
+        const childEntries = headerLink ? entry.entries.slice(1) : entry.entries;
+
+        if (headerLink) {
+            return (
+                <div
+                    class="container-sidebar-entry"
+                    data-current={hasCurrentChild ? '' : undefined}
+                >
+                    <a
+                        href={headerLink.href}
+                        aria-current={headerLink.isCurrent && 'page'}
+                        class:list={['entry-link', headerLink.attrs.class]}
+                        data-nested={nested ? '' : undefined}
+                        data-depth={nested ? nestedDepth : undefined}
+                        data-current-parent={!headerLink.isCurrent && hasCurrentChild ? '' : undefined}
+                        {...headerLink.attrs}
+                    >
+                        <span class="entry-link-inner">
+                            {entry.label}
+                            {entry.badge && <span class="entry-badge">{entry.badge.text}</span>}
+                        </span>
+                    </a>
+                    <div class="container-group-link">
+                        <Astro.self
+                            sublist={childEntries}
+                            nested
+                            nestedDepth={nestedDepth + 1}
+                            path={entryPath}
+                        />
+                    </div>
+                </div>
+            );
+        }
 
         return (
             <details
                 class="container-sidebar-entry"
                 data-sidebar-group={entryKey}
                 data-nested={nested ? '' : undefined}
+                data-depth={nested ? nestedDepth : undefined}
                 data-current={hasCurrentChild ? '' : undefined}
-                open={shouldOpenGroup(entry.label, entry.entries)}
+                open={shouldOpenGroup(entry.entries, entry.collapsed)}
             >
                 <script is:inline define:vars={{ groupKey: entryKey }}>
                     (() => {
@@ -91,7 +138,12 @@ const getScriptTypeSlug = (href: string): string | undefined =>
                     <span class="entry-title-label">{entry.label}</span>
                 </summary>
                 <div class="container-group-link">
-                    <Astro.self sublist={entry.entries} nested path={entryPath} />
+                    <Astro.self
+                        sublist={childEntries}
+                        nested
+                        nestedDepth={nestedDepth + 1}
+                        path={entryPath}
+                    />
                 </div>
             </details>
         );
@@ -108,13 +160,13 @@ const getScriptTypeSlug = (href: string): string | undefined =>
         box-sizing: border-box;
     }
 
-    .container-sidebar-entry[data-nested] {
+    .container-sidebar-entry[data-nested]:not([data-depth='1']) {
         position: relative;
         margin-left: calc(var(--spacing) * 2);
         padding-left: calc(var(--spacing) * 3);
     }
 
-    .container-sidebar-entry[data-nested]::before {
+    .container-sidebar-entry[data-nested]:not([data-depth='1'])::before {
         content: '';
         position: absolute;
         left: 0;
@@ -207,6 +259,12 @@ const getScriptTypeSlug = (href: string): string | undefined =>
         font-weight: 500;
     }
 
+    .container-sidebar-entry[data-depth='1'] > .entry-title {
+        grid-template-columns: 1rem minmax(0, 1fr);
+        gap: 0;
+        padding-left: 0;
+    }
+
     .container-group-link {
         font-size: var(--text-sm, 0.75rem);
         line-height: 1.25rem;
@@ -238,6 +296,14 @@ const getScriptTypeSlug = (href: string): string | undefined =>
         padding-left: calc(var(--spacing) * 2);
     }
 
+    .entry-link[data-depth='2'] {
+        padding-left: calc(var(--spacing) * 6);
+    }
+
+    .entry-link[data-depth='3'] {
+        padding-left: calc(var(--spacing) * 10);
+    }
+
     .entry-link-inner {
         display: flex;
         align-items: center;
@@ -256,6 +322,10 @@ const getScriptTypeSlug = (href: string): string | undefined =>
 
     .entry-link[aria-current='page'] {
         font-weight: 500;
+    }
+
+    .entry-link[data-current-parent] {
+        color: color-mix(in srgb, var(--foreground) 82%, var(--muted-foreground));
     }
 
     .entry-link[aria-current='page'] .entry-link-inner {

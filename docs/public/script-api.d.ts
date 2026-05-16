@@ -62,7 +62,7 @@ interface ScriptContext {
     readonly autoZone: ScriptContextAutoZoneApi;
 }
 interface ScriptApi {
-  /** Aborts when the script stops. Pass this to APIs that support cancellation. */
+  /** Current script cancellation signal; aborted when the script stops. */
     readonly signal: AbortSignal;
     log(message: string): void;
   /** Stops the current script. */
