@@ -5,9 +5,11 @@
 <docs-theme-select>
     <button
         aria-label={Astro.locals.t('themeSelect.accessibleLabel')}
+        aria-describedby="theme-select-tooltip"
         aria-live="polite"
         class="sl-flex button"
-        title={Astro.locals.t('themeSelect.accessibleLabel')}
+        title="Toggle theme (T)"
+        type="button"
         data-variant="ghost"
     >
         <svg
@@ -48,12 +50,19 @@
         </svg>
 
         <span class="sr-only">Toggle theme</span>
+        <span id="theme-select-tooltip" class="tooltip" role="tooltip">Toggle theme (T)</span>
     </button>
 </docs-theme-select>
 
 <style>
+    docs-theme-select {
+        position: relative;
+        display: inline-flex;
+    }
+
     button {
         all: unset;
+        position: relative;
         display: inline-flex;
         align-items: center;
         justify-content: center;
@@ -63,13 +72,14 @@
         cursor: pointer;
         color: color-mix(in oklab, var(--foreground) 76%, var(--muted-foreground));
         background-color: transparent;
-        transition:
-            color 0.15s,
-            background-color 0.15s;
     }
     button:hover {
         color: var(--accent-foreground);
         background-color: color-mix(in oklab, var(--accent) 80%, transparent);
+    }
+    button:focus-visible {
+        outline: 2px solid var(--ring);
+        outline-offset: 2px;
     }
     svg {
         flex-shrink: 0;
@@ -77,13 +87,43 @@
         height: 1rem;
         pointer-events: none;
     }
+    .tooltip {
+        position: absolute;
+        top: calc(100% + 0.5rem);
+        right: 0;
+        z-index: 10;
+        width: max-content;
+        max-width: min(12rem, calc(100vw - 2rem));
+        padding: 0.375rem 0.5rem;
+        border: 1px solid var(--border);
+        border-radius: calc(var(--radius) - 2px);
+        color: var(--popover-foreground);
+        background-color: var(--popover);
+        font-size: 0.75rem;
+        line-height: 1;
+        opacity: 0;
+        pointer-events: none;
+        transform: translateY(-0.125rem);
+        transition:
+            opacity 120ms ease,
+            transform 120ms ease;
+    }
+    button:hover .tooltip,
+    button:focus-visible .tooltip {
+        opacity: 1;
+        transform: translateY(0);
+    }
 
-    :global([data-theme='light']) svg.sun {
+    svg.moon {
+        display: none;
+    }
+
+    :global([data-theme='dark']) svg.sun {
         display: none;
     }
 
     :global([data-theme='dark']) svg.moon {
-        display: none;
+        display: block;
     }
 </style>
 
@@ -129,6 +169,33 @@
         storeTheme(theme);
     }
 
+    function getToggledTheme(): Theme {
+        const theme = parseTheme(document.documentElement.dataset.theme);
+        return theme === 'dark' ? 'light' : 'dark';
+    }
+
+    function updateThemeButton(button: HTMLButtonElement, theme: Theme): void {
+        button.setAttribute('aria-label', `Switch to ${theme} theme`);
+        button.title = `Switch to ${theme} theme (T)`;
+    }
+
+    function toggleTheme(button: HTMLButtonElement): void {
+        const newTheme = getToggledTheme();
+        onThemeChange(newTheme);
+        updateThemeButton(button, getToggledTheme());
+    }
+
+    function isEditableTarget(target: EventTarget | null): boolean {
+        if (!(target instanceof HTMLElement)) {
+            return false;
+        }
+
+        return (
+            target.isContentEditable ||
+            target.closest('input, textarea, select, [contenteditable="true"]') !== null
+        );
+    }
+
     // React to changes in system color scheme.
     matchMedia(`(prefers-color-scheme: light)`).addEventListener('change', () => {
         if (loadTheme() === 'auto') {
@@ -141,14 +208,29 @@
         class DocsThemeSelect extends HTMLElement {
             constructor() {
                 super();
-                onThemeChange(loadTheme());
                 const button = this.querySelector('button');
+                if (!(button instanceof HTMLButtonElement)) {
+                    return;
+                }
+
+                updateThemeButton(button, getToggledTheme());
                 button?.addEventListener('click', () => {
-                    const theme = parseTheme(document.documentElement.dataset.theme);
-                    const newTheme =
-                        theme === 'dark' ? 'light' : theme === 'light' ? 'dark' : 'auto';
-                    onThemeChange(newTheme);
-                    button?.setAttribute('aria-label', `${newTheme} theme`);
+                    toggleTheme(button);
+                });
+                document.addEventListener('keydown', (event) => {
+                    if (
+                        event.key.toLowerCase() !== 't' ||
+                        event.altKey ||
+                        event.ctrlKey ||
+                        event.metaKey ||
+                        event.shiftKey ||
+                        isEditableTarget(event.target)
+                    ) {
+                        return;
+                    }
+
+                    event.preventDefault();
+                    toggleTheme(button);
                 });
             }
         }

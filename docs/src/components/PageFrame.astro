@@ -6,7 +6,9 @@ const { hasSidebar } = Astro.locals.starlightRoute;
 ---
 
 <div data-slot="layout">
-    <header>
+    <header
+        style="position: sticky; top: 0; z-index: 1000; width: 100%; background: var(--color-background); border-bottom: 1px solid var(--border);"
+    >
         <div class="container-wrapper px-6">
             <div class="container">
                 <slot name="header" />
@@ -49,12 +51,6 @@ const { hasSidebar } = Astro.locals.starlightRoute;
 
         header {
             /* sticky top-0 z-50 w-full bg-background */
-            position: sticky;
-            top: 0;
-            z-index: 50;
-            width: 100%;
-            background: var(--background);
-
             .container-wrapper {
                 padding-inline: calc(var(--spacing) * 6);
 

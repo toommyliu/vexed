@@ -1558,7 +1558,7 @@ const renderSourceLink = (
   const sourceReference = `${source.sourcePath}:${source.sourceLine}`;
   const isHeadingLink = className === "source-reference__heading-link";
   const headingStyle = isHeadingLink
-    ? ` style="float: right; display: inline-flex; align-items: center; justify-content: center; width: 2rem; height: 2rem; margin-block: -0.125rem; margin-inline-start: 0.5rem; border-radius: var(--radius-sm); text-decoration: none;"`
+    ? ` style="float: right; display: inline-flex; align-items: center; justify-content: center; margin-block: -0.125rem; margin-inline-start: 0.5rem; border-radius: var(--radius-sm); text-decoration: none;"`
     : "";
   const headingAttributes = isHeadingLink
     ? ` tabindex="-1" aria-hidden="true"`

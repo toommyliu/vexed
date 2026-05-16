@@ -147,9 +147,6 @@ const getScriptTypeSlug = (href: string): string | undefined =>
         min-height: var(--control-height-sm, 1.625rem);
         cursor: var(--cursor-interactive, pointer);
         user-select: none;
-        transition:
-            color 0.15s,
-            background-color 0.15s;
     }
 
     .entry-title::-webkit-details-marker {
@@ -185,10 +182,6 @@ const getScriptTypeSlug = (href: string): string | undefined =>
         color: color-mix(in srgb, var(--foreground) 70%, var(--muted-foreground));
         opacity: 0.9;
         transform: rotate(0deg);
-        transition:
-            color 0.15s,
-            opacity 0.15s,
-            transform 0.15s cubic-bezier(0.23, 1, 0.32, 1);
     }
 
     .container-sidebar-entry[open] > .entry-title .entry-title-chevron {
@@ -256,9 +249,6 @@ const getScriptTypeSlug = (href: string): string | undefined =>
         border-radius: var(--radius-sm, calc(var(--radius) - 2px));
         height: 100%;
         min-height: var(--control-height-sm, 1.625rem);
-        transition:
-            color 0.15s,
-            background-color 0.15s;
         overflow: hidden;
         text-overflow: ellipsis;
         white-space: nowrap;

@@ -427,18 +427,26 @@ import '@astrojs/starlight/style/markdown.css';
     };
 
     const copyApiCallSnippet = async (event) => {
-        const copyButton = event.target?.closest?.('.copy button[data-copy-snippet]');
+        const copyButton = event.target?.closest?.('.copy button');
         if (!copyButton) return;
+
+        const snippet = copyButton.dataset.copySnippet ?? copyButton.dataset.code;
+        if (!snippet) return;
 
         event.preventDefault();
         event.stopPropagation();
         event.stopImmediatePropagation();
 
-        await writeToClipboard(copyButton.dataset.copySnippet ?? '');
+        await writeToClipboard(snippet);
 
+        const copyContainer = copyButton.closest('.copy');
         const feedback = copyButton.closest('.copy')?.querySelector('.feedback');
         feedback?.classList.add('show');
-        window.setTimeout(() => feedback?.classList.remove('show'), 1000);
+        copyContainer?.classList.add('is-copied');
+        window.setTimeout(() => {
+            feedback?.classList.remove('show');
+            copyContainer?.classList.remove('is-copied');
+        }, 1000);
     };
 
     const upgradeMarkdownContent = () => {

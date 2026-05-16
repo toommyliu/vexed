@@ -24,7 +24,8 @@ if (project.trailingSlash === 'never') dataAttributes['data-strip-trailing-slash
     >
         <span aria-hidden="true">{Astro.locals.t('search.label')}</span>
         <kbd class="search-shortcut" data-shortcut-ready="false">
-            <kbd>{Astro.locals.t('search.ctrlKey')}</kbd><kbd>K</kbd>
+            <kbd class="search-shortcut__key" data-platform-key>{Astro.locals.t('search.ctrlKey')}</kbd>
+            <kbd class="search-shortcut__key">K</kbd>
         </kbd>
     </button>
 
@@ -61,14 +62,15 @@ if (project.trailingSlash === 'never') dataAttributes['data-strip-trailing-slash
 <script is:inline>
     (() => {
         const openBtn = document.querySelector('button[data-open-modal]');
-        const shortcut = openBtn?.querySelector('kbd');
+        const shortcut = openBtn?.querySelector('.search-shortcut');
         if (!openBtn || !(shortcut instanceof HTMLElement)) {
             return;
         }
-        const platformKey = shortcut.querySelector('kbd');
+        const platformKey = shortcut.querySelector('[data-platform-key]');
         // eslint-disable-next-line regexp/no-unused-capturing-group
         if (platformKey && /(Mac|iPhone|iPod|iPad)/i.test(navigator.platform)) {
             platformKey.textContent = '⌘';
+            platformKey.setAttribute('aria-label', 'Command');
             openBtn.setAttribute('aria-keyshortcuts', 'Meta+K');
         }
         shortcut.dataset.shortcutReady = 'true';
@@ -180,10 +182,6 @@ if (project.trailingSlash === 'never') dataAttributes['data-strip-trailing-slash
     }
 
     button[data-open-modal] {
-        transition-property:
-            color, background-color, border-color, text-decoration-color, fill, stroke;
-        transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
-        transition-duration: 0.15s;
         color: color-mix(in oklab, var(--foreground) 88%, var(--muted-foreground));
         font-weight: 400;
         font-size: 0.875rem;
@@ -222,12 +220,6 @@ if (project.trailingSlash === 'never') dataAttributes['data-strip-trailing-slash
         background-color: color-mix(in oklab, var(--muted) 45%, var(--background));
     }
 
-    @media (min-width: 640px) {
-        button[data-open-modal] {
-            padding-right: calc(var(--spacing) * 12);
-        }
-    }
-
     @media (min-width: 768px) {
         button[data-open-modal] {
             width: 12rem;
@@ -245,29 +237,12 @@ if (project.trailingSlash === 'never') dataAttributes['data-strip-trailing-slash
     }
 
     button[data-open-modal] > kbd {
-        transition-property: color, background-color, border-color;
-        transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
-        transition-duration: 0.15s;
         opacity: 1;
-        font-weight: 500;
-        font-size: 10px;
         box-sizing: border-box;
-        min-width: 2rem;
-        padding-left: calc(var(--spacing) * 1.5);
-        padding-right: calc(var(--spacing) * 1.5);
-        background-color: color-mix(in oklab, var(--muted) 78%, var(--background));
-        border-width: 1px;
-        border-style: solid;
-        border-color: transparent;
-        border-radius: 0.25rem;
-        color: var(--muted-foreground);
-        gap: 0.25rem;
+        gap: 0.125rem;
         align-items: center;
-        height: 1.25rem;
         display: none;
-        top: 0.3rem;
-        right: 0.3rem;
-        position: absolute;
+        margin-left: auto;
         pointer-events: none;
         visibility: hidden;
     }
@@ -282,13 +257,29 @@ if (project.trailingSlash === 'never') dataAttributes['data-strip-trailing-slash
         visibility: visible;
     }
 
-    button[data-open-modal] kbd {
-        font-family: var(--__sl-font-mono);
+    button[data-open-modal] .search-shortcut__key {
+        align-items: center;
+        background-color: color-mix(in oklab, var(--muted) 78%, var(--color-background));
+        border-radius: var(--radius-xs, 0.25rem);
+        color: var(--muted-foreground);
+        display: inline-flex;
+        font-family: var(--font-sans);
+        font-size: 10px;
+        font-weight: 500;
+        height: 1.125rem;
+        justify-content: center;
+        line-height: 1;
+        width: 1.125rem;
+        padding: 0 0.25rem;
     }
 
-    button[data-open-modal]:hover > kbd {
-        color: var(--foreground);
-        background-color: color-mix(in oklab, var(--accent) 92%, var(--background));
+    button[data-open-modal] .search-shortcut__key[data-platform-key] {
+        width: 1.75rem;
+    }
+
+    button[data-open-modal]:hover .search-shortcut__key {
+        color: var(--color-foreground);
+        background-color: color-mix(in oklab, var(--accent) 92%, var(--color-background));
     }
 
     dialog {
