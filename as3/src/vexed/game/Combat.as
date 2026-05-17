@@ -7,6 +7,14 @@ package vexed.game {
     private static const CONSUMABLE_SKILL_INDEX:int = 5;
     private static var game:Object = Main.getInstance().getGame();
 
+    private static function isMonsterAttackable(monster:Object):Boolean {
+      if (monster == null || monster.dataLeaf == null) {
+        return false;
+      }
+
+      return monster.dataLeaf.intState > 0 && monster.dataLeaf.intHP > 0;
+    }
+
     [BridgeExport]
     public static function hasTarget():Boolean {
       var target:Object = game.world.myAvatar.target;
@@ -140,7 +148,7 @@ package vexed.game {
         return;
 
       var monster:Object = World.getMonsterByName(mon);
-      if (monster != null) {
+      if (isMonsterAttackable(monster)) {
         game.world.setTarget(monster);
         game.world.approachTarget();
       }
@@ -152,7 +160,7 @@ package vexed.game {
         return;
 
       var monster:Object = World.getMonsterByMonMapId(monMapId);
-      if (monster != null) {
+      if (isMonsterAttackable(monster)) {
         game.world.setTarget(monster);
         game.world.approachTarget();
       }
