@@ -197,7 +197,6 @@ const createGameWindowOptions = (
 const createCatalogWindowOptions = (
   config: WindowManagerConfig,
   definition: WindowDefinition,
-  parent?: BrowserWindow,
 ): BrowserWindowConstructorOptions => {
   const dimensions = getWindowDimensions(definition);
   const appearanceSnapshot = config.getAppearanceSnapshot();
@@ -209,10 +208,6 @@ const createCatalogWindowOptions = (
     show: false,
     webPreferences: createWebPreferences(config, appearanceSnapshot),
   };
-
-  if (parent) {
-    options.parent = parent;
-  }
 
   if (typeof dimensions.minWidth === "number") {
     options.minWidth = dimensions.minWidth;
@@ -531,7 +526,7 @@ export const makeWindowService = (
       }
 
       const childWindow = yield* createManagedWindow(
-        createCatalogWindowOptions(config, definition, entry.gameWindow),
+        createCatalogWindowOptions(config, definition),
       );
       const childWindowId = childWindow.id;
 
