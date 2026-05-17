@@ -470,11 +470,28 @@ const make = Effect.gen(function* () {
 
   const prepareLoopTauntTarget = (
     session: ArmySession,
-    options: Pick<NormalizedLoopTauntOptions, "participants" | "target">,
+    options: Pick<NormalizedLoopTauntOptions, "id" | "participants" | "target">,
   ) =>
     Effect.gen(function* () {
+      yield* Effect.logInfo({
+        message: "Loop Taunt waiting for target",
+        id: options.id,
+        target: options.target,
+      });
       const monMapId = yield* waitForLoopTauntTarget(options);
+      yield* Effect.logInfo({
+        message: "Loop Taunt target resolved",
+        id: options.id,
+        target: options.target,
+        monMapId,
+      });
       if (ownsLoopTauntParticipation(session, options)) {
+        yield* Effect.logInfo({
+          message: "Loop Taunt targeting monster",
+          id: options.id,
+          playerNumber: session.playerNumber,
+          monMapId,
+        });
         yield* combat.attackMonster(monMapId);
       }
 
@@ -495,6 +512,14 @@ const make = Effect.gen(function* () {
         let initialAuraCheckComplete = false;
         let tauntInFlight = false;
 
+        const log = (message: string, details?: Record<string, unknown>) =>
+          Effect.logInfo({
+            message,
+            id: options.id,
+            playerNumber: session.playerNumber,
+            ...(details ?? {}),
+          });
+
         const resolveTarget = () =>
           Effect.gen(function* () {
             if (targetMonMapId !== undefined) {
@@ -508,6 +533,10 @@ const make = Effect.gen(function* () {
         const taunt = (monMapId: number) =>
           Effect.gen(function* () {
             if (tauntInFlight) {
+              yield* log("Loop Taunt cast skipped", {
+                reason: "cast already in flight",
+                monMapId,
+              });
               return;
             }
 
@@ -520,9 +549,19 @@ const make = Effect.gen(function* () {
                 .isAlive()
                 .pipe(Effect.catchCause(() => Effect.succeed(false)));
               if (!ready || !alive) {
+                yield* log("Loop Taunt cast skipped", {
+                  reason: !ready ? "player not ready" : "player not alive",
+                  ready,
+                  alive,
+                  monMapId,
+                });
                 return;
               }
 
+              yield* log("Loop Taunt casting", {
+                monMapId,
+                skill: options.skill,
+              });
               yield* combat.attackMonster(monMapId);
               yield* combat.useSkill(options.skill, true, true);
             } finally {
@@ -538,16 +577,35 @@ const make = Effect.gen(function* () {
             ),
           );
 
-        const triggerNextTurn = (monMapId: number) =>
-          Effect.sync(() => {
+        const triggerNextTurn = (monMapId: number, reason: string) =>
+          Effect.gen(function* () {
+            const currentTurn = turn;
+            const participant = options.participants[currentTurn.nextIndex];
             const ownsTurn = ownsLoopTauntTurn(
               options.participants,
               session.playerNumber,
-              turn,
+              currentTurn,
             );
-            turn = advanceLoopTauntTurn(options.participants, turn);
+            turn = advanceLoopTauntTurn(options.participants, currentTurn);
             if (ownsTurn) {
+              yield* log("Loop Taunt turn matched local player", {
+                reason,
+                monMapId,
+                participantNumber: participant?.number,
+                participantName: participant?.name,
+                nextParticipantNumber:
+                  options.participants[turn.nextIndex]?.number,
+              });
               runFork(taunt(monMapId));
+            } else {
+              yield* log("Loop Taunt waiting for turn", {
+                reason,
+                monMapId,
+                participantNumber: participant?.number,
+                participantName: participant?.name,
+                nextParticipantNumber:
+                  options.participants[turn.nextIndex]?.number,
+              });
             }
           });
 
@@ -568,7 +626,16 @@ const make = Effect.gen(function* () {
               options.trigger.aura,
             );
             if (Option.isNone(aura)) {
-              yield* triggerNextTurn(monMapId);
+              yield* log("Loop Taunt initial aura absent", {
+                aura: options.trigger.aura,
+                monMapId,
+              });
+              yield* triggerNextTurn(monMapId, "initial aura absent");
+            } else {
+              yield* log("Loop Taunt waiting for aura removal", {
+                aura: options.trigger.aura,
+                monMapId,
+              });
             }
           });
 
@@ -588,7 +655,11 @@ const make = Effect.gen(function* () {
             }
 
             initialAuraCheckComplete = true;
-            yield* triggerNextTurn(monMapId);
+            yield* log("Loop Taunt aura removed", {
+              aura: event.auraName,
+              monMapId,
+            });
+            yield* triggerNextTurn(monMapId, "aura removed");
           }),
         );
 
@@ -612,7 +683,12 @@ const make = Effect.gen(function* () {
                 return;
               }
 
-              yield* triggerNextTurn(monMapId);
+              yield* log("Loop Taunt message matched", {
+                configuredMessage: options.trigger.message,
+                animationMessage: event.message,
+                monMapId,
+              });
+              yield* triggerNextTurn(monMapId, "message matched");
             }),
         );
 
@@ -623,6 +699,9 @@ const make = Effect.gen(function* () {
               return;
             }
 
+            yield* log("Loop Taunt stopped on monster death", {
+              monMapId,
+            });
             yield* jobs.stop(loopTauntJobKey(options.id));
           }),
         );
@@ -641,10 +720,26 @@ const make = Effect.gen(function* () {
           `loop-taunt-armed:${options.id}`,
         );
         yield* Deferred.succeed(armed, undefined).pipe(Effect.asVoid);
-        yield* Effect.log({
-          message: "Loop Taunt armed",
-          id: options.id,
+        yield* log("Loop Taunt armed", {
+          target: options.target,
+          monMapId: targetMonMapId,
+          trigger: options.trigger.type,
+          participants: options.participants.map((participant) => ({
+            name: participant.name,
+            number: participant.number,
+          })),
         });
+        yield* log(
+          options.trigger.type === "aura"
+            ? "Loop Taunt waiting for aura trigger"
+            : "Loop Taunt waiting for message trigger",
+          {
+            ...(options.trigger.type === "aura"
+              ? { aura: options.trigger.aura }
+              : { triggerMessage: options.trigger.message }),
+            monMapId: targetMonMapId,
+          },
+        );
         while (true) {
           yield* runInitialAuraCheck();
           yield* Effect.sleep(LOOP_TAUNT_RESOLVE_INTERVAL);
@@ -663,7 +758,18 @@ const make = Effect.gen(function* () {
     );
 
   const stopLoopTaunt: ArmyShape["stopLoopTaunt"] = (id) =>
-    jobs.stop(loopTauntJobKey(id));
+    Effect.gen(function* () {
+      yield* Effect.logInfo({
+        message: "Loop Taunt stopping",
+        id,
+      });
+      const stopped = yield* jobs.stop(loopTauntJobKey(id));
+      yield* Effect.logInfo({
+        message: stopped ? "Loop Taunt stopped" : "Loop Taunt was not running",
+        id,
+      });
+      return stopped;
+    });
 
   const stopAllLoopTaunts: ArmyShape["stopAllLoopTaunts"] = () =>
     stopLoopTauntJobs();
@@ -679,13 +785,28 @@ const make = Effect.gen(function* () {
       const targetStep = yield* nextBarrierStep();
       const armedStep = yield* nextBarrierStep();
       const monMapId = yield* prepareLoopTauntTarget(session, normalized);
+      yield* Effect.logInfo({
+        message: "Loop Taunt waiting for army target sync",
+        id: normalized.id,
+        monMapId,
+      });
       yield* waitAtBarrier(
         session,
         targetStep,
         `loop-taunt-target:${normalized.id}`,
       );
+      yield* Effect.logInfo({
+        message: "Loop Taunt target sync complete",
+        id: normalized.id,
+        monMapId,
+      });
       const armed = yield* Deferred.make<void, ArmyError>();
 
+      yield* Effect.logInfo({
+        message: "Loop Taunt starting background job",
+        id: normalized.id,
+        monMapId,
+      });
       yield* jobs.start(
         key,
         runLoopTaunt(session, normalized, monMapId, armedStep, armed),
