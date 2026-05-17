@@ -1,5 +1,5 @@
 import { Server, type ServerData } from "@vexed/game";
-import { Effect, Layer, Option, Schedule, SynchronizedRef } from "effect";
+import { Effect, Layer, Option, Schedule, Schema, SynchronizedRef } from "effect";
 import type {
   AuthConnectFailureStatus,
   AuthConnectOutcome,
@@ -7,15 +7,30 @@ import type {
 } from "../Services/Auth";
 import { Auth } from "../Services/Auth";
 import { Bridge } from "../Services/Bridge";
+import { SwfCallError } from "../Errors";
+import {
+  LoginCredentialsFromJsonString,
+  LoginSessionFromJsonString,
+} from "../Types";
 import type {
   ConnectToSelectionResult,
   ConnectToSelectionStatus,
-  LoginCredentials,
   LoginSession,
 } from "../Types";
 import { waitFor } from "../../utils/waitFor";
 
 const CONNECT_TO_TIMEOUT = "15 seconds";
+
+const decodeLoginSession = Schema.decodeUnknownEffect(
+  LoginSessionFromJsonString,
+);
+
+const decodeLoginCredentials = Schema.decodeUnknownEffect(
+  LoginCredentialsFromJsonString,
+);
+
+const flashJsonError = (method: string, cause: unknown) =>
+  new SwfCallError({ method, cause });
 
 type RuntimeState = {
   readonly servers: Map<string, Server>;
@@ -110,7 +125,7 @@ const parseConnectToSelectionResult = (
 
 const decodeFlashValue = (value: string): unknown => {
   try {
-    return JSON.parse(value) as unknown;
+    return Schema.decodeUnknownSync(Schema.UnknownFromJsonString)(value);
   } catch {
     return value;
   }
@@ -326,10 +341,18 @@ const make = Effect.gen(function* () {
           bridge.call("flash.getGameObjectS", ["loginInfo"]),
         ]);
 
-        const loginSession = JSON.parse(loginResponseStr) as LoginSession;
-        const loginCredentials = JSON.parse(
+        const loginSession = yield* decodeLoginSession(loginResponseStr).pipe(
+          Effect.mapError((cause) =>
+            flashJsonError("flash.getGameObjectS(objLogin)", cause),
+          ),
+        );
+        const loginCredentials = yield* decodeLoginCredentials(
           loginCredentialsStr,
-        ) as LoginCredentials;
+        ).pipe(
+          Effect.mapError((cause) =>
+            flashJsonError("flash.getGameObjectS(loginInfo)", cause),
+          ),
+        );
 
         state.loginSession = loginSession;
         state.username = loginSession.unm;

@@ -1,25 +1,39 @@
-import type { AvatarData, ServerData } from "@vexed/game";
+import { ServerDataSchema, type AvatarData } from "@vexed/game";
+import { Schema } from "effect";
 
 // objLogin
-export type LoginSession = {
-  servers: ServerData[];
-  bSuccess: number;
-  bCCOnly?: number;
-  iAccess?: number;
-  iAge?: number;
-  iEmailStatus?: number;
-  iUpg: number;
-  iUpgDays?: number;
-  unm: string; // username
-  sToken: string; // password
-};
+export const LoginSessionSchema = Schema.Struct({
+  servers: Schema.mutable(Schema.Array(ServerDataSchema)),
+  bSuccess: Schema.Number,
+  bCCOnly: Schema.optionalKey(Schema.Number),
+  iAccess: Schema.optionalKey(Schema.Number),
+  iAge: Schema.optionalKey(Schema.Number),
+  iEmailStatus: Schema.optionalKey(Schema.Number),
+  iUpg: Schema.Number,
+  iUpgDays: Schema.optionalKey(Schema.Number),
+  unm: Schema.String, // username
+  sToken: Schema.String, // password
+});
+
+export const LoginSessionFromJsonString =
+  Schema.fromJsonString(LoginSessionSchema);
+
+export type LoginSession = Schema.Schema.Type<typeof LoginSessionSchema>;
 
 // loginInfo
-export type LoginCredentials = {
-  strUsername: string;
-  strPassword: string;
-  strToken: string;
-};
+export const LoginCredentialsSchema = Schema.Struct({
+  strUsername: Schema.String,
+  strPassword: Schema.String,
+  strToken: Schema.String,
+});
+
+export const LoginCredentialsFromJsonString = Schema.fromJsonString(
+  LoginCredentialsSchema,
+);
+
+export type LoginCredentials = Schema.Schema.Type<
+  typeof LoginCredentialsSchema
+>;
 
 export type ConnectToSelectionStatus =
   | "selected"
