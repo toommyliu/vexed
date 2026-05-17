@@ -713,16 +713,17 @@ const renderTypeAlias = (
   checker: ts.TypeChecker,
   declaration: ts.TypeAliasDeclaration,
 ): string => {
-  if (!isSchemaTypeAlias(declaration)) {
-    return stripDeclarationText(
-      declaration.getText(declaration.getSourceFile()),
-    );
-  }
-
   const typeParameters = typeParameterText(
     declaration.getSourceFile(),
     declaration.typeParameters,
   );
+  const raw = stripDeclarationText(
+    declaration.getText(declaration.getSourceFile()),
+  );
+  if (!isSchemaTypeAlias(declaration) && !raw.includes("typeof ")) {
+    return raw;
+  }
+
   return `type ${declaration.name.text}${typeParameters} = ${formatType(
     checker,
     declaration.type,

@@ -993,7 +993,7 @@ enum EntityState {
    */
   InCombat = 2
 }
-type EnvironmentItemBucket = (typeof EnvironmentItemBuckets)[number];
+type EnvironmentItemBucket = 'ac-member' | 'ac-non-member' | 'non-ac-member' | 'non-ac-non-member';
 type EquipItemTypeFilter = "weapon" | "cape" | "helm" | "class";
 interface CharFactionID { readonly [key: string]: unknown; }
 interface FactionID { readonly [key: string]: unknown; }
@@ -1071,5 +1071,4 @@ type ArmyConfigRaw = Record<string, unknown>;
 interface Dead { readonly [key: string]: unknown; }
 interface Idle { readonly [key: string]: unknown; }
 interface InCombat { readonly [key: string]: unknown; }
-interface EnvironmentItemBuckets { readonly [key: string]: unknown; }
 interface DropChance { readonly [key: string]: unknown; }
