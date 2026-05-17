@@ -1,5 +1,6 @@
 import { parseMonsterMapIdToken } from "@vexed/game";
 import { equalsIgnoreCase } from "@vexed/shared/string";
+import type { ArmyEffect } from "./Services/Army";
 
 // Army player number or player name.
 export type ArmyLoopTauntPlayer = number | string;
@@ -23,7 +24,7 @@ export type ArmyLoopTauntOptions =
 
 export interface ArmyLoopTauntHandle {
   readonly id: string;
-  stop(): import("./Services/Army").ArmyEffect<boolean>;
+  stop(): ArmyEffect<boolean>;
 }
 
 export interface ResolvedArmyPlayer {
