@@ -6,7 +6,7 @@ export const RANK_POINT_THRESHOLDS = [
 ] as const;
 
 export const MAX_RANK_POINTS =
-  RANK_POINT_THRESHOLDS[RANK_POINT_THRESHOLDS.length - 1];
+  RANK_POINT_THRESHOLDS[RANK_POINT_THRESHOLDS.length - 1] ?? 302500;
 
 const normalizeRankPoints = (points: number): number =>
   Number.isFinite(points) ? Math.max(0, Math.trunc(points)) : 0;
@@ -15,7 +15,8 @@ export const getRankFromPoints = (points: number): number => {
   const normalizedPoints = normalizeRankPoints(points);
 
   for (let rank = 1; rank < RANK_POINT_THRESHOLDS.length; rank++) {
-    if (normalizedPoints < RANK_POINT_THRESHOLDS[rank]) {
+    const threshold = RANK_POINT_THRESHOLDS[rank] ?? MAX_RANK_POINTS;
+    if (normalizedPoints < threshold) {
       return rank;
     }
   }
