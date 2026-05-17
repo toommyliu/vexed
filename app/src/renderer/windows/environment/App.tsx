@@ -559,6 +559,12 @@ function App(): JSX.Element {
                           aria-label={`Edit reward item ID for quest ${questId}`}
                           title="Double-click to set reward item ID"
                           onDblClick={() => editQuestReward(questId)}
+                          onKeyDown={(event) => {
+                            if (event.key === "Enter" || event.key === " ") {
+                              event.preventDefault();
+                              editQuestReward(questId);
+                            }
+                          }}
                         >
                           {questId}
                         </button>
