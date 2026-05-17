@@ -3,6 +3,11 @@ import { dirname, isAbsolute, join, relative, resolve } from "node:path";
 import { fileURLToPath, pathToFileURL } from "node:url";
 
 import ts from "typescript";
+import {
+  getPropertyName,
+  parseTypeReference,
+  resolveOmitInterfaceAlias,
+} from "./ts-ast-utils";
 
 const SCRIPT_DIR = dirname(fileURLToPath(import.meta.url));
 const DEFAULT_REPO_ROOT = join(SCRIPT_DIR, "..");
@@ -228,43 +233,6 @@ const createProgram = (repoRoot: string): ts.Program => {
   });
 };
 
-const getPropertyName = (name: ts.PropertyName): string | null => {
-  if (
-    ts.isIdentifier(name) ||
-    ts.isStringLiteral(name) ||
-    ts.isNumericLiteral(name)
-  ) {
-    return name.text;
-  }
-  return null;
-};
-
-const getEntityNameText = (name: ts.EntityName): string =>
-  ts.isIdentifier(name)
-    ? name.text
-    : `${getEntityNameText(name.left)}.${name.right.text}`;
-
-const getUnqualifiedEntityName = (name: ts.EntityName): string =>
-  ts.isIdentifier(name) ? name.text : name.right.text;
-
-const parseTypeReference = (
-  node: ts.TypeNode | undefined,
-): {
-  readonly name: string;
-  readonly unqualifiedName: string;
-  readonly args: readonly ts.TypeNode[];
-} | null => {
-  if (!node || !ts.isTypeReferenceNode(node)) {
-    return null;
-  }
-
-  return {
-    name: getEntityNameText(node.typeName),
-    unqualifiedName: getUnqualifiedEntityName(node.typeName),
-    args: Array.from(node.typeArguments ?? []),
-  };
-};
-
 const typeParameterText = (
   sourceFile: ts.SourceFile,
   typeParameters: ts.NodeArray<ts.TypeParameterDeclaration> | undefined,
@@ -406,49 +374,6 @@ const buildDeclarationMap = (
   return declarations;
 };
 
-const literalTypeNames = (node: ts.TypeNode | undefined): Set<string> => {
-  const names = new Set<string>();
-  if (node === undefined) {
-    return names;
-  }
-
-  const visit = (current: ts.TypeNode): void => {
-    if (
-      ts.isLiteralTypeNode(current) &&
-      ts.isStringLiteralLike(current.literal)
-    ) {
-      names.add(current.literal.text);
-      return;
-    }
-
-    if (ts.isUnionTypeNode(current)) {
-      for (const child of current.types) {
-        visit(child);
-      }
-    }
-  };
-
-  visit(node);
-  return names;
-};
-
-const omitInterfaceMembers = (
-  declaration: ts.InterfaceDeclaration,
-  omitted: ReadonlySet<string>,
-): ts.InterfaceDeclaration => ({
-  ...declaration,
-  members: ts.factory.createNodeArray(
-    declaration.members.filter((member) => {
-      if (!ts.isMethodSignature(member) && !ts.isPropertySignature(member)) {
-        return true;
-      }
-
-      const name = getPropertyName(member.name);
-      return name === null || !omitted.has(name);
-    }),
-  ),
-});
-
 const getInterface = (
   declarations: ReadonlyMap<string, Declaration>,
   name: string,
@@ -470,14 +395,13 @@ const getInterface = (
     if (reference) {
       const nextSeen = new Set(seen);
       nextSeen.add(name);
-      if (reference.unqualifiedName === "Omit" && reference.args.length >= 2) {
-        const target = parseTypeReference(reference.args[0]);
-        if (target) {
-          return omitInterfaceMembers(
-            getInterface(declarations, target.unqualifiedName, nextSeen),
-            literalTypeNames(reference.args[1]),
-          );
-        }
+      const omitted = resolveOmitInterfaceAlias(
+        reference,
+        (targetName) => getInterface(declarations, targetName, nextSeen),
+        { referenceName: "unqualifiedName" },
+      );
+      if (omitted) {
+        return omitted;
       }
       return getInterface(declarations, reference.unqualifiedName, nextSeen);
     }

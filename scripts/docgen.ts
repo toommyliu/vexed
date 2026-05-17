@@ -16,6 +16,11 @@ import {
   type SignatureReflection,
   type SomeType,
 } from "typedoc";
+import {
+  getPropertyName,
+  parseTypeReference,
+  resolveOmitInterfaceAlias,
+} from "./ts-ast-utils";
 
 const execFileAsync = promisify(execFile);
 
@@ -495,80 +500,18 @@ const getInterface = (
   if (reference) {
     const nextSeen = new Set(seen);
     nextSeen.add(name);
-    if (reference.name === "Omit" && reference.args.length >= 2) {
-      const target = parseTypeReference(reference.args[0]);
-      if (target) {
-        return omitInterfaceMembers(
-          getInterface(declarations, target.name, nextSeen),
-          literalTypeNames(reference.args[1]),
-        );
-      }
+    const omitted = resolveOmitInterfaceAlias(
+      reference,
+      (targetName) => getInterface(declarations, targetName, nextSeen),
+      { referenceName: "unqualifiedName" },
+    );
+    if (omitted) {
+      return omitted;
     }
-    return getInterface(declarations, reference.name, nextSeen);
+    return getInterface(declarations, reference.unqualifiedName, nextSeen);
   }
 
   return fail(`Unable to find interface ${name}`);
-};
-
-const literalTypeNames = (node: ts.TypeNode | undefined): Set<string> => {
-  const names = new Set<string>();
-  if (node === undefined) {
-    return names;
-  }
-
-  const visit = (current: ts.TypeNode): void => {
-    if (
-      ts.isLiteralTypeNode(current) &&
-      ts.isStringLiteralLike(current.literal)
-    ) {
-      names.add(current.literal.text);
-      return;
-    }
-
-    if (ts.isUnionTypeNode(current)) {
-      for (const child of current.types) {
-        visit(child);
-      }
-    }
-  };
-
-  visit(node);
-  return names;
-};
-
-const omitInterfaceMembers = (
-  declaration: ts.InterfaceDeclaration,
-  omitted: ReadonlySet<string>,
-): ts.InterfaceDeclaration => ({
-  ...declaration,
-  members: ts.factory.createNodeArray(
-    declaration.members.filter((member) => {
-      if (!ts.isMethodSignature(member) && !ts.isPropertySignature(member)) {
-        return true;
-      }
-
-      const name = getPropertyName(member.name);
-      return name === null || !omitted.has(name);
-    }),
-  ),
-});
-
-const getPropertyName = (name: ts.PropertyName): string | null => {
-  if (
-    ts.isIdentifier(name) ||
-    ts.isStringLiteral(name) ||
-    ts.isNumericLiteral(name)
-  ) {
-    return name.text;
-  }
-  return null;
-};
-
-const getTypeNameText = (name: ts.EntityName): string => {
-  if (ts.isIdentifier(name)) {
-    return name.text;
-  }
-  return getTypeNameText(name.right);
 };
 
 const typeText = (
@@ -597,25 +540,12 @@ const splitTopLevel = (value: string, delimiter = ","): string[] => {
   return parts;
 };
 
-const parseTypeReference = (
-  node: ts.TypeNode | undefined,
-): { readonly name: string; readonly args: readonly ts.TypeNode[] } | null => {
-  if (!node || !ts.isTypeReferenceNode(node)) {
-    return null;
-  }
-
-  return {
-    name: getTypeNameText(node.typeName),
-    args: Array.from(node.typeArguments ?? []),
-  };
-};
-
 const isEffectTypeNode = (node: ts.TypeNode | undefined): boolean => {
   const reference = parseTypeReference(node);
   if (!reference) {
     return false;
   }
-  return reference.name === "Effect" && reference.args.length >= 1;
+  return reference.unqualifiedName === "Effect" && reference.args.length >= 1;
 };
 
 const parseEffectValueShape = (
@@ -624,14 +554,14 @@ const parseEffectValueShape = (
   const reference = parseTypeReference(node);
   if (
     !reference ||
-    reference.name !== "EffectValue" ||
+    reference.unqualifiedName !== "EffectValue" ||
     reference.args.length !== 1
   ) {
     return null;
   }
 
   const target = parseTypeReference(reference.args[0]);
-  return target?.name ?? null;
+  return target?.unqualifiedName ?? null;
 };
 
 const formatType = (
@@ -657,7 +587,7 @@ const parseEffectReturn = (
   sourceFile: ts.SourceFile,
 ): ReturnDoc => {
   const reference = parseTypeReference(node);
-  if (reference?.name === "Effect" && reference.args.length >= 1) {
+  if (reference?.unqualifiedName === "Effect" && reference.args.length >= 1) {
     return {
       raw,
       result: typeText(reference.args[0], sourceFile),
@@ -668,7 +598,10 @@ const parseEffectReturn = (
     };
   }
 
-  if (reference?.name === "BridgeEffect" && reference.args.length >= 1) {
+  if (
+    reference?.unqualifiedName === "BridgeEffect" &&
+    reference.args.length >= 1
+  ) {
     return {
       raw,
       result: typeText(reference.args[0], sourceFile),
@@ -676,7 +609,10 @@ const parseEffectReturn = (
     };
   }
 
-  if (reference?.name === "ArmyEffect" && reference.args.length >= 1) {
+  if (
+    reference?.unqualifiedName === "ArmyEffect" &&
+    reference.args.length >= 1
+  ) {
     const extraError =
       reference.args.length >= 2
         ? `${typeText(reference.args[1], sourceFile)} | `
@@ -785,7 +721,7 @@ const resolveNestedInterface = (
     return null;
   }
 
-  const declaration = declarations.get(reference.name);
+  const declaration = declarations.get(reference.unqualifiedName);
   return declaration && ts.isInterfaceDeclaration(declaration)
     ? declaration
     : null;
