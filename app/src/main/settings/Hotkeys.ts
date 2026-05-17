@@ -48,16 +48,16 @@ export const normalize = (value: unknown): HotkeysSettings => {
   return { bindings };
 };
 
-export const path = (): string => Files.join("keybindings.yaml");
+export const path = (): string => Files.appDataJoin("keybindings.json");
 
-export const read = (): HotkeysSettings => normalize(Files.readYaml(path()));
+export const read = (): HotkeysSettings => normalize(Files.readJson(path()));
 
 export const write = (settings: HotkeysSettings): void => {
-  Files.writeYaml(path(), normalize(settings));
+  Files.writeJson(path(), normalize(settings));
 };
 
 export const ensure = (): HotkeysSettings =>
-  Files.ensureYaml(path(), DEFAULT, normalize);
+  Files.ensureJson(path(), DEFAULT, normalize);
 
 export const applyPatch = (
   current: HotkeysSettings,

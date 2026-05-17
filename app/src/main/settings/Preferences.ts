@@ -30,13 +30,13 @@ export const normalize = (value: unknown): Preferences => {
   };
 };
 
-export const path = (): string => Files.join("preferences.yaml");
+export const path = (): string => Files.appDataJoin("preferences.json");
 
-export const read = (): Preferences => normalize(Files.readYaml(path()));
+export const read = (): Preferences => normalize(Files.readJson(path()));
 
 export const write = (preferences: Preferences): void => {
-  Files.writeYaml(path(), normalize(preferences));
+  Files.writeJson(path(), normalize(preferences));
 };
 
 export const ensure = (): Preferences =>
-  Files.ensureYaml(path(), DEFAULT, normalize);
+  Files.ensureJson(path(), DEFAULT, normalize);

@@ -7,7 +7,7 @@ import {
   writeFileSync,
 } from "fs";
 import { homedir } from "os";
-import { dirname, join as joinPath } from "path";
+import { dirname, isAbsolute, join as joinPath, resolve } from "path";
 import * as YAML from "yaml";
 
 export class WriteError extends Error {
@@ -22,15 +22,91 @@ export class WriteError extends Error {
   }
 }
 
-export const home = (env: NodeJS.ProcessEnv = process.env): string => {
-  const configuredHome = env["VEXED_HOME"]?.trim();
-  return configuredHome && configuredHome.length > 0
-    ? configuredHome
-    : joinPath(homedir(), ".vexed");
+let configuredAppDataHome: string | undefined;
+let configuredWorkspaceHome: string | undefined;
+
+const normalizePath = (path: string): string => {
+  const trimmed = path.trim();
+  if (trimmed.startsWith("~/") || trimmed === "~") {
+    return joinPath(homedir(), trimmed.slice(1));
+  }
+
+  return isAbsolute(trimmed) ? trimmed : resolve(trimmed);
 };
 
-export const join = (...parts: readonly string[]): string =>
-  joinPath(home(), "userdata", ...parts);
+const readConfiguredPath = (value: string | undefined): string | undefined => {
+  const trimmed = value?.trim();
+  return trimmed && trimmed.length > 0 ? normalizePath(trimmed) : undefined;
+};
+
+const readVexedHomeArg = (
+  argv: readonly string[] = process.argv,
+): string | undefined => {
+  for (let index = 0; index < argv.length; index++) {
+    const arg = argv[index];
+    if (arg === undefined) {
+      continue;
+    }
+
+    if (arg.startsWith("--vexed-home=")) {
+      return readConfiguredPath(arg.slice("--vexed-home=".length));
+    }
+
+    if (arg === "--vexed-home") {
+      return readConfiguredPath(argv[index + 1]);
+    }
+  }
+
+  return undefined;
+};
+
+export const configureAppDataHome = (path: string): void => {
+  configuredAppDataHome = normalizePath(path);
+};
+
+export const configureWorkspaceHome = (path: string): void => {
+  configuredWorkspaceHome = normalizePath(path);
+};
+
+export const resetPathConfigurationForTests = (): void => {
+  configuredAppDataHome = undefined;
+  configuredWorkspaceHome = undefined;
+};
+
+export const resolveWorkspaceHome = (
+  options: {
+    readonly argv?: readonly string[];
+    readonly env?: NodeJS.ProcessEnv;
+    readonly documentsPath?: string;
+  } = {},
+): string => {
+  const env = options.env ?? process.env;
+  const documentsPath =
+    options.documentsPath ?? joinPath(homedir(), "Documents");
+
+  return (
+    readVexedHomeArg(options.argv) ??
+    readConfiguredPath(env["VEXED_HOME"]) ??
+    joinPath(documentsPath, "vexed")
+  );
+};
+
+export const workspaceHome = (): string =>
+  configuredWorkspaceHome ?? resolveWorkspaceHome();
+
+export const workspaceJoin = (...parts: readonly string[]): string =>
+  joinPath(workspaceHome(), ...parts);
+
+export const appDataHome = (): string => {
+  if (configuredAppDataHome !== undefined) {
+    return configuredAppDataHome;
+  }
+
+  throw new Error("Vexed app data home has not been configured");
+};
+
+export const appDataJoin = (...parts: readonly string[]): string =>
+  joinPath(appDataHome(), ...parts);
 
 const YAML_PARSE_OPTIONS = {
   schema: "core",
@@ -93,6 +169,18 @@ export const readYaml = (path: string): unknown => {
 
   try {
     return readYamlFile(path);
+  } catch {
+    return undefined;
+  }
+};
+
+export const readJson = (path: string): unknown => {
+  if (!existsSync(path)) {
+    return undefined;
+  }
+
+  try {
+    return JSON.parse(readFileSync(path, "utf8")) as unknown;
   } catch {
     return undefined;
   }
@@ -168,6 +256,23 @@ export const writeYaml = (path: string, value: unknown): void => {
   }
 };
 
+export const writeJson = (path: string, value: unknown): void => {
+  const tempPath = `${path}.${process.pid}.${Date.now()}.tmp`;
+
+  try {
+    const source = `${JSON.stringify(value, null, 2)}\n`;
+    mkdirSync(dirname(path), { recursive: true });
+    writeFileSync(tempPath, source, "utf8");
+    renameSync(tempPath, path);
+  } catch (cause) {
+    try {
+      unlinkSync(tempPath);
+    } catch {}
+
+    throw new WriteError({ path, cause });
+  }
+};
+
 const isRecord = (value: unknown): value is Record<string, unknown> =>
   typeof value === "object" && value !== null && !Array.isArray(value);
 
@@ -225,6 +330,35 @@ export const ensureYaml = <T>(
 
   if (shouldRewrite(value, normalized, serialized)) {
     writeYaml(path, serialized);
+  }
+
+  return normalized;
+};
+
+export const ensureJson = <T>(
+  path: string,
+  defaults: T,
+  normalize: (value: unknown) => T,
+  serialize: (value: T) => unknown = (value) => value,
+  shouldRewrite: (
+    value: unknown,
+    normalized: T,
+    serialized: unknown,
+  ) => boolean = (value, _normalized, serialized) =>
+    !deepEqual(value, serialized),
+): T => {
+  const hasJson = existsSync(path);
+  const value = readJson(path);
+  const normalized = value === undefined ? defaults : normalize(value);
+  const serialized = serialize(normalized);
+
+  if (!hasJson || value === undefined) {
+    writeJson(path, serialized);
+    return normalized;
+  }
+
+  if (shouldRewrite(value, normalized, serialized)) {
+    writeJson(path, serialized);
   }
 
   return normalized;

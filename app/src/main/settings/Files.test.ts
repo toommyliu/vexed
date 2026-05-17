@@ -38,7 +38,54 @@ describe("Files", () => {
   });
 
   afterEach(async () => {
+    Files.resetPathConfigurationForTests();
     await rm(testDir, { recursive: true, force: true });
+  });
+
+  it("resolves workspace home from documents by default", () => {
+    expect(
+      Files.resolveWorkspaceHome({
+        argv: [],
+        env: {},
+        documentsPath: "/Users/example/Documents",
+      }),
+    ).toBe("/Users/example/Documents/vexed");
+  });
+
+  it("resolves workspace home from VEXED_HOME", () => {
+    expect(
+      Files.resolveWorkspaceHome({
+        argv: [],
+        env: { VEXED_HOME: "/tmp/vexed-workspace" },
+        documentsPath: "/Users/example/Documents",
+      }),
+    ).toBe("/tmp/vexed-workspace");
+  });
+
+  it("resolves workspace home from --vexed-home before VEXED_HOME", () => {
+    expect(
+      Files.resolveWorkspaceHome({
+        argv: ["vexed", "--vexed-home", "/tmp/from-flag"],
+        env: { VEXED_HOME: "/tmp/from-env" },
+        documentsPath: "/Users/example/Documents",
+      }),
+    ).toBe("/tmp/from-flag");
+
+    expect(
+      Files.resolveWorkspaceHome({
+        argv: ["vexed", "--vexed-home=/tmp/from-equals"],
+        env: { VEXED_HOME: "/tmp/from-env" },
+        documentsPath: "/Users/example/Documents",
+      }),
+    ).toBe("/tmp/from-equals");
+  });
+
+  it("joins paths under configured app data home", () => {
+    Files.configureAppDataHome("/tmp/vexed-app-data");
+
+    expect(Files.appDataJoin("settings", "preferences.json")).toBe(
+      "/tmp/vexed-app-data/settings/preferences.json",
+    );
   });
 
   it("returns defaults when the file is missing", () => {
@@ -135,5 +182,33 @@ describe("Files", () => {
     expect(() => Files.writeYaml(path, circular)).toThrow(Files.WriteError);
 
     expect(await readdir(testDir)).toEqual([]);
+  });
+
+  it("creates a missing JSON file with defaults when ensured", async () => {
+    const path = join(testDir, "missing", "settings.json");
+
+    expect(Files.ensureJson(path, defaults, normalize)).toEqual(defaults);
+    expect(normalize(Files.readJson(path))).toEqual(defaults);
+    expect(await readFile(path, "utf8")).toBe(
+      `${JSON.stringify(defaults, null, 2)}\n`,
+    );
+  });
+
+  it("rewrites existing JSON after normalization", async () => {
+    const path = join(testDir, "settings.json");
+    await writeFile(
+      path,
+      JSON.stringify({ enabled: false, count: "bad", extra: true }),
+      "utf8",
+    );
+
+    expect(Files.ensureJson(path, defaults, normalize)).toEqual({
+      enabled: false,
+      count: 1,
+    });
+    expect(normalize(Files.readJson(path))).toEqual({
+      enabled: false,
+      count: 1,
+    });
   });
 });

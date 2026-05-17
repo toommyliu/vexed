@@ -1,5 +1,6 @@
 import { join } from "node:path";
-import { describe, expect, it } from "vitest";
+import { afterEach, describe, expect, it } from "vitest";
+import * as Files from "./Files";
 import {
   DEFAULT,
   applyPatch,
@@ -10,6 +11,10 @@ import {
 import { normalizeHotkeyBinding } from "../../shared/hotkeys";
 
 describe("hotkey settings", () => {
+  afterEach(() => {
+    Files.resetPathConfigurationForTests();
+  });
+
   it("normalizes valid bindings", () => {
     expect(
       normalize({
@@ -76,19 +81,9 @@ describe("hotkey settings", () => {
     ).toBe(DEFAULT.bindings["load-script"]);
   });
 
-  it("resolves hotkeys under VEXED_HOME userdata", () => {
-    const previous = process.env["VEXED_HOME"];
-    process.env["VEXED_HOME"] = "/tmp/vexed-test";
-    try {
-      expect(path()).toBe(
-        join("/tmp/vexed-test", "userdata", "keybindings.yaml"),
-      );
-    } finally {
-      if (previous === undefined) {
-        delete process.env["VEXED_HOME"];
-      } else {
-        process.env["VEXED_HOME"] = previous;
-      }
-    }
+  it("resolves hotkeys under app data", () => {
+    Files.configureAppDataHome("/tmp/vexed-test");
+
+    expect(path()).toBe(join("/tmp/vexed-test", "keybindings.json"));
   });
 });

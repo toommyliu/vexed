@@ -15,6 +15,7 @@ import {
 
 export {
   THEME_TOKEN_NAMES,
+  isMotionMode,
   type Appearance,
   type MotionMode,
   type ThemeMode,
@@ -252,13 +253,13 @@ const hasArrayColorTokens = (value: unknown): boolean => {
   return false;
 };
 
-export const path = (): string => Files.join("appearance.yaml");
+export const path = (): string => Files.appDataJoin("appearance.json");
 
-export const read = (): Appearance => normalize(Files.readYaml(path()));
+export const read = (): Appearance => normalize(Files.readJson(path()));
 
 export const write = (appearance: Appearance): void => {
-  Files.writeYaml(path(), serialize(appearance));
+  Files.writeJson(path(), serialize(appearance));
 };
 
 export const ensure = (): Appearance =>
-  Files.ensureYaml(path(), DEFAULT, normalize, serialize, hasArrayColorTokens);
+  Files.ensureJson(path(), DEFAULT, normalize, serialize, hasArrayColorTokens);

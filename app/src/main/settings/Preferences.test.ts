@@ -1,8 +1,13 @@
 import { join } from "node:path";
-import { describe, expect, it } from "vitest";
+import { afterEach, describe, expect, it } from "vitest";
+import * as Files from "./Files";
 import * as Preferences from "./Preferences";
 
 describe("preferences", () => {
+  afterEach(() => {
+    Files.resetPathConfigurationForTests();
+  });
+
   it("normalizes valid values", () => {
     expect(
       Preferences.normalize({
@@ -27,19 +32,11 @@ describe("preferences", () => {
     expect(Preferences.normalize(null)).toEqual(Preferences.DEFAULT);
   });
 
-  it("resolves preferences under VEXED_HOME userdata", () => {
-    const previous = process.env["VEXED_HOME"];
-    process.env["VEXED_HOME"] = "/tmp/vexed-test";
-    try {
-      expect(Preferences.path()).toBe(
-        join("/tmp/vexed-test", "userdata", "preferences.yaml"),
-      );
-    } finally {
-      if (previous === undefined) {
-        delete process.env["VEXED_HOME"];
-      } else {
-        process.env["VEXED_HOME"] = previous;
-      }
-    }
+  it("resolves preferences under app data", () => {
+    Files.configureAppDataHome("/tmp/vexed-test");
+
+    expect(Preferences.path()).toBe(
+      join("/tmp/vexed-test", "preferences.json"),
+    );
   });
 });
