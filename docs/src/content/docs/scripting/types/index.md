@@ -37,6 +37,10 @@ Referenced types are generated from the types directly linked by the documented 
 | <a href="/scripting/types/connect-to-selection-status/" data-script-type="connect-to-selection-status"><code>ConnectToSelectionStatus</code></a> | type alias |  |
 | <a href="/scripting/types/consumable-skill-item/" data-script-type="consumable-skill-item"><code>ConsumableSkillItem</code></a> | type alias |  |
 | <a href="/scripting/types/entity-state/" data-script-type="entity-state"><code>EntityState</code></a> | enumeration |  |
+| <a href="/scripting/types/environment-drop-policy/" data-script-type="environment-drop-policy"><code>EnvironmentDropPolicy</code></a> | interface | Handling options for drops that are not registered by name. |
+| <a href="/scripting/types/environment-item-rules/" data-script-type="environment-item-rules"><code>EnvironmentItemRules</code></a> | interface |  |
+| <a href="/scripting/types/environment-quest-auto-register-options/" data-script-type="environment-quest-auto-register-options"><code>EnvironmentQuestAutoRegisterOptions</code></a> | interface |  |
+| <a href="/scripting/types/environment-state/" data-script-type="environment-state"><code>EnvironmentState</code></a> | interface |  |
 | <a href="/scripting/types/equip-enhancement-selector/" data-script-type="equip-enhancement-selector"><code>EquipEnhancementSelector</code></a> | type alias |  |
 | <a href="/scripting/types/equip-enhancement-selector-slot/" data-script-type="equip-enhancement-selector-slot"><code>EquipEnhancementSelectorSlot</code></a> | type alias |  |
 | <a href="/scripting/types/equip-item-type-filter/" data-script-type="equip-item-type-filter"><code>EquipItemTypeFilter</code></a> | type alias |  |

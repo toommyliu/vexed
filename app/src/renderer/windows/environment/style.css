@@ -1,0 +1,552 @@
+.environment-app {
+  --environment-gap: 0.75rem;
+  --environment-panel-min: 15.5rem;
+  --environment-compact-panel-min: 13rem;
+}
+
+.environment-header .app-shell__header-layout {
+  align-items: center;
+  display: grid;
+  gap: 0.75rem;
+  grid-template-columns: minmax(0, max-content) minmax(0, 1fr);
+}
+
+.environment-header .app-shell__title {
+  text-wrap: balance;
+}
+
+.environment-header .app-shell__header-left {
+  flex: none;
+  min-width: 0;
+}
+
+.environment-header__actions {
+  justify-self: end;
+  min-width: 0;
+  overflow-x: auto;
+  overscroll-behavior-x: contain;
+  scrollbar-width: none;
+  white-space: nowrap;
+}
+
+.environment-header__actions::-webkit-scrollbar {
+  display: none;
+}
+
+.environment-header__actions .button {
+  flex: 0 0 auto;
+}
+
+.environment-sync-spinner.spinner {
+  border-width: 1.5px;
+  flex: 0 0 auto;
+  height: 0.875rem;
+  margin-left: -0.125rem;
+  margin-right: -0.125rem;
+  opacity: 0.9;
+  width: 0.875rem;
+}
+
+.environment-body {
+  display: flex;
+  flex: 1 1 auto;
+  min-height: 0;
+  min-width: 0;
+  overflow: hidden;
+  padding: clamp(0.75rem, 1.5vw, 1rem);
+}
+
+.environment-shell {
+  display: flex;
+  flex: 1 1 auto;
+  flex-direction: column;
+  gap: var(--environment-gap);
+  height: 100%;
+  min-height: 0;
+  min-width: 0;
+}
+
+.environment-error {
+  background: rgb(var(--destructive) / 0.1);
+  border-radius: var(--radius-md);
+  box-shadow:
+    inset 0 0 0 1px rgb(var(--destructive) / 0.18),
+    var(--shadow-xs);
+  color: rgb(var(--destructive));
+  font-size: var(--text-sm);
+  line-height: 1.35;
+  padding: 0.625rem 0.75rem;
+  text-wrap: pretty;
+}
+
+.environment-grid {
+  display: grid;
+  flex: 1 1 auto;
+  gap: var(--environment-gap);
+  grid-template-areas:
+    "drops quests"
+    "drops boosts";
+  grid-template-columns: minmax(24rem, 1.35fr) minmax(19rem, 0.95fr);
+  grid-template-rows: minmax(var(--environment-panel-min), 1.1fr) minmax(
+      var(--environment-compact-panel-min),
+      0.9fr
+    );
+  height: 100%;
+  min-height: 0;
+  min-width: 0;
+  width: 100%;
+}
+
+.environment-panel {
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+}
+
+.environment-panel--item {
+  grid-area: drops;
+  order: 1;
+}
+
+.environment-panel--quest {
+  grid-area: quests;
+  order: 2;
+}
+
+.environment-panel--boost {
+  grid-area: boosts;
+  order: 3;
+}
+
+.environment-panel__body {
+  border: 0;
+  border-bottom-left-radius: inherit;
+  border-bottom-right-radius: inherit;
+  border-top-left-radius: 0;
+  border-top-right-radius: 0;
+  flex: 1 1 0%;
+  height: 100%;
+  margin-bottom: -1px;
+  margin-left: -1px;
+  margin-right: -1px;
+  min-height: 0;
+  min-width: 0;
+}
+
+.environment-panel__header {
+  align-items: center;
+  padding: 0.375rem 0.375rem 0.375rem 0.75rem !important;
+}
+
+.environment-panel__title-group {
+  align-items: center;
+  display: flex;
+  gap: 0.5rem;
+  min-width: 0;
+}
+
+.environment-panel__title {
+  font-size: var(--text-sm);
+  font-weight: 600;
+  letter-spacing: 0;
+}
+
+.environment-panel__count.badge {
+  border-radius: var(--radius-xs);
+  font-size: var(--text-xs);
+  font-variant-numeric: tabular-nums;
+  height: 1.125rem;
+  min-width: 1.125rem;
+  padding: 0 0.1875rem;
+}
+
+.environment-panel__actions {
+  align-items: center;
+  display: flex;
+  flex: 0 0 auto;
+  gap: 0.25rem;
+}
+
+.environment-panel__body .card__content {
+  display: grid;
+  flex: 1 1 0%;
+  height: 100%;
+  gap: 0.625rem;
+  grid-template-rows: auto minmax(0, 1fr);
+  min-height: 0;
+  min-width: 0;
+  padding: 0.75rem;
+}
+
+.environment-panel--item .environment-panel__body .card__content {
+  grid-template-rows: auto auto minmax(0, 1fr);
+}
+
+.environment-panel--quest .environment-panel__body .card__content {
+  grid-template-rows: auto auto minmax(0, 1fr);
+}
+
+.environment-drop-rules {
+  background: rgb(var(--muted) / 0.38);
+  border-radius: var(--radius-md);
+  box-shadow: inset 0 0 0 1px rgb(var(--border) / 0.64);
+  display: grid;
+  gap: 0.5rem;
+  min-width: 0;
+  padding: 0.625rem;
+}
+
+.environment-quest-rules {
+  background: rgb(var(--muted) / 0.38);
+  border-radius: var(--radius-md);
+  box-shadow: inset 0 0 0 1px rgb(var(--border) / 0.64);
+  display: grid;
+  gap: 0.375rem 0.625rem;
+  grid-template-columns: repeat(auto-fit, minmax(8rem, 1fr));
+  min-width: 0;
+  padding: 0.625rem;
+}
+
+.environment-bucket-grid {
+  display: grid;
+  gap: 0.375rem 0.625rem;
+  grid-template-columns: repeat(auto-fit, minmax(9rem, 1fr));
+  min-width: 0;
+}
+
+.environment-rule-checkbox.checkbox {
+  min-height: 1.625rem;
+  min-width: 0;
+}
+
+.environment-rule-checkbox .checkbox__label {
+  font-size: var(--text-sm);
+  line-height: 1.35;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.environment-quest-rules .environment-rule-checkbox .checkbox__label {
+  white-space: normal;
+}
+
+.environment-rule-checkbox--reject {
+  border-top: 1px solid rgb(var(--border) / 0.68);
+  padding-top: 0.5rem;
+}
+
+.environment-panel--boost .environment-panel__content {
+  gap: 0.5rem;
+  padding: 0.625rem;
+}
+
+.environment-entry {
+  display: grid;
+  gap: 0.5rem;
+  grid-template-columns: minmax(0, 1fr) auto;
+  min-width: 0;
+}
+
+.environment-entry .input {
+  min-width: 0;
+}
+
+.environment-icon-action .button__content > .button__icon {
+  height: 1.0625rem;
+  margin: 0;
+  opacity: 0.84;
+  width: 1.0625rem;
+}
+
+
+.environment-list {
+  align-content: start;
+  background: rgb(var(--muted) / 0.55);
+  border-radius: var(--radius-lg);
+  box-shadow: inset 0 0 0 1px rgb(var(--border) / 0.72);
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.375rem;
+  height: 100%;
+  min-height: 0;
+  min-width: 0;
+  overflow-y: auto;
+}
+
+
+.environment-list--drops {
+  align-content: start;
+}
+
+.environment-empty {
+  align-items: center;
+  color: rgb(var(--muted-foreground));
+  display: flex;
+  font-size: var(--text-sm);
+  height: 100%;
+  justify-content: center;
+  min-height: 4rem;
+  width: 100%;
+}
+
+.environment-pill {
+  align-items: center;
+  background: rgb(var(--card));
+  border: 1px solid rgb(var(--border));
+  border-radius: 9999px;
+  color: rgb(var(--foreground));
+  display: inline-flex;
+  font-size: var(--text-sm);
+  gap: 0.5rem;
+  height: var(--control-height-md);
+  min-width: 0;
+  padding: 0 0.25rem 0 0.875rem;
+  max-width: 100%;
+}
+
+.environment-pill span {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.environment-pill--quest {
+  font-family: var(--font-mono);
+  font-size: var(--text-sm);
+  font-variant-numeric: tabular-nums;
+  font-weight: 700;
+  gap: 0;
+  padding-left: 0.375rem;
+}
+
+.environment-token--id,
+.environment-reward-input.input--unstyled {
+  align-items: center;
+  border-radius: var(--radius-xs);
+  display: inline-flex;
+  height: 1.375rem;
+  justify-content: center;
+  min-width: 2rem;
+  padding: 0 0.375rem;
+  transition:
+    background-color var(--duration-fast),
+    box-shadow var(--duration-fast),
+    color var(--duration-fast);
+}
+
+.environment-token--id {
+  background: rgb(var(--muted) / 0.5);
+  border: 0;
+  color: rgb(var(--muted-foreground));
+  cursor: default;
+  font: inherit;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.environment-quest-id-button:focus-visible {
+  box-shadow: 0 0 0 1px rgb(var(--ring));
+}
+
+.environment-quest-id-button:hover {
+  background: rgb(var(--muted) / 0.7);
+  color: rgb(var(--foreground));
+}
+
+.environment-reward-input.input--unstyled {
+  background: rgb(var(--accent));
+  caret-color: rgb(var(--foreground));
+  cursor: text;
+  field-sizing: content;
+  flex: 0 1 auto;
+  font-family: inherit;
+  font-size: inherit;
+  font-weight: inherit;
+  line-height: 1;
+  max-width: 8ch;
+  min-height: 0;
+  min-width: 6.5ch;
+  outline: none;
+  text-align: left;
+  width: auto;
+}
+
+.environment-reward-input.input--unstyled:hover {
+  box-shadow: 0 0 0 1px rgb(var(--border));
+}
+
+.environment-reward-input.input--unstyled:focus-visible {
+  box-shadow: 0 0 0 1px rgb(var(--ring));
+}
+
+.environment-reward-input.input--unstyled::placeholder {
+  color: rgb(var(--muted-foreground) / 0.4);
+  font-weight: 400;
+}
+
+.environment-quest-separator {
+  color: rgb(var(--muted-foreground) / 0.6);
+  font-weight: 500;
+  margin-inline: 0.125rem;
+}
+
+.environment-reward-input.input--unstyled::selection {
+  background: rgb(var(--primary) / 0.24);
+}
+
+.environment-pill .environment-remove-button.button {
+  border-radius: 9999px;
+  height: calc(var(--control-height-md) - 0.5rem);
+  margin-left: 0.125rem;
+  width: calc(var(--control-height-md) - 0.5rem);
+}
+
+.environment-remove-button:hover {
+  background: rgb(var(--destructive) / 0.1);
+  color: rgb(var(--destructive));
+}
+
+@media (max-width: 1060px) {
+  .environment-body {
+    overflow: hidden;
+  }
+
+  .environment-shell {
+    height: 100%;
+    min-height: 0;
+  }
+
+  .environment-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    grid-template-areas:
+      "drops quests"
+      "drops boosts";
+    grid-template-rows:
+      minmax(var(--environment-panel-min), 1.2fr)
+      minmax(var(--environment-compact-panel-min), 0.8fr);
+    height: 100%;
+    min-height: 0;
+    overflow: visible;
+  }
+}
+
+@media (max-height: 580px) {
+  .environment-body {
+    display: block;
+    overflow-x: hidden;
+    overflow-y: auto;
+    padding-bottom: 1.25rem;
+  }
+
+  .environment-shell {
+    height: auto;
+    min-height: 0;
+  }
+
+  .environment-grid {
+    height: auto;
+    flex: 1 0 auto;
+  }
+
+  .environment-panel__body,
+  .environment-panel__body .card__content {
+    height: auto;
+    flex: 1 1 auto;
+  }
+}
+
+@media (max-width: 760px) {
+  .environment-body {
+    display: block;
+    overflow-x: hidden;
+    overflow-y: auto;
+  }
+
+  .environment-shell {
+    display: flex;
+    /* Use flex: 1 1 auto so the shell stretches when the window is taller
+       than the content's natural size, letting cards fill the space. */
+    flex: 1 1 auto;
+    flex-direction: column;
+    height: auto;
+    min-height: 0;
+    /* Bottom padding keeps the last card clear of the window chrome
+       when a scrollbar appears. */
+    padding-bottom: 1.25rem;
+    width: 100%;
+  }
+
+  .environment-grid {
+    display: flex;
+    /* Allow the grid to grow and fill available shell height. */
+    flex: 1 1 auto;
+    flex-direction: column;
+    gap: 1rem;
+    height: auto;
+    min-height: 0;
+    width: 100%;
+  }
+
+  /* Drops and Quests grow proportionally; Boosts gets a smaller share. */
+  .environment-panel--item,
+  .environment-panel--quest {
+    flex: 2 1 auto;
+    grid-column: auto;
+    min-height: var(--environment-panel-min);
+    width: 100%;
+  }
+
+  .environment-panel--boost {
+    flex: 1 1 auto;
+    grid-column: auto;
+    min-height: var(--environment-compact-panel-min);
+    width: 100%;
+  }
+
+  .environment-panel__body,
+  .environment-panel__body .card__content {
+    height: auto;
+    flex: 1 1 auto;
+  }
+
+  .environment-panel__body .card__content,
+  .environment-panel--item .environment-panel__body .card__content {
+    grid-template-rows: auto minmax(0, 1fr);
+  }
+
+  .environment-panel--item .environment-panel__body .card__content {
+    grid-template-rows: auto auto minmax(0, 1fr);
+  }
+
+  .environment-panel--quest .environment-panel__body .card__content {
+    grid-template-rows: auto auto minmax(0, 1fr);
+  }
+
+  .environment-list {
+    min-height: 4rem;
+  }
+
+  .environment-list--drops {
+    min-height: 2.75rem;
+  }
+}
+
+@media (max-width: 520px) {
+  .environment-header .app-shell__header-layout {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .environment-header .app-shell__header-left,
+  .environment-header__actions {
+    justify-content: flex-start;
+    justify-self: stretch;
+  }
+
+  .environment-header__actions .button {
+    flex: 0 0 auto;
+  }
+}

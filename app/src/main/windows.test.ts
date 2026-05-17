@@ -293,7 +293,7 @@ describe("window service", () => {
     expect(harness.windows).toHaveLength(1);
   });
 
-  it("attaches Environment and other game-child windows to the resolved game", async () => {
+  it("tracks Environment and other game-child windows against the resolved game", async () => {
     const harness = createHarness();
     const gameWindow = (await run(
       harness.service.openGameWindow,
@@ -306,8 +306,14 @@ describe("window service", () => {
       harness.service.openWindow(WindowIds.PacketLogger, gameWindow.id),
     )) as unknown as FakeWindow;
 
-    expect(environment.options.parent).toBe(gameWindow);
-    expect(logger.options.parent).toBe(gameWindow);
+    expect(environment.options.parent).toBeUndefined();
+    expect(logger.options.parent).toBeUndefined();
+    await expect(
+      run(harness.service.getGameWindowId(environment.id)),
+    ).resolves.toBe(gameWindow.id);
+    await expect(run(harness.service.getGameWindowId(logger.id))).resolves.toBe(
+      gameWindow.id,
+    );
   });
 
   it("resolves child senders back to their owning game", async () => {
@@ -327,8 +333,13 @@ describe("window service", () => {
       harness.service.openWindow(WindowIds.PacketSpammer, follower.id),
     )) as unknown as FakeWindow;
 
-    expect(packetSpammer.options.parent).toBe(firstGame);
-    expect(packetSpammer.options.parent).not.toBe(secondGame);
+    expect(packetSpammer.options.parent).toBeUndefined();
+    await expect(
+      run(harness.service.getGameWindowId(packetSpammer.id)),
+    ).resolves.toBe(firstGame.id);
+    await expect(
+      run(harness.service.getGameWindowId(packetSpammer.id)),
+    ).resolves.not.toBe(secondGame.id);
   });
 
   it("reveals an existing game window instead of creating another one", async () => {
@@ -438,7 +449,10 @@ describe("window service", () => {
       harness.service.openWindow(WindowIds.Environment),
     )) as unknown as FakeWindow;
 
-    expect(child.options.parent).not.toBe(destroyedGame);
+    expect(child.options.parent).toBeUndefined();
+    await expect(
+      run(harness.service.getGameWindowId(child.id)),
+    ).resolves.not.toBe(destroyedGame.id);
     expect(harness.windows.filter((window) => !window.destroyed)).toHaveLength(
       2,
     );

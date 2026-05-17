@@ -68,6 +68,7 @@ interface ScriptApi {
     readonly bank: BankApi;
     readonly combat: CombatApi;
     readonly drops: DropsApi;
+    readonly environment: EnvironmentApi;
     readonly house: HouseApi;
     readonly inventory: InventoryApi;
     readonly packet: ScriptPacketApi;
@@ -162,9 +163,43 @@ interface CombatApi {
 interface DropsApi {
     acceptDrop(item: ItemIdentifierToken): Effect<void, BridgeError>;
     containsDrop(item: ItemIdentifierToken): Effect<boolean, BridgeError>;
+    getDrops(): Effect<readonly ItemData[], never>;
     isUsingCustomDrops(): Effect<boolean, BridgeError>;
     rejectDrop(itemId: number, visual?: boolean): Effect<boolean, BridgeError>;
     toggleUi(): Effect<void, BridgeError>;
+}
+interface EnvironmentApi {
+    getState(): Effect<EnvironmentState, unknown>;
+    clear(): Effect<EnvironmentState, unknown>;
+    addQuest(questId: string | number, rewardItemId?: string | number): Effect<EnvironmentState, unknown>;
+    removeQuest(questId: string | number): Effect<EnvironmentState, unknown>;
+    setQuestReward(questId: string | number, rewardItemId: string | number): Effect<EnvironmentState, unknown>;
+    clearQuestReward(questId: string | number): Effect<EnvironmentState, unknown>;
+    clearQuests(): Effect<EnvironmentState, unknown>;
+  /** Enable or disable auto registration of quest requirements in the drop list. */
+    setAutoRegisterRequirements(enabled: boolean): Effect<EnvironmentState, unknown>;
+  /** Enable or disable auto registration of quest rewards in the drop list. */
+    setAutoRegisterRewards(enabled: boolean): Effect<EnvironmentState, unknown>;
+    addItem(name: string): Effect<EnvironmentState, unknown>;
+    removeItem(name: string): Effect<EnvironmentState, unknown>;
+  /** Accept or ignore member-only AC-tagged items. */
+    setAcceptAcMemberOnlyDrops(enabled: boolean): Effect<EnvironmentState, unknown>;
+  /** Accept or ignore non-member AC-tagged items. */
+    setAcceptAcNonMemberDrops(enabled: boolean): Effect<EnvironmentState, unknown>;
+  /** Accept or ignore member-only non-AC items. */
+    setAcceptNonAcMemberOnlyDrops(enabled: boolean): Effect<EnvironmentState, unknown>;
+  /** Accept or ignore non-member non-AC items. */
+    setAcceptNonAcNonMemberDrops(enabled: boolean): Effect<EnvironmentState, unknown>;
+  /** Reject or ignore unregistered drops that are not accepted by policy. */
+    setRejectUnregisteredDrops(enabled: boolean): Effect<EnvironmentState, unknown>;
+  /** Update one or more drop handling options. */
+    setDropPolicy(policy: Partial<EnvironmentDropPolicy>): Effect<EnvironmentState, unknown>;
+    clearItems(): Effect<EnvironmentState, unknown>;
+    addBoost(name: string): Effect<EnvironmentState, unknown>;
+    removeBoost(name: string): Effect<EnvironmentState, unknown>;
+    clearBoosts(): Effect<EnvironmentState, unknown>;
+    fetchBoosts(): Effect<readonly string[], unknown>;
+    syncToAll(): Effect<EnvironmentState, unknown>;
 }
 interface HouseApi {
     getItem(item: ItemIdentifierToken): Effect<Item | null, BridgeError>;
@@ -200,6 +235,7 @@ interface PlayerApi {
     isAfk(): Effect<boolean, BridgeError>;
     isReady(): Effect<boolean, BridgeError>;
     isMember(): Effect<boolean, BridgeError>;
+    reloadAvatar(): Effect<boolean, BridgeError>;
     jumpToCell(cell: string, pad?: string, correction?: boolean): Effect<void, BridgeError>;
     joinMap(map: string, cell?: string, pad?: string): Effect<void, BridgeError>;
     goToPlayer(name: string): Effect<void, BridgeError>;
@@ -479,17 +515,37 @@ type ConsumableSkillItem = {
   itemId?: number;
   name?: string;
 };
+interface EnvironmentDropPolicy {
+  /** Accept member-only AC-tagged items. */
+  readonly acceptAcMemberOnlyDrops: boolean;
+  /** Accept non-member AC-tagged items. */
+  readonly acceptAcNonMemberDrops: boolean;
+  /** Accept member-only non-AC items. */
+  readonly acceptNonAcMemberOnlyDrops: boolean;
+  /** Accept non-member non-AC items. */
+  readonly acceptNonAcNonMemberDrops: boolean;
+  /** Reject any unregistered drop that is not accepted by this policy. */
+  readonly rejectUnregisteredDrops: boolean;
+}
+interface EnvironmentState {
+  readonly questIds: readonly number[];
+  readonly questAutoRegister: EnvironmentQuestAutoRegisterOptions;
+  readonly questRewards: Readonly<Record<number, number>>;
+  readonly itemNames: readonly string[];
+  readonly itemRules: EnvironmentItemRules;
+  readonly boosts: readonly string[];
+}
 type EquipEnhancementSelector = {
   /**
-   * The name of the enhancement, i.e. Lucky or Forge.
+   * The base enhancement name to match, such as "lucky" or "forge".
    */
   readonly enhancement: string;
   /**
-   * The slot of the item. One of "weapon", "cape", "helm", "class".
+   * The slot of the item, one of "weapon", "cape", "helm", "class".
    */
   readonly slot?: EquipEnhancementSelectorSlot;
   /**
-   * Typically the proc name for the enhancement. 
+   * Optional special enhancement variant, such as a weapon proc or Forge special ("anima", "vainglory").
    */
   readonly special?: string;
 };
@@ -535,6 +591,46 @@ interface Item {
   readonly enhancementPatternId: number;
   isBoost(): boolean;
 }
+type ItemData = {
+  CharID: number;
+  CharItemID: number;
+  EnhDPS: number;
+  EnhID: number;
+  EnhLvl: number;
+  EnhPatternID: number;
+  PatternID?: number | string;
+  EnhRng: number;
+  EnhRty: number;
+  ItemID: number;
+  ProcID?: number;
+  bBank: number;
+  bHouse: number;
+  bCoins: number;
+  bEquip: number;
+  bStaff: number;
+  bTemp: number;
+  bUpg: number;
+  bWear: number;
+  dPurchase: string;
+  iCost: number;
+  iDPS: number;
+  iHrs: number;
+  iLvl: number;
+  iQty: number;
+  iRng: number;
+  iRty: number;
+  iStk: number;
+  iType: number;
+  sDesc: string;
+  sES: string;
+  sElmt: string;
+  sFile: string;
+  sIcon: string;
+  sLink: string;
+  sMeta: string;
+  sName: string;
+  sType: string;
+};
 interface Monster extends BaseEntity {
   readonly data: MonsterData;
   readonly monMapId: number;
@@ -594,16 +690,12 @@ type ShopInfo = {
 interface ShopItem extends Item {
   data: ShopItemData;
 }
-interface When { readonly [key: string]: unknown; }
 interface ArmySessionPayload extends ArmyConfigPayload {
   readonly sessionId: string;
   readonly playerName: string;
   readonly playerNumber: number;
   readonly role: "leader" | "member";
 }
-interface Number { readonly [key: string]: unknown; }
-interface The { readonly [key: string]: unknown; }
-interface Can { readonly [key: string]: unknown; }
 type AuthConnectFailureStatus =
   | Exclude<ConnectToSelectionStatus, "selected">
   | "connection-failed"
@@ -649,11 +741,15 @@ type Keep<Value> = {
     keep: true;
     value: Value;
 };
-interface Lucky { readonly [key: string]: unknown; }
-interface Forge { readonly [key: string]: unknown; }
-interface One { readonly [key: string]: unknown; }
+interface EnvironmentQuestAutoRegisterOptions {
+  readonly requirements: boolean;
+  readonly rewards: boolean;
+}
+interface EnvironmentItemRules {
+  readonly buckets: readonly EnvironmentItemBucket[];
+  readonly rejectElse: boolean;
+}
 type EquipEnhancementSelectorSlot = EquipItemTypeFilter | "armor";
-interface Typically { readonly [key: string]: unknown; }
 type FactionData = {
   CharFactionID: string;
   /**
@@ -681,46 +777,17 @@ type FactionData = {
    */
   sName: string;
 };
-type ItemData = {
-  CharID: number;
-  CharItemID: number;
-  EnhDPS: number;
-  EnhID: number;
-  EnhLvl: number;
-  EnhPatternID: number;
-  PatternID?: number | string;
-  EnhRng: number;
-  EnhRty: number;
-  ItemID: number;
-  ProcID?: number;
-  bBank: number;
-  bHouse: number;
-  bCoins: number;
-  bEquip: number;
-  bStaff: number;
-  bTemp: number;
-  bUpg: number;
-  bWear: number;
-  dPurchase: string;
-  iCost: number;
-  iDPS: number;
-  iHrs: number;
-  iLvl: number;
-  iQty: number;
-  iRng: number;
-  iRty: number;
-  iStk: number;
-  iType: number;
-  sDesc: string;
-  sES: string;
-  sElmt: string;
-  sFile: string;
-  sIcon: string;
-  sLink: string;
-  sMeta: string;
-  sName: string;
-  sType: string;
-};
+interface CharID { readonly [key: string]: unknown; }
+interface CharItemID { readonly [key: string]: unknown; }
+interface EnhDPS { readonly [key: string]: unknown; }
+interface EnhID { readonly [key: string]: unknown; }
+interface EnhLvl { readonly [key: string]: unknown; }
+interface EnhPatternID { readonly [key: string]: unknown; }
+interface PatternID { readonly [key: string]: unknown; }
+interface EnhRng { readonly [key: string]: unknown; }
+interface EnhRty { readonly [key: string]: unknown; }
+interface ItemID { readonly [key: string]: unknown; }
+interface ProcID { readonly [key: string]: unknown; }
 type MonsterData = BaseEntityData & {
   iLvl: number;
   intMP: number;
@@ -926,21 +993,10 @@ enum EntityState {
    */
   InCombat = 2
 }
+type EnvironmentItemBucket = 'ac-member' | 'ac-non-member' | 'non-ac-member' | 'non-ac-non-member';
 type EquipItemTypeFilter = "weapon" | "cape" | "helm" | "class";
 interface CharFactionID { readonly [key: string]: unknown; }
-interface ID { readonly [key: string]: unknown; }
 interface FactionID { readonly [key: string]: unknown; }
-interface CharID { readonly [key: string]: unknown; }
-interface CharItemID { readonly [key: string]: unknown; }
-interface EnhDPS { readonly [key: string]: unknown; }
-interface EnhID { readonly [key: string]: unknown; }
-interface EnhLvl { readonly [key: string]: unknown; }
-interface EnhPatternID { readonly [key: string]: unknown; }
-interface PatternID { readonly [key: string]: unknown; }
-interface EnhRng { readonly [key: string]: unknown; }
-interface EnhRty { readonly [key: string]: unknown; }
-interface ItemID { readonly [key: string]: unknown; }
-interface ProcID { readonly [key: string]: unknown; }
 interface QuestID { readonly [key: string]: unknown; }
 interface RequiredItems { readonly [key: string]: unknown; }
 type QuestRequirementData = {
@@ -976,7 +1032,6 @@ type QuestBonusRewardData = {
    */
   sName: string;
 };
-interface Whether { readonly [key: string]: unknown; }
 type QuestRewardData = {
   /**
    * The item ID.
@@ -1005,13 +1060,8 @@ type QuestTurnInData = {
    */
   iQty: number;
 };
-interface Proc { readonly [key: string]: unknown; }
-interface Awe { readonly [key: string]: unknown; }
 interface ItemProcID { readonly [key: string]: unknown; }
-interface Shop { readonly [key: string]: unknown; }
 interface ShopItemID { readonly [key: string]: unknown; }
-interface Enhancement { readonly [key: string]: unknown; }
-interface Items { readonly [key: string]: unknown; }
 interface ArmyConfigCore {
   readonly leader: string;
   readonly players: readonly string[];

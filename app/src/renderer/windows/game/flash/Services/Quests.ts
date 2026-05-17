@@ -4,6 +4,10 @@ import type { Effect } from "effect";
 import type { BridgeEffect } from "./Bridge";
 import type { Quest } from "@vexed/game";
 
+export type QuestLoadedListener = (
+  questIds: readonly number[],
+) => Effect.Effect<void, unknown>;
+
 export interface QuestsShape {
   abandon(questId: number): BridgeEffect<void>;
   accept(questId: number, silent?: boolean): BridgeEffect<void>;
@@ -18,6 +22,7 @@ export interface QuestsShape {
   load(questId: number, silent?: boolean): BridgeEffect<void>;
   loadMany(questIds: number[], silent?: boolean): BridgeEffect<void>;
   getTree(): Effect.Effect<Collection<number, Quest>>;
+  onLoaded(listener: QuestLoadedListener): Effect.Effect<() => void>;
   has(questId: number): Effect.Effect<boolean>;
   getAccepted(): BridgeEffect<Quest[]>;
   isAvailable(questId: number): BridgeEffect<boolean>;

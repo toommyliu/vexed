@@ -1,5 +1,6 @@
 import { Layer, ManagedRuntime } from "effect";
 import { ArmyLive } from "./army/Layers/Army";
+import { EnvironmentLive } from "./environment/Layers/Environment";
 import { FeaturesLive } from "./features/Layers/Features";
 import { FlashLive } from "./flash/Layers/Flash";
 import { FlashJobGateLive } from "./flash/Layers/JobGate";
@@ -13,9 +14,7 @@ const JobGateRuntimeLive = FlashJobGateLive.pipe(
   Layer.provide(FlashRuntimeLive),
 );
 
-const JobsRuntimeLive = JobsLive.pipe(
-  Layer.provide(JobGateRuntimeLive),
-);
+const JobsRuntimeLive = JobsLive.pipe(Layer.provide(JobGateRuntimeLive));
 
 const FlashJobPoliciesRuntimeLive = FlashJobPoliciesLive.pipe(
   Layer.provide(Layer.mergeAll(FlashRuntimeLive, JobsRuntimeLive)),
@@ -25,8 +24,10 @@ const FeatureRuntimeLive = FeaturesLive.pipe(
   Layer.provide(Layer.mergeAll(FlashRuntimeLive, JobsRuntimeLive)),
 );
 
-const ArmyRuntimeLive = ArmyLive.pipe(
-  Layer.provide(FlashRuntimeLive),
+const ArmyRuntimeLive = ArmyLive.pipe(Layer.provide(FlashRuntimeLive));
+
+const EnvironmentRuntimeLive = EnvironmentLive.pipe(
+  Layer.provide(Layer.mergeAll(FlashRuntimeLive, JobsRuntimeLive)),
 );
 
 const GameServicesLive = Layer.mergeAll(
@@ -35,15 +36,13 @@ const GameServicesLive = Layer.mergeAll(
   FlashJobPoliciesRuntimeLive,
   FeatureRuntimeLive,
   ArmyRuntimeLive,
+  EnvironmentRuntimeLive,
 );
 
 const ScriptRunnerRuntimeLive = ScriptRunnerLive.pipe(
   Layer.provide(GameServicesLive),
 );
 
-const GameLive = Layer.mergeAll(
-  GameServicesLive,
-  ScriptRunnerRuntimeLive,
-);
+const GameLive = Layer.mergeAll(GameServicesLive, ScriptRunnerRuntimeLive);
 
 export const runtime = ManagedRuntime.make(GameLive);

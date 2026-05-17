@@ -16,6 +16,11 @@ import {
   type SignatureReflection,
   type SomeType,
 } from "typedoc";
+import {
+  getPropertyName,
+  parseTypeReference,
+  resolveOmitInterfaceAlias,
+} from "./ts-ast-utils";
 
 const execFileAsync = promisify(execFile);
 
@@ -39,6 +44,7 @@ const TYPE_REFERENCE_WRAPPERS = new Set([
   "Array",
   "Effect",
   "Generator",
+  "Omit",
   "Partial",
   "Pick",
   "Readonly",
@@ -391,7 +397,7 @@ const getSummary = (node: ts.Node): string =>
   getText(getNodeJsDoc(node)?.comment);
 
 const getParamDescriptions = (
-  node: ts.SignatureDeclarationBase,
+  node: ts.SignatureDeclaration,
 ): ReadonlyMap<string, string> => {
   const descriptions = new Map<string, string>();
   const doc = getNodeJsDoc(node);
@@ -477,30 +483,35 @@ const getInterface = (
     ts.InterfaceDeclaration | ts.TypeAliasDeclaration
   >,
   name: string,
+  seen = new Set<string>(),
 ): ts.InterfaceDeclaration => {
-  const declaration = declarations.get(name);
-  if (!declaration || !ts.isInterfaceDeclaration(declaration)) {
-    fail(`Unable to find interface ${name}`);
+  if (seen.has(name)) {
+    fail(`Unable to resolve circular interface alias ${name}`);
   }
-  return declaration;
-};
 
-const getPropertyName = (name: ts.PropertyName): string | null => {
-  if (
-    ts.isIdentifier(name) ||
-    ts.isStringLiteral(name) ||
-    ts.isNumericLiteral(name)
-  ) {
-    return name.text;
-  }
-  return null;
-};
+  const declaration =
+    declarations.get(name) ?? fail(`Unable to find interface ${name}`);
 
-const getTypeNameText = (name: ts.EntityName): string => {
-  if (ts.isIdentifier(name)) {
-    return name.text;
+  if (ts.isInterfaceDeclaration(declaration)) {
+    return declaration;
   }
-  return getTypeNameText(name.right);
+
+  const reference = parseTypeReference(declaration.type);
+  if (reference) {
+    const nextSeen = new Set(seen);
+    nextSeen.add(name);
+    const omitted = resolveOmitInterfaceAlias(
+      reference,
+      (targetName) => getInterface(declarations, targetName, nextSeen),
+      { referenceName: "unqualifiedName" },
+    );
+    if (omitted) {
+      return omitted;
+    }
+    return getInterface(declarations, reference.unqualifiedName, nextSeen);
+  }
+
+  return fail(`Unable to find interface ${name}`);
 };
 
 const typeText = (
@@ -529,25 +540,12 @@ const splitTopLevel = (value: string, delimiter = ","): string[] => {
   return parts;
 };
 
-const parseTypeReference = (
-  node: ts.TypeNode | undefined,
-): { readonly name: string; readonly args: readonly ts.TypeNode[] } | null => {
-  if (!node || !ts.isTypeReferenceNode(node)) {
-    return null;
-  }
-
-  return {
-    name: getTypeNameText(node.typeName),
-    args: Array.from(node.typeArguments ?? []),
-  };
-};
-
 const isEffectTypeNode = (node: ts.TypeNode | undefined): boolean => {
   const reference = parseTypeReference(node);
   if (!reference) {
     return false;
   }
-  return reference.name === "Effect" && reference.args.length >= 1;
+  return reference.unqualifiedName === "Effect" && reference.args.length >= 1;
 };
 
 const parseEffectValueShape = (
@@ -556,14 +554,14 @@ const parseEffectValueShape = (
   const reference = parseTypeReference(node);
   if (
     !reference ||
-    reference.name !== "EffectValue" ||
+    reference.unqualifiedName !== "EffectValue" ||
     reference.args.length !== 1
   ) {
     return null;
   }
 
   const target = parseTypeReference(reference.args[0]);
-  return target?.name ?? null;
+  return target?.unqualifiedName ?? null;
 };
 
 const formatType = (
@@ -589,7 +587,7 @@ const parseEffectReturn = (
   sourceFile: ts.SourceFile,
 ): ReturnDoc => {
   const reference = parseTypeReference(node);
-  if (reference?.name === "Effect" && reference.args.length >= 1) {
+  if (reference?.unqualifiedName === "Effect" && reference.args.length >= 1) {
     return {
       raw,
       result: typeText(reference.args[0], sourceFile),
@@ -600,7 +598,10 @@ const parseEffectReturn = (
     };
   }
 
-  if (reference?.name === "BridgeEffect" && reference.args.length >= 1) {
+  if (
+    reference?.unqualifiedName === "BridgeEffect" &&
+    reference.args.length >= 1
+  ) {
     return {
       raw,
       result: typeText(reference.args[0], sourceFile),
@@ -608,7 +609,10 @@ const parseEffectReturn = (
     };
   }
 
-  if (reference?.name === "ArmyEffect" && reference.args.length >= 1) {
+  if (
+    reference?.unqualifiedName === "ArmyEffect" &&
+    reference.args.length >= 1
+  ) {
     const extraError =
       reference.args.length >= 2
         ? `${typeText(reference.args[1], sourceFile)} | `
@@ -635,7 +639,7 @@ const parseEffectReturn = (
 
 const getReturnDoc = (
   checker: ts.TypeChecker,
-  node: ts.SignatureDeclarationBase,
+  node: ts.SignatureDeclaration,
 ): ReturnDoc => {
   const sourceFile = node.getSourceFile();
   const raw =
@@ -653,7 +657,7 @@ const getReturnDoc = (
 
 const getParameterDocs = (
   checker: ts.TypeChecker,
-  node: ts.SignatureDeclarationBase,
+  node: ts.SignatureDeclaration,
 ): ParameterDoc[] => {
   const descriptions = getParamDescriptions(node);
   const sourceFile = node.getSourceFile();
@@ -696,8 +700,12 @@ const collectTypeReferences = (
   }
 
   if (ts.isTypeReferenceNode(node)) {
-    const name = getTypeNameText(node.typeName);
-    if (!TYPE_REFERENCE_WRAPPERS.has(name) && !BUILTIN_TYPE_NAMES.has(name)) {
+    const name = parseTypeReference(node)?.unqualifiedName;
+    if (
+      name &&
+      !TYPE_REFERENCE_WRAPPERS.has(name) &&
+      !BUILTIN_TYPE_NAMES.has(name)
+    ) {
       output.add(name);
     }
   }
@@ -717,7 +725,7 @@ const resolveNestedInterface = (
     return null;
   }
 
-  const declaration = declarations.get(reference.name);
+  const declaration = declarations.get(reference.unqualifiedName);
   return declaration && ts.isInterfaceDeclaration(declaration)
     ? declaration
     : null;
@@ -1203,6 +1211,7 @@ const isDocSourceReflection = (
     "/",
   );
   return (
+    relativePath.startsWith("app/src/shared/") ||
     relativePath.startsWith("app/src/renderer/windows/game/") ||
     relativePath.startsWith("packages/game/src/") ||
     relativePath.startsWith("packages/collection/src/")
@@ -1464,12 +1473,9 @@ const createTypeDocProject = (
   Effect.tryPromise(async () => {
     const app = await Application.bootstrap(
       {
-        entryPoints: typedocEntryPoints(
-          program,
-          options,
-          declarations,
-          typeReferences,
-        ),
+        entryPoints: [
+          ...typedocEntryPoints(program, options, declarations, typeReferences),
+        ],
         excludeExternals: false,
         excludePrivate: true,
         excludeProtected: true,
@@ -1498,7 +1504,7 @@ const createTypeDocProject = (
     );
     const project = await app.convert();
     if (project === undefined) {
-      fail("TypeDoc was unable to convert scripting API entry points");
+      return fail("TypeDoc was unable to convert scripting API entry points");
     }
     return project;
   });
@@ -1696,7 +1702,7 @@ const finalizeMarkdown = (lines: readonly string[]): string =>
     .replace(/\n{3,}/g, "\n\n")
     .trimEnd()}\n`;
 
-const renderIndex = (namespaces: readonly ApiNamespace[]): string => {
+const renderIndex = (_namespaces: readonly ApiNamespace[]): string => {
   const lines = [
     frontmatter("Scripting API", "", "Overview"),
     "",
@@ -1759,9 +1765,7 @@ const renderIndex = (namespaces: readonly ApiNamespace[]): string => {
   return finalizeMarkdown(lines);
 };
 
-const renderApiOverview = (
-  namespaces: readonly ApiNamespace[],
-): string => {
+const renderApiOverview = (namespaces: readonly ApiNamespace[]): string => {
   const lines = [
     frontmatter(
       "Game API",
@@ -2002,8 +2006,9 @@ const renderFiles = (
   ];
 };
 
-const ensureParentDir = (path: string): Promise<void> =>
-  fs.mkdir(dirname(path), { recursive: true });
+const ensureParentDir = async (path: string): Promise<void> => {
+  await fs.mkdir(dirname(path), { recursive: true });
+};
 
 const listMarkdownFiles = async (dir: string): Promise<readonly string[]> => {
   const entries = await fs
