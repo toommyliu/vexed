@@ -8,6 +8,10 @@ import type {
 import { Auth } from "../Services/Auth";
 import { Bridge } from "../Services/Bridge";
 import { SwfCallError } from "../Errors";
+import {
+  LoginCredentialsFromJsonString,
+  LoginSessionFromJsonString,
+} from "../Types";
 import type {
   ConnectToSelectionResult,
   ConnectToSelectionStatus,
@@ -17,44 +21,12 @@ import { waitFor } from "../../utils/waitFor";
 
 const CONNECT_TO_TIMEOUT = "15 seconds";
 
-const ServerDataSchema = Schema.Struct({
-  bOnline: Schema.Number,
-  bUpg: Schema.Number,
-  iChat: Schema.Number,
-  iCount: Schema.Number,
-  iLevel: Schema.Number,
-  iMax: Schema.Number,
-  iPort: Schema.Number,
-  sIP: Schema.String,
-  sLang: Schema.String,
-  sName: Schema.String,
-});
-
-const LoginSessionSchema = Schema.Struct({
-  servers: Schema.mutable(Schema.Array(ServerDataSchema)),
-  bSuccess: Schema.Number,
-  bCCOnly: Schema.optionalKey(Schema.Number),
-  iAccess: Schema.optionalKey(Schema.Number),
-  iAge: Schema.optionalKey(Schema.Number),
-  iEmailStatus: Schema.optionalKey(Schema.Number),
-  iUpg: Schema.Number,
-  iUpgDays: Schema.optionalKey(Schema.Number),
-  unm: Schema.String,
-  sToken: Schema.String,
-});
-
-const LoginCredentialsSchema = Schema.Struct({
-  strUsername: Schema.String,
-  strPassword: Schema.String,
-  strToken: Schema.String,
-});
-
 const decodeLoginSession = Schema.decodeUnknownEffect(
-  Schema.fromJsonString(LoginSessionSchema),
+  LoginSessionFromJsonString,
 );
 
 const decodeLoginCredentials = Schema.decodeUnknownEffect(
-  Schema.fromJsonString(LoginCredentialsSchema),
+  LoginCredentialsFromJsonString,
 );
 
 const flashJsonError = (method: string, cause: unknown) =>
@@ -153,7 +125,7 @@ const parseConnectToSelectionResult = (
 
 const decodeFlashValue = (value: string): unknown => {
   try {
-    return JSON.parse(value) as unknown;
+    return Schema.decodeUnknownSync(Schema.UnknownFromJsonString)(value);
   } catch {
     return value;
   }

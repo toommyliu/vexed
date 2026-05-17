@@ -1,12 +1,16 @@
-export type ServerData = {
-  bOnline: number;
-  bUpg: number;
-  iChat: number;
-  iCount: number;
-  iLevel: number;
-  iMax: number;
-  iPort: number;
-  sIP: string;
-  sLang: string;
-  sName: string;
-};
+import { Schema } from "effect";
+
+export const ServerDataSchema = Schema.Struct({
+  bOnline: Schema.Number,
+  bUpg: Schema.Number,
+  iChat: Schema.Number,
+  iCount: Schema.Number,
+  iLevel: Schema.Number,
+  iMax: Schema.Number,
+  iPort: Schema.Number,
+  sIP: Schema.String,
+  sLang: Schema.String,
+  sName: Schema.String,
+});
+
+export type ServerData = Schema.Schema.Type<typeof ServerDataSchema>;
