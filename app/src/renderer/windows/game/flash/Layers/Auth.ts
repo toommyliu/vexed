@@ -1,5 +1,5 @@
 import { Server, type ServerData } from "@vexed/game";
-import { Effect, Layer, Option, Schedule, Schema, SynchronizedRef } from "effect";
+import { Effect, Layer, Option, Schedule, SynchronizedRef } from "effect";
 import type {
   AuthConnectFailureStatus,
   AuthConnectOutcome,
@@ -8,14 +8,12 @@ import type {
 import { Auth } from "../Services/Auth";
 import { Bridge } from "../Services/Bridge";
 import { SwfCallError } from "../Errors";
-import {
-  LoginCredentialsFromJsonString,
-  LoginSessionFromJsonString,
-} from "../Types";
 import type {
   ConnectToSelectionResult,
   ConnectToSelectionStatus,
+  LoginCredentials,
   LoginSession,
+  LoginSessionPayload,
 } from "../Types";
 import { waitFor } from "../../utils/waitFor";
 
@@ -23,16 +21,155 @@ const CONNECT_TO_TIMEOUT = "15 seconds";
 const LOGIN_READY_TIMEOUT = "15 seconds";
 const LOGIN_CALL_RETRIES = 12;
 
-const decodeLoginSession = Schema.decodeUnknownEffect(
-  LoginSessionFromJsonString,
-);
-
-const decodeLoginCredentials = Schema.decodeUnknownEffect(
-  LoginCredentialsFromJsonString,
-);
-
 const flashJsonError = (method: string, cause: unknown) =>
   new SwfCallError({ method, cause });
+
+const invalidLoginJsonError = (cause: string) =>
+  new SwfCallError({ method: "auth.getLoginSession", cause });
+
+const parseJson = (
+  method: string,
+  value: string,
+): Effect.Effect<unknown, SwfCallError> =>
+  Effect.try({
+    try: () => JSON.parse(value) as unknown,
+    catch: (cause) => flashJsonError(method, cause),
+  });
+
+const optionalNumber = (
+  record: Record<string, unknown>,
+  key: string,
+): Effect.Effect<number | undefined, SwfCallError> => {
+  const value = record[key];
+  if (value === undefined) {
+    return Effect.sync((): number | undefined => undefined);
+  }
+
+  return typeof value === "number" && Number.isFinite(value)
+    ? Effect.succeed(value)
+    : Effect.fail(invalidLoginJsonError(`${key} must be a number`));
+};
+
+const optionalString = (
+  record: Record<string, unknown>,
+  key: string,
+): Effect.Effect<string | undefined, SwfCallError> => {
+  const value = record[key];
+  if (value === undefined) {
+    return Effect.sync((): string | undefined => undefined);
+  }
+
+  return typeof value === "string"
+    ? Effect.succeed(value)
+    : Effect.fail(invalidLoginJsonError(`${key} must be a string`));
+};
+
+const requiredString = (
+  record: Record<string, unknown>,
+  key: string,
+): Effect.Effect<string, SwfCallError> => {
+  const value = record[key];
+  return typeof value === "string"
+    ? Effect.succeed(value)
+    : Effect.fail(invalidLoginJsonError(`${key} must be a string`));
+};
+
+const isServerData = (value: unknown): value is ServerData => {
+  if (!isRecord(value)) {
+    return false;
+  }
+
+  return (
+    typeof value["bOnline"] === "number" &&
+    typeof value["bUpg"] === "number" &&
+    typeof value["iChat"] === "number" &&
+    typeof value["iCount"] === "number" &&
+    typeof value["iLevel"] === "number" &&
+    typeof value["iMax"] === "number" &&
+    typeof value["iPort"] === "number" &&
+    typeof value["sIP"] === "string" &&
+    typeof value["sLang"] === "string" &&
+    typeof value["sName"] === "string"
+  );
+};
+
+const parseLoginSessionPayload = (
+  value: unknown,
+): Effect.Effect<LoginSessionPayload, SwfCallError> =>
+  Effect.gen(function* () {
+    if (!isRecord(value)) {
+      return yield* invalidLoginJsonError("objLogin must be an object");
+    }
+
+    const servers = value["servers"];
+    const bCCOnly = yield* optionalNumber(value, "bCCOnly");
+    const bSuccess = yield* optionalNumber(value, "bSuccess");
+    const iAccess = yield* optionalNumber(value, "iAccess");
+    const iAge = yield* optionalNumber(value, "iAge");
+    const iEmailStatus = yield* optionalNumber(value, "iEmailStatus");
+    const iUpg = yield* optionalNumber(value, "iUpg");
+    const iUpgDays = yield* optionalNumber(value, "iUpgDays");
+    const sToken = yield* optionalString(value, "sToken");
+    const unm = yield* optionalString(value, "unm");
+
+    return {
+      ...(bCCOnly === undefined ? {} : { bCCOnly }),
+      ...(bSuccess === undefined ? {} : { bSuccess }),
+      ...(iAccess === undefined ? {} : { iAccess }),
+      ...(iAge === undefined ? {} : { iAge }),
+      ...(iEmailStatus === undefined ? {} : { iEmailStatus }),
+      ...(iUpg === undefined ? {} : { iUpg }),
+      ...(iUpgDays === undefined ? {} : { iUpgDays }),
+      ...(sToken === undefined ? {} : { sToken }),
+      ...(Array.isArray(servers) ? { servers: servers.filter(isServerData) } : {}),
+      ...(unm === undefined ? {} : { unm }),
+    };
+  });
+
+const parseLoginCredentials = (
+  value: unknown,
+): Effect.Effect<LoginCredentials, SwfCallError> =>
+  Effect.gen(function* () {
+    if (!isRecord(value)) {
+      return yield* invalidLoginJsonError("loginInfo must be an object");
+    }
+
+    const strToken = yield* optionalString(value, "strToken");
+    return {
+      strPassword: yield* requiredString(value, "strPassword"),
+      ...(strToken === undefined ? {} : { strToken }),
+      strUsername: yield* requiredString(value, "strUsername"),
+    };
+  });
+
+const normalizeLoginSession = (
+  loginSession: LoginSessionPayload,
+  loginCredentials: LoginCredentials,
+): Effect.Effect<LoginSession, SwfCallError> =>
+  Effect.gen(function* () {
+    const username = (
+      loginSession.unm ?? loginCredentials.strUsername
+    ).trim();
+    if (username === "") {
+      return yield* invalidLoginJsonError("missing login username");
+    }
+
+    const password = loginCredentials.strPassword;
+    if (password === "") {
+      return yield* invalidLoginJsonError("missing login password");
+    }
+
+    const normalized = {
+      ...loginSession,
+      bSuccess: loginSession.bSuccess ?? 0,
+      iUpg: loginSession.iUpg ?? 0,
+      servers: loginSession.servers ?? [],
+      sToken: loginSession.sToken ?? loginCredentials.strToken ?? "",
+      unm: username,
+    };
+
+    return normalized;
+  });
 
 type RuntimeState = {
   readonly servers: Map<string, Server>;
@@ -127,7 +264,7 @@ const parseConnectToSelectionResult = (
 
 const decodeFlashValue = (value: string): unknown => {
   try {
-    return Schema.decodeUnknownSync(Schema.UnknownFromJsonString)(value);
+    return JSON.parse(value) as unknown;
   } catch {
     return value;
   }
@@ -341,17 +478,21 @@ const make = Effect.gen(function* () {
           bridge.call("flash.getGameObjectS", ["loginInfo"]),
         ]);
 
-        const loginSession = yield* decodeLoginSession(loginResponseStr).pipe(
-          Effect.mapError((cause) =>
-            flashJsonError("flash.getGameObjectS(objLogin)", cause),
-          ),
+        const loginSessionPayload = yield* parseJson(
+          "flash.getGameObjectS(objLogin)",
+          loginResponseStr,
+        ).pipe(
+          Effect.flatMap(parseLoginSessionPayload),
         );
-        const loginCredentials = yield* decodeLoginCredentials(
+        const loginCredentials = yield* parseJson(
+          "flash.getGameObjectS(loginInfo)",
           loginCredentialsStr,
         ).pipe(
-          Effect.mapError((cause) =>
-            flashJsonError("flash.getGameObjectS(loginInfo)", cause),
-          ),
+          Effect.flatMap(parseLoginCredentials),
+        );
+        const loginSession = yield* normalizeLoginSession(
+          loginSessionPayload,
+          loginCredentials,
         );
 
         state.loginSession = loginSession;

@@ -1,5 +1,6 @@
 import { Server, type ServerData } from "@vexed/game";
 import {
+  Cause,
   Data,
   Duration,
   Effect,
@@ -207,7 +208,11 @@ const formatReloginError = (error: unknown): string => {
   }
 
   if (error instanceof SwfCallError) {
-    return `Flash bridge call failed: ${error.method}`;
+    const cause =
+      typeof error.cause === "string" && error.cause !== ""
+        ? `: ${error.cause}`
+        : "";
+    return `Flash bridge call failed: ${error.method}${cause}`;
   }
 
   if (error instanceof Error && error.message !== "") {
@@ -555,10 +560,12 @@ const make = Effect.gen(function* () {
       yield* logStage("capture succeeded", { server: server.sName });
       return true;
     }).pipe(
-      Effect.catchCause(() =>
+      Effect.catchCause((cause) =>
         Effect.gen(function* () {
+          const error = Cause.squash(cause);
+          const message = formatReloginError(error);
           yield* updateState((state) => {
-            state.lastError = "failed to capture current session";
+            state.lastError = redacted(message, state.captured?.password);
           });
           return false;
         }),
