@@ -20,6 +20,8 @@ import type {
 import { waitFor } from "../../utils/waitFor";
 
 const CONNECT_TO_TIMEOUT = "15 seconds";
+const LOGIN_READY_TIMEOUT = "15 seconds";
+const LOGIN_CALL_RETRIES = 12;
 
 const decodeLoginSession = Schema.decodeUnknownEffect(
   LoginSessionFromJsonString,
@@ -248,9 +250,7 @@ const make = Effect.gen(function* () {
             AuthConnectOutcome | null,
             never,
             never
-          >(
-            Schedule.spaced("250 millis"),
-          ),
+          >(Schedule.spaced("250 millis")),
         }),
         Effect.timeoutOption(CONNECT_TO_TIMEOUT),
       );
@@ -376,16 +376,31 @@ const make = Effect.gen(function* () {
       }
       yield* clearSessionState;
       yield* Effect.sleep("1 second");
-      yield* waitFor(
-        Effect.gen(function* () {
-          const label = yield* bridge.call("flash.getGameObject", [
-            "mcLogin.currentLabel",
-          ]);
-          return label !== "Init";
-        }),
-        { schedule: Schedule.spaced("100 millis") },
+      const loginReady = yield* waitFor(
+        bridge.call("flash.getGameObject", ["mcLogin.currentLabel"]).pipe(
+          Effect.map((label) => label !== "Init"),
+          Effect.catchTag("SwfCallError", () => Effect.succeed(false)),
+        ),
+        {
+          timeout: LOGIN_READY_TIMEOUT,
+          schedule: Schedule.spaced("100 millis"),
+        },
       );
-      return yield* bridge.call("auth.login", [username, password]);
+      if (!loginReady) {
+        return yield* new SwfCallError({
+          method: "auth.login",
+          cause: "login form did not become ready",
+        });
+      }
+
+      return yield* bridge.call("auth.login", [username, password]).pipe(
+        Effect.retry({
+          schedule: Schedule.spaced("250 millis").pipe(
+            Schedule.take(LOGIN_CALL_RETRIES),
+          ),
+          while: (error) => error instanceof SwfCallError,
+        }),
+      );
     });
 
   const logout: AuthShape["logout"] = () =>

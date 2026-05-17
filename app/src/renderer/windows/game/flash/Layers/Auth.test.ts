@@ -31,9 +31,8 @@ const withAuth = async <A>(
         }
 
         if (path === "flash.getGameObject") {
-          return (options.currentLabel ?? JSON.stringify("Login")) as ReturnType<
-            Window["swf"][K]
-          >;
+          return (options.currentLabel ??
+            JSON.stringify("Login")) as ReturnType<Window["swf"][K]>;
         }
 
         if (path === "flash.isNull") {
@@ -43,9 +42,8 @@ const withAuth = async <A>(
         }
 
         if (path === "flash.getConnMcText") {
-          return (options.connText ?? "Connecting to game server...") as ReturnType<
-            Window["swf"][K]
-          >;
+          return (options.connText ??
+            "Connecting to game server...") as ReturnType<Window["swf"][K]>;
         }
 
         if (path === "flash.isConnMcBackButtonVisible") {

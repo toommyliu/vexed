@@ -324,15 +324,9 @@ const make = Effect.gen(function* () {
 
       yield* Effect.forEach(
         Array.from(listeners),
-        (listener, listenerIndex) =>
+        (listener) =>
           Effect.sync(() => listener(state)).pipe(
-            Effect.catchCause((cause) =>
-              Effect.logError({
-                message: "autorelogin listener failed",
-                listenerIndex,
-                cause,
-              }),
-            ),
+            Effect.catchCause(() => Effect.void),
           ),
         { discard: true },
       );
@@ -343,12 +337,8 @@ const make = Effect.gen(function* () {
 
   const emitCurrentState = getState().pipe(Effect.flatMap(emitState));
 
-  const logStage = (stage: string, details?: Record<string, unknown>) =>
-    Effect.logInfo({
-      message: "autorelogin",
-      stage,
-      ...(details ?? {}),
-    });
+  const logStage = (_stage: string, _details?: Record<string, unknown>) =>
+    Effect.void;
 
   const updateState = (
     update: (state: RuntimeState) => void,
@@ -386,12 +376,6 @@ const make = Effect.gen(function* () {
           state.lastAttemptAt = 0;
         }
       });
-      yield* Effect.logWarning({
-        message: terminal
-          ? "autorelogin stopped after terminal failure"
-          : "autorelogin failed",
-        error: publicState.lastError,
-      });
       return publicState;
     });
 
@@ -414,15 +398,7 @@ const make = Effect.gen(function* () {
       state.lastAttemptAt = 0;
     });
 
-  const markInterrupted = (interrupt: AutoReloginInterrupted) =>
-    markSuccess().pipe(
-      Effect.tap(() =>
-        Effect.logInfo({
-          message: "autorelogin interrupted",
-          reason: interrupt.reason,
-        }),
-      ),
-    );
+  const markInterrupted = (_interrupt: AutoReloginInterrupted) => markSuccess();
 
   const clearAttempting = () =>
     updateState((state) => {
@@ -581,10 +557,6 @@ const make = Effect.gen(function* () {
     }).pipe(
       Effect.catchCause(() =>
         Effect.gen(function* () {
-          yield* Effect.logError({
-            message: "autorelogin capture failed",
-            error: "failed to capture current session",
-          });
           yield* updateState((state) => {
             state.lastError = "failed to capture current session";
           });
@@ -594,9 +566,10 @@ const make = Effect.gen(function* () {
     );
 
   const waitForServerSelect = waitFor(
-    bridge
-      .call("flash.getGameObject", ["mcLogin.currentLabel"])
-      .pipe(Effect.map((label) => flashStringEquals(label, "Servers"))),
+    bridge.call("flash.getGameObject", ["mcLogin.currentLabel"]).pipe(
+      Effect.map((label) => flashStringEquals(label, "Servers")),
+      Effect.catchTag("SwfCallError", () => Effect.succeed(false)),
+    ),
     {
       timeout: SERVER_SELECT_TIMEOUT,
       schedule: Schedule.spaced("100 millis"),
@@ -604,7 +577,10 @@ const make = Effect.gen(function* () {
   );
 
   const waitForServers = waitFor(
-    auth.getServers().pipe(Effect.map((servers) => servers.length > 0)),
+    auth.getServers().pipe(
+      Effect.catchTag("SwfCallError", () => Effect.succeed([])),
+      Effect.map((servers) => servers.length > 0),
+    ),
     {
       timeout: SERVERS_LOAD_TIMEOUT,
       schedule: Schedule.spaced("100 millis"),
@@ -670,14 +646,7 @@ const make = Effect.gen(function* () {
             lagKillerEnabled: previousSettings.lagKillerEnabled,
             skipCutscenesEnabled: previousSettings.skipCutscenesEnabled,
           })
-          .pipe(
-            Effect.catchCause((cause) =>
-              Effect.logWarning({
-                message: "failed to restore autorelogin settings",
-                cause,
-              }),
-            ),
-          ),
+          .pipe(Effect.catchCause(() => Effect.void)),
       ),
     );
 
@@ -686,28 +655,16 @@ const make = Effect.gen(function* () {
   ): Effect.Effect<A, E> =>
     Effect.gen(function* () {
       // These Flash settings improve login reliability but are non-critical.
-      const previousSettings = yield* settings.getState().pipe(
-        Effect.catchCause((cause) =>
-          Effect.logWarning({
-            message: "failed to read autorelogin settings",
-            cause,
-          }).pipe(Effect.as(null)),
-        ),
-      );
+      const previousSettings = yield* settings
+        .getState()
+        .pipe(Effect.catchCause(() => Effect.succeed(null)));
       yield* logStage("temporary settings apply");
       yield* settings
         .apply({
           lagKillerEnabled: false,
           skipCutscenesEnabled: false,
         })
-        .pipe(
-          Effect.catchCause((cause) =>
-            Effect.logWarning({
-              message: "failed to apply temporary autorelogin settings",
-              cause,
-            }),
-          ),
-        );
+        .pipe(Effect.catchCause(() => Effect.void));
 
       return yield* effect.pipe(
         Effect.ensuring(
@@ -732,14 +689,9 @@ const make = Effect.gen(function* () {
       yield* logStage("player ready timed out", {
         recovery: "reload avatar",
       });
-      const reloadStarted = yield* player.reloadAvatar().pipe(
-        Effect.catchCause((cause) =>
-          Effect.logWarning({
-            message: "failed to reload player avatar",
-            cause,
-          }).pipe(Effect.as(false)),
-        ),
-      );
+      const reloadStarted = yield* player
+        .reloadAvatar()
+        .pipe(Effect.catchCause(() => Effect.succeed(false)));
       if (!reloadStarted) {
         return yield* failAttempt("player avatar did not load", true);
       }
@@ -1042,17 +994,7 @@ const make = Effect.gen(function* () {
           ),
       }),
     );
-  }).pipe(
-    Effect.catchCause(() =>
-      Effect.gen(function* () {
-        yield* clearAttempting();
-        yield* Effect.logError({
-          message: "autorelogin task crashed",
-          error: "unexpected task failure",
-        });
-      }),
-    ),
-  );
+  }).pipe(Effect.catchCause(() => clearAttempting().pipe(Effect.asVoid)));
 
   const startJob = jobs.startPeriodicJob({
     key: JOB_KEY,
