@@ -667,18 +667,16 @@ const make = Effect.gen(function* () {
   );
 
   yield* packets.clientScoped("moveToCell", (packet) =>
-    Effect.gen(function* () {
-      yield* withSelf((me) => {
-        const cell = packet.params[4];
-        const pad = packet.params[5];
+    withSelf((me) => {
+      const cell = packet.params[4];
+      const pad = packet.params[5];
 
-        if (!cell || !pad) {
-          return;
-        }
+      if (!cell || !pad) {
+        return;
+      }
 
-        me.data.strFrame = cell;
-        me.data.strPad = pad;
-      });
+      me.data.strFrame = cell;
+      me.data.strPad = pad;
     }),
   );
 

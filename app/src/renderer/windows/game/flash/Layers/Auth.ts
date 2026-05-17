@@ -1,5 +1,5 @@
 import { Server, type ServerData } from "@vexed/game";
-import { Effect, Layer, Option, Schedule, SynchronizedRef } from "effect";
+import { Effect, Layer, Option, Schedule, Schema, SynchronizedRef } from "effect";
 import type {
   AuthConnectFailureStatus,
   AuthConnectOutcome,
@@ -7,15 +7,58 @@ import type {
 } from "../Services/Auth";
 import { Auth } from "../Services/Auth";
 import { Bridge } from "../Services/Bridge";
+import { SwfCallError } from "../Errors";
 import type {
   ConnectToSelectionResult,
   ConnectToSelectionStatus,
-  LoginCredentials,
   LoginSession,
 } from "../Types";
 import { waitFor } from "../../utils/waitFor";
 
 const CONNECT_TO_TIMEOUT = "15 seconds";
+
+const ServerDataSchema = Schema.Struct({
+  bOnline: Schema.Number,
+  bUpg: Schema.Number,
+  iChat: Schema.Number,
+  iCount: Schema.Number,
+  iLevel: Schema.Number,
+  iMax: Schema.Number,
+  iPort: Schema.Number,
+  sIP: Schema.String,
+  sLang: Schema.String,
+  sName: Schema.String,
+});
+
+const LoginSessionSchema = Schema.Struct({
+  servers: Schema.mutable(Schema.Array(ServerDataSchema)),
+  bSuccess: Schema.Number,
+  bCCOnly: Schema.optionalKey(Schema.Number),
+  iAccess: Schema.optionalKey(Schema.Number),
+  iAge: Schema.optionalKey(Schema.Number),
+  iEmailStatus: Schema.optionalKey(Schema.Number),
+  iUpg: Schema.Number,
+  iUpgDays: Schema.optionalKey(Schema.Number),
+  unm: Schema.String,
+  sToken: Schema.String,
+});
+
+const LoginCredentialsSchema = Schema.Struct({
+  strUsername: Schema.String,
+  strPassword: Schema.String,
+  strToken: Schema.String,
+});
+
+const decodeLoginSession = Schema.decodeUnknownEffect(
+  Schema.fromJsonString(LoginSessionSchema),
+);
+
+const decodeLoginCredentials = Schema.decodeUnknownEffect(
+  Schema.fromJsonString(LoginCredentialsSchema),
+);
+
+const flashJsonError = (method: string, cause: unknown) =>
+  new SwfCallError({ method, cause });
 
 type RuntimeState = {
   readonly servers: Map<string, Server>;
@@ -326,10 +369,18 @@ const make = Effect.gen(function* () {
           bridge.call("flash.getGameObjectS", ["loginInfo"]),
         ]);
 
-        const loginSession = JSON.parse(loginResponseStr) as LoginSession;
-        const loginCredentials = JSON.parse(
+        const loginSession = yield* decodeLoginSession(loginResponseStr).pipe(
+          Effect.mapError((cause) =>
+            flashJsonError("flash.getGameObjectS(objLogin)", cause),
+          ),
+        );
+        const loginCredentials = yield* decodeLoginCredentials(
           loginCredentialsStr,
-        ) as LoginCredentials;
+        ).pipe(
+          Effect.mapError((cause) =>
+            flashJsonError("flash.getGameObjectS(loginInfo)", cause),
+          ),
+        );
 
         state.loginSession = loginSession;
         state.username = loginSession.unm;
