@@ -73,7 +73,11 @@ const environmentItemBucketSet = new Set<EnvironmentItemBucket>(
 
 const toPositiveInt = (value: number | string): number | undefined => {
   const parsed =
-    typeof value === "number" ? value : Number.parseInt(value.trim(), 10);
+    typeof value === "number"
+      ? value
+      : /^\d+$/u.test(value.trim())
+        ? Number(value.trim())
+        : Number.NaN;
   if (!Number.isFinite(parsed)) {
     return undefined;
   }
