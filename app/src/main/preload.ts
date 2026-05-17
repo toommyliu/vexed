@@ -69,6 +69,18 @@ const environmentFetchBoostsListeners = new Set<
   () => Promise<readonly string[]> | readonly string[]
 >();
 
+const latestEnvironmentFetchBoostsListener = ():
+  | (() => Promise<readonly string[]> | readonly string[])
+  | undefined => {
+  let listener:
+    | (() => Promise<readonly string[]> | readonly string[])
+    | undefined;
+  for (const next of environmentFetchBoostsListeners) {
+    listener = next;
+  }
+  return listener;
+};
+
 const deliverAccountGameLaunchPayload = (
   payload: AccountGameLaunchPayload,
 ): void => {
@@ -105,7 +117,7 @@ ipcRenderer.on(
 ipcRenderer.on(
   EnvironmentIpcChannels.fetchBoostsRequest,
   (_event, requestId: string) => {
-    const [listener] = environmentFetchBoostsListeners;
+    const listener = latestEnvironmentFetchBoostsListener();
     void Promise.resolve(listener?.() ?? [])
       .then((boosts) => {
         ipcRenderer.send(
