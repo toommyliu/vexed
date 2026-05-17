@@ -7,6 +7,12 @@
     "types": ["node"],
     "noEmit": true
   },
-  "include": ["scripts/dev-runner.ts", "scripts/clean.ts", "scripts/release.ts"],
+  "include": [
+    "scripts/dev-runner.ts",
+    "scripts/clean.ts",
+    "scripts/release.ts",
+    "scripts/docgen.ts",
+    "scripts/gen-script-types.ts"
+  ],
   "exclude": ["node_modules", "app/dist", "docs/dist", "packages/*/dist"]
 }

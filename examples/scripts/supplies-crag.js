@@ -1,21 +1,30 @@
-cmd.register_drop(
-  [
-    'Unidentified 13',
-    'Unidentified 10',
-    'Tainted Gem',
-    'Dark Crystal Shard',
-    'Diamond of Nulgath',
-    'Voucher of Nulgath (non-mem)',
-    'Gem of Nulgath',
-    'Essence of Nulgath',
-  ]
-)
-cmd.register_quest(609) // bamboozle vs drudgen
-cmd.register_quest(2857) // supplies to spin the wheel of chance
-cmd.set_auto_register_requirements(true)
-cmd.set_reject_else(true)
+const DROPS = [
+  'Unidentified 13',
+  'Unidentified 10',
+  'Tainted Gem',
+  'Dark Crystal Shard',
+  'Diamond of Nulgath',
+  'Voucher of Nulgath (non-mem)',
+  'Gem of Nulgath',
+  'Essence of Nulgath',
+  'Relic of Chaos',
+  'Tainted Core'
+]
 
-cmd.join('evilmarsh', 'End', 'Left')
-cmd.label('kill')
-cmd.kill_for_item('Tainted Elemental', 'Tainted Core', 1)
-cmd.goto_label('kill')
+module.exports = function* run({ api, script }) {
+  for (const drop of DROPS) {
+    yield* api.environment.addItem(drop)
+  }
+
+  yield* api.environment.addQuest(609)
+  yield* api.environment.addQuest(2857)
+  yield* api.environment.setRejectUnregisteredDrops(true)
+  yield* api.environment.setAutoRegisterRequirements(true)
+
+  yield* api.player.joinMap('evilmarsh', 'End', 'Left')
+
+  while (true) {
+    yield* api.combat.killForItem('Tainted Elemental', 'Tainted Core', 1)
+    yield* script.sleep(250)
+  }
+}

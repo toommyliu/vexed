@@ -124,9 +124,13 @@ const make = Effect.gen(function* () {
       return itemId !== undefined && itemData.has(itemId);
     });
 
+  const getDrops: DropsShape["getDrops"] = () =>
+    Effect.sync(() => Array.from(itemData.values()));
+
   return {
     acceptDrop,
     containsDrop,
+    getDrops,
     isUsingCustomDrops,
     rejectDrop,
     toggleUi,

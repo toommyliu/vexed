@@ -8,6 +8,7 @@ import { Bank } from "../../flash/Services/Bank";
 import { Bridge } from "../../flash/Services/Bridge";
 import { Combat } from "../../flash/Services/Combat";
 import { Drops } from "../../flash/Services/Drops";
+import { Environment } from "../../environment/Services/Environment";
 import { House } from "../../flash/Services/House";
 import { Inventory } from "../../flash/Services/Inventory";
 import { Packet } from "../../flash/Services/Packet";
@@ -91,6 +92,7 @@ const make = Effect.gen(function* () {
   const bridge = yield* Bridge;
   const combat = yield* Combat;
   const drops = yield* Drops;
+  const environment = yield* Environment;
   const house = yield* House;
   const inventory = yield* Inventory;
   const packet = yield* Packet;
@@ -575,6 +577,7 @@ const make = Effect.gen(function* () {
       bank: wrapValue(bank) as ScriptApi["bank"],
       combat: wrapValue(combat) as ScriptApi["combat"],
       drops: wrapValue(drops) as ScriptApi["drops"],
+      environment: wrapValue(environment) as ScriptApi["environment"],
       house: wrapValue(house) as ScriptApi["house"],
       inventory: wrapValue(inventory) as ScriptApi["inventory"],
       packet: {

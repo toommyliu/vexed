@@ -4,6 +4,7 @@ import type { Duration, Effect, Option } from "effect";
 import type { ScriptExecutionError, ScriptNotReadyError } from "./Errors";
 import type { ScriptRecipesShape } from "./recipes";
 import type { ArmyShape } from "../army/Services/Army";
+import type { EnvironmentShape } from "../environment/Services/Environment";
 import type { AuthConnectOutcome } from "../flash/Services/Auth";
 import type { AutoZoneSupportedMap } from "../features/Services/AutoZone";
 import type { BankShape } from "../flash/Services/Bank";
@@ -84,6 +85,8 @@ export interface ScriptSettingsShape {
   setFrameRate(fps: number): BridgeEffect<void>;
 }
 
+export type ScriptQuestsShape = Omit<QuestsShape, "onLoaded">;
+
 export interface ScriptWorldMapShape {
   getCellMonsters(): BridgeEffect<Monster[]>;
   getCells(): BridgeEffect<string[]>;
@@ -159,6 +162,11 @@ export interface ScriptAutoZoneShape {
   setMap(map: AutoZoneSupportedMap | undefined): Effect.Effect<void>;
 }
 
+export type ScriptEnvironmentShape = Omit<
+  EnvironmentShape,
+  "setQuestAutoRegister" | "setItemRules"
+>;
+
 export interface ScriptContext {
   /**
    * Gameplay and game-state APIs exposed to scripts.
@@ -200,11 +208,12 @@ export interface ScriptApi {
   readonly bank: EffectValue<BankShape>;
   readonly combat: EffectValue<CombatShape>;
   readonly drops: EffectValue<DropsShape>;
+  readonly environment: EffectValue<ScriptEnvironmentShape>;
   readonly house: EffectValue<HouseShape>;
   readonly inventory: EffectValue<InventoryShape>;
   readonly packet: ScriptPacketApi;
   readonly player: EffectValue<PlayerShape>;
-  readonly quests: EffectValue<QuestsShape>;
+  readonly quests: EffectValue<ScriptQuestsShape>;
   /**
    * High-level helpers for multi-step gameplay actions.
    */

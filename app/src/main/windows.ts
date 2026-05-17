@@ -42,13 +42,19 @@ export interface WindowServiceShape {
     id: WindowId,
     senderWindowId?: number,
   ) => Effect.Effect<BrowserWindow, WindowManagerError>;
-  readonly getOpenWindow: (
-    id: WindowId,
-  ) => Effect.Effect<BrowserWindow | null>;
+  readonly getOpenWindow: (id: WindowId) => Effect.Effect<BrowserWindow | null>;
   readonly revealGameWindow: Effect.Effect<void, WindowManagerError>;
   readonly getGameWindowId: (
     windowId: number,
   ) => Effect.Effect<number | undefined>;
+  readonly getGameWindowIds: Effect.Effect<readonly number[]>;
+  readonly getGameChildWindow: (
+    gameWindowId: number,
+    id: WindowId,
+  ) => Effect.Effect<BrowserWindow | null>;
+  readonly getGameWindow: (
+    gameWindowId: number,
+  ) => Effect.Effect<BrowserWindow | null>;
   readonly setQuitting: (quitting: boolean) => Effect.Effect<void>;
 }
 
@@ -191,7 +197,6 @@ const createGameWindowOptions = (
 const createCatalogWindowOptions = (
   config: WindowManagerConfig,
   definition: WindowDefinition,
-  parent?: BrowserWindow,
 ): BrowserWindowConstructorOptions => {
   const dimensions = getWindowDimensions(definition);
   const appearanceSnapshot = config.getAppearanceSnapshot();
@@ -203,10 +208,6 @@ const createCatalogWindowOptions = (
     show: false,
     webPreferences: createWebPreferences(config, appearanceSnapshot),
   };
-
-  if (parent) {
-    options.parent = parent;
-  }
 
   if (typeof dimensions.minWidth === "number") {
     options.minWidth = dimensions.minWidth;
@@ -525,7 +526,7 @@ export const makeWindowService = (
       }
 
       const childWindow = yield* createManagedWindow(
-        createCatalogWindowOptions(config, definition, entry.gameWindow),
+        createCatalogWindowOptions(config, definition),
       );
       const childWindowId = childWindow.id;
 
@@ -661,6 +662,21 @@ export const makeWindowService = (
     revealGameWindow,
     getGameWindowId: (windowId) =>
       Effect.succeed(getGameWindowIdSync(windowId)),
+    getGameWindowIds: Effect.sync(() =>
+      Array.from(gameWindows.entries())
+        .filter(([, entry]) => isWindowUsable(entry.gameWindow))
+        .map(([gameWindowId]) => gameWindowId),
+    ),
+    getGameChildWindow: (gameWindowId, id) =>
+      Effect.sync(() => {
+        const childWindow = gameWindows.get(gameWindowId)?.childWindows.get(id);
+        return isWindowUsable(childWindow) ? childWindow : null;
+      }),
+    getGameWindow: (gameWindowId) =>
+      Effect.sync(() => {
+        const gameWindow = gameWindows.get(gameWindowId)?.gameWindow;
+        return isWindowUsable(gameWindow) ? gameWindow : null;
+      }),
     setQuitting: (quitting) =>
       Effect.sync(() => {
         isQuitting = quitting;

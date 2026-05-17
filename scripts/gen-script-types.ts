@@ -3,6 +3,11 @@ import { dirname, isAbsolute, join, relative, resolve } from "node:path";
 import { fileURLToPath, pathToFileURL } from "node:url";
 
 import ts from "typescript";
+import {
+  getPropertyName,
+  parseTypeReference,
+  resolveOmitInterfaceAlias,
+} from "./ts-ast-utils";
 
 const SCRIPT_DIR = dirname(fileURLToPath(import.meta.url));
 const DEFAULT_REPO_ROOT = join(SCRIPT_DIR, "..");
@@ -228,37 +233,6 @@ const createProgram = (repoRoot: string): ts.Program => {
   });
 };
 
-const getPropertyName = (name: ts.PropertyName): string | null => {
-  if (
-    ts.isIdentifier(name) ||
-    ts.isStringLiteral(name) ||
-    ts.isNumericLiteral(name)
-  ) {
-    return name.text;
-  }
-  return null;
-};
-
-const getEntityNameText = (name: ts.EntityName): string =>
-  ts.isIdentifier(name) ? name.text : `${getEntityNameText(name.left)}.${name.right.text}`;
-
-const getUnqualifiedEntityName = (name: ts.EntityName): string =>
-  ts.isIdentifier(name) ? name.text : name.right.text;
-
-const parseTypeReference = (
-  node: ts.TypeNode | undefined,
-): { readonly name: string; readonly unqualifiedName: string; readonly args: readonly ts.TypeNode[] } | null => {
-  if (!node || !ts.isTypeReferenceNode(node)) {
-    return null;
-  }
-
-  return {
-    name: getEntityNameText(node.typeName),
-    unqualifiedName: getUnqualifiedEntityName(node.typeName),
-    args: Array.from(node.typeArguments ?? []),
-  };
-};
-
 const typeParameterText = (
   sourceFile: ts.SourceFile,
   typeParameters: ts.NodeArray<ts.TypeParameterDeclaration> | undefined,
@@ -296,7 +270,10 @@ const transformTypeText = (type: string): string => {
   output = output.replace(/\bDuration\.Input\b/g, "DurationInput");
   output = output.replace(/\bReadonlyArray\s*</g, "readonly ");
   output = output.replace(/\bSchema\.Schema\.Type<[^>]+>/g, "unknown");
-  output = output.replace(/\bData\.TaggedError\([^)]*\)<([^>]*)>/g, "Error & $1");
+  output = output.replace(
+    /\bData\.TaggedError\([^)]*\)<([^>]*)>/g,
+    "Error & $1",
+  );
 
   return output;
 };
@@ -348,7 +325,8 @@ const parameterText = (
   const rest = parameter.dotDotDotToken === undefined ? "" : "...";
   const optional =
     parameter.dotDotDotToken !== undefined ||
-    (parameter.questionToken === undefined && parameter.initializer === undefined)
+    (parameter.questionToken === undefined &&
+      parameter.initializer === undefined)
       ? ""
       : "?";
   return `${rest}${name}${optional}: ${formatType(checker, parameter.type)}`;
@@ -368,7 +346,9 @@ const getJsDocComment = (node: ts.Node): string => {
   return `  /** ${text.replaceAll("*/", "*\\/")} */\n`;
 };
 
-const buildDeclarationMap = (program: ts.Program): ReadonlyMap<string, Declaration> => {
+const buildDeclarationMap = (
+  program: ts.Program,
+): ReadonlyMap<string, Declaration> => {
   const declarations = new Map<string, Declaration>();
 
   const visit = (node: ts.Node): void => {
@@ -397,12 +377,37 @@ const buildDeclarationMap = (program: ts.Program): ReadonlyMap<string, Declarati
 const getInterface = (
   declarations: ReadonlyMap<string, Declaration>,
   name: string,
+  seen = new Set<string>(),
 ): ts.InterfaceDeclaration => {
-  const declaration = declarations.get(name);
-  if (!declaration || !ts.isInterfaceDeclaration(declaration)) {
-    fail(`Unable to find interface ${name}`);
+  if (seen.has(name)) {
+    fail(`Unable to resolve circular interface alias ${name}`);
   }
-  return declaration as ts.InterfaceDeclaration;
+
+  const declaration =
+    declarations.get(name) ?? fail(`Unable to find interface ${name}`);
+
+  if (ts.isInterfaceDeclaration(declaration)) {
+    return declaration;
+  }
+
+  if (ts.isTypeAliasDeclaration(declaration)) {
+    const reference = parseTypeReference(declaration.type);
+    if (reference) {
+      const nextSeen = new Set(seen);
+      nextSeen.add(name);
+      const omitted = resolveOmitInterfaceAlias(
+        reference,
+        (targetName) => getInterface(declarations, targetName, nextSeen),
+        { referenceName: "unqualifiedName" },
+      );
+      if (omitted) {
+        return omitted;
+      }
+      return getInterface(declarations, reference.unqualifiedName, nextSeen);
+    }
+  }
+
+  return fail(`Unable to find interface ${name}`);
 };
 
 const getDeclaration = (
@@ -435,16 +440,19 @@ const interfaceNameForProperty = (propertyName: string): string => {
   return `${normalized}Api`;
 };
 
-const nestedInterfaceName = (parentName: string, propertyName: string): string =>
+const nestedInterfaceName = (
+  parentName: string,
+  propertyName: string,
+): string =>
   `${parentName.replace(/Api$/, "")}${interfaceNameForProperty(propertyName)}`;
 
 const collectTypeNames = (text: string, output: Set<string>): void => {
-  for (const match of text.matchAll(/\b[A-Za-z_$][A-Za-z0-9_$]*\b/g)) {
+  const withoutComments = text.replaceAll(/\/\*\*[\s\S]*?\*\//g, "");
+  for (const match of withoutComments.matchAll(
+    /\b[A-Za-z_$][A-Za-z0-9_$]*\b/g,
+  )) {
     const token = match[0];
-    if (
-      !BUILTIN_TYPE_NAMES.has(token) &&
-      /^[A-Z_$]/.test(token)
-    ) {
+    if (!BUILTIN_TYPE_NAMES.has(token) && /^[A-Z_$]/.test(token)) {
       output.add(token);
     }
   }
@@ -508,7 +516,9 @@ const renderInterfaceFromDeclaration = (
     const shapeName = parseEffectValueShape(member.type);
     if (shapeName !== null) {
       const childOutputName =
-        outputName === "ScriptApi" ? interfaceNameForProperty(name) : nestedInterfaceName(outputName, name);
+        outputName === "ScriptApi"
+          ? interfaceNameForProperty(name)
+          : nestedInterfaceName(outputName, name);
       renderApiInterface(state, shapeName, childOutputName);
       lines.push(`    readonly ${name}: ${childOutputName};`);
       continue;
@@ -537,14 +547,19 @@ const renderInterfaceFromDeclaration = (
     const optional = member.questionToken === undefined ? "" : "?";
     const type = formatType(state.checker, member.type);
     collectTypeNames(type, state.referencedTypes);
-    lines.push(`${getJsDocComment(member)}    ${readonly}${name}${optional}: ${type};`);
+    lines.push(
+      `${getJsDocComment(member)}    ${readonly}${name}${optional}: ${type};`,
+    );
   }
 
   lines.push("}");
   return lines.join("\n");
 };
 
-const renderPacketApiInterface = (state: RenderState, outputName: string): void => {
+const renderPacketApiInterface = (
+  state: RenderState,
+  outputName: string,
+): void => {
   if (state.rendered.has(outputName)) {
     return;
   }
@@ -576,7 +591,10 @@ const renderPacketApiInterface = (state: RenderState, outputName: string): void 
   }
 
   lines.push("}");
-  state.rendered.set(outputName, { name: outputName, content: lines.join("\n") });
+  state.rendered.set(outputName, {
+    name: outputName,
+    content: lines.join("\n"),
+  });
 };
 
 const renderApiInterface = (
@@ -616,7 +634,10 @@ const renderClassAsInterface = (
 ): string => {
   const name = declaration.name?.text ?? fail("Cannot render anonymous class");
   const sourceFile = declaration.getSourceFile();
-  const typeParameters = typeParameterText(sourceFile, declaration.typeParameters);
+  const typeParameters = typeParameterText(
+    sourceFile,
+    declaration.typeParameters,
+  );
   const extendsClause = declaration.heritageClauses
     ?.flatMap((clause) =>
       clause.token === ts.SyntaxKind.ExtendsKeyword
@@ -629,7 +650,9 @@ const renderClassAsInterface = (
   ];
 
   for (const member of declaration.members) {
-    const modifiers = ts.canHaveModifiers(member) ? ts.getModifiers(member) : undefined;
+    const modifiers = ts.canHaveModifiers(member)
+      ? ts.getModifiers(member)
+      : undefined;
     if (
       modifiers?.some(
         (modifier) =>
@@ -644,7 +667,9 @@ const renderClassAsInterface = (
     if (ts.isGetAccessorDeclaration(member)) {
       const propertyName = getPropertyName(member.name);
       if (propertyName === null) continue;
-      lines.push(`  readonly ${propertyName}: ${returnTypeText(checker, member.type)};`);
+      lines.push(
+        `  readonly ${propertyName}: ${returnTypeText(checker, member.type)};`,
+      );
       continue;
     }
 
@@ -652,7 +677,9 @@ const renderClassAsInterface = (
       const propertyName = getPropertyName(member.name);
       if (propertyName === null) continue;
       const optional = member.questionToken === undefined ? "" : "?";
-      lines.push(`  ${propertyName}${optional}: ${formatType(checker, member.type)};`);
+      lines.push(
+        `  ${propertyName}${optional}: ${formatType(checker, member.type)};`,
+      );
       continue;
     }
 
@@ -660,7 +687,10 @@ const renderClassAsInterface = (
       const methodName = getPropertyName(member.name);
       if (methodName === null) continue;
       const sourceFile = member.getSourceFile();
-      const typeParameters = typeParameterText(sourceFile, member.typeParameters);
+      const typeParameters = typeParameterText(
+        sourceFile,
+        member.typeParameters,
+      );
       const parameters = member.parameters
         .map((parameter) => parameterText(checker, parameter))
         .join(", ");
@@ -683,14 +713,17 @@ const renderTypeAlias = (
   checker: ts.TypeChecker,
   declaration: ts.TypeAliasDeclaration,
 ): string => {
-  if (!isSchemaTypeAlias(declaration)) {
-    return stripDeclarationText(declaration.getText(declaration.getSourceFile()));
-  }
-
   const typeParameters = typeParameterText(
     declaration.getSourceFile(),
     declaration.typeParameters,
   );
+  const raw = stripDeclarationText(
+    declaration.getText(declaration.getSourceFile()),
+  );
+  if (!isSchemaTypeAlias(declaration) && !raw.includes("typeof ")) {
+    return raw;
+  }
+
   return `type ${declaration.name.text}${typeParameters} = ${formatType(
     checker,
     declaration.type,
@@ -776,7 +809,10 @@ const renderScriptTypes = (
   renderApiInterface(state, "ScriptContext", "ScriptContext");
 
   const interfaceNames = new Set(state.rendered.keys());
-  const referencedDeclarations = renderReferencedDeclarations(state, interfaceNames);
+  const referencedDeclarations = renderReferencedDeclarations(
+    state,
+    interfaceNames,
+  );
   const interfaces = Array.from(state.rendered.values())
     .sort((left, right) => {
       if (left.name === "ScriptContext") return -1;
@@ -806,7 +842,10 @@ const renderScriptTypes = (
     "",
   ];
 
-  return `${lines.join("\n").replace(/\n{3,}/g, "\n\n").trimEnd()}\n`;
+  return `${lines
+    .join("\n")
+    .replace(/\n{3,}/g, "\n\n")
+    .trimEnd()}\n`;
 };
 
 const main = async (options: CliOptions): Promise<void> => {
@@ -819,7 +858,9 @@ const main = async (options: CliOptions): Promise<void> => {
   const content = renderScriptTypes(program, declarations);
 
   await fs.mkdir(dirname(options.outputFile), { recursive: true });
-  const current = await fs.readFile(options.outputFile, "utf8").catch(() => null);
+  const current = await fs
+    .readFile(options.outputFile, "utf8")
+    .catch(() => null);
   if (current !== content) {
     await fs.writeFile(options.outputFile, content, "utf8");
   }
@@ -833,8 +874,10 @@ if (
   process.argv[1] &&
   import.meta.url === pathToFileURL(process.argv[1]).href
 ) {
-  main(parseCliOptions(process.argv.slice(2), DEFAULT_REPO_ROOT)).catch((error) => {
-    console.error(error instanceof Error ? error.message : String(error));
-    process.exitCode = 1;
-  });
+  main(parseCliOptions(process.argv.slice(2), DEFAULT_REPO_ROOT)).catch(
+    (error) => {
+      console.error(error instanceof Error ? error.message : String(error));
+      process.exitCode = 1;
+    },
+  );
 }
