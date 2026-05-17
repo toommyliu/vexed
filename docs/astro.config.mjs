@@ -76,6 +76,7 @@ export default defineConfig({
                 { link: "/scripting/api/bank/", label: "Bank" },
                 { link: "/scripting/api/combat/", label: "Combat" },
                 { link: "/scripting/api/drops/", label: "Drops" },
+                { link: "/scripting/api/environment/", label: "Environment" },
                 { link: "/scripting/api/house/", label: "House" },
                 { link: "/scripting/api/inventory/", label: "Inventory" },
                 { link: "/scripting/api/packet/", label: "Packet" },

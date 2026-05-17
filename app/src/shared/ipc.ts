@@ -14,6 +14,11 @@ import type {
   HotkeysPatch,
   PreferencesPatch,
 } from "./settings";
+import type {
+  EnvironmentItemRules,
+  EnvironmentQuestAutoRegisterOptions,
+  EnvironmentState,
+} from "./environment";
 
 export type {
   ArmyBarrierPayload,
@@ -42,6 +47,12 @@ export type {
   ThemeTokenName,
   ThemeVariant,
 } from "./settings";
+
+export type {
+  EnvironmentItemRules,
+  EnvironmentQuestAutoRegisterOptions,
+  EnvironmentState,
+} from "./environment";
 
 export const ScriptingIpcChannels = {
   execute: "scripting:execute",
@@ -86,6 +97,29 @@ export const ArmyIpcChannels = {
   leave: "army:leave",
   barrier: "army:barrier",
   status: "army:status",
+} as const;
+
+export const EnvironmentIpcChannels = {
+  getState: "environment:get-state",
+  clear: "environment:clear",
+  addQuest: "environment:add-quest",
+  removeQuest: "environment:remove-quest",
+  setQuestReward: "environment:set-quest-reward",
+  clearQuestReward: "environment:clear-quest-reward",
+  clearQuests: "environment:clear-quests",
+  setQuestAutoRegister: "environment:set-quest-auto-register",
+  addItem: "environment:add-item",
+  removeItem: "environment:remove-item",
+  setItemRules: "environment:set-item-rules",
+  clearItems: "environment:clear-items",
+  addBoost: "environment:add-boost",
+  removeBoost: "environment:remove-boost",
+  clearBoosts: "environment:clear-boosts",
+  fetchBoosts: "environment:fetch-boosts",
+  fetchBoostsRequest: "environment:fetch-boosts-request",
+  fetchBoostsResponse: "environment:fetch-boosts-response",
+  syncToAll: "environment:sync-to-all",
+  changed: "environment:changed",
 } as const;
 
 export interface ScriptExecutePayload {
@@ -347,6 +381,121 @@ export interface ArmyBridge {
   status(payload: ArmyStatusPayload): Promise<ArmyStatusResult>;
 }
 
+export interface EnvironmentInvokeChannels {
+  readonly [EnvironmentIpcChannels.getState]: IpcInvokeDefinition<
+    [],
+    EnvironmentState
+  >;
+  readonly [EnvironmentIpcChannels.clear]: IpcInvokeDefinition<
+    [],
+    EnvironmentState
+  >;
+  readonly [EnvironmentIpcChannels.addQuest]: IpcInvokeDefinition<
+    [questId: number | string, rewardItemId?: number | string],
+    EnvironmentState
+  >;
+  readonly [EnvironmentIpcChannels.removeQuest]: IpcInvokeDefinition<
+    [questId: number | string],
+    EnvironmentState
+  >;
+  readonly [EnvironmentIpcChannels.setQuestReward]: IpcInvokeDefinition<
+    [questId: number | string, rewardItemId: number | string],
+    EnvironmentState
+  >;
+  readonly [EnvironmentIpcChannels.clearQuestReward]: IpcInvokeDefinition<
+    [questId: number | string],
+    EnvironmentState
+  >;
+  readonly [EnvironmentIpcChannels.clearQuests]: IpcInvokeDefinition<
+    [],
+    EnvironmentState
+  >;
+  readonly [EnvironmentIpcChannels.setQuestAutoRegister]: IpcInvokeDefinition<
+    [options: EnvironmentQuestAutoRegisterOptions],
+    EnvironmentState
+  >;
+  readonly [EnvironmentIpcChannels.addItem]: IpcInvokeDefinition<
+    [name: string],
+    EnvironmentState
+  >;
+  readonly [EnvironmentIpcChannels.removeItem]: IpcInvokeDefinition<
+    [name: string],
+    EnvironmentState
+  >;
+  readonly [EnvironmentIpcChannels.setItemRules]: IpcInvokeDefinition<
+    [rules: EnvironmentItemRules],
+    EnvironmentState
+  >;
+  readonly [EnvironmentIpcChannels.clearItems]: IpcInvokeDefinition<
+    [],
+    EnvironmentState
+  >;
+  readonly [EnvironmentIpcChannels.addBoost]: IpcInvokeDefinition<
+    [name: string],
+    EnvironmentState
+  >;
+  readonly [EnvironmentIpcChannels.removeBoost]: IpcInvokeDefinition<
+    [name: string],
+    EnvironmentState
+  >;
+  readonly [EnvironmentIpcChannels.clearBoosts]: IpcInvokeDefinition<
+    [],
+    EnvironmentState
+  >;
+  readonly [EnvironmentIpcChannels.fetchBoosts]: IpcInvokeDefinition<
+    [],
+    readonly string[]
+  >;
+  readonly [EnvironmentIpcChannels.syncToAll]: IpcInvokeDefinition<
+    [],
+    EnvironmentState
+  >;
+}
+
+export interface EnvironmentRendererEventChannels {
+  readonly [EnvironmentIpcChannels.changed]: [state: EnvironmentState];
+  readonly [EnvironmentIpcChannels.fetchBoostsRequest]: [requestId: string];
+}
+
+export interface EnvironmentMainEventChannels {
+  readonly [EnvironmentIpcChannels.fetchBoostsResponse]: [
+    requestId: string,
+    boosts: readonly string[],
+  ];
+}
+
+export interface EnvironmentBridge {
+  getState(): Promise<EnvironmentState>;
+  clear(): Promise<EnvironmentState>;
+  addQuest(
+    questId: number | string,
+    rewardItemId?: number | string,
+  ): Promise<EnvironmentState>;
+  removeQuest(questId: number | string): Promise<EnvironmentState>;
+  setQuestReward(
+    questId: number | string,
+    rewardItemId: number | string,
+  ): Promise<EnvironmentState>;
+  clearQuestReward(questId: number | string): Promise<EnvironmentState>;
+  clearQuests(): Promise<EnvironmentState>;
+  setQuestAutoRegister(
+    options: EnvironmentQuestAutoRegisterOptions,
+  ): Promise<EnvironmentState>;
+  addItem(name: string): Promise<EnvironmentState>;
+  removeItem(name: string): Promise<EnvironmentState>;
+  setItemRules(rules: EnvironmentItemRules): Promise<EnvironmentState>;
+  clearItems(): Promise<EnvironmentState>;
+  addBoost(name: string): Promise<EnvironmentState>;
+  removeBoost(name: string): Promise<EnvironmentState>;
+  clearBoosts(): Promise<EnvironmentState>;
+  fetchBoosts(): Promise<readonly string[]>;
+  syncToAll(): Promise<EnvironmentState>;
+  onChanged(listener: (state: EnvironmentState) => void): () => void;
+  onFetchBoostsRequest(
+    listener: () => Promise<readonly string[]> | readonly string[],
+  ): () => void;
+}
+
 export type AppPlatform = "mac" | "windows" | "linux";
 
 export interface PlatformBridge {
@@ -356,6 +505,7 @@ export interface PlatformBridge {
 export interface AppBridge {
   readonly accounts: AccountManagerBridge;
   readonly army: ArmyBridge;
+  readonly environment: EnvironmentBridge;
   readonly platform: PlatformBridge;
   readonly scripting: ScriptingBridge;
   readonly settings: SettingsBridge;

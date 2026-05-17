@@ -39,6 +39,7 @@ const TYPE_REFERENCE_WRAPPERS = new Set([
   "Array",
   "Effect",
   "Generator",
+  "Omit",
   "Partial",
   "Pick",
   "Readonly",
@@ -477,13 +478,82 @@ const getInterface = (
     ts.InterfaceDeclaration | ts.TypeAliasDeclaration
   >,
   name: string,
+  seen = new Set<string>(),
 ): ts.InterfaceDeclaration => {
+  if (seen.has(name)) {
+    fail(`Unable to resolve circular interface alias ${name}`);
+  }
+
   const declaration = declarations.get(name);
-  if (!declaration || !ts.isInterfaceDeclaration(declaration)) {
+  if (!declaration) {
     fail(`Unable to find interface ${name}`);
   }
-  return declaration;
+
+  if (ts.isInterfaceDeclaration(declaration)) {
+    return declaration;
+  }
+
+  const reference = parseTypeReference(declaration.type);
+  if (reference) {
+    const nextSeen = new Set(seen);
+    nextSeen.add(name);
+    if (reference.name === "Omit" && reference.args.length >= 2) {
+      const target = parseTypeReference(reference.args[0]);
+      if (target) {
+        return omitInterfaceMembers(
+          getInterface(declarations, target.name, nextSeen),
+          literalTypeNames(reference.args[1]),
+        );
+      }
+    }
+    return getInterface(declarations, reference.name, nextSeen);
+  }
+
+  fail(`Unable to find interface ${name}`);
 };
+
+const literalTypeNames = (node: ts.TypeNode | undefined): Set<string> => {
+  const names = new Set<string>();
+  if (node === undefined) {
+    return names;
+  }
+
+  const visit = (current: ts.TypeNode): void => {
+    if (
+      ts.isLiteralTypeNode(current) &&
+      ts.isStringLiteralLike(current.literal)
+    ) {
+      names.add(current.literal.text);
+      return;
+    }
+
+    if (ts.isUnionTypeNode(current)) {
+      for (const child of current.types) {
+        visit(child);
+      }
+    }
+  };
+
+  visit(node);
+  return names;
+};
+
+const omitInterfaceMembers = (
+  declaration: ts.InterfaceDeclaration,
+  omitted: ReadonlySet<string>,
+): ts.InterfaceDeclaration => ({
+  ...declaration,
+  members: ts.factory.createNodeArray(
+    declaration.members.filter((member) => {
+      if (!ts.isMethodSignature(member) && !ts.isPropertySignature(member)) {
+        return true;
+      }
+
+      const name = getPropertyName(member.name);
+      return name === null || !omitted.has(name);
+    }),
+  ),
+});
 
 const getPropertyName = (name: ts.PropertyName): string | null => {
   if (
@@ -1203,6 +1273,7 @@ const isDocSourceReflection = (
     "/",
   );
   return (
+    relativePath.startsWith("app/src/shared/") ||
     relativePath.startsWith("app/src/renderer/windows/game/") ||
     relativePath.startsWith("packages/game/src/") ||
     relativePath.startsWith("packages/collection/src/")
@@ -1759,9 +1830,7 @@ const renderIndex = (namespaces: readonly ApiNamespace[]): string => {
   return finalizeMarkdown(lines);
 };
 
-const renderApiOverview = (
-  namespaces: readonly ApiNamespace[],
-): string => {
+const renderApiOverview = (namespaces: readonly ApiNamespace[]): string => {
   const lines = [
     frontmatter(
       "Game API",

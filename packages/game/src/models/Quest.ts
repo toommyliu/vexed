@@ -37,7 +37,7 @@ export class Quest {
    * The rewards for completing this quest.
    */
   public get rewards(): QuestRewardType[] {
-    const ret = this.data.Rewards;
+    const ret = this.data.Rewards ?? [];
     return ret.map((reward) => ({
       dropChance: reward.DropChance,
       itemId: reward.ItemID,
@@ -50,7 +50,7 @@ export class Quest {
    * The requirements needed to complete this quest.
    */
   public get requirements(): QuestRequirement[] {
-    const ret = this.data.RequiredItems;
+    const ret = this.data.RequiredItems ?? [];
     return ret.map((req) => ({
       itemId: req.ItemID,
       itemName: req.sName,

@@ -24,6 +24,7 @@ import {
   getArtixLauncherUserAgent,
 } from "./artix-launcher-headers";
 import { createApplicationMenu } from "./menu";
+import { registerEnvironmentIpcHandlers } from "./environment-ipc";
 import * as Appearance from "./settings/Appearance";
 import * as Files from "./settings/Files";
 import * as Preferences from "./settings/Preferences";
@@ -352,6 +353,7 @@ app.whenReady().then(() => {
   registerScriptingIpcHandlers();
   registerArmyIpcHandlers();
   registerAccountManagerIpcHandlers(runConfiguredWindowEffect);
+  registerEnvironmentIpcHandlers(runConfiguredWindowEffect);
   registerSettingsIpcHandlers();
   registerWindowIpcHandlers(runConfiguredWindowEffect);
   installNativeThemeChangeBroadcast();

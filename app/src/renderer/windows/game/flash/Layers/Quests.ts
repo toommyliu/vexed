@@ -7,7 +7,7 @@ import { positiveInt, uniquePositiveInts } from "@vexed/shared/number";
 import { Bridge } from "../Services/Bridge";
 import { Packet } from "../Services/Packet";
 import { Quests } from "../Services/Quests";
-import type { QuestsShape } from "../Services/Quests";
+import type { QuestLoadedListener, QuestsShape } from "../Services/Quests";
 import { World } from "../Services/World";
 
 const asQuestMap = (value: unknown): Record<string, QuestInfo> | null => {
@@ -36,6 +36,9 @@ const toQuestId = (value: unknown): number | undefined => {
 const normalizeQuestIds = (questIds: readonly number[]): number[] =>
   uniquePositiveInts(questIds);
 
+const QUEST_LOAD_TIMEOUT = "5 seconds";
+const QUEST_ACCEPT_TIMEOUT = "5 seconds";
+
 const make = Effect.gen(function* () {
   const bridge = yield* Bridge;
   const packets = yield* Packet;
@@ -44,6 +47,7 @@ const make = Effect.gen(function* () {
   const quests = yield* SynchronizedRef.make<Collection<number, Quest>>(
     new Collection(),
   );
+  const questLoadedListeners = new Set<QuestLoadedListener>();
 
   const runFork = Effect.runFork;
 
@@ -67,6 +71,7 @@ const make = Effect.gen(function* () {
         return;
       }
 
+      const loadedQuestIds: number[] = [];
       yield* SynchronizedRef.update(quests, (tree) => {
         for (const [rawQuestId, questInfo] of Object.entries(nextQuests)) {
           const questId = toQuestId(rawQuestId);
@@ -75,31 +80,61 @@ const make = Effect.gen(function* () {
           }
 
           tree.ensure(questId, () => new Quest(questInfo)).data = questInfo;
+          loadedQuestIds.push(questId);
         }
 
         return tree;
       });
+
+      if (loadedQuestIds.length === 0 || questLoadedListeners.size === 0) {
+        return;
+      }
+
+      const listeners = Array.from(questLoadedListeners);
+      yield* Effect.forEach(
+        listeners,
+        (listener, listenerIndex) =>
+          listener(loadedQuestIds).pipe(
+            Effect.catchCause((cause) =>
+              Effect.logError({
+                message: "quest loaded listener failed",
+                questIds: loadedQuestIds,
+                listenerIndex,
+                cause,
+              }),
+            ),
+          ),
+        { discard: true },
+      );
     });
 
   yield* packets.jsonScoped("getQuests", (packet) => updateQuests(packet.data));
 
   const waitForQuestLoad = (questId: number) =>
-    waitForRef(quests, (tree) => tree.has(questId));
+    waitForRef(quests, (tree) => tree.has(questId), {
+      timeout: QUEST_LOAD_TIMEOUT,
+    });
 
   const waitForQuestAccept = (questId: number) =>
-    waitFor(isInProgress(questId));
+    waitFor(isInProgress(questId), { timeout: QUEST_ACCEPT_TIMEOUT });
 
   const abandon: QuestsShape["abandon"] = (questId) =>
     bridge.call("quests.abandon", [questId]);
 
   const accept: QuestsShape["accept"] = (questId, silent = false) =>
     Effect.gen(function* () {
-      yield* world.map.waitForGameAction("acceptQuest");
+      const canAccept = yield* world.map.waitForGameAction("acceptQuest");
+      if (!canAccept) {
+        return;
+      }
 
       const tree = yield* SynchronizedRef.get(quests);
       if (!tree.get(questId)) {
         yield* load(questId, silent);
-        yield* waitForQuestLoad(questId);
+        const updatedTree = yield* SynchronizedRef.get(quests);
+        if (!updatedTree.get(questId)) {
+          return;
+        }
       }
 
       yield* bridge.call("quests.accept", [questId]);
@@ -139,7 +174,7 @@ const make = Effect.gen(function* () {
         yield* bridge.call("quests.load", [questId]);
       }
 
-      yield* waitForQuestLoad(questId);
+      yield* waitForQuestLoad(questId).pipe(Effect.asVoid);
     });
 
   const loadMany: QuestsShape["loadMany"] = (questIds, silent = false) => {
@@ -149,7 +184,16 @@ const make = Effect.gen(function* () {
     }
 
     if (silent) {
-      return bridge.call("quests.getMultiple", [normalizedQuestIds.join(",")]);
+      return Effect.gen(function* () {
+        yield* bridge.call("quests.getMultiple", [
+          normalizedQuestIds.join(","),
+        ]);
+        yield* Effect.forEach(
+          normalizedQuestIds,
+          (questId) => waitForQuestLoad(questId).pipe(Effect.asVoid),
+          { concurrency: "unbounded" },
+        );
+      });
     }
 
     return Effect.asVoid(
@@ -158,6 +202,15 @@ const make = Effect.gen(function* () {
   };
 
   const getTree: QuestsShape["getTree"] = () => SynchronizedRef.get(quests);
+
+  const onLoaded: QuestsShape["onLoaded"] = (listener) =>
+    Effect.sync(() => {
+      questLoadedListeners.add(listener);
+
+      return () => {
+        questLoadedListeners.delete(listener);
+      };
+    });
 
   const has: QuestsShape["has"] = (questId) =>
     SynchronizedRef.get(quests).pipe(Effect.map((tree) => tree.has(questId)));
@@ -192,6 +245,7 @@ const make = Effect.gen(function* () {
     load,
     loadMany,
     getTree,
+    onLoaded,
     has,
     getAccepted,
     isAvailable,

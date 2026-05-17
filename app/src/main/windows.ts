@@ -42,13 +42,19 @@ export interface WindowServiceShape {
     id: WindowId,
     senderWindowId?: number,
   ) => Effect.Effect<BrowserWindow, WindowManagerError>;
-  readonly getOpenWindow: (
-    id: WindowId,
-  ) => Effect.Effect<BrowserWindow | null>;
+  readonly getOpenWindow: (id: WindowId) => Effect.Effect<BrowserWindow | null>;
   readonly revealGameWindow: Effect.Effect<void, WindowManagerError>;
   readonly getGameWindowId: (
     windowId: number,
   ) => Effect.Effect<number | undefined>;
+  readonly getGameWindowIds: Effect.Effect<readonly number[]>;
+  readonly getGameChildWindow: (
+    gameWindowId: number,
+    id: WindowId,
+  ) => Effect.Effect<BrowserWindow | null>;
+  readonly getGameWindow: (
+    gameWindowId: number,
+  ) => Effect.Effect<BrowserWindow | null>;
   readonly setQuitting: (quitting: boolean) => Effect.Effect<void>;
 }
 
@@ -661,6 +667,21 @@ export const makeWindowService = (
     revealGameWindow,
     getGameWindowId: (windowId) =>
       Effect.succeed(getGameWindowIdSync(windowId)),
+    getGameWindowIds: Effect.sync(() =>
+      Array.from(gameWindows.entries())
+        .filter(([, entry]) => isWindowUsable(entry.gameWindow))
+        .map(([gameWindowId]) => gameWindowId),
+    ),
+    getGameChildWindow: (gameWindowId, id) =>
+      Effect.sync(() => {
+        const childWindow = gameWindows.get(gameWindowId)?.childWindows.get(id);
+        return isWindowUsable(childWindow) ? childWindow : null;
+      }),
+    getGameWindow: (gameWindowId) =>
+      Effect.sync(() => {
+        const gameWindow = gameWindows.get(gameWindowId)?.gameWindow;
+        return isWindowUsable(gameWindow) ? gameWindow : null;
+      }),
     setQuitting: (quitting) =>
       Effect.sync(() => {
         isQuitting = quitting;

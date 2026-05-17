@@ -6,6 +6,7 @@ import {
 import {
   AccountManagerIpcChannels,
   ArmyIpcChannels,
+  EnvironmentIpcChannels,
   SettingsIpcChannels,
   ScriptingIpcChannels,
   WindowIpcChannels,
@@ -26,6 +27,9 @@ import {
   type AppSettings,
   type AppPlatform,
   type AppearancePatch,
+  type EnvironmentItemRules,
+  type EnvironmentQuestAutoRegisterOptions,
+  type EnvironmentState,
   type HotkeysPatch,
   type ManagedAccountDraft,
   type ManagedAccountPatch,
@@ -61,6 +65,10 @@ let lastDeliveredAccountGameLaunchKey = "";
 const accountGameLaunchKey = (payload: AccountGameLaunchPayload): string =>
   `${payload.gameWindowId}:${payload.requestedAt}`;
 
+const environmentFetchBoostsListeners = new Set<
+  () => Promise<readonly string[]> | readonly string[]
+>();
+
 const deliverAccountGameLaunchPayload = (
   payload: AccountGameLaunchPayload,
 ): void => {
@@ -91,6 +99,29 @@ ipcRenderer.on(
   AccountManagerIpcChannels.gameLaunch,
   (_event, payload: AccountGameLaunchPayload) => {
     deliverAccountGameLaunchPayload(payload);
+  },
+);
+
+ipcRenderer.on(
+  EnvironmentIpcChannels.fetchBoostsRequest,
+  (_event, requestId: string) => {
+    const [listener] = environmentFetchBoostsListeners;
+    void Promise.resolve(listener?.() ?? [])
+      .then((boosts) => {
+        ipcRenderer.send(
+          EnvironmentIpcChannels.fetchBoostsResponse,
+          requestId,
+          boosts,
+        );
+      })
+      .catch((error: unknown) => {
+        console.error("Failed to fetch environment boosts:", error);
+        ipcRenderer.send(
+          EnvironmentIpcChannels.fetchBoostsResponse,
+          requestId,
+          [],
+        );
+      });
   },
 );
 
@@ -213,6 +244,134 @@ const bridge: AppBridge = {
         ArmyIpcChannels.status,
         payload,
       )) as ArmyStatusResult;
+    },
+  },
+  environment: {
+    getState: async () => {
+      return (await ipcRenderer.invoke(
+        EnvironmentIpcChannels.getState,
+      )) as EnvironmentState;
+    },
+    clear: async () => {
+      return (await ipcRenderer.invoke(
+        EnvironmentIpcChannels.clear,
+      )) as EnvironmentState;
+    },
+    addQuest: async (
+      questId: number | string,
+      rewardItemId?: number | string,
+    ) => {
+      return (await ipcRenderer.invoke(
+        EnvironmentIpcChannels.addQuest,
+        questId,
+        rewardItemId,
+      )) as EnvironmentState;
+    },
+    removeQuest: async (questId: number | string) => {
+      return (await ipcRenderer.invoke(
+        EnvironmentIpcChannels.removeQuest,
+        questId,
+      )) as EnvironmentState;
+    },
+    setQuestReward: async (
+      questId: number | string,
+      rewardItemId: number | string,
+    ) => {
+      return (await ipcRenderer.invoke(
+        EnvironmentIpcChannels.setQuestReward,
+        questId,
+        rewardItemId,
+      )) as EnvironmentState;
+    },
+    clearQuestReward: async (questId: number | string) => {
+      return (await ipcRenderer.invoke(
+        EnvironmentIpcChannels.clearQuestReward,
+        questId,
+      )) as EnvironmentState;
+    },
+    clearQuests: async () => {
+      return (await ipcRenderer.invoke(
+        EnvironmentIpcChannels.clearQuests,
+      )) as EnvironmentState;
+    },
+    setQuestAutoRegister: async (
+      options: EnvironmentQuestAutoRegisterOptions,
+    ) => {
+      return (await ipcRenderer.invoke(
+        EnvironmentIpcChannels.setQuestAutoRegister,
+        options,
+      )) as EnvironmentState;
+    },
+    addItem: async (name: string) => {
+      return (await ipcRenderer.invoke(
+        EnvironmentIpcChannels.addItem,
+        name,
+      )) as EnvironmentState;
+    },
+    removeItem: async (name: string) => {
+      return (await ipcRenderer.invoke(
+        EnvironmentIpcChannels.removeItem,
+        name,
+      )) as EnvironmentState;
+    },
+    setItemRules: async (rules: EnvironmentItemRules) => {
+      return (await ipcRenderer.invoke(
+        EnvironmentIpcChannels.setItemRules,
+        rules,
+      )) as EnvironmentState;
+    },
+    clearItems: async () => {
+      return (await ipcRenderer.invoke(
+        EnvironmentIpcChannels.clearItems,
+      )) as EnvironmentState;
+    },
+    addBoost: async (name: string) => {
+      return (await ipcRenderer.invoke(
+        EnvironmentIpcChannels.addBoost,
+        name,
+      )) as EnvironmentState;
+    },
+    removeBoost: async (name: string) => {
+      return (await ipcRenderer.invoke(
+        EnvironmentIpcChannels.removeBoost,
+        name,
+      )) as EnvironmentState;
+    },
+    clearBoosts: async () => {
+      return (await ipcRenderer.invoke(
+        EnvironmentIpcChannels.clearBoosts,
+      )) as EnvironmentState;
+    },
+    fetchBoosts: async () => {
+      return (await ipcRenderer.invoke(
+        EnvironmentIpcChannels.fetchBoosts,
+      )) as readonly string[];
+    },
+    syncToAll: async () => {
+      return (await ipcRenderer.invoke(
+        EnvironmentIpcChannels.syncToAll,
+      )) as EnvironmentState;
+    },
+    onChanged: (listener) => {
+      const subscription = (_event: unknown, state: EnvironmentState) => {
+        listener(state);
+      };
+
+      ipcRenderer.on(EnvironmentIpcChannels.changed, subscription);
+
+      return () => {
+        ipcRenderer.removeListener(
+          EnvironmentIpcChannels.changed,
+          subscription,
+        );
+      };
+    },
+    onFetchBoostsRequest: (listener) => {
+      environmentFetchBoostsListeners.add(listener);
+
+      return () => {
+        environmentFetchBoostsListeners.delete(listener);
+      };
     },
   },
   platform: {

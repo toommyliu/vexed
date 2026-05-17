@@ -21,6 +21,7 @@ tableOfContents:
 | [`api.bank`](/scripting/api/bank/) | Bank APIs. |
 | [`api.combat`](/scripting/api/combat/) | Combat APIs. |
 | [`api.drops`](/scripting/api/drops/) | Drops APIs. |
+| [`api.environment`](/scripting/api/environment/) | Environment APIs. |
 | [`api.house`](/scripting/api/house/) | House APIs. |
 | [`api.inventory`](/scripting/api/inventory/) | Inventory APIs. |
 | [`api.packet`](/scripting/api/packet/) | Packet APIs. |

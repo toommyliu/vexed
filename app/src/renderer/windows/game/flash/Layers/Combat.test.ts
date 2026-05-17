@@ -14,6 +14,7 @@ import { CombatLive } from "./Combat";
 const drops = {
   acceptDrop: () => Effect.void,
   containsDrop: () => Effect.succeed(false),
+  getDrops: () => Effect.succeed([]),
   isUsingCustomDrops: () => Effect.succeed(false),
   rejectDrop: () => Effect.succeed(false),
   toggleUi: () => Effect.void,

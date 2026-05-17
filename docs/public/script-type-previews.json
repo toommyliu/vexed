@@ -1289,6 +1289,148 @@
         "url": "https://github.com/toommyliu/vexed/blob/dev/packages/game/src/types/EntityState.ts#L1"
       }
     },
+    "environment-drop-policy": {
+      "name": "EnvironmentDropPolicy",
+      "slug": "environment-drop-policy",
+      "kind": "interface",
+      "summary": "Handling options for drops that are not registered by name.",
+      "definition": "interface EnvironmentDropPolicy",
+      "keys": [
+        {
+          "kind": "property",
+          "name": "acceptAcMemberOnlyDrops",
+          "signature": "readonly acceptAcMemberOnlyDrops: boolean",
+          "description": "Accept member-only AC-tagged items."
+        },
+        {
+          "kind": "property",
+          "name": "acceptAcNonMemberDrops",
+          "signature": "readonly acceptAcNonMemberDrops: boolean",
+          "description": "Accept non-member AC-tagged items."
+        },
+        {
+          "kind": "property",
+          "name": "acceptNonAcMemberOnlyDrops",
+          "signature": "readonly acceptNonAcMemberOnlyDrops: boolean",
+          "description": "Accept member-only non-AC items."
+        },
+        {
+          "kind": "property",
+          "name": "acceptNonAcNonMemberDrops",
+          "signature": "readonly acceptNonAcNonMemberDrops: boolean",
+          "description": "Accept non-member non-AC items."
+        },
+        {
+          "kind": "property",
+          "name": "rejectUnregisteredDrops",
+          "signature": "readonly rejectUnregisteredDrops: boolean",
+          "description": "Reject any unregistered drop that is not accepted by this policy."
+        }
+      ],
+      "source": {
+        "path": "app/src/shared/environment.ts:16",
+        "url": "https://github.com/toommyliu/vexed/blob/dev/app/src/shared/environment.ts#L16"
+      }
+    },
+    "environment-item-rules": {
+      "name": "EnvironmentItemRules",
+      "slug": "environment-item-rules",
+      "kind": "interface",
+      "summary": "",
+      "definition": "interface EnvironmentItemRules",
+      "keys": [
+        {
+          "kind": "property",
+          "name": "buckets",
+          "signature": "readonly buckets: readonly (\"ac-member\" | \"ac-non-member\" | \"non-ac-member\" | \"non-ac-non-member\")[]",
+          "description": ""
+        },
+        {
+          "kind": "property",
+          "name": "rejectElse",
+          "signature": "readonly rejectElse: boolean",
+          "description": ""
+        }
+      ],
+      "source": {
+        "path": "app/src/shared/environment.ts:10",
+        "url": "https://github.com/toommyliu/vexed/blob/dev/app/src/shared/environment.ts#L10"
+      }
+    },
+    "environment-quest-auto-register-options": {
+      "name": "EnvironmentQuestAutoRegisterOptions",
+      "slug": "environment-quest-auto-register-options",
+      "kind": "interface",
+      "summary": "",
+      "definition": "interface EnvironmentQuestAutoRegisterOptions",
+      "keys": [
+        {
+          "kind": "property",
+          "name": "requirements",
+          "signature": "readonly requirements: boolean",
+          "description": ""
+        },
+        {
+          "kind": "property",
+          "name": "rewards",
+          "signature": "readonly rewards: boolean",
+          "description": ""
+        }
+      ],
+      "source": {
+        "path": "app/src/shared/environment.ts:29",
+        "url": "https://github.com/toommyliu/vexed/blob/dev/app/src/shared/environment.ts#L29"
+      }
+    },
+    "environment-state": {
+      "name": "EnvironmentState",
+      "slug": "environment-state",
+      "kind": "interface",
+      "summary": "",
+      "definition": "interface EnvironmentState",
+      "keys": [
+        {
+          "kind": "property",
+          "name": "boosts",
+          "signature": "readonly boosts: readonly string[]",
+          "description": ""
+        },
+        {
+          "kind": "property",
+          "name": "itemNames",
+          "signature": "readonly itemNames: readonly string[]",
+          "description": ""
+        },
+        {
+          "kind": "property",
+          "name": "itemRules",
+          "signature": "readonly itemRules: EnvironmentItemRules",
+          "description": ""
+        },
+        {
+          "kind": "property",
+          "name": "questAutoRegister",
+          "signature": "readonly questAutoRegister: EnvironmentQuestAutoRegisterOptions",
+          "description": ""
+        },
+        {
+          "kind": "property",
+          "name": "questIds",
+          "signature": "readonly questIds: readonly number[]",
+          "description": ""
+        },
+        {
+          "kind": "property",
+          "name": "questRewards",
+          "signature": "readonly questRewards: Readonly<Record<number, number>>",
+          "description": ""
+        }
+      ],
+      "source": {
+        "path": "app/src/shared/environment.ts:42",
+        "url": "https://github.com/toommyliu/vexed/blob/dev/app/src/shared/environment.ts#L42"
+      }
+    },
     "equip-enhancement-selector": {
       "name": "EquipEnhancementSelector",
       "slug": "equip-enhancement-selector",
@@ -2644,8 +2786,8 @@
       "definition": "type ScriptPacketDisposer = () => void",
       "keys": [],
       "source": {
-        "path": "app/src/renderer/windows/game/scripting/ScriptApi.ts:45",
-        "url": "https://github.com/toommyliu/vexed/blob/dev/app/src/renderer/windows/game/scripting/ScriptApi.ts#L45"
+        "path": "app/src/renderer/windows/game/scripting/ScriptApi.ts:46",
+        "url": "https://github.com/toommyliu/vexed/blob/dev/app/src/renderer/windows/game/scripting/ScriptApi.ts#L46"
       }
     },
     "script-packet-listener": {
@@ -2656,8 +2798,8 @@
       "definition": "type ScriptPacketListener = (packet: string) => void | Effect.Effect<unknown, unknown> | Generator<Effect.Yieldable<any, any, never, never>, unknown, never>",
       "keys": [],
       "source": {
-        "path": "app/src/renderer/windows/game/scripting/ScriptApi.ts:38",
-        "url": "https://github.com/toommyliu/vexed/blob/dev/app/src/renderer/windows/game/scripting/ScriptApi.ts#L38"
+        "path": "app/src/renderer/windows/game/scripting/ScriptApi.ts:39",
+        "url": "https://github.com/toommyliu/vexed/blob/dev/app/src/renderer/windows/game/scripting/ScriptApi.ts#L39"
       }
     },
     "script-recipe-effect": {
