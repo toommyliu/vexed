@@ -122,6 +122,7 @@ function App(): JSX.Element {
     number | null
   >(null);
   const questRewardInputs = new Map<number, HTMLInputElement>();
+  let canceledQuestRewardEdit = false;
 
   const totalCount = createMemo(
     () =>
@@ -236,6 +237,7 @@ function App(): JSX.Element {
     KeyboardEvent
   > = (event) => {
     if (event.key === "Escape") {
+      canceledQuestRewardEdit = true;
       setEditingQuestRewardId(null);
       event.currentTarget.blur();
       return;
@@ -572,12 +574,17 @@ function App(): JSX.Element {
                             placeholder="itemID"
                             inputmode="numeric"
                             onKeyDown={(event) => cancelQuestRewardEdit(event)}
-                            onBlur={(event) =>
+                            onBlur={(event) => {
+                              if (canceledQuestRewardEdit) {
+                                canceledQuestRewardEdit = false;
+                                return;
+                              }
+
                               void commitQuestReward(
                                 questId,
                                 event.currentTarget.value,
-                              )
-                            }
+                              );
+                            }}
                           />
                         </Show>
                         <IconButton
