@@ -392,7 +392,7 @@ const getSummary = (node: ts.Node): string =>
   getText(getNodeJsDoc(node)?.comment);
 
 const getParamDescriptions = (
-  node: ts.SignatureDeclarationBase,
+  node: ts.SignatureDeclaration,
 ): ReadonlyMap<string, string> => {
   const descriptions = new Map<string, string>();
   const doc = getNodeJsDoc(node);
@@ -484,10 +484,8 @@ const getInterface = (
     fail(`Unable to resolve circular interface alias ${name}`);
   }
 
-  const declaration = declarations.get(name);
-  if (!declaration) {
-    fail(`Unable to find interface ${name}`);
-  }
+  const declaration =
+    declarations.get(name) ?? fail(`Unable to find interface ${name}`);
 
   if (ts.isInterfaceDeclaration(declaration)) {
     return declaration;
@@ -509,7 +507,7 @@ const getInterface = (
     return getInterface(declarations, reference.name, nextSeen);
   }
 
-  fail(`Unable to find interface ${name}`);
+  return fail(`Unable to find interface ${name}`);
 };
 
 const literalTypeNames = (node: ts.TypeNode | undefined): Set<string> => {
@@ -705,7 +703,7 @@ const parseEffectReturn = (
 
 const getReturnDoc = (
   checker: ts.TypeChecker,
-  node: ts.SignatureDeclarationBase,
+  node: ts.SignatureDeclaration,
 ): ReturnDoc => {
   const sourceFile = node.getSourceFile();
   const raw =
@@ -723,7 +721,7 @@ const getReturnDoc = (
 
 const getParameterDocs = (
   checker: ts.TypeChecker,
-  node: ts.SignatureDeclarationBase,
+  node: ts.SignatureDeclaration,
 ): ParameterDoc[] => {
   const descriptions = getParamDescriptions(node);
   const sourceFile = node.getSourceFile();
@@ -1535,12 +1533,9 @@ const createTypeDocProject = (
   Effect.tryPromise(async () => {
     const app = await Application.bootstrap(
       {
-        entryPoints: typedocEntryPoints(
-          program,
-          options,
-          declarations,
-          typeReferences,
-        ),
+        entryPoints: [
+          ...typedocEntryPoints(program, options, declarations, typeReferences),
+        ],
         excludeExternals: false,
         excludePrivate: true,
         excludeProtected: true,
@@ -1569,7 +1564,7 @@ const createTypeDocProject = (
     );
     const project = await app.convert();
     if (project === undefined) {
-      fail("TypeDoc was unable to convert scripting API entry points");
+      return fail("TypeDoc was unable to convert scripting API entry points");
     }
     return project;
   });
@@ -1767,7 +1762,7 @@ const finalizeMarkdown = (lines: readonly string[]): string =>
     .replace(/\n{3,}/g, "\n\n")
     .trimEnd()}\n`;
 
-const renderIndex = (namespaces: readonly ApiNamespace[]): string => {
+const renderIndex = (_namespaces: readonly ApiNamespace[]): string => {
   const lines = [
     frontmatter("Scripting API", "", "Overview"),
     "",
@@ -2071,8 +2066,9 @@ const renderFiles = (
   ];
 };
 
-const ensureParentDir = (path: string): Promise<void> =>
-  fs.mkdir(dirname(path), { recursive: true });
+const ensureParentDir = async (path: string): Promise<void> => {
+  await fs.mkdir(dirname(path), { recursive: true });
+};
 
 const listMarkdownFiles = async (dir: string): Promise<readonly string[]> => {
   const entries = await fs

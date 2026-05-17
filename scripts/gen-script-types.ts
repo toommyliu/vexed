@@ -458,10 +458,8 @@ const getInterface = (
     fail(`Unable to resolve circular interface alias ${name}`);
   }
 
-  const declaration = declarations.get(name);
-  if (!declaration) {
-    fail(`Unable to find interface ${name}`);
-  }
+  const declaration =
+    declarations.get(name) ?? fail(`Unable to find interface ${name}`);
 
   if (ts.isInterfaceDeclaration(declaration)) {
     return declaration;
@@ -485,7 +483,7 @@ const getInterface = (
     }
   }
 
-  fail(`Unable to find interface ${name}`);
+  return fail(`Unable to find interface ${name}`);
 };
 
 const getDeclaration = (
