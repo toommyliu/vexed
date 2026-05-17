@@ -700,8 +700,12 @@ const collectTypeReferences = (
   }
 
   if (ts.isTypeReferenceNode(node)) {
-    const name = getTypeNameText(node.typeName);
-    if (!TYPE_REFERENCE_WRAPPERS.has(name) && !BUILTIN_TYPE_NAMES.has(name)) {
+    const name = parseTypeReference(node)?.unqualifiedName;
+    if (
+      name &&
+      !TYPE_REFERENCE_WRAPPERS.has(name) &&
+      !BUILTIN_TYPE_NAMES.has(name)
+    ) {
       output.add(name);
     }
   }
