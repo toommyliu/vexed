@@ -158,6 +158,9 @@ const createDomainHandlerStore = (): DomainHandlerStore => ({
   monsterDeath: new Set(),
   joinMap: new Set(),
   zone: new Set(),
+  animationMessage: new Set(),
+  auraAdded: new Set(),
+  auraRemoved: new Set(),
   counterAttackStart: new Set(),
   counterAttackEnd: new Set(),
 });
@@ -761,12 +764,20 @@ const make = Effect.gen(function* () {
           continue;
         }
 
+        const monMapId =
+          parseMonsterMapIdFromEntityInfo(animation["cInf"]) ??
+          parseMonsterMapIdFromEntityInfo(animation["tInf"]);
+        yield* dispatchDomainEvent(domainHandlerStore, "animationMessage", {
+          message,
+          ...(monMapId === undefined ? {} : { monMapId }),
+          packet,
+        });
+
         const counterAttackMatch = matchCounterAttackMessage(message);
         if (!counterAttackMatch) {
           continue;
         }
 
-        const monMapId = parseMonsterMapIdFromEntityInfo(animation["cInf"]);
         if (monMapId === undefined) {
           continue;
         }
@@ -897,6 +908,14 @@ const make = Effect.gen(function* () {
                 yield* world.monsters.updateAura(targetId, aura);
               }
             }
+
+            yield* dispatchDomainEvent(domainHandlerStore, "auraAdded", {
+              aura,
+              auraName,
+              targetId,
+              targetType: targetType === "p" ? "player" : "monster",
+              packet,
+            });
           }
           continue;
         }
@@ -928,6 +947,13 @@ const make = Effect.gen(function* () {
               );
             }
           }
+
+          yield* dispatchDomainEvent(domainHandlerStore, "auraRemoved", {
+            auraName,
+            targetId,
+            targetType: targetType === "p" ? "player" : "monster",
+            packet,
+          });
         }
       }
 

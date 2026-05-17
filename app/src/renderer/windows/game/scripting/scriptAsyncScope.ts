@@ -51,13 +51,16 @@ export const makeScriptAsyncScope = (runFork: RunFork): ScriptAsyncScope => {
 
     return new Promise((resolve, reject) => {
       let observerActive = true;
-      const removeObserver = fiber.addObserver((exit) => {
+      let removeObserver: (() => void) | undefined;
+      let observerCompleted = false;
+      removeObserver = fiber.addObserver((exit) => {
         if (!observerActive) {
           return;
         }
 
         observerActive = false;
-        removeObserver();
+        observerCompleted = true;
+        removeObserver?.();
         fibers.delete(fiber as AnyFiber);
 
         if (Exit.isSuccess(exit)) {
@@ -81,6 +84,9 @@ export const makeScriptAsyncScope = (runFork: RunFork): ScriptAsyncScope => {
           ),
         );
       });
+      if (observerCompleted) {
+        removeObserver();
+      }
     });
   };
 

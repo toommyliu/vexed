@@ -8,8 +8,8 @@
       "definition": "type ArmyEffect<A, E> = Effect.Effect<A, E | ArmyError | BridgeError>",
       "keys": [],
       "source": {
-        "path": "app/src/renderer/windows/game/army/Services/Army.ts:26",
-        "url": "https://github.com/toommyliu/vexed/blob/dev/app/src/renderer/windows/game/army/Services/Army.ts#L26"
+        "path": "app/src/renderer/windows/game/army/Services/Army.ts:27",
+        "url": "https://github.com/toommyliu/vexed/blob/dev/app/src/renderer/windows/game/army/Services/Army.ts#L27"
       }
     },
     "army-equip-set-options": {
@@ -27,8 +27,8 @@
         }
       ],
       "source": {
-        "path": "app/src/renderer/windows/game/army/Services/Army.ts:35",
-        "url": "https://github.com/toommyliu/vexed/blob/dev/app/src/renderer/windows/game/army/Services/Army.ts#L35"
+        "path": "app/src/renderer/windows/game/army/Services/Army.ts:36",
+        "url": "https://github.com/toommyliu/vexed/blob/dev/app/src/renderer/windows/game/army/Services/Army.ts#L36"
       }
     },
     "army-error": {
@@ -78,7 +78,7 @@
           "kind": "property",
           "name": "cause",
           "signature": "cause?: unknown",
-          "description": "The cause of the error."
+          "description": ""
         },
         {
           "kind": "property",
@@ -100,8 +100,45 @@
         }
       ],
       "source": {
-        "path": "app/src/renderer/windows/game/army/Services/Army.ts:9",
-        "url": "https://github.com/toommyliu/vexed/blob/dev/app/src/renderer/windows/game/army/Services/Army.ts#L9"
+        "path": "app/src/renderer/windows/game/army/Services/Army.ts:10",
+        "url": "https://github.com/toommyliu/vexed/blob/dev/app/src/renderer/windows/game/army/Services/Army.ts#L10"
+      }
+    },
+    "army-loop-taunt-handle": {
+      "name": "ArmyLoopTauntHandle",
+      "slug": "army-loop-taunt-handle",
+      "kind": "interface",
+      "summary": "",
+      "definition": "interface ArmyLoopTauntHandle",
+      "keys": [
+        {
+          "kind": "property",
+          "name": "id",
+          "signature": "readonly id: string",
+          "description": ""
+        },
+        {
+          "kind": "method",
+          "name": "stop()",
+          "signature": "stop(): ArmyEffect<boolean, never>",
+          "description": ""
+        }
+      ],
+      "source": {
+        "path": "app/src/renderer/windows/game/army/LoopTaunt.ts:24",
+        "url": "https://github.com/toommyliu/vexed/blob/dev/app/src/renderer/windows/game/army/LoopTaunt.ts#L24"
+      }
+    },
+    "army-loop-taunt-options": {
+      "name": "ArmyLoopTauntOptions",
+      "slug": "army-loop-taunt-options",
+      "kind": "type alias",
+      "summary": "",
+      "definition": "type ArmyLoopTauntOptions = ArmyLoopTauntBaseOptions & { aura: string; message?: never } | ArmyLoopTauntBaseOptions & { aura?: never; message: string }",
+      "keys": [],
+      "source": {
+        "path": "app/src/renderer/windows/game/army/LoopTaunt.ts:14",
+        "url": "https://github.com/toommyliu/vexed/blob/dev/app/src/renderer/windows/game/army/LoopTaunt.ts#L14"
       }
     },
     "army-run-step-options": {
@@ -119,8 +156,8 @@
         }
       ],
       "source": {
-        "path": "app/src/renderer/windows/game/army/Services/Army.ts:31",
-        "url": "https://github.com/toommyliu/vexed/blob/dev/app/src/renderer/windows/game/army/Services/Army.ts#L31"
+        "path": "app/src/renderer/windows/game/army/Services/Army.ts:32",
+        "url": "https://github.com/toommyliu/vexed/blob/dev/app/src/renderer/windows/game/army/Services/Army.ts#L32"
       }
     },
     "army-session": {
@@ -131,8 +168,8 @@
       "definition": "type ArmySession = ArmySessionPayload",
       "keys": [],
       "source": {
-        "path": "app/src/renderer/windows/game/army/Services/Army.ts:55",
-        "url": "https://github.com/toommyliu/vexed/blob/dev/app/src/renderer/windows/game/army/Services/Army.ts#L55"
+        "path": "app/src/renderer/windows/game/army/Services/Army.ts:56",
+        "url": "https://github.com/toommyliu/vexed/blob/dev/app/src/renderer/windows/game/army/Services/Army.ts#L56"
       }
     },
     "aura": {

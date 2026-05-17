@@ -24,6 +24,26 @@ export function extractMonsterMapId(input: string): string {
 }
 
 /**
+ * Parses a monster map id token from a numeric id or a prefixed string such as
+ * `id:2`. Returns undefined for monster names and malformed ids.
+ */
+export function parseMonsterMapIdToken(
+  input: number | string,
+): number | undefined {
+  if (typeof input === "number") {
+    return Number.isFinite(input) && input > 0 ? Math.trunc(input) : undefined;
+  }
+
+  const trimmed = input.trim();
+  if (!isMonsterMapId(trimmed)) {
+    return undefined;
+  }
+
+  const parsed = Number.parseInt(extractMonsterMapId(trimmed), 10);
+  return Number.isFinite(parsed) && parsed > 0 ? parsed : undefined;
+}
+
+/**
  * Checks if the input string contains multiple valid monMapIds.
  *
  * @param input - comma separated string of monMapIds

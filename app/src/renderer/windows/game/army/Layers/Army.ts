@@ -1,4 +1,4 @@
-import { Effect, Layer, SynchronizedRef } from "effect";
+import { Deferred, Effect, Layer, Option, SynchronizedRef } from "effect";
 import {
   Army,
   ArmyError,
@@ -8,11 +8,23 @@ import {
   type ArmySession,
   type ArmyShape,
 } from "../Services/Army";
+import {
+  advanceLoopTauntTurn,
+  matchesLoopTauntAura,
+  matchesLoopTauntMessage,
+  normalizeLoopTauntOptions,
+  ownsLoopTauntTurn,
+  resolveTargetMonMapIdToken,
+  type ArmyLoopTauntHandle,
+  type NormalizedLoopTauntOptions,
+} from "../LoopTaunt";
 import { Auth } from "../../flash/Services/Auth";
 import { Combat } from "../../flash/Services/Combat";
 import { Inventory } from "../../flash/Services/Inventory";
+import { PacketDomain } from "../../flash/Services/PacketDomain";
 import { Player } from "../../flash/Services/Player";
 import { World } from "../../flash/Services/World";
+import { Jobs } from "../../jobs/Services/Jobs";
 import { waitFor } from "../../utils/waitFor";
 
 interface ArmyState {
@@ -28,6 +40,7 @@ const DEFAULT_STATE: ArmyState = {
 const DEFAULT_JOIN_CELL = "Enter";
 const DEFAULT_JOIN_PAD = "Spawn";
 const WAIT_FOR_MAP_TIMEOUT = "2 minutes";
+const LOOP_TAUNT_RESOLVE_INTERVAL = "250 millis";
 
 const cloneSession = (session: ArmySession): ArmySession => ({
   ...session,
@@ -104,18 +117,33 @@ const assertStarted = (state: ArmyState): ArmyEffect<ArmySession> =>
     ? Effect.fail(new ArmyError("Army has not been started"))
     : Effect.succeed(cloneSession(state.session));
 
+const loopTauntJobKey = (id: string): string => `army:loop-taunt:${id}`;
+
 const make = Effect.gen(function* () {
   const auth = yield* Auth;
   const combat = yield* Combat;
   const inventory = yield* Inventory;
+  const jobs = yield* Jobs;
+  const packetDomain = yield* PacketDomain;
   const player = yield* Player;
   const world = yield* World;
+  const runFork = Effect.runFork;
   const stateRef = yield* SynchronizedRef.make<ArmyState>(DEFAULT_STATE);
 
   const getState = SynchronizedRef.get(stateRef).pipe(Effect.map(cloneState));
 
   const getSession: ArmyShape["getSession"] = () =>
     getState.pipe(Effect.map((state) => state.session));
+
+  const stopLoopTauntJobs = () =>
+    Effect.gen(function* () {
+      const keys = yield* jobs.getRunningKeys();
+      yield* Effect.forEach(
+        keys.filter((key) => key.startsWith("army:loop-taunt:")),
+        (key) => jobs.stop(key),
+        { discard: true },
+      );
+    });
 
   const start: ArmyShape["start"] = (configName) =>
     Effect.gen(function* () {
@@ -139,6 +167,7 @@ const make = Effect.gen(function* () {
         return;
       }
 
+      yield* stopLoopTauntJobs();
       const session = state.session;
       yield* fromArmyIpc("Failed to leave army", () =>
         window.ipc.army.leave({
@@ -179,10 +208,11 @@ const make = Effect.gen(function* () {
     getState.pipe(Effect.map((state) => state.session?.playerNumber ?? -1));
 
   const nextBarrierStep = () =>
-    SynchronizedRef.modify(stateRef, (state) => [
-      state.nextStep,
-      { ...state, nextStep: state.nextStep + 1 },
-    ] as const);
+    SynchronizedRef.modify(
+      stateRef,
+      (state) =>
+        [state.nextStep, { ...state, nextStep: state.nextStep + 1 }] as const,
+    );
 
   const waitAtBarrier = (
     session: ArmySession,
@@ -322,6 +352,10 @@ const make = Effect.gen(function* () {
 
       yield* inventory.equip(resolved);
       yield* Effect.sleep("500 millis");
+      yield* Effect.log({
+        message: "Drank consumable",
+        item: resolved,
+      });
       yield* combat.useSkill(5, true, true);
       yield* Effect.sleep("1 second");
     });
@@ -377,6 +411,300 @@ const make = Effect.gen(function* () {
       }),
     ).pipe(Effect.asVoid);
 
+  const resolveLoopTauntTarget = (
+    options: Pick<NormalizedLoopTauntOptions, "target">,
+  ) =>
+    Effect.gen(function* () {
+      const tokenMonMapId = resolveTargetMonMapIdToken(options.target);
+      if (tokenMonMapId !== undefined) {
+        return tokenMonMapId;
+      }
+
+      if (typeof options.target !== "string") {
+        return undefined;
+      }
+
+      const monster = yield* world.monsters.findByName(options.target);
+      return Option.isSome(monster) ? monster.value.monMapId : undefined;
+    });
+
+  const resolveExistingLoopTauntTarget = (
+    options: Pick<NormalizedLoopTauntOptions, "target">,
+  ) =>
+    Effect.gen(function* () {
+      const tokenMonMapId = resolveTargetMonMapIdToken(options.target);
+      if (tokenMonMapId !== undefined) {
+        const monster = yield* world.monsters.get(tokenMonMapId);
+        return Option.isSome(monster) ? tokenMonMapId : undefined;
+      }
+
+      if (typeof options.target !== "string") {
+        return undefined;
+      }
+
+      const monster = yield* world.monsters.findByName(options.target);
+      return Option.isSome(monster) ? monster.value.monMapId : undefined;
+    });
+
+  const waitForLoopTauntTarget = (
+    options: Pick<NormalizedLoopTauntOptions, "target">,
+  ) =>
+    Effect.gen(function* () {
+      while (true) {
+        const monMapId = yield* resolveExistingLoopTauntTarget(options);
+        if (monMapId !== undefined) {
+          return monMapId;
+        }
+
+        yield* Effect.sleep(LOOP_TAUNT_RESOLVE_INTERVAL);
+      }
+    });
+
+  const ownsLoopTauntParticipation = (
+    session: ArmySession,
+    options: Pick<NormalizedLoopTauntOptions, "participants">,
+  ): boolean =>
+    options.participants.some(
+      (participant) => participant.number === session.playerNumber,
+    );
+
+  const prepareLoopTauntTarget = (
+    session: ArmySession,
+    options: Pick<NormalizedLoopTauntOptions, "participants" | "target">,
+  ) =>
+    Effect.gen(function* () {
+      const monMapId = yield* waitForLoopTauntTarget(options);
+      if (ownsLoopTauntParticipation(session, options)) {
+        yield* combat.attackMonster(monMapId);
+      }
+
+      return monMapId;
+    });
+
+  const runLoopTaunt = (
+    session: ArmySession,
+    options: NormalizedLoopTauntOptions,
+    initialTargetMonMapId: number,
+    armedStep: number,
+    armed: Deferred.Deferred<void, ArmyError>,
+  ) =>
+    Effect.scoped(
+      Effect.gen(function* () {
+        let targetMonMapId: number | undefined = initialTargetMonMapId;
+        let turn = { nextIndex: 0 };
+        let initialAuraCheckComplete = false;
+        let tauntInFlight = false;
+
+        const resolveTarget = () =>
+          Effect.gen(function* () {
+            if (targetMonMapId !== undefined) {
+              return targetMonMapId;
+            }
+
+            targetMonMapId = yield* resolveLoopTauntTarget(options);
+            return targetMonMapId;
+          });
+
+        const taunt = (monMapId: number) =>
+          Effect.gen(function* () {
+            if (tauntInFlight) {
+              return;
+            }
+
+            tauntInFlight = true;
+            try {
+              const ready = yield* player
+                .isReady()
+                .pipe(Effect.catchCause(() => Effect.succeed(false)));
+              const alive = yield* player
+                .isAlive()
+                .pipe(Effect.catchCause(() => Effect.succeed(false)));
+              if (!ready || !alive) {
+                return;
+              }
+
+              yield* combat.attackMonster(monMapId);
+              yield* combat.useSkill(options.skill, true, true);
+            } finally {
+              tauntInFlight = false;
+            }
+          }).pipe(
+            Effect.catchCause((cause) =>
+              Effect.logError({
+                message: "loop taunt failed",
+                id: options.id,
+                cause,
+              }),
+            ),
+          );
+
+        const triggerNextTurn = (monMapId: number) =>
+          Effect.sync(() => {
+            const ownsTurn = ownsLoopTauntTurn(
+              options.participants,
+              session.playerNumber,
+              turn,
+            );
+            turn = advanceLoopTauntTurn(options.participants, turn);
+            if (ownsTurn) {
+              runFork(taunt(monMapId));
+            }
+          });
+
+        const runInitialAuraCheck = () =>
+          Effect.gen(function* () {
+            if (initialAuraCheckComplete || options.trigger.type !== "aura") {
+              return;
+            }
+
+            const monMapId = yield* resolveTarget();
+            if (monMapId === undefined) {
+              return;
+            }
+
+            initialAuraCheckComplete = true;
+            const aura = yield* world.monsters.getAura(
+              monMapId,
+              options.trigger.aura,
+            );
+            if (Option.isNone(aura)) {
+              yield* triggerNextTurn(monMapId);
+            }
+          });
+
+        const onAuraRemoved = yield* packetDomain.on("auraRemoved", (event) =>
+          Effect.gen(function* () {
+            if (
+              options.trigger.type !== "aura" ||
+              event.targetType !== "monster" ||
+              !matchesLoopTauntAura(options.trigger.aura, event.auraName)
+            ) {
+              return;
+            }
+
+            const monMapId = yield* resolveTarget();
+            if (monMapId === undefined || event.targetId !== monMapId) {
+              return;
+            }
+
+            initialAuraCheckComplete = true;
+            yield* triggerNextTurn(monMapId);
+          }),
+        );
+
+        const onAnimationMessage = yield* packetDomain.on(
+          "animationMessage",
+          (event) =>
+            Effect.gen(function* () {
+              if (
+                options.trigger.type !== "message" ||
+                !matchesLoopTauntMessage(options.trigger.message, event.message)
+              ) {
+                return;
+              }
+
+              const monMapId = yield* resolveTarget();
+              if (
+                monMapId === undefined ||
+                event.monMapId === undefined ||
+                event.monMapId !== monMapId
+              ) {
+                return;
+              }
+
+              yield* triggerNextTurn(monMapId);
+            }),
+        );
+
+        const onMonsterDeath = yield* packetDomain.on("monsterDeath", (event) =>
+          Effect.gen(function* () {
+            const monMapId = yield* resolveTarget();
+            if (monMapId === undefined || event.monMapId !== monMapId) {
+              return;
+            }
+
+            yield* jobs.stop(loopTauntJobKey(options.id));
+          }),
+        );
+
+        yield* Effect.addFinalizer(() =>
+          Effect.sync(() => {
+            onAuraRemoved();
+            onAnimationMessage();
+            onMonsterDeath();
+          }),
+        );
+
+        yield* waitAtBarrier(
+          session,
+          armedStep,
+          `loop-taunt-armed:${options.id}`,
+        );
+        yield* Deferred.succeed(armed, undefined).pipe(Effect.asVoid);
+        yield* Effect.log({
+          message: "Loop Taunt armed",
+          id: options.id,
+        });
+        while (true) {
+          yield* runInitialAuraCheck();
+          yield* Effect.sleep(LOOP_TAUNT_RESOLVE_INTERVAL);
+        }
+      }),
+    ).pipe(
+      Effect.catchCause((cause) =>
+        Effect.gen(function* () {
+          yield* Deferred.fail(
+            armed,
+            new ArmyError("Loop Taunt failed to arm", cause),
+          );
+          return yield* Effect.failCause(cause);
+        }),
+      ),
+    );
+
+  const stopLoopTaunt: ArmyShape["stopLoopTaunt"] = (id) =>
+    jobs.stop(loopTauntJobKey(id));
+
+  const stopAllLoopTaunts: ArmyShape["stopAllLoopTaunts"] = () =>
+    stopLoopTauntJobs();
+
+  const startLoopTaunt: ArmyShape["startLoopTaunt"] = (options) =>
+    Effect.gen(function* () {
+      const session = yield* getState.pipe(Effect.flatMap(assertStarted));
+      const normalized = yield* Effect.try({
+        try: () => normalizeLoopTauntOptions(options, session.players),
+        catch: (cause) => new ArmyError("Invalid Loop Taunt options", cause),
+      });
+      const key = loopTauntJobKey(normalized.id);
+      const targetStep = yield* nextBarrierStep();
+      const armedStep = yield* nextBarrierStep();
+      const monMapId = yield* prepareLoopTauntTarget(session, normalized);
+      yield* waitAtBarrier(
+        session,
+        targetStep,
+        `loop-taunt-target:${normalized.id}`,
+      );
+      const armed = yield* Deferred.make<void, ArmyError>();
+
+      yield* jobs.start(
+        key,
+        runLoopTaunt(session, normalized, monMapId, armedStep, armed),
+        {
+          replace: true,
+        },
+      );
+      yield* Deferred.await(armed).pipe(
+        Effect.onInterrupt(() =>
+          stopLoopTaunt(normalized.id).pipe(Effect.asVoid),
+        ),
+      );
+
+      return {
+        id: normalized.id,
+        stop: () => stopLoopTaunt(normalized.id),
+      } satisfies ArmyLoopTauntHandle;
+    });
+
   return {
     start,
     leave,
@@ -396,6 +724,9 @@ const make = Effect.gen(function* () {
     killForItem,
     killForTempItem,
     equipSet,
+    startLoopTaunt,
+    stopLoopTaunt,
+    stopAllLoopTaunts,
   } satisfies ArmyShape;
 });
 

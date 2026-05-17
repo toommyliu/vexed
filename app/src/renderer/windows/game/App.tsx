@@ -347,10 +347,16 @@ export default function App(props: {
   const handleAccountLaunch = (payload: AccountGameLaunchPayload) => {
     const fiber = runtime.runFork(runAccountLaunch(payload));
     accountLaunchFibers.add(fiber);
-    const removeObserver = fiber.addObserver(() => {
-      removeObserver();
+    let removeObserver: (() => void) | undefined;
+    let observerCompleted = false;
+    removeObserver = fiber.addObserver(() => {
+      observerCompleted = true;
+      removeObserver?.();
       accountLaunchFibers.delete(fiber);
     });
+    if (observerCompleted) {
+      removeObserver();
+    }
   };
 
   const applyLoadedScript = (source: string, name: string) => {

@@ -1,6 +1,6 @@
 import { Cause, Effect, Fiber, Layer, Option, Ref, Semaphore } from "effect";
 import { type ScriptExecutePayload } from "../ipc";
-import { Army } from "../../army/Services/Army";
+import { Army, type ArmyShape } from "../../army/Services/Army";
 import { Auth } from "../../flash/Services/Auth";
 import { AutoRelogin } from "../../features/Services/AutoRelogin";
 import { AutoZone } from "../../features/Services/AutoZone";
@@ -432,6 +432,39 @@ const make = Effect.gen(function* () {
       setFrameRate: settings.setFrameRate,
     };
 
+    const startLoopTauntForScript: ArmyShape["startLoopTaunt"] = (options) =>
+      Effect.gen(function* () {
+        const handle = yield* army.startLoopTaunt(options);
+        const cleanupKey = `loop-taunt:${handle.id}`;
+        let stopped = false;
+
+        const cleanup = Effect.gen(function* () {
+          if (stopped) {
+            return;
+          }
+
+          stopped = true;
+          yield* handle.stop().pipe(Effect.asVoid);
+        });
+
+        yield* scriptScope.setCleanup(cleanupKey, cleanup);
+
+        return {
+          id: handle.id,
+          stop: () =>
+            Effect.gen(function* () {
+              if (stopped) {
+                return false;
+              }
+
+              const didStop = yield* handle.stop();
+              stopped = true;
+              yield* scriptScope.removeCleanup(cleanupKey);
+              return didStop;
+            }),
+        };
+      });
+
     const getScriptPlayer = (username: string) =>
       Effect.gen(function* () {
         const exact = yield* world.players.get(username);
@@ -538,6 +571,10 @@ const make = Effect.gen(function* () {
     };
 
     const { getLoginSession: _getLoginSession, ...scriptAuth } = auth;
+    const scriptArmy: ArmyShape = {
+      ...army,
+      startLoopTaunt: startLoopTauntForScript,
+    };
 
     const recipes = makeScriptRecipes({
       sourceName,
@@ -572,7 +609,7 @@ const make = Effect.gen(function* () {
     };
 
     const api: ScriptApi = {
-      army: wrapValue(army) as ScriptApi["army"],
+      army: wrapValue(scriptArmy) as ScriptApi["army"],
       auth: wrapValue(scriptAuth) as ScriptApi["auth"],
       bank: wrapValue(bank) as ScriptApi["bank"],
       combat: wrapValue(combat) as ScriptApi["combat"],

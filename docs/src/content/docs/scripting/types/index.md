@@ -17,6 +17,8 @@ Referenced types are generated from the types directly linked by the documented 
 | <a href="/scripting/types/army-effect/" data-script-type="army-effect"><code>ArmyEffect</code></a> | type alias |  |
 | <a href="/scripting/types/army-equip-set-options/" data-script-type="army-equip-set-options"><code>ArmyEquipSetOptions</code></a> | interface |  |
 | <a href="/scripting/types/army-error/" data-script-type="army-error"><code>ArmyError</code></a> | class |  |
+| <a href="/scripting/types/army-loop-taunt-handle/" data-script-type="army-loop-taunt-handle"><code>ArmyLoopTauntHandle</code></a> | interface |  |
+| <a href="/scripting/types/army-loop-taunt-options/" data-script-type="army-loop-taunt-options"><code>ArmyLoopTauntOptions</code></a> | type alias |  |
 | <a href="/scripting/types/army-run-step-options/" data-script-type="army-run-step-options"><code>ArmyRunStepOptions</code></a> | interface |  |
 | <a href="/scripting/types/army-session/" data-script-type="army-session"><code>ArmySession</code></a> | type alias |  |
 | <a href="/scripting/types/aura/" data-script-type="aura"><code>Aura</code></a> | type alias |  |
