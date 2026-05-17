@@ -35,6 +35,7 @@ const FETCH_BOOSTS_TIMEOUT_MS = 3_000;
 
 let environmentIpcRegistered = false;
 const states = new Map<number, EnvironmentState>();
+const stateCleanupWindowIds = new Set<number>();
 const pendingFetchBoosts = new Map<
   string,
   {
@@ -46,6 +47,24 @@ const pendingFetchBoosts = new Map<
 const getSenderWindowId = (event: IpcMainInvokeEvent): number | undefined =>
   BrowserWindow.fromWebContents(event.sender)?.id;
 
+const trackWindowState = (gameWindowId: number): void => {
+  if (stateCleanupWindowIds.has(gameWindowId)) {
+    return;
+  }
+
+  const window = BrowserWindow.fromId(gameWindowId);
+  if (!window || window.isDestroyed()) {
+    states.delete(gameWindowId);
+    return;
+  }
+
+  stateCleanupWindowIds.add(gameWindowId);
+  window.once("closed", () => {
+    states.delete(gameWindowId);
+    stateCleanupWindowIds.delete(gameWindowId);
+  });
+};
+
 const getWindowState = (gameWindowId: number): EnvironmentState => {
   const existing = states.get(gameWindowId);
   if (existing) {
@@ -54,6 +73,7 @@ const getWindowState = (gameWindowId: number): EnvironmentState => {
 
   const empty = createEmptyEnvironmentState();
   states.set(gameWindowId, empty);
+  trackWindowState(gameWindowId);
   return empty;
 };
 
@@ -63,6 +83,7 @@ const setWindowState = (
 ): EnvironmentState => {
   const normalized = normalizeEnvironmentState(state);
   states.set(gameWindowId, normalized);
+  trackWindowState(gameWindowId);
   return normalized;
 };
 
