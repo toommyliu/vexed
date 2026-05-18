@@ -1,39 +1,36 @@
-import { ServerDataSchema, type AvatarData } from "@vexed/game";
-import { Schema } from "effect";
+import type { AvatarData, ServerData } from "@vexed/game";
 
 // objLogin
-export const LoginSessionSchema = Schema.Struct({
-  servers: Schema.mutable(Schema.Array(ServerDataSchema)),
-  bSuccess: Schema.Number,
-  bCCOnly: Schema.optionalKey(Schema.Number),
-  iAccess: Schema.optionalKey(Schema.Number),
-  iAge: Schema.optionalKey(Schema.Number),
-  iEmailStatus: Schema.optionalKey(Schema.Number),
-  iUpg: Schema.Number,
-  iUpgDays: Schema.optionalKey(Schema.Number),
-  unm: Schema.String, // username
-  sToken: Schema.String, // password
-});
+export type LoginSessionPayload = {
+  readonly servers?: ServerData[];
+  readonly bSuccess?: number;
+  readonly bCCOnly?: number;
+  readonly iAccess?: number;
+  readonly iAge?: number;
+  readonly iEmailStatus?: number;
+  readonly iUpg?: number;
+  readonly iUpgDays?: number;
+  readonly unm?: string; // username
+  readonly sToken?: string; // password token
+};
 
-export const LoginSessionFromJsonString =
-  Schema.fromJsonString(LoginSessionSchema);
-
-export type LoginSession = Schema.Schema.Type<typeof LoginSessionSchema>;
+export type LoginSession = Omit<
+  LoginSessionPayload,
+  "bSuccess" | "iUpg" | "servers" | "sToken" | "unm"
+> & {
+  bSuccess: number;
+  iUpg: number;
+  servers: ServerData[];
+  sToken: string;
+  unm: string;
+};
 
 // loginInfo
-export const LoginCredentialsSchema = Schema.Struct({
-  strUsername: Schema.String,
-  strPassword: Schema.String,
-  strToken: Schema.String,
-});
-
-export const LoginCredentialsFromJsonString = Schema.fromJsonString(
-  LoginCredentialsSchema,
-);
-
-export type LoginCredentials = Schema.Schema.Type<
-  typeof LoginCredentialsSchema
->;
+export type LoginCredentials = {
+  readonly strUsername: string;
+  readonly strPassword: string;
+  readonly strToken?: string;
+};
 
 export type ConnectToSelectionStatus =
   | "selected"

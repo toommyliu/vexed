@@ -675,9 +675,9 @@ const equipFilterFromIntent = (
     return {
       kind: "forge-weapon",
       patternId: intent.patternId,
-      proc: intent.proc,
       procId: intent.procId,
       slot: "weapon",
+      ...(intent.proc === undefined ? {} : { proc: intent.proc }),
     };
   }
 

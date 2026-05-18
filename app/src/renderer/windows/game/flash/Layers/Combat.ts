@@ -1,4 +1,4 @@
-import { extractMonsterMapId, isMonsterMapId, Monster } from "@vexed/game";
+import { Monster, parseMonsterMapIdToken } from "@vexed/game";
 import { Effect, Layer, Option, Schedule } from "effect";
 import { splitCsv } from "@vexed/shared/csv";
 import { Bridge } from "../Services/Bridge";
@@ -68,26 +68,10 @@ const matchesMonsterName = (left: string, right: string) => {
 const isValidSkillIndex = (index: number): boolean =>
   Number.isInteger(index) && index >= 0 && index <= 5;
 
-const toMonMapId = (target: MonsterIdentifierToken): number | undefined => {
-  if (typeof target === "number") {
-    return Number.isFinite(target) && target > 0
-      ? Math.trunc(target)
-      : undefined;
-  }
-
-  const trimmed = target.trim();
-  if (!isMonsterMapId(trimmed)) {
-    return undefined;
-  }
-
-  const parsed = Number.parseInt(extractMonsterMapId(trimmed), 10);
-  return Number.isFinite(parsed) && parsed > 0 ? parsed : undefined;
-};
-
 const resolveKillTarget = (
   target: MonsterIdentifierToken,
 ): ResolvedKillTarget => {
-  const monMapId = toMonMapId(target);
+  const monMapId = parseMonsterMapIdToken(target);
   if (monMapId !== undefined) {
     return { kind: "monMapId", monMapId };
   }
@@ -307,10 +291,10 @@ const make = Effect.gen(function* () {
             ),
           });
 
-          const currentTargetMonMapId = yield* getCurrentTargetMonMapId();
-          if (currentTargetMonMapId === event.monMapId) {
-            yield* stopCombat;
-          }
+          // const currentTargetMonMapId = yield* getCurrentTargetMonMapId();
+          // if (currentTargetMonMapId === event.monMapId) {
+          //   yield* stopCombat;
+          // }
         }),
     );
     disposers.push(disposeCounterStart);

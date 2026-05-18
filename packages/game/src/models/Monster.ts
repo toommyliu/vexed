@@ -55,11 +55,4 @@ export class Monster extends BaseEntity {
   public get name(): string {
     return this.data.strMonName;
   }
-
-  /**
-   * The cell the monster is in.
-   */
-  public get cell(): string {
-    return this.data.strFrame;
-  }
 }

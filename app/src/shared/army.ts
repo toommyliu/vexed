@@ -33,6 +33,7 @@ export interface ArmyBarrierPayload {
   readonly playerName: string;
   readonly step: number;
   readonly label?: string;
+  readonly players?: readonly string[];
   readonly timeoutMs?: number;
 }
 
@@ -103,7 +104,9 @@ const parsePlayersArray = (value: unknown): readonly string[] | undefined => {
   return players as readonly string[];
 };
 
-const parseLegacyPlayers = (raw: ArmyConfigRaw): readonly string[] | undefined => {
+const parseLegacyPlayers = (
+  raw: ArmyConfigRaw,
+): readonly string[] | undefined => {
   const playerCount = raw["PlayerCount"];
   if (playerCount === undefined) {
     return undefined;

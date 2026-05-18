@@ -64,6 +64,10 @@ const addAuraToTarget = (
       existing.duration = aura.duration;
     }
 
+    if (aura.icon !== undefined) {
+      existing.icon = aura.icon;
+    }
+
     if (aura.value !== undefined) {
       existing.value = aura.value;
     }
@@ -82,6 +86,10 @@ const updateAuraOnTarget = (
   if (existing) {
     if (aura.duration !== undefined) {
       existing.duration = aura.duration;
+    }
+
+    if (aura.icon !== undefined) {
+      existing.icon = aura.icon;
     }
 
     if (aura.value !== undefined) {

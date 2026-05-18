@@ -119,6 +119,9 @@ for each member. */
     killForItem(target: MonsterIdentifierToken, item: ItemIdentifierToken, quantity?: number, options?: CombatKillOptions): Effect<void, never | ArmyError | BridgeError>;
     killForTempItem(target: MonsterIdentifierToken, item: ItemIdentifierToken, quantity?: number, options?: CombatKillOptions): Effect<void, never | ArmyError | BridgeError>;
     equipSet(setName: string, options?: ArmyEquipSetOptions): Effect<void, never | ArmyError | BridgeError>;
+    startLoopTaunt(options: ArmyLoopTauntOptions): ArmyEffect<ArmyLoopTauntHandle>;
+    stopLoopTaunt(id: string): ArmyEffect<boolean>;
+    stopAllLoopTaunts(): ArmyEffect<void>;
 }
 interface AuthApi {
     connectTo(server: string): Effect<AuthConnectOutcome, BridgeError>;
@@ -377,6 +380,21 @@ interface ArmyEquipSetOptions {
    */
   readonly resolveItems?: boolean;
 }
+interface ArmyLoopTauntHandle {
+  readonly id: string;
+  stop(): ArmyEffect<boolean>;
+}
+type ArmyLoopTauntOptions =
+  | (ArmyLoopTauntBaseOptions & {
+      readonly aura: string;
+      readonly delayMs?: number;
+      readonly message?: never;
+    })
+  | (ArmyLoopTauntBaseOptions & {
+      readonly aura?: never;
+      readonly delayMs?: never;
+      readonly message: string;
+    });
 interface ArmyRunStepOptions {
   readonly timeoutMs?: number;
 }
@@ -663,7 +681,7 @@ type ScriptPacketListener = (
   | Effect<unknown, unknown>
   | Generator<EffectYieldable<any, any, never, never>, unknown, never>;
 interface Server {
-  data: ServerData;
+  data: { readonly bOnline: number; readonly bUpg: number; readonly iChat: number; readonly iCount: number; readonly iLevel: number; readonly iMax: number; readonly iPort: number; readonly sIP: string; readonly sLang: string; readonly sName: string; };
   readonly maxPlayers: number;
   readonly port: number;
   readonly langCode: string;
@@ -689,6 +707,16 @@ type ShopInfo = {
 };
 interface ShopItem extends Item {
   data: ShopItemData;
+}
+type ArmyEffect<A, E = never> = Effect<
+  A,
+  E | ArmyError | BridgeError
+>;
+interface ArmyLoopTauntBaseOptions {
+  readonly id?: string;
+  readonly players?: readonly ArmyLoopTauntPlayer[];
+  readonly skill: Skill;
+  readonly target: MonsterIdentifierToken;
 }
 interface ArmySessionPayload extends ArmyConfigPayload {
   readonly sessionId: string;
@@ -902,18 +930,6 @@ type QuestRequirement = {
    */
   quantity: number;
 };
-type ServerData = {
-  bOnline: number;
-  bUpg: number;
-  iChat: number;
-  iCount: number;
-  iLevel: number;
-  iMax: number;
-  iPort: number;
-  sIP: string;
-  sLang: string;
-  sName: string;
-};
 interface Json { readonly [key: string]: unknown; }
 interface Location { readonly [key: string]: unknown; }
 interface ShopID { readonly [key: string]: unknown; }
@@ -958,6 +974,7 @@ type ShopItemData = ItemData & {
     sName: string;
   }[];
 };
+type ArmyLoopTauntPlayer = number | string;
 interface ArmyConfigPayload extends ArmyConfigCore {
   readonly configName: string;
   readonly raw: ArmyConfigRaw;

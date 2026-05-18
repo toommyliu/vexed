@@ -24,7 +24,9 @@ const FeatureRuntimeLive = FeaturesLive.pipe(
   Layer.provide(Layer.mergeAll(FlashRuntimeLive, JobsRuntimeLive)),
 );
 
-const ArmyRuntimeLive = ArmyLive.pipe(Layer.provide(FlashRuntimeLive));
+const ArmyRuntimeLive = ArmyLive.pipe(
+  Layer.provide(Layer.mergeAll(FlashRuntimeLive, JobsRuntimeLive)),
+);
 
 const EnvironmentRuntimeLive = EnvironmentLive.pipe(
   Layer.provide(Layer.mergeAll(FlashRuntimeLive, JobsRuntimeLive)),

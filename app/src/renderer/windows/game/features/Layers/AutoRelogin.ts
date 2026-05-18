@@ -1,5 +1,6 @@
 import { Server, type ServerData } from "@vexed/game";
 import {
+  Cause,
   Data,
   Duration,
   Effect,
@@ -207,7 +208,11 @@ const formatReloginError = (error: unknown): string => {
   }
 
   if (error instanceof SwfCallError) {
-    return `Flash bridge call failed: ${error.method}`;
+    const cause =
+      typeof error.cause === "string" && error.cause !== ""
+        ? `: ${error.cause}`
+        : "";
+    return `Flash bridge call failed: ${error.method}${cause}`;
   }
 
   if (error instanceof Error && error.message !== "") {
@@ -324,14 +329,19 @@ const make = Effect.gen(function* () {
 
       yield* Effect.forEach(
         Array.from(listeners),
-        (listener, listenerIndex) =>
+        (listener) =>
           Effect.sync(() => listener(state)).pipe(
             Effect.catchCause((cause) =>
-              Effect.logError({
-                message: "autorelogin listener failed",
-                listenerIndex,
-                cause,
-              }),
+              Cause.hasInterruptsOnly(cause)
+                ? Effect.failCause(cause)
+                : removeStateListener(listener).pipe(
+                    Effect.andThen(
+                      Effect.logError({
+                        message: "auto relogin state listener failed; removed",
+                        cause,
+                      }),
+                    ),
+                  ),
             ),
           ),
         { discard: true },
@@ -343,12 +353,8 @@ const make = Effect.gen(function* () {
 
   const emitCurrentState = getState().pipe(Effect.flatMap(emitState));
 
-  const logStage = (stage: string, details?: Record<string, unknown>) =>
-    Effect.logInfo({
-      message: "autorelogin",
-      stage,
-      ...(details ?? {}),
-    });
+  const logStage = (_stage: string, _details?: Record<string, unknown>) =>
+    Effect.void;
 
   const updateState = (
     update: (state: RuntimeState) => void,
@@ -386,12 +392,6 @@ const make = Effect.gen(function* () {
           state.lastAttemptAt = 0;
         }
       });
-      yield* Effect.logWarning({
-        message: terminal
-          ? "autorelogin stopped after terminal failure"
-          : "autorelogin failed",
-        error: publicState.lastError,
-      });
       return publicState;
     });
 
@@ -414,15 +414,7 @@ const make = Effect.gen(function* () {
       state.lastAttemptAt = 0;
     });
 
-  const markInterrupted = (interrupt: AutoReloginInterrupted) =>
-    markSuccess().pipe(
-      Effect.tap(() =>
-        Effect.logInfo({
-          message: "autorelogin interrupted",
-          reason: interrupt.reason,
-        }),
-      ),
-    );
+  const markInterrupted = (_interrupt: AutoReloginInterrupted) => markSuccess();
 
   const clearAttempting = () =>
     updateState((state) => {
@@ -579,14 +571,12 @@ const make = Effect.gen(function* () {
       yield* logStage("capture succeeded", { server: server.sName });
       return true;
     }).pipe(
-      Effect.catchCause(() =>
+      Effect.catchCause((cause) =>
         Effect.gen(function* () {
-          yield* Effect.logError({
-            message: "autorelogin capture failed",
-            error: "failed to capture current session",
-          });
+          const error = Cause.squash(cause);
+          const message = formatReloginError(error);
           yield* updateState((state) => {
-            state.lastError = "failed to capture current session";
+            state.lastError = redacted(message, state.captured?.password);
           });
           return false;
         }),
@@ -594,9 +584,10 @@ const make = Effect.gen(function* () {
     );
 
   const waitForServerSelect = waitFor(
-    bridge
-      .call("flash.getGameObject", ["mcLogin.currentLabel"])
-      .pipe(Effect.map((label) => flashStringEquals(label, "Servers"))),
+    bridge.call("flash.getGameObject", ["mcLogin.currentLabel"]).pipe(
+      Effect.map((label) => flashStringEquals(label, "Servers")),
+      Effect.catchTag("SwfCallError", () => Effect.succeed(false)),
+    ),
     {
       timeout: SERVER_SELECT_TIMEOUT,
       schedule: Schedule.spaced("100 millis"),
@@ -604,7 +595,10 @@ const make = Effect.gen(function* () {
   );
 
   const waitForServers = waitFor(
-    auth.getServers().pipe(Effect.map((servers) => servers.length > 0)),
+    auth.getServers().pipe(
+      Effect.catchTag("SwfCallError", () => Effect.succeed([])),
+      Effect.map((servers) => servers.length > 0),
+    ),
     {
       timeout: SERVERS_LOAD_TIMEOUT,
       schedule: Schedule.spaced("100 millis"),
@@ -670,14 +664,7 @@ const make = Effect.gen(function* () {
             lagKillerEnabled: previousSettings.lagKillerEnabled,
             skipCutscenesEnabled: previousSettings.skipCutscenesEnabled,
           })
-          .pipe(
-            Effect.catchCause((cause) =>
-              Effect.logWarning({
-                message: "failed to restore autorelogin settings",
-                cause,
-              }),
-            ),
-          ),
+          .pipe(Effect.catchCause(() => Effect.void)),
       ),
     );
 
@@ -686,28 +673,16 @@ const make = Effect.gen(function* () {
   ): Effect.Effect<A, E> =>
     Effect.gen(function* () {
       // These Flash settings improve login reliability but are non-critical.
-      const previousSettings = yield* settings.getState().pipe(
-        Effect.catchCause((cause) =>
-          Effect.logWarning({
-            message: "failed to read autorelogin settings",
-            cause,
-          }).pipe(Effect.as(null)),
-        ),
-      );
+      const previousSettings = yield* settings
+        .getState()
+        .pipe(Effect.catchCause(() => Effect.succeed(null)));
       yield* logStage("temporary settings apply");
       yield* settings
         .apply({
           lagKillerEnabled: false,
           skipCutscenesEnabled: false,
         })
-        .pipe(
-          Effect.catchCause((cause) =>
-            Effect.logWarning({
-              message: "failed to apply temporary autorelogin settings",
-              cause,
-            }),
-          ),
-        );
+        .pipe(Effect.catchCause(() => Effect.void));
 
       return yield* effect.pipe(
         Effect.ensuring(
@@ -732,14 +707,9 @@ const make = Effect.gen(function* () {
       yield* logStage("player ready timed out", {
         recovery: "reload avatar",
       });
-      const reloadStarted = yield* player.reloadAvatar().pipe(
-        Effect.catchCause((cause) =>
-          Effect.logWarning({
-            message: "failed to reload player avatar",
-            cause,
-          }).pipe(Effect.as(false)),
-        ),
-      );
+      const reloadStarted = yield* player
+        .reloadAvatar()
+        .pipe(Effect.catchCause(() => Effect.succeed(false)));
       if (!reloadStarted) {
         return yield* failAttempt("player avatar did not load", true);
       }
@@ -1043,14 +1013,13 @@ const make = Effect.gen(function* () {
       }),
     );
   }).pipe(
-    Effect.catchCause(() =>
-      Effect.gen(function* () {
-        yield* clearAttempting();
-        yield* Effect.logError({
-          message: "autorelogin task crashed",
-          error: "unexpected task failure",
-        });
-      }),
+    Effect.catchCause((cause) =>
+      Cause.hasInterruptsOnly(cause)
+        ? clearAttempting().pipe(Effect.andThen(Effect.failCause(cause)))
+        : clearAttempting().pipe(
+            Effect.andThen(markFailure(Cause.squash(cause))),
+            Effect.asVoid,
+          ),
     ),
   );
 

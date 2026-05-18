@@ -5,6 +5,7 @@ import type {
 } from "../../../../../shared/army";
 import type { BridgeError } from "../../flash/Services/Bridge";
 import type { CombatKillOptions } from "../../flash/Services/Combat";
+import type { ArmyLoopTauntHandle, ArmyLoopTauntOptions } from "../LoopTaunt";
 
 export class ArmyError extends Error {
   readonly _tag = "ArmyError";
@@ -111,6 +112,11 @@ export interface ArmyShape {
    * @param options Set-equipping options.
    */
   equipSet(setName: string, options?: ArmyEquipSetOptions): ArmyEffect<void>;
+  startLoopTaunt(
+    options: ArmyLoopTauntOptions,
+  ): ArmyEffect<ArmyLoopTauntHandle>;
+  stopLoopTaunt(id: string): ArmyEffect<boolean>;
+  stopAllLoopTaunts(): ArmyEffect<void>;
 }
 
 export class Army extends ServiceMap.Service<Army, ArmyShape>()(
@@ -118,3 +124,8 @@ export class Army extends ServiceMap.Service<Army, ArmyShape>()(
 ) {}
 
 export type { ArmyConfigRaw };
+export type {
+  ArmyLoopTauntHandle,
+  ArmyLoopTauntOptions,
+  ArmyLoopTauntPlayer,
+} from "../LoopTaunt";

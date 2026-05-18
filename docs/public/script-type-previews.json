@@ -8,8 +8,8 @@
       "definition": "type ArmyEffect<A, E> = Effect.Effect<A, E | ArmyError | BridgeError>",
       "keys": [],
       "source": {
-        "path": "app/src/renderer/windows/game/army/Services/Army.ts:26",
-        "url": "https://github.com/toommyliu/vexed/blob/dev/app/src/renderer/windows/game/army/Services/Army.ts#L26"
+        "path": "app/src/renderer/windows/game/army/Services/Army.ts:27",
+        "url": "https://github.com/toommyliu/vexed/blob/dev/app/src/renderer/windows/game/army/Services/Army.ts#L27"
       }
     },
     "army-equip-set-options": {
@@ -27,8 +27,8 @@
         }
       ],
       "source": {
-        "path": "app/src/renderer/windows/game/army/Services/Army.ts:35",
-        "url": "https://github.com/toommyliu/vexed/blob/dev/app/src/renderer/windows/game/army/Services/Army.ts#L35"
+        "path": "app/src/renderer/windows/game/army/Services/Army.ts:36",
+        "url": "https://github.com/toommyliu/vexed/blob/dev/app/src/renderer/windows/game/army/Services/Army.ts#L36"
       }
     },
     "army-error": {
@@ -100,8 +100,45 @@
         }
       ],
       "source": {
-        "path": "app/src/renderer/windows/game/army/Services/Army.ts:9",
-        "url": "https://github.com/toommyliu/vexed/blob/dev/app/src/renderer/windows/game/army/Services/Army.ts#L9"
+        "path": "app/src/renderer/windows/game/army/Services/Army.ts:10",
+        "url": "https://github.com/toommyliu/vexed/blob/dev/app/src/renderer/windows/game/army/Services/Army.ts#L10"
+      }
+    },
+    "army-loop-taunt-handle": {
+      "name": "ArmyLoopTauntHandle",
+      "slug": "army-loop-taunt-handle",
+      "kind": "interface",
+      "summary": "",
+      "definition": "interface ArmyLoopTauntHandle",
+      "keys": [
+        {
+          "kind": "property",
+          "name": "id",
+          "signature": "readonly id: string",
+          "description": ""
+        },
+        {
+          "kind": "method",
+          "name": "stop()",
+          "signature": "stop(): ArmyEffect<boolean>",
+          "description": ""
+        }
+      ],
+      "source": {
+        "path": "app/src/renderer/windows/game/army/LoopTaunt.ts:28",
+        "url": "https://github.com/toommyliu/vexed/blob/dev/app/src/renderer/windows/game/army/LoopTaunt.ts#L28"
+      }
+    },
+    "army-loop-taunt-options": {
+      "name": "ArmyLoopTauntOptions",
+      "slug": "army-loop-taunt-options",
+      "kind": "type alias",
+      "summary": "",
+      "definition": "type ArmyLoopTauntOptions = ArmyLoopTauntBaseOptions & { aura: string; delayMs?: number; message?: never } | ArmyLoopTauntBaseOptions & { aura?: never; delayMs?: never; message: string }",
+      "keys": [],
+      "source": {
+        "path": "app/src/renderer/windows/game/army/LoopTaunt.ts:16",
+        "url": "https://github.com/toommyliu/vexed/blob/dev/app/src/renderer/windows/game/army/LoopTaunt.ts#L16"
       }
     },
     "army-run-step-options": {
@@ -119,8 +156,8 @@
         }
       ],
       "source": {
-        "path": "app/src/renderer/windows/game/army/Services/Army.ts:31",
-        "url": "https://github.com/toommyliu/vexed/blob/dev/app/src/renderer/windows/game/army/Services/Army.ts#L31"
+        "path": "app/src/renderer/windows/game/army/Services/Army.ts:32",
+        "url": "https://github.com/toommyliu/vexed/blob/dev/app/src/renderer/windows/game/army/Services/Army.ts#L32"
       }
     },
     "army-session": {
@@ -131,8 +168,8 @@
       "definition": "type ArmySession = ArmySessionPayload",
       "keys": [],
       "source": {
-        "path": "app/src/renderer/windows/game/army/Services/Army.ts:55",
-        "url": "https://github.com/toommyliu/vexed/blob/dev/app/src/renderer/windows/game/army/Services/Army.ts#L55"
+        "path": "app/src/renderer/windows/game/army/Services/Army.ts:56",
+        "url": "https://github.com/toommyliu/vexed/blob/dev/app/src/renderer/windows/game/army/Services/Army.ts#L56"
       }
     },
     "aura": {
@@ -147,6 +184,12 @@
           "name": "duration",
           "signature": "duration?: number",
           "description": ""
+        },
+        {
+          "kind": "property",
+          "name": "icon",
+          "signature": "icon?: string",
+          "description": "The icon identifier for this aura, when Flash exposes one."
         },
         {
           "kind": "property",
@@ -1229,8 +1272,8 @@
       "definition": "type ConnectToSelectionStatus = \"selected\" | \"not-ready\" | \"offline\" | \"full\" | \"member-only\" | \"chat-restricted\" | \"underage-chat\" | \"email-unconfirmed\" | \"test-client-required\" | \"not-found\"",
       "keys": [],
       "source": {
-        "path": "app/src/renderer/windows/game/flash/Types.ts:24",
-        "url": "https://github.com/toommyliu/vexed/blob/dev/app/src/renderer/windows/game/flash/Types.ts#L24"
+        "path": "app/src/renderer/windows/game/flash/Types.ts:35",
+        "url": "https://github.com/toommyliu/vexed/blob/dev/app/src/renderer/windows/game/flash/Types.ts#L35"
       }
     },
     "consumable-skill-item": {
@@ -1254,8 +1297,8 @@
         }
       ],
       "source": {
-        "path": "app/src/renderer/windows/game/flash/Types.ts:66",
-        "url": "https://github.com/toommyliu/vexed/blob/dev/app/src/renderer/windows/game/flash/Types.ts#L66"
+        "path": "app/src/renderer/windows/game/flash/Types.ts:77",
+        "url": "https://github.com/toommyliu/vexed/blob/dev/app/src/renderer/windows/game/flash/Types.ts#L77"
       }
     },
     "entity-state": {
@@ -2089,7 +2132,7 @@
           "kind": "property",
           "name": "cell",
           "signature": "readonly cell: string",
-          "description": "The cell the monster is in."
+          "description": "The cell the entity is in."
         },
         {
           "kind": "property",
@@ -2328,8 +2371,8 @@
         }
       ],
       "source": {
-        "path": "packages/game/src/models/Quest.ts:12",
-        "url": "https://github.com/toommyliu/vexed/blob/dev/packages/game/src/models/Quest.ts#L12"
+        "path": "packages/game/src/models/Quest.ts:10",
+        "url": "https://github.com/toommyliu/vexed/blob/dev/packages/game/src/models/Quest.ts#L10"
       }
     },
     "quest-bonus-reward-data": {
@@ -2824,7 +2867,7 @@
         {
           "kind": "property",
           "name": "data",
-          "signature": "data: ServerData",
+          "signature": "data: { bOnline: number; bUpg: number; iChat: number; iCount: number; iLevel: number; iMax: number; iPort: number; sIP: string; sLang: string; sName: string }",
           "description": "Data about this server."
         },
         {
@@ -2891,79 +2934,6 @@
       "source": {
         "path": "packages/game/src/models/Server.ts:6",
         "url": "https://github.com/toommyliu/vexed/blob/dev/packages/game/src/models/Server.ts#L6"
-      }
-    },
-    "server-data": {
-      "name": "ServerData",
-      "slug": "server-data",
-      "kind": "type alias",
-      "summary": "",
-      "definition": "type ServerData = unknown",
-      "keys": [
-        {
-          "kind": "property",
-          "name": "bOnline",
-          "signature": "bOnline: number",
-          "description": ""
-        },
-        {
-          "kind": "property",
-          "name": "bUpg",
-          "signature": "bUpg: number",
-          "description": ""
-        },
-        {
-          "kind": "property",
-          "name": "iChat",
-          "signature": "iChat: number",
-          "description": ""
-        },
-        {
-          "kind": "property",
-          "name": "iCount",
-          "signature": "iCount: number",
-          "description": ""
-        },
-        {
-          "kind": "property",
-          "name": "iLevel",
-          "signature": "iLevel: number",
-          "description": ""
-        },
-        {
-          "kind": "property",
-          "name": "iMax",
-          "signature": "iMax: number",
-          "description": ""
-        },
-        {
-          "kind": "property",
-          "name": "iPort",
-          "signature": "iPort: number",
-          "description": ""
-        },
-        {
-          "kind": "property",
-          "name": "sIP",
-          "signature": "sIP: string",
-          "description": ""
-        },
-        {
-          "kind": "property",
-          "name": "sLang",
-          "signature": "sLang: string",
-          "description": ""
-        },
-        {
-          "kind": "property",
-          "name": "sName",
-          "signature": "sName: string",
-          "description": ""
-        }
-      ],
-      "source": {
-        "path": "packages/game/src/types/ServerData.ts:1",
-        "url": "https://github.com/toommyliu/vexed/blob/dev/packages/game/src/types/ServerData.ts#L1"
       }
     },
     "server-packet-send-type": {

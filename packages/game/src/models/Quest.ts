@@ -3,8 +3,6 @@ import type {
   QuestRequirement,
   QuestReward as QuestRewardType,
 } from "../types/QuestInfo";
-import type { ItemData } from "../types/ItemData";
-import type { QuestReward } from "../types/QuestInfo";
 
 /**
  * Represents a quest.

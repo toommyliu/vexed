@@ -1,4 +1,4 @@
-import { Effect, Fiber, Layer } from "effect";
+import { Effect, Exit, Fiber, Layer } from "effect";
 import { TestClock } from "effect/testing";
 import { expect, test } from "vitest";
 import { Auth } from "../Services/Auth";
@@ -12,7 +12,15 @@ type HarnessOptions = {
   readonly connStageNull?: boolean;
   readonly connText?: string;
   readonly currentLabel?: string;
-  readonly selection: ConnectToSelectionResult;
+  readonly loginCredentials?: Record<string, unknown>;
+  readonly loginSession?: Record<string, unknown>;
+  readonly selection?: ConnectToSelectionResult;
+};
+
+const defaultSelection: ConnectToSelectionResult = {
+  status: "selected",
+  message: "server selected",
+  serverName: "Twig",
 };
 
 const withAuth = async <A>(
@@ -27,13 +35,14 @@ const withAuth = async <A>(
     ) {
       return Effect.sync(() => {
         if (path === "auth.connectTo") {
-          return options.selection as ReturnType<Window["swf"][K]>;
+          return (options.selection ?? defaultSelection) as ReturnType<
+            Window["swf"][K]
+          >;
         }
 
         if (path === "flash.getGameObject") {
-          return (options.currentLabel ?? JSON.stringify("Login")) as ReturnType<
-            Window["swf"][K]
-          >;
+          return (options.currentLabel ??
+            JSON.stringify("Login")) as ReturnType<Window["swf"][K]>;
         }
 
         if (path === "flash.isNull") {
@@ -43,15 +52,37 @@ const withAuth = async <A>(
         }
 
         if (path === "flash.getConnMcText") {
-          return (options.connText ?? "Connecting to game server...") as ReturnType<
-            Window["swf"][K]
-          >;
+          return (options.connText ??
+            "Connecting to game server...") as ReturnType<Window["swf"][K]>;
         }
 
         if (path === "flash.isConnMcBackButtonVisible") {
           return (options.backButtonVisible ?? false) as ReturnType<
             Window["swf"][K]
           >;
+        }
+
+        if (path === "flash.getGameObjectS") {
+          const target = _args?.[0];
+          if (target === "objLogin") {
+            return JSON.stringify(
+              options.loginSession ?? {
+                bSuccess: 1,
+                iUpg: 1,
+                unm: "Hero",
+                sToken: "session-token",
+              },
+            ) as ReturnType<Window["swf"][K]>;
+          }
+
+          if (target === "loginInfo") {
+            return JSON.stringify(
+              options.loginCredentials ?? {
+                strPassword: "secret-password",
+                strUsername: "Hero",
+              },
+            ) as ReturnType<Window["swf"][K]>;
+          }
         }
 
         throw new Error(`unexpected bridge call: ${String(path)}`);
@@ -209,4 +240,90 @@ test("connectTo times out when selected server never reaches a terminal state", 
     retryable: true,
     serverName: "Twig",
   });
+});
+
+test("getLoginSession captures credentials when Flash objLogin omits unused fields", async () => {
+  const result = await withAuth(
+    {
+      loginCredentials: {
+        strPassword: "secret-password",
+        strUsername: "Hero",
+      },
+      loginSession: {
+        bCCOnly: 0,
+        iAge: 17,
+        iEmailStatus: 3,
+        iUpgDays: -1,
+        unm: "Hero",
+      },
+    },
+    (auth) =>
+      Effect.gen(function* () {
+        const session = yield* auth.getLoginSession();
+        return {
+          password: yield* auth.getPassword(),
+          session,
+          username: yield* auth.getUsername(),
+        };
+      }),
+  );
+
+  expect(result.username).toBe("Hero");
+  expect(result.password).toBe("secret-password");
+  expect(result.session).toMatchObject({
+    bSuccess: 0,
+    iUpg: 0,
+    servers: [],
+    sToken: "",
+    unm: "Hero",
+  });
+});
+
+test("getLoginSession falls back to loginInfo username", async () => {
+  const session = await withAuth(
+    {
+      loginCredentials: {
+        strPassword: "secret-password",
+        strUsername: "Hero",
+      },
+      loginSession: {},
+    },
+    (auth) => auth.getLoginSession(),
+  );
+
+  expect(session.unm).toBe("Hero");
+});
+
+test("getLoginSession fails when username is missing", async () => {
+  const failed = await withAuth(
+    {
+      loginCredentials: {
+        strPassword: "secret-password",
+        strUsername: " ",
+      },
+      loginSession: {},
+    },
+    (auth) =>
+      Effect.exit(auth.getLoginSession()).pipe(Effect.map(Exit.isFailure)),
+  );
+
+  expect(failed).toBe(true);
+});
+
+test("getLoginSession fails when password is missing", async () => {
+  const failed = await withAuth(
+    {
+      loginCredentials: {
+        strPassword: "",
+        strUsername: "Hero",
+      },
+      loginSession: {
+        unm: "Hero",
+      },
+    },
+    (auth) =>
+      Effect.exit(auth.getLoginSession()).pipe(Effect.map(Exit.isFailure)),
+  );
+
+  expect(failed).toBe(true);
 });
