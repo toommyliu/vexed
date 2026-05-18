@@ -25,6 +25,7 @@ export interface GameCommandRuntime {
   readonly optionItems: Accessor<readonly TopNavOptionItem[]>;
   readonly openWindow: (id: WindowId) => void;
   readonly openTopNavMenu: (menu: GameTopNavMenu) => void;
+  readonly toggleTopBarVisible: () => void;
 }
 
 export interface GameCommand {
@@ -136,6 +137,10 @@ const createCommandRunner = (
 
   if (id === "open-options-menu") {
     return () => runtime.openTopNavMenu("options");
+  }
+
+  if (id === "toggle-top-bar") {
+    return runtime.toggleTopBarVisible;
   }
 
   const windowId = windowCommandIds[id];

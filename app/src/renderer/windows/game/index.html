@@ -28,6 +28,10 @@
         height: calc(100% - var(--topnav-offset, var(--topnav-height, 28px)));
         z-index: 1;
       }
+      html[data-top-bar-hidden] #swf {
+        top: 0;
+        height: 100%;
+      }
     </style>
   </head>
   <body>

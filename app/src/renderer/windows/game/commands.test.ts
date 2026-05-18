@@ -29,6 +29,7 @@ const createRuntime = (
     optionItems: () => [],
     openWindow: noop,
     openTopNavMenu: noop,
+    toggleTopBarVisible: noop,
     ...overrides,
   };
 };
@@ -56,6 +57,15 @@ describe("game commands", () => {
     findCommand(runtime, "open-options-menu").run();
 
     expect(openTopNavMenu).toHaveBeenCalledWith("options");
+  });
+
+  it("toggles top bar visibility", () => {
+    const toggleTopBarVisible = vi.fn();
+    const runtime = createRuntime({ toggleTopBarVisible });
+
+    findCommand(runtime, "toggle-top-bar").run();
+
+    expect(toggleTopBarVisible).toHaveBeenCalledOnce();
   });
 
   it("dispatches option commands through top nav option items", () => {
