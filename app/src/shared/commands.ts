@@ -8,6 +8,7 @@ export type CommandCategory =
   | "Packets";
 
 export type GameCommandId =
+  | "toggle-top-bar"
   | "load-script"
   | "toggle-script"
   | "stop-script"
@@ -41,6 +42,14 @@ export interface CommandDefinition {
 export type DefaultHotkeyBindings = Partial<Record<GameCommandId, string>>;
 
 export const GAME_COMMANDS: readonly CommandDefinition[] = [
+  {
+    id: "toggle-top-bar",
+    scope: "game",
+    category: "Application",
+    label: "Toggle Top Bar",
+    keywords: ["top", "bar", "navigation", "chrome"],
+    defaultHotkey: "Meta+Shift+T",
+  },
   {
     id: "load-script",
     scope: "game",

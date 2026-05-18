@@ -136,6 +136,7 @@ const launchModes = [
 ] as const;
 
 const commandCategories: readonly CommandCategory[] = [
+  "Application",
   "Scripts",
   "Options",
   "Tools",

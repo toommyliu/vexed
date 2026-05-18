@@ -6,10 +6,12 @@ import { Spinner } from "@vexed/ui";
 import { mountWindow } from "../mount";
 import { Data, Effect, Fiber } from "effect";
 import {
+  createEffect,
   createMemo,
   createSignal,
   onCleanup,
   onMount,
+  Show,
   type JSX,
 } from "solid-js";
 import {
@@ -174,6 +176,7 @@ export default function App(props: {
     createSignal<number | null>(null);
   const [openTopNavMenu, setOpenTopNavMenu] =
     createSignal<GameTopNavMenu | null>(null);
+  const [topBarVisible, setTopBarVisible] = createSignal(true);
   const [cells, setCells] = createSignal<readonly string[]>([DEFAULT_CELL]);
   const [pads] = createSignal<readonly string[]>(DEFAULT_PADS);
   const [validPads, setValidPads] = createSignal<readonly string[]>([]);
@@ -995,6 +998,21 @@ export default function App(props: {
     optionItems,
     openWindow,
     openTopNavMenu: (menu) => setOpenTopNavMenu(menu),
+    toggleTopBarVisible: () => {
+      setOpenTopNavMenu(null);
+      setTopBarVisible((visible) => !visible);
+    },
+  });
+
+  createEffect(() => {
+    document.documentElement.toggleAttribute(
+      "data-top-bar-hidden",
+      !topBarVisible(),
+    );
+  });
+
+  onCleanup(() => {
+    document.documentElement.removeAttribute("data-top-bar-hidden");
   });
 
   onMount(() => {
@@ -1124,65 +1142,67 @@ export default function App(props: {
         bindings={() => settings().hotkeys.bindings}
         commands={() => gameCommands}
       />
-      <TopNav
-        openMenu={openTopNavMenu}
-        setOpenMenu={setOpenTopNavMenu}
-        hotkeyBindings={() => settings().hotkeys.bindings}
-        hotkeyPlatform={window.ipc.platform.os}
-        autoAttackEnabled={autoAttackEnabled}
-        setAutoAttackEnabled={setAutoAttackEnabled}
-        gameLoaded={gameLoaded}
-        playerReady={playerReady}
-        scriptLoaded={scriptLoaded}
-        scriptRunning={scriptRunning}
-        scriptStatus={scriptStatus}
-        scriptDiagnosticsCount={scriptDiagnosticsCount}
-        loadScript={loadScript}
-        startScript={startScript}
-        stopScript={stopScript}
-        optionItems={optionItems}
-        walkSpeed={walkSpeed}
-        setWalkSpeed={setWalkSpeed}
-        handleSetWalkSpeed={handleSetWalkSpeed}
-        frameRate={frameRate}
-        setFrameRate={setFrameRate}
-        handleSetFrameRate={handleSetFrameRate}
-        customName={customName}
-        setCustomName={setCustomName}
-        handleSetCustomName={handleSetCustomName}
-        customGuild={customGuild}
-        setCustomGuild={setCustomGuild}
-        handleSetCustomGuild={handleSetCustomGuild}
-        autoZoneEnabled={autoZoneEnabled}
-        autoZoneMap={autoZoneMap}
-        handleToggleAutoZone={handleToggleAutoZone}
-        handleSelectAutoZoneMap={handleSelectAutoZoneMap}
-        autoReloginEnabled={autoReloginEnabled}
-        autoReloginCaptured={autoReloginCaptured}
-        autoReloginAttempting={autoReloginAttempting}
-        autoReloginWaitingDelay={autoReloginWaitingDelay}
-        autoReloginToggling={autoReloginToggling}
-        autoReloginDelaySeconds={autoReloginDelaySeconds}
-        setAutoReloginDelaySeconds={setAutoReloginDelaySeconds}
-        autoReloginServer={autoReloginServer}
-        autoReloginServers={autoReloginServers}
-        autoReloginLastError={autoReloginLastError}
-        autoReloginAttemptsRemaining={autoReloginAttemptsRemaining}
-        handleToggleAutoRelogin={handleToggleAutoRelogin}
-        handleRefreshAutoReloginServers={refreshAutoReloginServers}
-        handleSelectAutoReloginServer={handleSelectAutoReloginServer}
-        handleSetAutoReloginDelay={handleSetAutoReloginDelay}
-        cells={cells}
-        pads={pads}
-        validPads={validPads}
-        selectedCell={selectedCell}
-        selectedPad={selectedPad}
-        travelBusy={travelBusy}
-        handleRefreshTravelOptions={refreshTravelOptions}
-        handleSelectCell={handleSelectCell}
-        handleSelectPad={handleSelectPad}
-        handleOpenBank={handleOpenBank}
-      />
+      <Show when={topBarVisible()}>
+        <TopNav
+          openMenu={openTopNavMenu}
+          setOpenMenu={setOpenTopNavMenu}
+          hotkeyBindings={() => settings().hotkeys.bindings}
+          hotkeyPlatform={window.ipc.platform.os}
+          autoAttackEnabled={autoAttackEnabled}
+          setAutoAttackEnabled={setAutoAttackEnabled}
+          gameLoaded={gameLoaded}
+          playerReady={playerReady}
+          scriptLoaded={scriptLoaded}
+          scriptRunning={scriptRunning}
+          scriptStatus={scriptStatus}
+          scriptDiagnosticsCount={scriptDiagnosticsCount}
+          loadScript={loadScript}
+          startScript={startScript}
+          stopScript={stopScript}
+          optionItems={optionItems}
+          walkSpeed={walkSpeed}
+          setWalkSpeed={setWalkSpeed}
+          handleSetWalkSpeed={handleSetWalkSpeed}
+          frameRate={frameRate}
+          setFrameRate={setFrameRate}
+          handleSetFrameRate={handleSetFrameRate}
+          customName={customName}
+          setCustomName={setCustomName}
+          handleSetCustomName={handleSetCustomName}
+          customGuild={customGuild}
+          setCustomGuild={setCustomGuild}
+          handleSetCustomGuild={handleSetCustomGuild}
+          autoZoneEnabled={autoZoneEnabled}
+          autoZoneMap={autoZoneMap}
+          handleToggleAutoZone={handleToggleAutoZone}
+          handleSelectAutoZoneMap={handleSelectAutoZoneMap}
+          autoReloginEnabled={autoReloginEnabled}
+          autoReloginCaptured={autoReloginCaptured}
+          autoReloginAttempting={autoReloginAttempting}
+          autoReloginWaitingDelay={autoReloginWaitingDelay}
+          autoReloginToggling={autoReloginToggling}
+          autoReloginDelaySeconds={autoReloginDelaySeconds}
+          setAutoReloginDelaySeconds={setAutoReloginDelaySeconds}
+          autoReloginServer={autoReloginServer}
+          autoReloginServers={autoReloginServers}
+          autoReloginLastError={autoReloginLastError}
+          autoReloginAttemptsRemaining={autoReloginAttemptsRemaining}
+          handleToggleAutoRelogin={handleToggleAutoRelogin}
+          handleRefreshAutoReloginServers={refreshAutoReloginServers}
+          handleSelectAutoReloginServer={handleSelectAutoReloginServer}
+          handleSetAutoReloginDelay={handleSetAutoReloginDelay}
+          cells={cells}
+          pads={pads}
+          validPads={validPads}
+          selectedCell={selectedCell}
+          selectedPad={selectedPad}
+          travelBusy={travelBusy}
+          handleRefreshTravelOptions={refreshTravelOptions}
+          handleSelectCell={handleSelectCell}
+          handleSelectPad={handleSelectPad}
+          handleOpenBank={handleOpenBank}
+        />
+      </Show>
 
       <section
         id="loader-container"
