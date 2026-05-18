@@ -84,6 +84,8 @@ const devBuildNotifyPath = process.env.VEXED_DEV_BUILD_NOTIFY;
 const skipInitialDevBuildNotify =
   process.env.VEXED_DEV_BUILD_NOTIFY_SKIP_INITIAL === "1";
 const DEV_BUILD_NOTIFY_DEBOUNCE_MS = 150;
+const WATCH_PARENT_POLL_MS = 1000;
+const WATCH_FORCE_EXIT_MS = 2500;
 const pendingDevBuildLabels = new Set();
 let devBuildNotifyTimer;
 
@@ -246,6 +248,7 @@ async function buildOnce() {
 }
 
 async function watchBuild() {
+  const parentPid = process.ppid;
   const mainContext = await context(createMainBuildOptions());
   const preloadContext = await context(createPreloadBuildOptions());
   const rendererContext = await context(createRendererBuildOptions());
@@ -272,27 +275,51 @@ async function watchBuild() {
   }
 
   let shuttingDown = false;
-  const shutdown = async () => {
+  let parentPollTimer;
+  const shutdown = async (reason = "signal", exitCode = 0) => {
     if (shuttingDown) {
       return;
     }
 
     shuttingDown = true;
+    if (parentPollTimer) {
+      clearInterval(parentPollTimer);
+      parentPollTimer = undefined;
+    }
     for (const source of rendererHtmlSources) {
       unwatchFile(source);
     }
     flushDevBuildNotify();
+
+    const forceExitTimer = setTimeout(() => {
+      console.error(`[watch] forced exit after ${reason} shutdown timed out.`);
+      process.exit(exitCode === 0 ? 1 : exitCode);
+    }, WATCH_FORCE_EXIT_MS);
+    forceExitTimer.unref?.();
 
     await Promise.allSettled([
       mainContext.dispose(),
       preloadContext.dispose(),
       rendererContext.dispose(),
     ]);
-    process.exit(0);
+    clearTimeout(forceExitTimer);
+    process.exit(exitCode);
   };
 
-  process.once("SIGINT", shutdown);
-  process.once("SIGTERM", shutdown);
+  parentPollTimer = setInterval(() => {
+    if (process.ppid !== parentPid) {
+      console.error(
+        `[watch] parent process ${parentPid} exited; shutting down orphaned watcher.`,
+      );
+      void shutdown("parent-exit", 0);
+    }
+  }, WATCH_PARENT_POLL_MS);
+  parentPollTimer.unref?.();
+
+  process.once("SIGINT", () => void shutdown("SIGINT", 0));
+  process.once("SIGTERM", () => void shutdown("SIGTERM", 0));
+  process.once("SIGHUP", () => void shutdown("SIGHUP", 0));
+  process.once("SIGQUIT", () => void shutdown("SIGQUIT", 0));
 
   console.log("Watching for changes...");
 }
