@@ -273,6 +273,9 @@ const decodeFlashValue = (value: string): unknown => {
 const flashStringEquals = (value: string, expected: string): boolean =>
   decodeFlashValue(value) === expected || value === expected;
 
+const flashBooleanEquals = (value: string, expected: boolean): boolean =>
+  decodeFlashValue(value) === expected || value === String(expected);
+
 const serverNameFields = (serverName: string | undefined) =>
   serverName === undefined || serverName === "" ? {} : { serverName };
 
@@ -506,6 +509,29 @@ const make = Effect.gen(function* () {
   const isTemporarilyKicked: AuthShape["isTemporarilyKicked"] = () =>
     bridge.call("auth.isTemporarilyKicked");
 
+  const isLoginFormReady = () =>
+    Effect.gen(function* () {
+      const loginButtonVisible = yield* bridge
+        .call("flash.getGameObject", ["mcLogin.btnLogin.visible"])
+        .pipe(
+          Effect.map((visible) => flashBooleanEquals(visible, true)),
+          Effect.catchTag("SwfCallError", () => Effect.succeed(false)),
+        );
+      if (loginButtonVisible) {
+        return true;
+      }
+
+      return yield* bridge
+        .call("flash.getGameObject", ["mcLogin.currentLabel"])
+        .pipe(
+          Effect.map(
+            (label) =>
+              typeof label === "string" && !flashStringEquals(label, "Init"),
+          ),
+          Effect.catchTag("SwfCallError", () => Effect.succeed(false)),
+        );
+    });
+
   const login: AuthShape["login"] = (username, password) =>
     Effect.gen(function* () {
       if (yield* isLoggedIn()) {
@@ -513,19 +539,10 @@ const make = Effect.gen(function* () {
       }
       yield* clearSessionState;
       yield* Effect.sleep("1 second");
-      const loginReady = yield* waitFor(
-        bridge.call("flash.getGameObject", ["mcLogin.currentLabel"]).pipe(
-          Effect.map(
-            (label) =>
-              typeof label === "string" && !flashStringEquals(label, "Init"),
-          ),
-          Effect.catchTag("SwfCallError", () => Effect.succeed(false)),
-        ),
-        {
-          timeout: LOGIN_READY_TIMEOUT,
-          schedule: Schedule.spaced("100 millis"),
-        },
-      );
+      const loginReady = yield* waitFor(isLoginFormReady(), {
+        timeout: LOGIN_READY_TIMEOUT,
+        schedule: Schedule.spaced("100 millis"),
+      });
       if (!loginReady) {
         return yield* new SwfCallError({
           method: "auth.login",
