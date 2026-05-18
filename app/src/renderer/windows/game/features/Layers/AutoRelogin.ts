@@ -439,6 +439,40 @@ const make = Effect.gen(function* () {
       state.ownedConnectionServerName = undefined;
     });
 
+  const markLoginStart = () =>
+    updateState((state) => {
+      state.attempting = true;
+      state.lastError = undefined;
+      state.attemptsRemaining = undefined;
+      state.ownedConnectionServerName = undefined;
+    });
+
+  const markLoginSuccess = () =>
+    updateState((state) => {
+      state.lastError = undefined;
+      state.attempting = false;
+      state.attemptsRemaining = undefined;
+      state.connected = true;
+      state.ownedConnectionServerName = undefined;
+      state.loggedOutSince = undefined;
+      state.lastAttemptAt = 0;
+    });
+
+  const markLoginFailure = (
+    error: unknown,
+    credentials: AutoLoginCredentials,
+  ) =>
+    updateState((state) => {
+      state.lastError = redacted(
+        formatReloginError(error),
+        credentials.password,
+      );
+      state.attempting = false;
+      state.attemptsRemaining = undefined;
+      state.connected = false;
+      state.ownedConnectionServerName = undefined;
+    });
+
   const markLoggedIn = () =>
     SynchronizedRef.update(stateRef, (state) => {
       // A ready player closes the disconnect window.
@@ -600,46 +634,47 @@ const make = Effect.gen(function* () {
     );
 
   const readConnDetailText = () =>
-    bridge.call("flash.getConnMcText").pipe(
-      Effect.catchCause(() =>
-        bridge
-          .call("flash.getGameObject", ["mcConnDetail.txtDetail.text"])
-          .pipe(Effect.catchCause(() => Effect.succeed(""))),
-      ),
-    );
+    bridge
+      .call("flash.getConnMcText")
+      .pipe(
+        Effect.catchCause(() =>
+          bridge
+            .call("flash.getGameObject", ["mcConnDetail.txtDetail.text"])
+            .pipe(Effect.catchCause(() => Effect.succeed(""))),
+        ),
+      );
 
-  const observeLoginScreenOutcome = (): Effect.Effect<
-    LoginScreenOutcome | null
-  > =>
-    Effect.gen(function* () {
-      const label = yield* bridge
-        .call("flash.getGameObject", ["mcLogin.currentLabel"])
-        .pipe(Effect.catchCause(() => Effect.succeed("")));
-      if (flashStringEquals(label, "Servers")) {
-        return { status: "server-select" } as const;
-      }
+  const observeLoginScreenOutcome =
+    (): Effect.Effect<LoginScreenOutcome | null> =>
+      Effect.gen(function* () {
+        const label = yield* bridge
+          .call("flash.getGameObject", ["mcLogin.currentLabel"])
+          .pipe(Effect.catchCause(() => Effect.succeed("")));
+        if (flashStringEquals(label, "Servers")) {
+          return { status: "server-select" } as const;
+        }
 
-      const [detail, backButtonVisible] = yield* Effect.all([
-        readConnDetailText(),
-        bridge
-          .call("flash.isConnMcBackButtonVisible")
-          .pipe(Effect.catchCause(() => Effect.succeed(false))),
-      ]);
-      if (flashStringEquals(detail, INVALID_CREDENTIALS_DETAIL)) {
-        return { status: "invalid-credentials" } as const;
-      }
+        const [detail, backButtonVisible] = yield* Effect.all([
+          readConnDetailText(),
+          bridge
+            .call("flash.isConnMcBackButtonVisible")
+            .pipe(Effect.catchCause(() => Effect.succeed(false))),
+        ]);
+        if (flashStringEquals(detail, INVALID_CREDENTIALS_DETAIL)) {
+          return { status: "invalid-credentials" } as const;
+        }
 
-      const decodedDetail = decodeFlashValue(detail);
-      const detailText =
-        typeof decodedDetail === "string" && decodedDetail !== "null"
-          ? decodedDetail.trim()
-          : "";
-      if (backButtonVisible && detailText !== "") {
-        return { status: "stalled", detail: detailText } as const;
-      }
+        const decodedDetail = decodeFlashValue(detail);
+        const detailText =
+          typeof decodedDetail === "string" && decodedDetail !== "null"
+            ? decodedDetail.trim()
+            : "";
+        if (backButtonVisible && detailText !== "") {
+          return { status: "stalled", detail: detailText } as const;
+        }
 
-      return null;
-    });
+        return null;
+      });
 
   const cancelStalledLogin = () =>
     auth.logout().pipe(
@@ -820,7 +855,7 @@ const make = Effect.gen(function* () {
       }
     });
 
-  const login = (
+  const performLogin = (
     credentials: AutoLoginCredentials,
   ): Effect.Effect<AutoLoginOutcome, unknown> =>
     withTemporaryLoginSettings(
@@ -884,6 +919,22 @@ const make = Effect.gen(function* () {
         return { stage: "player-ready" } as const;
       }),
     );
+
+  const login = (
+    credentials: AutoLoginCredentials,
+  ): Effect.Effect<AutoLoginOutcome, unknown> =>
+    Effect.gen(function* () {
+      yield* markLoginStart();
+      return yield* performLogin(credentials).pipe(
+        Effect.matchEffect({
+          onFailure: (error) =>
+            markLoginFailure(error, credentials).pipe(
+              Effect.andThen(Effect.fail(error)),
+            ),
+          onSuccess: (outcome) => markLoginSuccess().pipe(Effect.as(outcome)),
+        }),
+      );
+    });
 
   const loginAndWaitReady = (
     credentials: AutoLoginCredentials,

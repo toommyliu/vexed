@@ -15,7 +15,11 @@ import {
 } from "../../jobs/Services/Jobs";
 import { Player, type PlayerShape } from "../../flash/Services/Player";
 import { Settings, type SettingsShape } from "../../flash/Services/Settings";
-import { AutoRelogin, type AutoReloginShape } from "../Services/AutoRelogin";
+import {
+  AutoRelogin,
+  type AutoReloginShape,
+  type AutoReloginState,
+} from "../Services/AutoRelogin";
 import { AutoReloginLive } from "./AutoRelogin";
 
 const twigServer: ServerData = {
@@ -162,9 +166,7 @@ const withAutoRelogin = async <A>(
         }
 
         if (path === "flash.isConnMcBackButtonVisible") {
-          return (options.loginStalls === true) as ReturnType<
-            Window["swf"][K]
-          >;
+          return (options.loginStalls === true) as ReturnType<Window["swf"][K]>;
         }
 
         throw new Error(`unexpected bridge call: ${String(path)}`);
@@ -516,6 +518,34 @@ test("direct login without a server stops at server selection", async () => {
   ]);
 });
 
+test("direct login server selection prevents background relogin retry", async () => {
+  const result = await withAutoRelogin({}, (autoRelogin, harness) =>
+    Effect.gen(function* () {
+      yield* autoRelogin.enable();
+      yield* autoRelogin.setDelay(0);
+      harness.emitConnection("OnConnectionLost");
+      yield* Effect.sleep("10 millis");
+
+      const outcome = yield* autoRelogin.login({
+        username: "Hero",
+        password: "secret-password",
+      });
+      yield* harness.jobsState.task!;
+
+      return {
+        calls: harness.authCalls,
+        outcome,
+        state: yield* autoRelogin.getState(),
+      };
+    }),
+  );
+
+  expect(result.outcome).toEqual({ stage: "server-select" });
+  expect(result.calls).toEqual(["login:Hero:secret-password"]);
+  expect(result.state.attempting).toBe(false);
+  expect(result.state.waitingDelay).toBe(false);
+});
+
 test("direct login with a server waits for player readiness", async () => {
   const result = await withAutoRelogin({}, (autoRelogin, harness) =>
     Effect.gen(function* () {
@@ -536,6 +566,66 @@ test("direct login with a server waits for player readiness", async () => {
     "login:Hero:secret-password",
     "connectTo:Twig",
   ]);
+});
+
+test("direct login publishes busy and success state", async () => {
+  const states: AutoReloginState[] = [];
+  const result = await withAutoRelogin(
+    { playerReadyAfterConnectDelayMs: 10 },
+    (autoRelogin) =>
+      Effect.gen(function* () {
+        yield* autoRelogin.onState((state) => {
+          states.push(state);
+        });
+
+        const outcome = yield* autoRelogin.login({
+          username: "Hero",
+          password: "secret-password",
+          server: "Twig",
+        });
+
+        return {
+          outcome,
+          state: yield* autoRelogin.getState(),
+        };
+      }),
+  );
+
+  expect(result.outcome).toEqual({ stage: "player-ready" });
+  expect(states.some((state) => state.attempting)).toBe(true);
+  expect(result.state.attempting).toBe(false);
+  expect(result.state.lastError).toBeUndefined();
+});
+
+test("direct login publishes failed state", async () => {
+  const states: AutoReloginState[] = [];
+  const result = await withAutoRelogin(
+    { invalidCredentials: true },
+    (autoRelogin) =>
+      Effect.gen(function* () {
+        yield* autoRelogin.onState((state) => {
+          states.push(state);
+        });
+
+        const exit = yield* Effect.exit(
+          autoRelogin.login({
+            username: "Hero",
+            password: "wrong-password",
+            server: "Twig",
+          }),
+        );
+
+        return {
+          exit,
+          state: yield* autoRelogin.getState(),
+        };
+      }),
+  );
+
+  expect(Exit.isFailure(result.exit)).toBe(true);
+  expect(states.some((state) => state.attempting)).toBe(true);
+  expect(result.state.attempting).toBe(false);
+  expect(result.state.lastError).toBe("invalid username or password");
 });
 
 test("direct login fails explicitly when credentials are invalid", async () => {
