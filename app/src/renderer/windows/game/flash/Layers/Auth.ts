@@ -121,7 +121,9 @@ const parseLoginSessionPayload = (
       ...(iUpg === undefined ? {} : { iUpg }),
       ...(iUpgDays === undefined ? {} : { iUpgDays }),
       ...(sToken === undefined ? {} : { sToken }),
-      ...(Array.isArray(servers) ? { servers: servers.filter(isServerData) } : {}),
+      ...(Array.isArray(servers)
+        ? { servers: servers.filter(isServerData) }
+        : {}),
       ...(unm === undefined ? {} : { unm }),
     };
   });
@@ -147,9 +149,7 @@ const normalizeLoginSession = (
   loginCredentials: LoginCredentials,
 ): Effect.Effect<LoginSession, SwfCallError> =>
   Effect.gen(function* () {
-    const username = (
-      loginSession.unm ?? loginCredentials.strUsername
-    ).trim();
+    const username = (loginSession.unm ?? loginCredentials.strUsername).trim();
     if (username === "") {
       return yield* invalidLoginJsonError("missing login username");
     }
@@ -481,15 +481,11 @@ const make = Effect.gen(function* () {
         const loginSessionPayload = yield* parseJson(
           "flash.getGameObjectS(objLogin)",
           loginResponseStr,
-        ).pipe(
-          Effect.flatMap(parseLoginSessionPayload),
-        );
+        ).pipe(Effect.flatMap(parseLoginSessionPayload));
         const loginCredentials = yield* parseJson(
           "flash.getGameObjectS(loginInfo)",
           loginCredentialsStr,
-        ).pipe(
-          Effect.flatMap(parseLoginCredentials),
-        );
+        ).pipe(Effect.flatMap(parseLoginCredentials));
         const loginSession = yield* normalizeLoginSession(
           loginSessionPayload,
           loginCredentials,
@@ -519,7 +515,10 @@ const make = Effect.gen(function* () {
       yield* Effect.sleep("1 second");
       const loginReady = yield* waitFor(
         bridge.call("flash.getGameObject", ["mcLogin.currentLabel"]).pipe(
-          Effect.map((label) => label !== "Init"),
+          Effect.map(
+            (label) =>
+              typeof label === "string" && !flashStringEquals(label, "Init"),
+          ),
           Effect.catchTag("SwfCallError", () => Effect.succeed(false)),
         ),
         {

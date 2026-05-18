@@ -119,9 +119,9 @@ for each member. */
     killForItem(target: MonsterIdentifierToken, item: ItemIdentifierToken, quantity?: number, options?: CombatKillOptions): Effect<void, never | ArmyError | BridgeError>;
     killForTempItem(target: MonsterIdentifierToken, item: ItemIdentifierToken, quantity?: number, options?: CombatKillOptions): Effect<void, never | ArmyError | BridgeError>;
     equipSet(setName: string, options?: ArmyEquipSetOptions): Effect<void, never | ArmyError | BridgeError>;
-    startLoopTaunt(options: ArmyLoopTauntOptions): Effect<ArmyLoopTauntHandle, never | ArmyError | BridgeError>;
-    stopLoopTaunt(id: string): Effect<boolean, never | ArmyError | BridgeError>;
-    stopAllLoopTaunts(): Effect<void, never | ArmyError | BridgeError>;
+    startLoopTaunt(options: ArmyLoopTauntOptions): ArmyEffect<ArmyLoopTauntHandle>;
+    stopLoopTaunt(id: string): ArmyEffect<boolean>;
+    stopAllLoopTaunts(): ArmyEffect<void>;
 }
 interface AuthApi {
     connectTo(server: string): Effect<AuthConnectOutcome, BridgeError>;

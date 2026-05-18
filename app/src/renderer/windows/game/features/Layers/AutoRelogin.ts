@@ -331,7 +331,18 @@ const make = Effect.gen(function* () {
         Array.from(listeners),
         (listener) =>
           Effect.sync(() => listener(state)).pipe(
-            Effect.catchCause(() => Effect.void),
+            Effect.catchCause((cause) =>
+              Cause.hasInterruptsOnly(cause)
+                ? Effect.failCause(cause)
+                : removeStateListener(listener).pipe(
+                    Effect.andThen(
+                      Effect.logError({
+                        message: "auto relogin state listener failed; removed",
+                        cause,
+                      }),
+                    ),
+                  ),
+            ),
           ),
         { discard: true },
       );
@@ -1001,7 +1012,16 @@ const make = Effect.gen(function* () {
           ),
       }),
     );
-  }).pipe(Effect.catchCause(() => clearAttempting().pipe(Effect.asVoid)));
+  }).pipe(
+    Effect.catchCause((cause) =>
+      Cause.hasInterruptsOnly(cause)
+        ? clearAttempting().pipe(Effect.andThen(Effect.failCause(cause)))
+        : clearAttempting().pipe(
+            Effect.andThen(markFailure(Cause.squash(cause))),
+            Effect.asVoid,
+          ),
+    ),
+  );
 
   const startJob = jobs.startPeriodicJob({
     key: JOB_KEY,

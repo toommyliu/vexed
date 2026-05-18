@@ -14,6 +14,9 @@ describe("parseMonsterMapIdToken", () => {
   it("ignores names and malformed ids", () => {
     expect(parseMonsterMapIdToken("Ultra Boss")).toBeUndefined();
     expect(parseMonsterMapIdToken("id:Boss")).toBeUndefined();
+    expect(parseMonsterMapIdToken("id:3abc")).toBeUndefined();
+    expect(parseMonsterMapIdToken("id:3.5")).toBeUndefined();
+    expect(parseMonsterMapIdToken("id:003x")).toBeUndefined();
     expect(parseMonsterMapIdToken(0)).toBeUndefined();
     expect(parseMonsterMapIdToken(-1)).toBeUndefined();
   });

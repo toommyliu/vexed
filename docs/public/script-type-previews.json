@@ -189,7 +189,7 @@
           "kind": "property",
           "name": "icon",
           "signature": "icon?: string",
-          "description": ""
+          "description": "The icon identifier for this aura, when Flash exposes one."
         },
         {
           "kind": "property",

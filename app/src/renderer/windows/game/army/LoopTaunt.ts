@@ -108,8 +108,8 @@ export const createLoopTauntId = (
 
   const trigger =
     typeof options.message === "string"
-      ? `message:${options.message}`
-      : `aura:${options.aura}`;
+      ? `message:${options.message.trim()}`
+      : `aura:${options.aura?.trim() ?? ""}`;
   return `loop-taunt:${targetLabel(options.target)}:${trigger}`;
 };
 

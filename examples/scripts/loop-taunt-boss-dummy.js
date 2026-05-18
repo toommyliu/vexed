@@ -1,4 +1,6 @@
 const TARGET = "Boss Dummy";
+const TAUNT_SKILL = 5;
+const TAUNT_PLAYERS = [1, 2];
 
 /** @param {ScriptContext} context */
 module.exports = function* run({ api }) {
@@ -14,9 +16,9 @@ module.exports = function* run({ api }) {
   while (true) {
     const taunt = yield* api.army.startLoopTaunt({
       target: TARGET,
-      skill: 5,
+      skill: TAUNT_SKILL,
       aura: "Focus",
-      players: [1, 2],
+      players: TAUNT_PLAYERS,
     });
 
     try {

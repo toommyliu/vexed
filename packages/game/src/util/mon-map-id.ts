@@ -39,7 +39,12 @@ export function parseMonsterMapIdToken(
     return undefined;
   }
 
-  const parsed = Number.parseInt(extractMonsterMapId(trimmed), 10);
+  const rawId = extractMonsterMapId(trimmed).trim();
+  if (!/^\d+$/.test(rawId)) {
+    return undefined;
+  }
+
+  const parsed = Number.parseInt(rawId, 10);
   return Number.isFinite(parsed) && parsed > 0 ? parsed : undefined;
 }
 
