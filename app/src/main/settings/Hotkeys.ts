@@ -1,7 +1,8 @@
 import * as Files from "./Files";
-import { GAME_COMMANDS, isGameCommandId } from "../../shared/commands";
+import { isGameCommandId, type GameCommandId } from "../../shared/commands";
 import {
   DEFAULT_HOTKEYS,
+  createHotkeyBindings,
   createDefaultHotkeyBindings,
   normalizeHotkeyBinding,
   type HotkeyBindings,
@@ -23,29 +24,31 @@ const platform: HotkeyPlatform =
 export const normalizeHotkeyValue = (value: unknown): string | undefined =>
   normalizeHotkeyBinding(value, platform);
 
+const isRecord = (value: unknown): value is Record<string, unknown> =>
+  typeof value === "object" && value !== null && !Array.isArray(value);
+
+const readBindingEntries = (
+  value: unknown,
+): readonly Record<string, unknown>[] =>
+  Array.isArray(value) ? value.filter(isRecord) : [];
+
 export const normalize = (value: unknown): HotkeysSettings => {
-  const defaults = createDefaultHotkeyBindings();
-  if (typeof value !== "object" || value === null) {
-    return {
-      bindings: defaults,
-    };
-  }
+  const values = new Map<GameCommandId, string>();
 
-  const record = value as Record<string, unknown>;
-  const rawBindings =
-    typeof record["bindings"] === "object" && record["bindings"] !== null
-      ? (record["bindings"] as Record<string, unknown>)
-      : {};
-  const bindings: HotkeyBindings = {};
+  for (const entry of readBindingEntries(value)) {
+    const id = entry["id"];
+    if (!isGameCommandId(id)) {
+      continue;
+    }
 
-  for (const command of GAME_COMMANDS) {
-    const rawValue = rawBindings[command.id];
+    const rawValue = entry["value"];
     const normalized = normalizeHotkeyValue(rawValue);
-    bindings[command.id] =
-      normalized === undefined ? (defaults[command.id] ?? "") : normalized;
+    if (normalized !== undefined) {
+      values.set(id, normalized);
+    }
   }
 
-  return { bindings };
+  return { bindings: createHotkeyBindings(values) };
 };
 
 export const path = (): string => Files.appDataJoin("keybindings.json");
@@ -53,36 +56,40 @@ export const path = (): string => Files.appDataJoin("keybindings.json");
 export const read = (): HotkeysSettings => normalize(Files.readJson(path()));
 
 export const write = (settings: HotkeysSettings): void => {
-  Files.writeJson(path(), normalize(settings));
+  Files.writeJson(path(), normalize(settings.bindings).bindings);
 };
 
 export const ensure = (): HotkeysSettings =>
-  Files.ensureJson(path(), DEFAULT, normalize);
+  Files.ensureJson(path(), DEFAULT, normalize, (settings) => settings.bindings);
 
 export const applyPatch = (
   current: HotkeysSettings,
-  patch: Record<string, unknown>,
+  patch: readonly unknown[],
 ): HotkeysSettings => {
-  const defaults = createDefaultHotkeyBindings();
-  const bindings: HotkeyBindings = {
-    ...current.bindings,
-  };
+  const defaults = new Map(
+    createDefaultHotkeyBindings().map((binding) => [binding.id, binding.value]),
+  );
+  const values = new Map(
+    current.bindings.map((binding) => [binding.id, binding.value]),
+  );
 
-  for (const [id, rawValue] of Object.entries(patch)) {
-    if (!isGameCommandId(id)) {
+  for (const entry of patch) {
+    if (!isRecord(entry) || !isGameCommandId(entry["id"])) {
       continue;
     }
 
+    const id = entry["id"];
+    const rawValue = entry["value"];
     if (rawValue === null) {
-      bindings[id] = defaults[id] ?? "";
+      values.set(id, defaults.get(id) ?? "");
       continue;
     }
 
     const normalized = normalizeHotkeyValue(rawValue);
     if (normalized !== undefined) {
-      bindings[id] = normalized;
+      values.set(id, normalized);
     }
   }
 
-  return normalize({ bindings });
+  return { bindings: createHotkeyBindings(values) };
 };

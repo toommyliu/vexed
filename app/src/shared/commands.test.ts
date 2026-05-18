@@ -38,17 +38,19 @@ describe("game command registry", () => {
   it("creates defaults for every command", () => {
     const defaults = getDefaultHotkeys();
 
-    expect(Object.keys(defaults).sort()).toEqual([...GAME_COMMAND_IDS].sort());
+    expect(defaults.map((binding) => binding.id).sort()).toEqual(
+      [...GAME_COMMAND_IDS].sort(),
+    );
   });
 
   it("groups environment with tool commands", () => {
     expect(
-      GAME_COMMANDS.find((command) => command.id === "open-environment"),
+      GAME_COMMANDS.find((command) => command.id === "openEnvironment"),
     ).toEqual(expect.objectContaining({ category: "Tools" }));
   });
 
   it("validates command ids", () => {
-    expect(isGameCommandId("load-script")).toBe(true);
+    expect(isGameCommandId("loadScript")).toBe(true);
     expect(isGameCommandId("missing-command")).toBe(false);
     expect(isGameCommandId(null)).toBe(false);
   });

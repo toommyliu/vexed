@@ -18,15 +18,15 @@ export interface TopNavOptionItem {
 }
 
 export const topNavOptionCommandIds: Partial<Record<GameCommandId, string>> = {
-  "toggle-infinite-range": "infinite-range",
-  "toggle-provoke-cell": "provoke-cell",
-  "toggle-enemy-magnet": "enemy-magnet",
-  "toggle-lag-killer": "lag-killer",
-  "toggle-hide-players": "hide-players",
-  "toggle-skip-cutscenes": "skip-cutscenes",
-  "toggle-disable-fx": "disable-fx",
-  "toggle-collisions": "collisions",
-  "toggle-death-ads": "death-ads",
+  toggleInfiniteRange: "infinite-range",
+  toggleProvokeCell: "provoke-cell",
+  toggleEnemyMagnet: "enemy-magnet",
+  toggleLagKiller: "lag-killer",
+  toggleHidePlayers: "hide-players",
+  toggleSkipCutscenes: "skip-cutscenes",
+  toggleDisableFx: "disable-fx",
+  toggleCollisions: "collisions",
+  toggleDeathAds: "death-ads",
 };
 
 const commandIdsByOptionId = new Map<string, GameCommandId>(

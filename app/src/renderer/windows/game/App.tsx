@@ -1138,10 +1138,7 @@ export default function App(props: {
 
   return (
     <main class="game-shell">
-      <GameHotkeys
-        bindings={() => settings().hotkeys.bindings}
-        commands={() => gameCommands}
-      />
+      <GameHotkeys commands={() => gameCommands} />
       <Show when={topBarVisible()}>
         <TopNav
           openMenu={openTopNavMenu}

@@ -184,7 +184,7 @@ export const resetAppearance = (): AppSettings => {
 
 export const updateHotkeys = (patch: HotkeysPatch): AppSettings => {
   const current = HotkeysSettings.read();
-  const next = isRecord(patch.bindings)
+  const next = Array.isArray(patch.bindings)
     ? HotkeysSettings.applyPatch(current, patch.bindings)
     : current;
 

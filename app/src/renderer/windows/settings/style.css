@@ -472,15 +472,27 @@
   min-width: 0;
 }
 
-.settings-error {
-  background: rgba(var(--destructive), 0.12);
-  border: 1px solid rgba(var(--destructive), 0.45);
+.settings-error.alert {
   border-radius: var(--radius-md);
   color: rgb(var(--destructive));
-  font-size: var(--text-base);
   margin: 0;
   max-width: 100%;
-  padding: 0.75rem 1rem;
+  min-height: 2.75rem;
+}
+
+.settings-error__message.alert__description {
+  align-items: flex-start;
+  color: inherit;
+  display: flex;
+  gap: 0.5rem;
+  min-width: 0;
+}
+
+.settings-error__icon {
+  flex: 0 0 auto;
+  height: 0.875rem;
+  margin-top: 0.125rem;
+  width: 0.875rem;
 }
 
 .hotkey-settings-header-actions {
