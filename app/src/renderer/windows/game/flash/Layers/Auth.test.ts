@@ -12,6 +12,7 @@ type HarnessOptions = {
   readonly connStageNull?: boolean;
   readonly connText?: string;
   readonly currentLabel?: string;
+  readonly loginButtonVisible?: boolean;
   readonly loginCredentials?: Record<string, unknown>;
   readonly loginSession?: Record<string, unknown>;
   readonly selection?: ConnectToSelectionResult;
@@ -41,8 +42,19 @@ const withAuth = async <A>(
         }
 
         if (path === "flash.getGameObject") {
+          const target = _args?.[0];
+          if (target === "mcLogin.btnLogin.visible") {
+            return JSON.stringify(options.loginButtonVisible ?? false) as ReturnType<
+              Window["swf"][K]
+            >;
+          }
+
           return (options.currentLabel ??
             JSON.stringify("Login")) as ReturnType<Window["swf"][K]>;
+        }
+
+        if (path === "auth.login") {
+          return undefined as ReturnType<Window["swf"][K]>;
         }
 
         if (path === "flash.isNull") {
@@ -135,6 +147,18 @@ test("connectTo returns connected after selected server reaches game entry", asy
     retryable: false,
     serverName: "Twig",
   });
+});
+
+test("login proceeds when button is visible even if login label is init", async () => {
+  await expect(
+    withAuth(
+      {
+        currentLabel: JSON.stringify("Init"),
+        loginButtonVisible: true,
+      },
+      (auth) => auth.login("Hero", "secret-password"),
+    ),
+  ).resolves.toBeUndefined();
 });
 
 test("connectTo reports full server as retryable immediate failure", async () => {

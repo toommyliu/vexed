@@ -25,8 +25,11 @@ package vexed.game
     [BridgeExport]
     public static function login(username:String, password:String):void
     {
-      game.removeAllChildren();
-      game.gotoAndPlay("Login");
+      if (game.mcLogin == null || game.mcLogin.btnLogin == null)
+      {
+        game.removeAllChildren();
+        game.gotoAndPlay("Login");
+      }
       game.login(username, password);
     }
 
