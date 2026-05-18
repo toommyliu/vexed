@@ -43,6 +43,10 @@ const AVATAR_RELOAD_READY_TIMEOUT = "20 seconds";
 const MIN_FAILURE_COOLDOWN_MS = 5_000;
 const MAX_FAILURE_COOLDOWN_MS = 60_000;
 const MAX_RELOGIN_RETRIES = 3;
+const INVALID_CREDENTIALS_DETAIL =
+  "The username and password you entered did not match.\rPlease check the spelling and try again.";
+const INVALID_CREDENTIALS_ERROR = "invalid username or password";
+const LOGIN_STALLED_ERROR = "login did not reach server select";
 
 class AutoReloginAttemptError extends Data.TaggedError(
   "AutoReloginAttemptError",
@@ -96,6 +100,18 @@ type LogoutObservation = {
 type CaptureCurrentSessionOptions = {
   readonly preserveTargetServer?: boolean;
 };
+
+type LoginScreenOutcome =
+  | {
+      readonly status: "server-select";
+    }
+  | {
+      readonly status: "invalid-credentials";
+    }
+  | {
+      readonly status: "stalled";
+      readonly detail: string;
+    };
 
 const initialState = (): RuntimeState => ({
   enabled: false,
@@ -583,16 +599,96 @@ const make = Effect.gen(function* () {
       ),
     );
 
-  const waitForServerSelect = waitFor(
-    bridge.call("flash.getGameObject", ["mcLogin.currentLabel"]).pipe(
-      Effect.map((label) => flashStringEquals(label, "Servers")),
-      Effect.catchTag("SwfCallError", () => Effect.succeed(false)),
-    ),
-    {
-      timeout: SERVER_SELECT_TIMEOUT,
-      schedule: Schedule.spaced("100 millis"),
-    },
-  );
+  const readConnDetailText = () =>
+    bridge.call("flash.getConnMcText").pipe(
+      Effect.catchCause(() =>
+        bridge
+          .call("flash.getGameObject", ["mcConnDetail.txtDetail.text"])
+          .pipe(Effect.catchCause(() => Effect.succeed(""))),
+      ),
+    );
+
+  const observeLoginScreenOutcome = (): Effect.Effect<
+    LoginScreenOutcome | null
+  > =>
+    Effect.gen(function* () {
+      const label = yield* bridge
+        .call("flash.getGameObject", ["mcLogin.currentLabel"])
+        .pipe(Effect.catchCause(() => Effect.succeed("")));
+      if (flashStringEquals(label, "Servers")) {
+        return { status: "server-select" } as const;
+      }
+
+      const [detail, backButtonVisible] = yield* Effect.all([
+        readConnDetailText(),
+        bridge
+          .call("flash.isConnMcBackButtonVisible")
+          .pipe(Effect.catchCause(() => Effect.succeed(false))),
+      ]);
+      if (flashStringEquals(detail, INVALID_CREDENTIALS_DETAIL)) {
+        return { status: "invalid-credentials" } as const;
+      }
+
+      const decodedDetail = decodeFlashValue(detail);
+      const detailText =
+        typeof decodedDetail === "string" && decodedDetail !== "null"
+          ? decodedDetail.trim()
+          : "";
+      if (backButtonVisible && detailText !== "") {
+        return { status: "stalled", detail: detailText } as const;
+      }
+
+      return null;
+    });
+
+  const cancelStalledLogin = () =>
+    auth.logout().pipe(
+      Effect.catchCause(() => Effect.void),
+      Effect.andThen(
+        bridge
+          .call("flash.hideConnMc")
+          .pipe(Effect.catchCause(() => Effect.void)),
+      ),
+    );
+
+  const loginStalledMessage = (detail: string): string =>
+    detail === "" ? LOGIN_STALLED_ERROR : `${LOGIN_STALLED_ERROR}: ${detail}`;
+
+  const failStalledLogin = (detail: string) =>
+    cancelStalledLogin().pipe(
+      Effect.andThen(failAttempt(loginStalledMessage(detail), true)),
+    );
+
+  const waitForLoginScreenOutcome = () =>
+    observeLoginScreenOutcome().pipe(
+      Effect.repeat({
+        until: (outcome) => outcome !== null,
+        schedule: Schedule.passthrough<
+          number,
+          LoginScreenOutcome | null,
+          never,
+          never
+        >(Schedule.spaced("100 millis")),
+      }),
+      Effect.timeoutOption(SERVER_SELECT_TIMEOUT),
+      Effect.map((completed) =>
+        Option.isSome(completed) ? completed.value : null,
+      ),
+    );
+
+  const waitForServerSelect = () =>
+    Effect.gen(function* () {
+      const outcome = yield* waitForLoginScreenOutcome();
+      if (outcome?.status === "invalid-credentials") {
+        return yield* failAttempt(INVALID_CREDENTIALS_ERROR, false);
+      }
+
+      if (outcome?.status === "stalled") {
+        return yield* failStalledLogin(outcome.detail);
+      }
+
+      return outcome?.status === "server-select";
+    });
 
   const waitForServers = waitFor(
     auth.getServers().pipe(
@@ -738,7 +834,7 @@ const make = Effect.gen(function* () {
         }
 
         yield* logStage("waiting for server select");
-        if (!(yield* waitForServerSelect)) {
+        if (!(yield* waitForServerSelect())) {
           return yield* failAttempt("server select did not load", true);
         }
 
@@ -832,7 +928,7 @@ const make = Effect.gen(function* () {
           }
 
           yield* logStage("waiting for server select");
-          if (!(yield* waitForServerSelect)) {
+          if (!(yield* waitForServerSelect())) {
             return yield* failAttempt("server select did not load", true);
           }
 
