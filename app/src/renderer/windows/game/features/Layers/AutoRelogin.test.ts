@@ -43,11 +43,17 @@ const connectedOutcome = (serverName: string): AuthConnectOutcome => ({
   serverName,
 });
 
+const invalidCredentialsDetail =
+  "The username and password you entered did not match.\rPlease check the spelling and try again.";
+const authenticatingAccountDetail = "Authenticating Account Info...";
+
 type HarnessOptions = {
   readonly bridgeLoggedIn?: boolean;
   readonly connectOutcome?: AuthConnectOutcome;
   readonly emitConnectionOnConnect?: boolean;
   readonly iUpgDays?: number;
+  readonly invalidCredentials?: boolean;
+  readonly loginStalls?: boolean;
   readonly password?: string;
   readonly playerReadyAfterConnectDelayMs?: number;
   readonly playerReadyAfterReload?: boolean;
@@ -124,6 +130,16 @@ const withAutoRelogin = async <A>(
             ) as ReturnType<Window["swf"][K]>;
           }
 
+          if (key === "mcConnDetail.txtDetail.text") {
+            const detail =
+              options.invalidCredentials === true
+                ? invalidCredentialsDetail
+                : options.loginStalls === true
+                  ? authenticatingAccountDetail
+                  : "";
+            return detail as ReturnType<Window["swf"][K]>;
+          }
+
           if (key === "currentLabel") {
             return (phase === "game" ? "Game" : "Login") as ReturnType<
               Window["swf"][K]
@@ -136,11 +152,19 @@ const withAutoRelogin = async <A>(
         }
 
         if (path === "flash.getConnMcText") {
-          return "loading" as ReturnType<Window["swf"][K]>;
+          const detail =
+            options.invalidCredentials === true
+              ? invalidCredentialsDetail
+              : options.loginStalls === true
+                ? authenticatingAccountDetail
+                : "loading";
+          return detail as ReturnType<Window["swf"][K]>;
         }
 
         if (path === "flash.isConnMcBackButtonVisible") {
-          return false as ReturnType<Window["swf"][K]>;
+          return (options.loginStalls === true) as ReturnType<
+            Window["swf"][K]
+          >;
         }
 
         throw new Error(`unexpected bridge call: ${String(path)}`);
@@ -211,7 +235,10 @@ const withAutoRelogin = async <A>(
     },
     login(username: string, loginPassword: string) {
       authCalls.push(`login:${username}:${loginPassword}`);
-      phase = "servers";
+      phase =
+        options.invalidCredentials === true || options.loginStalls === true
+          ? "login"
+          : "servers";
       return Effect.void;
     },
     logout() {
@@ -511,6 +538,66 @@ test("direct login with a server waits for player readiness", async () => {
   ]);
 });
 
+test("direct login fails explicitly when credentials are invalid", async () => {
+  const result = await withAutoRelogin(
+    { invalidCredentials: true },
+    (autoRelogin, harness) =>
+      Effect.gen(function* () {
+        const exit = yield* Effect.exit(
+          autoRelogin.login({
+            username: "Hero",
+            password: "wrong-password",
+            server: "Twig",
+          }),
+        );
+        return {
+          calls: harness.authCalls,
+          exit,
+        };
+      }),
+  );
+
+  expect(result.calls).toEqual(["login:Hero:wrong-password"]);
+  expect(Exit.isFailure(result.exit)).toBe(true);
+  expect(
+    Exit.match(result.exit, {
+      onFailure: (cause) => String(cause),
+      onSuccess: () => "",
+    }),
+  ).toContain("invalid username or password");
+});
+
+test("direct login cancels and fails explicitly when authentication stalls", async () => {
+  const result = await withAutoRelogin(
+    { loginStalls: true },
+    (autoRelogin, harness) =>
+      Effect.gen(function* () {
+        const exit = yield* Effect.exit(
+          autoRelogin.login({
+            username: "Hero",
+            password: "secret-password",
+            server: "Twig",
+          }),
+        );
+        return {
+          calls: harness.authCalls,
+          exit,
+        };
+      }),
+  );
+
+  expect(result.calls).toEqual(["login:Hero:secret-password", "logout"]);
+  expect(Exit.isFailure(result.exit)).toBe(true);
+  expect(
+    Exit.match(result.exit, {
+      onFailure: (cause) => String(cause),
+      onSuccess: () => "",
+    }),
+  ).toContain(
+    "login did not reach server select: Authenticating Account Info...",
+  );
+});
+
 test("direct login reloads avatar art when connected player stays unready", async () => {
   const result = await withAutoRelogin(
     {
@@ -690,6 +777,30 @@ test("non-retryable connect outcome stops relogin after one attempt", async () =
     "connectTo:Twig",
   ]);
   expect(result.state.lastError).toContain("member-only");
+});
+
+test("invalid captured credentials stop relogin without retrying", async () => {
+  const result = await withAutoRelogin(
+    { invalidCredentials: true },
+    (autoRelogin, harness) =>
+      Effect.gen(function* () {
+        yield* autoRelogin.enable();
+        yield* autoRelogin.setDelay(0);
+        yield* harness.jobsState.task!;
+        return {
+          calls: harness.authCalls,
+          state: yield* autoRelogin.getState(),
+        };
+      }),
+  );
+
+  expect(result.calls).toEqual(["login:Hero:secret-password"]);
+  expect(result.state).toMatchObject({
+    enabled: false,
+    attempting: false,
+    lastError: "invalid username or password",
+  });
+  expect(result.state.attemptsRemaining).toBeUndefined();
 });
 
 test("server selection during attempt is ignored", async () => {
