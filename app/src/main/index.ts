@@ -12,7 +12,7 @@ import {
 import { basename, join, sep } from "path";
 import process from "process";
 import { homedir } from "os";
-import { Effect } from "effect";
+import { Effect, Layer } from "effect";
 import appBranding from "../../appBranding.json";
 import { createAppearanceSnapshot } from "../shared/appearance-snapshot";
 import { ScriptingIpcChannels, type ScriptExecutePayload } from "../shared/ipc";
@@ -37,9 +37,12 @@ import { registerWindowIpcHandlers } from "./window-ipc";
 import {
   getRendererGameWindowPath,
   getRendererWindowPath,
+  makeElectronWindowRuntime,
+  makeWindowService,
   WindowManagerError,
   WindowService,
-  WindowServiceLive,
+  type WindowManagerConfig,
+  type WindowServiceShape,
   type WindowEffectRunner,
 } from "./windows";
 
@@ -282,6 +285,7 @@ const resolveDevRendererUrl = (): string | null => {
 };
 
 let runWindowEffect: WindowEffectRunner | null = null;
+let configuredWindowService: WindowServiceShape | null = null;
 
 const runConfiguredWindowEffect: WindowEffectRunner = (effect) => {
   if (!runWindowEffect) {
@@ -293,6 +297,16 @@ const runConfiguredWindowEffect: WindowEffectRunner = (effect) => {
   }
 
   return runWindowEffect(effect);
+};
+
+const markConfiguredWindowServiceQuitting = (): void => {
+  if (!configuredWindowService) {
+    throw new WindowManagerError({
+      message: "Window service has not been configured",
+    });
+  }
+
+  Effect.runSync(configuredWindowService.setQuitting(true));
 };
 
 const openStartupWindow = (launchMode: Preferences.AppLaunchMode): void => {
@@ -332,7 +346,7 @@ const revealStartupWindow = (): void => {
 
 app.whenReady().then(() => {
   const { preferences } = loadMainSettings();
-  const windowLayer = WindowServiceLive({
+  const windowServiceConfig: WindowManagerConfig = {
     gameWindowHtmlPath: getRendererGameWindowPath(rendererPath),
     isDev: isDevApp,
     preloadPath: join(__dirname, "../preload/index.js"),
@@ -344,7 +358,14 @@ app.whenReady().then(() => {
         nativeTheme.shouldUseDarkColors,
       ),
     onGameWindowCreated: configureGameWindow,
-  });
+  };
+  const windowService = makeWindowService(
+    windowServiceConfig,
+    makeElectronWindowRuntime(),
+  );
+  const windowLayer = Layer.succeed(WindowService, windowService);
+
+  configuredWindowService = windowService;
 
   runWindowEffect = <A>(
     effect: Effect.Effect<A, WindowManagerError, WindowService>,
@@ -365,14 +386,11 @@ app.whenReady().then(() => {
 });
 
 app.on("before-quit", () => {
-  void runConfiguredWindowEffect(
-    Effect.gen(function* () {
-      const windows = yield* WindowService;
-      yield* windows.setQuitting(true);
-    }),
-  ).catch((error) => {
+  try {
+    markConfiguredWindowServiceQuitting();
+  } catch (error) {
     console.error("Failed to mark window service as quitting:", error);
-  });
+  }
 });
 
 app.on("window-all-closed", () => {

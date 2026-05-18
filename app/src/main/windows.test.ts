@@ -415,6 +415,21 @@ describe("window service", () => {
     expect(child.destroyed).toBe(true);
   });
 
+  it("lets hidden-on-close app windows close while quitting", async () => {
+    const harness = createHarness();
+    const settings = (await run(
+      harness.service.openWindow(WindowIds.Settings),
+    )) as unknown as FakeWindow;
+
+    expect(settings.close()).toBe(true);
+    expect(settings.destroyed).toBe(false);
+
+    await run(harness.service.setQuitting(true));
+
+    expect(settings.close()).toBe(false);
+    expect(settings.destroyed).toBe(true);
+  });
+
   it("destroys and unregisters windows when renderer loading fails", async () => {
     const harness = createHarness();
     const gameWindow = (await run(

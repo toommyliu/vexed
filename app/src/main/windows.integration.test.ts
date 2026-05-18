@@ -154,7 +154,10 @@ describe("app window wiring", () => {
     expect(windowSource).toContain("setQuitting: (quitting)");
     expect(windowSource).toContain("if (isQuitting)");
     expect(indexSource).toContain('app.on("before-quit"');
-    expect(indexSource).toContain("windows.setQuitting(true)");
+    expect(indexSource).toContain("markConfiguredWindowServiceQuitting()");
+    expect(indexSource).toContain(
+      "Effect.runSync(configuredWindowService.setQuitting(true))",
+    );
   });
 
   it("declares each SolidJS view as an individual renderer target", () => {
