@@ -5,7 +5,10 @@ import {
   type GameCommandId,
 } from "../../../shared/commands";
 import { WindowIds, type WindowId } from "../../../shared/windows";
-import type { HotkeyBindings } from "../../../shared/hotkeys";
+import {
+  readHotkeyBinding,
+  type HotkeyBindings,
+} from "../../../shared/hotkeys";
 import {
   findTopNavOption,
   topNavOptionCommandIds,
@@ -39,12 +42,12 @@ export interface GameCommand {
 }
 
 const windowCommandIds: Partial<Record<GameCommandId, WindowId>> = {
-  "open-environment": WindowIds.Environment,
-  "open-fast-travels": WindowIds.FastTravels,
-  "open-loader-grabber": WindowIds.LoaderGrabber,
-  "open-follower": WindowIds.Follower,
-  "open-packet-logger": WindowIds.PacketLogger,
-  "open-packet-spammer": WindowIds.PacketSpammer,
+  openEnvironment: WindowIds.Environment,
+  openFastTravels: WindowIds.FastTravels,
+  openLoaderGrabber: WindowIds.LoaderGrabber,
+  openFollower: WindowIds.Follower,
+  openPacketLogger: WindowIds.PacketLogger,
+  openPacketSpammer: WindowIds.PacketSpammer,
 };
 
 const findOption = (
@@ -59,11 +62,11 @@ const createCommandLabel = (
   id: GameCommandId,
   fallback: string,
 ): Accessor<string> => {
-  if (id === "toggle-script") {
+  if (id === "toggleScript") {
     return () => (runtime.scriptRunning() ? "Stop Script" : "Start Script");
   }
 
-  if (id === "toggle-autoattack") {
+  if (id === "toggleAutoattack") {
     return () =>
       runtime.autoAttackEnabled() ? "Disable Autoattack" : "Enable Autoattack";
   }
@@ -79,11 +82,11 @@ const createCommandEnabled = (
   runtime: GameCommandRuntime,
   id: GameCommandId,
 ): Accessor<boolean> => {
-  if (id === "toggle-script") {
+  if (id === "toggleScript") {
     return () => runtime.scriptLoaded();
   }
 
-  if (id === "stop-script") {
+  if (id === "stopScript") {
     return () => runtime.scriptRunning();
   }
 
@@ -101,13 +104,13 @@ const createCommandRunner = (
   runtime: GameCommandRuntime,
   id: GameCommandId,
 ): (() => void) => {
-  if (id === "load-script") {
+  if (id === "loadScript") {
     return () => {
       void runtime.loadScript();
     };
   }
 
-  if (id === "toggle-script") {
+  if (id === "toggleScript") {
     return () => {
       if (!runtime.scriptLoaded()) {
         return;
@@ -121,7 +124,7 @@ const createCommandRunner = (
     };
   }
 
-  if (id === "stop-script") {
+  if (id === "stopScript") {
     return () => {
       if (runtime.scriptRunning()) {
         runtime.stopScript();
@@ -129,17 +132,17 @@ const createCommandRunner = (
     };
   }
 
-  if (id === "toggle-autoattack") {
+  if (id === "toggleAutoattack") {
     return () => {
       runtime.setAutoAttackEnabled((enabled) => !enabled);
     };
   }
 
-  if (id === "open-options-menu") {
+  if (id === "openOptionsMenu") {
     return () => runtime.openTopNavMenu("options");
   }
 
-  if (id === "toggle-top-bar") {
+  if (id === "toggleTopBar") {
     return runtime.toggleTopBarVisible;
   }
 
@@ -173,8 +176,7 @@ export const createGameCommands = (
       category: definition.category,
       label: createCommandLabel(runtime, definition.id, definition.label),
       keywords: definition.keywords,
-      hotkey: () =>
-        runtime.bindings()[definition.id] ?? definition.defaultHotkey,
+      hotkey: () => readHotkeyBinding(runtime.bindings(), definition.id),
       enabled,
       run: () => {
         if (enabled()) {

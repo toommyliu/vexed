@@ -7,8 +7,12 @@ import {
   normalize,
   normalizeHotkeyValue,
   path,
+  write,
 } from "./Hotkeys";
-import { normalizeHotkeyBinding } from "../../shared/hotkeys";
+import {
+  normalizeHotkeyBinding,
+  readHotkeyBinding,
+} from "../../shared/hotkeys";
 
 describe("hotkey settings", () => {
   afterEach(() => {
@@ -16,17 +20,13 @@ describe("hotkey settings", () => {
   });
 
   it("normalizes valid bindings", () => {
-    expect(
-      normalize({
-        bindings: {
-          "load-script": "mod+o",
-          "toggle-lag-killer": "alt+l",
-        },
-      }).bindings,
-    ).toMatchObject({
-      "load-script": "Mod+O",
-      "toggle-lag-killer": "Alt+L",
-    });
+    const bindings = normalize([
+      { id: "loadScript", value: "mod+o" },
+      { id: "toggleLagKiller", value: "alt+l" },
+    ]).bindings;
+
+    expect(readHotkeyBinding(bindings, "loadScript")).toBe("Mod+O");
+    expect(readHotkeyBinding(bindings, "toggleLagKiller")).toBe("Alt+L");
   });
 
   it("supports platform-explicit macOS Control bindings", () => {
@@ -36,49 +36,53 @@ describe("hotkey settings", () => {
 
   it("discards unknown command ids", () => {
     expect(
-      normalize({
-        bindings: {
-          "load-script": "Mod+O",
-          unknown: "Alt+U",
-        },
-      }).bindings,
-    ).not.toHaveProperty("unknown");
+      normalize([
+        { id: "loadScript", value: "Mod+O" },
+        { id: "unknown", value: "Alt+U" },
+      ]).bindings.some((binding) => (binding.id as string) === "unknown"),
+    ).toBe(false);
   });
 
   it("falls back to defaults for invalid values", () => {
-    expect(
-      normalize({
-        bindings: {
-          "load-script": "Control",
-        },
-      }).bindings["load-script"],
-    ).toBe(DEFAULT.bindings["load-script"]);
+    const bindings = normalize([
+      { id: "loadScript", value: "Control" },
+    ]).bindings;
+
+    expect(readHotkeyBinding(bindings, "loadScript")).toBe(
+      readHotkeyBinding(DEFAULT.bindings, "loadScript"),
+    );
 
     expect(normalizeHotkeyValue("Control")).toBeUndefined();
   });
 
   it("preserves empty strings as unbound", () => {
     expect(
-      normalize({
-        bindings: {
-          "load-script": "",
-        },
-      }).bindings["load-script"],
+      readHotkeyBinding(
+        normalize([{ id: "loadScript", value: "" }]).bindings,
+        "loadScript",
+      ),
     ).toBe("");
   });
 
   it("resets null patch values to defaults", () => {
-    const customized = normalize({
-      bindings: {
-        "load-script": "Alt+O",
-      },
-    });
+    const customized = normalize([{ id: "loadScript", value: "Alt+O" }]);
 
     expect(
-      applyPatch(customized, {
-        "load-script": null,
-      }).bindings["load-script"],
-    ).toBe(DEFAULT.bindings["load-script"]);
+      readHotkeyBinding(
+        applyPatch(customized, [{ id: "loadScript", value: null }]).bindings,
+        "loadScript",
+      ),
+    ).toBe(readHotkeyBinding(DEFAULT.bindings, "loadScript"));
+  });
+
+  it("writes keybindings as a top-level array", () => {
+    Files.configureAppDataHome("/tmp/vexed-test");
+
+    write(normalize([{ id: "loadScript", value: "Alt+O" }]));
+
+    expect(Files.readJson(path())).toEqual(
+      expect.arrayContaining([{ id: "loadScript", value: "Alt+O" }]),
+    );
   });
 
   it("resolves hotkeys under app data", () => {

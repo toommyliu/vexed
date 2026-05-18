@@ -18,7 +18,7 @@ const createRuntime = (
   };
 
   return {
-    bindings: () => ({}) satisfies HotkeyBindings,
+    bindings: () => [] satisfies HotkeyBindings,
     loadScript: noop,
     startScript: noop,
     stopScript: noop,
@@ -54,7 +54,7 @@ describe("game commands", () => {
     const openTopNavMenu = vi.fn();
     const runtime = createRuntime({ openTopNavMenu });
 
-    findCommand(runtime, "open-options-menu").run();
+    findCommand(runtime, "openOptionsMenu").run();
 
     expect(openTopNavMenu).toHaveBeenCalledWith("options");
   });
@@ -63,7 +63,7 @@ describe("game commands", () => {
     const toggleTopBarVisible = vi.fn();
     const runtime = createRuntime({ toggleTopBarVisible });
 
-    findCommand(runtime, "toggle-top-bar").run();
+    findCommand(runtime, "toggleTopBar").run();
 
     expect(toggleTopBarVisible).toHaveBeenCalledOnce();
   });
@@ -80,7 +80,7 @@ describe("game commands", () => {
     ];
     const runtime = createRuntime({ optionItems });
 
-    const command = findCommand(runtime, "toggle-lag-killer");
+    const command = findCommand(runtime, "toggleLagKiller");
 
     expect(command.label()).toBe("Lag Killer");
 
@@ -88,5 +88,4 @@ describe("game commands", () => {
 
     expect(onSelect).toHaveBeenCalledOnce();
   });
-
 });

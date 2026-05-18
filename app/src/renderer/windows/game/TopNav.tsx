@@ -35,11 +35,11 @@ import {
   MenuTrigger,
   cn,
 } from "@vexed/ui";
+import type { GameCommandId } from "../../../shared/commands";
 import {
-  getCommandDefinition,
-  type GameCommandId,
-} from "../../../shared/commands";
-import type { HotkeyBindings } from "../../../shared/hotkeys";
+  readHotkeyBinding,
+  type HotkeyBindings,
+} from "../../../shared/hotkeys";
 import type { AppPlatform } from "../../../shared/ipc";
 import {
   WindowIds,
@@ -119,7 +119,7 @@ export interface TopNavProps {
 }
 
 const commandHotkey = (bindings: HotkeyBindings, id: GameCommandId): string =>
-  bindings[id] ?? getCommandDefinition(id).defaultHotkey;
+  readHotkeyBinding(bindings, id);
 
 const optionHotkey = (bindings: HotkeyBindings, optionId: string): string => {
   const commandId = getTopNavOptionCommandId(optionId);
@@ -127,12 +127,12 @@ const optionHotkey = (bindings: HotkeyBindings, optionId: string): string => {
 };
 
 const windowCommandIds: Partial<Record<WindowId, GameCommandId>> = {
-  [WindowIds.Environment]: "open-environment",
-  [WindowIds.FastTravels]: "open-fast-travels",
-  [WindowIds.LoaderGrabber]: "open-loader-grabber",
-  [WindowIds.Follower]: "open-follower",
-  [WindowIds.PacketLogger]: "open-packet-logger",
-  [WindowIds.PacketSpammer]: "open-packet-spammer",
+  [WindowIds.Environment]: "openEnvironment",
+  [WindowIds.FastTravels]: "openFastTravels",
+  [WindowIds.LoaderGrabber]: "openLoaderGrabber",
+  [WindowIds.Follower]: "openFollower",
+  [WindowIds.PacketLogger]: "openPacketLogger",
+  [WindowIds.PacketSpammer]: "openPacketSpammer",
 };
 
 const windowHotkey = (bindings: HotkeyBindings, id: WindowId): string => {
@@ -462,12 +462,12 @@ export function TopNav(props: TopNavProps): JSX.Element {
                 <MenuItem
                   class="game-menu__item"
                   onSelect={() => void props.loadScript()}
-                  value="load-script"
+                  value="loadScript"
                 >
                   <span class="game-menu__item-label">Load Script</span>
                   <Show
                     when={formatOptionalHotkeyDisplay(
-                      commandHotkey(props.hotkeyBindings(), "load-script"),
+                      commandHotkey(props.hotkeyBindings(), "loadScript"),
                       props.hotkeyPlatform,
                     )}
                   >
@@ -486,13 +486,13 @@ export function TopNav(props: TopNavProps): JSX.Element {
                   class="game-menu__item"
                   disabled={!props.scriptRunning()}
                   onSelect={props.stopScript}
-                  value="stop-script"
+                  value="stopScript"
                   variant="destructive"
                 >
                   <span class="game-menu__item-label">Stop</span>
                   <Show
                     when={formatOptionalHotkeyDisplay(
-                      commandHotkey(props.hotkeyBindings(), "stop-script"),
+                      commandHotkey(props.hotkeyBindings(), "stopScript"),
                       props.hotkeyPlatform,
                     )}
                   >
@@ -689,7 +689,9 @@ export function TopNav(props: TopNavProps): JSX.Element {
               }
             >
               <span>Auto Relogin</span>
-              <Show when={props.autoReloginEnabled() && props.autoReloginServer()}>
+              <Show
+                when={props.autoReloginEnabled() && props.autoReloginServer()}
+              >
                 <span class="game-topnav__trigger-detail">
                   {props.autoReloginServer()}
                 </span>

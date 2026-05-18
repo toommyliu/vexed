@@ -6,10 +6,12 @@ import {
   formatHotkeyDisplayParts as displayHotkeyParts,
 } from "@vexed/shared/hotkeyDisplay";
 import {
+  Alert,
   AlertDialog,
   AlertDialogAction,
   AlertDialogCancel,
   AlertDialogContent,
+  AlertDescription,
   AlertDialogDescription,
   AlertDialogFooter,
   AlertDialogHeader,
@@ -38,7 +40,7 @@ import {
   TooltipTrigger,
   type ButtonProps,
 } from "@vexed/ui";
-import { RotateCcw, X } from "lucide-solid";
+import { CircleAlert, RotateCcw, X } from "lucide-solid";
 import {
   For,
   Show,
@@ -58,6 +60,7 @@ import {
   type GameCommandId,
 } from "../../../shared/commands";
 import {
+  readHotkeyBinding,
   normalizeHotkeyBinding,
   type HotkeyBindings,
 } from "../../../shared/hotkeys";
@@ -219,6 +222,28 @@ function SettingsRow(props: {
       </div>
       <div class="settings-row__action">{props.action}</div>
     </div>
+  );
+}
+
+function SettingsErrorNotice(props: {
+  readonly id: number;
+  readonly message: string;
+  readonly scope?: "global" | "hotkeys";
+}): JSX.Element {
+  return (
+    <Alert
+      aria-live="polite"
+      class="settings-error"
+      data-error-id={props.id}
+      data-scope={props.scope}
+      role="alert"
+      variant="error"
+    >
+      <AlertDescription class="settings-error__message">
+        <CircleAlert aria-hidden="true" class="settings-error__icon" />
+        {props.message}
+      </AlertDescription>
+    </Alert>
   );
 }
 
@@ -529,8 +554,7 @@ function GeneralSettings(props: {
 }
 
 const readHotkey = (bindings: HotkeyBindings, id: GameCommandId): string => {
-  const definition = GAME_COMMANDS.find((command) => command.id === id);
-  return bindings[id] ?? definition?.defaultHotkey ?? "";
+  return readHotkeyBinding(bindings, id);
 };
 
 const getConflictingLabels = (
@@ -557,19 +581,26 @@ function HotkeySettingsSection(props: {
   const [recordingId, setRecordingId] = createSignal<GameCommandId | null>(
     null,
   );
-  const [localError, setLocalError] = createSignal<string | null>(null);
+  const [localError, setLocalError] = createSignal<{
+    readonly id: number;
+    readonly message: string;
+  } | null>(null);
+  let nextLocalErrorId = 0;
+
+  const showLocalError = (message: string): void => {
+    setLocalError({ id: ++nextLocalErrorId, message });
+  };
 
   const commitBinding = async (
     id: GameCommandId,
     value: string | null,
   ): Promise<void> => {
-    setLocalError(null);
     const definition = GAME_COMMANDS.find((command) => command.id === id);
 
     if (value !== null) {
       const normalized = normalizeHotkeyBinding(value, props.platform);
       if (normalized === undefined) {
-        setLocalError("That shortcut is not valid.");
+        showLocalError("That shortcut is not valid.");
         return;
       }
 
@@ -579,15 +610,14 @@ function HotkeySettingsSection(props: {
         normalized,
       );
       if (conflicts.length > 0) {
-        setLocalError(`Shortcut already used by ${conflicts.join(", ")}.`);
+        showLocalError(`Shortcut already used by ${conflicts.join(", ")}.`);
         return;
       }
 
       await props.onHotkeysPatch({
-        bindings: {
-          [id]: normalized,
-        },
+        bindings: [{ id, value: normalized }],
       });
+      setLocalError(null);
       return;
     }
 
@@ -598,17 +628,16 @@ function HotkeySettingsSection(props: {
       defaultValue,
     );
     if (conflicts.length > 0) {
-      setLocalError(
+      showLocalError(
         `Default shortcut already used by ${conflicts.join(", ")}.`,
       );
       return;
     }
 
     await props.onHotkeysPatch({
-      bindings: {
-        [id]: null,
-      },
+      bindings: [{ id, value: null }],
     });
+    setLocalError(null);
   };
 
   createEffect(() => {
@@ -622,6 +651,7 @@ function HotkeySettingsSection(props: {
       event.stopPropagation();
 
       if (event.key === "Escape") {
+        setLocalError(null);
         setRecordingId(null);
         return;
       }
@@ -637,7 +667,7 @@ function HotkeySettingsSection(props: {
         props.platform,
       );
       if (normalized === undefined) {
-        setLocalError("Press a complete shortcut.");
+        showLocalError("Press a complete shortcut.");
         return;
       }
 
@@ -769,7 +799,13 @@ function HotkeySettingsSection(props: {
       }
     >
       <Show when={localError()}>
-        {(message) => <div class="settings-error">{message()}</div>}
+        {(notice) => (
+          <SettingsErrorNotice
+            id={notice().id}
+            message={notice().message}
+            scope="hotkeys"
+          />
+        )}
       </Show>
 
       <div class="hotkey-layouts--continuous">
@@ -1035,18 +1071,26 @@ function SettingsApp(props: {
   const [settings, setSettings] = createSignal<AppSettings>(
     props.initialSettings ?? defaultSettings,
   );
-  const [error, setError] = createSignal<string | null>(null);
+  const [error, setError] = createSignal<{
+    readonly id: number;
+    readonly message: string;
+  } | null>(null);
   const [activeTab, setActiveTab] = createSignal<SettingsTabId>("general");
+  let nextErrorId = 0;
+
+  const showError = (message: string): void => {
+    setError({ id: ++nextErrorId, message });
+  };
 
   const runSettingsUpdate = async (
     update: Promise<AppSettings>,
   ): Promise<void> => {
     try {
-      setError(null);
       setSettings(await update);
+      setError(null);
     } catch (cause) {
       console.error("Failed to update settings:", cause);
-      setError(
+      showError(
         cause instanceof Error ? cause.message : "Settings update failed",
       );
     }
@@ -1059,7 +1103,7 @@ function SettingsApp(props: {
         .then(setSettings)
         .catch((cause: unknown) => {
           console.error("Failed to load settings:", cause);
-          setError(
+          showError(
             cause instanceof Error ? cause.message : "Settings unavailable",
           );
         });
@@ -1092,7 +1136,13 @@ function SettingsApp(props: {
             </div>
             <div class="settings-content-wrapper">
               <Show when={error()}>
-                {(message) => <div class="settings-error">{message()}</div>}
+                {(notice) => (
+                  <SettingsErrorNotice
+                    id={notice().id}
+                    message={notice().message}
+                    scope="global"
+                  />
+                )}
               </Show>
               <TabsContent value="general">
                 <GeneralSettings

@@ -8,27 +8,27 @@ export type CommandCategory =
   | "Packets";
 
 export type GameCommandId =
-  | "toggle-top-bar"
-  | "load-script"
-  | "toggle-script"
-  | "stop-script"
-  | "open-options-menu"
-  | "open-environment"
-  | "open-fast-travels"
-  | "open-loader-grabber"
-  | "open-follower"
-  | "open-packet-logger"
-  | "open-packet-spammer"
-  | "toggle-autoattack"
-  | "toggle-infinite-range"
-  | "toggle-provoke-cell"
-  | "toggle-enemy-magnet"
-  | "toggle-lag-killer"
-  | "toggle-hide-players"
-  | "toggle-skip-cutscenes"
-  | "toggle-disable-fx"
-  | "toggle-collisions"
-  | "toggle-death-ads";
+  | "toggleTopBar"
+  | "loadScript"
+  | "toggleScript"
+  | "stopScript"
+  | "openOptionsMenu"
+  | "openEnvironment"
+  | "openFastTravels"
+  | "openLoaderGrabber"
+  | "openFollower"
+  | "openPacketLogger"
+  | "openPacketSpammer"
+  | "toggleAutoattack"
+  | "toggleInfiniteRange"
+  | "toggleProvokeCell"
+  | "toggleEnemyMagnet"
+  | "toggleLagKiller"
+  | "toggleHidePlayers"
+  | "toggleSkipCutscenes"
+  | "toggleDisableFx"
+  | "toggleCollisions"
+  | "toggleDeathAds";
 
 export interface CommandDefinition {
   readonly id: GameCommandId;
@@ -39,19 +39,22 @@ export interface CommandDefinition {
   readonly defaultHotkey: string;
 }
 
-export type DefaultHotkeyBindings = Partial<Record<GameCommandId, string>>;
+export type DefaultHotkeyBindings = readonly {
+  readonly id: GameCommandId;
+  readonly value: string;
+}[];
 
 export const GAME_COMMANDS: readonly CommandDefinition[] = [
   {
-    id: "toggle-top-bar",
+    id: "toggleTopBar",
     scope: "game",
     category: "Application",
     label: "Toggle Top Bar",
     keywords: ["top", "bar", "navigation", "chrome"],
-    defaultHotkey: "Meta+Shift+T",
+    defaultHotkey: "Mod+Shift+T",
   },
   {
-    id: "load-script",
+    id: "loadScript",
     scope: "game",
     category: "Scripts",
     label: "Load Script",
@@ -59,7 +62,7 @@ export const GAME_COMMANDS: readonly CommandDefinition[] = [
     defaultHotkey: "Mod+O",
   },
   {
-    id: "toggle-script",
+    id: "toggleScript",
     scope: "game",
     category: "Scripts",
     label: "Start or Stop Script",
@@ -67,7 +70,7 @@ export const GAME_COMMANDS: readonly CommandDefinition[] = [
     defaultHotkey: "",
   },
   {
-    id: "stop-script",
+    id: "stopScript",
     scope: "game",
     category: "Scripts",
     label: "Stop Script",
@@ -75,7 +78,7 @@ export const GAME_COMMANDS: readonly CommandDefinition[] = [
     defaultHotkey: "Mod+Shift+X",
   },
   {
-    id: "open-options-menu",
+    id: "openOptionsMenu",
     scope: "game",
     category: "Options",
     label: "Open Options Menu",
@@ -83,7 +86,7 @@ export const GAME_COMMANDS: readonly CommandDefinition[] = [
     defaultHotkey: "Mod+Shift+,",
   },
   {
-    id: "open-environment",
+    id: "openEnvironment",
     scope: "game",
     category: "Tools",
     label: "Open Environment",
@@ -91,7 +94,7 @@ export const GAME_COMMANDS: readonly CommandDefinition[] = [
     defaultHotkey: "Mod+E",
   },
   {
-    id: "open-fast-travels",
+    id: "openFastTravels",
     scope: "game",
     category: "Tools",
     label: "Open Fast Travels",
@@ -99,7 +102,7 @@ export const GAME_COMMANDS: readonly CommandDefinition[] = [
     defaultHotkey: "",
   },
   {
-    id: "open-loader-grabber",
+    id: "openLoaderGrabber",
     scope: "game",
     category: "Tools",
     label: "Open Loader/Grabber",
@@ -107,7 +110,7 @@ export const GAME_COMMANDS: readonly CommandDefinition[] = [
     defaultHotkey: "",
   },
   {
-    id: "open-follower",
+    id: "openFollower",
     scope: "game",
     category: "Tools",
     label: "Open Follower",
@@ -115,7 +118,7 @@ export const GAME_COMMANDS: readonly CommandDefinition[] = [
     defaultHotkey: "",
   },
   {
-    id: "open-packet-logger",
+    id: "openPacketLogger",
     scope: "game",
     category: "Packets",
     label: "Open Packet Logger",
@@ -123,7 +126,7 @@ export const GAME_COMMANDS: readonly CommandDefinition[] = [
     defaultHotkey: "",
   },
   {
-    id: "open-packet-spammer",
+    id: "openPacketSpammer",
     scope: "game",
     category: "Packets",
     label: "Open Packet Spammer",
@@ -131,7 +134,7 @@ export const GAME_COMMANDS: readonly CommandDefinition[] = [
     defaultHotkey: "",
   },
   {
-    id: "toggle-autoattack",
+    id: "toggleAutoattack",
     scope: "game",
     category: "Options",
     label: "Toggle Autoattack",
@@ -139,7 +142,7 @@ export const GAME_COMMANDS: readonly CommandDefinition[] = [
     defaultHotkey: "",
   },
   {
-    id: "toggle-infinite-range",
+    id: "toggleInfiniteRange",
     scope: "game",
     category: "Options",
     label: "Toggle Infinite Range",
@@ -147,7 +150,7 @@ export const GAME_COMMANDS: readonly CommandDefinition[] = [
     defaultHotkey: "Alt+I",
   },
   {
-    id: "toggle-provoke-cell",
+    id: "toggleProvokeCell",
     scope: "game",
     category: "Options",
     label: "Toggle Provoke Cell",
@@ -155,7 +158,7 @@ export const GAME_COMMANDS: readonly CommandDefinition[] = [
     defaultHotkey: "",
   },
   {
-    id: "toggle-enemy-magnet",
+    id: "toggleEnemyMagnet",
     scope: "game",
     category: "Options",
     label: "Toggle Enemy Magnet",
@@ -163,7 +166,7 @@ export const GAME_COMMANDS: readonly CommandDefinition[] = [
     defaultHotkey: "",
   },
   {
-    id: "toggle-lag-killer",
+    id: "toggleLagKiller",
     scope: "game",
     category: "Options",
     label: "Toggle Lag Killer",
@@ -171,7 +174,7 @@ export const GAME_COMMANDS: readonly CommandDefinition[] = [
     defaultHotkey: "Alt+L",
   },
   {
-    id: "toggle-hide-players",
+    id: "toggleHidePlayers",
     scope: "game",
     category: "Options",
     label: "Toggle Hide Players",
@@ -179,7 +182,7 @@ export const GAME_COMMANDS: readonly CommandDefinition[] = [
     defaultHotkey: "",
   },
   {
-    id: "toggle-skip-cutscenes",
+    id: "toggleSkipCutscenes",
     scope: "game",
     category: "Options",
     label: "Toggle Skip Cutscenes",
@@ -187,7 +190,7 @@ export const GAME_COMMANDS: readonly CommandDefinition[] = [
     defaultHotkey: "",
   },
   {
-    id: "toggle-disable-fx",
+    id: "toggleDisableFx",
     scope: "game",
     category: "Options",
     label: "Toggle Disable FX",
@@ -195,7 +198,7 @@ export const GAME_COMMANDS: readonly CommandDefinition[] = [
     defaultHotkey: "",
   },
   {
-    id: "toggle-collisions",
+    id: "toggleCollisions",
     scope: "game",
     category: "Options",
     label: "Toggle Collisions",
@@ -203,7 +206,7 @@ export const GAME_COMMANDS: readonly CommandDefinition[] = [
     defaultHotkey: "",
   },
   {
-    id: "toggle-death-ads",
+    id: "toggleDeathAds",
     scope: "game",
     category: "Options",
     label: "Toggle Death Ads",
@@ -234,6 +237,7 @@ export const getCommandDefinition = (id: GameCommandId): CommandDefinition => {
 };
 
 export const getDefaultHotkeys = (): DefaultHotkeyBindings =>
-  Object.fromEntries(
-    GAME_COMMANDS.map((command) => [command.id, command.defaultHotkey]),
-  ) as DefaultHotkeyBindings;
+  GAME_COMMANDS.map((command) => ({
+    id: command.id,
+    value: command.defaultHotkey,
+  }));
