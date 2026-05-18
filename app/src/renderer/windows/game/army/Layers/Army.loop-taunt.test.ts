@@ -124,7 +124,7 @@ const makeWorld = (auras: Map<string, Aura>): WorldShape => ({
       Effect.succeed(monMapId === 7 ? Option.some(monster) : Option.none()),
     getAll: () => Effect.succeed(new Collection([[7, monster]])),
     getAura: (_monMapId, auraName) =>
-      Effect.succeed(Option.fromNullable(auras.get(auraKey(auraName)))),
+      Effect.succeed(Option.fromNullishOr(auras.get(auraKey(auraName)))),
     removeAura: () => Effect.void,
     updateAura: () => Effect.void,
   },
