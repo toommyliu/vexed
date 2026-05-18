@@ -1,11 +1,12 @@
 import { Collection } from "@vexed/collection";
 import { Faction, type Avatar, type FactionData } from "@vexed/game";
 import { equalsIgnoreCase } from "@vexed/shared/string";
-import { Effect, Layer, Option, Random, Ref } from "effect";
+import { Deferred, Effect, Layer, Option, Random, Ref } from "effect";
 import { isRecord } from "../PacketPayload";
 import { Auth } from "../Services/Auth";
 import { Bridge } from "../Services/Bridge";
 import type { BridgeEffect } from "../Services/Bridge";
+import { Packet } from "../Services/Packet";
 import { Player } from "../Services/Player";
 import type { PlayerShape } from "../Services/Player";
 import { World } from "../Services/World";
@@ -78,8 +79,30 @@ const parseMapTarget = (map: string): Effect.Effect<MapTarget> =>
     };
   });
 
+const getWarningMessage = (data: unknown): string | undefined =>
+  Array.isArray(data) && typeof data[2] === "string" ? data[2] : undefined;
+
+const getQuotedWarningMap = (message: string): string | undefined =>
+  message.match(/^"([^"]+)"/)?.[1];
+
+const isInvalidMapWarningForTarget = (
+  message: string,
+  targetMap: MapTarget,
+): boolean => {
+  const warningMap = getQuotedWarningMap(message);
+  if (warningMap === undefined) {
+    return false;
+  }
+
+  return (
+    equalsIgnoreCase(warningMap, targetMap.name) ||
+    equalsIgnoreCase(warningMap, targetMap.map)
+  );
+};
+
 const make = Effect.gen(function* () {
   const bridge = yield* Bridge;
+  const packet = yield* Packet;
   const world = yield* World;
   const auth = yield* Auth;
   const inventory = yield* Inventory;
@@ -304,21 +327,43 @@ const make = Effect.gen(function* () {
         return;
       }
 
-      if (cell === undefined && pad === undefined) {
-        yield* bridge.call("player.joinMap", [targetMap.map]);
-      } else if (cell !== undefined && pad === undefined) {
-        yield* bridge.call("player.joinMap", [targetMap.map, cell]);
-      } else {
-        yield* bridge.call("player.joinMap", [
-          targetMap.map,
-          cell ?? "Enter",
-          pad,
-        ]);
-      }
+      const invalidMapWarning = yield* Deferred.make<void>();
+      const disposeWarningListener = yield* packet.str("warning", (response) =>
+        Effect.gen(function* () {
+          const message = getWarningMessage(response.data);
+          if (
+            message === undefined ||
+            !isInvalidMapWarningForTarget(message, targetMap)
+          ) {
+            return;
+          }
 
-      const loadedTargetMap = yield* waitFor(isTargetMapLoaded(targetMap), {
-        timeout: "5 seconds",
-      });
+          yield* Deferred.succeed(invalidMapWarning, undefined).pipe(
+            Effect.asVoid,
+          );
+        }),
+      );
+
+      const loadedTargetMap = yield* Effect.gen(function* () {
+        if (cell === undefined && pad === undefined) {
+          yield* bridge.call("player.joinMap", [targetMap.map]);
+        } else if (cell !== undefined && pad === undefined) {
+          yield* bridge.call("player.joinMap", [targetMap.map, cell]);
+        } else {
+          yield* bridge.call("player.joinMap", [
+            targetMap.map,
+            cell ?? "Enter",
+            pad,
+          ]);
+        }
+
+        return yield* Effect.raceFirst(
+          waitFor(isTargetMapLoaded(targetMap), {
+            timeout: "5 seconds",
+          }),
+          Deferred.await(invalidMapWarning).pipe(Effect.as(false)),
+        );
+      }).pipe(Effect.ensuring(Effect.sync(disposeWarningListener)));
 
       if (!loadedTargetMap) {
         return;
