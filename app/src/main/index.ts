@@ -1,5 +1,5 @@
 import "abort-controller/polyfill";
-import { promises, unwatchFile, watchFile, type Stats } from "fs";
+import { unwatchFile, watchFile, type Stats } from "fs";
 import {
   app,
   BrowserWindow,
@@ -9,7 +9,7 @@ import {
   session,
   type OpenDialogOptions,
 } from "electron";
-import { basename, join, sep } from "path";
+import { join } from "path";
 import process from "process";
 import { homedir } from "os";
 import { Effect, Layer } from "effect";
@@ -28,6 +28,7 @@ import { registerEnvironmentIpcHandlers } from "./environment-ipc";
 import * as Appearance from "./settings/Appearance";
 import * as Files from "./settings/Files";
 import * as Preferences from "./settings/Preferences";
+import { getScriptsPath, updateCachedScriptPayload } from "./scripting";
 import { registerSettingsIpcHandlers } from "./settings-ipc";
 import {
   installNativeThemeChangeBroadcast,
@@ -45,8 +46,6 @@ import {
   type WindowServiceShape,
   type WindowEffectRunner,
 } from "./windows";
-
-const { mkdir, readFile, realpath } = promises;
 
 const flash = require("nw-flash-trust");
 
@@ -83,7 +82,6 @@ const workspacePath = Files.resolveWorkspaceHome({
   documentsPath: app.getPath("documents"),
 });
 Files.configureWorkspaceHome(workspacePath);
-const scriptsPath = Files.workspaceJoin("scripts");
 const devRendererReloadPath = process.env["VEXED_DEV_RENDERER_RELOAD"];
 const devRendererUrl = process.env["VEXED_DEV_RENDERER_URL"];
 
@@ -129,40 +127,12 @@ const getEventWindow = (senderId?: number): BrowserWindow | null => {
   return first ?? null;
 };
 
-const resolveScriptPath = async (path: string): Promise<string> => {
-  await mkdir(scriptsPath, { recursive: true });
-
-  const [scriptsRoot, scriptPath] = await Promise.all([
-    realpath(scriptsPath),
-    realpath(path),
-  ]);
-
-  if (
-    scriptPath !== scriptsRoot &&
-    !scriptPath.startsWith(`${scriptsRoot}${sep}`)
-  ) {
-    throw new Error("Script path must be inside the scripts directory");
-  }
-
-  return scriptPath;
-};
-
-const toScriptPayload = async (path: string): Promise<ScriptExecutePayload> => {
-  const scriptPath = await resolveScriptPath(path);
-
-  return {
-    source: await readFile(scriptPath, "utf8"),
-    path: scriptPath,
-    name: basename(scriptPath),
-  };
-};
-
 const openScriptDialog = async (
   win: BrowserWindow | null,
 ): Promise<ScriptExecutePayload | null> => {
   const options: OpenDialogOptions = {
     title: "Open script",
-    defaultPath: scriptsPath,
+    defaultPath: getScriptsPath(),
     filters: [
       { name: "JavaScript", extensions: ["js", "cjs"] },
       { name: "All Files", extensions: ["*"] },
@@ -184,7 +154,7 @@ const openScriptDialog = async (
     return null;
   }
 
-  return await toScriptPayload(path);
+  return await updateCachedScriptPayload(path);
 };
 
 let scriptingIpcRegistered = false;
@@ -206,7 +176,7 @@ const registerScriptingIpcHandlers = () => {
         throw new Error("Invalid script path");
       }
 
-      return await toScriptPayload(path.trim());
+      return await updateCachedScriptPayload(path.trim());
     },
   );
 

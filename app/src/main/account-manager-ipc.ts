@@ -19,6 +19,7 @@ import {
 } from "../shared/ipc";
 import { WindowIds } from "../shared/windows";
 import { getArtixLauncherRequestHeaders } from "./artix-launcher-headers";
+import { refreshCachedScriptPayload } from "./scripting";
 import * as Files from "./settings/Files";
 import { WindowService, type WindowEffectRunner } from "./windows";
 
@@ -387,6 +388,17 @@ const normalizePatch = (patch: unknown): ManagedAccountPatch => {
 const scriptName = (script: ScriptExecutePayload | null | undefined): string =>
   script?.name || script?.path || "script";
 
+const scriptRefreshErrorMessage = (
+  script: ScriptExecutePayload,
+  error: unknown,
+): string => {
+  const message = error instanceof Error ? error.message : "";
+  const name = scriptName(script);
+  return message
+    ? `Failed to refresh ${name}: ${message}`
+    : `Failed to refresh ${name}`;
+};
+
 const isScriptPayload = (value: unknown): value is ScriptExecutePayload => {
   if (typeof value !== "object" || value === null) {
     return false;
@@ -468,6 +480,23 @@ const sendGameLaunchPayload = (
   window.webContents.send(AccountManagerIpcChannels.gameLaunch, payload);
 };
 
+const refreshGameLaunchScript = async (
+  payload: AccountGameLaunchPayload,
+): Promise<AccountGameLaunchPayload> => {
+  if (payload.script === undefined) {
+    return payload;
+  }
+
+  const script = await refreshCachedScriptPayload(payload.script);
+  const nextPayload: AccountGameLaunchPayload = {
+    ...payload,
+    script,
+  };
+
+  gameLaunchPayloads.set(payload.gameWindowId, nextPayload);
+  return nextPayload;
+};
+
 const serverLoadErrorMessage = (error: unknown): string => {
   const message = error instanceof Error ? error.message : "";
   const statusCode = /Failed to fetch servers: (\d{3})/.exec(message)?.[1];
@@ -531,7 +560,28 @@ export const registerAccountManagerIpcHandlers = (
       return null;
     }
 
-    return gameLaunchPayloads.get(gameWindowId) ?? null;
+    const payload = gameLaunchPayloads.get(gameWindowId);
+    if (!payload) {
+      return null;
+    }
+
+    try {
+      return await refreshGameLaunchScript(payload);
+    } catch (error) {
+      if (payload.script !== undefined) {
+        await setSession(
+          {
+            username: payload.account.username,
+            gameWindowId,
+            status: "failed",
+            scriptName: scriptName(payload.script),
+            message: scriptRefreshErrorMessage(payload.script, error),
+          },
+          runWindowEffect,
+        );
+      }
+      throw error;
+    }
   });
 
   ipcMain.handle(
@@ -639,6 +689,12 @@ export const registerAccountManagerIpcHandlers = (
         throw new Error("Account not found");
       }
 
+      const requestedScript = launchRequest.script ?? null;
+      const launchScript =
+        requestedScript === null
+          ? null
+          : await refreshCachedScriptPayload(requestedScript);
+
       const gameWindow = await runWindowEffect(
         Effect.gen(function* () {
           const windows = yield* WindowService;
@@ -648,9 +704,7 @@ export const registerAccountManagerIpcHandlers = (
       const gameWindowId = gameWindow.id;
       const gameLaunchPayload: AccountGameLaunchPayload = {
         account,
-        ...(launchRequest.script === null
-          ? {}
-          : { script: launchRequest.script }),
+        ...(launchScript === null ? {} : { script: launchScript }),
         ...(launchRequest.server === undefined
           ? {}
           : { server: launchRequest.server }),
@@ -666,12 +720,12 @@ export const registerAccountManagerIpcHandlers = (
           gameWindowId,
           status: "starting",
           message:
-            launchRequest.script === null
+            launchScript === null
               ? "Signing in"
-              : `Queued ${scriptName(launchRequest.script)}`,
-          ...(launchRequest.script === null
+              : `Queued ${scriptName(launchScript)}`,
+          ...(launchScript === null
             ? {}
-            : { scriptName: scriptName(launchRequest.script) }),
+            : { scriptName: scriptName(launchScript) }),
         },
         runWindowEffect,
       );
@@ -684,9 +738,9 @@ export const registerAccountManagerIpcHandlers = (
             gameWindowId,
             status: "stopped",
             message: "Game window closed",
-            ...(launchRequest.script === null
+            ...(launchScript === null
               ? {}
-              : { scriptName: scriptName(launchRequest.script) }),
+              : { scriptName: scriptName(launchScript) }),
           },
           runWindowEffect,
         ).catch((error) => {
