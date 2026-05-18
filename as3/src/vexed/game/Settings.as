@@ -7,6 +7,7 @@ package vexed.game {
   public class Settings {
     private static const MIN_FRAME_RATE:int = 1;
     private static const MAX_FRAME_RATE:int = 60;
+    private static var lagKillerEnabled:Boolean = false;
 
     private static function sanitizeText(value:String):String {
       return value ? value : "";
@@ -23,6 +24,10 @@ package vexed.game {
 
     private static function clamp(value:int, min:int, max:int):int {
       return Math.max(min, Math.min(value, max));
+    }
+
+    private static function applyWorldVisibility():void {
+      Main.getInstance().getGame().world.visible = !lagKillerEnabled;
     }
 
     [BridgeExport]
@@ -50,6 +55,7 @@ package vexed.game {
     [BridgeExport]
     public static function skipCutscenes():void {
       Main.getInstance().getGame().clearExternamSWF();
+      applyWorldVisibility();
     }
 
     [BridgeExport]
@@ -89,7 +95,8 @@ package vexed.game {
 
     [BridgeExport]
     public static function setLagKillerEnabled(enabled:Boolean):void {
-      Main.getInstance().getGame().world.visible = !enabled;
+      lagKillerEnabled = enabled;
+      applyWorldVisibility();
     }
 
     [BridgeExport]
