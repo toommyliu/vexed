@@ -38,7 +38,6 @@ export const updateCachedScriptPayload = async (
     name: basename(scriptPath),
   };
 
-  cachedScripts.set(scriptPath, payload);
   return payload;
 };
 
