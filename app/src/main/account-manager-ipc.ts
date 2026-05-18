@@ -466,6 +466,14 @@ const setSession = async (
   await publishStateToAccountManager(runWindowEffect);
 };
 
+const clearSession = async (
+  gameWindowId: number,
+  runWindowEffect: WindowEffectRunner,
+): Promise<void> => {
+  sessions.delete(normalizeGameWindowId(gameWindowId));
+  await publishStateToAccountManager(runWindowEffect);
+};
+
 const getEventWindowId = (event: IpcMainInvokeEvent): number | null =>
   BrowserWindow.fromWebContents(event.sender)?.id ?? null;
 
@@ -732,19 +740,8 @@ export const registerAccountManagerIpcHandlers = (
 
       gameWindow.once("closed", () => {
         gameLaunchPayloads.delete(gameWindowId);
-        void setSession(
-          {
-            username: account.username,
-            gameWindowId,
-            status: "stopped",
-            message: "Game window closed",
-            ...(launchScript === null
-              ? {}
-              : { scriptName: scriptName(launchScript) }),
-          },
-          runWindowEffect,
-        ).catch((error) => {
-          console.error("Failed to update account session on close:", error);
+        void clearSession(gameWindowId, runWindowEffect).catch((error) => {
+          console.error("Failed to clear account session on close:", error);
         });
       });
 
