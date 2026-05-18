@@ -5,8 +5,6 @@ import * as Files from "./settings/Files";
 
 const { mkdir, readFile, realpath } = promises;
 
-const cachedScripts = new Map<string, ScriptExecutePayload>();
-
 export const getScriptsPath = (): string => Files.workspaceJoin("scripts");
 
 export const resolveScriptPath = async (path: string): Promise<string> => {
