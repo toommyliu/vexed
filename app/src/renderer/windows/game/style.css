@@ -616,7 +616,7 @@
   }
 
   .game-topnav__divider {
-    margin: 0 0.125rem;
+    display: none;
   }
 }
 
@@ -636,11 +636,5 @@
   .game-topnav__trigger.game-topnav__select-trigger {
     max-width: calc(50vw - 0.875rem);
     min-width: 5.75rem;
-  }
-}
-
-@media (max-width: 420px) {
-  .game-topnav__divider {
-    display: none;
   }
 }
