@@ -326,6 +326,13 @@
   min-width: 10rem;
 }
 
+.game-menu--cells .menu__viewport {
+  max-height: min(
+    18rem,
+    calc(100vh - var(--topnav-offset, var(--topnav-height, 32px)) - 1rem)
+  );
+}
+
 .game-menu__autofocus-anchor {
   height: 1px;
   opacity: 0;
