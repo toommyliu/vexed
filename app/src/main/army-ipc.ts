@@ -36,6 +36,8 @@ interface PendingStart {
 interface ArmyBarrierState {
   readonly step: number;
   readonly label?: string;
+  readonly expectedPlayerKeys: ReadonlySet<string>;
+  readonly expectedPlayers: readonly string[];
   readonly arrived: Map<string, DeferredVoid>;
   readonly timer: ReturnType<typeof setTimeout>;
 }
@@ -86,7 +88,11 @@ const readArmyConfig = (configNameInput: string): ArmyConfigPayload => {
 };
 
 const parseStartPayload = (payload: unknown): ArmyStartPayload => {
-  if (typeof payload !== "object" || payload === null || Array.isArray(payload)) {
+  if (
+    typeof payload !== "object" ||
+    payload === null ||
+    Array.isArray(payload)
+  ) {
     throw new Error("Invalid army start payload");
   }
 
@@ -106,12 +112,19 @@ const parseStartPayload = (payload: unknown): ArmyStartPayload => {
 };
 
 const parseLeavePayload = (payload: unknown): ArmyLeavePayload => {
-  if (typeof payload !== "object" || payload === null || Array.isArray(payload)) {
+  if (
+    typeof payload !== "object" ||
+    payload === null ||
+    Array.isArray(payload)
+  ) {
     throw new Error("Invalid army leave payload");
   }
 
   const record = payload as Record<string, unknown>;
-  if (typeof record["sessionId"] !== "string" || record["sessionId"].trim() === "") {
+  if (
+    typeof record["sessionId"] !== "string" ||
+    record["sessionId"].trim() === ""
+  ) {
     throw new Error("Invalid army leave payload");
   }
 
@@ -127,7 +140,11 @@ const parseLeavePayload = (payload: unknown): ArmyLeavePayload => {
 };
 
 const parseBarrierPayload = (payload: unknown): ArmyBarrierPayload => {
-  if (typeof payload !== "object" || payload === null || Array.isArray(payload)) {
+  if (
+    typeof payload !== "object" ||
+    payload === null ||
+    Array.isArray(payload)
+  ) {
     throw new Error("Invalid army barrier payload");
   }
 
@@ -145,34 +162,74 @@ const parseBarrierPayload = (payload: unknown): ArmyBarrierPayload => {
   }
 
   const label = record["label"];
+  const players = record["players"];
   const timeoutMs = record["timeoutMs"];
   if (label !== undefined && typeof label !== "string") {
     throw new Error("Invalid army barrier payload");
   }
 
+  if (players !== undefined && !Array.isArray(players)) {
+    throw new Error("Invalid army barrier payload");
+  }
+
   if (
     timeoutMs !== undefined &&
-    (typeof timeoutMs !== "number" || !Number.isFinite(timeoutMs) || timeoutMs <= 0)
+    (typeof timeoutMs !== "number" ||
+      !Number.isFinite(timeoutMs) ||
+      timeoutMs <= 0)
   ) {
     throw new Error("Invalid army barrier payload");
+  }
+
+  const normalizedPlayers: string[] = [];
+  if (players !== undefined) {
+    const seen = new Set<string>();
+    for (const player of players) {
+      if (typeof player !== "string" || player.trim() === "") {
+        throw new Error("Invalid army barrier payload");
+      }
+
+      const normalized = player.trim();
+      const key = normalizePlayerName(normalized);
+      if (seen.has(key)) {
+        throw new Error("Invalid army barrier payload");
+      }
+
+      seen.add(key);
+      normalizedPlayers.push(normalized);
+    }
+
+    if (normalizedPlayers.length === 0) {
+      throw new Error("Invalid army barrier payload");
+    }
   }
 
   return {
     sessionId: record["sessionId"],
     playerName: record["playerName"],
     step: record["step"],
-    ...(typeof label === "string" && label.trim() !== "" ? { label: label.trim() } : null),
+    ...(typeof label === "string" && label.trim() !== ""
+      ? { label: label.trim() }
+      : null),
+    ...(players === undefined ? null : { players: normalizedPlayers }),
     ...(typeof timeoutMs === "number" ? { timeoutMs } : null),
   };
 };
 
 const parseStatusPayload = (payload: unknown): ArmyStatusPayload => {
-  if (typeof payload !== "object" || payload === null || Array.isArray(payload)) {
+  if (
+    typeof payload !== "object" ||
+    payload === null ||
+    Array.isArray(payload)
+  ) {
     throw new Error("Invalid army status payload");
   }
 
   const record = payload as Record<string, unknown>;
-  if (typeof record["sessionId"] !== "string" || record["sessionId"].trim() === "") {
+  if (
+    typeof record["sessionId"] !== "string" ||
+    record["sessionId"].trim() === ""
+  ) {
     throw new Error("Invalid army status payload");
   }
 
@@ -258,7 +315,9 @@ const trackWindow = (window: BrowserWindow): void => {
   }
 
   trackedWindows.add(window);
-  window.once("closed", () => abortWindowSessions(window, "Army window closed"));
+  window.once("closed", () =>
+    abortWindowSessions(window, "Army window closed"),
+  );
   window.webContents.once("destroyed", () =>
     abortWindowSessions(window, "Army window destroyed"),
   );
@@ -275,7 +334,11 @@ const attachWindow = (
   }
 
   const existingWindow = session.windows.get(playerKey);
-  if (existingWindow && existingWindow !== window && !existingWindow.isDestroyed()) {
+  if (
+    existingWindow &&
+    existingWindow !== window &&
+    !existingWindow.isDestroyed()
+  ) {
     throw new Error(`Army player already joined: ${playerName}`);
   }
 
@@ -326,9 +389,14 @@ const createSession = (
   leaderName: string,
 ): ArmySessionState => {
   const existingSessionId = activeSessionByConfig.get(config.configName);
-  const existingSession = existingSessionId ? sessions.get(existingSessionId) : undefined;
+  const existingSession = existingSessionId
+    ? sessions.get(existingSessionId)
+    : undefined;
   if (existingSession) {
-    abortSession(existingSession, `Army config restarted: ${config.configName}`);
+    abortSession(
+      existingSession,
+      `Army config restarted: ${config.configName}`,
+    );
   }
 
   const session: ArmySessionState = {
@@ -356,7 +424,9 @@ const waitForLeaderSession = (
     const timer = setTimeout(() => {
       const pending = pendingStartsByConfig.get(configName);
       if (pending) {
-        const remaining = pending.filter((pendingWaiter) => pendingWaiter !== waiter);
+        const remaining = pending.filter(
+          (pendingWaiter) => pendingWaiter !== waiter,
+        );
         if (remaining.length > 0) {
           pendingStartsByConfig.set(configName, remaining);
         } else {
@@ -383,7 +453,7 @@ const releaseBarrierIfComplete = (
   session: ArmySessionState,
   barrier: ArmyBarrierState,
 ): void => {
-  if (barrier.arrived.size < session.players.length) {
+  if (barrier.arrived.size < barrier.expectedPlayerKeys.size) {
     return;
   }
 
@@ -398,6 +468,63 @@ const releaseBarrierIfComplete = (
 const getBarrierTimeoutMs = (payload: ArmyBarrierPayload): number =>
   Math.max(1, Math.trunc(payload.timeoutMs ?? ARMY_BARRIER_TIMEOUT_MS));
 
+const resolveBarrierExpectedPlayers = (
+  session: ArmySessionState,
+  payload: ArmyBarrierPayload,
+): {
+  readonly keys: ReadonlySet<string>;
+  readonly players: readonly string[];
+} => {
+  if (payload.players === undefined) {
+    return {
+      keys: session.playerKeys,
+      players: session.players,
+    };
+  }
+
+  const canonicalPlayersByKey = new Map(
+    session.players.map(
+      (player) => [normalizePlayerName(player), player] as const,
+    ),
+  );
+  const keys = new Set<string>();
+  const players: string[] = [];
+
+  for (const player of payload.players) {
+    const key = normalizePlayerName(player);
+    const canonicalPlayer = canonicalPlayersByKey.get(key);
+    if (canonicalPlayer === undefined) {
+      throw new Error(`Player is not in army config: ${player}`);
+    }
+
+    if (keys.has(key)) {
+      throw new Error(`Duplicate army barrier player: ${player}`);
+    }
+
+    keys.add(key);
+    players.push(canonicalPlayer);
+  }
+
+  return { keys, players };
+};
+
+const samePlayerSet = (
+  left: ReadonlySet<string>,
+  right: ReadonlySet<string>,
+): boolean => {
+  if (left.size !== right.size) {
+    return false;
+  }
+
+  for (const key of left) {
+    if (!right.has(key)) {
+      return false;
+    }
+  }
+
+  return true;
+};
+
 const waitAtBarrier = (
   session: ArmySessionState,
   playerName: string,
@@ -405,11 +532,29 @@ const waitAtBarrier = (
 ): Promise<void> => {
   const playerKey = normalizePlayerName(playerName);
   if (!session.playerKeys.has(playerKey)) {
-    return Promise.reject(new Error(`Player is not in army config: ${playerName}`));
+    return Promise.reject(
+      new Error(`Player is not in army config: ${playerName}`),
+    );
   }
 
   if (!session.windows.has(playerKey)) {
-    return Promise.reject(new Error(`Army player has not joined: ${playerName}`));
+    return Promise.reject(
+      new Error(`Army player has not joined: ${playerName}`),
+    );
+  }
+
+  let expectedPlayers: {
+    readonly keys: ReadonlySet<string>;
+    readonly players: readonly string[];
+  };
+  try {
+    expectedPlayers = resolveBarrierExpectedPlayers(session, payload);
+  } catch (error) {
+    return Promise.reject(error);
+  }
+
+  if (!expectedPlayers.keys.has(playerKey)) {
+    return Promise.resolve();
   }
 
   let barrier = session.barriers.get(payload.step);
@@ -422,7 +567,7 @@ const waitAtBarrier = (
       }
 
       const arrived = new Set(current.arrived.keys());
-      const missing = session.players.filter(
+      const missing = current.expectedPlayers.filter(
         (player) => !arrived.has(normalizePlayerName(player)),
       );
       session.barriers.delete(step);
@@ -439,6 +584,8 @@ const waitAtBarrier = (
     barrier = {
       step,
       ...(payload.label !== undefined ? { label: payload.label } : null),
+      expectedPlayerKeys: expectedPlayers.keys,
+      expectedPlayers: expectedPlayers.players,
       arrived: new Map<string, DeferredVoid>(),
       timer,
     };
@@ -447,15 +594,27 @@ const waitAtBarrier = (
 
   if (barrier.arrived.has(playerKey)) {
     return Promise.reject(
-      new Error(`Army player already reached step ${payload.step}: ${playerName}`),
+      new Error(
+        `Army player already reached step ${payload.step}: ${playerName}`,
+      ),
     );
   }
 
-  if (payload.label !== undefined && barrier.label !== undefined && payload.label !== barrier.label) {
+  if (
+    payload.label !== undefined &&
+    barrier.label !== undefined &&
+    payload.label !== barrier.label
+  ) {
     return Promise.reject(
       new Error(
         `Army step label mismatch for step ${payload.step}: expected ${barrier.label}, got ${payload.label}`,
       ),
+    );
+  }
+
+  if (!samePlayerSet(barrier.expectedPlayerKeys, expectedPlayers.keys)) {
+    return Promise.reject(
+      new Error(`Army step player set mismatch for step ${payload.step}`),
     );
   }
 
@@ -488,18 +647,27 @@ export const registerArmyIpcHandlers = (): void => {
     }
 
     const activeSessionId = activeSessionByConfig.get(config.configName);
-    const activeSession = activeSessionId ? sessions.get(activeSessionId) : undefined;
+    const activeSession = activeSessionId
+      ? sessions.get(activeSessionId)
+      : undefined;
     if (activeSession) {
       attachWindow(activeSession, senderWindow, payload.playerName);
       return toSessionPayload(activeSession, payload.playerName);
     }
 
-    if (normalizePlayerName(payload.playerName) === normalizePlayerName(config.leader)) {
+    if (
+      normalizePlayerName(payload.playerName) ===
+      normalizePlayerName(config.leader)
+    ) {
       const session = createSession(config, senderWindow, payload.playerName);
       return toSessionPayload(session, payload.playerName);
     }
 
-    return await waitForLeaderSession(config.configName, senderWindow, payload.playerName);
+    return await waitForLeaderSession(
+      config.configName,
+      senderWindow,
+      payload.playerName,
+    );
   });
 
   ipcMain.handle(ArmyIpcChannels.leave, async (_event, rawPayload) => {

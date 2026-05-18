@@ -872,6 +872,11 @@ const make = Effect.gen(function* () {
               duration: asNumber(auraPayload["dur"]) ?? 0,
             };
 
+            const icon = asString(auraPayload["icon"]);
+            if (icon !== undefined) {
+              aura.icon = icon;
+            }
+
             const value = asNumber(auraPayload["val"]);
             if (value !== undefined) {
               aura.value = value;

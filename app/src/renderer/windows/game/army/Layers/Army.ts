@@ -1,4 +1,11 @@
-import { Deferred, Effect, Layer, Option, SynchronizedRef } from "effect";
+import {
+  Deferred,
+  Effect,
+  Fiber,
+  Layer,
+  Option,
+  SynchronizedRef,
+} from "effect";
 import {
   Army,
   ArmyError,
@@ -10,6 +17,7 @@ import {
 } from "../Services/Army";
 import {
   advanceLoopTauntTurn,
+  matchesLoopTauntAuraAdd,
   matchesLoopTauntAura,
   matchesLoopTauntMessage,
   normalizeLoopTauntOptions,
@@ -41,6 +49,7 @@ const DEFAULT_JOIN_CELL = "Enter";
 const DEFAULT_JOIN_PAD = "Spawn";
 const WAIT_FOR_MAP_TIMEOUT = "2 minutes";
 const LOOP_TAUNT_RESOLVE_INTERVAL = "250 millis";
+const LOOP_TAUNT_TARGET_SELECTION_TIMEOUT = "10 seconds";
 
 const cloneSession = (session: ArmySession): ArmySession => ({
   ...session,
@@ -218,7 +227,9 @@ const make = Effect.gen(function* () {
     session: ArmySession,
     step: number,
     label: string,
-    options?: ArmyRunStepOptions,
+    options?: ArmyRunStepOptions & {
+      readonly players?: readonly string[];
+    },
   ) =>
     fromArmyIpc("Failed to synchronize army", () =>
       window.ipc.army.barrier({
@@ -226,6 +237,9 @@ const make = Effect.gen(function* () {
         playerName: session.playerName,
         step,
         label,
+        ...(options?.players !== undefined
+          ? { players: options.players }
+          : null),
         ...(options?.timeoutMs !== undefined
           ? { timeoutMs: options.timeoutMs }
           : null),
@@ -460,6 +474,20 @@ const make = Effect.gen(function* () {
       }
     });
 
+  const waitForLoopTauntCombatTarget = (monMapId: number) =>
+    waitFor(
+      combat.getTarget().pipe(
+        Effect.map(
+          (target) =>
+            target !== null &&
+            "monMapId" in target &&
+            target.monMapId === monMapId,
+        ),
+        Effect.catchCause(() => Effect.succeed(false)),
+      ),
+      { timeout: LOOP_TAUNT_TARGET_SELECTION_TIMEOUT },
+    );
+
   const ownsLoopTauntParticipation = (
     session: ArmySession,
     options: Pick<NormalizedLoopTauntOptions, "participants">,
@@ -493,6 +521,14 @@ const make = Effect.gen(function* () {
           monMapId,
         });
         yield* combat.attackMonster(monMapId);
+        const targeted = yield* waitForLoopTauntCombatTarget(monMapId);
+        if (!targeted) {
+          return yield* Effect.fail(
+            new ArmyError(
+              `Timed out waiting for loop taunt target selection: ${monMapId}`,
+            ),
+          );
+        }
       }
 
       return monMapId;
@@ -510,7 +546,10 @@ const make = Effect.gen(function* () {
         let targetMonMapId: number | undefined = initialTargetMonMapId;
         let turn = { nextIndex: 0 };
         let initialAuraCheckComplete = false;
+        let armedComplete = false;
+        let targetAuraActive = false;
         let tauntInFlight = false;
+        const pendingTauntFibers = new Set<ReturnType<typeof runFork>>();
 
         const log = (message: string, details?: Record<string, unknown>) =>
           Effect.logInfo({
@@ -577,7 +616,28 @@ const make = Effect.gen(function* () {
             ),
           );
 
-        const triggerNextTurn = (monMapId: number, reason: string) =>
+        const forkTrackedTaunt = (effect: Effect.Effect<void, unknown>) =>
+          Effect.sync(() => {
+            let fiber: ReturnType<typeof runFork> | undefined;
+            fiber = runFork(
+              effect.pipe(
+                Effect.ensuring(
+                  Effect.sync(() => {
+                    if (fiber !== undefined) {
+                      pendingTauntFibers.delete(fiber);
+                    }
+                  }),
+                ),
+              ),
+            );
+            pendingTauntFibers.add(fiber);
+          });
+
+        const triggerNextTurn = (
+          monMapId: number,
+          reason: string,
+          delayMs = 0,
+        ) =>
           Effect.gen(function* () {
             const currentTurn = turn;
             const participant = options.participants[currentTurn.nextIndex];
@@ -593,16 +653,26 @@ const make = Effect.gen(function* () {
                 monMapId,
                 participantNumber: participant?.number,
                 participantName: participant?.name,
+                delayMs,
                 nextParticipantNumber:
                   options.participants[turn.nextIndex]?.number,
               });
-              runFork(taunt(monMapId));
+              yield* forkTrackedTaunt(
+                Effect.gen(function* () {
+                  if (delayMs > 0) {
+                    yield* Effect.sleep(`${delayMs} millis`);
+                  }
+
+                  yield* taunt(monMapId);
+                }),
+              );
             } else {
               yield* log("Loop Taunt waiting for turn", {
                 reason,
                 monMapId,
                 participantNumber: participant?.number,
                 participantName: participant?.name,
+                delayMs,
                 nextParticipantNumber:
                   options.participants[turn.nextIndex]?.number,
               });
@@ -625,13 +695,22 @@ const make = Effect.gen(function* () {
               monMapId,
               options.trigger.aura,
             );
-            if (Option.isNone(aura)) {
+            if (
+              Option.isNone(aura) ||
+              !matchesLoopTauntAuraAdd(
+                options.trigger.aura,
+                aura.value.name,
+                aura.value,
+              )
+            ) {
+              targetAuraActive = false;
               yield* log("Loop Taunt initial aura absent", {
                 aura: options.trigger.aura,
                 monMapId,
               });
               yield* triggerNextTurn(monMapId, "initial aura absent");
             } else {
+              targetAuraActive = true;
               yield* log("Loop Taunt waiting for aura removal", {
                 aura: options.trigger.aura,
                 monMapId,
@@ -639,9 +718,63 @@ const make = Effect.gen(function* () {
             }
           });
 
+        const primeAuraState = () =>
+          Effect.gen(function* () {
+            if (options.trigger.type !== "aura") {
+              return;
+            }
+
+            const monMapId = yield* resolveTarget();
+            if (monMapId === undefined) {
+              return;
+            }
+
+            const aura = yield* world.monsters.getAura(
+              monMapId,
+              options.trigger.aura,
+            );
+            targetAuraActive =
+              Option.isSome(aura) &&
+              matchesLoopTauntAuraAdd(
+                options.trigger.aura,
+                aura.value.name,
+                aura.value,
+              );
+          });
+
+        const onAuraAdded = yield* packetDomain.on("auraAdded", (event) =>
+          Effect.gen(function* () {
+            if (
+              !armedComplete ||
+              options.trigger.type !== "aura" ||
+              event.targetType !== "monster" ||
+              !matchesLoopTauntAuraAdd(
+                options.trigger.aura,
+                event.auraName,
+                event.aura,
+              )
+            ) {
+              return;
+            }
+
+            const monMapId = yield* resolveTarget();
+            if (monMapId === undefined || event.targetId !== monMapId) {
+              return;
+            }
+
+            initialAuraCheckComplete = true;
+            targetAuraActive = true;
+            yield* log("Loop Taunt aura added", {
+              aura: event.auraName,
+              monMapId,
+            });
+          }),
+        );
+
         const onAuraRemoved = yield* packetDomain.on("auraRemoved", (event) =>
           Effect.gen(function* () {
             if (
+              !armedComplete ||
               options.trigger.type !== "aura" ||
               event.targetType !== "monster" ||
               !matchesLoopTauntAura(options.trigger.aura, event.auraName)
@@ -654,12 +787,41 @@ const make = Effect.gen(function* () {
               return;
             }
 
+            if (!targetAuraActive) {
+              yield* log("Loop Taunt aura removal ignored", {
+                aura: event.auraName,
+                monMapId,
+                reason: "aura was not active",
+              });
+              return;
+            }
+
+            const remainingAura = yield* world.monsters.getAura(
+              monMapId,
+              options.trigger.aura,
+            );
+            if (Option.isSome(remainingAura)) {
+              yield* log("Loop Taunt aura removal ignored", {
+                aura: event.auraName,
+                monMapId,
+                reason: "aura still active",
+                stack: remainingAura.value.stack,
+              });
+              return;
+            }
+
             initialAuraCheckComplete = true;
+            targetAuraActive = false;
             yield* log("Loop Taunt aura removed", {
               aura: event.auraName,
+              delayMs: options.trigger.delayMs,
               monMapId,
             });
-            yield* triggerNextTurn(monMapId, "aura removed");
+            yield* triggerNextTurn(
+              monMapId,
+              "aura removed",
+              options.trigger.delayMs,
+            );
           }),
         );
 
@@ -668,6 +830,7 @@ const make = Effect.gen(function* () {
           (event) =>
             Effect.gen(function* () {
               if (
+                !armedComplete ||
                 options.trigger.type !== "message" ||
                 !matchesLoopTauntMessage(options.trigger.message, event.message)
               ) {
@@ -707,10 +870,19 @@ const make = Effect.gen(function* () {
         );
 
         yield* Effect.addFinalizer(() =>
-          Effect.sync(() => {
-            onAuraRemoved();
-            onAnimationMessage();
-            onMonsterDeath();
+          Effect.gen(function* () {
+            yield* Effect.sync(() => {
+              onAuraAdded();
+              onAuraRemoved();
+              onAnimationMessage();
+              onMonsterDeath();
+            });
+            yield* Effect.forEach(
+              Array.from(pendingTauntFibers),
+              (fiber) => Fiber.interrupt(fiber),
+              { discard: true },
+            );
+            pendingTauntFibers.clear();
           }),
         );
 
@@ -718,7 +890,14 @@ const make = Effect.gen(function* () {
           session,
           armedStep,
           `loop-taunt-armed:${options.id}`,
+          {
+            players: options.participants.map(
+              (participant) => participant.name,
+            ),
+          },
         );
+        yield* primeAuraState();
+        armedComplete = true;
         yield* Deferred.succeed(armed, undefined).pipe(Effect.asVoid);
         yield* log("Loop Taunt armed", {
           target: options.target,
@@ -735,7 +914,7 @@ const make = Effect.gen(function* () {
             : "Loop Taunt waiting for message trigger",
           {
             ...(options.trigger.type === "aura"
-              ? { aura: options.trigger.aura }
+              ? { aura: options.trigger.aura, delayMs: options.trigger.delayMs }
               : { triggerMessage: options.trigger.message }),
             monMapId: targetMonMapId,
           },
@@ -784,6 +963,9 @@ const make = Effect.gen(function* () {
       const key = loopTauntJobKey(normalized.id);
       const targetStep = yield* nextBarrierStep();
       const armedStep = yield* nextBarrierStep();
+      const participantNames = normalized.participants.map(
+        (participant) => participant.name,
+      );
       const monMapId = yield* prepareLoopTauntTarget(session, normalized);
       yield* Effect.logInfo({
         message: "Loop Taunt waiting for army target sync",
@@ -794,6 +976,7 @@ const make = Effect.gen(function* () {
         session,
         targetStep,
         `loop-taunt-target:${normalized.id}`,
+        { players: participantNames },
       );
       yield* Effect.logInfo({
         message: "Loop Taunt target sync complete",

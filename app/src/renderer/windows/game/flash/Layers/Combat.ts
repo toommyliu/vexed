@@ -291,10 +291,10 @@ const make = Effect.gen(function* () {
             ),
           });
 
-          const currentTargetMonMapId = yield* getCurrentTargetMonMapId();
-          if (currentTargetMonMapId === event.monMapId) {
-            yield* stopCombat;
-          }
+          // const currentTargetMonMapId = yield* getCurrentTargetMonMapId();
+          // if (currentTargetMonMapId === event.monMapId) {
+          //   yield* stopCombat;
+          // }
         }),
     );
     disposers.push(disposeCounterStart);

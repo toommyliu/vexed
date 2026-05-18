@@ -25,7 +25,7 @@ class Server
 Data about this server.
 
 ```ts
-data: ServerData
+data: { bOnline: number; bUpg: number; iChat: number; iCount: number; iLevel: number; iMax: number; iPort: number; sIP: string; sLang: string; sName: string }
 ```
 
 <a id="property-ip"></a>

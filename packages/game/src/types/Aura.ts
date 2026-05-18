@@ -1,5 +1,6 @@
 export type Aura = {
   duration?: number;
+  icon?: string;
   isNew?: boolean;
   name: string;
   /**

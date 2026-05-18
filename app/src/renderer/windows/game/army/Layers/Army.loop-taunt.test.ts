@@ -1,7 +1,8 @@
 import { Collection } from "@vexed/collection";
-import { EntityState, Monster } from "@vexed/game";
+import { EntityState, Monster, type Aura } from "@vexed/game";
 import { Effect, Layer, Option } from "effect";
 import { expect, test } from "vitest";
+import type { ArmyBarrierPayload } from "../../../../../shared/army";
 import type { ArmySession } from "../Services/Army";
 import { Army } from "../Services/Army";
 import { Auth, type AuthShape } from "../../flash/Services/Auth";
@@ -35,17 +36,27 @@ const createStore = (): HandlerStore => ({
   zone: new Set(),
 });
 
-const makeSession = (playerNumber: number): ArmySession => ({
-  configName: "config",
-  leader: "Main",
-  playerName: playerNumber === 1 ? "Main" : "Alt",
-  playerNumber,
-  players: ["Main", "Alt"],
-  raw: {},
-  role: playerNumber === 1 ? "leader" : "member",
-  roomNumber: "1",
-  sessionId: "session",
-});
+const makeSession = (
+  playerNumber: number,
+  players: readonly string[] = ["Main", "Alt"],
+): ArmySession => {
+  const playerName = players[playerNumber - 1];
+  if (playerName === undefined) {
+    throw new Error(`Missing test army player ${playerNumber}`);
+  }
+
+  return {
+    configName: "config",
+    leader: players[0] ?? playerName,
+    playerName,
+    playerNumber,
+    players,
+    raw: {},
+    role: playerNumber === 1 ? "leader" : "member",
+    roomNumber: "1",
+    sessionId: "session",
+  };
+};
 
 const monster = new Monster({
   iLvl: 1,
@@ -61,7 +72,9 @@ const monster = new Monster({
   strMonName: "Ultra Boss",
 });
 
-const makeWorld = (hasAura = false): WorldShape => ({
+const auraKey = (auraName: string): string => auraName.trim().toLowerCase();
+
+const makeWorld = (auras: Map<string, Aura>): WorldShape => ({
   map: {
     getCellMonsters: () => Effect.succeed([monster]),
     getCells: () => Effect.succeed(["Enter", "Boss"]),
@@ -110,10 +123,8 @@ const makeWorld = (hasAura = false): WorldShape => ({
     get: (monMapId) =>
       Effect.succeed(monMapId === 7 ? Option.some(monster) : Option.none()),
     getAll: () => Effect.succeed(new Collection([[7, monster]])),
-    getAura: () =>
-      Effect.succeed(
-        hasAura ? Option.some({ duration: 1, name: "Focus" }) : Option.none(),
-      ),
+    getAura: (_monMapId, auraName) =>
+      Effect.succeed(Option.fromNullable(auras.get(auraKey(auraName)))),
     removeAura: () => Effect.void,
     updateAura: () => Effect.void,
   },
@@ -142,6 +153,7 @@ const withArmy = async <A>(
       payload: PacketDomainEventMap[E],
     ) => Effect.Effect<void>,
     calls: string[],
+    barriers: ArmyBarrierPayload[],
   ) => Effect.Effect<A, unknown>,
   options?: {
     readonly hasAura?: boolean;
@@ -149,6 +161,15 @@ const withArmy = async <A>(
 ): Promise<A> => {
   const store = createStore();
   const calls: string[] = [];
+  const barriers: ArmyBarrierPayload[] = [];
+  const auras = new Map<string, Aura>();
+  if (options?.hasAura === true) {
+    auras.set(auraKey("Focus"), {
+      duration: 6,
+      icon: "iwd1,ied1",
+      name: "Focus",
+    });
+  }
   const hadWindow = "window" in globalThis;
   const previousWindow = globalThis.window;
 
@@ -157,7 +178,9 @@ const withArmy = async <A>(
     value: {
       ipc: {
         army: {
-          barrier: async () => undefined,
+          barrier: async (payload: ArmyBarrierPayload) => {
+            barriers.push(payload);
+          },
           leave: async () => undefined,
           loadConfig: async () => session,
           start: async () => session,
@@ -191,9 +214,14 @@ const withArmy = async <A>(
     logout: () => Effect.void,
   } satisfies AuthShape;
 
+  let currentTargetMonMapId: number | undefined;
+
   const combat = {
     attackMonster: (target) =>
       Effect.sync(() => {
+        if (typeof target === "number") {
+          currentTargetMonMapId = target;
+        }
         calls.push(`attack:${String(target)}`);
       }),
     cancelAutoAttack: () => Effect.void,
@@ -201,7 +229,8 @@ const withArmy = async <A>(
     canUseSkill: () => Effect.succeed(true),
     exit: () => Effect.succeed(true),
     getConsumableSkillItem: () => Effect.succeed(null),
-    getTarget: () => Effect.succeed(null),
+    getTarget: () =>
+      Effect.succeed(currentTargetMonMapId === 7 ? monster : null),
     hasTarget: () => Effect.succeed(false),
     hunt: () => Effect.succeed(""),
     kill: () => Effect.void,
@@ -257,11 +286,30 @@ const withArmy = async <A>(
     event: E,
     payload: PacketDomainEventMap[E],
   ) =>
-    Effect.forEach(
-      Array.from(store[event]) as readonly PacketDomainEventHandler<E>[],
-      (handler) => handler(payload),
-      { discard: true },
-    );
+    Effect.gen(function* () {
+      if (event === "auraAdded" || event === "auraRemoved") {
+        const auraPayload = payload as PacketDomainEventMap[
+          | "auraAdded"
+          | "auraRemoved"];
+        if (auraPayload.targetType === "monster") {
+          if (event === "auraAdded") {
+            auras.set(auraKey(auraPayload.auraName), {
+              duration: 1,
+              name: auraPayload.auraName,
+              ...auraPayload.aura,
+            });
+          } else {
+            auras.delete(auraKey(auraPayload.auraName));
+          }
+        }
+      }
+
+      yield* Effect.forEach(
+        Array.from(store[event]) as readonly PacketDomainEventHandler<E>[],
+        (handler) => handler(payload),
+        { discard: true },
+      );
+    });
 
   const runtimeLayer = ArmyLive.pipe(
     Layer.provide(
@@ -272,7 +320,7 @@ const withArmy = async <A>(
         Layer.succeed(Inventory)(inventory),
         Layer.succeed(PacketDomain)(packetDomain),
         Layer.succeed(Player)(player),
-        Layer.succeed(World)(makeWorld(options?.hasAura ?? false)),
+        Layer.succeed(World)(makeWorld(auras)),
       ),
     ),
   );
@@ -282,7 +330,7 @@ const withArmy = async <A>(
       Effect.scoped(
         Effect.gen(function* () {
           const army = yield* Army;
-          return yield* body(army, emit, calls);
+          return yield* body(army, emit, calls, barriers);
         }),
       ).pipe(Effect.provide(runtimeLayer)),
     );
@@ -348,4 +396,115 @@ test("Loop Taunt advances message turns and only casts on local player turn", as
   );
 
   expect(calls).toEqual(["attack:7", "attack:7", "skill:5"]);
+});
+
+test("Loop Taunt waits for aura removal and delay before next participant casts", async () => {
+  const result = await withArmy(makeSession(2), (army, emit, calls) =>
+    Effect.gen(function* () {
+      yield* army.start("config");
+      const handle = yield* army.startLoopTaunt({
+        aura: "Focus",
+        delayMs: 30,
+        players: [1, 2],
+        skill: 5,
+        target: "Ultra Boss",
+      });
+
+      yield* Effect.sleep("100 millis");
+      yield* emit("auraRemoved", {
+        auraName: "Focus",
+        packet: { cmd: "ct", data: {}, raw: "", type: "server" },
+        targetId: 7,
+        targetType: "monster",
+      });
+      yield* Effect.sleep("50 millis");
+      const afterStaleRemoval = [...calls];
+
+      yield* emit("auraAdded", {
+        aura: { duration: 4, icon: "i,i,i,Chavengea2", name: "Focus" },
+        auraName: "Focus",
+        packet: { cmd: "ct", data: {}, raw: "", type: "server" },
+        targetId: 7,
+        targetType: "monster",
+      });
+      yield* emit("auraRemoved", {
+        auraName: "Focus",
+        packet: { cmd: "ct", data: {}, raw: "", type: "server" },
+        targetId: 7,
+        targetType: "monster",
+      });
+      yield* Effect.sleep("50 millis");
+      const afterClassFocus = [...calls];
+
+      yield* emit("auraAdded", {
+        aura: { duration: 6, icon: "iwd1,ied1", name: "Focus" },
+        auraName: "Focus",
+        packet: { cmd: "ct", data: {}, raw: "", type: "server" },
+        targetId: 7,
+        targetType: "monster",
+      });
+      yield* emit("auraRemoved", {
+        auraName: "Focus",
+        packet: { cmd: "ct", data: {}, raw: "", type: "server" },
+        targetId: 7,
+        targetType: "monster",
+      });
+      yield* Effect.sleep("10 millis");
+      const beforeDelay = [...calls];
+      yield* Effect.sleep("50 millis");
+
+      yield* handle.stop();
+      return {
+        afterClassFocus,
+        afterStaleRemoval,
+        beforeDelay,
+        calls,
+      };
+    }),
+  );
+
+  expect(result.afterStaleRemoval).toEqual(["attack:7"]);
+  expect(result.afterClassFocus).toEqual(["attack:7"]);
+  expect(result.beforeDelay).toEqual(["attack:7"]);
+  expect(result.calls).toEqual(["attack:7", "attack:7", "skill:5"]);
+});
+
+test("Loop Taunt synchronizes only configured participants", async () => {
+  const result = await withArmy(
+    makeSession(3, ["Main", "Alt", "Third"]),
+    (army, _emit, calls, barriers) =>
+      Effect.gen(function* () {
+        yield* army.start("config");
+        const handle = yield* army.startLoopTaunt({
+          aura: "Focus",
+          players: [1, 2],
+          skill: 5,
+          target: "Ultra Boss",
+        });
+
+        yield* Effect.sleep("100 millis");
+        yield* handle.stop();
+        return {
+          barriers,
+          calls,
+        };
+      }),
+  );
+
+  expect(result.calls).toEqual([]);
+  expect(
+    result.barriers.map((barrier) => ({
+      label: barrier.label,
+      players: barrier.players,
+    })),
+  ).toEqual([
+    {
+      label: "loop-taunt-target:loop-taunt:Ultra Boss:aura:Focus",
+      players: ["Main", "Alt"],
+    },
+    {
+      label: "loop-taunt-armed:loop-taunt:Ultra Boss:aura:Focus",
+      players: ["Main", "Alt"],
+    },
+  ]);
 });

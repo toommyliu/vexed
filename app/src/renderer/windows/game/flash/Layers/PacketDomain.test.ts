@@ -198,7 +198,7 @@ test("packet domain emits monster aura add and remove events", async () => {
       );
 
       emitServerPacket(
-        '{"t":"xt","b":{"o":{"cmd":"ct","a":[{"cmd":"aura+","tInf":"m:2","auras":[{"isNew":true,"nam":"Focus"}]},{"cmd":"aura-","tInf":"m:2","aura":{"nam":"Focus"}}]}}}',
+        '{"t":"xt","b":{"o":{"cmd":"ct","a":[{"cmd":"aura+","tInf":"m:2","auras":[{"icon":"iwd1,ied1","isNew":true,"nam":"Focus"}]},{"cmd":"aura-","tInf":"m:2","aura":{"nam":"Focus"}}]}}}',
       );
 
       return yield* waitForEvent(done);
@@ -206,7 +206,12 @@ test("packet domain emits monster aura add and remove events", async () => {
   );
 
   expect(events).toMatchObject([
-    { auraName: "Focus", targetId: 2, targetType: "monster" },
+    {
+      aura: { icon: "iwd1,ied1" },
+      auraName: "Focus",
+      targetId: 2,
+      targetType: "monster",
+    },
     { auraName: "Focus", targetId: 2, targetType: "monster" },
   ]);
 });

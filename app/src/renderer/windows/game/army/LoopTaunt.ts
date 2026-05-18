@@ -1,4 +1,5 @@
 import { parseMonsterMapIdToken } from "@vexed/game";
+import type { Aura } from "@vexed/game";
 import { equalsIgnoreCase } from "@vexed/shared/string";
 import type { ArmyEffect } from "./Services/Army";
 
@@ -15,10 +16,12 @@ interface ArmyLoopTauntBaseOptions {
 export type ArmyLoopTauntOptions =
   | (ArmyLoopTauntBaseOptions & {
       readonly aura: string;
+      readonly delayMs?: number;
       readonly message?: never;
     })
   | (ArmyLoopTauntBaseOptions & {
       readonly aura?: never;
+      readonly delayMs?: never;
       readonly message: string;
     });
 
@@ -40,6 +43,7 @@ export type NormalizedLoopTauntOptions = {
   readonly trigger:
     | {
         readonly aura: string;
+        readonly delayMs: number;
         readonly type: "aura";
       }
     | {
@@ -51,6 +55,9 @@ export type NormalizedLoopTauntOptions = {
 export interface LoopTauntTurnState {
   readonly nextIndex: number;
 }
+
+export const DEFAULT_LOOP_TAUNT_DELAY_MS = 4_000;
+export const LOOP_TAUNT_FOCUS_AURA_ICON = "iwd1,ied1"; // Scroll of Enrage
 
 const normalizeText = (value: string): string =>
   value.trim().toLowerCase().replace(/\s+/g, " ");
@@ -70,6 +77,22 @@ export const matchesLoopTauntAura = (
   configuredAura: string,
   auraName: string,
 ): boolean => equalsIgnoreCase(configuredAura, auraName);
+
+export const matchesLoopTauntAuraAdd = (
+  configuredAura: string,
+  auraName: string,
+  aura?: Pick<Aura, "icon">,
+): boolean => {
+  if (!matchesLoopTauntAura(configuredAura, auraName)) {
+    return false;
+  }
+
+  if (!equalsIgnoreCase(configuredAura, "Focus")) {
+    return true;
+  }
+
+  return aura?.icon === LOOP_TAUNT_FOCUS_AURA_ICON;
+};
 
 export const matchesLoopTauntMessage = (
   configuredMessage: string,
@@ -130,6 +153,18 @@ const assertValidTarget = (
   }
 
   return target.trim();
+};
+
+const assertValidDelayMs = (delayMs: unknown): number => {
+  if (delayMs === undefined) {
+    return DEFAULT_LOOP_TAUNT_DELAY_MS;
+  }
+
+  if (typeof delayMs !== "number" || !Number.isFinite(delayMs) || delayMs < 0) {
+    throw new Error("delayMs must be a finite non-negative number");
+  }
+
+  return Math.trunc(delayMs);
 };
 
 export const resolveLoopTauntParticipants = (
@@ -214,6 +249,7 @@ export const normalizeLoopTauntOptions = (
     trigger: hasAura
       ? {
           aura: assertNonEmptyString("aura", options.aura),
+          delayMs: assertValidDelayMs(options.delayMs),
           type: "aura",
         }
       : {

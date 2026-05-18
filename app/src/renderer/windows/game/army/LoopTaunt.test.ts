@@ -1,6 +1,9 @@
 import { describe, expect, it } from "vitest";
 import {
   advanceLoopTauntTurn,
+  DEFAULT_LOOP_TAUNT_DELAY_MS,
+  LOOP_TAUNT_FOCUS_AURA_ICON,
+  matchesLoopTauntAuraAdd,
   matchesLoopTauntMessage,
   normalizeLoopTauntOptions,
   ownsLoopTauntTurn,
@@ -11,9 +14,19 @@ const players = ["Main", "Alt", "Third"] as const;
 
 describe("Loop Taunt helpers", () => {
   it("requires an explicit target, skill, and single trigger", () => {
+    const normalized = normalizeLoopTauntOptions(
+      { aura: "Focus", skill: 5, target: "Boss" },
+      players,
+    );
+    expect(normalized.trigger).toEqual({
+      aura: "Focus",
+      delayMs: DEFAULT_LOOP_TAUNT_DELAY_MS,
+      type: "aura",
+    });
+
     expect(() =>
       normalizeLoopTauntOptions(
-        { aura: "Focus", skill: 5, target: "Boss" },
+        { aura: "Focus", delayMs: 1234, skill: 5, target: "Boss" },
         players,
       ),
     ).not.toThrow();
@@ -49,6 +62,13 @@ describe("Loop Taunt helpers", () => {
         players,
       ),
     ).toThrow(/skill/);
+
+    expect(() =>
+      normalizeLoopTauntOptions(
+        { aura: "Focus", delayMs: -1, skill: 5, target: "Boss" },
+        players,
+      ),
+    ).toThrow(/delayMs/);
   });
 
   it("resolves participants by army slots or names while preserving order", () => {
@@ -95,5 +115,20 @@ describe("Loop Taunt helpers", () => {
       matchesLoopTauntMessage("Defense Shattering", "  defense   shattering!"),
     ).toBe(true);
     expect(matchesLoopTauntMessage("Defense Shattering", "other")).toBe(false);
+  });
+
+  it("matches loop taunt Focus only when the scroll taunt icon is present", () => {
+    expect(
+      matchesLoopTauntAuraAdd("Focus", "Focus", {
+        icon: LOOP_TAUNT_FOCUS_AURA_ICON,
+      }),
+    ).toBe(true);
+    expect(
+      matchesLoopTauntAuraAdd("Focus", "Focus", {
+        icon: "i,i,i,Chavengea2",
+      }),
+    ).toBe(false);
+    expect(matchesLoopTauntAuraAdd("Focus", "Focus")).toBe(false);
+    expect(matchesLoopTauntAuraAdd("Other Aura", "Other Aura")).toBe(true);
   });
 });
