@@ -147,15 +147,39 @@ const stopChild = (label: string, child: ChildProcessHandle) =>
       return;
     }
 
+    const stopped = yield* child.kill({ killSignal: "SIGTERM" }).pipe(
+      Effect.as(true),
+      Effect.timeoutOrElse({
+        duration: FORCE_KILL_AFTER,
+        orElse: () => Effect.succeed(false),
+      }),
+      Effect.catch((cause) =>
+        Console.error(
+          `[dev-runner] failed to stop ${label}: ${String(cause)}`,
+        ).pipe(Effect.as(false)),
+      ),
+    );
+
+    if (stopped) {
+      return;
+    }
+
+    yield* Console.error(
+      `[dev-runner] ${label} did not stop after ${FORCE_KILL_AFTER}; force killing`,
+    );
+
     yield* child
-      .kill({
-        killSignal: "SIGTERM",
-        forceKillAfter: FORCE_KILL_AFTER,
-      })
+      .kill({ killSignal: "SIGKILL" })
+      .pipe(
+        Effect.timeoutOrElse({
+          duration: FORCE_KILL_AFTER,
+          orElse: () => Effect.void,
+        }),
+      )
       .pipe(
         Effect.catch((cause) =>
           Console.error(
-            `[dev-runner] failed to stop ${label}: ${String(cause)}`,
+            `[dev-runner] failed to force kill ${label}: ${String(cause)}`,
           ),
         ),
       );
