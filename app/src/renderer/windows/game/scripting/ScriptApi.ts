@@ -45,6 +45,23 @@ export type ScriptPacketListener = (
 
 export type ScriptPacketDisposer = () => void;
 
+export interface ScriptCounterAttackEvent {
+  readonly monMapId: number;
+  readonly source: "message" | "aura";
+  readonly triggerId: string;
+  readonly triggerText: string;
+  readonly durationMs?: number;
+}
+
+export type ScriptCounterAttackListener = (
+  event: ScriptCounterAttackEvent,
+) =>
+  | void
+  | Effect.Effect<unknown, unknown>
+  | Generator<Effect.Yieldable<any, any, never, never>, unknown, never>;
+
+export type ScriptCounterAttackDisposer = () => void;
+
 export interface ScriptAuthShape {
   connectTo(server: string): BridgeEffect<AuthConnectOutcome>;
   getServers(): BridgeEffect<Server[]>;
@@ -162,6 +179,19 @@ export interface ScriptAutoZoneShape {
   setMap(map: AutoZoneSupportedMap | undefined): Effect.Effect<void>;
 }
 
+export interface ScriptCounterAttackShape {
+  isEnabled(): Effect.Effect<boolean>;
+  setEnabled(enabled: boolean): Effect.Effect<void>;
+  enable(): Effect.Effect<void>;
+  disable(): Effect.Effect<void>;
+  onStart(
+    handler: ScriptCounterAttackListener,
+  ): Effect.Effect<ScriptCounterAttackDisposer, ScriptNotReadyError>;
+  onEnd(
+    handler: ScriptCounterAttackListener,
+  ): Effect.Effect<ScriptCounterAttackDisposer, ScriptNotReadyError>;
+}
+
 export type ScriptEnvironmentShape = Omit<
   EnvironmentShape,
   "setQuestAutoRegister" | "setItemRules"
@@ -184,6 +214,10 @@ export interface ScriptContext {
    * Controls automatic boss zone movement from scripts.
    */
   readonly autoZone: EffectValue<ScriptAutoZoneShape>;
+  /**
+   * Controls combat counter-attack avoidance from scripts.
+   */
+  readonly counterAttack: EffectValue<ScriptCounterAttackShape>;
 }
 
 export interface ScriptRuntimeApi {
