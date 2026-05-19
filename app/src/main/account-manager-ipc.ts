@@ -13,14 +13,24 @@ import {
   type AccountScriptSession,
   type AccountScriptStatusUpdate,
   type ManagedAccount,
+  type ManagedAccountGroupDraft,
+  type ManagedAccountGroups,
+  type ManagedAccountGroupPatch,
   type ManagedAccountDraft,
   type ManagedAccountPatch,
   type ScriptExecutePayload,
 } from "../shared/ipc";
 import { WindowIds } from "../shared/windows";
+import {
+  type AccountManagerStorage,
+  getAccountsPath,
+  readAccountManagerStorage,
+  removeGroupMemberUsername,
+  renameGroupMemberUsername,
+  writeAccountManagerStorage,
+} from "./account-manager-store";
 import { getArtixLauncherRequestHeaders } from "./artix-launcher-headers";
 import { refreshCachedScriptPayload } from "./scripting";
-import * as Files from "./settings/Files";
 import { WindowService, type WindowEffectRunner } from "./windows";
 
 const SERVERS_API_URL = "https://game.aq.com/game/api/data/servers";
@@ -36,8 +46,6 @@ const sessions = new Map<number, AccountScriptSession>();
 const gameLaunchPayloads = new Map<number, AccountGameLaunchPayload>();
 
 const now = (): number => Date.now();
-
-const getAccountsPath = (): string => Files.appDataJoin("accounts.json");
 
 class AccountServersFetchError extends Data.TaggedError(
   "AccountServersFetchError",
@@ -74,45 +82,6 @@ const normalizeOptionalString = (value: unknown): string => {
   return value.trim();
 };
 
-const isManagedAccount = (value: unknown): value is ManagedAccount => {
-  if (typeof value !== "object" || value === null) {
-    return false;
-  }
-
-  const account = value as Partial<ManagedAccount>;
-  return (
-    typeof account.label === "string" &&
-    typeof account.username === "string" &&
-    typeof account.password === "string"
-  );
-};
-
-const normalizeStoredAccount = (account: ManagedAccount): ManagedAccount => ({
-  label: account.label,
-  username: account.username,
-  password: account.password,
-});
-
-const dedupeAccountsByUsername = (
-  accounts: readonly ManagedAccount[],
-): readonly ManagedAccount[] => {
-  const seen = new Set<string>();
-  const nextAccounts: ManagedAccount[] = [];
-
-  for (const account of accounts) {
-    const key = account.username.toLowerCase();
-    if (seen.has(key)) {
-      console.error("Ignoring duplicate account username", account.username);
-      continue;
-    }
-
-    seen.add(key);
-    nextAccounts.push(account);
-  }
-
-  return nextAccounts;
-};
-
 const hasAccountUsername = (
   accounts: readonly ManagedAccount[],
   username: string,
@@ -128,26 +97,106 @@ const hasAccountUsername = (
   );
 };
 
-const normalizeAccounts = (value: unknown): readonly ManagedAccount[] => {
-  if (!Array.isArray(value)) {
-    return [];
-  }
+const readStorage = async (): Promise<AccountManagerStorage> =>
+  readAccountManagerStorage();
 
-  return dedupeAccountsByUsername(
-    value.filter(isManagedAccount).map(normalizeStoredAccount),
-  );
+const writeStorage = async (storage: AccountManagerStorage): Promise<void> => {
+  writeAccountManagerStorage(storage);
 };
 
 const readAccounts = async (): Promise<readonly ManagedAccount[]> =>
-  Files.ensureJson(getAccountsPath(), [], normalizeAccounts);
+  (await readStorage()).accounts;
 
-const writeAccounts = async (
-  accounts: readonly ManagedAccount[],
-): Promise<void> => {
-  Files.writeJson(
-    getAccountsPath(),
-    dedupeAccountsByUsername(accounts).map(normalizeStoredAccount),
+const groupNameKey = (name: string): string => name.toLowerCase();
+
+const findGroupName = (
+  groups: ManagedAccountGroups,
+  name: string,
+): string | undefined => {
+  const key = groupNameKey(name);
+  return Object.keys(groups).find(
+    (groupName) => groupNameKey(groupName) === key,
   );
+};
+
+const hasGroupName = (
+  groups: ManagedAccountGroups,
+  name: string,
+  options?: { readonly exceptName?: string },
+): boolean => {
+  const existingName = findGroupName(groups, name);
+  return (
+    existingName !== undefined &&
+    groupNameKey(existingName) !== groupNameKey(options?.exceptName ?? "")
+  );
+};
+
+const normalizeGroupMembersInput = (
+  value: unknown,
+  accounts: readonly ManagedAccount[],
+): readonly string[] => {
+  if (!Array.isArray(value)) {
+    throw new Error("Group usernames must be an array");
+  }
+
+  const usernames = new Set(accounts.map((account) => account.username));
+  const seen = new Set<string>();
+  const members: string[] = [];
+
+  for (const username of value) {
+    if (typeof username !== "string") {
+      throw new Error("Group username must be a string");
+    }
+
+    const normalized = normalizeRequiredString(username, "group username");
+    if (!usernames.has(normalized)) {
+      throw new Error(`Account not found: ${normalized}`);
+    }
+
+    const key = normalized.toLowerCase();
+    if (seen.has(key)) {
+      throw new Error(`Duplicate group member: ${normalized}`);
+    }
+
+    seen.add(key);
+    members.push(normalized);
+  }
+
+  return members;
+};
+
+const normalizeGroupDraft = (
+  draft: unknown,
+  accounts: readonly ManagedAccount[],
+): ManagedAccountGroupDraft => {
+  if (typeof draft !== "object" || draft === null) {
+    throw new Error("Group draft must be an object");
+  }
+
+  const input = draft as Partial<ManagedAccountGroupDraft>;
+  return {
+    name: normalizeRequiredString(input.name, "group name"),
+    usernames: normalizeGroupMembersInput(input.usernames, accounts),
+  };
+};
+
+const normalizeGroupPatch = (
+  patch: unknown,
+  accounts: readonly ManagedAccount[],
+): ManagedAccountGroupPatch => {
+  if (typeof patch !== "object" || patch === null) {
+    throw new Error("Group patch must be an object");
+  }
+
+  const input = patch as Partial<ManagedAccountGroupPatch>;
+  return {
+    ...(input.name === undefined
+      ? {}
+      : { name: normalizeRequiredString(input.name, "group name") }),
+    ...(input.usernames === undefined
+      ? {}
+      : { usernames: normalizeGroupMembersInput(input.usernames, accounts) }),
+  };
 };
 
 const visibleSessions = (): readonly AccountScriptSession[] => {
@@ -163,11 +212,15 @@ const visibleSessions = (): readonly AccountScriptSession[] => {
   return [...latestByUsername.values()];
 };
 
-const toState = async (): Promise<AccountManagerState> => ({
-  accounts: await readAccounts(),
-  sessions: visibleSessions(),
-  storagePath: getAccountsPath(),
-});
+const toState = async (): Promise<AccountManagerState> => {
+  const storage = await readStorage();
+  return {
+    accounts: storage.accounts,
+    groups: storage.groups,
+    sessions: visibleSessions(),
+    storagePath: getAccountsPath(),
+  };
+};
 
 const toAccountGameServer = (server: {
   readonly bOnline: number;
@@ -597,12 +650,15 @@ export const registerAccountManagerIpcHandlers = (
     async (event, draft: unknown) => {
       await requireAccountManagerSender(event, runWindowEffect);
       const accountDraft = normalizeDraft(draft);
-      const accounts = await readAccounts();
-      if (hasAccountUsername(accounts, accountDraft.username)) {
+      const storage = await readStorage();
+      if (hasAccountUsername(storage.accounts, accountDraft.username)) {
         throw new Error("An account with this username already exists");
       }
 
-      await writeAccounts([...accounts, accountDraft]);
+      await writeStorage({
+        ...storage,
+        accounts: [...storage.accounts, accountDraft],
+      });
 
       return await publishStateToAccountManager(runWindowEffect);
     },
@@ -614,10 +670,10 @@ export const registerAccountManagerIpcHandlers = (
       await requireAccountManagerSender(event, runWindowEffect);
       const currentUsername = normalizeRequiredString(username, "username");
       const accountPatch = normalizePatch(patch);
-      const accounts = await readAccounts();
+      const storage = await readStorage();
       const nextUsername = accountPatch.username ?? currentUsername;
       if (
-        hasAccountUsername(accounts, nextUsername, {
+        hasAccountUsername(storage.accounts, nextUsername, {
           exceptUsername: currentUsername,
         })
       ) {
@@ -625,7 +681,7 @@ export const registerAccountManagerIpcHandlers = (
       }
 
       let found = false;
-      const nextAccounts = accounts.map((account) => {
+      const nextAccounts = storage.accounts.map((account) => {
         if (account.username !== currentUsername) {
           return account;
         }
@@ -654,7 +710,14 @@ export const registerAccountManagerIpcHandlers = (
         }
       }
 
-      await writeAccounts(nextAccounts);
+      await writeStorage({
+        accounts: nextAccounts,
+        groups: renameGroupMemberUsername(
+          storage.groups,
+          currentUsername,
+          nextUsername,
+        ),
+      });
       return await publishStateToAccountManager(runWindowEffect);
     },
   );
@@ -664,12 +727,12 @@ export const registerAccountManagerIpcHandlers = (
     async (event, username: unknown) => {
       await requireAccountManagerSender(event, runWindowEffect);
       const accountUsername = normalizeRequiredString(username, "username");
-      const accounts = await readAccounts();
-      const nextAccounts = accounts.filter(
+      const storage = await readStorage();
+      const nextAccounts = storage.accounts.filter(
         (account) => account.username !== accountUsername,
       );
 
-      if (nextAccounts.length === accounts.length) {
+      if (nextAccounts.length === storage.accounts.length) {
         throw new Error("Account not found");
       }
 
@@ -678,7 +741,98 @@ export const registerAccountManagerIpcHandlers = (
           sessions.delete(gameWindowId);
         }
       }
-      await writeAccounts(nextAccounts);
+      await writeStorage({
+        accounts: nextAccounts,
+        groups: removeGroupMemberUsername(storage.groups, accountUsername),
+      });
+      return await publishStateToAccountManager(runWindowEffect);
+    },
+  );
+
+  ipcMain.handle(
+    AccountManagerIpcChannels.createGroup,
+    async (event, draft: unknown) => {
+      await requireAccountManagerSender(event, runWindowEffect);
+      const storage = await readStorage();
+      const groupDraft = normalizeGroupDraft(draft, storage.accounts);
+      if (hasGroupName(storage.groups, groupDraft.name)) {
+        throw new Error("A group with this name already exists");
+      }
+
+      await writeStorage({
+        ...storage,
+        groups: {
+          ...storage.groups,
+          [groupDraft.name]: groupDraft.usernames,
+        },
+      });
+
+      return await publishStateToAccountManager(runWindowEffect);
+    },
+  );
+
+  ipcMain.handle(
+    AccountManagerIpcChannels.updateGroup,
+    async (event, name: unknown, patch: unknown) => {
+      await requireAccountManagerSender(event, runWindowEffect);
+      const currentName = normalizeRequiredString(name, "group name");
+      const storage = await readStorage();
+      const existingName = findGroupName(storage.groups, currentName);
+      if (existingName === undefined) {
+        throw new Error("Group not found");
+      }
+
+      const groupPatch = normalizeGroupPatch(patch, storage.accounts);
+      const nextName = groupPatch.name ?? existingName;
+      if (
+        hasGroupName(storage.groups, nextName, {
+          exceptName: existingName,
+        })
+      ) {
+        throw new Error("A group with this name already exists");
+      }
+
+      const groups: Record<string, readonly string[]> = {};
+      for (const [groupName, usernames] of Object.entries(storage.groups)) {
+        if (groupName === existingName) {
+          groups[nextName] = groupPatch.usernames ?? usernames;
+        } else {
+          groups[groupName] = usernames;
+        }
+      }
+
+      await writeStorage({
+        ...storage,
+        groups,
+      });
+
+      return await publishStateToAccountManager(runWindowEffect);
+    },
+  );
+
+  ipcMain.handle(
+    AccountManagerIpcChannels.deleteGroup,
+    async (event, name: unknown) => {
+      await requireAccountManagerSender(event, runWindowEffect);
+      const groupName = normalizeRequiredString(name, "group name");
+      const storage = await readStorage();
+      const existingName = findGroupName(storage.groups, groupName);
+      if (existingName === undefined) {
+        throw new Error("Group not found");
+      }
+
+      const groups: Record<string, readonly string[]> = {};
+      for (const [name, usernames] of Object.entries(storage.groups)) {
+        if (name !== existingName) {
+          groups[name] = usernames;
+        }
+      }
+
+      await writeStorage({
+        ...storage,
+        groups,
+      });
+
       return await publishStateToAccountManager(runWindowEffect);
     },
   );

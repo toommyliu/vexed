@@ -2162,6 +2162,9 @@ a.badge--destructive:hover {
 
 .select__positioner,
 .combobox__positioner {
+  --x: 0px;
+  --y: -100vh;
+
   outline: none;
   z-index: 60;
 }

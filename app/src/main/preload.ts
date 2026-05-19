@@ -31,6 +31,8 @@ import {
   type EnvironmentQuestAutoRegisterOptions,
   type EnvironmentState,
   type HotkeysPatch,
+  type ManagedAccountGroupDraft,
+  type ManagedAccountGroupPatch,
   type ManagedAccountDraft,
   type ManagedAccountPatch,
   type PreferencesPatch,
@@ -176,6 +178,25 @@ const bridge: AppBridge = {
       return (await ipcRenderer.invoke(
         AccountManagerIpcChannels.deleteAccount,
         username,
+      )) as AccountManagerState;
+    },
+    createGroup: async (draft: ManagedAccountGroupDraft) => {
+      return (await ipcRenderer.invoke(
+        AccountManagerIpcChannels.createGroup,
+        draft,
+      )) as AccountManagerState;
+    },
+    updateGroup: async (name: string, patch: ManagedAccountGroupPatch) => {
+      return (await ipcRenderer.invoke(
+        AccountManagerIpcChannels.updateGroup,
+        name,
+        patch,
+      )) as AccountManagerState;
+    },
+    deleteGroup: async (name: string) => {
+      return (await ipcRenderer.invoke(
+        AccountManagerIpcChannels.deleteGroup,
+        name,
       )) as AccountManagerState;
     },
     launch: async (request: AccountLaunchRequest) => {
