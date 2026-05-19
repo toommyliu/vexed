@@ -32,6 +32,129 @@
   font-size: var(--text-base);
 }
 
+.account-search__shortcut {
+  padding-left: 0.25rem !important;
+  padding-right: 0.5rem !important;
+}
+
+.account-manager__group-row {
+  align-items: center;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  min-width: 0;
+}
+
+.account-manager__group-label {
+  align-items: center;
+  color: rgb(var(--foreground));
+  display: flex;
+  font-size: var(--text-base);
+  font-weight: 600;
+  gap: 0.125rem;
+  line-height: 1;
+  min-width: 0;
+}
+
+.account-manager__group-label .button {
+  color: rgb(var(--muted-foreground));
+}
+
+.account-manager__group-label .button__icon {
+  height: 1rem;
+  width: 1rem;
+}
+
+.account-manager__group-field {
+  flex: 1 1 100%;
+  max-width: 100%;
+  min-width: 0;
+  position: relative;
+}
+
+@media (min-width: 1024px) {
+  .account-manager__group-field {
+    flex: 1 1 12rem;
+    max-width: 18rem;
+  }
+}
+
+.account-manager__group-combobox {
+  display: flex;
+  height: var(--control-height-lg);
+  min-width: 0;
+  width: 100%;
+}
+
+.account-manager__group-combobox .combobox__control {
+  min-width: 0;
+  width: 100%;
+}
+
+.account-manager__group-combobox .combobox__control:focus-within {
+  border-color: rgba(var(--ring), 0.58);
+  box-shadow:
+    var(--shadow-xs),
+    inset 0 0 0 1px rgba(var(--ring), 0.12);
+}
+
+.account-manager__group-combobox .combobox__input {
+  cursor: var(--cursor-interactive);
+  font-size: var(--text-base);
+  font-weight: 500;
+  padding-right: 3.25rem;
+  user-select: none;
+}
+
+.account-manager__group-combobox .combobox__input:focus,
+.account-manager__group-combobox .combobox__input:focus-visible {
+  box-shadow: none;
+  outline: none;
+}
+
+.account-manager__group-content {
+  min-width: min(20rem, var(--available-width));
+  width: max-content;
+}
+
+.account-manager__group-shortcut {
+  pointer-events: none;
+  position: absolute;
+  right: 2.625rem;
+  top: 50%;
+  transform: translateY(-50%);
+}
+
+.account-manager__group-actions {
+  align-items: center;
+  display: flex;
+  flex: 0 0 auto;
+  flex-wrap: wrap;
+  gap: 0.375rem;
+}
+
+.account-group-option {
+  align-items: baseline;
+  display: flex;
+  gap: 0.625rem;
+  min-width: 0;
+}
+
+.account-group-option__name {
+  flex: 1 1 auto;
+  font-weight: 600;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.account-group-option__meta {
+  color: rgb(var(--muted-foreground));
+  flex: 0 0 auto;
+  font-size: var(--text-sm);
+}
+
 .account-manager__launch-row {
   display: grid;
   gap: 0.875rem;
@@ -171,6 +294,7 @@
 .account-manager__selection-actions {
   align-items: center;
   display: flex;
+  flex-wrap: wrap;
   gap: 0.5rem;
 }
 
@@ -238,14 +362,31 @@
 }
 
 .account-manager__selection-bar {
-  align-items: center;
+  align-items: flex-end;
   color: rgb(var(--muted-foreground));
   display: flex;
+  flex-wrap: wrap;
   font-size: var(--text-base);
   gap: 1rem;
   justify-content: space-between;
-  min-height: 3.25rem;
+  margin-top: 0.75rem;
+  min-height: 4rem;
   min-width: 0;
+}
+
+.account-manager__selection-context {
+  display: grid;
+  flex: 1 1 auto;
+  gap: 0.375rem;
+  justify-items: start;
+  min-width: 0;
+}
+
+.account-manager__selection-count {
+  color: rgb(var(--muted-foreground));
+  font-size: var(--text-base);
+  line-height: 1.25;
+  white-space: nowrap;
 }
 
 .account-list {
@@ -436,6 +577,10 @@
   max-width: 34rem;
 }
 
+.account-group-dialog.dialog__content {
+  max-width: 38rem;
+}
+
 .account-dialog .dialog__header {
   padding: 1.5rem 1.75rem 1.25rem;
 }
@@ -547,6 +692,72 @@
   width: 0.9375rem;
 }
 
+.account-group-dialog__search {
+  height: var(--control-height-lg);
+}
+
+.account-group-dialog__members {
+  border: 1px solid rgba(var(--border), 0.8);
+  border-radius: var(--radius-lg);
+  display: grid;
+  max-height: min(34vh, 18rem);
+  min-height: 8rem;
+  overflow-y: auto;
+}
+
+.account-group-dialog__member {
+  align-items: center;
+  cursor: var(--cursor-interactive);
+  display: grid;
+  gap: 0.75rem;
+  grid-template-columns: auto minmax(0, 1fr);
+  min-height: 3.25rem;
+  padding: 0.625rem 0.875rem;
+}
+
+.account-group-dialog__member + .account-group-dialog__member {
+  border-top: 1px solid rgba(var(--border), 0.62);
+}
+
+.account-group-dialog__member:hover {
+  background: rgba(var(--accent), 0.42);
+}
+
+.account-group-dialog__member-text {
+  display: grid;
+  gap: 0.1875rem;
+  min-width: 0;
+}
+
+.account-group-dialog__member-name {
+  color: rgb(var(--foreground));
+  font-size: var(--text-base);
+  font-weight: 600;
+  line-height: 1.2;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.account-group-dialog__member-meta {
+  color: rgb(var(--muted-foreground));
+  font-size: var(--text-sm);
+  line-height: 1.25;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.account-group-dialog__empty {
+  align-items: center;
+  color: rgb(var(--muted-foreground));
+  display: flex;
+  font-size: var(--text-base);
+  justify-content: center;
+  min-height: 8rem;
+  padding: 1rem;
+}
+
 .account-dialog .dialog__footer {
   justify-content: flex-end;
   padding: 1rem 1.75rem;
@@ -572,12 +783,6 @@
 
   .account-manager__launch-row {
     grid-template-columns: 1fr;
-  }
-
-  .account-manager__selection-actions,
-  .account-manager__selection-bar {
-    flex-wrap: wrap;
-    justify-content: flex-start;
   }
 
   .account-list {

@@ -1,6 +1,7 @@
 /* @refresh reload */
 import "../../polyfills";
 import "./style.css";
+import { createHotkey } from "@tanstack/solid-hotkeys";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -43,12 +44,14 @@ import {
   InputGroup,
   InputGroupAddon,
   InputGroupInput,
+  Kbd,
   Spinner,
   Tooltip,
   TooltipContent,
   TooltipTrigger,
 } from "@vexed/ui";
 import {
+  CircleQuestionMark,
   Eye,
   EyeOff,
   FolderOpen,
@@ -78,6 +81,7 @@ import {
   type AccountManagerState,
   type AccountScriptSession,
   type ManagedAccount,
+  type ManagedAccountGroups,
   type ManagedAccountDraft,
   type ScriptExecutePayload,
 } from "../../../shared/ipc";
@@ -98,12 +102,19 @@ interface LaunchScriptSelection {
   readonly payload: ScriptExecutePayload | null;
 }
 
+interface GroupFormState {
+  readonly name: string;
+  readonly usernames: ReadonlySet<string>;
+}
+
 const NO_SERVER_VALUE = "__no_server__";
+const MANUAL_GROUP_VALUE = "__manual_selection__";
 const LAUNCH_WITH_SCRIPT_CHECKBOX_ID = "account-manager-launch-with-script";
 const ACCOUNT_PASSWORD_INPUT_ID = "account-manager-account-password";
 
 const emptyState: AccountManagerState = {
   accounts: [],
+  groups: {},
   sessions: [],
   storagePath: "",
 };
@@ -117,6 +128,11 @@ const emptyForm = (): AccountFormState => ({
 const emptyLaunchScriptSelection = (): LaunchScriptSelection => ({
   enabled: false,
   payload: null,
+});
+
+const emptyGroupForm = (): GroupFormState => ({
+  name: "",
+  usernames: new Set(),
 });
 
 const toDraft = (form: AccountFormState): ManagedAccountDraft => ({
@@ -176,6 +192,28 @@ const sameVisibleSession = (
   previous.scriptName === next.scriptName &&
   previous.message === next.message;
 
+const sameGroups = (
+  previous: ManagedAccountGroups,
+  next: ManagedAccountGroups,
+): boolean => {
+  const previousEntries = Object.entries(previous);
+  const nextEntries = Object.entries(next);
+  if (previousEntries.length !== nextEntries.length) {
+    return false;
+  }
+
+  return previousEntries.every(([name, previousUsernames]) => {
+    const nextUsernames = next[name];
+    return (
+      nextUsernames !== undefined &&
+      previousUsernames.length === nextUsernames.length &&
+      previousUsernames.every(
+        (username, index) => username === nextUsernames[index],
+      )
+    );
+  });
+};
+
 const reconcileAccounts = (
   previousAccounts: readonly ManagedAccount[],
   nextAccounts: readonly ManagedAccount[],
@@ -232,10 +270,14 @@ const reconcileAccountManagerState = (
     previousState.sessions,
     nextState.sessions,
   );
+  const groups = sameGroups(previousState.groups, nextState.groups)
+    ? previousState.groups
+    : nextState.groups;
 
   if (
     previousState.storagePath === nextState.storagePath &&
     previousState.accounts === accounts &&
+    previousState.groups === groups &&
     previousState.sessions === sessions
   ) {
     return previousState;
@@ -243,6 +285,7 @@ const reconcileAccountManagerState = (
 
   return {
     accounts,
+    groups,
     sessions,
     storagePath: nextState.storagePath,
   };
@@ -311,6 +354,9 @@ function AccountDeleteTrigger(props: {
 }
 
 function App(): JSX.Element {
+  let accountSearchInput: HTMLInputElement | undefined;
+  let groupFieldElement: HTMLDivElement | undefined;
+  let groupComboboxInput: HTMLInputElement | undefined;
   let usernameInput: HTMLInputElement | undefined;
   let scriptPathInputElement: HTMLInputElement | undefined;
   let serverSelectionSettlingTimeout: number | undefined;
@@ -320,6 +366,19 @@ function App(): JSX.Element {
   const [selectedAccountUsernames, setSelectedAccountUsernames] = createSignal<
     ReadonlySet<string>
   >(new Set());
+  const [selectedGroupName, setSelectedGroupName] = createSignal("");
+  const [groupDialogOpen, setGroupDialogOpen] = createSignal(false);
+  const [groupDialogMode, setGroupDialogMode] = createSignal<"create" | "edit">(
+    "create",
+  );
+  const [editingGroupName, setEditingGroupName] = createSignal<string | null>(
+    null,
+  );
+  const [groupForm, setGroupForm] = createSignal<GroupFormState>(
+    emptyGroupForm(),
+  );
+  const [groupDialogError, setGroupDialogError] = createSignal("");
+  const [groupSearchQuery, setGroupSearchQuery] = createSignal("");
   const [form, setForm] = createSignal<AccountFormState>(emptyForm());
   const [passwordVisible, setPasswordVisible] = createSignal(false);
   const [dialogOpen, setDialogOpen] = createSignal(false);
@@ -352,6 +411,15 @@ function App(): JSX.Element {
   const [busy, setBusy] = createSignal(false);
 
   const accounts = createMemo(() => state().accounts);
+  const accountUsernames = createMemo(
+    () => new Set(accounts().map((account) => account.username)),
+  );
+  const groups = createMemo(() => state().groups);
+  const groupEntries = createMemo(() =>
+    Object.entries(groups()).sort(([left], [right]) =>
+      left.localeCompare(right),
+    ),
+  );
   const filteredAccounts = createMemo(() => {
     const query = searchQuery().trim().toLowerCase();
     if (query === "") {
@@ -375,15 +443,25 @@ function App(): JSX.Element {
   const selectedLaunchUsernames = createMemo(() => {
     return [...selectedAccountUsernames()];
   });
-  const selectedVisibleCount = createMemo(() => {
-    const selected = selectedAccountUsernames();
-    return filteredAccounts().filter((account) =>
-      selected.has(account.username),
-    ).length;
+  const selectedAccountCount = createMemo(
+    () => selectedAccountUsernames().size,
+  );
+  const filteredGroupAccounts = createMemo(() => {
+    const query = groupSearchQuery().trim().toLowerCase();
+    if (query === "") {
+      return accounts();
+    }
+
+    return accounts().filter(
+      (account) =>
+        account.label.toLowerCase().includes(query) ||
+        account.username.toLowerCase().includes(query),
+    );
   });
   const formSubmittable = createMemo(
     () => form().username.trim() !== "" && form().password.trim() !== "",
   );
+  const groupFormSubmittable = createMemo(() => groupForm().name.trim() !== "");
   const serverOptions = createMemo(() => servers());
   const filteredServerOptions = createMemo(() => {
     const query = serverSearchQuery().trim().toLowerCase();
@@ -411,10 +489,49 @@ function App(): JSX.Element {
     const payload = selectedScript();
     return payload?.name ?? payload?.path ?? "";
   });
+  const selectedGroupLabel = createMemo(
+    () => selectedGroupName() || "Manual selection",
+  );
   const launchScriptPayload = createMemo(() => {
     const selection = launchScript();
     return selection.enabled ? selection.payload : null;
   });
+
+  createHotkey(
+    "/",
+    (event) => {
+      if (event.repeat) {
+        return;
+      }
+
+      accountSearchInput?.focus();
+      accountSearchInput?.select();
+    },
+    {
+      eventType: "keydown",
+      conflictBehavior: "replace",
+      ignoreInputs: true,
+    },
+  );
+
+  createHotkey(
+    "G",
+    (event) => {
+      if (event.repeat) {
+        return;
+      }
+
+      groupComboboxInput?.focus();
+      groupFieldElement
+        ?.querySelector<HTMLButtonElement>(".combobox__trigger")
+        ?.click();
+    },
+    {
+      eventType: "keydown",
+      conflictBehavior: "replace",
+      ignoreInputs: true,
+    },
+  );
 
   createEffect(() => {
     if (dialogOpen()) {
@@ -438,7 +555,17 @@ function App(): JSX.Element {
     const usernames = new Set(
       nextState.accounts.map((account) => account.username),
     );
+    const currentGroupName = selectedGroupName();
     setSelectedAccountUsernames((previous) => {
+      if (currentGroupName !== "") {
+        const groupUsernames = nextState.groups[currentGroupName];
+        if (groupUsernames !== undefined) {
+          return new Set(
+            groupUsernames.filter((username) => usernames.has(username)),
+          );
+        }
+      }
+
       let removed = false;
       const next = new Set<string>();
       for (const username of previous) {
@@ -451,6 +578,13 @@ function App(): JSX.Element {
 
       return removed ? next : previous;
     });
+
+    if (
+      currentGroupName !== "" &&
+      nextState.groups[currentGroupName] === undefined
+    ) {
+      setSelectedGroupName("");
+    }
 
     const currentEditingUsername = editingUsername();
     if (currentEditingUsername && !usernames.has(currentEditingUsername)) {
@@ -589,6 +723,136 @@ function App(): JSX.Element {
     setDialogError("");
     setPasswordVisible(false);
     setDialogOpen(true);
+  };
+
+  const selectGroup = (
+    groupName: string,
+    nextGroups: ManagedAccountGroups = groups(),
+  ) => {
+    if (groupName === "") {
+      setSelectedGroupName("");
+      return;
+    }
+
+    const members = nextGroups[groupName];
+    if (members === undefined) {
+      setSelectedGroupName("");
+      return;
+    }
+
+    const usernames = accountUsernames();
+    setSelectedGroupName(groupName);
+    setSelectedAccountUsernames(
+      new Set(members.filter((username) => usernames.has(username))),
+    );
+  };
+
+  const openCreateGroupDialog = () => {
+    setEditingGroupName(null);
+    setGroupDialogMode("create");
+    setGroupForm({
+      name: "",
+      usernames: new Set(selectedAccountUsernames()),
+    });
+    setGroupSearchQuery("");
+    setGroupDialogError("");
+    setGroupDialogOpen(true);
+  };
+
+  const openEditGroupDialog = () => {
+    const groupName = selectedGroupName();
+    const usernames = groupName === "" ? undefined : groups()[groupName];
+    if (groupName === "" || usernames === undefined) {
+      return;
+    }
+
+    setEditingGroupName(groupName);
+    setGroupDialogMode("edit");
+    setGroupForm({
+      name: groupName,
+      usernames: new Set(usernames),
+    });
+    setGroupSearchQuery("");
+    setGroupDialogError("");
+    setGroupDialogOpen(true);
+  };
+
+  const setGroupFormName = (name: string) => {
+    setGroupForm((previous) => ({
+      ...previous,
+      name,
+    }));
+    setGroupDialogError("");
+  };
+
+  const toggleGroupMember = (username: string, checked: boolean) => {
+    setGroupForm((previous) => {
+      const usernames = new Set(previous.usernames);
+      if (checked) {
+        usernames.add(username);
+      } else {
+        usernames.delete(username);
+      }
+
+      return {
+        ...previous,
+        usernames,
+      };
+    });
+  };
+
+  const handleSaveGroup = async () => {
+    if (busy() || !groupFormSubmittable()) {
+      return;
+    }
+
+    const payload = {
+      name: groupForm().name.trim(),
+      usernames: [...groupForm().usernames],
+    };
+    const currentGroupName = editingGroupName();
+    setBusy(true);
+    setGroupDialogError("");
+    try {
+      const nextState =
+        currentGroupName === null
+          ? await window.ipc.accounts.createGroup(payload)
+          : await window.ipc.accounts.updateGroup(currentGroupName, payload);
+
+      applyState(nextState);
+      setGroupDialogOpen(false);
+      selectGroup(payload.name, nextState.groups);
+    } catch (error) {
+      console.error("Failed to save group:", error);
+      setGroupDialogError(
+        error instanceof Error ? error.message : "Save failed",
+      );
+    } finally {
+      setBusy(false);
+    }
+  };
+
+  const handleDeleteGroup = async () => {
+    const groupName = editingGroupName() ?? selectedGroupName();
+    if (busy() || groupName === "") {
+      return;
+    }
+
+    setBusy(true);
+    setGroupDialogError("");
+    try {
+      const nextState = await window.ipc.accounts.deleteGroup(groupName);
+      applyState(nextState);
+      setSelectedGroupName("");
+      setGroupDialogOpen(false);
+    } catch (error) {
+      console.error("Failed to delete group:", error);
+      setGroupDialogError(
+        error instanceof Error ? error.message : "Delete failed",
+      );
+    } finally {
+      setBusy(false);
+    }
   };
 
   const handleSave = async (options: SaveOptions) => {
@@ -771,6 +1035,7 @@ function App(): JSX.Element {
   };
 
   const toggleSelected = (username: string, checked: boolean) => {
+    setSelectedGroupName("");
     setSelectedAccountUsernames((previous) => {
       const next = new Set(previous);
       if (checked) {
@@ -783,6 +1048,7 @@ function App(): JSX.Element {
   };
 
   const selectVisibleAccounts = () => {
+    setSelectedGroupName("");
     setSelectedAccountUsernames((previous) => {
       const next = new Set(previous);
       for (const account of filteredAccounts()) {
@@ -793,6 +1059,7 @@ function App(): JSX.Element {
   };
 
   const invertVisibleSelection = () => {
+    setSelectedGroupName("");
     setSelectedAccountUsernames((previous) => {
       const next = new Set(previous);
       for (const account of filteredAccounts()) {
@@ -854,10 +1121,19 @@ function App(): JSX.Element {
                 <Search aria-hidden="true" />
               </InputGroupAddon>
               <InputGroupInput
+                ref={(element) => {
+                  accountSearchInput = element;
+                }}
                 value={searchQuery()}
                 placeholder="Search accounts..."
                 onInput={(event) => setSearchQuery(event.currentTarget.value)}
               />
+              <InputGroupAddon
+                align="inline-end"
+                class="account-search__shortcut"
+              >
+                <Kbd>/</Kbd>
+              </InputGroupAddon>
             </InputGroup>
             <div class="account-manager__launch-row">
               <div class="account-manager__field-container">
@@ -885,90 +1161,90 @@ function App(): JSX.Element {
                 </div>
                 <Combobox
                   class="account-manager__server-field account-manager__field account-manager__server-combobox"
-                    value={[launchServer() || NO_SERVER_VALUE]}
-                    disabled={serversLoading() || serverError() !== ""}
-                    inputBehavior="autohighlight"
-                    openOnClick
-                    positioning={{ fitViewport: true, sameWidth: false }}
-                    onOpenChange={(details) => {
-                      if (!details.open) {
-                        setServerInputValue(launchServer());
-                        setServerSearchQuery("");
-                      }
-                    }}
-                    onValueChange={(details) => {
-                      const value = details.value[0] ?? NO_SERVER_VALUE;
-                      const nextLaunchServer =
-                        value === NO_SERVER_VALUE ? "" : value;
-                      setServerInputValue(nextLaunchServer);
+                  value={[launchServer() || NO_SERVER_VALUE]}
+                  disabled={serversLoading() || serverError() !== ""}
+                  inputBehavior="autohighlight"
+                  openOnClick
+                  positioning={{ fitViewport: true, sameWidth: false }}
+                  onOpenChange={(details) => {
+                    if (!details.open) {
+                      setServerInputValue(launchServer());
                       setServerSearchQuery("");
-                      setLaunchServer(nextLaunchServer);
-                      setServerSelectionInitialized(true);
+                    }
+                  }}
+                  onValueChange={(details) => {
+                    const value = details.value[0] ?? NO_SERVER_VALUE;
+                    const nextLaunchServer =
+                      value === NO_SERVER_VALUE ? "" : value;
+                    setServerInputValue(nextLaunchServer);
+                    setServerSearchQuery("");
+                    setLaunchServer(nextLaunchServer);
+                    setServerSelectionInitialized(true);
+                  }}
+                >
+                  <ComboboxInput
+                    classList={{
+                      "account-manager__server-input--settling":
+                        serversLoading() || serverSelectionSettling(),
                     }}
-                  >
-                    <ComboboxInput
-                      classList={{
-                        "account-manager__server-input--settling":
-                          serversLoading() || serverSelectionSettling(),
-                      }}
-                      placeholder="Choose server..."
-                      showClear={false}
-                      size="lg"
-                      value={serverInputValue()}
-                      onInput={(event) => {
-                        const value = event.currentTarget.value;
-                        setServerInputValue(value);
-                        setServerSearchQuery(value);
-                      }}
-                      onKeyDown={(event) => {
-                        if (event.key !== "Escape") {
-                          return;
-                        }
+                    placeholder="Choose server..."
+                    showClear={false}
+                    size="lg"
+                    value={serverInputValue()}
+                    onInput={(event) => {
+                      const value = event.currentTarget.value;
+                      setServerInputValue(value);
+                      setServerSearchQuery(value);
+                    }}
+                    onKeyDown={(event) => {
+                      if (event.key !== "Escape") {
+                        return;
+                      }
 
-                        setServerInputValue(launchServer());
-                        setServerSearchQuery("");
-                      }}
-                    />
-                    <ComboboxContent class="account-manager__server-content">
-                      <Show
-                        when={
-                          !showNoServerOption() &&
-                          filteredServerOptions().length === 0
-                        }
-                      >
-                        <ComboboxEmpty>No matching servers</ComboboxEmpty>
+                      setServerInputValue(launchServer());
+                      setServerSearchQuery("");
+                    }}
+                  />
+                  <ComboboxContent class="account-manager__server-content">
+                    <Show
+                      when={
+                        !showNoServerOption() &&
+                        filteredServerOptions().length === 0
+                      }
+                    >
+                      <ComboboxEmpty>No matching servers</ComboboxEmpty>
+                    </Show>
+                    <ComboboxList>
+                      <Show when={showNoServerOption()}>
+                        <ComboboxItem value={NO_SERVER_VALUE} label="None">
+                          None
+                        </ComboboxItem>
                       </Show>
-                      <ComboboxList>
-                        <Show when={showNoServerOption()}>
-                          <ComboboxItem value={NO_SERVER_VALUE} label="None">
-                            None
-                          </ComboboxItem>
-                        </Show>
-                        <For each={filteredServerOptions()}>
-                          {(server) => (
-                            <ComboboxItem
-                              value={server.name}
-                              label={server.name}
-                              disabled={!server.online}
+                      <For each={filteredServerOptions()}>
+                        {(server) => (
+                          <ComboboxItem
+                            value={server.name}
+                            label={server.name}
+                            disabled={!server.online}
+                          >
+                            <span
+                              class={`account-server-option account-server-option--${serverAvailability(
+                                server,
+                              )}`}
                             >
-                              <span
-                                class={`account-server-option account-server-option--${serverAvailability(
-                                  server,
-                                )}`}
-                              >
-                                <span class="account-server-option__name">
-                                  {server.name}
-                                </span>
-                                <span class="account-server-option__meta">
-                                  {serverMeta(server)}
-                                </span>
+                              <span class="account-server-option__name">
+                                {server.name}
                               </span>
-                            </ComboboxItem>
-                          )}
-                        </For>
-                      </ComboboxList>
-                    </ComboboxContent>
-                  </Combobox>
+                              <span class="account-server-option__meta">
+                                {serverMeta(server)}
+                              </span>
+                            </span>
+                          </ComboboxItem>
+                        )}
+                      </For>
+                    </ComboboxList>
+                  </ComboboxContent>
+                </Combobox>
               </div>
 
               <div class="account-manager__field-container">
@@ -1131,9 +1407,147 @@ function App(): JSX.Element {
           </div>
 
           <div class="account-manager__selection-bar">
-            <span>
-              {selectedVisibleCount()} of {filteredAccounts().length} selected
-            </span>
+            <div class="account-manager__selection-context">
+              <div class="account-manager__group-row">
+                <div class="account-manager__group-label">
+                  <span>Groups</span>
+                  <Tooltip closeDelay={0} openDelay={250}>
+                    <TooltipTrigger
+                      asChild={(triggerProps) => (
+                        <Button
+                          {...(triggerProps({
+                            "aria-label": "What are groups?",
+                            size: "icon-sm",
+                            type: "button",
+                            variant: "ghost",
+                          } as ButtonProps) as ButtonProps)}
+                        >
+                          <CircleQuestionMark class="button__icon" />
+                        </Button>
+                      )}
+                    />
+                    <TooltipContent>
+                      Groups are saved account selections.
+                    </TooltipContent>
+                  </Tooltip>
+                </div>
+                <div
+                  ref={(element) => {
+                    groupFieldElement = element;
+                  }}
+                  class="account-manager__group-field"
+                >
+                  <Combobox
+                    class="account-manager__group-combobox"
+                    value={[selectedGroupName() || MANUAL_GROUP_VALUE]}
+                    inputBehavior="autohighlight"
+                    openOnClick
+                    positioning={{ fitViewport: true, sameWidth: false }}
+                    onValueChange={(details) => {
+                      const value = details.value[0] ?? MANUAL_GROUP_VALUE;
+                      selectGroup(
+                        value === MANUAL_GROUP_VALUE ? "" : value,
+                        groups(),
+                      );
+                    }}
+                  >
+                    <ComboboxInput
+                      ref={(element) => {
+                        groupComboboxInput = element;
+                      }}
+                      value={selectedGroupLabel()}
+                      readOnly
+                      showClear={false}
+                      size="lg"
+                      placeholder="Choose group..."
+                    />
+                    <ComboboxContent class="account-manager__group-content">
+                      <ComboboxList>
+                        <ComboboxItem
+                          value={MANUAL_GROUP_VALUE}
+                          label="Manual selection"
+                        >
+                          Manual selection
+                        </ComboboxItem>
+                        <For each={groupEntries()}>
+                          {([name, usernames]) => (
+                            <ComboboxItem value={name} label={name}>
+                              <span class="account-group-option">
+                                <span class="account-group-option__name">
+                                  {name}
+                                </span>
+                                <span class="account-group-option__meta">
+                                  {usernames.length}
+                                </span>
+                              </span>
+                            </ComboboxItem>
+                          )}
+                        </For>
+                      </ComboboxList>
+                    </ComboboxContent>
+                  </Combobox>
+                  <Kbd class="account-manager__group-shortcut">G</Kbd>
+                </div>
+                <div class="account-manager__group-actions">
+                  <Button
+                    variant="secondary"
+                    onClick={openCreateGroupDialog}
+                    disabled={busy()}
+                  >
+                    <Plus class="button__icon" />
+                    New Group
+                  </Button>
+                  <Button
+                    variant="secondary"
+                    onClick={openEditGroupDialog}
+                    disabled={busy() || selectedGroupName() === ""}
+                  >
+                    <Pencil class="button__icon" />
+                    Edit
+                  </Button>
+                  <AlertDialog>
+                    <AlertDialogTrigger
+                      asChild={(triggerProps) => (
+                        <Button
+                          {...(triggerProps({
+                            variant: "destructive-outline",
+                            disabled: busy() || selectedGroupName() === "",
+                          } as ButtonProps) as ButtonProps)}
+                        >
+                          <Trash2 class="button__icon" />
+                          Delete
+                        </Button>
+                      )}
+                    />
+                    <AlertDialogContent>
+                      <AlertDialogHeader>
+                        <AlertDialogTitle>Delete Group</AlertDialogTitle>
+                        <AlertDialogDescription>
+                          Delete {selectedGroupName()}? Accounts in this group
+                          will stay saved.
+                        </AlertDialogDescription>
+                      </AlertDialogHeader>
+                      <AlertDialogFooter>
+                        <AlertDialogCancel>Cancel</AlertDialogCancel>
+                        <AlertDialogAction
+                          onClick={() => void handleDeleteGroup()}
+                          variant="destructive"
+                        >
+                          Delete group
+                        </AlertDialogAction>
+                      </AlertDialogFooter>
+                    </AlertDialogContent>
+                  </AlertDialog>
+                </div>
+              </div>
+              <span class="account-manager__selection-count">
+                {selectedAccountCount()} selected
+                <Show when={filteredAccounts().length !== accounts().length}>
+                  {" "}
+                  ({filteredAccounts().length} visible)
+                </Show>
+              </span>
+            </div>
             <div class="account-manager__selection-actions">
               <Button variant="secondary" onClick={selectVisibleAccounts}>
                 All
@@ -1336,6 +1750,143 @@ function App(): JSX.Element {
             </Show>
           </div>
         </section>
+
+        <Dialog
+          open={groupDialogOpen()}
+          onOpenChange={(details) => {
+            setGroupDialogOpen(details.open);
+            if (!details.open) {
+              setEditingGroupName(null);
+            }
+          }}
+        >
+          <DialogContent class="account-dialog account-group-dialog">
+            <DialogHeader>
+              <DialogTitle>
+                {groupDialogMode() === "edit" ? "Edit Group" : "New Group"}
+              </DialogTitle>
+            </DialogHeader>
+
+            <form
+              class="account-dialog__form"
+              onSubmit={(event) => {
+                event.preventDefault();
+                void handleSaveGroup();
+              }}
+            >
+              <div class="account-dialog__fields">
+                <Show when={groupDialogError()}>
+                  <div class="account-dialog__error">{groupDialogError()}</div>
+                </Show>
+                <label class="account-dialog__field">
+                  <span>Name</span>
+                  <Input
+                    fullWidth
+                    size="lg"
+                    value={groupForm().name}
+                    placeholder="Group name"
+                    onInput={(event) =>
+                      setGroupFormName(event.currentTarget.value)
+                    }
+                  />
+                </label>
+                <div class="account-dialog__field">
+                  <span>Accounts</span>
+                  <InputGroup class="account-group-dialog__search">
+                    <InputGroupAddon>
+                      <Search aria-hidden="true" />
+                    </InputGroupAddon>
+                    <InputGroupInput
+                      value={groupSearchQuery()}
+                      placeholder="Search accounts..."
+                      onInput={(event) =>
+                        setGroupSearchQuery(event.currentTarget.value)
+                      }
+                    />
+                  </InputGroup>
+                  <div class="account-group-dialog__members">
+                    <Show
+                      when={filteredGroupAccounts().length > 0}
+                      fallback={
+                        <div class="account-group-dialog__empty">
+                          No matching accounts
+                        </div>
+                      }
+                    >
+                      <For each={filteredGroupAccounts()}>
+                        {(account) => (
+                          <label class="account-group-dialog__member">
+                            <Checkbox
+                              checked={groupForm().usernames.has(
+                                account.username,
+                              )}
+                              onChange={(event) =>
+                                toggleGroupMember(
+                                  account.username,
+                                  event.currentTarget.checked,
+                                )
+                              }
+                            />
+                            <span class="account-group-dialog__member-text">
+                              <span class="account-group-dialog__member-name">
+                                {account.label}
+                              </span>
+                              <span class="account-group-dialog__member-meta">
+                                {account.username}
+                              </span>
+                            </span>
+                          </label>
+                        )}
+                      </For>
+                    </Show>
+                  </div>
+                </div>
+              </div>
+
+              <DialogFooter>
+                <Show when={groupDialogMode() === "edit"}>
+                  <AlertDialog>
+                    <AlertDialogTrigger
+                      class="button button--destructive-outline button--size-default"
+                      disabled={busy()}
+                      type="button"
+                    >
+                      <Trash2 class="button__icon" />
+                      Delete
+                    </AlertDialogTrigger>
+                    <AlertDialogContent class="account-dialog">
+                      <AlertDialogHeader>
+                        <AlertDialogTitle>Delete Group</AlertDialogTitle>
+                        <AlertDialogDescription>
+                          Delete {editingGroupName()}? Accounts in this group
+                          will stay saved.
+                        </AlertDialogDescription>
+                      </AlertDialogHeader>
+                      <AlertDialogFooter>
+                        <AlertDialogCancel>Cancel</AlertDialogCancel>
+                        <AlertDialogAction
+                          onClick={() => void handleDeleteGroup()}
+                          variant="destructive"
+                        >
+                          Delete group
+                        </AlertDialogAction>
+                      </AlertDialogFooter>
+                    </AlertDialogContent>
+                  </AlertDialog>
+                </Show>
+                <DialogClose type="button">Cancel</DialogClose>
+                <Button
+                  size="lg"
+                  type="submit"
+                  loading={busy()}
+                  disabled={!groupFormSubmittable()}
+                >
+                  {groupDialogMode() === "edit" ? "Update" : "Create Group"}
+                </Button>
+              </DialogFooter>
+            </form>
+          </DialogContent>
+        </Dialog>
 
         <Dialog
           open={dialogOpen()}

@@ -42,6 +42,12 @@ type ComboboxScrollToIndexDetails = Parameters<
   NonNullable<ComboboxProps["scrollToIndexFn"]>
 >[0];
 
+const defaultComboboxPositioning: NonNullable<ComboboxProps["positioning"]> = {
+  fitViewport: true,
+  placement: "bottom-start",
+  sameWidth: true,
+};
+
 function scrollComboboxItemIntoView(
   details: ComboboxScrollToIndexDetails,
 ): void {
@@ -108,9 +114,7 @@ export function Combobox(props: ComboboxProps): JSX.Element {
         class={cn("combobox", local.class)}
         collection={collection()}
         data-slot="combobox"
-        positioning={
-          local.positioning ?? { fitViewport: true, sameWidth: true }
-        }
+        positioning={{ ...defaultComboboxPositioning, ...local.positioning }}
         scrollToIndexFn={local.scrollToIndexFn ?? scrollComboboxItemIntoView}
       >
         {local.children}

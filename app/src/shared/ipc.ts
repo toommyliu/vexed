@@ -73,6 +73,9 @@ export const AccountManagerIpcChannels = {
   createAccount: "account-manager:create-account",
   updateAccount: "account-manager:update-account",
   deleteAccount: "account-manager:delete-account",
+  createGroup: "account-manager:create-group",
+  updateGroup: "account-manager:update-group",
+  deleteGroup: "account-manager:delete-group",
   launch: "account-manager:launch",
   updateScriptStatus: "account-manager:update-script-status",
   changed: "account-manager:changed",
@@ -153,6 +156,18 @@ export interface ManagedAccountPatch {
   readonly password?: string;
 }
 
+export type ManagedAccountGroups = Readonly<Record<string, readonly string[]>>;
+
+export interface ManagedAccountGroupDraft {
+  readonly name: string;
+  readonly usernames: readonly string[];
+}
+
+export interface ManagedAccountGroupPatch {
+  readonly name?: string;
+  readonly usernames?: readonly string[];
+}
+
 export interface AccountGameServer {
   readonly name: string;
   readonly language: string;
@@ -178,6 +193,7 @@ export interface AccountScriptSession {
 
 export interface AccountManagerState {
   readonly accounts: readonly ManagedAccount[];
+  readonly groups: ManagedAccountGroups;
   readonly sessions: readonly AccountScriptSession[];
   readonly storagePath: string;
 }
@@ -276,6 +292,18 @@ export interface AccountManagerInvokeChannels {
     [username: string],
     AccountManagerState
   >;
+  readonly [AccountManagerIpcChannels.createGroup]: IpcInvokeDefinition<
+    [draft: ManagedAccountGroupDraft],
+    AccountManagerState
+  >;
+  readonly [AccountManagerIpcChannels.updateGroup]: IpcInvokeDefinition<
+    [name: string, patch: ManagedAccountGroupPatch],
+    AccountManagerState
+  >;
+  readonly [AccountManagerIpcChannels.deleteGroup]: IpcInvokeDefinition<
+    [name: string],
+    AccountManagerState
+  >;
   readonly [AccountManagerIpcChannels.launch]: IpcInvokeDefinition<
     [request: AccountLaunchRequest],
     AccountLaunchResult
@@ -304,6 +332,12 @@ export interface AccountManagerBridge {
     patch: ManagedAccountPatch,
   ): Promise<AccountManagerState>;
   deleteAccount(username: string): Promise<AccountManagerState>;
+  createGroup(draft: ManagedAccountGroupDraft): Promise<AccountManagerState>;
+  updateGroup(
+    name: string,
+    patch: ManagedAccountGroupPatch,
+  ): Promise<AccountManagerState>;
+  deleteGroup(name: string): Promise<AccountManagerState>;
   launch(request: AccountLaunchRequest): Promise<AccountLaunchResult>;
   updateScriptStatus(update: AccountScriptStatusUpdate): Promise<void>;
   onChanged(listener: (state: AccountManagerState) => void): () => void;
