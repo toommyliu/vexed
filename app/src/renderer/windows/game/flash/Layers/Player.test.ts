@@ -103,11 +103,7 @@ test("joinMap returns promptly when the server warns that the target map is inva
           raw: "",
           packetType: "str",
           cmd: "warning",
-          data: [
-            "warning",
-            "-1",
-            '"highcommand" is an Membership-Only Map.',
-          ],
+          data: ["warning", "-1", '"highcommand" is an Membership-Only Map.'],
         });
       }) as never;
     },
@@ -154,11 +150,7 @@ test("joinMap ignores invalid-map warnings for other maps", async () => {
           raw: "",
           packetType: "str",
           cmd: "warning",
-          data: [
-            "warning",
-            "-1",
-            '"highcommand" is an Membership-Only Map.',
-          ],
+          data: ["warning", "-1", '"highcommand" is an Membership-Only Map.'],
         });
 
         loaded = true;

@@ -19,9 +19,7 @@ const normalizeText = (value: string): string =>
 export const counterAttackTriggers: readonly CounterAttackTrigger[] = [
   {
     id: "counter-attack",
-    messagePatterns: [
-      /prepares\s+a\s+counter\s+attack/i,
-    ],
+    messagePatterns: [/prepares\s+a\s+counter\s+attack/i],
     auraNames: ["Counter Attack"],
     auraPatterns: [/\bcounter\b.*\battack\b/i],
     fallbackMs: 7_000,

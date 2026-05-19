@@ -49,7 +49,9 @@ export const readRecordedHotkeyFromEvent = (
   // physical key, for example Option+I can report "¬". Store accelerator
   // bindings by physical key so recording Option+I persists as "Alt+I".
   const physicalKey =
-    event.altKey && event.code ? readPhysicalKeyFromCode(event.code) : undefined;
+    event.altKey && event.code
+      ? readPhysicalKeyFromCode(event.code)
+      : undefined;
   parts.push(physicalKey ?? event.key);
   return parts.join("+");
 };

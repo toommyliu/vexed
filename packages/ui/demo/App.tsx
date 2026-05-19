@@ -542,8 +542,8 @@ function DemoApp() {
                     <AlertDialogHeader>
                       <AlertDialogTitle>Bare alert footer</AlertDialogTitle>
                       <AlertDialogDescription>
-                        Keep alert actions close to the message without a
-                        footer divider.
+                        Keep alert actions close to the message without a footer
+                        divider.
                       </AlertDialogDescription>
                     </AlertDialogHeader>
                     <AlertDialogFooter variant="bare">
@@ -826,7 +826,10 @@ function DemoApp() {
                           role="status"
                           value="logs"
                         >
-                          <Spinner class="demo-tabs-status__spinner" size="sm" />
+                          <Spinner
+                            class="demo-tabs-status__spinner"
+                            size="sm"
+                          />
                           <span>Waiting for records</span>
                         </TabsContent>
                       </Tabs>
@@ -920,9 +923,7 @@ function DemoApp() {
               <Separator />
               <div class="demo-row">
                 <CommandEmpty>No command found.</CommandEmpty>
-                <CommandLoading>
-                  Loading commands
-                </CommandLoading>
+                <CommandLoading>Loading commands</CommandLoading>
               </div>
             </CardContent>
           </Card>
@@ -1119,10 +1120,7 @@ function DemoApp() {
                 class="demo-app-shell-preview demo-app-shell-preview--horizontal"
                 orientation="horizontal"
               >
-                <AppShellHeader
-                  maxWidth={false}
-                  wrapChildren
-                >
+                <AppShellHeader maxWidth={false} wrapChildren>
                   <div class="demo-app-shell-nav">
                     <div class="demo-app-shell-nav__brand">Console</div>
                     <button

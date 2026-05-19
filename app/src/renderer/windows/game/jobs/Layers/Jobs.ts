@@ -3,10 +3,7 @@ import type { Duration } from "effect";
 import { JobGate } from "../Services/JobGate";
 import { Jobs } from "../Services/Jobs";
 import type { JobRunWhen } from "../Services/JobGate";
-import type {
-  JobsShape,
-  PeriodicJobStartOptions,
-} from "../Services/Jobs";
+import type { JobsShape, PeriodicJobStartOptions } from "../Services/Jobs";
 
 type JobToken = number;
 

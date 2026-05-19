@@ -66,9 +66,7 @@ test("duplicate job with replace false does not replace existing job", async () 
           "same",
           Effect.never.pipe(
             Effect.onInterrupt(() =>
-              Deferred.succeed(firstInterrupted, undefined).pipe(
-                Effect.asVoid,
-              ),
+              Deferred.succeed(firstInterrupted, undefined).pipe(Effect.asVoid),
             ),
           ),
         ),
@@ -274,7 +272,9 @@ test("periodic cycle failure is logged and swallowed while loop continues", asyn
           Effect.gen(function* () {
             runs += 1;
             if (runs === 1) {
-              return yield* new JobsTestError({ message: "first cycle failed" });
+              return yield* new JobsTestError({
+                message: "first cycle failed",
+              });
             }
           }),
           { runOnStart: true, runWhen: "always" },

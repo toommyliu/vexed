@@ -8,9 +8,7 @@ export interface EmptyProps
 
 export function Empty(props: EmptyProps): JSX.Element {
   const [local, rest] = splitProps(props, ["class"]);
-  return (
-    <div {...rest} class={cn("empty", local.class)} data-slot="empty" />
-  );
+  return <div {...rest} class={cn("empty", local.class)} data-slot="empty" />;
 }
 
 export function EmptyHeader(props: EmptyProps): JSX.Element {
@@ -42,8 +40,14 @@ export function EmptyMedia(props: EmptyMediaProps): JSX.Element {
     >
       {variant() === "icon" && (
         <>
-          <span aria-hidden="true" class="empty__media-shadow empty__media-shadow--left" />
-          <span aria-hidden="true" class="empty__media-shadow empty__media-shadow--right" />
+          <span
+            aria-hidden="true"
+            class="empty__media-shadow empty__media-shadow--left"
+          />
+          <span
+            aria-hidden="true"
+            class="empty__media-shadow empty__media-shadow--right"
+          />
         </>
       )}
       <span class="empty__media-content">{local.children}</span>

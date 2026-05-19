@@ -76,4 +76,5 @@ export const formatHotkeyDisplay = (
 export const formatOptionalHotkeyDisplay = (
   value: string,
   platform: HotkeyDisplayPlatform,
-): string | null => (value === "" ? null : formatHotkeyDisplay(value, platform));
+): string | null =>
+  value === "" ? null : formatHotkeyDisplay(value, platform);

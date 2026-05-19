@@ -28,7 +28,9 @@ export function AlertDialog(props: AlertDialogProps): JSX.Element {
 
 export type AlertDialogTriggerProps = DialogTriggerProps;
 
-export function AlertDialogTrigger(props: AlertDialogTriggerProps): JSX.Element {
+export function AlertDialogTrigger(
+  props: AlertDialogTriggerProps,
+): JSX.Element {
   return <DialogTrigger {...props} data-slot="alert-dialog-trigger" />;
 }
 
@@ -40,7 +42,9 @@ export function AlertDialogOverlay(
 
 export type AlertDialogContentProps = DialogContentProps;
 
-export function AlertDialogContent(props: AlertDialogContentProps): JSX.Element {
+export function AlertDialogContent(
+  props: AlertDialogContentProps,
+): JSX.Element {
   return <DialogContent {...props} data-slot="alert-dialog-content" />;
 }
 

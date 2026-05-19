@@ -90,10 +90,7 @@ export {
   type CardTitleProps,
 } from "./components/Card";
 export { Checkbox, type CheckboxProps } from "./components/Checkbox";
-export {
-  ColorPicker,
-  type ColorPickerProps,
-} from "./components/ColorPicker";
+export { ColorPicker, type ColorPickerProps } from "./components/ColorPicker";
 export {
   Combobox,
   ComboboxClear,

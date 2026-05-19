@@ -2,7 +2,9 @@ if (!Array.prototype.at) {
   Object.defineProperty(Array.prototype, "at", {
     configurable: true,
     value(
-      this: readonly unknown[] | { readonly length: number; readonly [n: number]: unknown },
+      this:
+        | readonly unknown[]
+        | { readonly length: number; readonly [n: number]: unknown },
       index: number,
     ) {
       const length = this.length;

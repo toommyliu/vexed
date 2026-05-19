@@ -64,14 +64,16 @@ const make = Effect.gen(function* () {
       return jobs.stop(SETTINGS_ACTION_JOB_KEY).pipe(Effect.asVoid);
     }
 
-    return jobs.startPeriodicJob({
-      key: SETTINGS_ACTION_JOB_KEY,
-      interval: SETTINGS_ACTION_INTERVAL,
-      runOnStart: true,
-      runWhen: "loggedIn",
-      replace: false,
-      task: applyRecurringSettingActions,
-    }).pipe(Effect.asVoid);
+    return jobs
+      .startPeriodicJob({
+        key: SETTINGS_ACTION_JOB_KEY,
+        interval: SETTINGS_ACTION_INTERVAL,
+        runOnStart: true,
+        runWhen: "loggedIn",
+        replace: false,
+        task: applyRecurringSettingActions,
+      })
+      .pipe(Effect.asVoid);
   };
 
   const disposeSettingsActionJob = yield* settings.onState((state) => {

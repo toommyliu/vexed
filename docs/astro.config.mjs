@@ -85,7 +85,10 @@ export default defineConfig({
                 { link: "/scripting/api/recipes/", label: "Recipes" },
                 { link: "/scripting/api/settings/", label: "Settings" },
                 { link: "/scripting/api/shops/", label: "Shops" },
-                { link: "/scripting/api/temp-inventory/", label: "Temp Inventory" },
+                {
+                  link: "/scripting/api/temp-inventory/",
+                  label: "Temp Inventory",
+                },
                 { link: "/scripting/api/world/", label: "World" },
               ],
             },

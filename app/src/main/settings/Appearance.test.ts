@@ -280,8 +280,6 @@ describe("appearance settings", () => {
   it("resolves appearance under app data", () => {
     Files.configureAppDataHome("/tmp/vexed-test");
 
-    expect(Appearance.path()).toBe(
-      join("/tmp/vexed-test", "appearance.json"),
-    );
+    expect(Appearance.path()).toBe(join("/tmp/vexed-test", "appearance.json"));
   });
 });

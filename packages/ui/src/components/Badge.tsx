@@ -67,11 +67,5 @@ export function Badge(props: BadgeProps): JSX.Element {
     );
   }
 
-  return (
-    <span
-      {...rest}
-      class={className()}
-      data-slot="badge"
-    />
-  );
+  return <span {...rest} class={className()} data-slot="badge" />;
 }

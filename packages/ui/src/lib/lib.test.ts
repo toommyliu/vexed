@@ -17,12 +17,9 @@ describe("mergeRefs", () => {
     const objectRef: { current?: HTMLButtonElement | null } = {};
     let functionRef: HTMLButtonElement | undefined;
 
-    mergeRefs<HTMLButtonElement>(
-      objectRef,
-      (value) => {
-        functionRef = value;
-      },
-    )(element);
+    mergeRefs<HTMLButtonElement>(objectRef, (value) => {
+      functionRef = value;
+    })(element);
 
     expect(objectRef.current).toBe(element);
     expect(functionRef).toBe(element);

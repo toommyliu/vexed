@@ -21,8 +21,7 @@ export interface AppShellProps extends JSX.HTMLAttributes<HTMLDivElement> {
   readonly orientation?: AppShellOrientation;
 }
 
-export interface AppShellHeaderProps
-  extends JSX.HTMLAttributes<HTMLElement> {
+export interface AppShellHeaderProps extends JSX.HTMLAttributes<HTMLElement> {
   readonly class?: string;
   readonly maxWidth?: string | false;
   readonly wrapChildren?: boolean;
@@ -43,8 +42,7 @@ export interface AppShellTitleProps
   readonly class?: string;
 }
 
-export interface AppShellBodyProps
-  extends JSX.HTMLAttributes<HTMLElement> {
+export interface AppShellBodyProps extends JSX.HTMLAttributes<HTMLElement> {
   readonly class?: string;
   readonly maxWidth?: string | false;
   readonly scroll?: boolean;
@@ -100,10 +98,7 @@ export function AppShellHeader(props: AppShellHeaderProps): JSX.Element {
       data-orientation={context.orientation()}
       data-slot="app-shell-header"
     >
-      <Show
-        when={maxWidth() !== false}
-        fallback={content()}
-      >
+      <Show when={maxWidth() !== false} fallback={content()}>
         <div class={cn("app-shell__container", maxWidth())}>{content()}</div>
       </Show>
     </header>
@@ -162,10 +157,7 @@ export function AppShellBody(props: AppShellBodyProps): JSX.Element {
   const scroll = () => local.scroll ?? true;
 
   const content = () => (
-    <Show
-      when={maxWidth() !== false}
-      fallback={local.children}
-    >
+    <Show when={maxWidth() !== false} fallback={local.children}>
       <div
         class={cn(
           "app-shell__container",

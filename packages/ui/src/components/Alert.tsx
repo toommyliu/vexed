@@ -1,12 +1,7 @@
 import { splitProps, type JSX } from "solid-js";
 import { cn } from "../lib/cn";
 
-export type AlertVariant =
-  | "default"
-  | "error"
-  | "info"
-  | "success"
-  | "warning";
+export type AlertVariant = "default" | "error" | "info" | "success" | "warning";
 
 export interface AlertProps
   extends Omit<JSX.HTMLAttributes<HTMLDivElement>, "class"> {

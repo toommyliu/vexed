@@ -44,9 +44,9 @@ const withAuth = async <A>(
         if (path === "flash.getGameObject") {
           const target = _args?.[0];
           if (target === "mcLogin.btnLogin.visible") {
-            return JSON.stringify(options.loginButtonVisible ?? false) as ReturnType<
-              Window["swf"][K]
-            >;
+            return JSON.stringify(
+              options.loginButtonVisible ?? false,
+            ) as ReturnType<Window["swf"][K]>;
           }
 
           return (options.currentLabel ??

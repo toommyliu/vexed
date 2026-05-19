@@ -25,10 +25,7 @@ describe("hotkey display", () => {
       "Win",
       "D",
     ]);
-    expect(formatHotkeyDisplayParts("Mod+O", "windows")).toEqual([
-      "Ctrl",
-      "O",
-    ]);
+    expect(formatHotkeyDisplayParts("Mod+O", "windows")).toEqual(["Ctrl", "O"]);
     expect(formatHotkeyDisplayParts("Mod+Shift+X", "windows")).toEqual([
       "Ctrl",
       "Shift",
@@ -43,9 +40,7 @@ describe("hotkey display", () => {
 
   it("formats display strings by platform", () => {
     expect(formatHotkeyDisplay("Mod+Shift+X", "mac")).toBe("⌘ ⇧ X");
-    expect(formatHotkeyDisplay("Mod+Shift+X", "windows")).toBe(
-      "Ctrl+Shift+X",
-    );
+    expect(formatHotkeyDisplay("Mod+Shift+X", "windows")).toBe("Ctrl+Shift+X");
     expect(formatHotkeyDisplay("Mod+Shift+X", "linux")).toBe("Ctrl+Shift+X");
   });
 

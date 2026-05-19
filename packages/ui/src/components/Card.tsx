@@ -43,7 +43,8 @@ export interface CardFrameHeaderProps
   readonly class?: string;
 }
 
-export interface CardFrameTitleProps extends JSX.HTMLAttributes<HTMLDivElement> {
+export interface CardFrameTitleProps
+  extends JSX.HTMLAttributes<HTMLDivElement> {
   readonly class?: string;
 }
 

@@ -24,7 +24,12 @@ import type { ShopsShape } from "../flash/Services/Shops";
 import type { TempInventoryShape } from "../flash/Services/TempInventory";
 import type { WorldShape } from "../flash/Services/World";
 import { asItemData } from "../flash/ItemDataPayload";
-import { asBoolean, asNumber, asRecord, asString } from "../flash/PacketPayload";
+import {
+  asBoolean,
+  asNumber,
+  asRecord,
+  asString,
+} from "../flash/PacketPayload";
 import type { ConsumableSkillItem } from "../flash/Types";
 import { waitFor } from "../utils/waitFor";
 import { ScriptExecutionError } from "./Errors";
@@ -151,14 +156,16 @@ const loadShopById = (
   Effect.gen(function* () {
     yield* deps.shops.load(shopId);
     yield* waitFor(
-      deps.shops.getInfo().pipe(
-        Effect.map(
-          (info) =>
-            info !== null &&
-            Number(info.ShopID) === shopId &&
-            info.items.length > 0,
+      deps.shops
+        .getInfo()
+        .pipe(
+          Effect.map(
+            (info) =>
+              info !== null &&
+              Number(info.ShopID) === shopId &&
+              info.items.length > 0,
+          ),
         ),
-      ),
       { timeout: "5 seconds" },
     );
   });
@@ -176,7 +183,11 @@ const normalizeBuffSkills = (
   skillList?: readonly number[] | null,
 ) =>
   Effect.gen(function* () {
-    if (skillList === undefined || skillList === null || skillList.length === 0) {
+    if (
+      skillList === undefined ||
+      skillList === null ||
+      skillList.length === 0
+    ) {
       return DEFAULT_BUFF_SKILLS;
     }
 
@@ -238,10 +249,8 @@ const waitForConsumableSkillSlot = (
   expectedItem: Item,
 ) =>
   waitFor(
-    Effect.map(
-      deps.combat.getConsumableSkillItem(),
-      (consumableSkillItem) =>
-        consumableSkillItemMatches(consumableSkillItem, expectedItem),
+    Effect.map(deps.combat.getConsumableSkillItem(), (consumableSkillItem) =>
+      consumableSkillItemMatches(consumableSkillItem, expectedItem),
     ),
     { timeout: "2 seconds" },
   );
@@ -856,23 +865,22 @@ const enhanceItem = (
       return;
     }
 
-    yield* deps.bridge.callGameFunction(
-      "world.confirmSendEnhItemRequestShop",
-      {
-        accept: true,
-        enh: enhancementSelection.candidateData,
-        item: [itemRecord.id],
-      },
-    );
+    yield* deps.bridge.callGameFunction("world.confirmSendEnhItemRequestShop", {
+      accept: true,
+      enh: enhancementSelection.candidateData,
+      item: [itemRecord.id],
+    });
 
     yield* waitFor(
-      deps.inventory.getItem(itemRecord.id).pipe(
-        Effect.map(
-          (updatedItem) =>
-            updatedItem !== null &&
-            matchesAppliedEnhancement(updatedItem, strategy),
+      deps.inventory
+        .getItem(itemRecord.id)
+        .pipe(
+          Effect.map(
+            (updatedItem) =>
+              updatedItem !== null &&
+              matchesAppliedEnhancement(updatedItem, strategy),
+          ),
         ),
-      ),
       { timeout: "5 seconds" },
     ).pipe(
       Effect.catch(() =>
@@ -899,8 +907,7 @@ export const makeScriptRecipes = (
   goToHouse: (player) => goToHouse(deps, player),
   beep: (times) => beep(deps, times),
   doWheelOfDoom: (toBank) => doWheelOfDoom(deps, toBank),
-  waitForPlayerCount: (count, exact) =>
-    waitForPlayerCount(deps, count, exact),
+  waitForPlayerCount: (count, exact) => waitForPlayerCount(deps, count, exact),
   equipItemByEnhancement: (options) => equipItemByEnhancement(deps, options),
   enhanceItem: (item, options) => enhanceItem(deps, item, options),
 });

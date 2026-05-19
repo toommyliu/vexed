@@ -1,6 +1,10 @@
 import { Effect, Layer } from "effect";
 import { expect, test } from "vitest";
-import { Jobs, type JobsShape, type PeriodicJobDefinition } from "../../jobs/Services/Jobs";
+import {
+  Jobs,
+  type JobsShape,
+  type PeriodicJobDefinition,
+} from "../../jobs/Services/Jobs";
 import { Bridge, type BridgeShape } from "../Services/Bridge";
 import {
   Settings,

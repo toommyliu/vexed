@@ -119,7 +119,8 @@ export function computeCommandScore(
   keywords: ReadonlyArray<string> = [],
 ): number {
   if (!search) return 1;
-  const combined = keywords.length > 0 ? `${value} ${keywords.join(" ")}` : value;
+  const combined =
+    keywords.length > 0 ? `${value} ${keywords.join(" ")}` : value;
 
   return scoreInner(
     combined,

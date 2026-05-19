@@ -1,7 +1,5 @@
 export function composeEventHandlers<EventType extends Event>(
-  externalHandler:
-    | ((event: EventType) => void)
-    | undefined,
+  externalHandler: ((event: EventType) => void) | undefined,
   internalHandler: (event: EventType) => void,
   options: { readonly checkDefaultPrevented?: boolean } = {},
 ): (event: EventType) => void {

@@ -211,9 +211,7 @@ export function DialogContent(props: DialogContentProps): JSX.Element {
                   local.class,
                 )}
                 data-nested={layer > 1 ? "" : undefined}
-                data-nested-dialog-open={
-                  nestedOpenCount() > 0 ? "" : undefined
-                }
+                data-nested-dialog-open={nestedOpenCount() > 0 ? "" : undefined}
                 style={dialogContentStyle(local.style, nestedOpenCount())}
                 data-slot={slot}
               >

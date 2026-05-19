@@ -31,7 +31,10 @@ interface SelectContextValue {
 const SelectItemsContext = createContext<SelectContextValue>();
 
 export interface SelectProps
-  extends Omit<Parameters<typeof SelectPrimitive.Root<SelectOption>>[0], "collection"> {
+  extends Omit<
+    Parameters<typeof SelectPrimitive.Root<SelectOption>>[0],
+    "collection"
+  > {
   readonly items?: ReadonlyArray<SelectOption>;
 }
 
@@ -42,16 +45,18 @@ export function Select(props: SelectProps): JSX.Element {
     "items",
     "positioning",
   ]);
-  const [registeredItems, setRegisteredItems] = createSignal<SelectOption[]>(
-    [...(local.items ?? [])],
-  );
+  const [registeredItems, setRegisteredItems] = createSignal<SelectOption[]>([
+    ...(local.items ?? []),
+  ]);
   const collection = createMemo(() =>
     createListCollection<SelectOption>({ items: registeredItems() }),
   );
   const context: SelectContextValue = {
     registerItem(item) {
       setRegisteredItems((items) => {
-        const next = items.filter((candidate) => candidate.value !== item.value);
+        const next = items.filter(
+          (candidate) => candidate.value !== item.value,
+        );
         return [...next, item];
       });
     },
@@ -69,7 +74,9 @@ export function Select(props: SelectProps): JSX.Element {
         class={cn("select", local.class)}
         collection={collection()}
         data-slot="select"
-        positioning={local.positioning ?? { fitViewport: true, sameWidth: true }}
+        positioning={
+          local.positioning ?? { fitViewport: true, sameWidth: true }
+        }
       >
         {local.children}
       </SelectPrimitive.Root>
@@ -89,11 +96,7 @@ export function SelectButton(props: SelectButtonProps): JSX.Element {
   return (
     <button
       {...rest}
-      class={cn(
-        "select__trigger",
-        `select__trigger--${size()}`,
-        local.class,
-      )}
+      class={cn("select__trigger", `select__trigger--${size()}`, local.class)}
       data-slot="select-button"
       type={rest.type ?? "button"}
     >
@@ -115,11 +118,7 @@ export function SelectTrigger(props: SelectTriggerProps): JSX.Element {
   return (
     <SelectPrimitive.Trigger
       {...rest}
-      class={cn(
-        "select__trigger",
-        `select__trigger--${size()}`,
-        local.class,
-      )}
+      class={cn("select__trigger", `select__trigger--${size()}`, local.class)}
       data-slot="select-trigger"
     >
       {local.children}
@@ -168,7 +167,10 @@ export function SelectContent(props: SelectContentProps): JSX.Element {
   const [local, rest] = splitProps(props, ["children", "class"]);
   return (
     <Portal>
-      <SelectPrimitive.Positioner class="select__positioner" data-slot="select-positioner">
+      <SelectPrimitive.Positioner
+        class="select__positioner"
+        data-slot="select-positioner"
+      >
         <SelectPrimitive.Content
           {...rest}
           class={cn("select__content", local.class)}

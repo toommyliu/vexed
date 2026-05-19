@@ -230,9 +230,7 @@ export function ColorPicker(props: ColorPickerProps): JSX.Element {
     emitChangeOnce(hex);
   };
 
-  const handlePrimitiveOpenChange = (
-    details: ColorPickerOpenChangeDetails,
-  ) => {
+  const handlePrimitiveOpenChange = (details: ColorPickerOpenChangeDetails) => {
     if (details.open) {
       pendingHex = null;
       return;
