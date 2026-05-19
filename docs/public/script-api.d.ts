@@ -57,6 +57,7 @@ interface ScriptContext {
   readonly script: ScriptRuntimeApi;
   readonly autoRelogin: ScriptContextAutoReloginApi;
   readonly autoZone: ScriptContextAutoZoneApi;
+  readonly counterAttack: ScriptContextCounterAttackApi;
 }
 interface ScriptApi {
   readonly army: ArmyApi;
@@ -154,9 +155,9 @@ for each member. */
   ): Effect<void, never | ArmyError | BridgeError>;
   startLoopTaunt(
     options: ArmyLoopTauntOptions,
-  ): ArmyEffect<ArmyLoopTauntHandle>;
-  stopLoopTaunt(id: string): ArmyEffect<boolean>;
-  stopAllLoopTaunts(): ArmyEffect<void>;
+  ): Effect<ArmyLoopTauntHandle, never | ArmyError | BridgeError>;
+  stopLoopTaunt(id: string): Effect<boolean, never | ArmyError | BridgeError>;
+  stopAllLoopTaunts(): Effect<void, never | ArmyError | BridgeError>;
 }
 interface AuthApi {
   connectTo(server: string): Effect<AuthConnectOutcome, BridgeError>;
@@ -410,6 +411,18 @@ interface ScriptContextAutoZoneApi {
       | undefined,
   ): Effect<void, never>;
 }
+interface ScriptContextCounterAttackApi {
+  isEnabled(): Effect<boolean, never>;
+  setEnabled(enabled: boolean): Effect<void, never>;
+  enable(): Effect<void, never>;
+  disable(): Effect<void, never>;
+  onStart(
+    handler: ScriptCounterAttackListener,
+  ): Effect<ScriptCounterAttackDisposer, ScriptNotReadyError>;
+  onEnd(
+    handler: ScriptCounterAttackListener,
+  ): Effect<ScriptCounterAttackDisposer, ScriptNotReadyError>;
+}
 interface ScriptPacketApi {
   sendClient(
     packet: string,
@@ -572,6 +585,7 @@ interface ArmyRunStepOptions {
 type ArmySession = ArmySessionPayload;
 type Aura = {
   duration?: number;
+  icon?: string;
   isNew?: boolean;
   name: string;
   /**
@@ -1011,7 +1025,6 @@ interface Monster extends BaseEntity {
   readonly level: number;
   readonly race: string;
   readonly name: string;
-  readonly cell: string;
 }
 interface Quest {
   data: QuestInfo;
@@ -1024,6 +1037,13 @@ interface Quest {
   isWeekly(): boolean;
   isMonthly(): boolean;
 }
+type ScriptCounterAttackDisposer = () => void;
+type ScriptCounterAttackListener = (
+  event: ScriptCounterAttackEvent,
+) =>
+  | void
+  | Effect<unknown, unknown>
+  | Generator<EffectYieldable<any, any, never, never>, unknown, never>;
 interface ScriptEnhanceItemOptions {
   readonly enhancement: string;
   readonly special?: string;
@@ -1326,6 +1346,13 @@ type QuestRequirement = {
    */
   quantity: number;
 };
+interface ScriptCounterAttackEvent {
+  readonly monMapId: number;
+  readonly source: "message" | "aura";
+  readonly triggerId: string;
+  readonly triggerText: string;
+  readonly durationMs?: number;
+}
 interface Json {
   readonly [key: string]: unknown;
 }

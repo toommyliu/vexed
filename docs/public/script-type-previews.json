@@ -78,7 +78,7 @@
           "kind": "property",
           "name": "cause",
           "signature": "cause?: unknown",
-          "description": "The cause of the error."
+          "description": ""
         },
         {
           "kind": "property",
@@ -189,7 +189,7 @@
           "kind": "property",
           "name": "icon",
           "signature": "icon?: string",
-          "description": "The icon identifier for this aura, when Flash exposes one."
+          "description": ""
         },
         {
           "kind": "property",
@@ -2784,6 +2784,73 @@
         "url": "https://github.com/toommyliu/vexed/blob/dev/packages/collection/src/index.ts#L23"
       }
     },
+    "script-counter-attack-disposer": {
+      "name": "ScriptCounterAttackDisposer",
+      "slug": "script-counter-attack-disposer",
+      "kind": "type alias",
+      "summary": "",
+      "definition": "type ScriptCounterAttackDisposer = () => void",
+      "keys": [],
+      "source": {
+        "path": "app/src/renderer/windows/game/scripting/ScriptApi.ts:63",
+        "url": "https://github.com/toommyliu/vexed/blob/dev/app/src/renderer/windows/game/scripting/ScriptApi.ts#L63"
+      }
+    },
+    "script-counter-attack-event": {
+      "name": "ScriptCounterAttackEvent",
+      "slug": "script-counter-attack-event",
+      "kind": "interface",
+      "summary": "",
+      "definition": "interface ScriptCounterAttackEvent",
+      "keys": [
+        {
+          "kind": "property",
+          "name": "durationMs",
+          "signature": "readonly durationMs?: number",
+          "description": ""
+        },
+        {
+          "kind": "property",
+          "name": "monMapId",
+          "signature": "readonly monMapId: number",
+          "description": ""
+        },
+        {
+          "kind": "property",
+          "name": "source",
+          "signature": "readonly source: \"aura\" | \"message\"",
+          "description": ""
+        },
+        {
+          "kind": "property",
+          "name": "triggerId",
+          "signature": "readonly triggerId: string",
+          "description": ""
+        },
+        {
+          "kind": "property",
+          "name": "triggerText",
+          "signature": "readonly triggerText: string",
+          "description": ""
+        }
+      ],
+      "source": {
+        "path": "app/src/renderer/windows/game/scripting/ScriptApi.ts:48",
+        "url": "https://github.com/toommyliu/vexed/blob/dev/app/src/renderer/windows/game/scripting/ScriptApi.ts#L48"
+      }
+    },
+    "script-counter-attack-listener": {
+      "name": "ScriptCounterAttackListener",
+      "slug": "script-counter-attack-listener",
+      "kind": "type alias",
+      "summary": "",
+      "definition": "type ScriptCounterAttackListener = (event: ScriptCounterAttackEvent) => void | Effect.Effect<unknown, unknown> | Generator<Effect.Yieldable<any, any, never, never>, unknown, never>",
+      "keys": [],
+      "source": {
+        "path": "app/src/renderer/windows/game/scripting/ScriptApi.ts:56",
+        "url": "https://github.com/toommyliu/vexed/blob/dev/app/src/renderer/windows/game/scripting/ScriptApi.ts#L56"
+      }
+    },
     "script-enhance-item-options": {
       "name": "ScriptEnhanceItemOptions",
       "slug": "script-enhance-item-options",
@@ -2805,8 +2872,8 @@
         }
       ],
       "source": {
-        "path": "app/src/renderer/windows/game/scripting/recipes.ts:50",
-        "url": "https://github.com/toommyliu/vexed/blob/dev/app/src/renderer/windows/game/scripting/recipes.ts#L50"
+        "path": "app/src/renderer/windows/game/scripting/recipes.ts:55",
+        "url": "https://github.com/toommyliu/vexed/blob/dev/app/src/renderer/windows/game/scripting/recipes.ts#L55"
       }
     },
     "script-equip-item-by-enhancement-options": {
@@ -2817,8 +2884,8 @@
       "definition": "type ScriptEquipItemByEnhancementOptions = EquipEnhancementSelector",
       "keys": [],
       "source": {
-        "path": "app/src/renderer/windows/game/scripting/recipes.ts:55",
-        "url": "https://github.com/toommyliu/vexed/blob/dev/app/src/renderer/windows/game/scripting/recipes.ts#L55"
+        "path": "app/src/renderer/windows/game/scripting/recipes.ts:60",
+        "url": "https://github.com/toommyliu/vexed/blob/dev/app/src/renderer/windows/game/scripting/recipes.ts#L60"
       }
     },
     "script-packet-disposer": {
@@ -2853,8 +2920,8 @@
       "definition": "type ScriptRecipeEffect<A> = Effect.Effect<A, unknown>",
       "keys": [],
       "source": {
-        "path": "app/src/renderer/windows/game/scripting/recipes.ts:32",
-        "url": "https://github.com/toommyliu/vexed/blob/dev/app/src/renderer/windows/game/scripting/recipes.ts#L32"
+        "path": "app/src/renderer/windows/game/scripting/recipes.ts:37",
+        "url": "https://github.com/toommyliu/vexed/blob/dev/app/src/renderer/windows/game/scripting/recipes.ts#L37"
       }
     },
     "server": {

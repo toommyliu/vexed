@@ -26,6 +26,7 @@ export type GameCommandId =
   | "toggleLagKiller"
   | "toggleHidePlayers"
   | "toggleSkipCutscenes"
+  | "toggleCounterAttack"
   | "toggleDisableFx"
   | "toggleCollisions"
   | "toggleDeathAds";
@@ -187,6 +188,14 @@ export const GAME_COMMANDS: readonly CommandDefinition[] = [
     category: "Options",
     label: "Toggle Skip Cutscenes",
     keywords: ["cutscene"],
+    defaultHotkey: "",
+  },
+  {
+    id: "toggleCounterAttack",
+    scope: "game",
+    category: "Options",
+    label: "Toggle Counter Attack",
+    keywords: ["counter", "attack"],
     defaultHotkey: "",
   },
   {

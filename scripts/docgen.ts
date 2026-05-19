@@ -1728,6 +1728,7 @@ const renderIndex = (_namespaces: readonly ApiNamespace[]): string => {
     "| [`script`](/scripting/script/) | Current script lifecycle and diagnostics APIs. |",
     "| [`autoZone`](/scripting/auto-zone/) | Auto Zone feature controls. |",
     "| [`autoRelogin`](/scripting/auto-relogin/) | Auto Relogin feature controls. |",
+    "| [`counterAttack`](/scripting/counter-attack/) | Counter Attack feature controls. |",
     "",
     "## Reference",
     "",

@@ -214,13 +214,25 @@ export const scriptSourceLinks: Record<string, { path: string; url: string }> =
       path: "packages/collection/src/index.ts:23",
       url: "https://github.com/toommyliu/vexed/blob/dev/packages/collection/src/index.ts#L23",
     },
-    "scripting/types/script-enhance-item-options": {
-      path: "app/src/renderer/windows/game/scripting/recipes.ts:50",
-      url: "https://github.com/toommyliu/vexed/blob/dev/app/src/renderer/windows/game/scripting/recipes.ts#L50",
+    "scripting/types/script-counter-attack-disposer": {
+      path: "app/src/renderer/windows/game/scripting/ScriptApi.ts:63",
+      url: "https://github.com/toommyliu/vexed/blob/dev/app/src/renderer/windows/game/scripting/ScriptApi.ts#L63",
     },
-    "scripting/types/script-equip-item-by-enhancement-options": {
+    "scripting/types/script-counter-attack-event": {
+      path: "app/src/renderer/windows/game/scripting/ScriptApi.ts:48",
+      url: "https://github.com/toommyliu/vexed/blob/dev/app/src/renderer/windows/game/scripting/ScriptApi.ts#L48",
+    },
+    "scripting/types/script-counter-attack-listener": {
+      path: "app/src/renderer/windows/game/scripting/ScriptApi.ts:56",
+      url: "https://github.com/toommyliu/vexed/blob/dev/app/src/renderer/windows/game/scripting/ScriptApi.ts#L56",
+    },
+    "scripting/types/script-enhance-item-options": {
       path: "app/src/renderer/windows/game/scripting/recipes.ts:55",
       url: "https://github.com/toommyliu/vexed/blob/dev/app/src/renderer/windows/game/scripting/recipes.ts#L55",
+    },
+    "scripting/types/script-equip-item-by-enhancement-options": {
+      path: "app/src/renderer/windows/game/scripting/recipes.ts:60",
+      url: "https://github.com/toommyliu/vexed/blob/dev/app/src/renderer/windows/game/scripting/recipes.ts#L60",
     },
     "scripting/types/script-packet-disposer": {
       path: "app/src/renderer/windows/game/scripting/ScriptApi.ts:46",
@@ -231,8 +243,8 @@ export const scriptSourceLinks: Record<string, { path: string; url: string }> =
       url: "https://github.com/toommyliu/vexed/blob/dev/app/src/renderer/windows/game/scripting/ScriptApi.ts#L39",
     },
     "scripting/types/script-recipe-effect": {
-      path: "app/src/renderer/windows/game/scripting/recipes.ts:32",
-      url: "https://github.com/toommyliu/vexed/blob/dev/app/src/renderer/windows/game/scripting/recipes.ts#L32",
+      path: "app/src/renderer/windows/game/scripting/recipes.ts:37",
+      url: "https://github.com/toommyliu/vexed/blob/dev/app/src/renderer/windows/game/scripting/recipes.ts#L37",
     },
     "scripting/types/server": {
       path: "packages/game/src/models/Server.ts:6",

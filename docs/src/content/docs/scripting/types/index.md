@@ -67,6 +67,9 @@ Referenced types are generated from the types directly linked by the documented 
 | <a href="/scripting/types/quest-reward-data/" data-script-type="quest-reward-data"><code>QuestRewardData</code></a> | type alias | Represents the raw data structure for a quest reward. |
 | <a href="/scripting/types/quest-turn-in-data/" data-script-type="quest-turn-in-data"><code>QuestTurnInData</code></a> | type alias | Represents the raw data structure for quest turn-in requirements. |
 | <a href="/scripting/types/readonly-collection/" data-script-type="readonly-collection"><code>ReadonlyCollection</code></a> | type alias | Represents an immutable version of a collection |
+| <a href="/scripting/types/script-counter-attack-disposer/" data-script-type="script-counter-attack-disposer"><code>ScriptCounterAttackDisposer</code></a> | type alias |  |
+| <a href="/scripting/types/script-counter-attack-event/" data-script-type="script-counter-attack-event"><code>ScriptCounterAttackEvent</code></a> | interface |  |
+| <a href="/scripting/types/script-counter-attack-listener/" data-script-type="script-counter-attack-listener"><code>ScriptCounterAttackListener</code></a> | type alias |  |
 | <a href="/scripting/types/script-enhance-item-options/" data-script-type="script-enhance-item-options"><code>ScriptEnhanceItemOptions</code></a> | interface |  |
 | <a href="/scripting/types/script-equip-item-by-enhancement-options/" data-script-type="script-equip-item-by-enhancement-options"><code>ScriptEquipItemByEnhancementOptions</code></a> | type alias |  |
 | <a href="/scripting/types/script-packet-disposer/" data-script-type="script-packet-disposer"><code>ScriptPacketDisposer</code></a> | type alias |  |

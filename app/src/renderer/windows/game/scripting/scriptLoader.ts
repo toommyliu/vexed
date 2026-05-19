@@ -43,7 +43,7 @@ export const loadScriptModule = (
       return yield* new ScriptLoadError({
         sourceName,
         message:
-          "Script must assign a generator function to module.exports, for example: module.exports = function* run({ api, script, autoZone, autoRelogin }) { ... }",
+          "Script must assign a generator function to module.exports, for example: module.exports = function* run({ api, script, autoZone, autoRelogin, counterAttack }) { ... }",
         cause: module.exports,
       });
     }

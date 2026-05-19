@@ -153,6 +153,7 @@ export default function App(props: {
   const [infiniteRangeEnabled, setInfiniteRangeEnabled] = createSignal(false);
   const [provokeCellEnabled, setProvokeCellEnabled] = createSignal(false);
   const [skipCutscenesEnabled, setSkipCutscenesEnabled] = createSignal(false);
+  const [counterAttackEnabled, setCounterAttackEnabled] = createSignal(false);
   const [autoZoneEnabled, setAutoZoneEnabled] = createSignal(false);
   const [autoZoneMap, setAutoZoneMap] = createSignal<
     AutoZoneSupportedMap | undefined
@@ -652,6 +653,14 @@ export default function App(props: {
     );
   };
 
+  const handleToggleCounterAttack = () => {
+    const nextEnabled = !counterAttackEnabled();
+    setCounterAttackEnabled(nextEnabled);
+    runSettingsEffect("Toggle counter attack", (settings) =>
+      settings.setCounterAttackEnabled(nextEnabled),
+    );
+  };
+
   const handleToggleDeathAds = () => {
     const nextVisible = !deathAdsVisible();
     setDeathAdsVisible(nextVisible);
@@ -963,6 +972,13 @@ export default function App(props: {
         onSelect: handleToggleSkipCutscenes,
       },
       {
+        id: "counter-attack",
+        label: "Counter Attack",
+        checked: counterAttackEnabled(),
+        disabled,
+        onSelect: handleToggleCounterAttack,
+      },
+      {
         id: "disable-fx",
         label: "Disable FX",
         checked: !effectsEnabled(),
@@ -1082,6 +1098,7 @@ export default function App(props: {
             setInfiniteRangeEnabled(state.infiniteRangeEnabled);
             setProvokeCellEnabled(state.provokeCellEnabled);
             setSkipCutscenesEnabled(state.skipCutscenesEnabled);
+            setCounterAttackEnabled(state.counterAttackEnabled);
           });
         }),
       )

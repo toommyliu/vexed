@@ -13,6 +13,11 @@ import { Environment } from "../../environment/Services/Environment";
 import { House } from "../../flash/Services/House";
 import { Inventory } from "../../flash/Services/Inventory";
 import { Packet } from "../../flash/Services/Packet";
+import {
+  PacketDomain,
+  type PacketDomainCounterAttackEvent,
+  type PacketDomainEvent,
+} from "../../flash/Services/PacketDomain";
 import { Player } from "../../flash/Services/Player";
 import { Quests } from "../../flash/Services/Quests";
 import { Settings } from "../../flash/Services/Settings";
@@ -33,6 +38,9 @@ import type {
   ScriptAutoReloginShape,
   ScriptAutoZoneShape,
   ScriptContext,
+  ScriptCounterAttackEvent,
+  ScriptCounterAttackListener,
+  ScriptCounterAttackShape,
   ScriptMain,
   ScriptPacketListener,
   ScriptRuntimeApi,
@@ -55,6 +63,16 @@ type ActiveScript = {
 type LaunchFiber = Fiber.Fiber<unknown, unknown>;
 
 const MAX_SCRIPT_DIAGNOSTICS = 50;
+
+const toScriptCounterAttackEvent = (
+  event: PacketDomainCounterAttackEvent,
+): ScriptCounterAttackEvent => ({
+  monMapId: event.monMapId,
+  source: event.source,
+  triggerId: event.triggerId,
+  triggerText: event.triggerText,
+  ...(event.durationMs === undefined ? {} : { durationMs: event.durationMs }),
+});
 
 const isGenerator = (
   value: unknown,
@@ -98,6 +116,7 @@ const make = Effect.gen(function* () {
   const house = yield* House;
   const inventory = yield* Inventory;
   const packet = yield* Packet;
+  const packetDomain = yield* PacketDomain;
   const player = yield* Player;
   const quests = yield* Quests;
   const settings = yield* Settings;
@@ -326,20 +345,21 @@ const make = Effect.gen(function* () {
         return yield* Effect.interrupt;
       });
 
-    const handlePacketHandlerCause = (
+    const handleScriptCallbackCause = (
       listener: string,
+      subject: string,
       cause: Cause.Cause<unknown>,
     ) =>
       Cause.hasInterruptsOnly(cause) || scriptScope.isCancelled()
         ? Effect.void
         : appendErrorDiagnostic(
             sourceName,
-            `${listener} packet handler failed: ${causeMessage(cause)}`,
+            `${listener} ${subject} handler failed: ${causeMessage(cause)}`,
             cause,
           ).pipe(
             Effect.andThen(
               Effect.logError({
-                message: "script packet handler failed",
+                message: `script ${subject} handler failed`,
                 sourceName,
                 listener,
                 cause,
@@ -382,7 +402,7 @@ const make = Effect.gen(function* () {
             return Effect.void;
           }),
           Effect.catchCause((cause) =>
-            handlePacketHandlerCause(listener, cause),
+            handleScriptCallbackCause(listener, "packet", cause),
           ),
         );
       });
@@ -417,6 +437,79 @@ const make = Effect.gen(function* () {
             }),
           ),
         )) satisfies ScriptApi["packet"][typeof listener];
+
+    const runCounterAttackHandler = (
+      listener: string,
+      handler: ScriptCounterAttackListener,
+      event: PacketDomainCounterAttackEvent,
+    ): Effect.Effect<void> =>
+      Effect.suspend(() => {
+        if (scriptScope.isCancelled()) {
+          return Effect.void;
+        }
+
+        const scriptEvent = toScriptCounterAttackEvent(event);
+        const result = Effect.try({
+          try: () => handler(scriptEvent),
+          catch: (cause) =>
+            new ScriptExecutionError({
+              sourceName,
+              message: `${listener} counterAttack handler threw before yielding`,
+              cause,
+            }),
+        });
+
+        return result.pipe(
+          Effect.flatMap((handlerResult) => {
+            if (Effect.isEffect(handlerResult)) {
+              return wrapScriptEffect(
+                handlerResult as Effect.Effect<unknown, unknown, never>,
+              ).pipe(Effect.asVoid);
+            }
+
+            if (isGenerator(handlerResult)) {
+              return Effect.gen(() => handlerResult).pipe(Effect.asVoid);
+            }
+
+            return Effect.void;
+          }),
+          Effect.catchCause((cause) =>
+            handleScriptCallbackCause(listener, "counterAttack", cause),
+          ),
+        );
+      });
+
+    const registerCounterAttackListener = (
+      listener: "onStart" | "onEnd",
+      eventName: Extract<
+        PacketDomainEvent,
+        "counterAttackStart" | "counterAttackEnd"
+      >,
+    ) =>
+      ((handler: ScriptCounterAttackListener) =>
+        wrapScriptEffect(
+          Effect.uninterruptible(
+            Effect.gen(function* () {
+              const cleanupKey = `counterAttack:${listener}:${++nextPacketCleanupId}`;
+              let disposed = false;
+              const dispose = yield* packetDomain.on(eventName, (event) =>
+                runCounterAttackHandler(listener, handler, event),
+              );
+              const cleanup = Effect.sync(() => {
+                if (!disposed) {
+                  disposed = true;
+                  dispose();
+                }
+              });
+
+              yield* scriptScope.setCleanup(cleanupKey, cleanup);
+
+              return () => {
+                runFork(scriptScope.removeCleanup(cleanupKey));
+              };
+            }),
+          ),
+        )) satisfies ScriptCounterAttackShape[typeof listener];
 
     const bestEffortScriptSetting = (
       setting: string,
@@ -653,6 +746,15 @@ const make = Effect.gen(function* () {
       setMap: autoZone.setMap,
     };
 
+    const scriptCounterAttack: ScriptCounterAttackShape = {
+      isEnabled: settings.isCounterAttackEnabled,
+      setEnabled: settings.setCounterAttackEnabled,
+      enable: () => settings.setCounterAttackEnabled(true),
+      disable: () => settings.setCounterAttackEnabled(false),
+      onStart: registerCounterAttackListener("onStart", "counterAttackStart"),
+      onEnd: registerCounterAttackListener("onEnd", "counterAttackEnd"),
+    };
+
     const { getLoginSession: _getLoginSession, ...scriptAuth } = auth;
     const scriptArmyBase = wrapValue(army) as ScriptApi["army"];
     const scriptArmy = new Proxy(
@@ -745,6 +847,9 @@ const make = Effect.gen(function* () {
       script,
       autoRelogin: wrapValue(scriptAutoRelogin) as ScriptContext["autoRelogin"],
       autoZone: wrapValue(scriptAutoZone) as ScriptContext["autoZone"],
+      counterAttack: wrapValue(
+        scriptCounterAttack,
+      ) as ScriptContext["counterAttack"],
     };
 
     return Effect.gen(function* () {

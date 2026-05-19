@@ -22,6 +22,7 @@ const DEFAULT_STATE: SettingsState = {
   infiniteRangeEnabled: false,
   provokeCellEnabled: false,
   skipCutscenesEnabled: false,
+  counterAttackEnabled: false,
 };
 
 const cloneState = (state: SettingsState): SettingsState => ({ ...state });
@@ -87,6 +88,10 @@ const normalizePatch = (patch: SettingsPatch): SettingsPatch => {
     normalized.skipCutscenesEnabled = patch.skipCutscenesEnabled;
   }
 
+  if (patch.counterAttackEnabled !== undefined) {
+    normalized.counterAttackEnabled = patch.counterAttackEnabled;
+  }
+
   return normalized;
 };
 
@@ -103,7 +108,8 @@ const hasPatchChanges = (patch: SettingsPatch): boolean =>
   patch.enemyMagnetEnabled !== undefined ||
   patch.infiniteRangeEnabled !== undefined ||
   patch.provokeCellEnabled !== undefined ||
-  patch.skipCutscenesEnabled !== undefined;
+  patch.skipCutscenesEnabled !== undefined ||
+  patch.counterAttackEnabled !== undefined;
 
 const make = Effect.gen(function* () {
   const bridge = yield* Bridge;
@@ -208,14 +214,14 @@ const make = Effect.gen(function* () {
   const getState: SettingsShape["getState"] = () =>
     SynchronizedRef.get(stateRef).pipe(Effect.map(cloneState));
 
-  const patchState: SettingsShape["patchState"] = (patch) =>
+  const patchLocalState = (
+    patch: SettingsPatch,
+  ): Effect.Effect<SettingsState> =>
     Effect.gen(function* () {
       const normalizedPatch = normalizePatch(patch);
       if (!hasPatchChanges(normalizedPatch)) {
         return yield* getState();
       }
-
-      yield* applyPersistentPatchToBridge(normalizedPatch);
 
       const nextState = yield* SynchronizedRef.modify(stateRef, (state) => {
         const updated = {
@@ -228,6 +234,17 @@ const make = Effect.gen(function* () {
 
       yield* emitState(nextState);
       return cloneState(nextState);
+    });
+
+  const patchState: SettingsShape["patchState"] = (patch) =>
+    Effect.gen(function* () {
+      const normalizedPatch = normalizePatch(patch);
+      if (!hasPatchChanges(normalizedPatch)) {
+        return yield* getState();
+      }
+
+      yield* applyPersistentPatchToBridge(normalizedPatch);
+      return yield* patchLocalState(normalizedPatch);
     });
 
   const onState: SettingsShape["onState"] = (listener, options) =>
@@ -264,6 +281,11 @@ const make = Effect.gen(function* () {
   const skipCutscenes: SettingsShape["skipCutscenes"] = () =>
     bridge.call("settings.skipCutscenes");
 
+  const isCounterAttackEnabled: SettingsShape["isCounterAttackEnabled"] = () =>
+    SynchronizedRef.get(stateRef).pipe(
+      Effect.map((state) => state.counterAttackEnabled),
+    );
+
   const setEnemyMagnetEnabled: SettingsShape["setEnemyMagnetEnabled"] = (
     enabled,
   ) => Effect.asVoid(patchState({ enemyMagnetEnabled: enabled }));
@@ -279,6 +301,10 @@ const make = Effect.gen(function* () {
   const setSkipCutscenesEnabled: SettingsShape["setSkipCutscenesEnabled"] = (
     enabled,
   ) => Effect.asVoid(patchState({ skipCutscenesEnabled: enabled }));
+
+  const setCounterAttackEnabled: SettingsShape["setCounterAttackEnabled"] = (
+    enabled,
+  ) => Effect.asVoid(patchLocalState({ counterAttackEnabled: enabled }));
 
   const setCustomName: SettingsShape["setCustomName"] = (name) =>
     Effect.asVoid(patchState({ customName: name }));
@@ -329,6 +355,8 @@ const make = Effect.gen(function* () {
     setInfiniteRangeEnabled,
     setProvokeCellEnabled,
     setSkipCutscenesEnabled,
+    isCounterAttackEnabled,
+    setCounterAttackEnabled,
     setCustomName,
     setCustomGuild,
     setWalkSpeed,

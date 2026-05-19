@@ -24,6 +24,7 @@ export const topNavOptionCommandIds: Partial<Record<GameCommandId, string>> = {
   toggleLagKiller: "lag-killer",
   toggleHidePlayers: "hide-players",
   toggleSkipCutscenes: "skip-cutscenes",
+  toggleCounterAttack: "counter-attack",
   toggleDisableFx: "disable-fx",
   toggleCollisions: "collisions",
   toggleDeathAds: "death-ads",
