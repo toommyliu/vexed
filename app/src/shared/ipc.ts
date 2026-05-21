@@ -19,6 +19,11 @@ import type {
   EnvironmentQuestAutoRegisterOptions,
   EnvironmentState,
 } from "./environment";
+import type {
+  CombatProfile,
+  CombatProfileAutoAttackState,
+  CombatProfileLibrary,
+} from "./combat-profiles";
 
 export type {
   ArmyBarrierPayload,
@@ -47,6 +52,22 @@ export type {
   ThemeTokenName,
   ThemeVariant,
 } from "./settings";
+
+export type {
+  CombatProfile,
+  CombatProfileAutoAttackMode,
+  CombatProfileAutoAttackState,
+  CombatProfileAuraCondition,
+  CombatProfileComparison,
+  CombatProfileCondition,
+  CombatProfileCooldownMode,
+  CombatProfileLibrary,
+  CombatProfileRef,
+  CombatProfileRefSelected,
+  CombatProfileStatCondition,
+  CombatProfileStep,
+  CombatProfileThresholdUnit,
+} from "./combat-profiles";
 
 export type {
   EnvironmentItemRules,
@@ -123,6 +144,14 @@ export const EnvironmentIpcChannels = {
   fetchBoostsResponse: "environment:fetch-boosts-response",
   syncToAll: "environment:sync-to-all",
   changed: "environment:changed",
+} as const;
+
+export const CombatProfilesIpcChannels = {
+  getState: "combat-profiles:get-state",
+  saveProfile: "combat-profiles:save-profile",
+  deleteProfile: "combat-profiles:delete-profile",
+  setAutoAttack: "combat-profiles:set-auto-attack",
+  changed: "combat-profiles:changed",
 } as const;
 
 export interface ScriptExecutePayload {
@@ -530,6 +559,39 @@ export interface EnvironmentBridge {
   ): () => void;
 }
 
+export interface CombatProfilesInvokeChannels {
+  readonly [CombatProfilesIpcChannels.getState]: IpcInvokeDefinition<
+    [],
+    CombatProfileLibrary
+  >;
+  readonly [CombatProfilesIpcChannels.saveProfile]: IpcInvokeDefinition<
+    [profile: CombatProfile],
+    CombatProfileLibrary
+  >;
+  readonly [CombatProfilesIpcChannels.deleteProfile]: IpcInvokeDefinition<
+    [profileId: string],
+    CombatProfileLibrary
+  >;
+  readonly [CombatProfilesIpcChannels.setAutoAttack]: IpcInvokeDefinition<
+    [state: CombatProfileAutoAttackState],
+    CombatProfileLibrary
+  >;
+}
+
+export interface CombatProfilesRendererEventChannels {
+  readonly [CombatProfilesIpcChannels.changed]: [state: CombatProfileLibrary];
+}
+
+export interface CombatProfilesBridge {
+  getState(): Promise<CombatProfileLibrary>;
+  saveProfile(profile: CombatProfile): Promise<CombatProfileLibrary>;
+  deleteProfile(profileId: string): Promise<CombatProfileLibrary>;
+  setAutoAttack(
+    state: CombatProfileAutoAttackState,
+  ): Promise<CombatProfileLibrary>;
+  onChanged(listener: (state: CombatProfileLibrary) => void): () => void;
+}
+
 export type AppPlatform = "mac" | "windows" | "linux";
 
 export interface PlatformBridge {
@@ -539,6 +601,7 @@ export interface PlatformBridge {
 export interface AppBridge {
   readonly accounts: AccountManagerBridge;
   readonly army: ArmyBridge;
+  readonly combatProfiles: CombatProfilesBridge;
   readonly environment: EnvironmentBridge;
   readonly platform: PlatformBridge;
   readonly scripting: ScriptingBridge;

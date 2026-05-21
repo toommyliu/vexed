@@ -20,6 +20,14 @@ import {
   DEFAULT_PREFERENCES,
   type AppSettings,
 } from "../../../shared/settings";
+import {
+  DEFAULT_COMBAT_PROFILE_ID,
+  DEFAULT_COMBAT_PROFILE_LIBRARY,
+  autoAttackStateToProfileRef,
+  findCombatProfileByRef,
+  type CombatProfileAutoAttackMode,
+  type CombatProfileLibrary,
+} from "../../../shared/combat-profiles";
 import type {
   AccountGameLaunchPayload,
   ScriptExecutePayload,
@@ -32,6 +40,10 @@ import { SwfMethodNotFoundError, SwfUnavailableError } from "./flash/Errors";
 import { Bank } from "./flash/Services/Bank";
 import { Player } from "./flash/Services/Player";
 import { World } from "./flash/Services/World";
+import {
+  AutoAttack,
+  type AutoAttackState,
+} from "./features/Services/AutoAttack";
 import {
   AutoRelogin,
   type AutoReloginState,
@@ -133,6 +145,11 @@ export default function App(props: {
   const [gameLoaded, setGameLoaded] = createSignal(getGameLoadState().loaded);
   const [playerReady, setPlayerReady] = createSignal(false);
   const [autoAttackEnabled, setAutoAttackEnabled] = createSignal(false);
+  const [autoAttackProfileLabel, setAutoAttackProfileLabel] =
+    createSignal("Generic");
+  const [autoAttackLastError, setAutoAttackLastError] = createSignal("");
+  const [combatProfileLibrary, setCombatProfileLibrary] =
+    createSignal<CombatProfileLibrary>(DEFAULT_COMBAT_PROFILE_LIBRARY);
   const [scriptName, setScriptName] = createSignal("");
   const [scriptSource, setScriptSource] = createSignal("");
   const [scriptLoaded, setScriptLoaded] = createSignal(false);
@@ -186,12 +203,14 @@ export default function App(props: {
   const [travelBusy, setTravelBusy] = createSignal(false);
 
   let settingsStateDisposer: (() => void) | undefined;
+  let autoAttackStateDisposer: (() => void) | undefined;
   let autoZoneStateDisposer: (() => void) | undefined;
   let autoReloginStateDisposer: (() => void) | undefined;
+  let autoAttackToggleInFlight = false;
   let cleanedUp = false;
   const accountLaunchFibers = new Set<Fiber.Fiber<void, unknown>>();
   const assignDisposer =
-    (slot: "settings" | "autoZone" | "autoRelogin") =>
+    (slot: "settings" | "autoAttack" | "autoZone" | "autoRelogin") =>
     (dispose: () => void) => {
       if (cleanedUp) {
         dispose();
@@ -200,6 +219,8 @@ export default function App(props: {
 
       if (slot === "settings") {
         settingsStateDisposer = dispose;
+      } else if (slot === "autoAttack") {
+        autoAttackStateDisposer = dispose;
       } else if (slot === "autoZone") {
         autoZoneStateDisposer = dispose;
       } else {
@@ -749,6 +770,124 @@ export default function App(props: {
     );
   };
 
+  const autoAttackConfiguredProfileLabel = createMemo(() => {
+    const library = combatProfileLibrary();
+    const state = library.autoAttack;
+
+    if (state.mode === "generic") {
+      return "Generic";
+    }
+
+    if (state.mode === "selected" && state.selectedProfileId) {
+      const profile = findCombatProfileByRef(library, {
+        mode: "selected",
+        profileId: state.selectedProfileId,
+      });
+      return `Profile: ${profile.label}`;
+    }
+
+    return "Match class";
+  });
+
+  const applyAutoAttackState = (state: AutoAttackState) => {
+    setAutoAttackEnabled(state.enabled);
+    setAutoAttackProfileLabel(
+      state.profileLabel ?? autoAttackConfiguredProfileLabel(),
+    );
+    setAutoAttackLastError(state.lastError ?? "");
+  };
+
+  const refreshAutoAttackState = () => {
+    void runtime
+      .runPromise(
+        Effect.gen(function* () {
+          const autoAttack = yield* AutoAttack;
+          return yield* autoAttack.getState();
+        }),
+      )
+      .then(applyAutoAttackState)
+      .catch((error) => {
+        console.error("Refresh auto attack state error:", error);
+      });
+  };
+
+  const syncEnabledAutoAttackProfile = (library: CombatProfileLibrary) => {
+    if (!autoAttackEnabled()) {
+      setAutoAttackProfileLabel(autoAttackConfiguredProfileLabel());
+      return;
+    }
+
+    void runtime
+      .runPromise(
+        Effect.gen(function* () {
+          const autoAttack = yield* AutoAttack;
+          return yield* autoAttack.enable({
+            library,
+            profileRef: autoAttackStateToProfileRef(library.autoAttack),
+          });
+        }),
+      )
+      .then(applyAutoAttackState)
+      .catch((error) => {
+        console.error("Sync auto attack profile error:", error);
+        refreshAutoAttackState();
+      });
+  };
+
+  const applyCombatProfileLibrary = (library: CombatProfileLibrary) => {
+    setCombatProfileLibrary(library);
+    syncEnabledAutoAttackProfile(library);
+  };
+
+  const handleToggleAutoAttack = () => {
+    if (autoAttackToggleInFlight) {
+      return;
+    }
+
+    autoAttackToggleInFlight = true;
+    const nextEnabled = !autoAttackEnabled();
+    setAutoAttackEnabled(nextEnabled);
+
+    void runtime
+      .runPromise(
+        Effect.gen(function* () {
+          const autoAttack = yield* AutoAttack;
+          return nextEnabled
+            ? yield* autoAttack.enable({
+                library: combatProfileLibrary(),
+                profileRef: autoAttackStateToProfileRef(
+                  combatProfileLibrary().autoAttack,
+                ),
+              })
+            : yield* autoAttack.disable();
+        }),
+      )
+      .then(applyAutoAttackState)
+      .catch((error) => {
+        console.error("Toggle auto attack error:", error);
+        refreshAutoAttackState();
+      })
+      .finally(() => {
+        autoAttackToggleInFlight = false;
+      });
+  };
+
+  const handleSelectAutoAttackProfile = (
+    mode: CombatProfileAutoAttackMode,
+    selectedProfileId?: string,
+  ) => {
+    void window.ipc.combatProfiles
+      .setAutoAttack(
+        mode === "selected" && selectedProfileId
+          ? { mode, selectedProfileId }
+          : { mode },
+      )
+      .then(applyCombatProfileLibrary)
+      .catch((error: unknown) => {
+        console.error("Set auto attack profile error:", error);
+      });
+  };
+
   const applyAutoZoneState = (state: AutoZoneState) => {
     setAutoZoneEnabled(state.enabled);
     setAutoZoneMap(state.map);
@@ -1009,8 +1148,13 @@ export default function App(props: {
     stopScript,
     scriptLoaded,
     scriptRunning,
-    setAutoAttackEnabled,
     autoAttackEnabled,
+    toggleAutoAttack: handleToggleAutoAttack,
+    toggleBank: () => {
+      if (canApplyGameSettings()) {
+        handleOpenBank();
+      }
+    },
     optionItems,
     openWindow,
     openTopNavMenu: (menu) => setOpenTopNavMenu(menu),
@@ -1036,6 +1180,8 @@ export default function App(props: {
       window.ipc.settings.onChanged(applyAppSettings);
     const unsubscribeAccountLaunch =
       window.ipc.accounts.onGameLaunch(handleAccountLaunch);
+    const unsubscribeCombatProfiles =
+      window.ipc.combatProfiles.onChanged(applyCombatProfileLibrary);
     const unsubscribeScriptExecute = window.ipc.scripting.onExecute(
       (payload) => {
         void applyScriptPayload(payload)
@@ -1064,6 +1210,13 @@ export default function App(props: {
           console.error("Failed to load app settings:", error);
         });
     }
+
+    void window.ipc.combatProfiles
+      .getState()
+      .then(applyCombatProfileLibrary)
+      .catch((error) => {
+        console.error("Failed to load combat profiles:", error);
+      });
 
     const disposeGameLoadState = subscribeGameLoadState((state) => {
       setGameLoaded(state.loaded);
@@ -1110,6 +1263,18 @@ export default function App(props: {
     void runtime
       .runPromise(
         Effect.gen(function* () {
+          const autoAttack = yield* AutoAttack;
+          return yield* autoAttack.onState(applyAutoAttackState);
+        }),
+      )
+      .then(assignDisposer("autoAttack"))
+      .catch((error) => {
+        console.error("AutoAttack state subscription error:", error);
+      });
+
+    void runtime
+      .runPromise(
+        Effect.gen(function* () {
           const autoRelogin = yield* AutoRelogin;
           return yield* autoRelogin.onState(applyAutoReloginState);
         }),
@@ -1134,6 +1299,7 @@ export default function App(props: {
     onCleanup(() => {
       unsubscribeAppSettings();
       unsubscribeAccountLaunch();
+      unsubscribeCombatProfiles();
       unsubscribeScriptExecute();
       unsubscribeScriptStop();
       disposeGameLoadState();
@@ -1149,6 +1315,7 @@ export default function App(props: {
     }
     accountLaunchFibers.clear();
     settingsStateDisposer?.();
+    autoAttackStateDisposer?.();
     autoZoneStateDisposer?.();
     autoReloginStateDisposer?.();
   });
@@ -1163,7 +1330,20 @@ export default function App(props: {
           hotkeyBindings={() => settings().hotkeys.bindings}
           hotkeyPlatform={window.ipc.platform.os}
           autoAttackEnabled={autoAttackEnabled}
-          setAutoAttackEnabled={setAutoAttackEnabled}
+          autoAttackProfileLabel={autoAttackProfileLabel}
+          autoAttackConfiguredProfileLabel={autoAttackConfiguredProfileLabel}
+          autoAttackLastError={autoAttackLastError}
+          combatProfiles={() =>
+            combatProfileLibrary().profiles.filter(
+              (profile) => profile.id !== DEFAULT_COMBAT_PROFILE_ID,
+            )
+          }
+          autoAttackMode={() => combatProfileLibrary().autoAttack.mode}
+          selectedAutoAttackProfileId={() =>
+            combatProfileLibrary().autoAttack.selectedProfileId
+          }
+          handleToggleAutoAttack={handleToggleAutoAttack}
+          handleSelectAutoAttackProfile={handleSelectAutoAttackProfile}
           gameLoaded={gameLoaded}
           playerReady={playerReady}
           scriptLoaded={scriptLoaded}

@@ -2,6 +2,7 @@ export const WindowIds = {
   AccountManager: "account-manager",
   Settings: "settings",
   Environment: "environment",
+  Skills: "skills",
   FastTravels: "fast-travels",
   LoaderGrabber: "loader-grabber",
   Follower: "follower",
@@ -68,6 +69,19 @@ export const gameWindowGroups: readonly WindowGroup[] = [
   {
     name: "Tools",
     items: [
+      {
+        id: WindowIds.Skills,
+        label: "Skills",
+        description: "Build combat profiles used by auto attack and scripts.",
+        scope: "game-child",
+        closeBehavior: "hide",
+        dimensions: {
+          width: 760,
+          height: 560,
+          minWidth: 680,
+          minHeight: 500,
+        },
+      },
       {
         id: WindowIds.Environment,
         label: "Environment",

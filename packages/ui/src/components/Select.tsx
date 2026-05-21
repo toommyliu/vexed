@@ -204,8 +204,26 @@ export function SelectItem(props: SelectItemProps): JSX.Element {
     "value",
   ]);
   const context = useContext(SelectItemsContext);
+  const childLabel = (): string | undefined => {
+    const child = local.children;
+    if (typeof child === "string" || typeof child === "number") {
+      return String(child);
+    }
+
+    if (
+      Array.isArray(child) &&
+      child.length > 0 &&
+      child.every(
+        (part) => typeof part === "string" || typeof part === "number",
+      )
+    ) {
+      return child.join("");
+    }
+
+    return undefined;
+  };
   const item = createMemo<SelectOption>(() => ({
-    label: local.item?.label ?? local.label ?? local.value,
+    label: local.item?.label ?? local.label ?? childLabel() ?? local.value,
     value: local.item?.value ?? local.value,
     ...(local.disabled === undefined ? {} : { disabled: local.disabled }),
   }));

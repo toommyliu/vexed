@@ -49,6 +49,20 @@ describe("game command registry", () => {
     ).toEqual(expect.objectContaining({ category: "Tools" }));
   });
 
+  it("groups primary game toggles under general", () => {
+    expect(
+      GAME_COMMANDS.filter((command) => command.category === "General").map(
+        (command) => command.id,
+      ),
+    ).toEqual(["toggleTopBar", "toggleAutoattack", "toggleBank"]);
+  });
+
+  it("defaults toggle bank to mod+b", () => {
+    expect(
+      getDefaultHotkeys().find((binding) => binding.id === "toggleBank")?.value,
+    ).toBe("Mod+B");
+  });
+
   it("validates command ids", () => {
     expect(isGameCommandId("loadScript")).toBe(true);
     expect(isGameCommandId("missing-command")).toBe(false);

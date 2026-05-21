@@ -4,6 +4,7 @@ export type GameTopNavMenu =
   | "windows"
   | "scripts"
   | "options"
+  | "combat"
   | "autozone"
   | "relogin"
   | "pads"

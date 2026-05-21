@@ -14,10 +14,13 @@ import {
 } from "solid-js";
 import { ChevronDown, CircleAlert, Clock, LoaderCircle } from "lucide-solid";
 import { formatOptionalHotkeyDisplay } from "@vexed/shared/hotkeyDisplay";
+import type {
+  CombatProfile,
+  CombatProfileAutoAttackMode,
+} from "../../../shared/combat-profiles";
 import {
   Button,
   type ButtonProps,
-  Checkbox,
   Input,
   Kbd,
   Menu,
@@ -62,7 +65,17 @@ export interface TopNavProps {
   readonly hotkeyBindings: Accessor<HotkeyBindings>;
   readonly hotkeyPlatform: AppPlatform;
   readonly autoAttackEnabled: Accessor<boolean>;
-  readonly setAutoAttackEnabled: Setter<boolean>;
+  readonly autoAttackProfileLabel: Accessor<string>;
+  readonly autoAttackConfiguredProfileLabel: Accessor<string>;
+  readonly autoAttackLastError: Accessor<string>;
+  readonly combatProfiles: Accessor<readonly CombatProfile[]>;
+  readonly autoAttackMode: Accessor<CombatProfileAutoAttackMode>;
+  readonly selectedAutoAttackProfileId: Accessor<string | undefined>;
+  readonly handleToggleAutoAttack: () => void;
+  readonly handleSelectAutoAttackProfile: (
+    mode: CombatProfileAutoAttackMode,
+    selectedProfileId?: string,
+  ) => void;
   readonly gameLoaded: Accessor<boolean>;
   readonly playerReady: Accessor<boolean>;
   readonly scriptLoaded: Accessor<boolean>;
@@ -239,6 +252,54 @@ export function TopNav(props: TopNavProps): JSX.Element {
         : autoReloginNeedsAttention()
           ? "alert"
           : undefined;
+
+  const autoAttackTriggerLabel = (): string => {
+    const runtimeLabel = props.autoAttackProfileLabel();
+    const configuredLabel = props.autoAttackConfiguredProfileLabel();
+    const error = props.autoAttackLastError();
+
+    if (error !== "") {
+      return `Auto Attack failed: ${error}`;
+    }
+
+    if (!props.autoAttackEnabled()) {
+      return configuredLabel === ""
+        ? "Auto Attack disabled"
+        : `Auto Attack disabled: ${configuredLabel}`;
+    }
+
+    if (
+      props.autoAttackMode() === "equipped-class" &&
+      runtimeLabel !== "" &&
+      runtimeLabel !== configuredLabel
+    ) {
+      return `Auto Attack enabled: ${configuredLabel}, using ${runtimeLabel}`;
+    }
+
+    return configuredLabel === ""
+      ? "Auto Attack enabled"
+      : `Auto Attack enabled: ${configuredLabel}`;
+  };
+
+  const autoAttackSelectionValue = (): string =>
+    props.autoAttackMode() === "selected"
+      ? `profile:${props.selectedAutoAttackProfileId() ?? ""}`
+      : props.autoAttackMode();
+
+  const handleAutoAttackSelectionChange = (details: { value: string }) => {
+    const value = details.value;
+    if (value === "generic" || value === "equipped-class") {
+      props.handleSelectAutoAttackProfile(value);
+      return;
+    }
+
+    if (value.startsWith("profile:")) {
+      props.handleSelectAutoAttackProfile(
+        "selected",
+        value.slice("profile:".length),
+      );
+    }
+  };
 
   onMount(() => {
     let lastTopNavHeight = 0;
@@ -907,20 +968,111 @@ export function TopNav(props: TopNavProps): JSX.Element {
         <div
           class="game-topnav__right"
           data-menu-open={
-            props.openMenu() === "pads" || props.openMenu() === "cells"
+            props.openMenu() === "combat" ||
+            props.openMenu() === "pads" ||
+            props.openMenu() === "cells"
               ? ""
               : undefined
           }
         >
-          <Checkbox
-            checked={props.autoAttackEnabled()}
-            disabled={gameInteractionDisabled()}
-            onChange={(event) =>
-              props.setAutoAttackEnabled(event.currentTarget.checked)
-            }
+          <Menu
+            open={props.openMenu() === "combat"}
+            onOpenChange={setMenuOpen("combat")}
           >
-            Auto
-          </Checkbox>
+            <TopNavMenuTrigger
+              aria-label={autoAttackTriggerLabel()}
+              aria-pressed={props.autoAttackEnabled()}
+              class={cn(
+                "game-topnav__combat-trigger",
+                props.autoAttackLastError() !== "" &&
+                  "game-topnav__trigger--alert",
+              )}
+              data-enabled={props.autoAttackEnabled() ? "" : undefined}
+              disabled={gameInteractionDisabled()}
+              expanded={props.openMenu() === "combat"}
+              onClick={toggleMenu("combat")}
+              title={autoAttackTriggerLabel()}
+            >
+              <span
+                aria-hidden="true"
+                class={cn(
+                  "game-topnav__combat-check",
+                  props.autoAttackEnabled() &&
+                    "game-topnav__combat-check--active",
+                )}
+              />
+              <span class="game-topnav__combat-label">
+                {props.autoAttackConfiguredProfileLabel()}
+              </span>
+              <ChevronDown
+                aria-hidden="true"
+                class="game-topnav__select-chevron"
+              />
+            </TopNavMenuTrigger>
+            <MenuContent class="game-menu game-menu--combat" portal={false}>
+              <MenuAutofocusAnchor />
+              <MenuGroup>
+                <MenuLabel>State</MenuLabel>
+                <MenuCheckboxItem
+                  checked={props.autoAttackEnabled()}
+                  class="game-menu__item"
+                  closeOnSelect={false}
+                  disabled={gameInteractionDisabled()}
+                  onClick={props.handleToggleAutoAttack}
+                  value="toggle-auto-attack"
+                >
+                  {props.autoAttackEnabled() ? "Enabled" : "Disabled"}
+                </MenuCheckboxItem>
+              </MenuGroup>
+              <MenuSeparator />
+              <MenuGroup>
+                <MenuLabel>Mode</MenuLabel>
+              </MenuGroup>
+              <MenuRadioGroup
+                value={autoAttackSelectionValue()}
+                onValueChange={handleAutoAttackSelectionChange}
+              >
+                <MenuRadioItem
+                  class="game-menu__item"
+                  closeOnSelect={false}
+                  value="equipped-class"
+                >
+                  <span class="game-menu__item-label">Match equipped class</span>
+                </MenuRadioItem>
+                <MenuRadioItem
+                  class="game-menu__item"
+                  closeOnSelect={false}
+                  value="generic"
+                >
+                  <span class="game-menu__item-label">Use generic</span>
+                </MenuRadioItem>
+              </MenuRadioGroup>
+              <Show when={props.combatProfiles().length > 0}>
+                <MenuSeparator />
+                <MenuGroup>
+                  <MenuLabel>Profiles</MenuLabel>
+                </MenuGroup>
+                <MenuRadioGroup
+                  value={autoAttackSelectionValue()}
+                  onValueChange={handleAutoAttackSelectionChange}
+                >
+                  <For each={props.combatProfiles()}>
+                    {(profile) => (
+                      <MenuRadioItem
+                        class="game-menu__item"
+                        closeOnSelect={false}
+                        value={`profile:${profile.id}`}
+                      >
+                        <span class="game-menu__item-label">
+                          {profile.label}
+                        </span>
+                      </MenuRadioItem>
+                    )}
+                  </For>
+                </MenuRadioGroup>
+              </Show>
+            </MenuContent>
+          </Menu>
 
           <div class="game-topnav__divider" />
 

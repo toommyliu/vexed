@@ -40,6 +40,11 @@ const solidRendererTargets = [
     html: "src/renderer/windows/index.html",
   },
   {
+    name: "skills",
+    entryPoint: "./src/renderer/windows/skills/App.tsx",
+    html: "src/renderer/windows/index.html",
+  },
+  {
     name: "fast-travels",
     entryPoint: "./src/renderer/windows/fast-travels/App.tsx",
     html: "src/renderer/windows/index.html",

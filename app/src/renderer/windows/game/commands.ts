@@ -1,4 +1,4 @@
-import type { Accessor, Setter } from "solid-js";
+import type { Accessor } from "solid-js";
 import {
   GAME_COMMANDS,
   type CommandCategory,
@@ -23,8 +23,9 @@ export interface GameCommandRuntime {
   readonly stopScript: () => void;
   readonly scriptLoaded: Accessor<boolean>;
   readonly scriptRunning: Accessor<boolean>;
-  readonly setAutoAttackEnabled: Setter<boolean>;
   readonly autoAttackEnabled: Accessor<boolean>;
+  readonly toggleAutoAttack: () => void;
+  readonly toggleBank: () => void;
   readonly optionItems: Accessor<readonly TopNavOptionItem[]>;
   readonly openWindow: (id: WindowId) => void;
   readonly openTopNavMenu: (menu: GameTopNavMenu) => void;
@@ -134,8 +135,12 @@ const createCommandRunner = (
 
   if (id === "toggleAutoattack") {
     return () => {
-      runtime.setAutoAttackEnabled((enabled) => !enabled);
+      runtime.toggleAutoAttack();
     };
+  }
+
+  if (id === "toggleBank") {
+    return runtime.toggleBank;
   }
 
   if (id === "openOptionsMenu") {
