@@ -6,6 +6,7 @@ import {
 import {
   AccountManagerIpcChannels,
   ArmyIpcChannels,
+  CombatProfilesIpcChannels,
   EnvironmentIpcChannels,
   SettingsIpcChannels,
   ScriptingIpcChannels,
@@ -27,6 +28,9 @@ import {
   type AppSettings,
   type AppPlatform,
   type AppearancePatch,
+  type CombatProfile,
+  type CombatProfileAutoAttackState,
+  type CombatProfileLibrary,
   type EnvironmentItemRules,
   type EnvironmentQuestAutoRegisterOptions,
   type EnvironmentState,
@@ -277,6 +281,45 @@ const bridge: AppBridge = {
         ArmyIpcChannels.status,
         payload,
       )) as ArmyStatusResult;
+    },
+  },
+  combatProfiles: {
+    getState: async () => {
+      return (await ipcRenderer.invoke(
+        CombatProfilesIpcChannels.getState,
+      )) as CombatProfileLibrary;
+    },
+    saveProfile: async (profile: CombatProfile) => {
+      return (await ipcRenderer.invoke(
+        CombatProfilesIpcChannels.saveProfile,
+        profile,
+      )) as CombatProfileLibrary;
+    },
+    deleteProfile: async (profileId: string) => {
+      return (await ipcRenderer.invoke(
+        CombatProfilesIpcChannels.deleteProfile,
+        profileId,
+      )) as CombatProfileLibrary;
+    },
+    setAutoAttack: async (state: CombatProfileAutoAttackState) => {
+      return (await ipcRenderer.invoke(
+        CombatProfilesIpcChannels.setAutoAttack,
+        state,
+      )) as CombatProfileLibrary;
+    },
+    onChanged: (listener) => {
+      const subscription = (_event: unknown, state: CombatProfileLibrary) => {
+        listener(state);
+      };
+
+      ipcRenderer.on(CombatProfilesIpcChannels.changed, subscription);
+
+      return () => {
+        ipcRenderer.removeListener(
+          CombatProfilesIpcChannels.changed,
+          subscription,
+        );
+      };
     },
   },
   environment: {

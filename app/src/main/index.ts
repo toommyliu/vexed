@@ -23,6 +23,7 @@ import {
   getArtixLauncherRequestHeaders,
   getArtixLauncherUserAgent,
 } from "./artix-launcher-headers";
+import { registerCombatProfilesIpcHandlers } from "./combat-profiles-ipc";
 import { createApplicationMenu } from "./menu";
 import { registerEnvironmentIpcHandlers } from "./environment-ipc";
 import * as Appearance from "./settings/Appearance";
@@ -344,6 +345,7 @@ app.whenReady().then(() => {
   registerScriptingIpcHandlers();
   registerArmyIpcHandlers();
   registerAccountManagerIpcHandlers(runConfiguredWindowEffect);
+  registerCombatProfilesIpcHandlers();
   registerEnvironmentIpcHandlers(runConfiguredWindowEffect);
   registerSettingsIpcHandlers();
   registerWindowIpcHandlers(runConfiguredWindowEffect);

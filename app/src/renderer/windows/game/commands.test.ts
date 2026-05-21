@@ -1,5 +1,4 @@
 import { describe, expect, it, vi } from "vitest";
-import type { Setter } from "solid-js";
 import type { HotkeyBindings } from "../../../shared/hotkeys";
 import { createGameCommands, type GameCommandRuntime } from "./commands";
 import type { TopNavOptionItem } from "./topNavOptions";
@@ -11,12 +10,6 @@ const createRuntime = (
 ): GameCommandRuntime => {
   let autoAttackEnabled = false;
 
-  const setAutoAttackEnabled: Setter<boolean> = (value) => {
-    autoAttackEnabled =
-      typeof value === "function" ? value(autoAttackEnabled) : value;
-    return autoAttackEnabled;
-  };
-
   return {
     bindings: () => [] satisfies HotkeyBindings,
     loadScript: noop,
@@ -24,8 +17,11 @@ const createRuntime = (
     stopScript: noop,
     scriptLoaded: () => true,
     scriptRunning: () => false,
-    setAutoAttackEnabled,
     autoAttackEnabled: () => autoAttackEnabled,
+    toggleAutoAttack: () => {
+      autoAttackEnabled = !autoAttackEnabled;
+    },
+    toggleBank: noop,
     optionItems: () => [],
     openWindow: noop,
     openTopNavMenu: noop,
@@ -66,6 +62,24 @@ describe("game commands", () => {
     findCommand(runtime, "toggleTopBar").run();
 
     expect(toggleTopBarVisible).toHaveBeenCalledOnce();
+  });
+
+  it("toggles auto attack through the runtime action", () => {
+    const toggleAutoAttack = vi.fn();
+    const runtime = createRuntime({ toggleAutoAttack });
+
+    findCommand(runtime, "toggleAutoattack").run();
+
+    expect(toggleAutoAttack).toHaveBeenCalledOnce();
+  });
+
+  it("toggles bank through the runtime action", () => {
+    const toggleBank = vi.fn();
+    const runtime = createRuntime({ toggleBank });
+
+    findCommand(runtime, "toggleBank").run();
+
+    expect(toggleBank).toHaveBeenCalledOnce();
   });
 
   it("dispatches option commands through top nav option items", () => {

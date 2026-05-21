@@ -1,7 +1,7 @@
 export type CommandScope = "game";
 
 export type CommandCategory =
-  | "Application"
+  | "General"
   | "Scripts"
   | "Options"
   | "Tools"
@@ -20,6 +20,7 @@ export type GameCommandId =
   | "openPacketLogger"
   | "openPacketSpammer"
   | "toggleAutoattack"
+  | "toggleBank"
   | "toggleInfiniteRange"
   | "toggleProvokeCell"
   | "toggleEnemyMagnet"
@@ -49,7 +50,7 @@ export const GAME_COMMANDS: readonly CommandDefinition[] = [
   {
     id: "toggleTopBar",
     scope: "game",
-    category: "Application",
+    category: "General",
     label: "Toggle Top Bar",
     keywords: ["top", "bar", "navigation", "chrome"],
     defaultHotkey: "Mod+Shift+T",
@@ -137,9 +138,17 @@ export const GAME_COMMANDS: readonly CommandDefinition[] = [
   {
     id: "toggleAutoattack",
     scope: "game",
-    category: "Options",
-    label: "Toggle Autoattack",
+    category: "General",
+    label: "Toggle Auto Attack",
     keywords: ["auto", "attack"],
+    defaultHotkey: "Alt+A",
+  },
+  {
+    id: "toggleBank",
+    scope: "game",
+    category: "General",
+    label: "Toggle Bank",
+    keywords: ["bank"],
     defaultHotkey: "",
   },
   {

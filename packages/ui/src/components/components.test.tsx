@@ -769,9 +769,12 @@ describe("Select", () => {
       </Select>
     ));
 
-    expect(
-      document.body.querySelector("[data-slot='select-trigger']"),
-    ).not.toBeNull();
+    const trigger = document.body.querySelector(
+      "[data-slot='select-trigger']",
+    );
+    expect(trigger).not.toBeNull();
+    expect(trigger?.textContent).toContain("Solid");
+    expect(trigger?.textContent).not.toContain("solid");
     expect(
       document.body.querySelectorAll("[data-slot='select-item']"),
     ).toHaveLength(2);

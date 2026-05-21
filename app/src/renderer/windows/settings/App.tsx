@@ -139,7 +139,7 @@ const launchModes = [
 ] as const;
 
 const commandCategories: readonly CommandCategory[] = [
-  "Application",
+  "General",
   "Scripts",
   "Options",
   "Tools",
@@ -342,6 +342,48 @@ function HotkeyIconButton(props: {
         )}
       />
       <TooltipContent>{props.tooltip}</TooltipContent>
+    </Tooltip>
+  );
+}
+
+function HotkeyConflictPill(props: {
+  readonly conflicts: readonly string[];
+}): JSX.Element {
+  const count = () => props.conflicts.length;
+  const label = () =>
+    count() === 1 ? "Shortcut conflict" : `${count()} shortcut conflicts`;
+
+  return (
+    <Tooltip
+      closeDelay={0}
+      interactive={false}
+      openDelay={150}
+      positioning={{ placement: "top" }}
+      unmountOnExit
+    >
+      <TooltipTrigger
+        asChild={(tooltipTriggerProps) => (
+          <Button
+            {...(tooltipTriggerProps({
+              "aria-label": `${label()}: ${props.conflicts.join(", ")}`,
+              children: (
+                <>
+                  <CircleAlert class="button__icon" />
+                  {count()}
+                </>
+              ),
+              class: "hotkey-row__conflict-pill",
+              size: "xs",
+              type: "button",
+              variant: "ghost",
+            } as ButtonProps) as ButtonProps)}
+          />
+        )}
+      />
+      <TooltipContent class="hotkey-row__conflict-tooltip">
+        <span>Also used by</span>
+        <strong>{props.conflicts.join(", ")}</strong>
+      </TooltipContent>
     </Tooltip>
   );
 }
@@ -706,12 +748,12 @@ function HotkeySettingsSection(props: {
               data-conflict={conflicts().length > 0 ? "" : undefined}
             >
               <div class="hotkey-row__content">
-                <div class="hotkey-row__title">{command.label}</div>
-                <Show when={conflicts().length > 0}>
-                  <div class="hotkey-row__conflict">
-                    Also used by {conflicts().join(", ")}
-                  </div>
-                </Show>
+                <div class="hotkey-row__title-line">
+                  <div class="hotkey-row__title">{command.label}</div>
+                  <Show when={conflicts().length > 0}>
+                    <HotkeyConflictPill conflicts={conflicts()} />
+                  </Show>
+                </div>
               </div>
               <div class="hotkey-row__controls">
                 <div class="hotkey-row__binding">

@@ -39,10 +39,9 @@
 
 .environment-sync-spinner.spinner {
   border-width: 1.5px;
+  box-sizing: border-box;
   flex: 0 0 auto;
   height: 0.875rem;
-  margin-left: -0.125rem;
-  margin-right: -0.125rem;
   opacity: 0.9;
   width: 0.875rem;
 }
