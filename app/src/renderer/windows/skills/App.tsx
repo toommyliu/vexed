@@ -31,8 +31,11 @@ import {
   SelectTrigger,
   SelectValue,
   Spinner,
+  Tooltip,
+  TooltipContent,
+  TooltipTrigger,
 } from "@vexed/ui";
-import { Save, X } from "lucide-solid";
+import { HelpCircle, Save, X } from "lucide-solid";
 import {
   For,
   Index,
@@ -51,6 +54,7 @@ import {
   DEFAULT_COMBAT_PROFILE_ROLE,
   makeCombatProfileId,
   type CombatProfile,
+  type CombatProfileAnimationTrigger,
   type CombatProfileCondition,
   type CombatProfileLibrary,
   type CombatProfileStep,
@@ -152,6 +156,38 @@ const getPreferredProfileId = (
   profiles[0]?.id ??
   DEFAULT_COMBAT_PROFILE_ID;
 
+function SkillsLabelHelp(props: {
+  readonly label: string;
+  readonly tooltip: string;
+}): JSX.Element {
+  return (
+    <span class="skills-label-help">
+      <span>{props.label}</span>
+      <Tooltip
+        closeDelay={0}
+        openDelay={200}
+        positioning={{ placement: "top" }}
+      >
+        <TooltipTrigger
+          asChild={(triggerProps) => (
+            <Button
+              {...(triggerProps({
+                "aria-label": `${props.label} help`,
+                children: <HelpCircle class="button__icon" />,
+                class: "skills-help-button",
+                size: "icon-sm",
+                type: "button",
+                variant: "ghost",
+              } as ButtonProps) as ButtonProps)}
+            />
+          )}
+        />
+        <TooltipContent>{props.tooltip}</TooltipContent>
+      </Tooltip>
+    </span>
+  );
+}
+
 function App(): JSX.Element {
   const [library, setLibrary] = createSignal<CombatProfileLibrary>(
     DEFAULT_COMBAT_PROFILE_LIBRARY,
@@ -165,9 +201,12 @@ function App(): JSX.Element {
   const [delayMs, setDelayMs] = createSignal(
     String(DEFAULT_COMBAT_PROFILE_DELAY_MS),
   );
-  const [draftSteps, setDraftSteps] = createSignal<readonly CombatProfileStep[]>(
-    DEFAULT_COMBAT_PROFILE_LIBRARY.profiles[0]?.steps ?? [],
-  );
+  const [draftSteps, setDraftSteps] = createSignal<
+    readonly CombatProfileStep[]
+  >(DEFAULT_COMBAT_PROFILE_LIBRARY.profiles[0]?.steps ?? []);
+  const [draftAnimationTriggers, setDraftAnimationTriggers] = createSignal<
+    readonly CombatProfileAnimationTrigger[]
+  >(DEFAULT_COMBAT_PROFILE_LIBRARY.profiles[0]?.animationTriggers ?? []);
   const [saving, setSaving] = createSignal(false);
   const [error, setError] = createSignal("");
   let hydratedProfileId = "";
@@ -176,6 +215,9 @@ function App(): JSX.Element {
     () =>
       library().profiles.find((profile) => profile.id === selectedId()) ??
       library().profiles[0],
+  );
+  const selectedProfileLabel = createMemo(
+    () => selectedProfile()?.label ?? selectedId() ?? "",
   );
   const profileOptions = createMemo(() => {
     const profiles = library().profiles;
@@ -208,14 +250,22 @@ function App(): JSX.Element {
     setRole(profile.role);
     setDelayMs(String(profile.delayMs));
     setDraftSteps(profile.steps.map((step) => ({ ...step })));
+    setDraftAnimationTriggers(
+      (profile.animationTriggers ?? []).map((trigger) => ({ ...trigger })),
+    );
   });
 
   onMount(() => {
     const unsubscribe = window.ipc.combatProfiles.onChanged((nextLibrary) => {
       setLibrary(nextLibrary);
-      if (!nextLibrary.profiles.some((profile) => profile.id === selectedId())) {
+      if (
+        !nextLibrary.profiles.some((profile) => profile.id === selectedId())
+      ) {
         selectProfile(
-          getPreferredProfileId(nextLibrary.profiles, readLastSelectedProfileId()),
+          getPreferredProfileId(
+            nextLibrary.profiles,
+            readLastSelectedProfileId(),
+          ),
         );
       }
     });
@@ -225,7 +275,10 @@ function App(): JSX.Element {
       .then((nextLibrary) => {
         setLibrary(nextLibrary);
         selectProfile(
-          getPreferredProfileId(nextLibrary.profiles, readLastSelectedProfileId()),
+          getPreferredProfileId(
+            nextLibrary.profiles,
+            readLastSelectedProfileId(),
+          ),
         );
       })
       .catch((cause: unknown) => {
@@ -270,6 +323,7 @@ function App(): JSX.Element {
       cooldownMode: profile.cooldownMode,
       timeoutMs: profile.timeoutMs,
       steps: draftSteps(),
+      animationTriggers: draftAnimationTriggers(),
     } satisfies CombatProfile;
     return {
       ...profileWithoutClassName,
@@ -314,9 +368,12 @@ function App(): JSX.Element {
         skill,
         conditions: [],
       })),
+      animationTriggers: [],
     };
 
-    const saved = await runUpdate(window.ipc.combatProfiles.saveProfile(profile));
+    const saved = await runUpdate(
+      window.ipc.combatProfiles.saveProfile(profile),
+    );
     if (saved) {
       selectProfile(id);
     }
@@ -392,13 +449,12 @@ function App(): JSX.Element {
     }));
   };
 
-  const removeCondition = (
-    stepIndex: number,
-    conditionIndex: number,
-  ): void => {
+  const removeCondition = (stepIndex: number, conditionIndex: number): void => {
     updateStep(stepIndex, (step) => ({
       ...step,
-      conditions: step.conditions.filter((_, index) => index !== conditionIndex),
+      conditions: step.conditions.filter(
+        (_, index) => index !== conditionIndex,
+      ),
     }));
   };
 
@@ -408,6 +464,36 @@ function App(): JSX.Element {
     type: ConditionType,
   ): void => {
     updateCondition(stepIndex, conditionIndex, () => createCondition(type));
+  };
+
+  const updateAnimationTrigger = (
+    triggerIndex: number,
+    update: (
+      trigger: CombatProfileAnimationTrigger,
+    ) => CombatProfileAnimationTrigger,
+  ): void => {
+    setDraftAnimationTriggers((triggers) =>
+      triggers.map((trigger, index) =>
+        index === triggerIndex ? update(trigger) : trigger,
+      ),
+    );
+  };
+
+  const addAnimationTrigger = (): void => {
+    setDraftAnimationTriggers((triggers) => [
+      ...triggers,
+      {
+        id: `${selectedId()}-trigger-${Date.now()}`,
+        messageIncludes: "",
+        skill: 5,
+      },
+    ]);
+  };
+
+  const removeAnimationTrigger = (triggerIndex: number): void => {
+    setDraftAnimationTriggers((triggers) =>
+      triggers.filter((_, index) => index !== triggerIndex),
+    );
   };
 
   return (
@@ -454,7 +540,14 @@ function App(): JSX.Element {
               }}
             >
               <SelectTrigger>
-                <SelectValue placeholder="Profile" />
+                <span
+                  class="select__value"
+                  data-placeholder={
+                    selectedProfileLabel() === "" ? "" : undefined
+                  }
+                >
+                  {selectedProfileLabel() || "Profile"}
+                </span>
               </SelectTrigger>
               <SelectContent>
                 <For each={profileOptions()}>
@@ -552,6 +645,124 @@ function App(): JSX.Element {
 
             <CardFrame>
               <CardFrameHeader class="skills-frame-header">
+                <CardFrameTitle>Triggers</CardFrameTitle>
+                <Button
+                  class="skills-add-skill-button"
+                  size="sm"
+                  variant="ghost"
+                  onClick={addAnimationTrigger}
+                >
+                  + Trigger
+                </Button>
+              </CardFrameHeader>
+              <Card>
+                <CardContent class="skills-triggers">
+                  <Show
+                    when={draftAnimationTriggers().length > 0}
+                    fallback={
+                      <div class="skills-empty-rule">
+                        No animation triggers.
+                      </div>
+                    }
+                  >
+                    <Index each={draftAnimationTriggers()}>
+                      {(trigger, triggerIndex) => (
+                        <div class="skills-trigger">
+                          <label>
+                            <span>Message</span>
+                            <Input
+                              value={trigger().messageIncludes}
+                              placeholder="message text"
+                              onInput={(event) =>
+                                updateAnimationTrigger(
+                                  triggerIndex,
+                                  (current) => ({
+                                    ...current,
+                                    messageIncludes: event.currentTarget.value,
+                                  }),
+                                )
+                              }
+                            />
+                          </label>
+                          <label>
+                            <span>Skill</span>
+                            <Select
+                              class="skills-select skills-select--skill"
+                              value={[String(trigger().skill)]}
+                              onValueChange={(details) =>
+                                updateAnimationTrigger(
+                                  triggerIndex,
+                                  (current) => ({
+                                    ...current,
+                                    skill: Number.parseInt(
+                                      details.value[0] ?? "5",
+                                      10,
+                                    ),
+                                  }),
+                                )
+                              }
+                            >
+                              <SelectTrigger>
+                                <SelectValue placeholder="Skill" />
+                              </SelectTrigger>
+                              <SelectContent>
+                                <For each={skillIndices}>
+                                  {(skill) => (
+                                    <SelectItem value={String(skill)}>
+                                      {skill}
+                                    </SelectItem>
+                                  )}
+                                </For>
+                              </SelectContent>
+                            </Select>
+                          </label>
+                          <label>
+                            <SkillsLabelHelp
+                              label="Cooldown (ms)"
+                              tooltip="Minimum time before this trigger can cast again. Leave empty or 0 to allow every matching message."
+                            />
+                            <Input
+                              inputMode="numeric"
+                              value={String(trigger().cooldownMs ?? "")}
+                              placeholder="0"
+                              onInput={(event) =>
+                                updateAnimationTrigger(
+                                  triggerIndex,
+                                  (current) => {
+                                    const parsed = Number.parseInt(
+                                      event.currentTarget.value,
+                                      10,
+                                    );
+                                    if (Number.isFinite(parsed) && parsed > 0) {
+                                      return { ...current, cooldownMs: parsed };
+                                    }
+
+                                    const { cooldownMs: _cooldownMs, ...rest } =
+                                      current;
+                                    return rest;
+                                  },
+                                )
+                              }
+                            />
+                          </label>
+                          <Button
+                            aria-label="Remove trigger"
+                            size="icon-sm"
+                            variant="ghost"
+                            onClick={() => removeAnimationTrigger(triggerIndex)}
+                          >
+                            <X class="button__icon" />
+                          </Button>
+                        </div>
+                      )}
+                    </Index>
+                  </Show>
+                </CardContent>
+              </Card>
+            </CardFrame>
+
+            <CardFrame>
+              <CardFrameHeader class="skills-frame-header">
                 <CardFrameTitle>Rotation</CardFrameTitle>
                 <Button
                   class="skills-add-skill-button"
@@ -576,10 +787,7 @@ function App(): JSX.Element {
                               onValueChange={(details) =>
                                 updateStepSkill(
                                   stepIndex,
-                                  Number.parseInt(
-                                    details.value[0] ?? "1",
-                                    10,
-                                  ),
+                                  Number.parseInt(details.value[0] ?? "1", 10),
                                 )
                               }
                             >
@@ -587,13 +795,13 @@ function App(): JSX.Element {
                                 <SelectValue placeholder="Skill" />
                               </SelectTrigger>
                               <SelectContent>
-                              <For each={skillIndices}>
-                                {(skill) => (
-                                  <SelectItem value={String(skill)}>
-                                    {skill}
-                                  </SelectItem>
-                                )}
-                              </For>
+                                <For each={skillIndices}>
+                                  {(skill) => (
+                                    <SelectItem value={String(skill)}>
+                                      {skill}
+                                    </SelectItem>
+                                  )}
+                                </For>
                               </SelectContent>
                             </Select>
                           </label>
@@ -642,13 +850,13 @@ function App(): JSX.Element {
                                       <SelectValue placeholder="Rule type" />
                                     </SelectTrigger>
                                     <SelectContent>
-                                    <For each={conditionTypes}>
-                                      {(option) => (
-                                        <SelectItem value={option.value}>
-                                          {option.label}
-                                        </SelectItem>
-                                      )}
-                                    </For>
+                                      <For each={conditionTypes}>
+                                        {(option) => (
+                                          <SelectItem value={option.value}>
+                                            {option.label}
+                                          </SelectItem>
+                                        )}
+                                      </For>
                                     </SelectContent>
                                   </Select>
                                   <Show when={!isStatCondition(condition())}>
@@ -728,7 +936,7 @@ function App(): JSX.Element {
                                                     | "percent"
                                                     | "value",
                                                 }
-                                          : current,
+                                              : current,
                                         )
                                       }
                                     >
@@ -736,7 +944,9 @@ function App(): JSX.Element {
                                         <SelectValue placeholder="Unit" />
                                       </SelectTrigger>
                                       <SelectContent>
-                                        <SelectItem value="percent">%</SelectItem>
+                                        <SelectItem value="percent">
+                                          %
+                                        </SelectItem>
                                         <SelectItem value="value">
                                           Value
                                         </SelectItem>
@@ -748,10 +958,7 @@ function App(): JSX.Element {
                                     size="icon-sm"
                                     variant="ghost"
                                     onClick={() =>
-                                      removeCondition(
-                                        stepIndex,
-                                        conditionIndex,
-                                      )
+                                      removeCondition(stepIndex, conditionIndex)
                                     }
                                   >
                                     <X class="button__icon" />

@@ -300,7 +300,7 @@ const make = Effect.gen(function* () {
 
           const currentTargetMonMapId = yield* getCurrentTargetMonMapId();
           if (currentTargetMonMapId === event.monMapId) {
-            yield* stopCombat;
+            yield* stopCounterAttackCombat(event.monMapId);
             stoppedCounterAttackTargets.set(event.monMapId, event.triggerId);
           }
         }),
@@ -419,16 +419,86 @@ const make = Effect.gen(function* () {
       return true;
     });
 
+  const isCounterAttackAvoidanceActive = (monMapId: number) =>
+    Effect.gen(function* () {
+      if (!(yield* settings.isCounterAttackEnabled())) {
+        return false;
+      }
+
+      return yield* isCounterAttackActive(monMapId);
+    });
+
+  const stopCounterAttackCombat = (monMapId: number) =>
+    Effect.gen(function* () {
+      yield* cancelAutoAttack().pipe(Effect.catch(() => Effect.void));
+      yield* cancelTarget().pipe(Effect.catch(() => Effect.void));
+
+      const tracked = counterAttackMonsters.get(monMapId);
+      if (tracked !== undefined) {
+        stoppedCounterAttackTargets.set(monMapId, tracked.triggerId);
+      }
+    });
+
+  const resolveCounterAttackMonMapIdForAttack = (target: ResolvedKillTarget) =>
+    Effect.gen(function* () {
+      if (target.kind === "monMapId") {
+        return (yield* isCounterAttackAvoidanceActive(target.monMapId))
+          ? target.monMapId
+          : undefined;
+      }
+
+      if (!(yield* settings.isCounterAttackEnabled())) {
+        return undefined;
+      }
+
+      const maybeWorld = yield* Effect.serviceOption(World);
+      if (Option.isNone(maybeWorld)) {
+        return undefined;
+      }
+
+      const world = maybeWorld.value;
+      const currentCell = yield* world.players
+        .withSelf((me) => me.cell)
+        .pipe(Effect.map((cell) => (Option.isSome(cell) ? cell.value : "")));
+      const normalizedCell = currentCell.toLowerCase();
+      const monsters = yield* world.monsters.getAll();
+
+      const monster = Array.from(monsters.values()).find(
+        (candidate) =>
+          candidate.alive &&
+          !candidate.isDead() &&
+          candidate.cell.toLowerCase() === normalizedCell &&
+          matchesMonsterName(target.name, candidate.name),
+      );
+
+      if (monster === undefined) {
+        return undefined;
+      }
+
+      return (yield* isCounterAttackActive(monster.monMapId))
+        ? monster.monMapId
+        : undefined;
+    });
+
   const attackMonster: CombatShape["attackMonster"] = (monster) =>
     Effect.gen(function* () {
       const resolved = resolveKillTarget(monster);
-      if (resolved.kind === "monMapId") {
-        return yield* bridge.call("combat.attackMonsterById", [
-          resolved.monMapId,
-        ]);
+      const blockedMonMapId =
+        yield* resolveCounterAttackMonMapIdForAttack(resolved);
+      if (blockedMonMapId !== undefined) {
+        yield* stopCounterAttackCombat(blockedMonMapId);
+        return false;
       }
 
-      return yield* bridge.call("combat.attackMonster", [resolved.name]);
+      if (resolved.kind === "monMapId") {
+        yield* bridge.call("combat.attackMonsterById", [
+          resolved.monMapId,
+        ]);
+        return true;
+      }
+
+      yield* bridge.call("combat.attackMonster", [resolved.name]);
+      return true;
     });
 
   const cancelAutoAttack: CombatShape["cancelAutoAttack"] = () =>
@@ -591,9 +661,9 @@ const make = Effect.gen(function* () {
       const targetBeforeWait = yield* getCurrentTargetMonMapId();
       if (
         targetBeforeWait !== undefined &&
-        (yield* isCounterAttackActive(targetBeforeWait))
+        (yield* isCounterAttackAvoidanceActive(targetBeforeWait))
       ) {
-        yield* stopCombat;
+        yield* stopCounterAttackCombat(targetBeforeWait);
         return;
       }
 
@@ -612,9 +682,9 @@ const make = Effect.gen(function* () {
       const targetBeforeCast = yield* getCurrentTargetMonMapId();
       if (
         targetBeforeCast !== undefined &&
-        (yield* isCounterAttackActive(targetBeforeCast))
+        (yield* isCounterAttackAvoidanceActive(targetBeforeCast))
       ) {
-        yield* stopCombat;
+        yield* stopCounterAttackCombat(targetBeforeCast);
         return;
       }
 
@@ -931,17 +1001,18 @@ const make = Effect.gen(function* () {
 
         const nextAttack = yield* resolveNextAttack();
         if (nextAttack?.kind === "attack") {
-          yield* attackMonster(nextAttack.monMapId);
-          attackedThisLoop = true;
+          attackedThisLoop = yield* attackMonster(nextAttack.monMapId);
 
-          const skill =
-            normalizedKillOptions.skillSet[
-              skillIndex % normalizedKillOptions.skillSet.length
-            ];
-          skillIndex += 1;
+          if (attackedThisLoop) {
+            const skill =
+              normalizedKillOptions.skillSet[
+                skillIndex % normalizedKillOptions.skillSet.length
+              ];
+            skillIndex += 1;
 
-          if (skill !== undefined) {
-            yield* useSkill(skill, false, normalizedKillOptions.skillWait);
+            if (skill !== undefined) {
+              yield* useSkill(skill, false, normalizedKillOptions.skillWait);
+            }
           }
         } else if (nextAttack?.kind === "blocked") {
           yield* stopCombat;

@@ -9,6 +9,7 @@ const createRuntime = (
   overrides: Partial<GameCommandRuntime> = {},
 ): GameCommandRuntime => {
   let autoAttackEnabled = false;
+  let followerEnabled = false;
 
   return {
     bindings: () => [] satisfies HotkeyBindings,
@@ -18,8 +19,12 @@ const createRuntime = (
     scriptLoaded: () => true,
     scriptRunning: () => false,
     autoAttackEnabled: () => autoAttackEnabled,
+    followerEnabled: () => followerEnabled,
     toggleAutoAttack: () => {
       autoAttackEnabled = !autoAttackEnabled;
+    },
+    toggleFollower: () => {
+      followerEnabled = !followerEnabled;
     },
     toggleBank: noop,
     optionItems: () => [],
@@ -71,6 +76,24 @@ describe("game commands", () => {
     findCommand(runtime, "toggleAutoattack").run();
 
     expect(toggleAutoAttack).toHaveBeenCalledOnce();
+  });
+
+  it("toggles follower through the runtime action", () => {
+    const toggleFollower = vi.fn();
+    const runtime = createRuntime({ toggleFollower });
+
+    findCommand(runtime, "toggleFollower").run();
+
+    expect(toggleFollower).toHaveBeenCalledOnce();
+  });
+
+  it("opens follower through the window command", () => {
+    const openWindow = vi.fn();
+    const runtime = createRuntime({ openWindow });
+
+    findCommand(runtime, "openFollower").run();
+
+    expect(openWindow).toHaveBeenCalledWith("follower");
   });
 
   it("toggles bank through the runtime action", () => {

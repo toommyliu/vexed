@@ -150,6 +150,9 @@ const patchAvatarData = (
   if (afk !== undefined) data.afk = afk;
 };
 
+const hasCsvValue = (input: string, prefix: string): boolean =>
+  readCsvValue(input, prefix) !== undefined;
+
 type DomainHandlerStore = {
   [K in PacketDomainEvent]: Set<PacketDomainEventHandler<K>>;
 };
@@ -163,6 +166,7 @@ const createDomainHandlerStore = (): DomainHandlerStore => ({
   auraRemoved: new Set(),
   counterAttackStart: new Set(),
   counterAttackEnd: new Set(),
+  playerLocation: new Set(),
 });
 
 const registerDomainHandler = <E extends PacketDomainEvent>(
@@ -547,7 +551,20 @@ const make = Effect.gen(function* () {
         return;
       }
 
+      const cell = asString(userPayload["strFrame"]);
+      const pad = asString(userPayload["strPad"]);
+      const x = asNumber(userPayload["tx"]);
+      const y = asNumber(userPayload["ty"]);
+
       patchAvatarData(existing.value.data, userPayload);
+      yield* dispatchDomainEvent(domainHandlerStore, "playerLocation", {
+        username,
+        packet,
+        ...(cell === undefined ? {} : { cell }),
+        ...(pad === undefined ? {} : { pad }),
+        ...(x === undefined ? {} : { x }),
+        ...(y === undefined ? {} : { y }),
+      });
     }),
   );
 
@@ -630,24 +647,12 @@ const make = Effect.gen(function* () {
         return;
       }
 
-      if (data.startsWith("sp:")) {
-        const tx = asNumber(readCsvValue(data, "tx:"));
-        const ty = asNumber(readCsvValue(data, "ty:"));
-        const cell = readCsvValue(data, "strFrame:");
-
-        if (tx !== undefined) {
-          playerData.tx = tx;
-        }
-        if (ty !== undefined) {
-          playerData.ty = ty;
-        }
-        if (cell !== undefined) {
-          playerData.strFrame = cell;
-        }
-        return;
-      }
-
-      if (data.startsWith("mvts:")) {
+      if (
+        hasCsvValue(data, "mvts:") ||
+        hasCsvValue(data, "strPad:") ||
+        hasCsvValue(data, "px:") ||
+        hasCsvValue(data, "py:")
+      ) {
         const tx = asNumber(readCsvValue(data, "px:"));
         const ty = asNumber(readCsvValue(data, "py:"));
         const cell = readCsvValue(data, "strFrame:");
@@ -665,6 +670,43 @@ const make = Effect.gen(function* () {
         if (ty !== undefined) {
           playerData.ty = ty;
         }
+        yield* dispatchDomainEvent(domainHandlerStore, "playerLocation", {
+          username,
+          packet,
+          ...(cell === undefined ? {} : { cell }),
+          ...(pad === undefined ? {} : { pad }),
+          ...(tx === undefined ? {} : { x: tx }),
+          ...(ty === undefined ? {} : { y: ty }),
+        });
+        return;
+      }
+
+      if (
+        hasCsvValue(data, "sp:") ||
+        hasCsvValue(data, "tx:") ||
+        hasCsvValue(data, "ty:")
+      ) {
+        const tx = asNumber(readCsvValue(data, "tx:"));
+        const ty = asNumber(readCsvValue(data, "ty:"));
+        const cell = readCsvValue(data, "strFrame:");
+
+        if (tx !== undefined) {
+          playerData.tx = tx;
+        }
+        if (ty !== undefined) {
+          playerData.ty = ty;
+        }
+        if (cell !== undefined) {
+          playerData.strFrame = cell;
+        }
+        yield* dispatchDomainEvent(domainHandlerStore, "playerLocation", {
+          username,
+          packet,
+          ...(cell === undefined ? {} : { cell }),
+          ...(tx === undefined ? {} : { x: tx }),
+          ...(ty === undefined ? {} : { y: ty }),
+        });
+        return;
       }
     }),
   );

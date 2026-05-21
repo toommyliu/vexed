@@ -30,6 +30,7 @@ import {
 } from "../../../shared/combat-profiles";
 import type {
   AccountGameLaunchPayload,
+  FollowerStartPayload,
   ScriptExecutePayload,
 } from "../../../shared/ipc";
 import type { WindowId } from "../../../shared/windows";
@@ -53,6 +54,7 @@ import {
   type AutoZoneState,
   type AutoZoneSupportedMap,
 } from "./features/Services/AutoZone";
+import { Follower } from "./features/Services/Follower";
 import { TopNav } from "./TopNav";
 import { createGameCommands } from "./commands";
 import { GameHotkeys } from "./hotkeys";
@@ -145,6 +147,7 @@ export default function App(props: {
   const [gameLoaded, setGameLoaded] = createSignal(getGameLoadState().loaded);
   const [playerReady, setPlayerReady] = createSignal(false);
   const [autoAttackEnabled, setAutoAttackEnabled] = createSignal(false);
+  const [followerEnabled, setFollowerEnabled] = createSignal(false);
   const [autoAttackProfileLabel, setAutoAttackProfileLabel] =
     createSignal("Generic");
   const [autoAttackLastError, setAutoAttackLastError] = createSignal("");
@@ -872,6 +875,25 @@ export default function App(props: {
       });
   };
 
+  const handleToggleFollower = () => {
+    void runtime
+      .runPromise(
+        Effect.gen(function* () {
+          const follower = yield* Follower;
+          return yield* follower.toggle(combatProfileLibrary());
+        }),
+      )
+      .then((state) => {
+        setFollowerEnabled(state.enabled || state.running);
+        void window.ipc.follower.publishState(state).catch((error) => {
+          console.error("Follower state publish error:", error);
+        });
+      })
+      .catch((error) => {
+        console.error("Toggle follower error:", error);
+      });
+  };
+
   const handleSelectAutoAttackProfile = (
     mode: CombatProfileAutoAttackMode,
     selectedProfileId?: string,
@@ -1149,7 +1171,9 @@ export default function App(props: {
     scriptLoaded,
     scriptRunning,
     autoAttackEnabled,
+    followerEnabled,
     toggleAutoAttack: handleToggleAutoAttack,
+    toggleFollower: handleToggleFollower,
     toggleBank: () => {
       if (canApplyGameSettings()) {
         handleOpenBank();
@@ -1175,13 +1199,67 @@ export default function App(props: {
     document.documentElement.removeAttribute("data-top-bar-hidden");
   });
 
+  const publishFollowerState = () =>
+    runtime
+      .runPromise(
+        Effect.gen(function* () {
+          const follower = yield* Follower;
+          return yield* follower.getState();
+        }),
+      )
+      .then((state) => window.ipc.follower.publishState(state))
+      .catch((error: unknown) => {
+        console.error("Failed to publish follower state:", error);
+      });
+
+  const getFollowerState = () =>
+    runtime.runPromise(
+      Effect.gen(function* () {
+        const follower = yield* Follower;
+        return yield* follower.getState();
+      }),
+    );
+
+  const getFollowerMe = () =>
+    runtime.runPromise(
+      Effect.gen(function* () {
+        const auth = yield* Auth;
+        return yield* auth
+          .getUsername()
+          .pipe(Effect.catch(() => Effect.succeed("")));
+      }),
+    );
+
+  const startFollower = (payload: FollowerStartPayload) =>
+    runtime.runPromise(
+      Effect.gen(function* () {
+        const autoAttack = yield* AutoAttack;
+        const follower = yield* Follower;
+        const autoAttackState = yield* autoAttack.disable();
+        applyAutoAttackState(autoAttackState);
+        return yield* follower.start({
+          config: payload,
+          library: combatProfileLibrary(),
+        });
+      }),
+    );
+
+  const stopFollower = () =>
+    runtime.runPromise(
+      Effect.gen(function* () {
+        const follower = yield* Follower;
+        return yield* follower.stop();
+      }),
+    );
+
   onMount(() => {
     const unsubscribeAppSettings =
       window.ipc.settings.onChanged(applyAppSettings);
     const unsubscribeAccountLaunch =
       window.ipc.accounts.onGameLaunch(handleAccountLaunch);
-    const unsubscribeCombatProfiles =
-      window.ipc.combatProfiles.onChanged(applyCombatProfileLibrary);
+    const unsubscribeCombatProfiles = window.ipc.combatProfiles.onChanged(
+      applyCombatProfileLibrary,
+    );
     const unsubscribeScriptExecute = window.ipc.scripting.onExecute(
       (payload) => {
         void applyScriptPayload(payload)
@@ -1201,6 +1279,15 @@ export default function App(props: {
       setScriptStatus("Stop requested");
       void refreshScriptMeta();
     });
+    const unsubscribeFollowerGetState =
+      window.ipc.follower.onGetStateRequest(getFollowerState);
+    const unsubscribeFollowerMe =
+      window.ipc.follower.onMeRequest(getFollowerMe);
+    const unsubscribeFollowerStart =
+      window.ipc.follower.onStartRequest(startFollower);
+    const unsubscribeFollowerStop =
+      window.ipc.follower.onStopRequest(stopFollower);
+    let followerStateDisposer: (() => void) | undefined;
 
     if (props.initialSettings === undefined || props.initialSettings === null) {
       void window.ipc.settings
@@ -1296,12 +1383,37 @@ export default function App(props: {
         console.error("AutoZone state subscription error:", error);
       });
 
+    void runtime
+      .runPromise(
+        Effect.gen(function* () {
+          const follower = yield* Follower;
+          return yield* follower.onState((state) => {
+            setFollowerEnabled(state.enabled || state.running);
+            void window.ipc.follower.publishState(state).catch((error) => {
+              console.error("Follower state publish error:", error);
+            });
+          });
+        }),
+      )
+      .then((disposeFollowerState) => {
+        followerStateDisposer = disposeFollowerState;
+        void publishFollowerState();
+      })
+      .catch((error) => {
+        console.error("Follower state subscription error:", error);
+      });
+
     onCleanup(() => {
       unsubscribeAppSettings();
       unsubscribeAccountLaunch();
       unsubscribeCombatProfiles();
       unsubscribeScriptExecute();
       unsubscribeScriptStop();
+      unsubscribeFollowerGetState();
+      unsubscribeFollowerMe();
+      unsubscribeFollowerStart();
+      unsubscribeFollowerStop();
+      followerStateDisposer?.();
       disposeGameLoadState();
       clearInterval(scriptMetaInterval);
       clearInterval(playerReadyStateInterval);

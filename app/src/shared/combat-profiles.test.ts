@@ -58,6 +58,18 @@ describe("combat profile library", () => {
               skipIfUnavailable: true,
             },
           ],
+          animationTriggers: [
+            {
+              id: "nuke",
+              messageIncludes: "  Boss prepares ",
+              skill: 5.9,
+              cooldownMs: 2500.5,
+            },
+            {
+              messageIncludes: "",
+              skill: 4,
+            },
+          ],
         },
       ],
       autoAttack: {
@@ -96,6 +108,14 @@ describe("combat profile library", () => {
           skipIfUnavailable: true,
         },
       ],
+      animationTriggers: [
+        {
+          id: "nuke",
+          messageIncludes: "Boss prepares",
+          skill: 5,
+          cooldownMs: 2500,
+        },
+      ],
     });
     expect(autoAttackStateToProfileRef(library.autoAttack)).toEqual({
       mode: "selected",
@@ -113,9 +133,12 @@ describe("combat profile library", () => {
     });
 
     expect(library.autoAttack).toEqual({ mode: "equipped-class" });
-    expect(findCombatProfileByRef(library, { mode: "selected", profileId: "missing" }).id).toBe(
-      DEFAULT_COMBAT_PROFILE_ID,
-    );
+    expect(
+      findCombatProfileByRef(library, {
+        mode: "selected",
+        profileId: "missing",
+      }).id,
+    ).toBe(DEFAULT_COMBAT_PROFILE_ID);
   });
 
   it("resolves equipped-class profiles case-insensitively", () => {
@@ -131,9 +154,9 @@ describe("combat profile library", () => {
       ],
     });
 
-    expect(findCombatProfileByRef(library, "equipped-class", "archmage").id).toBe(
-      "archmage-farm",
-    );
+    expect(
+      findCombatProfileByRef(library, "equipped-class", "archmage").id,
+    ).toBe("archmage-farm");
     expect(
       findCombatProfileByRef(library, "equipped-class", "void highlord").id,
     ).toBe(DEFAULT_COMBAT_PROFILE_ID);

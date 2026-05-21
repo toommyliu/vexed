@@ -214,3 +214,14 @@ export const castNextCombatProfileStep = (
 
 export const isAttackableMonster = (monster: Monster): boolean =>
   monster.alive && !monster.isDead();
+
+const normalizeAnimationTriggerText = (value: string): string =>
+  value.trim().replace(/\s+/gu, " ").toLowerCase();
+
+export const matchesCombatProfileAnimationTriggerMessage = (
+  configuredMessage: string,
+  message: string,
+): boolean =>
+  normalizeAnimationTriggerText(message).includes(
+    normalizeAnimationTriggerText(configuredMessage),
+  );

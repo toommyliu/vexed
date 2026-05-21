@@ -102,6 +102,8 @@ export const gameWindowGroups: readonly WindowGroup[] = [
         dimensions: {
           width: 648,
           height: 496,
+          minWidth: 560,
+          minHeight: 420,
         },
       },
       {

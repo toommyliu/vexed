@@ -317,7 +317,7 @@ test("useSkill is a no-op when the player is dead", async () => {
   expect(calls).toEqual([]);
 });
 
-test("counter attack start cancels the current target when enabled", async () => {
+test("counter attack start stops auto attack without clearing the target when enabled", async () => {
   const calls: string[] = [];
   let counterAttackStart:
     | PacketDomainEventHandler<"counterAttackStart">
@@ -589,6 +589,248 @@ test("counter attack start does not cancel the current target when disabled", as
   );
 
   expect(calls).toEqual([]);
+});
+
+test("useSkill ignores tracked counter attacks when counter attack is disabled", async () => {
+  const calls: string[] = [];
+  let counterAttackStart:
+    | PacketDomainEventHandler<"counterAttackStart">
+    | undefined;
+  const packetDomain = {
+    started: true,
+    on(event, handler) {
+      if (event === "counterAttackStart") {
+        counterAttackStart =
+          handler as PacketDomainEventHandler<"counterAttackStart">;
+      }
+
+      return Effect.succeed(() => undefined);
+    },
+  } satisfies PacketDomainShape;
+  const bridge: BridgeShape = {
+    call<K extends keyof Window["swf"]>(
+      path: K,
+      args?: Parameters<Window["swf"][K]>,
+    ) {
+      if (path === "combat.getTarget") {
+        calls.push("combat.getTarget");
+        return Effect.succeed({
+          MonMapID: 7,
+          type: "monster",
+        }) as Effect.Effect<ReturnType<Window["swf"][K]>>;
+      }
+
+      if (path === "combat.useSkill") {
+        calls.push(`combat.useSkill:${String(args?.[0])}`);
+        return Effect.void as Effect.Effect<ReturnType<Window["swf"][K]>>;
+      }
+
+      throw new Error(`unexpected bridge call: ${String(path)}`);
+    },
+    callGameFunction() {
+      return Effect.void;
+    },
+    onConnection() {
+      return Effect.succeed(() => undefined);
+    },
+  };
+
+  await withCombat(
+    bridge,
+    (combat) =>
+      Effect.gen(function* () {
+        expect(counterAttackStart).toBeDefined();
+        yield* counterAttackStart!(counterAttackEvent({ monMapId: 7 }));
+        yield* combat.useSkill(1);
+      }),
+    { counterAttackEnabled: false, packetDomain },
+  );
+
+  expect(calls).toEqual([
+    "combat.getTarget",
+    "combat.getTarget",
+    "combat.useSkill:1",
+  ]);
+});
+
+test("useSkill stops auto attack and does not cast while counter attack is active", async () => {
+  const calls: string[] = [];
+  let targetReadCount = 0;
+  let counterAttackStart:
+    | PacketDomainEventHandler<"counterAttackStart">
+    | undefined;
+  const packetDomain = {
+    started: true,
+    on(event, handler) {
+      if (event === "counterAttackStart") {
+        counterAttackStart =
+          handler as PacketDomainEventHandler<"counterAttackStart">;
+      }
+
+      return Effect.succeed(() => undefined);
+    },
+  } satisfies PacketDomainShape;
+  const bridge: BridgeShape = {
+    call<K extends keyof Window["swf"]>(path: K) {
+      if (path === "combat.getTarget") {
+        targetReadCount += 1;
+        calls.push("combat.getTarget");
+        return Effect.succeed(
+          targetReadCount === 1 ? null : { MonMapID: 7, type: "monster" },
+        ) as Effect.Effect<ReturnType<Window["swf"][K]>>;
+      }
+
+      if (
+        path === "combat.cancelAutoAttack" ||
+        path === "combat.cancelTarget"
+      ) {
+        calls.push(path);
+        return Effect.void as Effect.Effect<ReturnType<Window["swf"][K]>>;
+      }
+
+      throw new Error(`unexpected bridge call: ${String(path)}`);
+    },
+    callGameFunction() {
+      return Effect.void;
+    },
+    onConnection() {
+      return Effect.succeed(() => undefined);
+    },
+  };
+
+  await withCombat(
+    bridge,
+    (combat) =>
+      Effect.gen(function* () {
+        expect(counterAttackStart).toBeDefined();
+        yield* counterAttackStart!(counterAttackEvent({ monMapId: 7 }));
+        yield* combat.useSkill(1);
+      }),
+    { counterAttackEnabled: true, packetDomain },
+  );
+
+  expect(calls).toEqual([
+    "combat.getTarget",
+    "combat.getTarget",
+    "combat.cancelAutoAttack",
+    "combat.cancelTarget",
+  ]);
+});
+
+test("attackMonster does not hit while counter attack is active", async () => {
+  const calls: string[] = [];
+  let counterAttackStart:
+    | PacketDomainEventHandler<"counterAttackStart">
+    | undefined;
+  const packetDomain = {
+    started: true,
+    on(event, handler) {
+      if (event === "counterAttackStart") {
+        counterAttackStart =
+          handler as PacketDomainEventHandler<"counterAttackStart">;
+      }
+
+      return Effect.succeed(() => undefined);
+    },
+  } satisfies PacketDomainShape;
+  const bridge: BridgeShape = {
+    call<K extends keyof Window["swf"]>(
+      path: K,
+      _args?: Parameters<Window["swf"][K]>,
+    ) {
+      if (path === "combat.getTarget") {
+        calls.push("combat.getTarget");
+        return Effect.succeed(null) as Effect.Effect<
+          ReturnType<Window["swf"][K]>
+        >;
+      }
+
+      if (
+        path === "combat.cancelAutoAttack" ||
+        path === "combat.cancelTarget"
+      ) {
+        calls.push(path);
+        return Effect.void as Effect.Effect<ReturnType<Window["swf"][K]>>;
+      }
+
+      throw new Error(`unexpected bridge call: ${String(path)}`);
+    },
+    callGameFunction() {
+      return Effect.void;
+    },
+    onConnection() {
+      return Effect.succeed(() => undefined);
+    },
+  };
+
+  await withCombat(
+    bridge,
+    (combat) =>
+      Effect.gen(function* () {
+        expect(counterAttackStart).toBeDefined();
+        yield* counterAttackStart!(counterAttackEvent({ monMapId: 7 }));
+        const attacked = yield* combat.attackMonster(7);
+        expect(attacked).toBe(false);
+      }),
+    { counterAttackEnabled: true, packetDomain },
+  );
+
+  expect(calls).toEqual([
+    "combat.getTarget",
+    "combat.cancelAutoAttack",
+    "combat.cancelTarget",
+  ]);
+});
+
+test("attackMonster ignores tracked counter attacks when counter attack is disabled", async () => {
+  const calls: string[] = [];
+  let counterAttackStart:
+    | PacketDomainEventHandler<"counterAttackStart">
+    | undefined;
+  const packetDomain = {
+    started: true,
+    on(event, handler) {
+      if (event === "counterAttackStart") {
+        counterAttackStart =
+          handler as PacketDomainEventHandler<"counterAttackStart">;
+      }
+
+      return Effect.succeed(() => undefined);
+    },
+  } satisfies PacketDomainShape;
+  const bridge: BridgeShape = {
+    call<K extends keyof Window["swf"]>(
+      path: K,
+      args?: Parameters<Window["swf"][K]>,
+    ) {
+      if (path === "combat.attackMonsterById") {
+        calls.push(`combat.attackMonsterById:${String(args?.[0])}`);
+        return Effect.void as Effect.Effect<ReturnType<Window["swf"][K]>>;
+      }
+
+      throw new Error(`unexpected bridge call: ${String(path)}`);
+    },
+    callGameFunction() {
+      return Effect.void;
+    },
+    onConnection() {
+      return Effect.succeed(() => undefined);
+    },
+  };
+
+  await withCombat(
+    bridge,
+    (combat) =>
+      Effect.gen(function* () {
+        expect(counterAttackStart).toBeDefined();
+        yield* counterAttackStart!(counterAttackEvent({ monMapId: 7 }));
+        const attacked = yield* combat.attackMonster(7);
+        expect(attacked).toBe(true);
+      }),
+    { counterAttackEnabled: false, packetDomain },
+  );
+
+  expect(calls).toEqual(["combat.attackMonsterById:7"]);
 });
 
 test("kill waits for respawn before attacking", async () => {

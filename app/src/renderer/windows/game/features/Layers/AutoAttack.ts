@@ -1,4 +1,4 @@
-import { Effect, Layer, Ref, Semaphore } from "effect";
+import { Effect, Layer, Option, Ref, Semaphore } from "effect";
 import {
   findCombatProfileByRef,
   type CombatProfile,
@@ -7,8 +7,14 @@ import {
   castNextCombatProfileStep,
   isAttackableMonster,
   makeCombatProfileCursor,
+  matchesCombatProfileAnimationTriggerMessage,
 } from "../../combatProfiles";
 import { Combat } from "../../flash/Services/Combat";
+import { PacketDomain } from "../../flash/Services/PacketDomain";
+import type {
+  PacketDomainAnimationMessageEvent,
+  PacketDomainEventHandler,
+} from "../../flash/Services/PacketDomain";
 import { Player } from "../../flash/Services/Player";
 import { World } from "../../flash/Services/World";
 import { Jobs } from "../../jobs/Services/Jobs";
@@ -44,11 +50,15 @@ const toState = (
 const make = Effect.gen(function* () {
   const combat = yield* Combat;
   const jobs = yield* Jobs;
+  const maybePacketDomain = yield* Effect.serviceOption(PacketDomain);
   const player = yield* Player;
   const world = yield* World;
   const enabledRef = yield* Ref.make(false);
   const profileRef = yield* Ref.make<CombatProfile | undefined>(undefined);
   const lastErrorRef = yield* Ref.make<string | undefined>(undefined);
+  const animationTriggerLastCastRef = yield* Ref.make<
+    ReadonlyMap<string, number>
+  >(new Map());
   const updateSemaphore = yield* Semaphore.make(1);
   const listeners = new Set<AutoAttackStateListener>();
 
@@ -101,6 +111,82 @@ const make = Effect.gen(function* () {
     }
   });
 
+  const runAnimationTrigger = (
+    profile: CombatProfile,
+    trigger: NonNullable<CombatProfile["animationTriggers"]>[number],
+    event: PacketDomainAnimationMessageEvent,
+    now: number,
+  ) =>
+    Effect.gen(function* () {
+      const cooldownMs = trigger.cooldownMs ?? 0;
+      const castKey = `${profile.id}:${trigger.id}:${trigger.skill}`;
+      const lastCast = (yield* Ref.get(animationTriggerLastCastRef)).get(
+        castKey,
+      );
+      if (lastCast !== undefined && now - lastCast < cooldownMs) {
+        return;
+      }
+
+      yield* Ref.update(animationTriggerLastCastRef, (previous) => {
+        const next = new Map(previous);
+        next.set(castKey, now);
+        return next;
+      });
+
+      if (event.monMapId !== undefined) {
+        const targeted = yield* combat.attackMonster(event.monMapId).pipe(
+          Effect.catch((cause) =>
+            setLastError(
+              cause instanceof Error
+                ? cause.message
+                : "Animation trigger target failed",
+            ).pipe(Effect.as(false)),
+          ),
+        );
+
+        if (!targeted) {
+          return;
+        }
+      }
+
+      yield* combat.useSkill(trigger.skill, true, true).pipe(
+        Effect.catch((cause) =>
+          setLastError(
+            cause instanceof Error ? cause.message : "Animation trigger failed",
+          ),
+        ),
+      );
+    });
+
+  const handleAnimationMessage = (event: PacketDomainAnimationMessageEvent) =>
+    Effect.gen(function* () {
+      if (!(yield* Ref.get(enabledRef))) {
+        return;
+      }
+
+      const profile = yield* Ref.get(profileRef);
+      if (profile === undefined) {
+        return;
+      }
+
+      const triggers = profile.animationTriggers ?? [];
+      if (triggers.length === 0) {
+        return;
+      }
+
+      const now = Date.now();
+      for (const trigger of triggers) {
+        if (
+          matchesCombatProfileAnimationTriggerMessage(
+            trigger.messageIncludes,
+            event.message,
+          )
+        ) {
+          yield* runAnimationTrigger(profile, trigger, event, now);
+        }
+      }
+    });
+
   const selectTarget = Effect.gen(function* () {
     const currentTarget = yield* combat.getTarget();
     if (
@@ -138,26 +224,29 @@ const make = Effect.gen(function* () {
           continue;
         }
 
-        const attackFailed = yield* combat.attackMonster(monMapId).pipe(
-          Effect.as(false),
-          Effect.catch((error) =>
-            setLastError(
-              error instanceof Error ? error.message : "Failed to attack",
-            ).pipe(Effect.as(true)),
-          ),
-        );
+        const { attacked, attackFailed } = yield* combat
+          .attackMonster(monMapId)
+          .pipe(
+            Effect.map((attacked) => ({ attacked, attackFailed: false })),
+            Effect.catch((error) =>
+              setLastError(
+                error instanceof Error ? error.message : "Failed to attack",
+              ).pipe(Effect.as({ attacked: false, attackFailed: true })),
+            ),
+          );
 
-        const { cast, castFailed } = yield* castNextCombatProfileStep(
-          profile,
-          cursor,
-        ).pipe(
-          Effect.map((cast) => ({ cast, castFailed: false })),
-          Effect.catch((error) =>
-            setLastError(
-              error instanceof Error ? error.message : "Failed to use profile",
-            ).pipe(Effect.as({ cast: false, castFailed: true })),
-          ),
-        );
+        const { cast, castFailed } = attacked
+          ? yield* castNextCombatProfileStep(profile, cursor).pipe(
+              Effect.map((cast) => ({ cast, castFailed: false })),
+              Effect.catch((error) =>
+                setLastError(
+                  error instanceof Error
+                    ? error.message
+                    : "Failed to use profile",
+                ).pipe(Effect.as({ cast: false, castFailed: true })),
+              ),
+            )
+          : { cast: false, castFailed: false };
 
         if (!attackFailed && !castFailed) {
           yield* clearLastError;
@@ -165,7 +254,7 @@ const make = Effect.gen(function* () {
 
         const delayMs = Math.max(
           MIN_LOOP_DELAY_MS,
-          cast ? profile.delayMs : IDLE_DELAY_MS,
+          attacked && cast ? profile.delayMs : IDLE_DELAY_MS,
         );
         yield* Effect.sleep(`${delayMs} millis`);
       }
@@ -203,6 +292,7 @@ const make = Effect.gen(function* () {
         yield* Ref.set(enabledRef, true);
         yield* Ref.set(profileRef, profile);
         yield* Ref.set(lastErrorRef, undefined);
+        yield* Ref.set(animationTriggerLastCastRef, new Map());
 
         const startJob: Effect.Effect<boolean, unknown> = jobs.start(
           AUTO_ATTACK_JOB_KEY,
@@ -239,6 +329,7 @@ const make = Effect.gen(function* () {
     updateSemaphore.withPermits(1)(
       Effect.gen(function* () {
         yield* Ref.set(enabledRef, false);
+        yield* Ref.set(animationTriggerLastCastRef, new Map());
         yield* jobs.stop(AUTO_ATTACK_JOB_KEY);
         yield* combat.cancelAutoAttack().pipe(Effect.catch(() => Effect.void));
         yield* combat.cancelTarget().pipe(Effect.catch(() => Effect.void));
@@ -271,6 +362,18 @@ const make = Effect.gen(function* () {
       };
     });
 
+  const disposeAnimationMessage = Option.isSome(maybePacketDomain)
+    ? yield* maybePacketDomain.value.on(
+        "animationMessage",
+        handleAnimationMessage as PacketDomainEventHandler<"animationMessage">,
+      )
+    : undefined;
+
+  yield* Effect.addFinalizer(() =>
+    Effect.sync(() => {
+      disposeAnimationMessage?.();
+    }),
+  );
   yield* Effect.addFinalizer(() => disable().pipe(Effect.asVoid));
 
   return {

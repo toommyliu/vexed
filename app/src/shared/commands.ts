@@ -20,6 +20,7 @@ export type GameCommandId =
   | "openPacketLogger"
   | "openPacketSpammer"
   | "toggleAutoattack"
+  | "toggleFollower"
   | "toggleBank"
   | "toggleInfiniteRange"
   | "toggleProvokeCell"
@@ -115,9 +116,9 @@ export const GAME_COMMANDS: readonly CommandDefinition[] = [
     id: "openFollower",
     scope: "game",
     category: "Tools",
-    label: "Open Follower",
-    keywords: ["window", "follow"],
-    defaultHotkey: "",
+    label: "Open Follower Window",
+    keywords: ["window", "follow", "follower"],
+    defaultHotkey: "Alt+F",
   },
   {
     id: "openPacketLogger",
@@ -142,6 +143,14 @@ export const GAME_COMMANDS: readonly CommandDefinition[] = [
     label: "Toggle Auto Attack",
     keywords: ["auto", "attack"],
     defaultHotkey: "Alt+A",
+  },
+  {
+    id: "toggleFollower",
+    scope: "game",
+    category: "General",
+    label: "Toggle Follower Feature",
+    keywords: ["follow", "follower", "feature"],
+    defaultHotkey: "Alt+Shift+F",
   },
   {
     id: "toggleBank",

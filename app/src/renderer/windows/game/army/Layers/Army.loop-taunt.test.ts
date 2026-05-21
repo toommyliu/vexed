@@ -33,6 +33,7 @@ const createStore = (): HandlerStore => ({
   counterAttackStart: new Set(),
   joinMap: new Set(),
   monsterDeath: new Set(),
+  playerLocation: new Set(),
   zone: new Set(),
 });
 
@@ -223,6 +224,7 @@ const withArmy = async <A>(
           currentTargetMonMapId = target;
         }
         calls.push(`attack:${String(target)}`);
+        return true;
       }),
     cancelAutoAttack: () => Effect.void,
     cancelTarget: () => Effect.void,

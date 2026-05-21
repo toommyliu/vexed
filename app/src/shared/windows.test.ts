@@ -46,6 +46,18 @@ describe("window catalog", () => {
         name: "Tools",
         items: [
           expect.objectContaining({
+            id: WindowIds.Skills,
+            label: "Skills",
+            scope: "game-child",
+            closeBehavior: "hide",
+            dimensions: {
+              width: 760,
+              height: 560,
+              minWidth: 680,
+              minHeight: 500,
+            },
+          }),
+          expect.objectContaining({
             id: WindowIds.Environment,
             label: "Environment",
             scope: "game-child",
@@ -63,6 +75,8 @@ describe("window catalog", () => {
             dimensions: {
               width: 648,
               height: 496,
+              minWidth: 560,
+              minHeight: 420,
             },
           }),
           expect.objectContaining({

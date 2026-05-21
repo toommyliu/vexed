@@ -12,7 +12,8 @@ export type PacketDomainEvent =
   | "auraAdded"
   | "auraRemoved"
   | "counterAttackStart"
-  | "counterAttackEnd";
+  | "counterAttackEnd"
+  | "playerLocation";
 
 export interface PacketDomainMonsterDeathEvent {
   readonly monMapId: number;
@@ -55,6 +56,15 @@ export interface PacketDomainCounterAttackEvent {
   readonly packet: ServerPacket;
 }
 
+export interface PacketDomainPlayerLocationEvent {
+  readonly username: string;
+  readonly cell?: string;
+  readonly pad?: string;
+  readonly x?: number;
+  readonly y?: number;
+  readonly packet: ExtensionPacket;
+}
+
 export interface PacketDomainEventMap {
   monsterDeath: PacketDomainMonsterDeathEvent;
   zone: PacketDomainZoneEvent;
@@ -64,6 +74,7 @@ export interface PacketDomainEventMap {
   auraRemoved: PacketDomainAuraEvent;
   counterAttackStart: PacketDomainCounterAttackEvent;
   counterAttackEnd: PacketDomainCounterAttackEvent;
+  playerLocation: PacketDomainPlayerLocationEvent;
 }
 
 export type PacketDomainEventHandler<
