@@ -149,7 +149,7 @@ export const GAME_COMMANDS: readonly CommandDefinition[] = [
     category: "General",
     label: "Toggle Bank",
     keywords: ["bank"],
-    defaultHotkey: "",
+    defaultHotkey: "Mod+B",
   },
   {
     id: "toggleInfiniteRange",
