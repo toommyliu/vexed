@@ -204,11 +204,18 @@ ipcRenderer.on(
         return await listener(request.payload as FollowerStartPayload);
       }
 
-      const listener = latestSetListener(followerStopRequestListeners);
-      if (!listener) {
-        throw new Error("Follower is not available in this game window");
+      if (request.kind === "stop") {
+        const listener = latestSetListener(followerStopRequestListeners);
+        if (!listener) {
+          throw new Error("Follower is not available in this game window");
+        }
+        return await listener();
       }
-      return await listener();
+
+      const unknownRequest = request as { readonly kind: unknown };
+      throw new Error(
+        `Unsupported follower request kind: ${String(unknownRequest.kind)}`,
+      );
     };
 
     void run()

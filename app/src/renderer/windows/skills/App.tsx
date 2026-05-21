@@ -729,17 +729,22 @@ function App(): JSX.Element {
                                 updateAnimationTrigger(
                                   triggerIndex,
                                   (current) => {
+                                    const raw = event.currentTarget.value.trim();
+                                    if (raw === "") {
+                                      const { cooldownMs: _cooldownMs, ...rest } =
+                                        current;
+                                      return rest;
+                                    }
+
                                     const parsed = Number.parseInt(
-                                      event.currentTarget.value,
+                                      raw,
                                       10,
                                     );
-                                    if (Number.isFinite(parsed) && parsed > 0) {
+                                    if (Number.isFinite(parsed) && parsed >= 0) {
                                       return { ...current, cooldownMs: parsed };
                                     }
 
-                                    const { cooldownMs: _cooldownMs, ...rest } =
-                                      current;
-                                    return rest;
+                                    return current;
                                   },
                                 )
                               }

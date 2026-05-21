@@ -221,7 +221,14 @@ const normalizeAnimationTriggerText = (value: string): string =>
 export const matchesCombatProfileAnimationTriggerMessage = (
   configuredMessage: string,
   message: string,
-): boolean =>
-  normalizeAnimationTriggerText(message).includes(
-    normalizeAnimationTriggerText(configuredMessage),
+): boolean => {
+  const normalizedConfiguredMessage =
+    normalizeAnimationTriggerText(configuredMessage);
+  if (normalizedConfiguredMessage === "") {
+    return false;
+  }
+
+  return normalizeAnimationTriggerText(message).includes(
+    normalizedConfiguredMessage,
   );
+};

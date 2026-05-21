@@ -317,7 +317,7 @@ test("useSkill is a no-op when the player is dead", async () => {
   expect(calls).toEqual([]);
 });
 
-test("counter attack start stops auto attack without clearing the target when enabled", async () => {
+test("counter attack start stops auto attack and clears the target when enabled", async () => {
   const calls: string[] = [];
   let counterAttackStart:
     | PacketDomainEventHandler<"counterAttackStart">

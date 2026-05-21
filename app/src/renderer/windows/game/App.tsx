@@ -1396,6 +1396,11 @@ export default function App(props: {
         }),
       )
       .then((disposeFollowerState) => {
+        if (cleanedUp) {
+          disposeFollowerState();
+          return;
+        }
+
         followerStateDisposer = disposeFollowerState;
         void publishFollowerState();
       })

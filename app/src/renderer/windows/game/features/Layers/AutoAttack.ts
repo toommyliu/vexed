@@ -127,12 +127,6 @@ const make = Effect.gen(function* () {
         return;
       }
 
-      yield* Ref.update(animationTriggerLastCastRef, (previous) => {
-        const next = new Map(previous);
-        next.set(castKey, now);
-        return next;
-      });
-
       if (event.monMapId !== undefined) {
         const targeted = yield* combat.attackMonster(event.monMapId).pipe(
           Effect.catch((cause) =>
@@ -150,6 +144,13 @@ const make = Effect.gen(function* () {
       }
 
       yield* combat.useSkill(trigger.skill, true, true).pipe(
+        Effect.tap(() =>
+          Ref.update(animationTriggerLastCastRef, (previous) => {
+            const next = new Map(previous);
+            next.set(castKey, now);
+            return next;
+          }),
+        ),
         Effect.catch((cause) =>
           setLastError(
             cause instanceof Error ? cause.message : "Animation trigger failed",

@@ -111,11 +111,22 @@ export const splitFollowerAttackPriority = (
 };
 
 const normalizeLocationFallback = (
-  fallback: FollowerLocationFallback,
+  fallback: unknown,
 ): FollowerLocationFallback | undefined => {
-  const map = fallback.map.trim();
-  const cell = fallback.cell?.trim();
-  const pad = fallback.pad?.trim();
+  if (
+    typeof fallback !== "object" ||
+    fallback === null ||
+    Array.isArray(fallback)
+  ) {
+    return undefined;
+  }
+
+  const record = fallback as Record<string, unknown>;
+  const map = typeof record["map"] === "string" ? record["map"].trim() : "";
+  const cell =
+    typeof record["cell"] === "string" ? record["cell"].trim() : undefined;
+  const pad =
+    typeof record["pad"] === "string" ? record["pad"].trim() : undefined;
   if (map === "") {
     return undefined;
   }
