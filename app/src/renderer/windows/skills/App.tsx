@@ -71,6 +71,7 @@ const conditionTypes = [
 }[];
 
 const skillIndices = [0, 1, 2, 3, 4, 5] as const;
+const selectedProfileStorageKey = "vexed.skills.selectedProfileId";
 
 const isStatCondition = (
   condition: CombatProfileCondition,
@@ -126,11 +127,38 @@ const conditionLabel = (condition: CombatProfileCondition): string => {
   }
 };
 
+const readLastSelectedProfileId = (): string | undefined => {
+  try {
+    return window.localStorage.getItem(selectedProfileStorageKey) ?? undefined;
+  } catch {
+    return undefined;
+  }
+};
+
+const writeLastSelectedProfileId = (profileId: string): void => {
+  try {
+    window.localStorage.setItem(selectedProfileStorageKey, profileId);
+  } catch {
+    // Selection persistence is best-effort; editing still works without storage.
+  }
+};
+
+const getPreferredProfileId = (
+  profiles: readonly CombatProfile[],
+  preferredId: string | undefined,
+): string =>
+  profiles.find((profile) => profile.id === preferredId)?.id ??
+  profiles.find((profile) => profile.id !== DEFAULT_COMBAT_PROFILE_ID)?.id ??
+  profiles[0]?.id ??
+  DEFAULT_COMBAT_PROFILE_ID;
+
 function App(): JSX.Element {
   const [library, setLibrary] = createSignal<CombatProfileLibrary>(
     DEFAULT_COMBAT_PROFILE_LIBRARY,
   );
-  const [selectedId, setSelectedId] = createSignal(DEFAULT_COMBAT_PROFILE_ID);
+  const [selectedId, setSelectedId] = createSignal(
+    readLastSelectedProfileId() ?? DEFAULT_COMBAT_PROFILE_ID,
+  );
   const [label, setLabel] = createSignal("Generic");
   const [className, setClassName] = createSignal("");
   const [role, setRole] = createSignal(DEFAULT_COMBAT_PROFILE_ROLE);
@@ -159,6 +187,10 @@ function App(): JSX.Element {
     );
     return generic ? [generic, ...rest] : rest;
   });
+  const selectProfile = (profileId: string): void => {
+    setSelectedId(profileId);
+    writeLastSelectedProfileId(profileId);
+  };
 
   createEffect(() => {
     const profile = selectedProfile();
@@ -182,7 +214,9 @@ function App(): JSX.Element {
     const unsubscribe = window.ipc.combatProfiles.onChanged((nextLibrary) => {
       setLibrary(nextLibrary);
       if (!nextLibrary.profiles.some((profile) => profile.id === selectedId())) {
-        setSelectedId(nextLibrary.profiles[0]?.id ?? DEFAULT_COMBAT_PROFILE_ID);
+        selectProfile(
+          getPreferredProfileId(nextLibrary.profiles, readLastSelectedProfileId()),
+        );
       }
     });
 
@@ -190,7 +224,9 @@ function App(): JSX.Element {
       .getState()
       .then((nextLibrary) => {
         setLibrary(nextLibrary);
-        setSelectedId(nextLibrary.profiles[0]?.id ?? DEFAULT_COMBAT_PROFILE_ID);
+        selectProfile(
+          getPreferredProfileId(nextLibrary.profiles, readLastSelectedProfileId()),
+        );
       })
       .catch((cause: unknown) => {
         console.error("Failed to load combat profiles:", cause);
@@ -282,7 +318,7 @@ function App(): JSX.Element {
 
     const saved = await runUpdate(window.ipc.combatProfiles.saveProfile(profile));
     if (saved) {
-      setSelectedId(id);
+      selectProfile(id);
     }
   };
 
@@ -300,7 +336,7 @@ function App(): JSX.Element {
       window.ipc.combatProfiles.deleteProfile(profile.id),
     );
     if (deleted) {
-      setSelectedId(DEFAULT_COMBAT_PROFILE_ID);
+      selectProfile(getPreferredProfileId(library().profiles, undefined));
     }
   };
 
@@ -413,7 +449,7 @@ function App(): JSX.Element {
               onValueChange={(details) => {
                 const id = details.value[0];
                 if (id) {
-                  setSelectedId(id);
+                  selectProfile(id);
                 }
               }}
             >
