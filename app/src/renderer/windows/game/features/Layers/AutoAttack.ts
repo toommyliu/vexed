@@ -197,11 +197,14 @@ const make = Effect.gen(function* () {
     updateSemaphore.withPermits(1)(
       Effect.gen(function* () {
         const profile = yield* resolveProfile(options);
+        const previousEnabled = yield* Ref.get(enabledRef);
+        const previousProfile = yield* Ref.get(profileRef);
+
         yield* Ref.set(enabledRef, true);
         yield* Ref.set(profileRef, profile);
         yield* Ref.set(lastErrorRef, undefined);
 
-        yield* jobs.start(
+        const startJob: Effect.Effect<boolean, unknown> = jobs.start(
           AUTO_ATTACK_JOB_KEY,
           loop(profile).pipe(
             Effect.provideService(Combat, combat),
@@ -211,6 +214,19 @@ const make = Effect.gen(function* () {
           {
             replace: true,
           },
+        );
+        yield* startJob.pipe(
+          Effect.tapError((error) =>
+            Effect.gen(function* () {
+              yield* Ref.set(enabledRef, previousEnabled);
+              yield* Ref.set(profileRef, previousProfile);
+              yield* setLastError(
+                error instanceof Error
+                  ? error.message
+                  : "Failed to start auto attack",
+              );
+            }),
+          ),
         );
 
         const state = yield* getState();

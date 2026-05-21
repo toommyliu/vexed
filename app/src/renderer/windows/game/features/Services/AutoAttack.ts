@@ -33,7 +33,7 @@ export interface AutoAttackShape {
   ) => Effect.Effect<AutoAttackStateDisposer>;
   readonly enable: (
     options: AutoAttackStartOptions,
-  ) => Effect.Effect<AutoAttackState>;
+  ) => Effect.Effect<AutoAttackState, unknown>;
   readonly disable: () => Effect.Effect<AutoAttackState>;
 }
 
