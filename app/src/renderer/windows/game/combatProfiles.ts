@@ -94,30 +94,31 @@ const matchesStatCondition = (condition: CombatProfileStatCondition) =>
       );
     }
 
+    const matchesPlayerHp = (hp: number, maxHp: number): boolean =>
+      compare(statValue(hp, maxHp, condition.unit), condition.op, condition.value);
+
     const self = yield* world.players.withSelf((me) => ({
       entId: me.data.entID,
+      hp: me.hp,
+      maxHp: me.maxHp,
       username: me.username.toLowerCase(),
     }));
-    if (Option.isNone(self)) {
-      return false;
+
+    if (Option.isSome(self) && matchesPlayerHp(self.value.hp, self.value.maxHp)) {
+      return true;
     }
 
     const players = yield* world.players.getAll();
-    for (const ally of players.values()) {
+    for (const roomPlayer of players.values()) {
       if (
-        ally.data.entID === self.value.entId ||
-        ally.username.toLowerCase() === self.value.username
+        Option.isSome(self) &&
+        (roomPlayer.data.entID === self.value.entId ||
+          roomPlayer.username.toLowerCase() === self.value.username)
       ) {
         continue;
       }
 
-      if (
-        compare(
-          statValue(ally.hp, ally.maxHp, condition.unit),
-          condition.op,
-          condition.value,
-        )
-      ) {
+      if (matchesPlayerHp(roomPlayer.hp, roomPlayer.maxHp)) {
         return true;
       }
     }

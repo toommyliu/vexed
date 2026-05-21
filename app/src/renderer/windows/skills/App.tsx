@@ -62,7 +62,7 @@ type ConditionType = CombatProfileCondition["type"];
 const conditionTypes = [
   { value: "self-hp", label: "Self HP" },
   { value: "self-mp", label: "Self MP" },
-  { value: "ally-hp", label: "Any ally HP" },
+  { value: "ally-hp", label: "Any player HP" },
   { value: "self-aura", label: "Self aura" },
   { value: "target-aura", label: "Target aura" },
 ] as const satisfies readonly {
@@ -119,7 +119,7 @@ const conditionLabel = (condition: CombatProfileCondition): string => {
     case "self-mp":
       return `MP ${condition.op} ${condition.value}${condition.unit === "percent" ? "%" : ""}`;
     case "ally-hp":
-      return `Ally HP ${condition.op} ${condition.value}${condition.unit === "percent" ? "%" : ""}`;
+      return `Any player HP ${condition.op} ${condition.value}${condition.unit === "percent" ? "%" : ""}`;
     case "self-aura":
       return `Self ${condition.auraName} ${condition.op} ${condition.value}`;
     case "target-aura":
