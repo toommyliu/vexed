@@ -779,6 +779,81 @@ describe("Select", () => {
       document.body.querySelectorAll("[data-slot='select-item']"),
     ).toHaveLength(2);
   });
+
+  it("uses numeric item children as trigger labels", () => {
+    renderUi(() => (
+      <Select value={["42"]}>
+        <SelectTrigger>
+          <SelectValue placeholder="Select value" />
+        </SelectTrigger>
+        <SelectContent>
+          <SelectItem value="42">{42}</SelectItem>
+        </SelectContent>
+      </Select>
+    ));
+
+    const trigger = document.body.querySelector(
+      "[data-slot='select-trigger']",
+    );
+    expect(trigger?.textContent).toContain("42");
+  });
+
+  it("uses string and numeric item child arrays as trigger labels", () => {
+    renderUi(() => (
+      <Select value={["hello"]}>
+        <SelectTrigger>
+          <SelectValue placeholder="Select value" />
+        </SelectTrigger>
+        <SelectContent>
+          <SelectItem value="hello">{["Hello", " ", "World"]}</SelectItem>
+        </SelectContent>
+      </Select>
+    ));
+
+    const trigger = document.body.querySelector(
+      "[data-slot='select-trigger']",
+    );
+    expect(trigger?.textContent).toContain("Hello World");
+  });
+
+  it("prefers explicit item labels over child labels", () => {
+    renderUi(() => (
+      <Select value={["custom"]}>
+        <SelectTrigger>
+          <SelectValue placeholder="Select value" />
+        </SelectTrigger>
+        <SelectContent>
+          <SelectItem label="Custom Label" value="custom">
+            Child Label
+          </SelectItem>
+        </SelectContent>
+      </Select>
+    ));
+
+    const trigger = document.body.querySelector(
+      "[data-slot='select-trigger']",
+    );
+    expect(trigger?.textContent).toContain("Custom Label");
+    expect(trigger?.textContent).not.toContain("Child Label");
+  });
+
+  it("falls back to item value for empty child arrays", () => {
+    renderUi(() => (
+      <Select value={["fallback"]}>
+        <SelectTrigger>
+          <SelectValue placeholder="Select value" />
+        </SelectTrigger>
+        <SelectContent>
+          <SelectItem value="fallback">{[]}</SelectItem>
+        </SelectContent>
+      </Select>
+    ));
+
+    const trigger = document.body.querySelector(
+      "[data-slot='select-trigger']",
+    );
+    expect(trigger?.textContent).toContain("fallback");
+  });
 });
 
 describe("Combobox", () => {

@@ -212,6 +212,7 @@ export function SelectItem(props: SelectItemProps): JSX.Element {
 
     if (
       Array.isArray(child) &&
+      child.length > 0 &&
       child.every(
         (part) => typeof part === "string" || typeof part === "number",
       )
