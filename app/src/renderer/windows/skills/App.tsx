@@ -142,6 +142,7 @@ function App(): JSX.Element {
   );
   const [saving, setSaving] = createSignal(false);
   const [error, setError] = createSignal("");
+  let hydratedProfileId = "";
 
   const selectedProfile = createMemo(
     () =>
@@ -165,6 +166,11 @@ function App(): JSX.Element {
       return;
     }
 
+    if (profile.id === hydratedProfileId) {
+      return;
+    }
+
+    hydratedProfileId = profile.id;
     setLabel(profile.label);
     setClassName(profile.className ?? "");
     setRole(profile.role);
@@ -196,15 +202,17 @@ function App(): JSX.Element {
 
   const runUpdate = async (
     update: Promise<CombatProfileLibrary>,
-  ): Promise<void> => {
+  ): Promise<boolean> => {
     setSaving(true);
     setError("");
     try {
       const nextLibrary = await update;
       setLibrary(nextLibrary);
+      return true;
     } catch (cause) {
       console.error("Combat profile update failed:", cause);
       setError(cause instanceof Error ? cause.message : "Update failed");
+      return false;
     } finally {
       setSaving(false);
     }
@@ -239,6 +247,10 @@ function App(): JSX.Element {
   };
 
   const saveSelected = async (): Promise<void> => {
+    if (saving()) {
+      return;
+    }
+
     const profile = buildSelectedProfileDraft();
     if (!profile) {
       return;
@@ -248,6 +260,10 @@ function App(): JSX.Element {
   };
 
   const createProfile = async (): Promise<void> => {
+    if (saving()) {
+      return;
+    }
+
     const baseLabel = "New Profile";
     const id = makeCombatProfileId(`${baseLabel} ${Date.now()}`);
     const profile: CombatProfile = {
@@ -264,18 +280,28 @@ function App(): JSX.Element {
       })),
     };
 
-    await runUpdate(window.ipc.combatProfiles.saveProfile(profile));
-    setSelectedId(id);
+    const saved = await runUpdate(window.ipc.combatProfiles.saveProfile(profile));
+    if (saved) {
+      setSelectedId(id);
+    }
   };
 
   const deleteSelected = async (): Promise<void> => {
+    if (saving()) {
+      return;
+    }
+
     const profile = selectedProfile();
     if (!profile || profile.id === DEFAULT_COMBAT_PROFILE_ID) {
       return;
     }
 
-    await runUpdate(window.ipc.combatProfiles.deleteProfile(profile.id));
-    setSelectedId(DEFAULT_COMBAT_PROFILE_ID);
+    const deleted = await runUpdate(
+      window.ipc.combatProfiles.deleteProfile(profile.id),
+    );
+    if (deleted) {
+      setSelectedId(DEFAULT_COMBAT_PROFILE_ID);
+    }
   };
 
   const updateStep = (
@@ -358,7 +384,12 @@ function App(): JSX.Element {
           <Show when={saving()}>
             <Spinner class="skills-sync-spinner" size="sm" />
           </Show>
-          <Button size="sm" variant="secondary" onClick={createProfile}>
+          <Button
+            disabled={saving()}
+            size="sm"
+            variant="secondary"
+            onClick={createProfile}
+          >
             New
           </Button>
           <Button
@@ -414,6 +445,7 @@ function App(): JSX.Element {
                         {...(triggerProps({
                           class: "skills-profile-delete",
                           disabled:
+                            saving() ||
                             selectedId() === DEFAULT_COMBAT_PROFILE_ID,
                           size: "sm",
                           variant: "ghost",
@@ -434,6 +466,7 @@ function App(): JSX.Element {
                     <AlertDialogFooter>
                       <AlertDialogCancel>Cancel</AlertDialogCancel>
                       <AlertDialogAction
+                        disabled={saving()}
                         variant="destructive"
                         onClick={() => void deleteSelected()}
                       >
