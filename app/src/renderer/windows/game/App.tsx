@@ -206,6 +206,7 @@ export default function App(props: {
   let autoAttackStateDisposer: (() => void) | undefined;
   let autoZoneStateDisposer: (() => void) | undefined;
   let autoReloginStateDisposer: (() => void) | undefined;
+  let autoAttackToggleInFlight = false;
   let cleanedUp = false;
   const accountLaunchFibers = new Set<Fiber.Fiber<void, unknown>>();
   const assignDisposer =
@@ -839,6 +840,11 @@ export default function App(props: {
   };
 
   const handleToggleAutoAttack = () => {
+    if (autoAttackToggleInFlight) {
+      return;
+    }
+
+    autoAttackToggleInFlight = true;
     const nextEnabled = !autoAttackEnabled();
     setAutoAttackEnabled(nextEnabled);
 
@@ -860,6 +866,9 @@ export default function App(props: {
       .catch((error) => {
         console.error("Toggle auto attack error:", error);
         refreshAutoAttackState();
+      })
+      .finally(() => {
+        autoAttackToggleInFlight = false;
       });
   };
 
@@ -1141,7 +1150,11 @@ export default function App(props: {
     scriptRunning,
     autoAttackEnabled,
     toggleAutoAttack: handleToggleAutoAttack,
-    toggleBank: handleOpenBank,
+    toggleBank: () => {
+      if (canApplyGameSettings()) {
+        handleOpenBank();
+      }
+    },
     optionItems,
     openWindow,
     openTopNavMenu: (menu) => setOpenTopNavMenu(menu),

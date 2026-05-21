@@ -198,8 +198,8 @@ export const castNextCombatProfileStep = (
         continue;
       }
 
-      yield* Ref.set(cursor.index, (stepIndex + 1) % steps.length);
       yield* combat.useSkill(step.skill, false, shouldWait);
+      yield* Ref.set(cursor.index, (stepIndex + 1) % steps.length);
 
       if (step.waitMs !== undefined && step.waitMs > 0) {
         yield* Effect.sleep(`${step.waitMs} millis`);

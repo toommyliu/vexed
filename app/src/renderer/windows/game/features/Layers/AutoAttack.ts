@@ -94,6 +94,13 @@ const make = Effect.gen(function* () {
       yield* emitCurrentState;
     });
 
+  const clearLastError = Effect.gen(function* () {
+    const lastError = yield* Ref.get(lastErrorRef);
+    if (lastError !== undefined) {
+      yield* setLastError(undefined);
+    }
+  });
+
   const selectTarget = Effect.gen(function* () {
     const currentTarget = yield* combat.getTarget();
     if (
@@ -131,21 +138,30 @@ const make = Effect.gen(function* () {
           continue;
         }
 
-        yield* combat.attackMonster(monMapId).pipe(
+        const attackFailed = yield* combat.attackMonster(monMapId).pipe(
+          Effect.as(false),
           Effect.catch((error) =>
             setLastError(
               error instanceof Error ? error.message : "Failed to attack",
-            ),
+            ).pipe(Effect.as(true)),
           ),
         );
 
-        const cast = yield* castNextCombatProfileStep(profile, cursor).pipe(
+        const { cast, castFailed } = yield* castNextCombatProfileStep(
+          profile,
+          cursor,
+        ).pipe(
+          Effect.map((cast) => ({ cast, castFailed: false })),
           Effect.catch((error) =>
             setLastError(
               error instanceof Error ? error.message : "Failed to use profile",
-            ).pipe(Effect.as(false)),
+            ).pipe(Effect.as({ cast: false, castFailed: true })),
           ),
         );
+
+        if (!attackFailed && !castFailed) {
+          yield* clearLastError;
+        }
 
         const delayMs = Math.max(
           MIN_LOOP_DELAY_MS,
