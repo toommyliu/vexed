@@ -203,9 +203,11 @@ describe("app window wiring", () => {
     expect(gameHtml).toContain('data-ready="false"');
     expect(gameHtml).toContain("background: rgb(var(--background));");
     expect(gameHtml).toContain('wmode="opaque"');
-    expect(gameHtml.indexOf('id="swf"')).toBeLessThan(
-      gameHtml.indexOf('id="root"'),
-    );
+    const swfIndex = gameHtml.indexOf('id="swf"');
+    const rootIndex = gameHtml.indexOf('id="root"');
+    expect(swfIndex).toBeGreaterThan(-1);
+    expect(rootIndex).toBeGreaterThan(-1);
+    expect(swfIndex).toBeLessThan(rootIndex);
   });
 
   it("seeds the settings renderer from shared mount settings", () => {

@@ -158,15 +158,12 @@ export const createToastController = (
   const show = (
     toastOptions: ToastOptions & { variant?: ToastVariant },
   ): ToastHandle => {
-    const key = toastOptions.id;
-    const id = key ? `${key}-${nextToastId++}` : `${nextToastId++}`;
+    const id = toastOptions.id ?? `${nextToastId++}`;
     let toastId = id;
+    let evictedToasts: ToastItem[] = [];
 
     setToasts((current) => {
-      const existingToast =
-        key === undefined
-          ? undefined
-          : current.find((toast) => toast.key === key);
+      const existingToast = current.find((toast) => toast.id === id);
       toastId = existingToast?.id ?? id;
 
       const nextToast: ToastItem = {
@@ -189,7 +186,6 @@ export const createToastController = (
           ? {}
           : { description: toastOptions.description }),
         ...(toastOptions.icon === undefined ? {} : { icon: toastOptions.icon }),
-        ...(key === undefined ? {} : { key }),
         ...(toastOptions.onRemove === undefined
           ? {}
           : { onRemove: toastOptions.onRemove }),
@@ -201,11 +197,17 @@ export const createToastController = (
           : { title: toastOptions.title }),
       };
 
-      return [
+      const nextToasts = [
         nextToast,
         ...current.filter((toast) => toast.id !== nextToast.id),
-      ].slice(0, limit);
+      ];
+      evictedToasts = nextToasts.slice(limit);
+      return nextToasts.slice(0, limit);
     });
+
+    for (const toast of evictedToasts) {
+      toast.onRemove?.();
+    }
 
     return { close: () => close(toastId) };
   };

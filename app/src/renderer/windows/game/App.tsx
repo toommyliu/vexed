@@ -1218,7 +1218,6 @@ export default function App(props: {
 
     hotkeyToasts.info(title, {
       dismissible: false,
-      duration: 1200,
       id: "game-hotkey-feedback",
     });
   };

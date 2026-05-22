@@ -698,10 +698,52 @@ describe("Toaster", () => {
     vi.runOnlyPendingTimers();
     await Promise.resolve();
 
-    expect(root.querySelector("[data-slot='toast']")).toBe(firstToast);
+    expect(firstToast).not.toBeNull();
+    expect(root.querySelectorAll("[data-slot='toast']")).toHaveLength(1);
     expect(root.textContent).not.toContain("First");
     expect(root.textContent).toContain("Second");
     vi.useRealTimers();
+  });
+
+  it("preserves caller-provided ids for close and remove", () => {
+    let controller: ToastController | undefined;
+    const root = renderUi(() => {
+      controller = createToastController();
+      return <Toaster controller={controller} removeDelay={0} />;
+    });
+
+    controller!.info("Settings updated", {
+      duration: null,
+      id: "settings-toast",
+    });
+    expect(root.textContent).toContain("Settings updated");
+
+    controller!.close("settings-toast");
+
+    expect(
+      root.querySelector("[data-slot='toast']")?.getAttribute("data-state"),
+    ).toBe("closed");
+
+    controller!.remove("settings-toast");
+
+    expect(root.textContent).not.toContain("Settings updated");
+  });
+
+  it("runs onRemove for toasts evicted by the limit", () => {
+    const onRemove = vi.fn();
+    let controller: ToastController | undefined;
+    renderUi(() => {
+      controller = createToastController({ limit: 1 });
+      return <Toaster controller={controller} removeDelay={0} />;
+    });
+
+    controller!.info("First", {
+      duration: null,
+      onRemove,
+    });
+    controller!.info("Second", { duration: null });
+
+    expect(onRemove).toHaveBeenCalledOnce();
   });
 });
 

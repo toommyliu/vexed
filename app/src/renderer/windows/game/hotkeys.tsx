@@ -5,7 +5,7 @@ import type { GameCommand } from "./commands";
 
 function GameHotkeyRegistration(props: {
   readonly command: GameCommand;
-  readonly onCommandRun?: (command: GameCommand) => void;
+  readonly onCommandRun?: ((command: GameCommand) => void) | undefined;
 }): JSX.Element {
   createHotkey(
     () => props.command.hotkey() as RegisterableHotkey,
@@ -31,7 +31,7 @@ function GameHotkeyRegistration(props: {
 
 export function GameHotkeys(props: {
   readonly commands: Accessor<readonly GameCommand[]>;
-  readonly onCommandRun?: (command: GameCommand) => void;
+  readonly onCommandRun?: ((command: GameCommand) => void) | undefined;
 }): JSX.Element {
   return (
     <For each={props.commands()}>
@@ -39,9 +39,7 @@ export function GameHotkeys(props: {
         <Show when={command.hotkey()}>
           <GameHotkeyRegistration
             command={command}
-            {...(props.onCommandRun === undefined
-              ? {}
-              : { onCommandRun: props.onCommandRun })}
+            onCommandRun={props.onCommandRun}
           />
         </Show>
       )}
