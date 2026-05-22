@@ -51,6 +51,13 @@ export interface CombatProfileStep {
   readonly skipIfUnavailable?: boolean;
 }
 
+export interface CombatProfileAnimationTrigger {
+  readonly id: string;
+  readonly messageIncludes: string;
+  readonly skill: number;
+  readonly cooldownMs?: number;
+}
+
 export interface CombatProfile {
   readonly id: string;
   readonly label: string;
@@ -60,6 +67,7 @@ export interface CombatProfile {
   readonly cooldownMode: CombatProfileCooldownMode;
   readonly timeoutMs: number;
   readonly steps: readonly CombatProfileStep[];
+  readonly animationTriggers?: readonly CombatProfileAnimationTrigger[];
 }
 
 export interface CombatProfileRefSelected {
@@ -90,6 +98,7 @@ const MAX_LABEL_LENGTH = 80;
 const MAX_ROLE_LENGTH = 40;
 const MAX_CLASS_NAME_LENGTH = 80;
 const MAX_AURA_NAME_LENGTH = 80;
+const MAX_ANIMATION_TRIGGER_TEXT_LENGTH = 160;
 
 const isRecord = (value: unknown): value is Record<string, unknown> =>
   typeof value === "object" && value !== null && !Array.isArray(value);
@@ -104,8 +113,7 @@ const isAutoAttackMode = (
   typeof value === "string" &&
   CombatProfileAutoAttackModes.includes(value as CombatProfileAutoAttackMode);
 
-const isDefined = <T>(value: T | undefined): value is T =>
-  value !== undefined;
+const isDefined = <T>(value: T | undefined): value is T => value !== undefined;
 
 const clampInt = (
   value: unknown,
@@ -241,6 +249,37 @@ const normalizeStep = (
   };
 };
 
+const normalizeAnimationTrigger = (
+  value: unknown,
+  index: number,
+): CombatProfileAnimationTrigger | undefined => {
+  if (!isRecord(value)) {
+    return undefined;
+  }
+
+  const messageIncludes = trimString(
+    value["messageIncludes"],
+    MAX_ANIMATION_TRIGGER_TEXT_LENGTH,
+  );
+  if (messageIncludes === undefined) {
+    return undefined;
+  }
+
+  const skill = clampInt(value["skill"], Number.NaN, 0, 5);
+  if (!Number.isFinite(skill)) {
+    return undefined;
+  }
+
+  const cooldownMs = clampInt(value["cooldownMs"], 0, 0, MAX_TIMEOUT_MS);
+
+  return {
+    id: trimString(value["id"], 80) ?? `trigger-${index + 1}`,
+    messageIncludes,
+    skill,
+    ...(cooldownMs > 0 ? { cooldownMs } : {}),
+  };
+};
+
 const genericProfile = (): CombatProfile => ({
   id: DEFAULT_COMBAT_PROFILE_ID,
   label: "Generic",
@@ -253,6 +292,7 @@ const genericProfile = (): CombatProfile => ({
     skill,
     conditions: [],
   })),
+  animationTriggers: [],
 });
 
 export const DEFAULT_COMBAT_PROFILE_LIBRARY: CombatProfileLibrary = {
@@ -281,6 +321,11 @@ const normalizeProfile = (
   const steps = Array.isArray(value["steps"])
     ? value["steps"].map(normalizeStep).filter(isDefined)
     : [];
+  const animationTriggers = Array.isArray(value["animationTriggers"])
+    ? value["animationTriggers"]
+        .map(normalizeAnimationTrigger)
+        .filter(isDefined)
+    : [];
 
   return {
     id,
@@ -306,6 +351,7 @@ const normalizeProfile = (
       steps.length > 0
         ? steps
         : genericProfile().steps.map((step) => ({ ...step })),
+    ...(animationTriggers.length === 0 ? {} : { animationTriggers }),
   };
 };
 
@@ -317,7 +363,9 @@ const normalizeAutoAttackState = (
     return DEFAULT_COMBAT_PROFILE_LIBRARY.autoAttack;
   }
 
-  const mode = isAutoAttackMode(value["mode"]) ? value["mode"] : "equipped-class";
+  const mode = isAutoAttackMode(value["mode"])
+    ? value["mode"]
+    : "equipped-class";
   const selectedProfileId = trimString(value["selectedProfileId"], 80);
 
   if (
@@ -335,9 +383,10 @@ export const normalizeCombatProfileLibrary = (
   value: unknown,
 ): CombatProfileLibrary => {
   const reservedIds = new Set<string>();
-  const rawProfiles = isRecord(value) && Array.isArray(value["profiles"])
-    ? value["profiles"]
-    : [];
+  const rawProfiles =
+    isRecord(value) && Array.isArray(value["profiles"])
+      ? value["profiles"]
+      : [];
   const profiles = rawProfiles
     .map((profile) => normalizeProfile(profile, reservedIds))
     .filter(isDefined);
@@ -364,8 +413,9 @@ export const findCombatProfileByRef = (
   equippedClassName?: string,
 ): CombatProfile => {
   const fallback =
-    library.profiles.find((profile) => profile.id === DEFAULT_COMBAT_PROFILE_ID) ??
-    genericProfile();
+    library.profiles.find(
+      (profile) => profile.id === DEFAULT_COMBAT_PROFILE_ID,
+    ) ?? genericProfile();
 
   if (ref === "generic") {
     return fallback;

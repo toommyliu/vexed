@@ -11,7 +11,7 @@ export interface CombatKillOptions {
 }
 
 export interface CombatShape {
-  attackMonster(monster: MonsterIdentifierToken): BridgeEffect<void>;
+  attackMonster(monster: MonsterIdentifierToken): BridgeEffect<boolean>;
   cancelAutoAttack(): BridgeEffect<void>;
   cancelTarget(): BridgeEffect<void>;
   canUseSkill(index: number | string): BridgeEffect<boolean>;

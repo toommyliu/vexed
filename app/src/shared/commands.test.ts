@@ -54,7 +54,23 @@ describe("game command registry", () => {
       GAME_COMMANDS.filter((command) => command.category === "General").map(
         (command) => command.id,
       ),
-    ).toEqual(["toggleTopBar", "toggleAutoattack", "toggleBank"]);
+    ).toEqual([
+      "toggleTopBar",
+      "toggleAutoattack",
+      "toggleFollower",
+      "toggleBank",
+    ]);
+  });
+
+  it("defaults follower commands to separate hotkeys", () => {
+    expect(
+      getDefaultHotkeys().find((binding) => binding.id === "openFollower")
+        ?.value,
+    ).toBe("Alt+F");
+    expect(
+      getDefaultHotkeys().find((binding) => binding.id === "toggleFollower")
+        ?.value,
+    ).toBe("Alt+Shift+F");
   });
 
   it("defaults toggle bank to mod+b", () => {

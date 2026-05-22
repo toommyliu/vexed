@@ -24,7 +24,9 @@ export interface GameCommandRuntime {
   readonly scriptLoaded: Accessor<boolean>;
   readonly scriptRunning: Accessor<boolean>;
   readonly autoAttackEnabled: Accessor<boolean>;
+  readonly followerEnabled: Accessor<boolean>;
   readonly toggleAutoAttack: () => void;
+  readonly toggleFollower: () => void;
   readonly toggleBank: () => void;
   readonly optionItems: Accessor<readonly TopNavOptionItem[]>;
   readonly openWindow: (id: WindowId) => void;
@@ -70,6 +72,13 @@ const createCommandLabel = (
   if (id === "toggleAutoattack") {
     return () =>
       runtime.autoAttackEnabled() ? "Disable Autoattack" : "Enable Autoattack";
+  }
+
+  if (id === "toggleFollower") {
+    return () =>
+      runtime.followerEnabled()
+        ? "Disable Follower Feature"
+        : "Enable Follower Feature";
   }
 
   if (id in topNavOptionCommandIds) {
@@ -136,6 +145,12 @@ const createCommandRunner = (
   if (id === "toggleAutoattack") {
     return () => {
       runtime.toggleAutoAttack();
+    };
+  }
+
+  if (id === "toggleFollower") {
+    return () => {
+      runtime.toggleFollower();
     };
   }
 

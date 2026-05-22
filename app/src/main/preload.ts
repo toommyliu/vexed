@@ -8,6 +8,7 @@ import {
   ArmyIpcChannels,
   CombatProfilesIpcChannels,
   EnvironmentIpcChannels,
+  FollowerIpcChannels,
   SettingsIpcChannels,
   ScriptingIpcChannels,
   WindowIpcChannels,
@@ -34,6 +35,10 @@ import {
   type EnvironmentItemRules,
   type EnvironmentQuestAutoRegisterOptions,
   type EnvironmentState,
+  type FollowerRequestMessage,
+  type FollowerResponseMessage,
+  type FollowerStartPayload,
+  type FollowerState,
   type HotkeysPatch,
   type ManagedAccountGroupDraft,
   type ManagedAccountGroupPatch,
@@ -75,6 +80,17 @@ const environmentFetchBoostsListeners = new Set<
   () => Promise<readonly string[]> | readonly string[]
 >();
 
+const followerGetStateRequestListeners = new Set<
+  () => Promise<FollowerState> | FollowerState
+>();
+const followerMeRequestListeners = new Set<() => Promise<string> | string>();
+const followerStartRequestListeners = new Set<
+  (payload: FollowerStartPayload) => Promise<FollowerState> | FollowerState
+>();
+const followerStopRequestListeners = new Set<
+  () => Promise<FollowerState> | FollowerState
+>();
+
 const latestEnvironmentFetchBoostsListener = ():
   | (() => Promise<readonly string[]> | readonly string[])
   | undefined => {
@@ -86,6 +102,19 @@ const latestEnvironmentFetchBoostsListener = ():
   }
   return listener;
 };
+
+const latestSetListener = <A>(listeners: ReadonlySet<A>): A | undefined => {
+  let listener: A | undefined;
+  for (const next of listeners) {
+    listener = next;
+  }
+  return listener;
+};
+
+const followerRequestErrorMessage = (cause: unknown): string =>
+  cause instanceof Error && cause.message !== ""
+    ? cause.message
+    : "Follower request failed";
 
 const deliverAccountGameLaunchPayload = (
   payload: AccountGameLaunchPayload,
@@ -140,6 +169,64 @@ ipcRenderer.on(
           [],
         );
       });
+  },
+);
+
+ipcRenderer.on(
+  FollowerIpcChannels.request,
+  (_event, request: FollowerRequestMessage) => {
+    const respond = (message: FollowerResponseMessage): void => {
+      ipcRenderer.send(FollowerIpcChannels.response, message);
+    };
+
+    const run = async (): Promise<unknown> => {
+      if (request.kind === "getState") {
+        const listener = latestSetListener(followerGetStateRequestListeners);
+        if (!listener) {
+          throw new Error("Follower is not available in this game window");
+        }
+        return await listener();
+      }
+
+      if (request.kind === "me") {
+        const listener = latestSetListener(followerMeRequestListeners);
+        if (!listener) {
+          throw new Error("Follower is not available in this game window");
+        }
+        return await listener();
+      }
+
+      if (request.kind === "start") {
+        const listener = latestSetListener(followerStartRequestListeners);
+        if (!listener) {
+          throw new Error("Follower is not available in this game window");
+        }
+        return await listener(request.payload as FollowerStartPayload);
+      }
+
+      if (request.kind === "stop") {
+        const listener = latestSetListener(followerStopRequestListeners);
+        if (!listener) {
+          throw new Error("Follower is not available in this game window");
+        }
+        return await listener();
+      }
+
+      const unknownRequest = request as { readonly kind: unknown };
+      throw new Error(
+        `Unsupported follower request kind: ${String(unknownRequest.kind)}`,
+      );
+    };
+
+    void run()
+      .then((value) => respond({ requestId: request.requestId, ok: true, value }))
+      .catch((cause: unknown) =>
+        respond({
+          requestId: request.requestId,
+          ok: false,
+          error: followerRequestErrorMessage(cause),
+        }),
+      );
   },
 );
 
@@ -447,6 +534,67 @@ const bridge: AppBridge = {
 
       return () => {
         environmentFetchBoostsListeners.delete(listener);
+      };
+    },
+  },
+  follower: {
+    getState: async () => {
+      return (await ipcRenderer.invoke(
+        FollowerIpcChannels.getState,
+      )) as FollowerState;
+    },
+    me: async () => {
+      return (await ipcRenderer.invoke(FollowerIpcChannels.me)) as string;
+    },
+    start: async (payload: FollowerStartPayload) => {
+      return (await ipcRenderer.invoke(
+        FollowerIpcChannels.start,
+        payload,
+      )) as FollowerState;
+    },
+    stop: async () => {
+      return (await ipcRenderer.invoke(FollowerIpcChannels.stop)) as FollowerState;
+    },
+    publishState: async (state: FollowerState) => {
+      await ipcRenderer.invoke(FollowerIpcChannels.publishState, state);
+    },
+    onChanged: (listener) => {
+      const subscription = (_event: unknown, state: FollowerState) => {
+        listener(state);
+      };
+
+      ipcRenderer.on(FollowerIpcChannels.changed, subscription);
+
+      return () => {
+        ipcRenderer.removeListener(FollowerIpcChannels.changed, subscription);
+      };
+    },
+    onGetStateRequest: (listener) => {
+      followerGetStateRequestListeners.add(listener);
+
+      return () => {
+        followerGetStateRequestListeners.delete(listener);
+      };
+    },
+    onMeRequest: (listener) => {
+      followerMeRequestListeners.add(listener);
+
+      return () => {
+        followerMeRequestListeners.delete(listener);
+      };
+    },
+    onStartRequest: (listener) => {
+      followerStartRequestListeners.add(listener);
+
+      return () => {
+        followerStartRequestListeners.delete(listener);
+      };
+    },
+    onStopRequest: (listener) => {
+      followerStopRequestListeners.add(listener);
+
+      return () => {
+        followerStopRequestListeners.delete(listener);
       };
     },
   },

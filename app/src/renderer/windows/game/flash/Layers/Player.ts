@@ -374,12 +374,12 @@ const make = Effect.gen(function* () {
 
   const goToPlayer: PlayerShape["goToPlayer"] = (name) =>
     Effect.gen(function* () {
-      const player = yield* world.players.getByName(name);
-      if (Option.isNone(player)) {
+      const targetName = name.trim();
+      if (targetName === "") {
         return;
       }
 
-      yield* bridge.call("player.goToPlayer", [name]);
+      yield* bridge.call("player.goToPlayer", [targetName]);
     });
 
   const rest: PlayerShape["rest"] = (full) =>

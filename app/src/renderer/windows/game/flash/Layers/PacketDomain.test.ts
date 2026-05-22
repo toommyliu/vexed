@@ -1,4 +1,5 @@
-import { Data, Effect, Layer } from "effect";
+import type { AvatarData } from "@vexed/game";
+import { Data, Effect, Layer, Option } from "effect";
 import { expect, test } from "vitest";
 import { Auth, type AuthShape } from "../Services/Auth";
 import { Bridge, type BridgeShape } from "../Services/Bridge";
@@ -7,11 +8,12 @@ import {
   type PacketDomainEventMap,
   type PacketDomainShape,
 } from "../Services/PacketDomain";
+import { World, type WorldShape } from "../Services/World";
 import { PacketLive } from "./Packet";
 import { PacketDomainLive } from "./PacketDomain";
 import { WorldLive } from "./World";
 
-type PacketWindow = Pick<Window, "packetFromServer">;
+type PacketWindow = Pick<Window, "onExtensionResponse" | "packetFromServer">;
 
 class PacketDomainTestError extends Data.TaggedError("PacketDomainTestError")<{
   readonly cause?: unknown;
@@ -57,18 +59,24 @@ const auth = {
   logout: () => Effect.void,
 } satisfies AuthShape;
 
-const runtimeLayer = PacketDomainLive.pipe(
-  Layer.provide(
-    Layer.mergeAll(
-      PacketLive.pipe(Layer.provide(Layer.succeed(Bridge)(bridge))),
-      WorldLive.pipe(Layer.provide(Layer.succeed(Bridge)(bridge))),
-      Layer.succeed(Auth)(auth),
-    ),
-  ),
+const bridgeLayer = Layer.succeed(Bridge)(bridge);
+const packetRuntimeLayer = PacketLive.pipe(Layer.provide(bridgeLayer));
+const worldRuntimeLayer = WorldLive.pipe(Layer.provide(bridgeLayer));
+const coreRuntimeLayer = Layer.mergeAll(
+  packetRuntimeLayer,
+  worldRuntimeLayer,
+  Layer.succeed(Auth)(auth),
 );
+const packetDomainRuntimeLayer = PacketDomainLive.pipe(
+  Layer.provide(coreRuntimeLayer),
+);
+const runtimeLayer = Layer.mergeAll(coreRuntimeLayer, packetDomainRuntimeLayer);
 
 const withPacketDomain = async <A>(
-  body: (packetDomain: PacketDomainShape) => Effect.Effect<A, unknown>,
+  body: (
+    packetDomain: PacketDomainShape,
+    world: WorldShape,
+  ) => Effect.Effect<A, unknown>,
 ): Promise<A> => {
   const hadWindow = "window" in globalThis;
   const previousWindow = globalThis.window;
@@ -84,7 +92,8 @@ const withPacketDomain = async <A>(
       Effect.scoped(
         Effect.gen(function* () {
           const packetDomain = yield* PacketDomain;
-          return yield* body(packetDomain);
+          const world = yield* World;
+          return yield* body(packetDomain, world);
         }),
       ).pipe(Effect.provide(runtimeLayer)),
     );
@@ -100,11 +109,44 @@ const withPacketDomain = async <A>(
   }
 };
 
+const avatar = (
+  username: string,
+  overrides: Partial<AvatarData> = {},
+): AvatarData => ({
+  afk: false,
+  entID: 2,
+  entType: "player",
+  intHP: 100,
+  intHPMax: 100,
+  intLevel: 100,
+  intMP: 100,
+  intMPMax: 100,
+  intState: 1,
+  strFrame: "Enter",
+  strPad: "Spawn",
+  strUsername: username,
+  tx: 100,
+  ty: 100,
+  uoName: username.toLowerCase(),
+  ...overrides,
+});
+
 const emitServerPacket = (raw: string): void => {
   const handler = (window as PacketWindow).packetFromServer;
   if (typeof handler !== "function") {
     throw new PacketDomainTestError({
       message: "window.packetFromServer was not registered",
+    });
+  }
+
+  handler(raw);
+};
+
+const emitExtensionPacket = (raw: string): void => {
+  const handler = (window as PacketWindow).onExtensionResponse;
+  if (typeof handler !== "function") {
+    throw new PacketDomainTestError({
+      message: "window.onExtensionResponse was not registered",
     });
   }
 
@@ -134,8 +176,98 @@ const waitForEvent = <A>(promise: Promise<A>) =>
         : new PacketDomainTestError({
             cause,
             message: "event wait failed",
-          }),
+      }),
   });
+
+test("packet domain updates remote player position from uotls move packets", async () => {
+  const result = await withPacketDomain((packetDomain, world) =>
+    Effect.gen(function* () {
+      yield* world.players.add(avatar("Hero"));
+      let resolveLocation:
+        | ((event: PacketDomainEventMap["playerLocation"]) => void)
+        | undefined;
+      const observedLocation = new Promise<
+        PacketDomainEventMap["playerLocation"]
+      >((resolve) => {
+        resolveLocation = resolve;
+      });
+
+      yield* packetDomain.on("playerLocation", (event) =>
+        Effect.sync(() => resolveLocation?.(event)),
+      );
+
+      emitExtensionPacket(
+        JSON.stringify({
+          params: {
+            dataObj: [
+              "uotls",
+              "-1",
+              "Hero",
+              "tx:464,ty:445,sp:8,strFrame:Enter",
+            ],
+            type: "str",
+          },
+        }),
+      );
+      yield* Effect.sleep("10 millis");
+
+      const player = yield* world.players.getByName("Hero");
+      if (Option.isNone(player)) {
+        throw new PacketDomainTestError({ message: "player was not found" });
+      }
+
+      return {
+        data: player.value.data,
+        event: yield* waitForEvent(observedLocation),
+      };
+    }),
+  );
+
+  expect(result.data.strFrame).toBe("Enter");
+  expect(result.data.tx).toBe(464);
+  expect(result.data.ty).toBe(445);
+  expect(result.event).toMatchObject({
+    username: "Hero",
+    cell: "Enter",
+    x: 464,
+    y: 445,
+  });
+});
+
+test("packet domain updates remote player cell from uotls cell-change packets", async () => {
+  const data = await withPacketDomain((_packetDomain, world) =>
+    Effect.gen(function* () {
+      yield* world.players.add(avatar("Hero"));
+
+      emitExtensionPacket(
+        JSON.stringify({
+          params: {
+            dataObj: [
+              "uotls",
+              "-1",
+              "Hero",
+              "strFrame:R2,strPad:Left,px:500,py:375,mvts:-1,mvtd:0,tx:0,ty:0,bResting:false",
+            ],
+            type: "str",
+          },
+        }),
+      );
+      yield* Effect.sleep("10 millis");
+
+      const player = yield* world.players.getByName("Hero");
+      if (Option.isNone(player)) {
+        throw new PacketDomainTestError({ message: "player was not found" });
+      }
+
+      return player.value.data;
+    }),
+  );
+
+  expect(data.strFrame).toBe("R2");
+  expect(data.strPad).toBe("Left");
+  expect(data.tx).toBe(500);
+  expect(data.ty).toBe(375);
+});
 
 test("packet domain emits animation message events with monster ids", async () => {
   const event = await withPacketDomain((packetDomain) =>

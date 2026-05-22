@@ -20,6 +20,10 @@ import type {
   EnvironmentState,
 } from "./environment";
 import type {
+  FollowerStartPayload,
+  FollowerState,
+} from "./follower";
+import type {
   CombatProfile,
   CombatProfileAutoAttackState,
   CombatProfileLibrary,
@@ -74,6 +78,14 @@ export type {
   EnvironmentQuestAutoRegisterOptions,
   EnvironmentState,
 } from "./environment";
+
+export type {
+  FollowerConfig,
+  FollowerLocationFallback,
+  FollowerPhase,
+  FollowerStartPayload,
+  FollowerState,
+} from "./follower";
 
 export const ScriptingIpcChannels = {
   execute: "scripting:execute",
@@ -153,6 +165,37 @@ export const CombatProfilesIpcChannels = {
   setAutoAttack: "combat-profiles:set-auto-attack",
   changed: "combat-profiles:changed",
 } as const;
+
+export const FollowerIpcChannels = {
+  getState: "follower:get-state",
+  me: "follower:me",
+  start: "follower:start",
+  stop: "follower:stop",
+  changed: "follower:changed",
+  request: "follower:request",
+  response: "follower:response",
+  publishState: "follower:publish-state",
+} as const;
+
+export type FollowerRequestKind = "getState" | "me" | "start" | "stop";
+
+export interface FollowerRequestMessage {
+  readonly requestId: string;
+  readonly kind: FollowerRequestKind;
+  readonly payload?: unknown;
+}
+
+export type FollowerResponseMessage =
+  | {
+      readonly requestId: string;
+      readonly ok: true;
+      readonly value: unknown;
+    }
+  | {
+      readonly requestId: string;
+      readonly ok: false;
+      readonly error: string;
+    };
 
 export interface ScriptExecutePayload {
   readonly source: string;
@@ -592,6 +635,25 @@ export interface CombatProfilesBridge {
   onChanged(listener: (state: CombatProfileLibrary) => void): () => void;
 }
 
+export interface FollowerBridge {
+  getState(): Promise<FollowerState>;
+  me(): Promise<string>;
+  start(payload: FollowerStartPayload): Promise<FollowerState>;
+  stop(): Promise<FollowerState>;
+  publishState(state: FollowerState): Promise<void>;
+  onChanged(listener: (state: FollowerState) => void): () => void;
+  onGetStateRequest(
+    listener: () => Promise<FollowerState> | FollowerState,
+  ): () => void;
+  onMeRequest(listener: () => Promise<string> | string): () => void;
+  onStartRequest(
+    listener: (
+      payload: FollowerStartPayload,
+    ) => Promise<FollowerState> | FollowerState,
+  ): () => void;
+  onStopRequest(listener: () => Promise<FollowerState> | FollowerState): () => void;
+}
+
 export type AppPlatform = "mac" | "windows" | "linux";
 
 export interface PlatformBridge {
@@ -603,6 +665,7 @@ export interface AppBridge {
   readonly army: ArmyBridge;
   readonly combatProfiles: CombatProfilesBridge;
   readonly environment: EnvironmentBridge;
+  readonly follower: FollowerBridge;
   readonly platform: PlatformBridge;
   readonly scripting: ScriptingBridge;
   readonly settings: SettingsBridge;
