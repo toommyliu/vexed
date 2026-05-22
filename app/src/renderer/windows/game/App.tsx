@@ -2,7 +2,7 @@
 import "../../polyfills";
 import "./entrypoint";
 import "./style.css";
-import { Spinner } from "@vexed/ui";
+import { Spinner, Toaster, createToastController } from "@vexed/ui";
 import { mountWindow } from "../mount";
 import { Data, Effect, Fiber } from "effect";
 import {
@@ -55,15 +55,23 @@ import {
   type AutoZoneSupportedMap,
 } from "./features/Services/AutoZone";
 import { Follower } from "./features/Services/Follower";
-import { TopNav } from "./TopNav";
-import { createGameCommands } from "./commands";
+import {
+  TopNav,
+  TopNavHiddenOptionsMenu,
+  type TopNavOptionsMenuContentProps,
+} from "./TopNav";
+import { createGameCommands, type GameCommand } from "./commands";
 import { GameHotkeys } from "./hotkeys";
 import {
   getGameLoadState,
   onGameLoaded,
   subscribeGameLoadState,
 } from "./loadState";
-import type { GameTopNavMenu, TopNavOptionItem } from "./topNavOptions";
+import {
+  findTopNavOption,
+  type GameTopNavMenu,
+  type TopNavOptionItem,
+} from "./topNavOptions";
 import { ScriptRunner } from "./scripting/Services/ScriptRunner";
 
 const ACCOUNT_SCRIPT_STATUS_POLL_MS = 1000;
@@ -204,6 +212,10 @@ export default function App(props: {
   const [selectedCell, setSelectedCell] = createSignal(DEFAULT_CELL);
   const [selectedPad, setSelectedPad] = createSignal(DEFAULT_PAD);
   const [travelBusy, setTravelBusy] = createSignal(false);
+  const hotkeyToasts = createToastController({
+    defaultDuration: 1200,
+    limit: 1,
+  });
 
   let settingsStateDisposer: (() => void) | undefined;
   let autoAttackStateDisposer: (() => void) | undefined;
@@ -1181,18 +1193,47 @@ export default function App(props: {
     },
     optionItems,
     openWindow,
-    openTopNavMenu: (menu) => setOpenTopNavMenu(menu),
+    toggleTopNavMenu: (menu) =>
+      setOpenTopNavMenu((current) => (current === menu ? null : menu)),
     toggleTopBarVisible: () => {
       setOpenTopNavMenu(null);
       setTopBarVisible((visible) => !visible);
     },
   });
 
+  const getHotkeyToastTitle = (command: GameCommand): string | null => {
+    const option = findTopNavOption(optionItems(), command.id);
+    if (option !== undefined) {
+      return `${option.label} ${option.checked ? "On" : "Off"}`;
+    }
+
+    return null;
+  };
+
+  const handleHotkeyCommandRun = (command: GameCommand): void => {
+    if (openTopNavMenu() === "options") return;
+
+    const title = getHotkeyToastTitle(command);
+    if (title === null) return;
+
+    hotkeyToasts.info(title, {
+      dismissible: false,
+      duration: 1200,
+      id: "game-hotkey-feedback",
+    });
+  };
+
   createEffect(() => {
     document.documentElement.toggleAttribute(
       "data-top-bar-hidden",
       !topBarVisible(),
     );
+  });
+
+  createEffect(() => {
+    if (openTopNavMenu() === "options") {
+      hotkeyToasts.closeAll();
+    }
   });
 
   onCleanup(() => {
@@ -1437,15 +1478,50 @@ export default function App(props: {
     autoReloginStateDisposer?.();
   });
 
+  const topNavOptionsMenuProps: TopNavOptionsMenuContentProps = {
+    hotkeyBindings: () => settings().hotkeys.bindings,
+    hotkeyPlatform: window.ipc.platform.os,
+    optionItems,
+    gameLoaded,
+    playerReady,
+    walkSpeed,
+    setWalkSpeed,
+    handleSetWalkSpeed,
+    frameRate,
+    setFrameRate,
+    handleSetFrameRate,
+    customName,
+    setCustomName,
+    handleSetCustomName,
+    customGuild,
+    setCustomGuild,
+    handleSetCustomGuild,
+  };
+
   return (
     <main class="game-shell">
-      <GameHotkeys commands={() => gameCommands} />
+      <Toaster
+        class="game-toast-banner"
+        controller={hotkeyToasts}
+        placement="top-center"
+      />
+      <GameHotkeys
+        commands={() => gameCommands}
+        onCommandRun={handleHotkeyCommandRun}
+      />
+      <Show when={!topBarVisible()}>
+        <TopNavHiddenOptionsMenu
+          {...topNavOptionsMenuProps}
+          open={() => openTopNavMenu() === "options"}
+          setOpen={(open) => setOpenTopNavMenu(open ? "options" : null)}
+        />
+      </Show>
       <Show when={topBarVisible()}>
         <TopNav
           openMenu={openTopNavMenu}
           setOpenMenu={setOpenTopNavMenu}
-          hotkeyBindings={() => settings().hotkeys.bindings}
-          hotkeyPlatform={window.ipc.platform.os}
+          hotkeyBindings={topNavOptionsMenuProps.hotkeyBindings}
+          hotkeyPlatform={topNavOptionsMenuProps.hotkeyPlatform}
           autoAttackEnabled={autoAttackEnabled}
           autoAttackProfileLabel={autoAttackProfileLabel}
           autoAttackConfiguredProfileLabel={autoAttackConfiguredProfileLabel}
@@ -1470,19 +1546,19 @@ export default function App(props: {
           loadScript={loadScript}
           startScript={startScript}
           stopScript={stopScript}
-          optionItems={optionItems}
-          walkSpeed={walkSpeed}
-          setWalkSpeed={setWalkSpeed}
-          handleSetWalkSpeed={handleSetWalkSpeed}
-          frameRate={frameRate}
-          setFrameRate={setFrameRate}
-          handleSetFrameRate={handleSetFrameRate}
-          customName={customName}
-          setCustomName={setCustomName}
-          handleSetCustomName={handleSetCustomName}
-          customGuild={customGuild}
-          setCustomGuild={setCustomGuild}
-          handleSetCustomGuild={handleSetCustomGuild}
+          optionItems={topNavOptionsMenuProps.optionItems}
+          walkSpeed={topNavOptionsMenuProps.walkSpeed}
+          setWalkSpeed={topNavOptionsMenuProps.setWalkSpeed}
+          handleSetWalkSpeed={topNavOptionsMenuProps.handleSetWalkSpeed}
+          frameRate={topNavOptionsMenuProps.frameRate}
+          setFrameRate={topNavOptionsMenuProps.setFrameRate}
+          handleSetFrameRate={topNavOptionsMenuProps.handleSetFrameRate}
+          customName={topNavOptionsMenuProps.customName}
+          setCustomName={topNavOptionsMenuProps.setCustomName}
+          handleSetCustomName={topNavOptionsMenuProps.handleSetCustomName}
+          customGuild={topNavOptionsMenuProps.customGuild}
+          setCustomGuild={topNavOptionsMenuProps.setCustomGuild}
+          handleSetCustomGuild={topNavOptionsMenuProps.handleSetCustomGuild}
           autoZoneEnabled={autoZoneEnabled}
           autoZoneMap={autoZoneMap}
           handleToggleAutoZone={handleToggleAutoZone}

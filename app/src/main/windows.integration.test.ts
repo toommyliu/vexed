@@ -51,9 +51,9 @@ describe("app window wiring", () => {
     expect(source).toContain("optionHotkey");
     expect(source).not.toContain("Cmd/Ctrl");
     expect(appSource).toContain(
-      "hotkeyBindings={() => settings().hotkeys.bindings}",
+      "hotkeyBindings: () => settings().hotkeys.bindings",
     );
-    expect(appSource).toContain("hotkeyPlatform={window.ipc.platform.os}");
+    expect(appSource).toContain("hotkeyPlatform: window.ipc.platform.os");
   });
 
   it("mounts the game renderer through the shared window mount", () => {
@@ -202,6 +202,10 @@ describe("app window wiring", () => {
     expect(windowHtml).toContain('data-ready="false"');
     expect(gameHtml).toContain('data-ready="false"');
     expect(gameHtml).toContain("background: rgb(var(--background));");
+    expect(gameHtml).toContain('wmode="opaque"');
+    expect(gameHtml.indexOf('id="swf"')).toBeLessThan(
+      gameHtml.indexOf('id="root"'),
+    );
   });
 
   it("seeds the settings renderer from shared mount settings", () => {

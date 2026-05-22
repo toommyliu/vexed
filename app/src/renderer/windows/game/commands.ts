@@ -30,7 +30,7 @@ export interface GameCommandRuntime {
   readonly toggleBank: () => void;
   readonly optionItems: Accessor<readonly TopNavOptionItem[]>;
   readonly openWindow: (id: WindowId) => void;
-  readonly openTopNavMenu: (menu: GameTopNavMenu) => void;
+  readonly toggleTopNavMenu: (menu: GameTopNavMenu) => void;
   readonly toggleTopBarVisible: () => void;
 }
 
@@ -158,8 +158,8 @@ const createCommandRunner = (
     return runtime.toggleBank;
   }
 
-  if (id === "openOptionsMenu") {
-    return () => runtime.openTopNavMenu("options");
+  if (id === "toggleOptionsMenu") {
+    return () => runtime.toggleTopNavMenu("options");
   }
 
   if (id === "toggleTopBar") {

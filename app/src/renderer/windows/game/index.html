@@ -1,24 +1,27 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en" data-ready="false">
   <head>
     <link rel="stylesheet" href="./index.css" />
     <style>
       body {
         background: rgb(var(--background));
+        isolation: isolate;
         margin: 0;
         padding: 0;
         overflow: hidden;
+        position: relative;
         width: 100vw;
         height: 100vh;
       }
       #root {
+        isolation: isolate;
         position: fixed;
         top: 0;
         left: 0;
         width: 100%;
         height: 100%;
         pointer-events: none;
-        z-index: 10;
+        z-index: 2147483647;
       }
       #swf {
         position: absolute;
@@ -26,7 +29,7 @@
         top: var(--topnav-offset, var(--topnav-height, 28px));
         width: 100%;
         height: calc(100% - var(--topnav-offset, var(--topnav-height, 28px)));
-        z-index: 1;
+        z-index: 0;
       }
       html[data-top-bar-hidden] #swf {
         top: 0;
@@ -35,11 +38,8 @@
     </style>
   </head>
   <body>
+    <embed id="swf" src="../../../../assets/loader.swf" wmode="opaque" />
     <div id="root"></div>
-    <embed
-      id="swf"
-      src="../../../../assets/loader.swf"
-    />
     <script src="./index.js" type="module"></script>
   </body>
 </html>

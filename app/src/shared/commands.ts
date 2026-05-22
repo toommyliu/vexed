@@ -12,7 +12,7 @@ export type GameCommandId =
   | "loadScript"
   | "toggleScript"
   | "stopScript"
-  | "openOptionsMenu"
+  | "toggleOptionsMenu"
   | "openEnvironment"
   | "openFastTravels"
   | "openLoaderGrabber"
@@ -81,11 +81,11 @@ export const GAME_COMMANDS: readonly CommandDefinition[] = [
     defaultHotkey: "Mod+Shift+X",
   },
   {
-    id: "openOptionsMenu",
+    id: "toggleOptionsMenu",
     scope: "game",
     category: "Options",
-    label: "Open Options Menu",
-    keywords: ["menu", "options", "settings"],
+    label: "Toggle Options Menu",
+    keywords: ["menu", "options", "settings", "open", "close"],
     defaultHotkey: "Mod+Shift+,",
   },
   {
