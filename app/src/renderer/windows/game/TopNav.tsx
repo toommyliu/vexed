@@ -59,32 +59,11 @@ import {
   type TopNavOptionItem,
 } from "./topNavOptions";
 
-export interface TopNavProps {
-  readonly openMenu: Accessor<GameTopNavMenu | null>;
-  readonly setOpenMenu: Setter<GameTopNavMenu | null>;
+export interface TopNavOptionsMenuContentProps {
   readonly hotkeyBindings: Accessor<HotkeyBindings>;
   readonly hotkeyPlatform: AppPlatform;
-  readonly autoAttackEnabled: Accessor<boolean>;
-  readonly autoAttackProfileLabel: Accessor<string>;
-  readonly autoAttackConfiguredProfileLabel: Accessor<string>;
-  readonly autoAttackLastError: Accessor<string>;
-  readonly combatProfiles: Accessor<readonly CombatProfile[]>;
-  readonly autoAttackMode: Accessor<CombatProfileAutoAttackMode>;
-  readonly selectedAutoAttackProfileId: Accessor<string | undefined>;
-  readonly handleToggleAutoAttack: () => void;
-  readonly handleSelectAutoAttackProfile: (
-    mode: CombatProfileAutoAttackMode,
-    selectedProfileId?: string,
-  ) => void;
   readonly gameLoaded: Accessor<boolean>;
   readonly playerReady: Accessor<boolean>;
-  readonly scriptLoaded: Accessor<boolean>;
-  readonly scriptRunning: Accessor<boolean>;
-  readonly scriptStatus: Accessor<string>;
-  readonly scriptDiagnosticsCount: Accessor<number>;
-  readonly loadScript: () => void | Promise<void>;
-  readonly startScript: () => void;
-  readonly stopScript: () => void;
   readonly optionItems: Accessor<readonly TopNavOptionItem[]>;
   readonly walkSpeed: Accessor<string>;
   readonly setWalkSpeed: Setter<string>;
@@ -98,6 +77,30 @@ export interface TopNavProps {
   readonly customGuild: Accessor<string>;
   readonly setCustomGuild: Setter<string>;
   readonly handleSetCustomGuild: () => void;
+}
+
+export interface TopNavProps extends TopNavOptionsMenuContentProps {
+  readonly openMenu: Accessor<GameTopNavMenu | null>;
+  readonly setOpenMenu: Setter<GameTopNavMenu | null>;
+  readonly autoAttackEnabled: Accessor<boolean>;
+  readonly autoAttackProfileLabel: Accessor<string>;
+  readonly autoAttackConfiguredProfileLabel: Accessor<string>;
+  readonly autoAttackLastError: Accessor<string>;
+  readonly combatProfiles: Accessor<readonly CombatProfile[]>;
+  readonly autoAttackMode: Accessor<CombatProfileAutoAttackMode>;
+  readonly selectedAutoAttackProfileId: Accessor<string | undefined>;
+  readonly handleToggleAutoAttack: () => void;
+  readonly handleSelectAutoAttackProfile: (
+    mode: CombatProfileAutoAttackMode,
+    selectedProfileId?: string,
+  ) => void;
+  readonly scriptLoaded: Accessor<boolean>;
+  readonly scriptRunning: Accessor<boolean>;
+  readonly scriptStatus: Accessor<string>;
+  readonly scriptDiagnosticsCount: Accessor<number>;
+  readonly loadScript: () => void | Promise<void>;
+  readonly startScript: () => void;
+  readonly stopScript: () => void;
   readonly autoZoneEnabled: Accessor<boolean>;
   readonly autoZoneMap: Accessor<AutoZoneSupportedMap | undefined>;
   readonly handleToggleAutoZone: () => void;
@@ -196,6 +199,149 @@ function TopNavMenuTrigger(props: TopNavMenuTriggerProps): JSX.Element {
         />
       )}
     />
+  );
+}
+
+export function TopNavOptionsMenuContent(
+  props: TopNavOptionsMenuContentProps,
+): JSX.Element {
+  const gameInteractionDisabled = () =>
+    !props.gameLoaded() || !props.playerReady();
+
+  const clickOption =
+    (option: TopNavOptionItem): JSX.EventHandler<HTMLDivElement, MouseEvent> =>
+    () => {
+      if (option.disabled) {
+        return;
+      }
+      option.onSelect();
+    };
+
+  const stopMenuInputKeyPropagation: JSX.EventHandler<
+    HTMLInputElement,
+    KeyboardEvent
+  > = (event) => {
+    if (event.key !== "Escape" && event.key !== "Tab") {
+      event.stopPropagation();
+    }
+  };
+
+  return (
+    <>
+      <MenuAutofocusAnchor />
+      <div class="game-options-grid">
+        <For each={props.optionItems()}>
+          {(option) => (
+            <MenuCheckboxItem
+              checked={option.checked}
+              class="game-menu__item"
+              closeOnSelect={false}
+              disabled={option.disabled}
+              onClick={clickOption(option)}
+              value={option.id}
+            >
+              <span class="game-menu__option-content">
+                <span class="game-menu__item-label">{option.label}</span>
+                <Show
+                  when={formatOptionalHotkeyDisplay(
+                    optionHotkey(props.hotkeyBindings(), option.id),
+                    props.hotkeyPlatform,
+                  )}
+                >
+                  {(shortcut) => <Kbd>{shortcut()}</Kbd>}
+                </Show>
+              </span>
+            </MenuCheckboxItem>
+          )}
+        </For>
+      </div>
+      <MenuSeparator />
+      <div class="game-menu__fields">
+        <label class="game-menu__field">
+          <span>Walk Speed</span>
+          <Input
+            disabled={gameInteractionDisabled()}
+            size="sm"
+            value={props.walkSpeed()}
+            onBlur={props.handleSetWalkSpeed}
+            onKeyDown={stopMenuInputKeyPropagation}
+            onInput={(event) => props.setWalkSpeed(event.currentTarget.value)}
+          />
+        </label>
+        <label class="game-menu__field">
+          <span>FPS</span>
+          <Input
+            disabled={gameInteractionDisabled()}
+            size="sm"
+            value={props.frameRate()}
+            onBlur={props.handleSetFrameRate}
+            onKeyDown={stopMenuInputKeyPropagation}
+            onInput={(event) => props.setFrameRate(event.currentTarget.value)}
+          />
+        </label>
+        <label class="game-menu__field game-menu__field--wide">
+          <span>Custom Name</span>
+          <Input
+            disabled={gameInteractionDisabled()}
+            placeholder="Keep current name"
+            size="sm"
+            value={props.customName()}
+            onBlur={props.handleSetCustomName}
+            onKeyDown={stopMenuInputKeyPropagation}
+            onInput={(event) => props.setCustomName(event.currentTarget.value)}
+          />
+        </label>
+        <label class="game-menu__field game-menu__field--wide">
+          <span>Custom Guild</span>
+          <Input
+            disabled={gameInteractionDisabled()}
+            placeholder="Keep current guild"
+            size="sm"
+            value={props.customGuild()}
+            onBlur={props.handleSetCustomGuild}
+            onKeyDown={stopMenuInputKeyPropagation}
+            onInput={(event) => props.setCustomGuild(event.currentTarget.value)}
+          />
+        </label>
+      </div>
+    </>
+  );
+}
+
+export interface TopNavHiddenOptionsMenuProps extends TopNavOptionsMenuContentProps {
+  readonly open: Accessor<boolean>;
+  readonly setOpen: (open: boolean) => void;
+}
+
+export function TopNavHiddenOptionsMenu(
+  props: TopNavHiddenOptionsMenuProps,
+): JSX.Element {
+  return (
+    <div class="game-hidden-options-menu">
+      <Menu
+        open={props.open()}
+        positioning={{
+          gutter: 8,
+          placement: "bottom",
+          strategy: "fixed",
+        }}
+        onOpenChange={(details) => props.setOpen(details.open)}
+      >
+        <MenuTrigger
+          aria-hidden="true"
+          class="game-hidden-options-menu__anchor"
+          tabIndex={-1}
+        >
+          Options
+        </MenuTrigger>
+        <MenuContent
+          class="game-menu game-menu--options game-hidden-options-menu__content"
+          portal={false}
+        >
+          <TopNavOptionsMenuContent {...props} />
+        </MenuContent>
+      </Menu>
+    </div>
   );
 }
 
@@ -404,15 +550,6 @@ export function TopNav(props: TopNavProps): JSX.Element {
       .validPads()
       .some((validPad) => validPad.toLowerCase() === pad.toLowerCase());
 
-  const clickOption =
-    (option: TopNavOptionItem): JSX.EventHandler<HTMLDivElement, MouseEvent> =>
-    () => {
-      if (option.disabled) {
-        return;
-      }
-      option.onSelect();
-    };
-
   const stopMenuInputKeyPropagation: JSX.EventHandler<
     HTMLInputElement,
     KeyboardEvent
@@ -582,92 +719,7 @@ export function TopNav(props: TopNavProps): JSX.Element {
               Options
             </TopNavMenuTrigger>
             <MenuContent class="game-menu game-menu--options" portal={false}>
-              <MenuAutofocusAnchor />
-              <div class="game-options-grid">
-                <For each={props.optionItems()}>
-                  {(option) => (
-                    <MenuCheckboxItem
-                      checked={option.checked}
-                      class="game-menu__item"
-                      closeOnSelect={false}
-                      disabled={option.disabled}
-                      onClick={clickOption(option)}
-                      value={option.id}
-                    >
-                      <span class="game-menu__option-content">
-                        <span class="game-menu__item-label">
-                          {option.label}
-                        </span>
-                        <Show
-                          when={formatOptionalHotkeyDisplay(
-                            optionHotkey(props.hotkeyBindings(), option.id),
-                            props.hotkeyPlatform,
-                          )}
-                        >
-                          {(shortcut) => <Kbd>{shortcut()}</Kbd>}
-                        </Show>
-                      </span>
-                    </MenuCheckboxItem>
-                  )}
-                </For>
-              </div>
-              <MenuSeparator />
-              <div class="game-menu__fields">
-                <label class="game-menu__field">
-                  <span>Walk Speed</span>
-                  <Input
-                    disabled={gameInteractionDisabled()}
-                    size="sm"
-                    value={props.walkSpeed()}
-                    onBlur={props.handleSetWalkSpeed}
-                    onKeyDown={stopMenuInputKeyPropagation}
-                    onInput={(event) =>
-                      props.setWalkSpeed(event.currentTarget.value)
-                    }
-                  />
-                </label>
-                <label class="game-menu__field">
-                  <span>FPS</span>
-                  <Input
-                    disabled={gameInteractionDisabled()}
-                    size="sm"
-                    value={props.frameRate()}
-                    onBlur={props.handleSetFrameRate}
-                    onKeyDown={stopMenuInputKeyPropagation}
-                    onInput={(event) =>
-                      props.setFrameRate(event.currentTarget.value)
-                    }
-                  />
-                </label>
-                <label class="game-menu__field game-menu__field--wide">
-                  <span>Custom Name</span>
-                  <Input
-                    disabled={gameInteractionDisabled()}
-                    placeholder="Keep current name"
-                    size="sm"
-                    value={props.customName()}
-                    onBlur={props.handleSetCustomName}
-                    onKeyDown={stopMenuInputKeyPropagation}
-                    onInput={(event) =>
-                      props.setCustomName(event.currentTarget.value)
-                    }
-                  />
-                </label>
-                <label class="game-menu__field game-menu__field--wide">
-                  <span>Custom Guild</span>
-                  <Input
-                    disabled={gameInteractionDisabled()}
-                    placeholder="Keep current guild"
-                    size="sm"
-                    value={props.customGuild()}
-                    onBlur={props.handleSetCustomGuild}
-                    onKeyDown={stopMenuInputKeyPropagation}
-                    onInput={(event) =>
-                      props.setCustomGuild(event.currentTarget.value)
-                    }
-                  />
-                </label>
-              </div>
+              <TopNavOptionsMenuContent {...props} />
             </MenuContent>
           </Menu>
 
@@ -1037,7 +1089,9 @@ export function TopNav(props: TopNavProps): JSX.Element {
                   closeOnSelect={false}
                   value="equipped-class"
                 >
-                  <span class="game-menu__item-label">Match equipped class</span>
+                  <span class="game-menu__item-label">
+                    Match equipped class
+                  </span>
                 </MenuRadioItem>
                 <MenuRadioItem
                   class="game-menu__item"

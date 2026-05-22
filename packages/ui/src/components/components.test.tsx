@@ -1,4 +1,4 @@
-import { afterEach, describe, expect, it } from "vitest";
+import { afterEach, describe, expect, it, vi } from "vitest";
 import { createSignal, type JSX } from "solid-js";
 import { render } from "solid-js/web";
 import {
@@ -101,6 +101,9 @@ import {
   TooltipButtonTrigger,
   TooltipContent,
   TooltipTrigger,
+  Toaster,
+  createToastController,
+  type ToastController,
 } from "../index";
 
 const disposers: Array<() => void> = [];
@@ -183,6 +186,7 @@ async function highlightFirstComboboxItem(input: HTMLInputElement | null) {
 }
 
 afterEach(() => {
+  vi.useRealTimers();
   for (const dispose of disposers.splice(0)) {
     dispose();
   }
@@ -659,6 +663,90 @@ describe("Alert", () => {
   });
 });
 
+describe("Toaster", () => {
+  it("renders dismissible toast banners", () => {
+    let controller: ToastController | undefined;
+    const root = renderUi(() => {
+      controller = createToastController();
+      return <Toaster controller={controller} removeDelay={0} />;
+    });
+
+    controller!.success("Saved", {
+      description: "Hotkey applied.",
+      duration: null,
+      testId: "saved-toast",
+    });
+
+    const toast = root.querySelector("[data-testid='saved-toast']");
+    expect(toast?.textContent).toContain("Saved");
+    expect(toast?.textContent).toContain("Hotkey applied.");
+    expect(toast?.getAttribute("role")).toBe("status");
+    expect(root.querySelector(".toast-banner__close")).not.toBeNull();
+  });
+
+  it("replaces older toasts with the same id", async () => {
+    vi.useFakeTimers();
+    let controller: ToastController | undefined;
+    const root = renderUi(() => {
+      controller = createToastController();
+      return <Toaster controller={controller} removeDelay={0} />;
+    });
+
+    controller!.info("First", { duration: null, id: "hotkey-feedback" });
+    const firstToast = root.querySelector("[data-slot='toast']");
+    controller!.info("Second", { duration: null, id: "hotkey-feedback" });
+    vi.runOnlyPendingTimers();
+    await Promise.resolve();
+
+    expect(firstToast).not.toBeNull();
+    expect(root.querySelectorAll("[data-slot='toast']")).toHaveLength(1);
+    expect(root.textContent).not.toContain("First");
+    expect(root.textContent).toContain("Second");
+    vi.useRealTimers();
+  });
+
+  it("preserves caller-provided ids for close and remove", () => {
+    let controller: ToastController | undefined;
+    const root = renderUi(() => {
+      controller = createToastController();
+      return <Toaster controller={controller} removeDelay={0} />;
+    });
+
+    controller!.info("Settings updated", {
+      duration: null,
+      id: "settings-toast",
+    });
+    expect(root.textContent).toContain("Settings updated");
+
+    controller!.close("settings-toast");
+
+    expect(
+      root.querySelector("[data-slot='toast']")?.getAttribute("data-state"),
+    ).toBe("closed");
+
+    controller!.remove("settings-toast");
+
+    expect(root.textContent).not.toContain("Settings updated");
+  });
+
+  it("runs onRemove for toasts evicted by the limit", () => {
+    const onRemove = vi.fn();
+    let controller: ToastController | undefined;
+    renderUi(() => {
+      controller = createToastController({ limit: 1 });
+      return <Toaster controller={controller} removeDelay={0} />;
+    });
+
+    controller!.info("First", {
+      duration: null,
+      onRemove,
+    });
+    controller!.info("Second", { duration: null });
+
+    expect(onRemove).toHaveBeenCalledOnce();
+  });
+});
+
 describe("Dialog", () => {
   it("renders open dialog content and close action", () => {
     renderUi(() => (
@@ -769,9 +857,7 @@ describe("Select", () => {
       </Select>
     ));
 
-    const trigger = document.body.querySelector(
-      "[data-slot='select-trigger']",
-    );
+    const trigger = document.body.querySelector("[data-slot='select-trigger']");
     expect(trigger).not.toBeNull();
     expect(trigger?.textContent).toContain("Solid");
     expect(trigger?.textContent).not.toContain("solid");
@@ -792,9 +878,7 @@ describe("Select", () => {
       </Select>
     ));
 
-    const trigger = document.body.querySelector(
-      "[data-slot='select-trigger']",
-    );
+    const trigger = document.body.querySelector("[data-slot='select-trigger']");
     expect(trigger?.textContent).toContain("42");
   });
 
@@ -810,9 +894,7 @@ describe("Select", () => {
       </Select>
     ));
 
-    const trigger = document.body.querySelector(
-      "[data-slot='select-trigger']",
-    );
+    const trigger = document.body.querySelector("[data-slot='select-trigger']");
     expect(trigger?.textContent).toContain("Hello World");
   });
 
@@ -830,9 +912,7 @@ describe("Select", () => {
       </Select>
     ));
 
-    const trigger = document.body.querySelector(
-      "[data-slot='select-trigger']",
-    );
+    const trigger = document.body.querySelector("[data-slot='select-trigger']");
     expect(trigger?.textContent).toContain("Custom Label");
     expect(trigger?.textContent).not.toContain("Child Label");
   });
@@ -849,9 +929,7 @@ describe("Select", () => {
       </Select>
     ));
 
-    const trigger = document.body.querySelector(
-      "[data-slot='select-trigger']",
-    );
+    const trigger = document.body.querySelector("[data-slot='select-trigger']");
     expect(trigger?.textContent).toContain("fallback");
   });
 });

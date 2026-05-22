@@ -25,6 +25,27 @@
   z-index: 10000;
 }
 
+.game-toast-banner.toaster--top-center {
+  top: calc(var(--topnav-offset, var(--topnav-height, 32px)) + 0.5rem);
+  z-index: 2147483647;
+}
+
+:root[data-top-bar-hidden] .game-toast-banner.toaster--top-center {
+  top: 0.5rem;
+}
+
+.game-toast-banner .toast-banner {
+  min-width: min(18rem, calc(100vw - 1rem));
+}
+
+.game-toast-banner .toast-banner--info {
+  background: rgb(var(--popover));
+  border-color: rgba(var(--info), 0.42);
+  box-shadow:
+    0 10px 28px rgba(var(--black), 0.2),
+    0 1px 2px rgba(var(--black), 0.12);
+}
+
 .game-topnav {
   align-items: center;
   display: flex;
@@ -231,7 +252,8 @@
 }
 
 .game-topnav__status-slot[data-kind="alert"] .game-topnav__alert-icon {
-  animation: game-topnav-alert-pulse 1.2s cubic-bezier(0.23, 1, 0.32, 1) infinite;
+  animation: game-topnav-alert-pulse 1.2s cubic-bezier(0.23, 1, 0.32, 1)
+    infinite;
   will-change: opacity;
 }
 
@@ -318,7 +340,6 @@
   width: 0.75rem;
 }
 
-
 .game-topnav__trigger:disabled,
 .game-topnav__button:disabled,
 .game-topnav__select-trigger:disabled {
@@ -361,6 +382,39 @@
 
 .game-menu--options {
   min-width: min(24rem, calc(100vw - 1rem));
+}
+
+.game-hidden-options-menu {
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 10001;
+}
+
+.game-hidden-options-menu .menu__positioner {
+  pointer-events: auto;
+  z-index: 10001;
+}
+
+.game-hidden-options-menu__anchor {
+  background: transparent;
+  border: 0;
+  height: 1px;
+  left: 50%;
+  opacity: 0;
+  overflow: hidden;
+  padding: 0;
+  pointer-events: none;
+  position: fixed;
+  top: 0.5rem;
+  transform: translateX(-50%);
+  width: 1px;
+}
+
+.game-hidden-options-menu__content {
+  box-shadow:
+    0 14px 42px rgba(var(--black), 0.18),
+    0 2px 8px rgba(var(--black), 0.1);
 }
 
 .game-menu--autozone {
@@ -487,7 +541,6 @@
   flex: 0 1 auto;
 }
 
-
 .game-menu__status {
   color: var(--color-muted-foreground);
   display: grid;
@@ -581,7 +634,6 @@
   justify-content: space-between;
   padding: 0 0.25rem;
 }
-
 
 .game-menu__delay-control {
   align-items: center;
