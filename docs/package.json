@@ -10,6 +10,8 @@
   },
   "dependencies": {
     "@astrojs/starlight": "^0.38.4",
+    "@fontsource-variable/inter": "^5.2.8",
+    "@fontsource-variable/jetbrains-mono": "^5.2.8",
     "@lucide/astro": "^1.16.0",
     "@pagefind/default-ui": "^1.5.2",
     "@vercel/analytics": "^2.0.1",
