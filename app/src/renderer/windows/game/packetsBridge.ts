@@ -194,9 +194,8 @@ export const installPacketsBridge = (
     }
   };
 
-  const scheduleQueue = (): void => {
-    const state = queueState;
-    if (!state || state.stopped) {
+  const scheduleQueue = (state: QueueState): void => {
+    if (queueState !== state || state.stopped) {
       return;
     }
 
@@ -224,7 +223,7 @@ export const installPacketsBridge = (
       return;
     }
 
-    scheduleQueue();
+    scheduleQueue(state);
   };
 
   const startQueue = (payload: PacketQueuePayload): void => {
@@ -241,7 +240,7 @@ export const installPacketsBridge = (
       target: payload.target,
       timeout: undefined,
     };
-    scheduleQueue();
+    scheduleQueue(queueState);
     publishStatus();
   };
 
