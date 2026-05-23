@@ -8,6 +8,7 @@ package vexed.generated
   import vexed.game.DropList;
   import vexed.game.House;
   import vexed.game.Inventory;
+  import vexed.game.Outfits;
   import vexed.game.Player;
   import vexed.game.Quests;
   import vexed.game.Settings;
@@ -79,6 +80,10 @@ package vexed.generated
       external.externalize("inventory.getItems", Inventory.getItems);
       external.externalize("inventory.getSlots", Inventory.getSlots);
       external.externalize("inventory.getUsedSlots", Inventory.getUsedSlots);
+      external.externalize("outfits.equip", Outfits.equip);
+      external.externalize("outfits.get", Outfits.get);
+      external.externalize("outfits.getAll", Outfits.getAll);
+      external.externalize("outfits.wear", Outfits.wear);
       external.externalize("player.getCell", Player.getCell);
       external.externalize("player.getCharId", Player.getCharId);
       external.externalize("player.getClassName", Player.getClassName);

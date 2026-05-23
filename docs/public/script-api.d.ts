@@ -68,6 +68,7 @@ interface ScriptApi {
   readonly environment: EnvironmentApi;
   readonly house: HouseApi;
   readonly inventory: InventoryApi;
+  readonly outfits: OutfitsApi;
   readonly packet: ScriptPacketApi;
   readonly player: PlayerApi;
   readonly quests: QuestsApi;
@@ -191,7 +192,7 @@ interface BankApi {
   withdrawMany(...items: ItemIdentifierToken[]): Effect<void, BridgeError>;
 }
 interface CombatApi {
-  attackMonster(monster: MonsterIdentifierToken): Effect<void, BridgeError>;
+  attackMonster(monster: MonsterIdentifierToken): Effect<boolean, BridgeError>;
   cancelAutoAttack(): Effect<void, BridgeError>;
   cancelTarget(): Effect<void, BridgeError>;
   canUseSkill(index: string | number): Effect<boolean, BridgeError>;
@@ -304,6 +305,18 @@ interface InventoryApi {
   getSlots(): Effect<number, BridgeError>;
   getUsedSlots(): Effect<number, BridgeError>;
   getAvailableSlots(): Effect<number, BridgeError>;
+}
+interface OutfitsApi {
+  getAll(): Effect<readonly Outfit[], BridgeError>;
+  get(name: string): Effect<Outfit | null, BridgeError>;
+  equip(
+    name: string,
+    options?: OutfitEquipOptions,
+  ): Effect<boolean, BridgeError>;
+  wear(
+    name: string,
+    options?: OutfitEquipOptions,
+  ): Effect<boolean, BridgeError>;
 }
 interface PlayerApi {
   getCell(): Effect<string, BridgeError>;
@@ -498,18 +511,22 @@ interface WorldMapApi {
   isActionAvailable(
     gameAction:
       | "acceptQuest"
+      | "addLoadout"
       | "buyItem"
       | "doIA"
+      | "equipLoadout"
       | "equipItem"
       | "getMapItem"
       | "loadEnhShop"
       | "loadHairShop"
       | "loadShop"
+      | "removeLoadout"
       | "rest"
       | "sellItem"
       | "tfer"
       | "tryQuestComplete"
       | "unequipItem"
+      | "wearLoadout"
       | "who",
   ): Effect<boolean, BridgeError>;
   getMapItem(itemId: number): Effect<void, BridgeError>;
@@ -519,18 +536,22 @@ interface WorldMapApi {
   waitForGameAction(
     gameAction:
       | "acceptQuest"
+      | "addLoadout"
       | "buyItem"
       | "doIA"
+      | "equipLoadout"
       | "equipItem"
       | "getMapItem"
       | "loadEnhShop"
       | "loadHairShop"
       | "loadShop"
+      | "removeLoadout"
       | "rest"
       | "sellItem"
       | "tfer"
       | "tryQuestComplete"
       | "unequipItem"
+      | "wearLoadout"
       | "who",
     timeout?: DurationInput,
   ): Effect<boolean, BridgeError>;
@@ -1025,6 +1046,13 @@ interface Monster extends BaseEntity {
   readonly level: number;
   readonly race: string;
   readonly name: string;
+}
+interface Outfit {
+  readonly name: string;
+  readonly data: Record<string, unknown>;
+}
+interface OutfitEquipOptions {
+  readonly keepColors?: boolean;
 }
 interface Quest {
   data: QuestInfo;

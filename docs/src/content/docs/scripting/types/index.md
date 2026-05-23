@@ -58,6 +58,8 @@ Referenced types are generated from the types directly linked by the documented 
 | <a href="/scripting/types/monster-identifier-token/" data-script-type="monster-identifier-token"><code>MonsterIdentifierToken</code></a> | type alias |  |
 | <a href="/scripting/types/monster-map-id/" data-script-type="monster-map-id"><code>MonsterMapID</code></a> | type alias |  |
 | <a href="/scripting/types/monster-name/" data-script-type="monster-name"><code>MonsterName</code></a> | type alias |  |
+| <a href="/scripting/types/outfit/" data-script-type="outfit"><code>Outfit</code></a> | interface |  |
+| <a href="/scripting/types/outfit-equip-options/" data-script-type="outfit-equip-options"><code>OutfitEquipOptions</code></a> | interface |  |
 | <a href="/scripting/types/quest/" data-script-type="quest"><code>Quest</code></a> | class | Represents a quest. |
 | <a href="/scripting/types/quest-bonus-reward-data/" data-script-type="quest-bonus-reward-data"><code>QuestBonusRewardData</code></a> | type alias | Represents the raw data structure for additional quest rewards. |
 | <a href="/scripting/types/quest-info/" data-script-type="quest-info"><code>QuestInfo</code></a> | type alias | Represents the main quest information structure. |

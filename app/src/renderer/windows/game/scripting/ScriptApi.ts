@@ -13,6 +13,7 @@ import type { CombatShape } from "../flash/Services/Combat";
 import type { DropsShape } from "../flash/Services/Drops";
 import type { HouseShape } from "../flash/Services/House";
 import type { InventoryShape } from "../flash/Services/Inventory";
+import type { OutfitsShape } from "../flash/Services/Outfits";
 import type { PacketShape } from "../flash/Services/Packet";
 import type { PlayerShape } from "../flash/Services/Player";
 import type { QuestsShape } from "../flash/Services/Quests";
@@ -245,6 +246,7 @@ export interface ScriptApi {
   readonly environment: EffectValue<ScriptEnvironmentShape>;
   readonly house: EffectValue<HouseShape>;
   readonly inventory: EffectValue<InventoryShape>;
+  readonly outfits: EffectValue<OutfitsShape>;
   readonly packet: ScriptPacketApi;
   readonly player: EffectValue<PlayerShape>;
   readonly quests: EffectValue<ScriptQuestsShape>;

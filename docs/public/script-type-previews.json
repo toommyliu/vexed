@@ -2308,6 +2308,50 @@
         "url": "https://github.com/toommyliu/vexed/blob/dev/app/src/renderer/windows/game/global.d.ts#L11"
       }
     },
+    "outfit": {
+      "name": "Outfit",
+      "slug": "outfit",
+      "kind": "interface",
+      "summary": "",
+      "definition": "interface Outfit",
+      "keys": [
+        {
+          "kind": "property",
+          "name": "data",
+          "signature": "readonly data: Record<string, unknown>",
+          "description": ""
+        },
+        {
+          "kind": "property",
+          "name": "name",
+          "signature": "readonly name: string",
+          "description": ""
+        }
+      ],
+      "source": {
+        "path": "app/src/renderer/windows/game/flash/Services/Outfits.ts:4",
+        "url": "https://github.com/toommyliu/vexed/blob/dev/app/src/renderer/windows/game/flash/Services/Outfits.ts#L4"
+      }
+    },
+    "outfit-equip-options": {
+      "name": "OutfitEquipOptions",
+      "slug": "outfit-equip-options",
+      "kind": "interface",
+      "summary": "",
+      "definition": "interface OutfitEquipOptions",
+      "keys": [
+        {
+          "kind": "property",
+          "name": "keepColors",
+          "signature": "readonly keepColors?: boolean",
+          "description": ""
+        }
+      ],
+      "source": {
+        "path": "app/src/renderer/windows/game/flash/Services/Outfits.ts:9",
+        "url": "https://github.com/toommyliu/vexed/blob/dev/app/src/renderer/windows/game/flash/Services/Outfits.ts#L9"
+      }
+    },
     "quest": {
       "name": "Quest",
       "slug": "quest",
@@ -2792,8 +2836,8 @@
       "definition": "type ScriptCounterAttackDisposer = () => void",
       "keys": [],
       "source": {
-        "path": "app/src/renderer/windows/game/scripting/ScriptApi.ts:63",
-        "url": "https://github.com/toommyliu/vexed/blob/dev/app/src/renderer/windows/game/scripting/ScriptApi.ts#L63"
+        "path": "app/src/renderer/windows/game/scripting/ScriptApi.ts:64",
+        "url": "https://github.com/toommyliu/vexed/blob/dev/app/src/renderer/windows/game/scripting/ScriptApi.ts#L64"
       }
     },
     "script-counter-attack-event": {
@@ -2835,8 +2879,8 @@
         }
       ],
       "source": {
-        "path": "app/src/renderer/windows/game/scripting/ScriptApi.ts:48",
-        "url": "https://github.com/toommyliu/vexed/blob/dev/app/src/renderer/windows/game/scripting/ScriptApi.ts#L48"
+        "path": "app/src/renderer/windows/game/scripting/ScriptApi.ts:49",
+        "url": "https://github.com/toommyliu/vexed/blob/dev/app/src/renderer/windows/game/scripting/ScriptApi.ts#L49"
       }
     },
     "script-counter-attack-listener": {
@@ -2847,8 +2891,8 @@
       "definition": "type ScriptCounterAttackListener = (event: ScriptCounterAttackEvent) => void | Effect.Effect<unknown, unknown> | Generator<Effect.Yieldable<any, any, never, never>, unknown, never>",
       "keys": [],
       "source": {
-        "path": "app/src/renderer/windows/game/scripting/ScriptApi.ts:56",
-        "url": "https://github.com/toommyliu/vexed/blob/dev/app/src/renderer/windows/game/scripting/ScriptApi.ts#L56"
+        "path": "app/src/renderer/windows/game/scripting/ScriptApi.ts:57",
+        "url": "https://github.com/toommyliu/vexed/blob/dev/app/src/renderer/windows/game/scripting/ScriptApi.ts#L57"
       }
     },
     "script-enhance-item-options": {
@@ -2896,8 +2940,8 @@
       "definition": "type ScriptPacketDisposer = () => void",
       "keys": [],
       "source": {
-        "path": "app/src/renderer/windows/game/scripting/ScriptApi.ts:46",
-        "url": "https://github.com/toommyliu/vexed/blob/dev/app/src/renderer/windows/game/scripting/ScriptApi.ts#L46"
+        "path": "app/src/renderer/windows/game/scripting/ScriptApi.ts:47",
+        "url": "https://github.com/toommyliu/vexed/blob/dev/app/src/renderer/windows/game/scripting/ScriptApi.ts#L47"
       }
     },
     "script-packet-listener": {
@@ -2908,8 +2952,8 @@
       "definition": "type ScriptPacketListener = (packet: string) => void | Effect.Effect<unknown, unknown> | Generator<Effect.Yieldable<any, any, never, never>, unknown, never>",
       "keys": [],
       "source": {
-        "path": "app/src/renderer/windows/game/scripting/ScriptApi.ts:39",
-        "url": "https://github.com/toommyliu/vexed/blob/dev/app/src/renderer/windows/game/scripting/ScriptApi.ts#L39"
+        "path": "app/src/renderer/windows/game/scripting/ScriptApi.ts:40",
+        "url": "https://github.com/toommyliu/vexed/blob/dev/app/src/renderer/windows/game/scripting/ScriptApi.ts#L40"
       }
     },
     "script-recipe-effect": {
