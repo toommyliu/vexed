@@ -11,7 +11,7 @@ import { fileURLToPath, pathToFileURL } from "node:url";
 
 import * as NodeRuntime from "@effect/platform-node/NodeRuntime";
 import * as NodeServices from "@effect/platform-node/NodeServices";
-import { Console, Data, Effect, Queue, Ref } from "effect";
+import { Console, Data, Effect, Option, Queue, Ref } from "effect";
 import { Argument, Command, Flag } from "effect/unstable/cli";
 import { ChildProcess } from "effect/unstable/process";
 import type { ChildProcessHandle } from "effect/unstable/process/ChildProcessSpawner";
@@ -188,6 +188,15 @@ const stopChild = (label: string, child: ChildProcessHandle) =>
 const isRendererOnlyRebuild = (targets: ReadonlySet<DevBuildTarget>): boolean =>
   targets.size > 0 && [...targets].every((target) => target === "renderer");
 
+const addDevBuildTargets = (
+  targetSet: Set<DevBuildTarget>,
+  targets: Iterable<DevBuildTarget>,
+): void => {
+  for (const target of targets) {
+    targetSet.add(target);
+  }
+};
+
 const toDevBuildTarget = (label: unknown): DevBuildTarget => {
   switch (label) {
     case "main":
@@ -320,6 +329,91 @@ const reloadRendererWindows = Effect.sync(() => {
   );
 });
 
+const takeNextEvent = (
+  events: Queue.Queue<DevEvent>,
+  bufferedEvents: Array<DevEvent>,
+) =>
+  Effect.sync(() => bufferedEvents.shift()).pipe(
+    Effect.flatMap((event) =>
+      event === undefined ? Queue.take(events) : Effect.succeed(event),
+    ),
+  );
+
+const pollEvent = (events: Queue.Queue<DevEvent>) =>
+  Queue.poll(events).pipe(
+    Effect.map((event) => (Option.isSome(event) ? event.value : null)),
+  );
+
+// Rebuild notices can arrive while Electron is stopping. Coalesce adjacent
+// rebuilds so one source edit cannot create a start/stop/start cascade.
+const collectQueuedRebuildTargets = (
+  events: Queue.Queue<DevEvent>,
+  bufferedEvents: Array<DevEvent>,
+  initialTargets: ReadonlySet<DevBuildTarget>,
+) =>
+  Effect.gen(function* () {
+    const targets = new Set(initialTargets);
+
+    while (true) {
+      const event = yield* pollEvent(events);
+      if (event === null) {
+        return targets;
+      }
+
+      if (event._tag === "rebuild") {
+        addDevBuildTargets(targets, event.targets);
+        continue;
+      }
+
+      if (event._tag === "electron-exit" && event.managed) {
+        continue;
+      }
+
+      bufferedEvents.push(event);
+      return targets;
+    }
+  });
+
+const collectSettledRebuildTargets = (
+  events: Queue.Queue<DevEvent>,
+  bufferedEvents: Array<DevEvent>,
+  initialTargets: ReadonlySet<DevBuildTarget>,
+) =>
+  Effect.gen(function* () {
+    let targets = yield* collectQueuedRebuildTargets(
+      events,
+      bufferedEvents,
+      initialTargets,
+    );
+
+    while (true) {
+      const event = yield* Queue.take(events).pipe(
+        Effect.timeoutOption(`${RESTART_DEBOUNCE_MS} millis`),
+      );
+
+      if (!Option.isSome(event)) {
+        return targets;
+      }
+
+      if (event.value._tag === "rebuild") {
+        addDevBuildTargets(targets, event.value.targets);
+        targets = yield* collectQueuedRebuildTargets(
+          events,
+          bufferedEvents,
+          targets,
+        );
+        continue;
+      }
+
+      if (event.value._tag === "electron-exit" && event.value.managed) {
+        continue;
+      }
+
+      bufferedEvents.push(event.value);
+      return targets;
+    }
+  });
+
 const watchCompileExit = (
   events: Queue.Queue<DevEvent>,
   compileWatch: ChildProcessHandle,
@@ -381,6 +475,7 @@ const runDevLoop = () =>
     yield* runRequiredCommand("initial compile", ["compile"], APP_DIR, baseEnv);
 
     const events = yield* Queue.make<DevEvent>();
+    const bufferedEvents: Array<DevEvent> = [];
     const activeElectron = yield* Ref.make<ActiveElectron | null>(null);
 
     yield* installNotifyWatcher(events);
@@ -417,11 +512,17 @@ const runDevLoop = () =>
     yield* startElectron;
 
     while (true) {
-      const event = yield* Queue.take(events);
+      const event = yield* takeNextEvent(events, bufferedEvents);
 
       switch (event._tag) {
         case "rebuild": {
-          if (isRendererOnlyRebuild(event.targets)) {
+          let targets = yield* collectSettledRebuildTargets(
+            events,
+            bufferedEvents,
+            event.targets,
+          );
+
+          if (isRendererOnlyRebuild(targets)) {
             yield* Console.log(
               "[dev-runner] renderer rebuild detected; reloading windows",
             );
@@ -433,6 +534,11 @@ const runDevLoop = () =>
             "[dev-runner] rebuild detected; restarting electron",
           );
           yield* stopActiveElectron;
+          targets = yield* collectSettledRebuildTargets(
+            events,
+            bufferedEvents,
+            targets,
+          );
           yield* startElectron;
           break;
         }

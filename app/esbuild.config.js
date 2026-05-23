@@ -92,6 +92,10 @@ const DEV_BUILD_NOTIFY_DEBOUNCE_MS = 150;
 const WATCH_PARENT_POLL_MS = 1000;
 const WATCH_FORCE_EXIT_MS = 2500;
 const pendingDevBuildLabels = new Set();
+// Watch mode uses separate esbuild contexts; notify the runner only after the
+// active context batch has settled so it does not restart on partial output.
+let activeDevBuilds = 0;
+let devBuildHadError = false;
 let devBuildNotifyTimer;
 
 function selectDevBuildNotifyLabel(labels) {
@@ -123,6 +127,10 @@ function flushDevBuildNotify() {
     devBuildNotifyTimer = undefined;
   }
 
+  if (activeDevBuilds > 0) {
+    return;
+  }
+
   if (pendingDevBuildLabels.size === 0) {
     return;
   }
@@ -142,12 +150,14 @@ function flushDevBuildNotify() {
   );
 }
 
-function queueDevBuildNotify(label) {
+function scheduleDevBuildNotifyFlush() {
   if (!devBuildNotifyPath) {
     return;
   }
 
-  pendingDevBuildLabels.add(label);
+  if (activeDevBuilds > 0 || pendingDevBuildLabels.size === 0) {
+    return;
+  }
 
   if (devBuildNotifyTimer) {
     clearTimeout(devBuildNotifyTimer);
@@ -159,23 +169,71 @@ function queueDevBuildNotify(label) {
   );
 }
 
+function queueDevBuildNotify(label) {
+  if (!devBuildNotifyPath) {
+    return;
+  }
+
+  pendingDevBuildLabels.add(label);
+  scheduleDevBuildNotifyFlush();
+}
+
+function markDevBuildStarted() {
+  if (!devBuildNotifyPath) {
+    return;
+  }
+
+  activeDevBuilds += 1;
+  if (devBuildNotifyTimer) {
+    clearTimeout(devBuildNotifyTimer);
+    devBuildNotifyTimer = undefined;
+  }
+}
+
+function markDevBuildFinished(result) {
+  if (!devBuildNotifyPath) {
+    return;
+  }
+
+  if (result.errors.length > 0) {
+    devBuildHadError = true;
+  }
+
+  activeDevBuilds = Math.max(0, activeDevBuilds - 1);
+
+  if (activeDevBuilds > 0) {
+    return;
+  }
+
+  if (devBuildHadError) {
+    pendingDevBuildLabels.clear();
+    devBuildHadError = false;
+    return;
+  }
+
+  scheduleDevBuildNotifyFlush();
+}
+
 function createDevBuildNotifyPlugin(label) {
   let skippedInitialNotify = false;
 
   return {
     name: `vexed-dev-build-notify:${label}`,
     setup(build) {
+      build.onStart(() => {
+        markDevBuildStarted();
+      });
+
       build.onEnd((result) => {
-        if (result.errors.length > 0) {
-          return;
+        if (result.errors.length === 0) {
+          if (skipInitialDevBuildNotify && !skippedInitialNotify) {
+            skippedInitialNotify = true;
+          } else {
+            queueDevBuildNotify(label);
+          }
         }
 
-        if (skipInitialDevBuildNotify && !skippedInitialNotify) {
-          skippedInitialNotify = true;
-          return;
-        }
-
-        queueDevBuildNotify(label);
+        markDevBuildFinished(result);
       });
     },
   };
