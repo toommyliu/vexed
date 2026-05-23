@@ -203,7 +203,7 @@ const formatEvalError = (error: unknown): string =>
     : String(error);
 
 const DevDebugEvaluator =
-  process.env.NODE_ENV !== "production"
+  process.env.NODE_ENV === "development"
     ? (props: DevDebugEvaluatorProps): JSX.Element => {
         const DEBUG_EVAL_OUTPUT_LIMIT = 2000;
         const DEBUG_EVAL_SOURCE_NAME = "debug-eval.js";
@@ -303,6 +303,7 @@ script.log(\`Cell: \${cell}\`);`;
           createInitialPanelFrame(),
         );
         let panelElement: HTMLDivElement | undefined;
+        let panelResizeObserver: ResizeObserver | undefined;
         let cleanupPanelPointer: (() => void) | undefined;
 
         const currentSource = () =>
@@ -312,7 +313,7 @@ script.log(\`Cell: \${cell}\`);`;
           const handleResize = () => {
             setPanelFrame(clampPanelFrame);
           };
-          const panelResizeObserver = new ResizeObserver((entries) => {
+          panelResizeObserver = new ResizeObserver((entries) => {
             const entry = entries[0];
             const borderBoxSize = entry?.borderBoxSize[0];
             const width =
@@ -338,13 +339,23 @@ script.log(\`Cell: \${cell}\`);`;
           });
 
           window.addEventListener("resize", handleResize);
-          if (panelElement) {
-            panelResizeObserver.observe(panelElement);
-          }
           onCleanup(() => {
             cleanupPanelPointer?.();
-            panelResizeObserver.disconnect();
+            panelResizeObserver?.disconnect();
             window.removeEventListener("resize", handleResize);
+          });
+        });
+
+        createEffect(() => {
+          const element = panelElement;
+          const observer = panelResizeObserver;
+          if (!open() || element === undefined || observer === undefined) {
+            return;
+          }
+
+          observer.observe(element);
+          onCleanup(() => {
+            observer.unobserve(element);
           });
         });
 
@@ -472,7 +483,7 @@ ${source}
             })
             .catch((error: unknown) => {
               setStatus("Eval failed");
-              setOutput(formatEvalError(error));
+              setOutput(truncateOutput(formatEvalError(error)));
               void props.refreshScriptMeta();
             })
             .finally(() => {
@@ -2213,7 +2224,7 @@ export default function App(props: {
           handleOpenBank={handleOpenBank}
         />
       </Show>
-      {process.env.NODE_ENV !== "production" && DevDebugEvaluator ? (
+      {process.env.NODE_ENV === "development" && DevDebugEvaluator ? (
         <DevDebugEvaluator
           applyLoadedScript={applyLoadedScript}
           refreshScriptMeta={refreshScriptMeta}
