@@ -87,7 +87,7 @@ const parsePlatform = (args: ReadonlyArray<string>): BuildPlatform => {
     const arg = args[index];
 
     if (arg === "--") {
-      continue;
+      break;
     }
 
     if (arg === "--platform") {
@@ -146,6 +146,7 @@ const electronBuilderArgs = (
 const main = async (): Promise<void> => {
   const platform = parsePlatform(process.argv.slice(2));
 
+  await run("pnpm", ["run", "typecheck"]);
   await run("pnpm", [
     "--filter",
     "@vexed/electron^...",
