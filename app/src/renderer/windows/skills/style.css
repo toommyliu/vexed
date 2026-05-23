@@ -202,7 +202,11 @@
   align-items: center;
   display: grid;
   gap: 0.5rem;
-  grid-template-columns: minmax(7rem, 8rem) auto auto minmax(0, 1fr);
+  grid-template-columns:
+    minmax(7rem, 8rem)
+    minmax(14rem, 18rem)
+    auto
+    minmax(0, 1fr);
 }
 
 .skills-step__header > button:last-child {
@@ -220,6 +224,10 @@
   color: var(--color-muted-foreground);
   font-size: var(--text-sm);
   font-weight: 600;
+}
+
+.skills-inline-field--availability {
+  min-width: 0;
 }
 
 .skills-rules {

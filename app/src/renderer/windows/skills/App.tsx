@@ -56,6 +56,7 @@ import {
   type CombatProfile,
   type CombatProfileAnimationTrigger,
   type CombatProfileCondition,
+  type CombatProfileCooldownMode,
   type CombatProfileLibrary,
   type CombatProfileStep,
 } from "../../../shared/combat-profiles";
@@ -76,6 +77,25 @@ const conditionTypes = [
 
 const skillIndices = [0, 1, 2, 3, 4, 5] as const;
 const selectedProfileStorageKey = "vexed.skills.selectedProfileId";
+
+const cooldownModeOptions = [
+  { value: "use-if-ready", label: "Use if ready" },
+  { value: "wait-for-cooldown", label: "Wait for cooldown" },
+] as const satisfies readonly {
+  readonly value: CombatProfileCooldownMode;
+  readonly label: string;
+}[];
+
+const stepCooldownModeOptions = [
+  { value: "default", label: "Use profile default" },
+  { value: "use-if-ready", label: "Skip if unavailable" },
+  { value: "wait-for-cooldown", label: "Wait for cooldown" },
+] as const;
+
+const isCombatProfileCooldownMode = (
+  value: string | undefined,
+): value is CombatProfileCooldownMode =>
+  value === "use-if-ready" || value === "wait-for-cooldown";
 
 const isStatCondition = (
   condition: CombatProfileCondition,
@@ -201,6 +221,8 @@ function App(): JSX.Element {
   const [delayMs, setDelayMs] = createSignal(
     String(DEFAULT_COMBAT_PROFILE_DELAY_MS),
   );
+  const [cooldownMode, setCooldownMode] =
+    createSignal<CombatProfileCooldownMode>("use-if-ready");
   const [draftSteps, setDraftSteps] = createSignal<
     readonly CombatProfileStep[]
   >(DEFAULT_COMBAT_PROFILE_LIBRARY.profiles[0]?.steps ?? []);
@@ -249,6 +271,7 @@ function App(): JSX.Element {
     setClassName(profile.className ?? "");
     setRole(profile.role);
     setDelayMs(String(profile.delayMs));
+    setCooldownMode(profile.cooldownMode);
     setDraftSteps(profile.steps.map((step) => ({ ...step })));
     setDraftAnimationTriggers(
       (profile.animationTriggers ?? []).map((trigger) => ({ ...trigger })),
@@ -315,14 +338,22 @@ function App(): JSX.Element {
 
     const parsedDelay = Number.parseInt(delayMs(), 10);
     const trimmedClassName = className().trim();
+    const selectedCooldownMode = cooldownMode();
     const profileWithoutClassName = {
       id: profile.id,
       label: profile.label,
       role: profile.role,
       delayMs: profile.delayMs,
-      cooldownMode: profile.cooldownMode,
+      cooldownMode: selectedCooldownMode,
       timeoutMs: profile.timeoutMs,
-      steps: draftSteps(),
+      steps: draftSteps().map((step) => {
+        if (step.cooldownMode === selectedCooldownMode) {
+          const { cooldownMode: _cooldownMode, ...rest } = step;
+          return rest;
+        }
+
+        return step;
+      }),
       animationTriggers: draftAnimationTriggers(),
     } satisfies CombatProfile;
     return {
@@ -427,6 +458,23 @@ function App(): JSX.Element {
       ...step,
       skill,
     }));
+  };
+
+  const updateStepCooldownMode = (
+    stepIndex: number,
+    mode: CombatProfileCooldownMode | "default",
+  ): void => {
+    updateStep(stepIndex, (step) => {
+      if (mode === "default") {
+        const { cooldownMode: _cooldownMode, ...rest } = step;
+        return rest;
+      }
+
+      return {
+        ...step,
+        cooldownMode: mode,
+      };
+    });
   };
 
   const updateCondition = (
@@ -639,13 +687,44 @@ function App(): JSX.Element {
                       onInput={(event) => setDelayMs(event.currentTarget.value)}
                     />
                   </label>
+                  <label>
+                    <span>Cooldown mode</span>
+                    <Select
+                      class="skills-select"
+                      value={[cooldownMode()]}
+                      onValueChange={(details) => {
+                        const mode = details.value[0];
+                        if (isCombatProfileCooldownMode(mode)) {
+                          setCooldownMode(mode);
+                        }
+                      }}
+                    >
+                      <SelectTrigger>
+                        <SelectValue placeholder="Cooldown mode" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <For each={cooldownModeOptions}>
+                          {(option) => (
+                            <SelectItem value={option.value}>
+                              {option.label}
+                            </SelectItem>
+                          )}
+                        </For>
+                      </SelectContent>
+                    </Select>
+                  </label>
                 </CardContent>
               </Card>
             </CardFrame>
 
             <CardFrame>
               <CardFrameHeader class="skills-frame-header">
-                <CardFrameTitle>Triggers</CardFrameTitle>
+                <CardFrameTitle>
+                  <SkillsLabelHelp
+                    label="Triggers"
+                    tooltip="Cast a skill when a matching animation message appears."
+                  />
+                </CardFrameTitle>
                 <Button
                   class="skills-add-skill-button"
                   size="sm"
@@ -807,6 +886,35 @@ function App(): JSX.Element {
                                   {(skill) => (
                                     <SelectItem value={String(skill)}>
                                       {skill}
+                                    </SelectItem>
+                                  )}
+                                </For>
+                              </SelectContent>
+                            </Select>
+                          </label>
+                          <label class="skills-inline-field skills-inline-field--availability">
+                            <span>Availability</span>
+                            <Select
+                              class="skills-select skills-select--availability"
+                              value={[step().cooldownMode ?? "default"]}
+                              onValueChange={(details) => {
+                                const value = details.value[0];
+                                updateStepCooldownMode(
+                                  stepIndex,
+                                  isCombatProfileCooldownMode(value)
+                                    ? value
+                                    : "default",
+                                );
+                              }}
+                            >
+                              <SelectTrigger>
+                                <SelectValue placeholder="Availability" />
+                              </SelectTrigger>
+                              <SelectContent>
+                                <For each={stepCooldownModeOptions}>
+                                  {(option) => (
+                                    <SelectItem value={option.value}>
+                                      {option.label}
                                     </SelectItem>
                                   )}
                                 </For>
