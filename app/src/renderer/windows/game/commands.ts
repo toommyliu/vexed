@@ -49,8 +49,7 @@ const windowCommandIds: Partial<Record<GameCommandId, WindowId>> = {
   openFastTravels: WindowIds.FastTravels,
   openLoaderGrabber: WindowIds.LoaderGrabber,
   openFollower: WindowIds.Follower,
-  openPacketLogger: WindowIds.PacketLogger,
-  openPacketSpammer: WindowIds.PacketSpammer,
+  openPackets: WindowIds.Packets,
 };
 
 const findOption = (

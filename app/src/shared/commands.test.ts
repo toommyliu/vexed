@@ -49,6 +49,22 @@ describe("game command registry", () => {
     ).toEqual(expect.objectContaining({ category: "Tools" }));
   });
 
+  it("exposes one packets window command", () => {
+    expect(
+      GAME_COMMANDS.filter((command) => command.category === "Packets").map(
+        (command) => command.id,
+      ),
+    ).toEqual(["openPackets"]);
+    expect(
+      GAME_COMMANDS.find((command) => command.id === "openPackets"),
+    ).toEqual(
+      expect.objectContaining({
+        label: "Open Packets",
+        keywords: ["window", "packet", "packets", "log", "capture", "send"],
+      }),
+    );
+  });
+
   it("groups primary game toggles under general", () => {
     expect(
       GAME_COMMANDS.filter((command) => command.category === "General").map(

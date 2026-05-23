@@ -128,7 +128,7 @@ export function AppShellHeaderRight(
       class={cn("app-shell__header-right", props.class)}
       data-slot="app-shell-header-right"
     >
-      {props.children}
+      <div class="app-shell__header-action-region">{props.children}</div>
     </div>
   );
 }

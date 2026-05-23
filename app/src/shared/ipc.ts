@@ -19,10 +19,13 @@ import type {
   EnvironmentQuestAutoRegisterOptions,
   EnvironmentState,
 } from "./environment";
+import type { FollowerStartPayload, FollowerState } from "./follower";
 import type {
-  FollowerStartPayload,
-  FollowerState,
-} from "./follower";
+  PacketCapturedPayload,
+  PacketQueuePayload,
+  PacketsStatusPayload,
+  PacketSendPayload,
+} from "./packets";
 import type {
   CombatProfile,
   CombatProfileAutoAttackState,
@@ -86,6 +89,15 @@ export type {
   FollowerStartPayload,
   FollowerState,
 } from "./follower";
+
+export type {
+  PacketCapturedPayload,
+  PacketCaptureType,
+  PacketQueuePayload,
+  PacketSendPayload,
+  PacketSendTarget,
+  PacketsStatusPayload,
+} from "./packets";
 
 export const ScriptingIpcChannels = {
   execute: "scripting:execute",
@@ -177,7 +189,28 @@ export const FollowerIpcChannels = {
   publishState: "follower:publish-state",
 } as const;
 
+export const PacketsIpcChannels = {
+  startCapture: "packets:start-capture",
+  stopCapture: "packets:stop-capture",
+  send: "packets:send",
+  startQueue: "packets:start-queue",
+  stopQueue: "packets:stop-queue",
+  captured: "packets:captured",
+  status: "packets:status",
+  publishCaptured: "packets:publish-captured",
+  publishStatus: "packets:publish-status",
+  request: "packets:request",
+  response: "packets:response",
+} as const;
+
 export type FollowerRequestKind = "getState" | "me" | "start" | "stop";
+
+export type PacketsRequestKind =
+  | "startCapture"
+  | "stopCapture"
+  | "send"
+  | "startQueue"
+  | "stopQueue";
 
 export interface FollowerRequestMessage {
   readonly requestId: string;
@@ -195,6 +228,23 @@ export type FollowerResponseMessage =
       readonly requestId: string;
       readonly ok: false;
       readonly error: string;
+    };
+
+export interface PacketsRequestMessage {
+  readonly requestId: string;
+  readonly kind: PacketsRequestKind;
+  readonly payload?: unknown;
+}
+
+export type PacketsResponseMessage =
+  | {
+      readonly requestId: string;
+      readonly ok: true;
+    }
+  | {
+      readonly error: string;
+      readonly ok: false;
+      readonly requestId: string;
     };
 
 export interface ScriptExecutePayload {
@@ -651,7 +701,55 @@ export interface FollowerBridge {
       payload: FollowerStartPayload,
     ) => Promise<FollowerState> | FollowerState,
   ): () => void;
-  onStopRequest(listener: () => Promise<FollowerState> | FollowerState): () => void;
+  onStopRequest(
+    listener: () => Promise<FollowerState> | FollowerState,
+  ): () => void;
+}
+
+export interface PacketsInvokeChannels {
+  readonly [PacketsIpcChannels.startCapture]: IpcInvokeDefinition<[], void>;
+  readonly [PacketsIpcChannels.stopCapture]: IpcInvokeDefinition<[], void>;
+  readonly [PacketsIpcChannels.send]: IpcInvokeDefinition<
+    [payload: PacketSendPayload],
+    void
+  >;
+  readonly [PacketsIpcChannels.startQueue]: IpcInvokeDefinition<
+    [payload: PacketQueuePayload],
+    void
+  >;
+  readonly [PacketsIpcChannels.stopQueue]: IpcInvokeDefinition<[], void>;
+  readonly [PacketsIpcChannels.publishCaptured]: IpcInvokeDefinition<
+    [payload: PacketCapturedPayload],
+    void
+  >;
+  readonly [PacketsIpcChannels.publishStatus]: IpcInvokeDefinition<
+    [payload: PacketsStatusPayload],
+    void
+  >;
+}
+
+export interface PacketsRendererEventChannels {
+  readonly [PacketsIpcChannels.captured]: [payload: PacketCapturedPayload];
+  readonly [PacketsIpcChannels.status]: [payload: PacketsStatusPayload];
+  readonly [PacketsIpcChannels.request]: [request: PacketsRequestMessage];
+}
+
+export interface PacketsMainEventChannels {
+  readonly [PacketsIpcChannels.response]: [response: PacketsResponseMessage];
+}
+
+export interface PacketsBridge {
+  startCapture(): Promise<void>;
+  stopCapture(): Promise<void>;
+  send(payload: PacketSendPayload): Promise<void>;
+  startQueue(payload: PacketQueuePayload): Promise<void>;
+  stopQueue(): Promise<void>;
+  publishCaptured(payload: PacketCapturedPayload): Promise<void>;
+  publishStatus(payload: PacketsStatusPayload): Promise<void>;
+  onCaptured(listener: (payload: PacketCapturedPayload) => void): () => void;
+  onStatus(listener: (payload: PacketsStatusPayload) => void): () => void;
+  onRequest(listener: (request: PacketsRequestMessage) => void): () => void;
+  respond(response: PacketsResponseMessage): Promise<void>;
 }
 
 export type AppPlatform = "mac" | "windows" | "linux";
@@ -666,6 +764,7 @@ export interface AppBridge {
   readonly combatProfiles: CombatProfilesBridge;
   readonly environment: EnvironmentBridge;
   readonly follower: FollowerBridge;
+  readonly packets: PacketsBridge;
   readonly platform: PlatformBridge;
   readonly scripting: ScriptingBridge;
   readonly settings: SettingsBridge;

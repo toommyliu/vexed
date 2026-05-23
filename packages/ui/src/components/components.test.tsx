@@ -418,6 +418,9 @@ describe("AppShell", () => {
     expect(root.querySelector(".app-shell__header-right")?.textContent).toBe(
       "Run",
     );
+    expect(
+      root.querySelector(".app-shell__header-action-region")?.textContent,
+    ).toBe("Run");
     expect(root.querySelector("[data-slot='app-shell-title']")).not.toBeNull();
   });
 

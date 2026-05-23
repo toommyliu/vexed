@@ -302,18 +302,18 @@ describe("window service", () => {
     const environment = (await run(
       harness.service.openWindow(WindowIds.Environment, gameWindow.id),
     )) as unknown as FakeWindow;
-    const logger = (await run(
-      harness.service.openWindow(WindowIds.PacketLogger, gameWindow.id),
+    const packets = (await run(
+      harness.service.openWindow(WindowIds.Packets, gameWindow.id),
     )) as unknown as FakeWindow;
 
     expect(environment.options.parent).toBeUndefined();
-    expect(logger.options.parent).toBeUndefined();
+    expect(packets.options.parent).toBeUndefined();
     await expect(
       run(harness.service.getGameWindowId(environment.id)),
     ).resolves.toBe(gameWindow.id);
-    await expect(run(harness.service.getGameWindowId(logger.id))).resolves.toBe(
-      gameWindow.id,
-    );
+    await expect(
+      run(harness.service.getGameWindowId(packets.id)),
+    ).resolves.toBe(gameWindow.id);
   });
 
   it("resolves child senders back to their owning game", async () => {
@@ -329,16 +329,16 @@ describe("window service", () => {
     const follower = (await run(
       harness.service.openWindow(WindowIds.Follower, firstGame.id),
     )) as unknown as FakeWindow;
-    const packetSpammer = (await run(
-      harness.service.openWindow(WindowIds.PacketSpammer, follower.id),
+    const packets = (await run(
+      harness.service.openWindow(WindowIds.Packets, follower.id),
     )) as unknown as FakeWindow;
 
-    expect(packetSpammer.options.parent).toBeUndefined();
+    expect(packets.options.parent).toBeUndefined();
     await expect(
-      run(harness.service.getGameWindowId(packetSpammer.id)),
+      run(harness.service.getGameWindowId(packets.id)),
     ).resolves.toBe(firstGame.id);
     await expect(
-      run(harness.service.getGameWindowId(packetSpammer.id)),
+      run(harness.service.getGameWindowId(packets.id)),
     ).resolves.not.toBe(secondGame.id);
   });
 
@@ -369,14 +369,14 @@ describe("window service", () => {
     const environment = (await run(
       harness.service.openWindow(WindowIds.Environment, gameWindow.id),
     )) as unknown as FakeWindow;
-    const logger = (await run(
-      harness.service.openWindow(WindowIds.PacketLogger, gameWindow.id),
+    const packets = (await run(
+      harness.service.openWindow(WindowIds.Packets, gameWindow.id),
     )) as unknown as FakeWindow;
 
     expect(gameWindow.close()).toBe(false);
 
     expect(environment.destroyed).toBe(true);
-    expect(logger.destroyed).toBe(true);
+    expect(packets.destroyed).toBe(true);
   });
 
   it("destroys game children when their owning game window is destroyed", async () => {
@@ -387,14 +387,14 @@ describe("window service", () => {
     const environment = (await run(
       harness.service.openWindow(WindowIds.Environment, gameWindow.id),
     )) as unknown as FakeWindow;
-    const logger = (await run(
-      harness.service.openWindow(WindowIds.PacketLogger, gameWindow.id),
+    const packets = (await run(
+      harness.service.openWindow(WindowIds.Packets, gameWindow.id),
     )) as unknown as FakeWindow;
 
     gameWindow.destroy();
 
     expect(environment.destroyed).toBe(true);
-    expect(logger.destroyed).toBe(true);
+    expect(packets.destroyed).toBe(true);
   });
 
   it("lets hidden-on-close children close while quitting", async () => {

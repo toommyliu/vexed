@@ -35,6 +35,7 @@ import type {
 } from "../../../shared/ipc";
 import type { WindowId } from "../../../shared/windows";
 import { runtime } from "./Runtime";
+import { installPacketsBridge } from "./packetsBridge";
 import { Settings, type SettingsShape } from "./flash/Services/Settings";
 import { Auth } from "./flash/Services/Auth";
 import { SwfMethodNotFoundError, SwfUnavailableError } from "./flash/Errors";
@@ -221,6 +222,9 @@ export default function App(props: {
   let autoAttackStateDisposer: (() => void) | undefined;
   let autoZoneStateDisposer: (() => void) | undefined;
   let autoReloginStateDisposer: (() => void) | undefined;
+  let packetsBridgeController:
+    | ReturnType<typeof installPacketsBridge>
+    | undefined;
   let autoAttackToggleInFlight = false;
   let cleanedUp = false;
   const accountLaunchFibers = new Set<Fiber.Fiber<void, unknown>>();
@@ -528,6 +532,7 @@ export default function App(props: {
   const refreshPlayerReadyState = () => {
     if (!getGameLoadState().loaded) {
       setPlayerReady(false);
+      packetsBridgeController?.stopActive("Game is not loaded");
       return;
     }
 
@@ -543,10 +548,13 @@ export default function App(props: {
         setPlayerReady(isReady);
         if (isReady && !wasReady) {
           refreshTravelOptions();
+        } else if (!isReady && wasReady) {
+          packetsBridgeController?.stopActive("Player disconnected");
         }
       })
       .catch((error) => {
         setPlayerReady(false);
+        packetsBridgeController?.stopActive("Player readiness check failed");
         console.error("Refresh player ready state error:", error);
       });
   };
@@ -1327,6 +1335,8 @@ export default function App(props: {
       window.ipc.follower.onStartRequest(startFollower);
     const unsubscribeFollowerStop =
       window.ipc.follower.onStopRequest(stopFollower);
+    const packetsBridge = installPacketsBridge(runtime);
+    packetsBridgeController = packetsBridge;
     let followerStateDisposer: (() => void) | undefined;
 
     if (props.initialSettings === undefined || props.initialSettings === null) {
@@ -1349,6 +1359,7 @@ export default function App(props: {
       setGameLoaded(state.loaded);
       if (!state.loaded) {
         setPlayerReady(false);
+        packetsBridge.stopActive("Game reloaded");
       }
     });
 
@@ -1458,6 +1469,8 @@ export default function App(props: {
       unsubscribeFollowerMe();
       unsubscribeFollowerStart();
       unsubscribeFollowerStop();
+      packetsBridge.dispose();
+      packetsBridgeController = undefined;
       followerStateDisposer?.();
       disposeGameLoadState();
       clearInterval(scriptMetaInterval);

@@ -105,23 +105,15 @@ describe("window catalog", () => {
         name: "Packets",
         items: [
           expect.objectContaining({
-            id: WindowIds.PacketLogger,
-            label: "Logger",
+            id: WindowIds.Packets,
+            label: "Packets",
             scope: "game-child",
             closeBehavior: "hide",
             dimensions: {
-              width: 643,
-              height: 534,
-            },
-          }),
-          expect.objectContaining({
-            id: WindowIds.PacketSpammer,
-            label: "Spammer",
-            scope: "game-child",
-            closeBehavior: "hide",
-            dimensions: {
-              width: 641,
-              height: 542,
+              width: 760,
+              height: 560,
+              minWidth: 680,
+              minHeight: 500,
             },
           }),
         ],
@@ -132,10 +124,10 @@ describe("window catalog", () => {
   it("validates and resolves window ids", () => {
     expect(isWindowId(WindowIds.Environment)).toBe(true);
     expect(isWindowId("not-a-window")).toBe(false);
-    expect(getWindowDefinition(WindowIds.PacketSpammer)).toEqual(
+    expect(getWindowDefinition(WindowIds.Packets)).toEqual(
       expect.objectContaining({
-        id: WindowIds.PacketSpammer,
-        label: "Spammer",
+        id: WindowIds.Packets,
+        label: "Packets",
       }),
     );
   });
@@ -143,12 +135,10 @@ describe("window catalog", () => {
   it("classifies app and game-child window definitions", () => {
     const settings = getWindowDefinition(WindowIds.Settings);
     const environment = getWindowDefinition(WindowIds.Environment);
-    const packetLogger = getWindowDefinition(WindowIds.PacketLogger);
+    const packets = getWindowDefinition(WindowIds.Packets);
 
     expect(settings && isAppWindowDefinition(settings)).toBe(true);
     expect(environment && isGameChildWindowDefinition(environment)).toBe(true);
-    expect(packetLogger && isGameChildWindowDefinition(packetLogger)).toBe(
-      true,
-    );
+    expect(packets && isGameChildWindowDefinition(packets)).toBe(true);
   });
 });
