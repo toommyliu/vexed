@@ -6,6 +6,7 @@ import { CombatLive } from "./Combat";
 import { DropsLive } from "./Drops";
 import { HouseLive } from "./House";
 import { InventoryLive } from "./Inventory";
+import { OutfitsLive } from "./Outfits";
 import { PacketLive } from "./Packet";
 import { PacketDomainLive } from "./PacketDomain";
 import { PlayerLive } from "./Player";
@@ -37,6 +38,7 @@ const DomainRuntimeLive = Layer.mergeAll(
   BankLive,
   HouseLive,
   DropsLive,
+  OutfitsLive,
   TempInventoryLive,
   PacketDomainLive,
   QuestsLive,

@@ -12,6 +12,7 @@ import { Drops } from "../../flash/Services/Drops";
 import { Environment } from "../../environment/Services/Environment";
 import { House } from "../../flash/Services/House";
 import { Inventory } from "../../flash/Services/Inventory";
+import { Outfits } from "../../flash/Services/Outfits";
 import { Packet } from "../../flash/Services/Packet";
 import {
   PacketDomain,
@@ -115,6 +116,7 @@ const make = Effect.gen(function* () {
   const environment = yield* Environment;
   const house = yield* House;
   const inventory = yield* Inventory;
+  const outfits = yield* Outfits;
   const packet = yield* Packet;
   const packetDomain = yield* PacketDomain;
   const player = yield* Player;
@@ -811,6 +813,7 @@ const make = Effect.gen(function* () {
       environment: wrapValue(environment) as ScriptApi["environment"],
       house: wrapValue(house) as ScriptApi["house"],
       inventory: wrapValue(inventory) as ScriptApi["inventory"],
+      outfits: wrapValue(outfits) as ScriptApi["outfits"],
       packet: {
         sendClient: ((...args) =>
           wrapScriptEffect(

@@ -178,6 +178,14 @@ export const scriptSourceLinks: Record<string, { path: string; url: string }> =
       path: "app/src/renderer/windows/game/global.d.ts:11",
       url: "https://github.com/toommyliu/vexed/blob/dev/app/src/renderer/windows/game/global.d.ts#L11",
     },
+    "scripting/types/outfit": {
+      path: "app/src/renderer/windows/game/flash/Services/Outfits.ts:4",
+      url: "https://github.com/toommyliu/vexed/blob/dev/app/src/renderer/windows/game/flash/Services/Outfits.ts#L4",
+    },
+    "scripting/types/outfit-equip-options": {
+      path: "app/src/renderer/windows/game/flash/Services/Outfits.ts:9",
+      url: "https://github.com/toommyliu/vexed/blob/dev/app/src/renderer/windows/game/flash/Services/Outfits.ts#L9",
+    },
     "scripting/types/quest": {
       path: "packages/game/src/models/Quest.ts:10",
       url: "https://github.com/toommyliu/vexed/blob/dev/packages/game/src/models/Quest.ts#L10",
@@ -215,16 +223,16 @@ export const scriptSourceLinks: Record<string, { path: string; url: string }> =
       url: "https://github.com/toommyliu/vexed/blob/dev/packages/collection/src/index.ts#L23",
     },
     "scripting/types/script-counter-attack-disposer": {
-      path: "app/src/renderer/windows/game/scripting/ScriptApi.ts:63",
-      url: "https://github.com/toommyliu/vexed/blob/dev/app/src/renderer/windows/game/scripting/ScriptApi.ts#L63",
+      path: "app/src/renderer/windows/game/scripting/ScriptApi.ts:64",
+      url: "https://github.com/toommyliu/vexed/blob/dev/app/src/renderer/windows/game/scripting/ScriptApi.ts#L64",
     },
     "scripting/types/script-counter-attack-event": {
-      path: "app/src/renderer/windows/game/scripting/ScriptApi.ts:48",
-      url: "https://github.com/toommyliu/vexed/blob/dev/app/src/renderer/windows/game/scripting/ScriptApi.ts#L48",
+      path: "app/src/renderer/windows/game/scripting/ScriptApi.ts:49",
+      url: "https://github.com/toommyliu/vexed/blob/dev/app/src/renderer/windows/game/scripting/ScriptApi.ts#L49",
     },
     "scripting/types/script-counter-attack-listener": {
-      path: "app/src/renderer/windows/game/scripting/ScriptApi.ts:56",
-      url: "https://github.com/toommyliu/vexed/blob/dev/app/src/renderer/windows/game/scripting/ScriptApi.ts#L56",
+      path: "app/src/renderer/windows/game/scripting/ScriptApi.ts:57",
+      url: "https://github.com/toommyliu/vexed/blob/dev/app/src/renderer/windows/game/scripting/ScriptApi.ts#L57",
     },
     "scripting/types/script-enhance-item-options": {
       path: "app/src/renderer/windows/game/scripting/recipes.ts:55",
@@ -235,12 +243,12 @@ export const scriptSourceLinks: Record<string, { path: string; url: string }> =
       url: "https://github.com/toommyliu/vexed/blob/dev/app/src/renderer/windows/game/scripting/recipes.ts#L60",
     },
     "scripting/types/script-packet-disposer": {
-      path: "app/src/renderer/windows/game/scripting/ScriptApi.ts:46",
-      url: "https://github.com/toommyliu/vexed/blob/dev/app/src/renderer/windows/game/scripting/ScriptApi.ts#L46",
+      path: "app/src/renderer/windows/game/scripting/ScriptApi.ts:47",
+      url: "https://github.com/toommyliu/vexed/blob/dev/app/src/renderer/windows/game/scripting/ScriptApi.ts#L47",
     },
     "scripting/types/script-packet-listener": {
-      path: "app/src/renderer/windows/game/scripting/ScriptApi.ts:39",
-      url: "https://github.com/toommyliu/vexed/blob/dev/app/src/renderer/windows/game/scripting/ScriptApi.ts#L39",
+      path: "app/src/renderer/windows/game/scripting/ScriptApi.ts:40",
+      url: "https://github.com/toommyliu/vexed/blob/dev/app/src/renderer/windows/game/scripting/ScriptApi.ts#L40",
     },
     "scripting/types/script-recipe-effect": {
       path: "app/src/renderer/windows/game/scripting/recipes.ts:37",
