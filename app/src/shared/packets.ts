@@ -109,11 +109,21 @@ export const resolvePacketPlaceholders = (
   return resolved;
 };
 
+const parsePacketQueueDelay = (value: unknown): number => {
+  if (typeof value === "number") {
+    return value;
+  }
+
+  if (typeof value !== "string") {
+    return Number.NaN;
+  }
+
+  const trimmed = value.trim();
+  return trimmed === "" ? Number.NaN : Number(trimmed);
+};
+
 export const clampPacketQueueDelay = (value: unknown): number => {
-  const delayMs =
-    typeof value === "number"
-      ? value
-      : Number.parseInt(String(value ?? ""), 10);
+  const delayMs = parsePacketQueueDelay(value);
   return Number.isFinite(delayMs)
     ? Math.max(PACKET_QUEUE_MIN_DELAY_MS, Math.round(delayMs))
     : PACKET_QUEUE_DEFAULT_DELAY_MS;

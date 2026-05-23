@@ -42,6 +42,9 @@ describe("packet helpers", () => {
   it("clamps queue delays to a predictable minimum", () => {
     expect(clampPacketQueueDelay(1)).toBe(PACKET_QUEUE_MIN_DELAY_MS);
     expect(clampPacketQueueDelay("250")).toBe(250);
+    expect(clampPacketQueueDelay("1e3")).toBe(1000);
+    expect(clampPacketQueueDelay("10.6")).toBe(11);
+    expect(clampPacketQueueDelay("")).toBe(PACKET_QUEUE_DEFAULT_DELAY_MS);
     expect(clampPacketQueueDelay("not-a-number")).toBe(
       PACKET_QUEUE_DEFAULT_DELAY_MS,
     );

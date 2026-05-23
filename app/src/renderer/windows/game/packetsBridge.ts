@@ -71,6 +71,12 @@ const normalizeQueuePayload = (payload: unknown): PacketQueuePayload => {
   };
 };
 
+const disposeAll = (disposers: readonly (() => void)[]): void => {
+  for (const dispose of disposers) {
+    dispose();
+  }
+};
+
 const sendPacketEffect = (payload: PacketSendPayload) =>
   Effect.gen(function* () {
     const auth = yield* Auth;
@@ -127,7 +133,10 @@ export const installPacketsBridge = (
   runtime: GameRuntime,
 ): PacketsBridgeController => {
   let captureDisposers: (() => void)[] = [];
+  let captureGeneration = 0;
+  let disposed = false;
   let queueState: QueueState | undefined;
+  let requestChain = Promise.resolve();
 
   const publishStatus = (stoppedReason?: string): void => {
     void window.ipc.packets
@@ -141,19 +150,20 @@ export const installPacketsBridge = (
       });
   };
 
-  const stopCapture = (): void => {
+  const stopCapture = (publish = true): void => {
     const wasRunning = captureDisposers.length > 0;
-    for (const dispose of captureDisposers) {
-      dispose();
-    }
+    captureGeneration += 1;
+    disposeAll(captureDisposers);
     captureDisposers = [];
-    if (wasRunning) {
+    if (publish && wasRunning) {
       publishStatus();
     }
   };
 
   const startCapture = async (): Promise<void> => {
-    stopCapture();
+    stopCapture(false);
+    const generation = captureGeneration + 1;
+    captureGeneration = generation;
     const disposers = await runtime.runPromise(
       Effect.gen(function* () {
         const packets = yield* Packet;
@@ -170,6 +180,10 @@ export const installPacketsBridge = (
         return [disposeClient, disposeServer, disposeExtension];
       }),
     );
+    if (generation !== captureGeneration || disposed) {
+      disposeAll(disposers);
+      throw new Error("Packet capture start was interrupted");
+    }
     captureDisposers = disposers;
     publishStatus();
   };
@@ -184,14 +198,14 @@ export const installPacketsBridge = (
     }
   };
 
-  const stopQueue = (): void => {
+  const stopQueue = (publish = true): void => {
     const wasRunning = queueState !== undefined && !queueState.stopped;
     if (queueState) {
       queueState.stopped = true;
     }
     clearQueueTimer();
     queueState = undefined;
-    if (wasRunning) {
+    if (publish && wasRunning) {
       publishStatus();
     }
   };
@@ -221,7 +235,7 @@ export const installPacketsBridge = (
       await sendPacket({ packet: packet ?? "", target: state.target });
     } catch (error) {
       console.error("Packet queue send failed:", error);
-      stopQueue();
+      stopQueue(false);
       publishStatus("Queue stopped after a send failure");
       return;
     }
@@ -230,7 +244,7 @@ export const installPacketsBridge = (
   };
 
   const startQueue = (payload: PacketQueuePayload): void => {
-    stopQueue();
+    stopQueue(false);
     if (payload.packets.length === 0) {
       return;
     }
@@ -276,20 +290,39 @@ export const installPacketsBridge = (
   };
 
   const unsubscribeRequest = window.ipc.packets.onRequest((request) => {
-    void handleRequest(request);
+    requestChain = requestChain
+      .catch((error: unknown) => {
+        console.error("Packet request chain failed:", error);
+      })
+      .then(async () => {
+        if (disposed) {
+          await respondPacketRequest({
+            error: "Packet bridge is disposed",
+            ok: false,
+            requestId: request.requestId,
+          });
+          return;
+        }
+
+        await handleRequest(request);
+      });
+    void requestChain.catch((error: unknown) => {
+      console.error("Packet request handling failed:", error);
+    });
   });
 
   const stopActive = (stoppedReason?: string): void => {
     const wasCaptureRunning = captureDisposers.length > 0;
     const wasQueueRunning = queueState !== undefined && !queueState.stopped;
-    stopCapture();
-    stopQueue();
+    stopCapture(false);
+    stopQueue(false);
     if ((wasCaptureRunning || wasQueueRunning) && stoppedReason) {
       publishStatus(stoppedReason);
     }
   };
 
   const dispose = (): void => {
+    disposed = true;
     unsubscribeRequest();
     stopActive();
   };

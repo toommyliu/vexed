@@ -83,7 +83,15 @@ const requestGamePackets = (
       kind,
       ...(payload === undefined ? {} : { payload }),
     };
-    gameWindow.webContents.send(PacketsIpcChannels.request, request);
+    try {
+      gameWindow.webContents.send(PacketsIpcChannels.request, request);
+    } catch (cause) {
+      pendingRequests.delete(requestId);
+      clearTimeout(timeout);
+      reject(
+        cause instanceof Error ? cause : new Error("Packet request failed"),
+      );
+    }
   });
 
 const sendPacketsRequest = (

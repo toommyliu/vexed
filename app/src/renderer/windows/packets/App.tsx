@@ -502,6 +502,27 @@ function App(): JSX.Element {
     setWrappedLogRowHeights(new Map());
   });
 
+  createEffect(() => {
+    const liveIds = new Set(packets().map((entry) => entry.id));
+    setWrappedLogRowHeights((current) => {
+      if (current.size === 0) {
+        return current;
+      }
+
+      let changed = false;
+      const next = new Map<string, number>();
+      for (const [id, height] of current) {
+        if (liveIds.has(id)) {
+          next.set(id, height);
+        } else {
+          changed = true;
+        }
+      }
+
+      return changed ? next : current;
+    });
+  });
+
   const selectedPacket = createMemo(() =>
     packets().find((entry) => entry.id === selectedPacketId()),
   );
@@ -664,6 +685,7 @@ function App(): JSX.Element {
 
   const clearPackets = (): void => {
     setPackets([]);
+    setWrappedLogRowHeights(new Map());
     setSelectedPacketId(null);
     setCopiedPacketId(null);
     setQueuedPacketId(null);
@@ -911,6 +933,7 @@ function App(): JSX.Element {
     try {
       await window.ipc.packets.stopQueue();
     } catch (cause) {
+      setQueueRunning(true);
       setOperationError("Packet queue stop failed", cause);
     }
   };
