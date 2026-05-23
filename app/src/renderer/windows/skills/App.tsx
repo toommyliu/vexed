@@ -2,6 +2,7 @@
 import "../../polyfills";
 import "./style.css";
 import {
+  Icon,
   AlertDialog,
   AlertDialogAction,
   AlertDialogCancel,
@@ -35,7 +36,6 @@ import {
   TooltipContent,
   TooltipTrigger,
 } from "@vexed/ui";
-import { HelpCircle, Save, X } from "lucide-solid";
 import {
   For,
   Index,
@@ -173,7 +173,7 @@ function SkillsLabelHelp(props: {
             <Button
               {...(triggerProps({
                 "aria-label": `${props.label} help`,
-                children: <HelpCircle class="button__icon" />,
+                children: <Icon icon="help_circle" class="button__icon" />,
                 class: "skills-help-button",
                 size: "icon-sm",
                 type: "button",
@@ -519,7 +519,7 @@ function App(): JSX.Element {
             size="sm"
             onClick={() => void saveSelected()}
           >
-            <Save class="button__icon" />
+            <Icon icon="save" class="button__icon" />
             Save
           </Button>
         </AppShellHeaderRight>
@@ -759,7 +759,7 @@ function App(): JSX.Element {
                             variant="ghost"
                             onClick={() => removeAnimationTrigger(triggerIndex)}
                           >
-                            <X class="button__icon" />
+                            <Icon icon="x" class="button__icon" />
                           </Button>
                         </div>
                       )}
@@ -826,7 +826,7 @@ function App(): JSX.Element {
                             variant="ghost"
                             onClick={() => removeStep(stepIndex)}
                           >
-                            <X class="button__icon" />
+                            <Icon icon="x" class="button__icon" />
                           </Button>
                         </div>
                         <div class="skills-rules">
@@ -969,7 +969,7 @@ function App(): JSX.Element {
                                       removeCondition(stepIndex, conditionIndex)
                                     }
                                   >
-                                    <X class="button__icon" />
+                                    <Icon icon="x" class="button__icon" />
                                   </Button>
                                 </div>
                               )}

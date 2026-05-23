@@ -1,5 +1,5 @@
+import { Icon } from "./Icon";
 import { Dialog as DialogPrimitive } from "@ark-ui/solid/dialog";
-import { X } from "lucide-solid";
 import {
   Show,
   createContext,
@@ -224,7 +224,7 @@ export function DialogContent(props: DialogContentProps): JSX.Element {
                     size="icon-sm"
                     {...local.closeProps}
                   >
-                    <X class="button__icon" />
+                    <Icon icon="x" class="button__icon" />
                   </DialogClose>
                 )}
               </DialogPrimitive.Content>

@@ -1,9 +1,9 @@
+import { Icon } from "./Icon";
 import {
   createListCollection,
   Select as SelectPrimitive,
   type CollectionItem,
 } from "@ark-ui/solid/select";
-import { Check, ChevronsUpDown } from "lucide-solid";
 import {
   createContext,
   createMemo,
@@ -101,7 +101,7 @@ export function SelectButton(props: SelectButtonProps): JSX.Element {
       type={rest.type ?? "button"}
     >
       <span class="select__value">{local.children}</span>
-      <ChevronsUpDown class="select__icon" />
+      <Icon icon="chevrons_up_down" class="select__icon" />
     </button>
   );
 }
@@ -122,7 +122,7 @@ export function SelectTrigger(props: SelectTriggerProps): JSX.Element {
       data-slot="select-trigger"
     >
       {local.children}
-      <ChevronsUpDown class="select__icon" />
+      <Icon icon="chevrons_up_down" class="select__icon" />
     </SelectPrimitive.Trigger>
   );
 }
@@ -239,7 +239,7 @@ export function SelectItem(props: SelectItemProps): JSX.Element {
       item={item()}
     >
       <SelectPrimitive.ItemIndicator class="select__item-indicator">
-        <Check />
+        <Icon icon="check" />
       </SelectPrimitive.ItemIndicator>
       <SelectPrimitive.ItemText class="select__item-text">
         {local.children ?? item().label}

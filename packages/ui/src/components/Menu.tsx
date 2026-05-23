@@ -1,5 +1,5 @@
+import { Icon } from "./Icon";
 import { Menu as MenuPrimitive } from "@ark-ui/solid/menu";
-import { Check, ChevronRight } from "lucide-solid";
 import { splitProps, type JSX } from "solid-js";
 import { Portal } from "solid-js/web";
 import { cn } from "../lib/cn";
@@ -177,7 +177,7 @@ export function MenuCheckboxItem(props: MenuCheckboxItemProps): JSX.Element {
     >
       {local.children}
       <MenuPrimitive.ItemIndicator class="menu__item-indicator">
-        <Check />
+        <Icon icon="check" />
       </MenuPrimitive.ItemIndicator>
     </MenuPrimitive.CheckboxItem>
   );
@@ -241,7 +241,7 @@ export function MenuSubTrigger(props: MenuSubTriggerProps): JSX.Element {
       data-slot="menu-sub-trigger"
     >
       {local.children}
-      <ChevronRight class="menu__sub-icon" />
+      <Icon icon="chevron_right" class="menu__sub-icon" />
     </MenuPrimitive.TriggerItem>
   );
 }

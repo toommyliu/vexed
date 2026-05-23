@@ -37,6 +37,7 @@
     "clean": "rm -rf dist dist-demo",
     "build": "tsx scripts/build.ts",
     "postinstall": "tsx scripts/build.ts",
+    "icon:print": "tsx scripts/print-lucide-icon.ts",
     "demo": "vite --config vite.demo.config.ts --host 127.0.0.1",
     "demo:build": "vite build --config vite.demo.config.ts",
     "demo:electron11": "pnpm --dir ../../app dev:ui:electron11",
@@ -50,8 +51,7 @@
     "@ark-ui/solid": "^5.36.2",
     "@fontsource-variable/inter": "^5.2.8",
     "@fontsource-variable/jetbrains-mono": "^5.2.8",
-    "clsx": "^2.1.1",
-    "lucide-solid": "^1.14.0"
+    "clsx": "^2.1.1"
   },
   "devDependencies": {
     "@types/node": "^24.12.2",

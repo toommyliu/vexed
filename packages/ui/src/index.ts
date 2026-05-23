@@ -187,6 +187,7 @@ export {
   type IconButtonProps,
   type IconButtonSize,
 } from "./components/IconButton";
+export { Icon, type IconName, type IconProps } from "./components/Icon";
 export { Input, type InputProps } from "./components/Input";
 export {
   InputGroup,

@@ -3,6 +3,7 @@ import "../../polyfills";
 import "./style.css";
 import { createHotkey } from "@tanstack/solid-hotkeys";
 import {
+  Icon,
   AlertDialog,
   AlertDialogAction,
   AlertDialogCancel,
@@ -50,21 +51,6 @@ import {
   TooltipContent,
   TooltipTrigger,
 } from "@vexed/ui";
-import {
-  CircleQuestionMark,
-  Eye,
-  EyeOff,
-  FolderOpen,
-  Pencil,
-  Play,
-  Plus,
-  RefreshCw,
-  Search,
-  Trash2,
-  UserPlus,
-  Users,
-  X,
-} from "lucide-solid";
 import {
   For,
   Show,
@@ -335,7 +321,7 @@ function AccountDeleteTrigger(props: {
                 {...(dialogTriggerProps(
                   tooltipTriggerProps({
                     "aria-label": props["aria-label"],
-                    children: <Trash2 class="button__icon" />,
+                    children: <Icon icon="trash_2" class="button__icon" />,
                     class: "account-row__delete",
                     disabled: props.disabled,
                     size: "icon-lg",
@@ -1108,7 +1094,7 @@ function App(): JSX.Element {
         </AppShellHeaderLeft>
         <AppShellHeaderRight>
           <Button onClick={openCreateDialog}>
-            <Plus class="button__icon" />
+            <Icon icon="plus" class="button__icon" />
             Add Account
           </Button>
         </AppShellHeaderRight>
@@ -1118,7 +1104,7 @@ function App(): JSX.Element {
           <div class="account-manager__controls">
             <InputGroup class="account-search">
               <InputGroupAddon>
-                <Search aria-hidden="true" />
+                <Icon icon="search" aria-hidden="true" />
               </InputGroupAddon>
               <InputGroupInput
                 ref={(element) => {
@@ -1152,7 +1138,7 @@ function App(): JSX.Element {
                               serversLoading() || serverRefreshCoolingDown(),
                           } as ButtonProps) as ButtonProps)}
                         >
-                          <RefreshCw class="button__icon" />
+                          <Icon icon="refresh_cw" class="button__icon" />
                         </Button>
                       )}
                     />
@@ -1343,7 +1329,7 @@ function App(): JSX.Element {
                                 variant: "ghost",
                               } as ButtonProps) as ButtonProps)}
                             >
-                              <Pencil class="button__icon" />
+                              <Icon icon="pencil" class="button__icon" />
                             </Button>
                           )}
                         />
@@ -1363,7 +1349,7 @@ function App(): JSX.Element {
                               variant: "ghost",
                             } as ButtonProps) as ButtonProps)}
                           >
-                            <FolderOpen class="button__icon" />
+                            <Icon icon="folder_open" class="button__icon" />
                           </Button>
                         )}
                       />
@@ -1383,7 +1369,7 @@ function App(): JSX.Element {
                                 variant: "ghost",
                               } as ButtonProps) as ButtonProps)}
                             >
-                              <X class="button__icon" />
+                              <Icon icon="x" class="button__icon" />
                             </Button>
                           )}
                         />
@@ -1422,7 +1408,10 @@ function App(): JSX.Element {
                             variant: "ghost",
                           } as ButtonProps) as ButtonProps)}
                         >
-                          <CircleQuestionMark class="button__icon" />
+                          <Icon
+                            icon="circle_question_mark"
+                            class="button__icon"
+                          />
                         </Button>
                       )}
                     />
@@ -1494,7 +1483,7 @@ function App(): JSX.Element {
                     onClick={openCreateGroupDialog}
                     disabled={busy()}
                   >
-                    <Plus class="button__icon" />
+                    <Icon icon="plus" class="button__icon" />
                     New Group
                   </Button>
                   <Button
@@ -1502,7 +1491,7 @@ function App(): JSX.Element {
                     onClick={openEditGroupDialog}
                     disabled={busy() || selectedGroupName() === ""}
                   >
-                    <Pencil class="button__icon" />
+                    <Icon icon="pencil" class="button__icon" />
                     Edit
                   </Button>
                   <AlertDialog>
@@ -1514,7 +1503,7 @@ function App(): JSX.Element {
                             disabled: busy() || selectedGroupName() === "",
                           } as ButtonProps) as ButtonProps)}
                         >
-                          <Trash2 class="button__icon" />
+                          <Icon icon="trash_2" class="button__icon" />
                           Delete
                         </Button>
                       )}
@@ -1565,7 +1554,7 @@ function App(): JSX.Element {
                           busy() || selectedAccountUsernames().size === 0,
                       } as ButtonProps) as ButtonProps)}
                     >
-                      <Trash2 class="button__icon" />
+                      <Icon icon="trash_2" class="button__icon" />
                       Remove
                     </Button>
                   )}
@@ -1592,7 +1581,7 @@ function App(): JSX.Element {
                 onClick={handleLaunch}
                 disabled={busy() || selectedLaunchUsernames().length === 0}
               >
-                <Play class="button__icon" />
+                <Icon icon="play" class="button__icon" />
                 Start
               </Button>
             </div>
@@ -1625,9 +1614,9 @@ function App(): JSX.Element {
                       <EmptyMedia variant="icon">
                         <Show
                           when={accounts().length === 0}
-                          fallback={<Users aria-hidden="true" />}
+                          fallback={<Icon icon="users" aria-hidden="true" />}
                         >
-                          <UserPlus aria-hidden="true" />
+                          <Icon icon="user_plus" aria-hidden="true" />
                         </Show>
                       </EmptyMedia>
                       <EmptyTitle>
@@ -1703,14 +1692,14 @@ function App(): JSX.Element {
                           }
                           disabled={busy()}
                         >
-                          <Play class="button__icon" />
+                          <Icon icon="play" class="button__icon" />
                         </AccountActionButton>
                         <AccountActionButton
                           aria-label={`Edit ${account.label}`}
                           tooltip="Edit account"
                           onClick={() => openEditDialog(account)}
                         >
-                          <Pencil class="button__icon" />
+                          <Icon icon="pencil" class="button__icon" />
                         </AccountActionButton>
                         <AlertDialog>
                           <AccountDeleteTrigger
@@ -1794,7 +1783,7 @@ function App(): JSX.Element {
                   <span>Accounts</span>
                   <InputGroup class="account-group-dialog__search">
                     <InputGroupAddon>
-                      <Search aria-hidden="true" />
+                      <Icon icon="search" aria-hidden="true" />
                     </InputGroupAddon>
                     <InputGroupInput
                       value={groupSearchQuery()}
@@ -1851,7 +1840,7 @@ function App(): JSX.Element {
                       disabled={busy()}
                       type="button"
                     >
-                      <Trash2 class="button__icon" />
+                      <Icon icon="trash_2" class="button__icon" />
                       Delete
                     </AlertDialogTrigger>
                     <AlertDialogContent class="account-dialog">
@@ -1960,9 +1949,9 @@ function App(): JSX.Element {
                       >
                         <Show
                           when={passwordVisible()}
-                          fallback={<Eye class="button__icon" />}
+                          fallback={<Icon icon="eye" class="button__icon" />}
                         >
-                          <EyeOff class="button__icon" />
+                          <Icon icon="eye_off" class="button__icon" />
                         </Show>
                       </Button>
                     </InputGroupAddon>
@@ -2000,7 +1989,7 @@ function App(): JSX.Element {
                       disabled={busy()}
                       type="button"
                     >
-                      <Trash2 class="button__icon" />
+                      <Icon icon="trash_2" class="button__icon" />
                       Delete
                     </AlertDialogTrigger>
                     <AlertDialogContent class="account-dialog">

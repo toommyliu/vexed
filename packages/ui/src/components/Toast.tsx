@@ -1,3 +1,4 @@
+import { Icon } from "./Icon";
 import {
   createEffect,
   createSignal,
@@ -8,7 +9,6 @@ import {
   type Accessor,
   type JSX,
 } from "solid-js";
-import { CircleAlert, CircleCheck, Info, TriangleAlert, X } from "lucide-solid";
 import { cn } from "../lib/cn";
 
 export type ToastVariant = "default" | "error" | "info" | "success" | "warning";
@@ -103,19 +103,19 @@ const DEFAULT_REMOVE_DELAY = 180;
 
 const defaultToastIcon = (variant: ToastVariant): JSX.Element | null => {
   if (variant === "success") {
-    return <CircleCheck aria-hidden="true" />;
+    return <Icon icon="circle_check" aria-hidden="true" />;
   }
 
   if (variant === "info") {
-    return <Info aria-hidden="true" />;
+    return <Icon icon="info" aria-hidden="true" />;
   }
 
   if (variant === "warning") {
-    return <TriangleAlert aria-hidden="true" />;
+    return <Icon icon="triangle_alert" aria-hidden="true" />;
   }
 
   if (variant === "error") {
-    return <CircleAlert aria-hidden="true" />;
+    return <Icon icon="circle_alert" aria-hidden="true" />;
   }
 
   return null;
@@ -355,7 +355,7 @@ export function ToastBanner(props: ToastBannerProps): JSX.Element {
           onClick={close}
           type="button"
         >
-          <X aria-hidden="true" />
+          <Icon icon="x" aria-hidden="true" />
         </button>
       </Show>
     </div>

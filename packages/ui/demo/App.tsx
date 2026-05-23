@@ -3,6 +3,7 @@ import "./demo.css";
 import { createEffect, createSignal, For } from "solid-js";
 import { render } from "solid-js/web";
 import {
+  Icon,
   AppShell,
   AppShellBody,
   AppShellHeader,
@@ -126,17 +127,6 @@ import {
   type EmptyMediaVariant,
   type IconButtonSize,
 } from "@vexed/ui";
-import {
-  Check,
-  Copy,
-  Inbox,
-  Pause,
-  Play,
-  Search,
-  Settings,
-  ShieldAlert,
-  X,
-} from "lucide-solid";
 
 const badgeSizes = [
   "sm",
@@ -310,7 +300,7 @@ function DemoApp() {
                               size={size}
                               variant={variant}
                             >
-                              <Settings class="button__icon" />
+                              <Icon icon="settings" class="button__icon" />
                             </IconButton>
                           )}
                         </For>
@@ -327,11 +317,11 @@ function DemoApp() {
                   Disabled
                 </Button>
                 <Button size="sm">
-                  <Play class="button__icon" />
+                  <Icon icon="play" class="button__icon" />
                   With icon
                 </Button>
                 <Button size="xl" variant="destructive-outline">
-                  <Copy class="button__icon" />
+                  <Icon icon="copy" class="button__icon" />
                   Review
                 </Button>
                 <Button as="a" href="#" variant="link">
@@ -692,7 +682,7 @@ function DemoApp() {
                       <span class="demo-matrix__label">input group {size}</span>
                       <InputGroup size={size}>
                         <InputGroupAddon>
-                          <Search />
+                          <Icon icon="search" />
                           <InputGroupText>/join</InputGroupText>
                         </InputGroupAddon>
                         <InputGroupInput placeholder="battleon" />
@@ -901,11 +891,11 @@ function DemoApp() {
                           keywords={["find", "lookup"]}
                         >
                           <span>Search records</span>
-                          <Search class="button__icon" />
+                          <Icon icon="search" class="button__icon" />
                         </CommandItem>
                         <CommandItem value="guard">
                           <span>Enable guard rails</span>
-                          <ShieldAlert class="button__icon" />
+                          <Icon icon="shield_alert" class="button__icon" />
                         </CommandItem>
                         <CommandLinkItem href="#" value="docs">
                           <span>Open docs</span>
@@ -936,7 +926,7 @@ function DemoApp() {
                     <Empty>
                       <EmptyHeader>
                         <EmptyMedia variant={variant}>
-                          <Inbox class="button__icon" />
+                          <Icon icon="inbox" class="button__icon" />
                         </EmptyMedia>
                         <EmptyTitle>{variant} media</EmptyTitle>
                         <EmptyDescription>
@@ -981,7 +971,7 @@ function DemoApp() {
               </div>
               <div class="demo-row">
                 <Badge as="button" variant="outline">
-                  <Check />
+                  <Icon icon="check" />
                   Button
                 </Badge>
                 <Badge as="a" href="#" variant="secondary">
@@ -991,7 +981,7 @@ function DemoApp() {
                   Disabled
                 </Badge>
                 <Badge variant="info">
-                  <Settings />
+                  <Icon icon="settings" />
                   Icon
                 </Badge>
               </div>
@@ -1050,15 +1040,15 @@ function DemoApp() {
             <CardContent class="demo-stack demo-custom-theme">
               <div class="demo-row">
                 <Button>
-                  <Check class="button__icon" />
+                  <Icon icon="check" class="button__icon" />
                   Custom primary
                 </Button>
                 <Button variant="outline">
-                  <Pause class="button__icon" />
+                  <Icon icon="pause" class="button__icon" />
                   Pause
                 </Button>
                 <IconButton aria-label="Close" variant="ghost">
-                  <X class="button__icon" />
+                  <Icon icon="x" class="button__icon" />
                 </IconButton>
               </div>
               <Input fullWidth placeholder="Custom themed input" />
@@ -1081,7 +1071,7 @@ function DemoApp() {
                   </AppShellHeaderLeft>
                   <AppShellHeaderRight>
                     <Button size="sm" variant="outline">
-                      <Search class="button__icon" />
+                      <Icon icon="search" class="button__icon" />
                       Search
                     </Button>
                     <IconButton
@@ -1089,7 +1079,7 @@ function DemoApp() {
                       size="icon-sm"
                       variant="ghost"
                     >
-                      <Settings class="button__icon" />
+                      <Icon icon="settings" class="button__icon" />
                     </IconButton>
                   </AppShellHeaderRight>
                 </AppShellHeader>

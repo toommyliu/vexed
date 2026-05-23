@@ -12,13 +12,13 @@ import {
   type JSX,
   type Setter,
 } from "solid-js";
-import { ChevronDown, CircleAlert, Clock, LoaderCircle } from "lucide-solid";
 import { formatOptionalHotkeyDisplay } from "@vexed/shared/hotkeyDisplay";
 import type {
   CombatProfile,
   CombatProfileAutoAttackMode,
 } from "../../../shared/combat-profiles";
 import {
+  Icon,
   Button,
   type ButtonProps,
   Input,
@@ -817,13 +817,22 @@ export function TopNav(props: TopNavProps): JSX.Element {
               >
                 <Switch>
                   <Match when={autoReloginTriggerStatusKind() === "waiting"}>
-                    <Clock class="game-topnav__status-icon game-topnav__delay-icon" />
+                    <Icon
+                      icon="clock"
+                      class="game-topnav__status-icon game-topnav__delay-icon"
+                    />
                   </Match>
                   <Match when={autoReloginTriggerStatusKind() === "retrying"}>
-                    <LoaderCircle class="game-topnav__status-icon game-topnav__retry-spinner" />
+                    <Icon
+                      icon="loader_circle"
+                      class="game-topnav__status-icon game-topnav__retry-spinner"
+                    />
                   </Match>
                   <Match when={autoReloginTriggerStatusKind() === "alert"}>
-                    <CircleAlert class="game-topnav__status-icon game-topnav__alert-icon" />
+                    <Icon
+                      icon="circle_alert"
+                      class="game-topnav__status-icon game-topnav__alert-icon"
+                    />
                   </Match>
                 </Switch>
               </span>
@@ -846,7 +855,8 @@ export function TopNav(props: TopNavProps): JSX.Element {
                 <div class="game-menu__status game-menu__status--relogin">
                   <Show when={props.autoReloginToggling()}>
                     <span class="game-menu__status-row">
-                      <LoaderCircle
+                      <Icon
+                        icon="loader_circle"
                         aria-hidden="true"
                         class="game-menu__status-icon game-menu__status-icon--spin"
                       />
@@ -857,7 +867,8 @@ export function TopNav(props: TopNavProps): JSX.Element {
                   </Show>
                   <Show when={props.autoReloginAttempting()}>
                     <span class="game-menu__status-row">
-                      <LoaderCircle
+                      <Icon
+                        icon="loader_circle"
                         aria-hidden="true"
                         class="game-menu__status-icon game-menu__status-icon--spin"
                       />
@@ -867,7 +878,8 @@ export function TopNav(props: TopNavProps): JSX.Element {
                   <Show when={props.autoReloginLastError()}>
                     {(error) => (
                       <span class="game-menu__status-row game-menu__error">
-                        <CircleAlert
+                        <Icon
+                          icon="circle_alert"
                           aria-hidden="true"
                           class="game-menu__status-icon"
                         />
@@ -1056,7 +1068,8 @@ export function TopNav(props: TopNavProps): JSX.Element {
               <span class="game-topnav__combat-label">
                 {props.autoAttackConfiguredProfileLabel()}
               </span>
-              <ChevronDown
+              <Icon
+                icon="chevron_down"
                 aria-hidden="true"
                 class="game-topnav__select-chevron"
               />
@@ -1144,7 +1157,8 @@ export function TopNav(props: TopNavProps): JSX.Element {
               <span class="game-topnav__select-label">
                 {props.selectedPad() || "Pad"}
               </span>
-              <ChevronDown
+              <Icon
+                icon="chevron_down"
                 aria-hidden="true"
                 class="game-topnav__select-chevron"
               />
@@ -1193,7 +1207,8 @@ export function TopNav(props: TopNavProps): JSX.Element {
               <span class="game-topnav__select-label">
                 {props.selectedCell() || "Cell"}
               </span>
-              <ChevronDown
+              <Icon
+                icon="chevron_down"
                 aria-hidden="true"
                 class="game-topnav__select-chevron"
               />
