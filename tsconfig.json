@@ -8,11 +8,7 @@
     "noEmit": true
   },
   "include": [
-    "scripts/dev-runner.ts",
-    "scripts/clean.ts",
-    "scripts/release.ts",
-    "scripts/docgen.ts",
-    "scripts/gen-script-types.ts"
+    "scripts/**/*.ts"
   ],
   "exclude": ["node_modules", "app/dist", "docs/dist", "packages/*/dist"]
 }

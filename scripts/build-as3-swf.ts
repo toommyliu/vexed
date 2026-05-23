@@ -26,11 +26,15 @@ type CliInput = {
   asconfigArgs: ReadonlyArray<string>;
 };
 
+type AsconfigJson = {
+  compilerOptions?: { output?: string };
+};
+
 const directoryExists = (path: string): Effect.Effect<boolean> =>
   Effect.tryPromise({
     try: () => fs.stat(path).then((stats) => stats.isDirectory()),
-    catch: () => false,
-  });
+    catch: (cause) => cause,
+  }).pipe(Effect.catch(() => Effect.succeed(false)));
 
 const resolveSdkFromVscodeSettings = (
   repoRoot: string
@@ -40,8 +44,8 @@ const resolveSdkFromVscodeSettings = (
 
     const source = yield* Effect.tryPromise({
       try: () => fs.readFile(settingsPath, "utf8"),
-      catch: () => "",
-    });
+      catch: (cause) => cause,
+    }).pipe(Effect.catch(() => Effect.succeed("")));
 
     const match = source.match(/"as3mxml\.sdk\.framework"\s*:\s*"([^"]+)"/);
     if (!match || !match[1]) {
@@ -60,9 +64,9 @@ const resolveSdkFromVscodeSettings = (
 const resolveSdkPath = (repoRoot: string): Effect.Effect<string | null> =>
   Effect.gen(function* () {
     const envCandidates = [
-      process.env.AS3_SDK,
-      process.env.FLEX_HOME,
-      process.env.ROYALE_HOME,
+      process.env["AS3_SDK"],
+      process.env["FLEX_HOME"],
+      process.env["ROYALE_HOME"],
     ].filter((value): value is string => Boolean(value));
 
     for (const envCandidate of envCandidates) {
@@ -75,9 +79,13 @@ const resolveSdkPath = (repoRoot: string): Effect.Effect<string | null> =>
     return yield* resolveSdkFromVscodeSettings(repoRoot);
   });
 
-const loadAsconfigc = (): Effect.Effect<AsconfigcModule> =>
+const loadAsconfigc = (): Effect.Effect<AsconfigcModule, Error> =>
   Effect.gen(function* () {
-    const moduleNamespace = yield* Effect.tryPromise(() => import("asconfigc"));
+    const moduleName = "asconfigc";
+    const moduleNamespace = yield* Effect.tryPromise({
+      try: () => import(moduleName) as Promise<unknown>,
+      catch: (cause) => cause instanceof Error ? cause : new Error(String(cause)),
+    });
 
     const fromDefault = (moduleNamespace as { default?: unknown }).default;
     const candidate = (fromDefault ?? moduleNamespace) as Partial<AsconfigcModule>;
@@ -109,6 +117,9 @@ const getOptionValue = (
 ): string | null => {
   for (let index = 0; index < args.length; index += 1) {
     const arg = args[index];
+    if (arg === undefined) {
+      continue;
+    }
     if (names.includes(arg)) {
       return args[index + 1] ?? null;
     }
@@ -129,6 +140,9 @@ const stripOption = (
 
   for (let index = 0; index < args.length; index += 1) {
     const arg = args[index];
+    if (arg === undefined) {
+      continue;
+    }
 
     if (names.includes(arg)) {
       index += 1;
@@ -164,19 +178,17 @@ const resolveOutputPath = (projectPath: string): Effect.Effect<string> =>
 
     const configSource = yield* Effect.tryPromise({
       try: () => fs.readFile(asconfigPath, "utf8"),
-      catch: () => "",
-    });
+      catch: (cause) => cause,
+    }).pipe(Effect.catch(() => Effect.succeed("")));
 
     if (!configSource) {
       return DEFAULT_OUTPUT_FILE;
     }
 
-    const parsed = yield* Effect.try({
-      try: () => JSON.parse(configSource) as {
-        compilerOptions?: { output?: string };
-      },
-      catch: () => ({ compilerOptions: {} }),
-    });
+    const parsed: AsconfigJson = yield* Effect.try({
+      try: () => JSON.parse(configSource) as AsconfigJson,
+      catch: (cause) => cause,
+    }).pipe(Effect.catch(() => Effect.succeed({ compilerOptions: {} })));
 
     const configuredOutput = parsed.compilerOptions?.output;
     if (!configuredOutput) {
@@ -218,7 +230,7 @@ const resolveAsconfigArgs = (input: CliInput, repoRoot: string): Effect.Effect<s
     return asconfigArgs;
   });
 
-const main = (input: CliInput): Effect.Effect<void> =>
+const main = (input: CliInput): Effect.Effect<void, unknown> =>
   Effect.gen(function* () {
     const repoRoot = DEFAULT_REPO_ROOT;
     process.chdir(repoRoot);

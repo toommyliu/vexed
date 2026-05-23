@@ -8,7 +8,6 @@
     "url": "https://github.com/toommyliu/vexed.git"
   },
   "scripts": {
-    "prepare": "cd .. && effect-language-service patch",
     "typecheck": "tsc --noEmit",
     "test": "vitest run",
     "test:watch": "vitest",
@@ -33,7 +32,6 @@
     "yaml": "^2.8.3"
   },
   "devDependencies": {
-    "@effect/language-service": "^0.84.3",
     "@tanstack/solid-devtools": "^0.8.2",
     "@tanstack/solid-hotkeys-devtools": "^0.7.0",
     "cross-env": "^10.0.0",
