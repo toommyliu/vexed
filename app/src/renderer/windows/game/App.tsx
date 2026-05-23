@@ -396,7 +396,7 @@ script.log(\`Cell: \${cell}\`);`;
                 tempInventory,
                 world,
               };
-              const createEffect = new EffectFunction(
+              const compileInternalEval = new EffectFunction(
                 "services",
                 "Effect",
                 `"use strict";
@@ -405,7 +405,7 @@ ${source}
 });`,
               );
 
-              return yield* createEffect(services, Effect);
+              return yield* compileInternalEval(services, Effect);
             }),
           );
 
