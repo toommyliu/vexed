@@ -8,8 +8,6 @@
     "url": "https://github.com/toommyliu/vexed.git"
   },
   "scripts": {
-    "clean": "pnpm --dir .. clean",
-    "prepare": "cd .. && effect-language-service patch",
     "typecheck": "tsc --noEmit",
     "test": "vitest run",
     "test:watch": "vitest",
@@ -18,9 +16,8 @@
     "compile:prod": "cross-env NODE_ENV=production tsx esbuild.config.js",
     "electron": "node scripts/start-electron.mjs",
     "dev:ui:electron11": "node scripts/start-ui-demo-electron11.mjs",
-    "build": "npm-run-all --sequential clean typecheck compile:prod \"electron-builder build\"",
+    "build": "pnpm run compile:prod",
     "build:fast": "npm-run-all --sequential compile:prod \"electron-builder build\"",
-    "build:all": "npm-run-all --sequential clean typecheck compile:prod \"electron-builder -mwl\"",
     "electron-builder": "electron-builder"
   },
   "dependencies": {
@@ -35,7 +32,6 @@
     "yaml": "^2.8.3"
   },
   "devDependencies": {
-    "@effect/language-service": "^0.84.3",
     "@tanstack/solid-devtools": "^0.8.2",
     "@tanstack/solid-hotkeys-devtools": "^0.7.0",
     "cross-env": "^10.0.0",

@@ -92,8 +92,13 @@ function isMetadataLine(line: string): Metadata | null {
     return null;
   }
 
+  const name = match[1];
+  if (!name) {
+    return null;
+  }
+
   return {
-    name: match[1],
+    name,
     arg: match[2] ?? null,
     line: 0,
   };
@@ -220,6 +225,9 @@ export function parseParameterList(rawParams: string): BridgeParameter[] {
       }
 
       const [, name, type, defaultValue] = match;
+      if (!name) {
+        throw new Error(`Unable to parse parameter declaration: "${chunk}"`);
+      }
 
       return {
         name,
@@ -341,7 +349,14 @@ function parseAs3File(filePath: string, source: string): ParsedFile {
       /^\s*public\s+class\s+([A-Za-z_][A-Za-z0-9_]*)/,
     );
     if (classMatch) {
-      className = classMatch[1];
+      const matchedClassName = classMatch[1];
+      if (!matchedClassName) {
+        throw new Error(
+          `Unable to parse class declaration in ${relative(DEFAULT_REPO_ROOT, filePath)}:${index + 1}`,
+        );
+      }
+
+      className = matchedClassName;
       const namespaceMetadata = findMetadata(pendingMetadata, "BridgeNamespace");
       classNamespace = namespaceMetadata?.arg ?? null;
       pendingMetadata = [];
@@ -363,6 +378,11 @@ function parseAs3File(filePath: string, source: string): ParsedFile {
       pendingMetadata = [];
 
       const methodName = methodMatch[2];
+      if (!methodName) {
+        throw new Error(
+          `Unable to parse method declaration in ${relative(DEFAULT_REPO_ROOT, filePath)}:${index + 1}`,
+        );
+      }
       const methodParameters = parseParameterList(methodMatch[3] ?? "");
       const returnType = methodMatch[4] ?? "void";
 

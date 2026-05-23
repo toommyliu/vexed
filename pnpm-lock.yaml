@@ -12,6 +12,9 @@ importers:
         specifier: 4.0.0-beta.43
         version: 4.0.0-beta.43
     devDependencies:
+      '@effect/language-service':
+        specifier: ^0.84.3
+        version: 0.84.3
       '@effect/platform-node':
         specifier: 4.0.0-beta.43
         version: 4.0.0-beta.43(effect@4.0.0-beta.43)(ioredis@5.10.1)
@@ -73,9 +76,6 @@ importers:
         specifier: ^2.8.3
         version: 2.8.3
     devDependencies:
-      '@effect/language-service':
-        specifier: ^0.84.3
-        version: 0.84.3
       '@tanstack/solid-devtools':
         specifier: ^0.8.2
         version: 0.8.2(csstype@3.2.3)(solid-js@1.9.12)
