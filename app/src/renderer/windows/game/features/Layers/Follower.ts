@@ -687,13 +687,15 @@ const make = Effect.gen(function* () {
       }
 
       yield* setPhase("combat");
-      const attacked = yield* combat.attackMonster(target.monMapId).pipe(
-        Effect.catch((cause) =>
-          setLastError(errorMessage(cause, "Failed to attack")).pipe(
-            Effect.as(false),
+      const attacked = yield* combat
+        .attackMonster(target.monMapId)
+        .pipe(
+          Effect.catch((cause) =>
+            setLastError(errorMessage(cause, "Failed to attack")).pipe(
+              Effect.as(false),
+            ),
           ),
-        ),
-      );
+        );
       if (!attacked) {
         return;
       }
@@ -747,11 +749,13 @@ const make = Effect.gen(function* () {
         return next;
       });
 
-      yield* combat.useSkill(trigger.skill, true, true).pipe(
-        Effect.catch((cause) =>
-          setLastError(errorMessage(cause, "Animation trigger failed")),
-        ),
-      );
+      yield* combat
+        .useSkill(trigger.skill, true, true)
+        .pipe(
+          Effect.catch((cause) =>
+            setLastError(errorMessage(cause, "Animation trigger failed")),
+          ),
+        );
     });
 
   const handleAnimationMessage = (message: string) =>

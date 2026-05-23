@@ -83,6 +83,7 @@ import {
   type PacketCaptureType,
   type PacketSendTarget,
 } from "../../../shared/packets";
+import { makeRandomId } from "../../../shared/random-id";
 import { mountWindow } from "../mount";
 
 type ActiveTab = "log" | "send";
@@ -189,9 +190,7 @@ const updateSendTargetSelectPosition = ({
   floatingElement.style.setProperty("--z-index", "60");
 };
 
-const createEntryId = (): string =>
-  globalThis.crypto?.randomUUID?.() ??
-  `${Date.now()}:${Math.random().toString(36).slice(2)}`;
+const createEntryId = (): string => makeRandomId();
 
 const formatTimestamp = (timestamp: number): string => {
   const date = new Date(timestamp);
@@ -355,7 +354,11 @@ function PacketSenderLabelHelp(): JSX.Element {
   return (
     <span class="packets-sender__label-help">
       <Label for="packet-input">Packet</Label>
-      <Tooltip closeDelay={0} openDelay={200} positioning={{ placement: "top" }}>
+      <Tooltip
+        closeDelay={0}
+        openDelay={200}
+        positioning={{ placement: "top" }}
+      >
         <TooltipTrigger
           asChild={(triggerProps) => (
             <Button
@@ -1146,9 +1149,7 @@ function App(): JSX.Element {
     <Tabs
       style={{ display: "contents" }}
       value={activeTab()}
-      onValueChange={(details) =>
-        setActiveTab(details.value as ActiveTab)
-      }
+      onValueChange={(details) => setActiveTab(details.value as ActiveTab)}
     >
       <AppShell class="packets-window">
         <AppShellHeader class="packets-header">
@@ -1178,7 +1179,10 @@ function App(): JSX.Element {
                   type="button"
                   variant="outline"
                 >
-                  <span aria-hidden="true" class="packets-copy-button__icon-stack">
+                  <span
+                    aria-hidden="true"
+                    class="packets-copy-button__icon-stack"
+                  >
                     <span class="packets-copy-button__icon packets-copy-button__icon--copy">
                       <Copy class="button__icon" />
                     </span>
@@ -1186,7 +1190,10 @@ function App(): JSX.Element {
                       <Check class="button__icon" />
                     </span>
                   </span>
-                  <span aria-hidden="true" class="packets-copy-button__label-stack">
+                  <span
+                    aria-hidden="true"
+                    class="packets-copy-button__label-stack"
+                  >
                     <span class="packets-copy-button__label packets-copy-button__label--copy">
                       Copy
                     </span>
@@ -1207,7 +1214,9 @@ function App(): JSX.Element {
                   <span class="packets-header__button-label">Export</span>
                 </Button>
                 <Button
-                  aria-label={captureRunning() ? "Stop capture" : "Start capture"}
+                  aria-label={
+                    captureRunning() ? "Stop capture" : "Start capture"
+                  }
                   onClick={() => void toggleCapture()}
                   size="sm"
                   type="button"
@@ -1229,7 +1238,9 @@ function App(): JSX.Element {
                 <Button
                   aria-label={queueRunning() ? "Stop queue" : "Start queue"}
                   disabled={!queueRunning() && !canQueue()}
-                  onClick={() => void (queueRunning() ? stopQueue() : startQueue())}
+                  onClick={() =>
+                    void (queueRunning() ? stopQueue() : startQueue())
+                  }
                   size="sm"
                   type="button"
                   variant={queueRunning() ? "destructive-outline" : "default"}
@@ -1275,399 +1286,401 @@ function App(): JSX.Element {
 
             <div class="packets-tabs">
               <TabsContent class="packets-tabs__content" value="log">
-              <div class="packets-log-grid">
-                <div class="packets-log-tools">
-                  <InputGroup class="packets-search">
-                    <InputGroupAddon>
-                      <Search aria-hidden="true" />
-                    </InputGroupAddon>
-                    <InputGroupInput
-                      ref={(element) => {
-                        packetSearchInput = element;
-                      }}
-                      aria-label="Search packets"
-                      placeholder="Search packets..."
-                      value={search()}
-                      onInput={(event) => setSearch(event.currentTarget.value)}
-                    />
-                    <InputGroupAddon
-                      align="inline-end"
-                      class="packets-search__shortcut"
-                    >
-                      <Kbd>/</Kbd>
-                    </InputGroupAddon>
-                  </InputGroup>
-
-                  <div class="packets-log-actions">
-                    <Tooltip closeDelay={0} openDelay={200}>
-                      <TooltipTrigger
-                        asChild={(triggerProps) => (
-                          <Button
-                            {...(triggerProps({
-                              children: "Use in sender",
-                              disabled: !selectedPacket(),
-                              onClick: copySelectedToSender,
-                              size: "sm",
-                              type: "button",
-                              variant: "outline",
-                            } as ButtonProps) as ButtonProps)}
-                          />
-                        )}
-                      />
-                      <TooltipContent>
-                        Copies the selected packet into the sender without
-                        sending it.
-                      </TooltipContent>
-                    </Tooltip>
-                  </div>
-
-                  <div class="packets-options-row">
-                    <Checkbox
-                      checked={showTimestamps()}
-                      onChange={(event) =>
-                        setShowTimestamps(event.currentTarget.checked)
-                      }
-                    >
-                      Timestamps
-                    </Checkbox>
-                    <Checkbox
-                      checked={autoScroll()}
-                      onChange={(event) =>
-                        setAutoScroll(event.currentTarget.checked)
-                      }
-                    >
-                      Auto-scroll
-                    </Checkbox>
-                    <Checkbox
-                      checked={wrapPackets()}
-                      onChange={(event) =>
-                        setWrapPackets(event.currentTarget.checked)
-                      }
-                    >
-                      Wrap
-                    </Checkbox>
-                    <Button
-                      disabled={packets().length === 0}
-                      onClick={clearPackets}
-                      size="sm"
-                      type="button"
-                      variant="destructive-outline"
-                    >
-                      <Trash2 class="button__icon" />
-                      Clear
-                    </Button>
-                  </div>
-                </div>
-
-                <Panel
-                  title="Log"
-                  titleAccessory={
-                    <div class="packets-filter-row packets-filter-row--header">
-                      <For each={PacketCaptureTypes}>
-                        {(type) => (
-                          <div
-                            class="packets-filter-pill"
-                            classList={{
-                              "packets-filter-pill--active": filters()[type],
-                            }}
-                          >
-                            <button
-                              aria-label={`${packetTypeLabels[type]} packets`}
-                              aria-pressed={filters()[type]}
-                              class="packets-filter-pill__button"
-                              onClick={() => toggleFilter(type)}
-                              type="button"
-                            >
-                              {packetTypeLabels[type]}
-                            </button>
-                            <span class="packets-filter-pill__count">
-                              {stats()[type]}
-                            </span>
-                          </div>
-                        )}
-                      </For>
-                    </div>
-                  }
-                >
-                  <div
-                    class="packets-log-list"
-                    classList={{
-                      "packets-log-list--wrapped": wrapPackets(),
-                    }}
-                    onScroll={updateLogViewportMetrics}
-                    ref={logViewport}
-                  >
-                    <Show
-                      when={filteredPackets().length > 0}
-                      fallback={
-                        <div class="packets-empty">
-                          <span class="packets-empty__title">
-                            {logEmptyState().title}
-                          </span>
-                          <Show when={logEmptyState().description}>
-                            {(description) => (
-                              <span class="packets-empty__description">
-                                {description()}
-                              </span>
-                            )}
-                          </Show>
-                        </div>
-                      }
-                    >
-                      <div
-                        class="packets-log-virtual"
-                        style={{
-                          height: `${virtualPackets().totalHeight}px`,
+                <div class="packets-log-grid">
+                  <div class="packets-log-tools">
+                    <InputGroup class="packets-search">
+                      <InputGroupAddon>
+                        <Search aria-hidden="true" />
+                      </InputGroupAddon>
+                      <InputGroupInput
+                        ref={(element) => {
+                          packetSearchInput = element;
                         }}
-                      >
-                        <div
-                          class="packets-log-virtual__items"
-                          style={{
-                            top: `${virtualPackets().offsetY}px`,
-                          }}
-                        >
-                          <For each={virtualPackets().entries}>
-                            {(entry) => (
-                              <PacketLogRowView
-                                entry={entry}
-                                measureWrapped={wrapPackets()}
-                              />
-                            )}
-                          </For>
-                        </div>
-                      </div>
-                    </Show>
-                  </div>
-                </Panel>
-              </div>
-            </TabsContent>
-
-            <TabsContent class="packets-tabs__content" value="send">
-              <div class="packets-send-layout">
-                <div class="packets-send-tools">
-                  <div class="packets-send-target">
-                    <Label for="packet-target">Send as</Label>
-                    <Select
-                      class="packets-select"
-                      items={sendTargetOptions}
-                      positioning={{
-                        fitViewport: true,
-                        sameWidth: true,
-                        strategy: "fixed",
-                        updatePosition: updateSendTargetSelectPosition,
-                      }}
-                      value={[sendTarget()]}
-                      onValueChange={(details) => {
-                        const value = details.value[0];
-                        if (isPacketSendTarget(value)) {
-                          setSendTarget(value);
+                        aria-label="Search packets"
+                        placeholder="Search packets..."
+                        value={search()}
+                        onInput={(event) =>
+                          setSearch(event.currentTarget.value)
                         }
-                      }}
-                    >
-                      <SelectTrigger id="packet-target">
-                        <span class="select__value">
-                          {sendTargetLabels[sendTarget()]}
-                        </span>
-                      </SelectTrigger>
-                      <SelectContent>
-                        <For each={sendTargetOptions}>
-                          {(target) => (
-                            <SelectItem value={target.value}>
-                              {target.label}
-                            </SelectItem>
+                      />
+                      <InputGroupAddon
+                        align="inline-end"
+                        class="packets-search__shortcut"
+                      >
+                        <Kbd>/</Kbd>
+                      </InputGroupAddon>
+                    </InputGroup>
+
+                    <div class="packets-log-actions">
+                      <Tooltip closeDelay={0} openDelay={200}>
+                        <TooltipTrigger
+                          asChild={(triggerProps) => (
+                            <Button
+                              {...(triggerProps({
+                                children: "Use in sender",
+                                disabled: !selectedPacket(),
+                                onClick: copySelectedToSender,
+                                size: "sm",
+                                type: "button",
+                                variant: "outline",
+                              } as ButtonProps) as ButtonProps)}
+                            />
                           )}
-                        </For>
-                      </SelectContent>
-                    </Select>
+                        />
+                        <TooltipContent>
+                          Copies the selected packet into the sender without
+                          sending it.
+                        </TooltipContent>
+                      </Tooltip>
+                    </div>
+
+                    <div class="packets-options-row">
+                      <Checkbox
+                        checked={showTimestamps()}
+                        onChange={(event) =>
+                          setShowTimestamps(event.currentTarget.checked)
+                        }
+                      >
+                        Timestamps
+                      </Checkbox>
+                      <Checkbox
+                        checked={autoScroll()}
+                        onChange={(event) =>
+                          setAutoScroll(event.currentTarget.checked)
+                        }
+                      >
+                        Auto-scroll
+                      </Checkbox>
+                      <Checkbox
+                        checked={wrapPackets()}
+                        onChange={(event) =>
+                          setWrapPackets(event.currentTarget.checked)
+                        }
+                      >
+                        Wrap
+                      </Checkbox>
+                      <Button
+                        disabled={packets().length === 0}
+                        onClick={clearPackets}
+                        size="sm"
+                        type="button"
+                        variant="destructive-outline"
+                      >
+                        <Trash2 class="button__icon" />
+                        Clear
+                      </Button>
+                    </div>
                   </div>
-                </div>
 
-                <div class="packets-send-grid">
-                  <Panel title="Sender">
-                    <form
-                      class="packets-sender"
-                      onSubmit={(event) => {
-                        event.preventDefault();
-                        void sendPacket();
-                      }}
-                    >
-                      <div class="packets-sender__field">
-                        <PacketSenderLabelHelp />
-                        <div class="packets-sender__textarea-wrapper">
-                          <Textarea
-                            disabled={queueRunning()}
-                            id="packet-input"
-                            onKeyDown={handleSenderKeyDown}
-                            onInput={(event) =>
-                              setSendText(event.currentTarget.value)
-                            }
-                            placeholder="Enter packet payload..."
-                            value={sendText()}
-                          />
-                        </div>
-                      </div>
-
-                      <div class="packets-sender__actions">
-                        <Button disabled={!canSend()} size="sm" type="submit">
-                          Send once
-                        </Button>
-                        <Button
-                          disabled={!canSend()}
-                          onClick={addQueuePacket}
-                          size="sm"
-                          type="button"
-                          variant="outline"
-                        >
-                          <Plus class="button__icon" />
-                          Add to queue
-                        </Button>
-                      </div>
-                    </form>
-                  </Panel>
-
-                  <Panel title="Queue">
-                    <div class="packets-queue">
-                      <div class="packets-queue__toolbar">
-                        <div class="packets-queue-delay">
-                          <Label for="packet-queue-delay">Delay</Label>
-                          <Input
-                            aria-label="Queue delay"
-                            disabled={queueRunning()}
-                            id="packet-queue-delay"
-                            min={0}
-                            onBlur={normalizeDelayInput}
-                            onInput={(event) =>
-                              setDelayMs(event.currentTarget.value)
-                            }
-                            step={100}
-                            type="number"
-                            value={delayMs()}
-                          />
-                          <span>ms</span>
-                        </div>
-                      </div>
-
-                      <div class="packets-queue__list">
-                        <Show
-                          when={queue().length > 0}
-                          fallback={
-                            <div class="packets-empty">Queue is empty</div>
-                          }
-                        >
-                          <For each={queue()}>
-                            {(packet, index) => (
+                  <Panel
+                    title="Log"
+                    titleAccessory={
+                      <div class="packets-filter-row packets-filter-row--header">
+                        <For each={PacketCaptureTypes}>
+                          {(type) => (
+                            <div
+                              class="packets-filter-pill"
+                              classList={{
+                                "packets-filter-pill--active": filters()[type],
+                              }}
+                            >
                               <button
-                                class="packets-queue-row"
-                                classList={{
-                                  "packets-queue-row--selected":
-                                    selectedQueueIndex() === index(),
-                                }}
-                                disabled={queueRunning()}
-                                onClick={() =>
-                                  setSelectedQueueIndex(
-                                    selectedQueueIndex() === index()
-                                      ? null
-                                      : index(),
-                                  )
-                                }
+                                aria-label={`${packetTypeLabels[type]} packets`}
+                                aria-pressed={filters()[type]}
+                                class="packets-filter-pill__button"
+                                onClick={() => toggleFilter(type)}
                                 type="button"
                               >
-                                <span class="packets-queue-row__index">
-                                  {String(index() + 1).padStart(2, "0")}
-                                </span>
-                                <span class="packets-queue-row__packet">
-                                  {packet}
-                                </span>
+                                {packetTypeLabels[type]}
                               </button>
+                              <span class="packets-filter-pill__count">
+                                {stats()[type]}
+                              </span>
+                            </div>
+                          )}
+                        </For>
+                      </div>
+                    }
+                  >
+                    <div
+                      class="packets-log-list"
+                      classList={{
+                        "packets-log-list--wrapped": wrapPackets(),
+                      }}
+                      onScroll={updateLogViewportMetrics}
+                      ref={logViewport}
+                    >
+                      <Show
+                        when={filteredPackets().length > 0}
+                        fallback={
+                          <div class="packets-empty">
+                            <span class="packets-empty__title">
+                              {logEmptyState().title}
+                            </span>
+                            <Show when={logEmptyState().description}>
+                              {(description) => (
+                                <span class="packets-empty__description">
+                                  {description()}
+                                </span>
+                              )}
+                            </Show>
+                          </div>
+                        }
+                      >
+                        <div
+                          class="packets-log-virtual"
+                          style={{
+                            height: `${virtualPackets().totalHeight}px`,
+                          }}
+                        >
+                          <div
+                            class="packets-log-virtual__items"
+                            style={{
+                              top: `${virtualPackets().offsetY}px`,
+                            }}
+                          >
+                            <For each={virtualPackets().entries}>
+                              {(entry) => (
+                                <PacketLogRowView
+                                  entry={entry}
+                                  measureWrapped={wrapPackets()}
+                                />
+                              )}
+                            </For>
+                          </div>
+                        </div>
+                      </Show>
+                    </div>
+                  </Panel>
+                </div>
+              </TabsContent>
+
+              <TabsContent class="packets-tabs__content" value="send">
+                <div class="packets-send-layout">
+                  <div class="packets-send-tools">
+                    <div class="packets-send-target">
+                      <Label for="packet-target">Send as</Label>
+                      <Select
+                        class="packets-select"
+                        items={sendTargetOptions}
+                        positioning={{
+                          fitViewport: true,
+                          sameWidth: true,
+                          strategy: "fixed",
+                          updatePosition: updateSendTargetSelectPosition,
+                        }}
+                        value={[sendTarget()]}
+                        onValueChange={(details) => {
+                          const value = details.value[0];
+                          if (isPacketSendTarget(value)) {
+                            setSendTarget(value);
+                          }
+                        }}
+                      >
+                        <SelectTrigger id="packet-target">
+                          <span class="select__value">
+                            {sendTargetLabels[sendTarget()]}
+                          </span>
+                        </SelectTrigger>
+                        <SelectContent>
+                          <For each={sendTargetOptions}>
+                            {(target) => (
+                              <SelectItem value={target.value}>
+                                {target.label}
+                              </SelectItem>
                             )}
                           </For>
-                        </Show>
-                      </div>
+                        </SelectContent>
+                      </Select>
+                    </div>
+                  </div>
 
-                      <div class="packets-queue__actions">
-                        <div class="packets-queue__actions-group">
-                          <TooltipIconButton
-                            aria-label="Move packet up"
-                            disabled={
-                              selectedQueueIndex() === null || queueRunning()
-                            }
-                            onClick={() => moveQueuePacket(-1)}
-                            tooltip="Move up"
-                          >
-                            <ArrowUp class="button__icon" />
-                          </TooltipIconButton>
-                          <TooltipIconButton
-                            aria-label="Move packet down"
-                            disabled={
-                              selectedQueueIndex() === null || queueRunning()
-                            }
-                            onClick={() => moveQueuePacket(1)}
-                            tooltip="Move down"
-                          >
-                            <ArrowDown class="button__icon" />
-                          </TooltipIconButton>
+                  <div class="packets-send-grid">
+                    <Panel title="Sender">
+                      <form
+                        class="packets-sender"
+                        onSubmit={(event) => {
+                          event.preventDefault();
+                          void sendPacket();
+                        }}
+                      >
+                        <div class="packets-sender__field">
+                          <PacketSenderLabelHelp />
+                          <div class="packets-sender__textarea-wrapper">
+                            <Textarea
+                              disabled={queueRunning()}
+                              id="packet-input"
+                              onKeyDown={handleSenderKeyDown}
+                              onInput={(event) =>
+                                setSendText(event.currentTarget.value)
+                              }
+                              placeholder="Enter packet payload..."
+                              value={sendText()}
+                            />
+                          </div>
                         </div>
-                        <div class="packets-queue__actions-group">
-                          <TooltipIconButton
-                            aria-label="Remove packet"
-                            disabled={
-                              selectedQueueIndex() === null || queueRunning()
-                            }
-                            onClick={removeQueuePacket}
-                            tooltip="Remove"
-                          >
-                            <Trash2 class="button__icon" />
-                          </TooltipIconButton>
+
+                        <div class="packets-sender__actions">
+                          <Button disabled={!canSend()} size="sm" type="submit">
+                            Send once
+                          </Button>
                           <Button
-                            disabled={queue().length === 0 || queueRunning()}
-                            onClick={clearQueue}
+                            disabled={!canSend()}
+                            onClick={addQueuePacket}
                             size="sm"
                             type="button"
                             variant="outline"
                           >
-                            Clear
+                            <Plus class="button__icon" />
+                            Add to queue
                           </Button>
                         </div>
+                      </form>
+                    </Panel>
+
+                    <Panel title="Queue">
+                      <div class="packets-queue">
+                        <div class="packets-queue__toolbar">
+                          <div class="packets-queue-delay">
+                            <Label for="packet-queue-delay">Delay</Label>
+                            <Input
+                              aria-label="Queue delay"
+                              disabled={queueRunning()}
+                              id="packet-queue-delay"
+                              min={0}
+                              onBlur={normalizeDelayInput}
+                              onInput={(event) =>
+                                setDelayMs(event.currentTarget.value)
+                              }
+                              step={100}
+                              type="number"
+                              value={delayMs()}
+                            />
+                            <span>ms</span>
+                          </div>
+                        </div>
+
+                        <div class="packets-queue__list">
+                          <Show
+                            when={queue().length > 0}
+                            fallback={
+                              <div class="packets-empty">Queue is empty</div>
+                            }
+                          >
+                            <For each={queue()}>
+                              {(packet, index) => (
+                                <button
+                                  class="packets-queue-row"
+                                  classList={{
+                                    "packets-queue-row--selected":
+                                      selectedQueueIndex() === index(),
+                                  }}
+                                  disabled={queueRunning()}
+                                  onClick={() =>
+                                    setSelectedQueueIndex(
+                                      selectedQueueIndex() === index()
+                                        ? null
+                                        : index(),
+                                    )
+                                  }
+                                  type="button"
+                                >
+                                  <span class="packets-queue-row__index">
+                                    {String(index() + 1).padStart(2, "0")}
+                                  </span>
+                                  <span class="packets-queue-row__packet">
+                                    {packet}
+                                  </span>
+                                </button>
+                              )}
+                            </For>
+                          </Show>
+                        </div>
+
+                        <div class="packets-queue__actions">
+                          <div class="packets-queue__actions-group">
+                            <TooltipIconButton
+                              aria-label="Move packet up"
+                              disabled={
+                                selectedQueueIndex() === null || queueRunning()
+                              }
+                              onClick={() => moveQueuePacket(-1)}
+                              tooltip="Move up"
+                            >
+                              <ArrowUp class="button__icon" />
+                            </TooltipIconButton>
+                            <TooltipIconButton
+                              aria-label="Move packet down"
+                              disabled={
+                                selectedQueueIndex() === null || queueRunning()
+                              }
+                              onClick={() => moveQueuePacket(1)}
+                              tooltip="Move down"
+                            >
+                              <ArrowDown class="button__icon" />
+                            </TooltipIconButton>
+                          </div>
+                          <div class="packets-queue__actions-group">
+                            <TooltipIconButton
+                              aria-label="Remove packet"
+                              disabled={
+                                selectedQueueIndex() === null || queueRunning()
+                              }
+                              onClick={removeQueuePacket}
+                              tooltip="Remove"
+                            >
+                              <Trash2 class="button__icon" />
+                            </TooltipIconButton>
+                            <Button
+                              disabled={queue().length === 0 || queueRunning()}
+                              onClick={clearQueue}
+                              size="sm"
+                              type="button"
+                              variant="outline"
+                            >
+                              Clear
+                            </Button>
+                          </div>
+                        </div>
                       </div>
-                    </div>
-                  </Panel>
+                    </Panel>
+                  </div>
                 </div>
-              </div>
-            </TabsContent>
+              </TabsContent>
             </div>
 
-          <AlertDialog
-            open={confirmKeyboardSendOpen()}
-            onOpenChange={(details) => {
-              setConfirmKeyboardSendOpen(details.open);
-              if (!details.open) {
-                setPendingKeyboardSendPacket(null);
-              }
-            }}
-          >
-            <AlertDialogContent>
-              <AlertDialogHeader>
-                <AlertDialogTitle>Send packet once?</AlertDialogTitle>
-                <AlertDialogDescription>
-                  This immediately sends the current packet as{" "}
-                  {sendTargetLabels[sendTarget()]}.
-                </AlertDialogDescription>
-              </AlertDialogHeader>
-              <AlertDialogFooter>
-                <AlertDialogCancel size="sm">Cancel</AlertDialogCancel>
-                <AlertDialogAction
-                  disabled={!pendingKeyboardSendPacket() || queueRunning()}
-                  onClick={confirmKeyboardSend}
-                  size="sm"
-                >
-                  Send once
-                </AlertDialogAction>
-              </AlertDialogFooter>
-            </AlertDialogContent>
-          </AlertDialog>
-        </div>
-      </AppShellBody>
-    </AppShell>
+            <AlertDialog
+              open={confirmKeyboardSendOpen()}
+              onOpenChange={(details) => {
+                setConfirmKeyboardSendOpen(details.open);
+                if (!details.open) {
+                  setPendingKeyboardSendPacket(null);
+                }
+              }}
+            >
+              <AlertDialogContent>
+                <AlertDialogHeader>
+                  <AlertDialogTitle>Send packet once?</AlertDialogTitle>
+                  <AlertDialogDescription>
+                    This immediately sends the current packet as{" "}
+                    {sendTargetLabels[sendTarget()]}.
+                  </AlertDialogDescription>
+                </AlertDialogHeader>
+                <AlertDialogFooter>
+                  <AlertDialogCancel size="sm">Cancel</AlertDialogCancel>
+                  <AlertDialogAction
+                    disabled={!pendingKeyboardSendPacket() || queueRunning()}
+                    onClick={confirmKeyboardSend}
+                    size="sm"
+                  >
+                    Send once
+                  </AlertDialogAction>
+                </AlertDialogFooter>
+              </AlertDialogContent>
+            </AlertDialog>
+          </div>
+        </AppShellBody>
+      </AppShell>
     </Tabs>
   );
 }

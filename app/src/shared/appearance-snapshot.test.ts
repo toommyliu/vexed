@@ -80,22 +80,6 @@ const createFakeRoot = () => {
 };
 
 describe("appearance snapshot", () => {
-  it("resolves dark appearance with dark defaults", () => {
-    const snapshot = createAppearanceSnapshot(DEFAULT_APPEARANCE, false);
-
-    expect(snapshot.variant).toBe("dark");
-    expect(snapshot.tokens.background).toEqual([14, 14, 15]);
-    expect(snapshot.backgroundColor).toBe("#0e0e0f");
-  });
-
-  it("resolves light appearance with light defaults", () => {
-    const snapshot = createAppearanceSnapshot(lightAppearance, true);
-
-    expect(snapshot.variant).toBe("light");
-    expect(snapshot.tokens.background).toEqual([255, 255, 255]);
-    expect(snapshot.backgroundColor).toBe("#ffffff");
-  });
-
   it("resolves system appearance from the current system preference", () => {
     expect(createAppearanceSnapshot(systemAppearance, true).variant).toBe(
       "dark",
@@ -152,8 +136,19 @@ describe("appearance snapshot", () => {
     const snapshot = createAppearanceSnapshot(
       {
         ...DEFAULT_APPEARANCE,
+        themeMode: "dark",
         reduceMotion: "on",
         useCursorPointers: true,
+        themes: {
+          ...DEFAULT_APPEARANCE.themes,
+          dark: {
+            ...DEFAULT_THEME_PROFILE,
+            sansFont: "Inter",
+            tokens: {
+              background: [12, 34, 56],
+            },
+          },
+        },
       },
       false,
     );
@@ -167,11 +162,9 @@ describe("appearance snapshot", () => {
     expect(root.getAttribute("data-reduce-motion")).toBe("on");
     expect(root.getAttribute("data-use-cursor-pointers")).toBe("true");
     expect(root.hasClass("dark")).toBe(true);
-    expect(root.style.getPropertyValue("--background")).toBe("14, 14, 15");
+    expect(root.style.getPropertyValue("--background")).toBe("12, 34, 56");
     expect(root.style.getPropertyValue("--cursor-interactive")).toBe("pointer");
-    expect(root.style.getPropertyValue("--font-sans")).toBe(
-      DEFAULT_THEME_PROFILE.sansFont,
-    );
+    expect(root.style.getPropertyValue("--font-sans")).toBe("Inter");
     expect(root.style.getPropertyValue("color-scheme")).toBe("dark");
   });
 

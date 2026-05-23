@@ -1,4 +1,3 @@
-import * as Files from "./Files";
 import { isGameCommandId, type GameCommandId } from "../../shared/commands";
 import {
   DEFAULT_HOTKEYS,
@@ -51,16 +50,11 @@ export const normalize = (value: unknown): HotkeysSettings => {
   return { bindings: createHotkeyBindings(values) };
 };
 
-export const path = (): string => Files.appDataJoin("keybindings.json");
+export const fileName = "keybindings.json";
 
-export const read = (): HotkeysSettings => normalize(Files.readJson(path()));
-
-export const write = (settings: HotkeysSettings): void => {
-  Files.writeJson(path(), normalize(settings.bindings).bindings);
-};
-
-export const ensure = (): HotkeysSettings =>
-  Files.ensureJson(path(), DEFAULT, normalize, (settings) => settings.bindings);
+export const serialize = (
+  settings: HotkeysSettings,
+): HotkeysSettings["bindings"] => normalize(settings.bindings).bindings;
 
 export const applyPatch = (
   current: HotkeysSettings,

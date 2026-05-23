@@ -1,4 +1,3 @@
-import * as Files from "./Files";
 import { rgbToHex } from "../../shared/appearance-snapshot";
 import {
   DEFAULT_APPEARANCE,
@@ -211,7 +210,7 @@ const serializeThemeProfile = (
   rounding: profile.rounding,
 });
 
-const serialize = (appearance: Appearance): PersistedAppearance => {
+export const serialize = (appearance: Appearance): PersistedAppearance => {
   const normalized = normalize(appearance);
   return {
     themeMode: normalized.themeMode,
@@ -253,13 +252,10 @@ const hasArrayColorTokens = (value: unknown): boolean => {
   return false;
 };
 
-export const path = (): string => Files.appDataJoin("appearance.json");
+export const fileName = "appearance.json";
 
-export const read = (): Appearance => normalize(Files.readJson(path()));
-
-export const write = (appearance: Appearance): void => {
-  Files.writeJson(path(), serialize(appearance));
-};
-
-export const ensure = (): Appearance =>
-  Files.ensureJson(path(), DEFAULT, normalize, serialize, hasArrayColorTokens);
+export const shouldRewritePersisted = (
+  value: unknown,
+  _normalized: Appearance,
+  _serialized: unknown,
+): boolean => hasArrayColorTokens(value);

@@ -491,9 +491,7 @@ const make = Effect.gen(function* () {
       }
 
       if (resolved.kind === "monMapId") {
-        yield* bridge.call("combat.attackMonsterById", [
-          resolved.monMapId,
-        ]);
+        yield* bridge.call("combat.attackMonsterById", [resolved.monMapId]);
         return true;
       }
 

@@ -4,6 +4,7 @@ import {
   autoAttackStateToProfileRef,
   findCombatProfileByRef,
   normalizeCombatProfileLibrary,
+  parseCombatProfileAutoAttackState,
 } from "./combat-profiles";
 
 describe("combat profile library", () => {
@@ -139,6 +140,26 @@ describe("combat profile library", () => {
         profileId: "missing",
       }).id,
     ).toBe(DEFAULT_COMBAT_PROFILE_ID);
+  });
+
+  it("strictly parses auto attack IPC payloads", () => {
+    const profileIds = new Set([DEFAULT_COMBAT_PROFILE_ID, "vhl-solo"]);
+
+    expect(
+      parseCombatProfileAutoAttackState(
+        { mode: "selected", selectedProfileId: "vhl-solo" },
+        profileIds,
+      ),
+    ).toEqual({ mode: "selected", selectedProfileId: "vhl-solo" });
+    expect(() =>
+      parseCombatProfileAutoAttackState(
+        { mode: "selected", selectedProfileId: "missing" },
+        profileIds,
+      ),
+    ).toThrow("Selected combat profile does not exist");
+    expect(() =>
+      parseCombatProfileAutoAttackState({ mode: "invalid" }, profileIds),
+    ).toThrow("Auto attack state mode is invalid");
   });
 
   it("resolves equipped-class profiles case-insensitively", () => {

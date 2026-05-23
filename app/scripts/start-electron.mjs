@@ -8,7 +8,7 @@ const TERMINATION_SIGNALS = ["SIGINT", "SIGTERM", "SIGHUP"];
 const env = { ...process.env };
 delete env.ELECTRON_RUN_AS_NODE;
 
-const child = spawn(resolveElectronPath(), ["."], {
+const child = spawn(resolveElectronPath(), [".", ...process.argv.slice(2)], {
   cwd: appDir,
   env,
   stdio: "inherit",
@@ -17,7 +17,8 @@ const child = spawn(resolveElectronPath(), ["."], {
 let requestedSignal;
 let forceKillTimer;
 
-const hasChildExited = () => child.exitCode !== null || child.signalCode !== null;
+const hasChildExited = () =>
+  child.exitCode !== null || child.signalCode !== null;
 
 const clearForceKillTimer = () => {
   if (forceKillTimer) {

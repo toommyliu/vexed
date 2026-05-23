@@ -95,7 +95,11 @@ const matchesStatCondition = (condition: CombatProfileStatCondition) =>
     }
 
     const matchesPlayerHp = (hp: number, maxHp: number): boolean =>
-      compare(statValue(hp, maxHp, condition.unit), condition.op, condition.value);
+      compare(
+        statValue(hp, maxHp, condition.unit),
+        condition.op,
+        condition.value,
+      );
 
     const self = yield* world.players.withSelf((me) => ({
       entId: me.data.entID,
@@ -104,7 +108,10 @@ const matchesStatCondition = (condition: CombatProfileStatCondition) =>
       username: me.username.toLowerCase(),
     }));
 
-    if (Option.isSome(self) && matchesPlayerHp(self.value.hp, self.value.maxHp)) {
+    if (
+      Option.isSome(self) &&
+      matchesPlayerHp(self.value.hp, self.value.maxHp)
+    ) {
       return true;
     }
 

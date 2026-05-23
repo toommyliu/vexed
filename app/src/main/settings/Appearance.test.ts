@@ -1,15 +1,7 @@
-import { mkdtemp, readFile, rm, writeFile } from "node:fs/promises";
-import { tmpdir } from "node:os";
-import { join } from "node:path";
-import { afterEach, describe, expect, it } from "vitest";
+import { describe, expect, it } from "vitest";
 import * as Appearance from "./Appearance";
-import * as Files from "./Files";
 
 describe("appearance settings", () => {
-  afterEach(() => {
-    Files.resetPathConfigurationForTests();
-  });
-
   it("normalizes theme mode selection", () => {
     expect(
       Appearance.normalize({
@@ -187,65 +179,45 @@ describe("appearance settings", () => {
     });
   });
 
-  it("writes app motion mode and cursor pointer toggles", async () => {
-    const testDir = await mkdtemp(join(tmpdir(), "vexed-appearance-"));
-    Files.configureAppDataHome(testDir);
-
-    try {
-      Appearance.write({
+  it("serializes app motion mode and cursor pointer toggles", () => {
+    expect(
+      Appearance.serialize({
         ...Appearance.DEFAULT,
         reduceMotion: "off",
         useCursorPointers: true,
-      });
-
-      const source = await readFile(Appearance.path(), "utf8");
-      expect(source).toContain('"reduceMotion": "off"');
-      expect(source).toContain('"useCursorPointers": true');
-      expect(Appearance.read()).toMatchObject({
-        reduceMotion: "off",
-        useCursorPointers: true,
-      });
-    } finally {
-      await rm(testDir, { recursive: true, force: true });
-    }
+      }),
+    ).toMatchObject({
+      reduceMotion: "off",
+      useCursorPointers: true,
+    });
   });
 
-  it("does not rewrite partial hex color JSON on ensure", async () => {
-    const testDir = await mkdtemp(join(tmpdir(), "vexed-appearance-"));
-    Files.configureAppDataHome(testDir);
-
-    try {
-      const source = `${JSON.stringify(
-        {
-          themeMode: "dark",
-          themes: {
-            dark: {
-              tokens: {
-                primary: "#0d9488",
-              },
-            },
+  it("does not rewrite partial hex color JSON on read", () => {
+    const value = {
+      themeMode: "dark",
+      themes: {
+        dark: {
+          tokens: {
+            primary: "#0d9488",
           },
         },
-        null,
-        2,
-      )}\n`;
-      await writeFile(Appearance.path(), source, "utf8");
+      },
+    };
+    const normalized = Appearance.normalize(value);
 
-      expect(Appearance.ensure().themes.dark.tokens.primary).toEqual([
-        13, 148, 136,
-      ]);
-      expect(await readFile(Appearance.path(), "utf8")).toBe(source);
-    } finally {
-      await rm(testDir, { recursive: true, force: true });
-    }
+    expect(normalized.themes.dark.tokens.primary).toEqual([13, 148, 136]);
+    expect(
+      Appearance.shouldRewritePersisted(
+        value,
+        normalized,
+        Appearance.serialize(normalized),
+      ),
+    ).toBe(false);
   });
 
-  it("writes color tokens as hex strings", async () => {
-    const testDir = await mkdtemp(join(tmpdir(), "vexed-appearance-"));
-    Files.configureAppDataHome(testDir);
-
-    try {
-      Appearance.write({
+  it("serializes color tokens as hex strings", () => {
+    expect(
+      Appearance.serialize({
         ...Appearance.DEFAULT,
         themes: {
           light: {
@@ -261,25 +233,42 @@ describe("appearance settings", () => {
             },
           },
         },
-      });
-
-      expect(await readFile(Appearance.path(), "utf8")).toContain(
-        '"primary": "#0d9488"',
-      );
-      expect(await readFile(Appearance.path(), "utf8")).toContain(
-        '"ring": "#60a5fa"',
-      );
-      expect(Appearance.read().themes.light.tokens.primary).toEqual([
-        13, 148, 136,
-      ]);
-    } finally {
-      await rm(testDir, { recursive: true, force: true });
-    }
+      }),
+    ).toMatchObject({
+      themes: {
+        light: {
+          tokens: {
+            primary: "#0d9488",
+          },
+        },
+        dark: {
+          tokens: {
+            ring: "#60a5fa",
+          },
+        },
+      },
+    });
   });
 
-  it("resolves appearance under app data", () => {
-    Files.configureAppDataHome("/tmp/vexed-test");
+  it("marks array color tokens for rewrite", () => {
+    const value = {
+      themeMode: "dark",
+      themes: {
+        light: {
+          tokens: {
+            primary: [13, 148, 136],
+          },
+        },
+      },
+    };
+    const normalized = Appearance.normalize(value);
 
-    expect(Appearance.path()).toBe(join("/tmp/vexed-test", "appearance.json"));
+    expect(
+      Appearance.shouldRewritePersisted(
+        value,
+        normalized,
+        Appearance.serialize(normalized),
+      ),
+    ).toBe(true);
   });
 });

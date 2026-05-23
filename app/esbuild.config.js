@@ -79,10 +79,11 @@ const rendererHtmlFiles = solidRendererTargets.map((target) => ({
 const rendererHtmlSources = [
   ...new Set(rendererHtmlFiles.map((file) => file.source)),
 ];
-const electronExternals = ["electron", "nw-flash-trust"];
+const electronExternals = ["electron"];
 const devBuildNotifyPath = process.env.VEXED_DEV_BUILD_NOTIFY;
 const skipInitialDevBuildNotify =
   process.env.VEXED_DEV_BUILD_NOTIFY_SKIP_INITIAL === "1";
+const devRunnerPid = parseProcessId(process.env.VEXED_DEV_RUNNER_PID);
 const DEV_BUILD_NOTIFY_DEBOUNCE_MS = 150;
 const WATCH_PARENT_POLL_MS = 1000;
 const WATCH_FORCE_EXIT_MS = 2500;
@@ -92,6 +93,24 @@ const pendingDevBuildLabels = new Set();
 let activeDevBuilds = 0;
 let devBuildHadError = false;
 let devBuildNotifyTimer;
+
+function parseProcessId(value) {
+  if (value === undefined) {
+    return undefined;
+  }
+
+  const pid = Number(value);
+  return Number.isInteger(pid) && pid > 0 ? pid : undefined;
+}
+
+function isProcessAlive(pid) {
+  try {
+    process.kill(pid, 0);
+    return true;
+  } catch (error) {
+    return error?.code === "EPERM";
+  }
+}
 
 function selectDevBuildNotifyLabel(labels) {
   if (labels.includes("main")) {
@@ -365,6 +384,11 @@ async function watchBuild() {
   };
 
   parentPollTimer = setInterval(() => {
+    if (devRunnerPid !== undefined && !isProcessAlive(devRunnerPid)) {
+      void shutdown("dev-runner-exit", 0);
+      return;
+    }
+
     if (process.ppid !== parentPid) {
       console.error(
         `[watch] parent process ${parentPid} exited; shutting down orphaned watcher.`,
