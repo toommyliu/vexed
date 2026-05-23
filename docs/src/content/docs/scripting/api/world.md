@@ -105,12 +105,12 @@ api.world.map.getRoomNumber(): Effect.Effect<number, never, never>
 ### `api.world.map.isActionAvailable()` <a class="source-reference__heading-link" style="float: right; display: inline-flex; align-items: center; justify-content: center; margin-block: -0.125rem; margin-inline-start: 0.5rem; border-radius: var(--radius-sm); text-decoration: none;" href="https://github.com/toommyliu/vexed/blob/dev/app/src/renderer/windows/game/scripting/ScriptApi.ts#L113" tabindex="-1" aria-hidden="true" title="Open source: app/src/renderer/windows/game/scripting/ScriptApi.ts:113" target="_blank" rel="noreferrer"><svg class="source-reference__icon" width="16" height="16" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m18 16 4-4-4-4"></path><path d="m6 8-4 4 4 4"></path><path d="m14.5 4-5 16"></path></svg></a>
 
 ```ts
-api.world.map.isActionAvailable(gameAction: 'acceptQuest' | 'buyItem' | 'doIA' | 'equipItem' | 'getMapItem' | 'loadEnhShop' | 'loadHairShop' | 'loadShop' | 'rest' | 'sellItem' | 'tfer' | 'tryQuestComplete' | 'unequipItem' | 'who'): BridgeEffect<boolean>
+api.world.map.isActionAvailable(gameAction: 'acceptQuest' | 'addLoadout' | 'buyItem' | 'doIA' | 'equipLoadout' | 'equipItem' | 'getMapItem' | 'loadEnhShop' | 'loadHairShop' | 'loadShop' | 'removeLoadout' | 'rest' | 'sellItem' | 'tfer' | 'tryQuestComplete' | 'unequipItem' | 'wearLoadout' | 'who'): BridgeEffect<boolean>
 ```
 
 | Name | Type | Required | Description |
 | --- | --- | --- | --- |
-| `gameAction` | '`acceptQuest`' \| '`buyItem`' \| '`doIA`' \| '`equipItem`' \| '`getMapItem`' \| '`loadEnhShop`' \| '`loadHairShop`' \| '`loadShop`' \| '`rest`' \| '`sellItem`' \| '`tfer`' \| '`tryQuestComplete`' \| '`unequipItem`' \| '`who`' | <span class="required-mark" role="img" aria-label="Required"></span> |  |
+| `gameAction` | '`acceptQuest`' \| '`addLoadout`' \| '`buyItem`' \| '`doIA`' \| '`equipLoadout`' \| '`equipItem`' \| '`getMapItem`' \| '`loadEnhShop`' \| '`loadHairShop`' \| '`loadShop`' \| '`removeLoadout`' \| '`rest`' \| '`sellItem`' \| '`tfer`' \| '`tryQuestComplete`' \| '`unequipItem`' \| '`wearLoadout`' \| '`who`' | <span class="required-mark" role="img" aria-label="Required"></span> |  |
 
 **Yields:** `boolean`
 
@@ -178,12 +178,12 @@ api.world.map.setSpawnPoint(cell?: string, pad?: string): BridgeEffect<void>
 ### `api.world.map.waitForGameAction()` <a class="source-reference__heading-link" style="float: right; display: inline-flex; align-items: center; justify-content: center; margin-block: -0.125rem; margin-inline-start: 0.5rem; border-radius: var(--radius-sm); text-decoration: none;" href="https://github.com/toommyliu/vexed/blob/dev/app/src/renderer/windows/game/scripting/ScriptApi.ts#L118" tabindex="-1" aria-hidden="true" title="Open source: app/src/renderer/windows/game/scripting/ScriptApi.ts:118" target="_blank" rel="noreferrer"><svg class="source-reference__icon" width="16" height="16" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m18 16 4-4-4-4"></path><path d="m6 8-4 4 4 4"></path><path d="m14.5 4-5 16"></path></svg></a>
 
 ```ts
-api.world.map.waitForGameAction(gameAction: 'acceptQuest' | 'buyItem' | 'doIA' | 'equipItem' | 'getMapItem' | 'loadEnhShop' | 'loadHairShop' | 'loadShop' | 'rest' | 'sellItem' | 'tfer' | 'tryQuestComplete' | 'unequipItem' | 'who', timeout?: Duration.Input): BridgeEffect<boolean>
+api.world.map.waitForGameAction(gameAction: 'acceptQuest' | 'addLoadout' | 'buyItem' | 'doIA' | 'equipLoadout' | 'equipItem' | 'getMapItem' | 'loadEnhShop' | 'loadHairShop' | 'loadShop' | 'removeLoadout' | 'rest' | 'sellItem' | 'tfer' | 'tryQuestComplete' | 'unequipItem' | 'wearLoadout' | 'who', timeout?: Duration.Input): BridgeEffect<boolean>
 ```
 
 | Name | Type | Required | Description |
 | --- | --- | --- | --- |
-| `gameAction` | '`acceptQuest`' \| '`buyItem`' \| '`doIA`' \| '`equipItem`' \| '`getMapItem`' \| '`loadEnhShop`' \| '`loadHairShop`' \| '`loadShop`' \| '`rest`' \| '`sellItem`' \| '`tfer`' \| '`tryQuestComplete`' \| '`unequipItem`' \| '`who`' | <span class="required-mark" role="img" aria-label="Required"></span> |  |
+| `gameAction` | '`acceptQuest`' \| '`addLoadout`' \| '`buyItem`' \| '`doIA`' \| '`equipLoadout`' \| '`equipItem`' \| '`getMapItem`' \| '`loadEnhShop`' \| '`loadHairShop`' \| '`loadShop`' \| '`removeLoadout`' \| '`rest`' \| '`sellItem`' \| '`tfer`' \| '`tryQuestComplete`' \| '`unequipItem`' \| '`wearLoadout`' \| '`who`' | <span class="required-mark" role="img" aria-label="Required"></span> |  |
 | `timeout` | `Duration`.`Input` |  |  |
 
 **Yields:** `boolean`

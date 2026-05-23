@@ -511,18 +511,22 @@ interface WorldMapApi {
   isActionAvailable(
     gameAction:
       | "acceptQuest"
+      | "addLoadout"
       | "buyItem"
       | "doIA"
+      | "equipLoadout"
       | "equipItem"
       | "getMapItem"
       | "loadEnhShop"
       | "loadHairShop"
       | "loadShop"
+      | "removeLoadout"
       | "rest"
       | "sellItem"
       | "tfer"
       | "tryQuestComplete"
       | "unequipItem"
+      | "wearLoadout"
       | "who",
   ): Effect<boolean, BridgeError>;
   getMapItem(itemId: number): Effect<void, BridgeError>;
@@ -532,18 +536,22 @@ interface WorldMapApi {
   waitForGameAction(
     gameAction:
       | "acceptQuest"
+      | "addLoadout"
       | "buyItem"
       | "doIA"
+      | "equipLoadout"
       | "equipItem"
       | "getMapItem"
       | "loadEnhShop"
       | "loadHairShop"
       | "loadShop"
+      | "removeLoadout"
       | "rest"
       | "sellItem"
       | "tfer"
       | "tryQuestComplete"
       | "unequipItem"
+      | "wearLoadout"
       | "who",
     timeout?: DurationInput,
   ): Effect<boolean, BridgeError>;

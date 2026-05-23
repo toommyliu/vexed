@@ -3,9 +3,12 @@ package vexed.game {
 
   [BridgeNamespace("outfits")]
   public class Outfits {
-    private static var game:Object = Main.getInstance().getGame();
+    private static function getGame():Object {
+      return Main.getInstance().getGame();
+    }
 
     private static function getLoadouts():Object {
+      var game:Object = getGame();
       if (!game || !game.world || !game.world.objInfo) {
         return null;
       }
@@ -31,16 +34,30 @@ package vexed.game {
       return loadouts[name];
     }
 
-    private static function toOutfit(name:String, loadout:Object):Object {
-      var outfit:Object = {};
-      for (var key:String in loadout) {
-        outfit[key] = loadout[key];
+    private static function toOutfit(name:String, loadout:*):Object {
+      if (!name || !loadout || !(loadout is Object)) {
+        return null;
       }
+
+      var outfit:Object = {};
+      try {
+        for (var key:String in loadout) {
+          outfit[key] = loadout[key];
+        }
+      } catch (error:Error) {
+        return null;
+      }
+
       outfit.name = name;
       return outfit;
     }
 
     private static function sendLoadoutCommand(command:String, name:String, keepColors:Boolean = false):Boolean {
+      var game:Object = getGame();
+      if (!game || !game.world || !game.sfc) {
+        return false;
+      }
+
       if (!getLoadout(name)) {
         return false;
       }
@@ -62,20 +79,19 @@ package vexed.game {
       }
 
       for (var name:String in loadouts) {
-        outfits.push(toOutfit(name, loadouts[name]));
+        var outfit:Object = toOutfit(name, loadouts[name]);
+        if (outfit) {
+          outfits.push(outfit);
+        }
       }
 
       return outfits;
     }
 
     [BridgeExport]
+    [BridgeTsReturnType("Record<string, unknown> | null")]
     public static function get(name:String):Object {
-      var loadout:Object = getLoadout(name);
-      if (!loadout) {
-        return null;
-      }
-
-      return toOutfit(name, loadout);
+      return toOutfit(name, getLoadout(name));
     }
 
     [BridgeExport]

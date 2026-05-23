@@ -75,7 +75,7 @@ declare global {
       "inventory.getSlots": () => number;
       "inventory.getUsedSlots": () => number;
       "outfits.equip": (name: string, keepColors?: boolean) => boolean;
-      "outfits.get": (name: string) => Record<string, unknown>;
+      "outfits.get": (name: string) => Record<string, unknown> | null;
       "outfits.getAll": () => unknown[];
       "outfits.wear": (name: string, keepColors?: boolean) => boolean;
       "player.getCell": () => string;
