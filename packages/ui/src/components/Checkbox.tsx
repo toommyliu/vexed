@@ -1,5 +1,5 @@
+import { Icon } from "./Icon";
 import { splitProps, type JSX } from "solid-js";
-import { Check } from "lucide-solid";
 import { cn } from "../lib/cn";
 import { isAriaInvalid } from "../lib/domState";
 
@@ -49,7 +49,7 @@ export function Checkbox(props: CheckboxProps): JSX.Element {
         type="checkbox"
       />
       <span aria-hidden="true" class="checkbox__control">
-        <Check class="checkbox__icon" />
+        <Icon icon="check" class="checkbox__icon" />
       </span>
       {local.children && <span class="checkbox__label">{local.children}</span>}
     </label>

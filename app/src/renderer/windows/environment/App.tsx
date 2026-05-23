@@ -2,6 +2,7 @@
 import "../../polyfills";
 import "./style.css";
 import {
+  Icon,
   AppShell,
   AppShellBody,
   AppShellHeader,
@@ -20,7 +21,6 @@ import {
   Input,
   Spinner,
 } from "@vexed/ui";
-import { Download, Plus, Share2, Trash2, X } from "lucide-solid";
 import {
   For,
   Show,
@@ -349,7 +349,7 @@ function App(): JSX.Element {
             disabled={clearingAll() || totalCount() === 0}
             onClick={() => void clearAll()}
           >
-            <Trash2 class="button__icon" />
+            <Icon icon="trash_2" class="button__icon" />
             Clear all
           </Button>
           <Button
@@ -360,7 +360,10 @@ function App(): JSX.Element {
             disabled={syncing()}
             onClick={() => void syncToAll()}
           >
-            <Show when={syncing()} fallback={<Share2 class="button__icon" />}>
+            <Show
+              when={syncing()}
+              fallback={<Icon icon="share_2" class="button__icon" />}
+            >
               <Spinner class="environment-sync-spinner" size="sm" />
             </Show>
             Sync to all
@@ -390,7 +393,7 @@ function App(): JSX.Element {
                     void runStateUpdate(window.ipc.environment.clearItems())
                   }
                 >
-                  <Trash2 class="button__icon" />
+                  <Icon icon="trash_2" class="button__icon" />
                   Clear
                 </Button>
               }
@@ -443,7 +446,7 @@ function App(): JSX.Element {
                   aria-label="Add drop"
                   disabled={!itemInput().trim()}
                 >
-                  <Plus class="button__icon" />
+                  <Icon icon="plus" class="button__icon" />
                 </IconButton>
               </form>
 
@@ -468,7 +471,7 @@ function App(): JSX.Element {
                             )
                           }
                         >
-                          <X class="button__icon" />
+                          <Icon icon="x" class="button__icon" />
                         </IconButton>
                       </div>
                     )}
@@ -492,7 +495,7 @@ function App(): JSX.Element {
                     void runStateUpdate(window.ipc.environment.clearQuests())
                   }
                 >
-                  <Trash2 class="button__icon" />
+                  <Icon icon="trash_2" class="button__icon" />
                   Clear
                 </Button>
               }
@@ -541,7 +544,7 @@ function App(): JSX.Element {
                   aria-label="Add quest"
                   disabled={!questInput().trim()}
                 >
-                  <Plus class="button__icon" />
+                  <Icon icon="plus" class="button__icon" />
                 </IconButton>
               </form>
 
@@ -605,7 +608,7 @@ function App(): JSX.Element {
                             )
                           }
                         >
-                          <X class="button__icon" />
+                          <Icon icon="x" class="button__icon" />
                         </IconButton>
                       </div>
                     )}
@@ -627,7 +630,7 @@ function App(): JSX.Element {
                     disabled={fetchingBoosts()}
                     onClick={() => void fetchBoosts()}
                   >
-                    <Download class="button__icon" />
+                    <Icon icon="download" class="button__icon" />
                     Fetch
                   </Button>
                   <Button
@@ -640,7 +643,7 @@ function App(): JSX.Element {
                       void runStateUpdate(window.ipc.environment.clearBoosts())
                     }
                   >
-                    <Trash2 class="button__icon" />
+                    <Icon icon="trash_2" class="button__icon" />
                     Clear
                   </Button>
                 </div>
@@ -664,7 +667,7 @@ function App(): JSX.Element {
                   aria-label="Add boost"
                   disabled={!boostInput().trim()}
                 >
-                  <Plus class="button__icon" />
+                  <Icon icon="plus" class="button__icon" />
                 </IconButton>
               </form>
 
@@ -689,7 +692,7 @@ function App(): JSX.Element {
                             )
                           }
                         >
-                          <X class="button__icon" />
+                          <Icon icon="x" class="button__icon" />
                         </IconButton>
                       </div>
                     )}

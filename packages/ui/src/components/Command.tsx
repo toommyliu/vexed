@@ -1,4 +1,4 @@
-import { Search } from "lucide-solid";
+import { Icon } from "./Icon";
 import {
   createContext,
   createEffect,
@@ -215,7 +215,7 @@ export function CommandInput(props: CommandInputProps): JSX.Element {
   const context = useContext(CommandContext);
   return (
     <div class="command__input-wrap" data-slot="command-input-wrap">
-      <Search aria-hidden="true" class="command__input-icon" />
+      <Icon icon="search" aria-hidden="true" class="command__input-icon" />
       <input
         {...rest}
         aria-activedescendant={

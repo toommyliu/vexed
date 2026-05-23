@@ -1,9 +1,9 @@
+import { Icon } from "./Icon";
 import {
   Combobox as ComboboxPrimitive,
   createListCollection,
   type CollectionItem,
 } from "@ark-ui/solid/combobox";
-import { Check, ChevronsUpDown, X } from "lucide-solid";
 import {
   createContext,
   createEffect,
@@ -165,7 +165,7 @@ export function ComboboxInput(props: ComboboxInputProps): JSX.Element {
             />
             {showClear() && (
               <ComboboxClear class="combobox__clear" {...local.clearProps}>
-                <X />
+                <Icon icon="x" />
               </ComboboxClear>
             )}
             {local.showTrigger !== false && (
@@ -173,7 +173,7 @@ export function ComboboxInput(props: ComboboxInputProps): JSX.Element {
                 class="combobox__trigger"
                 {...local.triggerProps}
               >
-                <ChevronsUpDown />
+                <Icon icon="chevrons_up_down" />
               </ComboboxTrigger>
             )}
           </ComboboxPrimitive.Control>
@@ -277,7 +277,7 @@ export function ComboboxItem(props: ComboboxItemProps): JSX.Element {
       item={item()}
     >
       <ComboboxPrimitive.ItemIndicator class="combobox__item-indicator">
-        <Check />
+        <Icon icon="check" />
       </ComboboxPrimitive.ItemIndicator>
       <ComboboxPrimitive.ItemText class="combobox__item-text">
         {local.children ?? item().label}

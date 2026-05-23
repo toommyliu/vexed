@@ -50,7 +50,6 @@ async function main(): Promise<void> {
       "@ark-ui/solid",
       "@ark-ui/solid/*",
       "clsx",
-      "lucide-solid",
       "solid-js",
       "solid-js/web",
     ],

@@ -31,7 +31,6 @@
     "@vexed/ui": "workspace:*",
     "abort-controller": "^3.0.0",
     "effect": "4.0.0-beta.43",
-    "lucide-solid": "^1.14.0",
     "solid-js": "^1.9.12",
     "yaml": "^2.8.3"
   },

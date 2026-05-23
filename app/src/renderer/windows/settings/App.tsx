@@ -6,6 +6,7 @@ import {
   formatHotkeyDisplayParts as displayHotkeyParts,
 } from "@vexed/shared/hotkeyDisplay";
 import {
+  Icon,
   Alert,
   AlertDialog,
   AlertDialogAction,
@@ -40,7 +41,6 @@ import {
   TooltipTrigger,
   type ButtonProps,
 } from "@vexed/ui";
-import { CircleAlert, RotateCcw, X } from "lucide-solid";
 import {
   For,
   Show,
@@ -240,7 +240,11 @@ function SettingsErrorNotice(props: {
       variant="error"
     >
       <AlertDescription class="settings-error__message">
-        <CircleAlert aria-hidden="true" class="settings-error__icon" />
+        <Icon
+          icon="circle_alert"
+          aria-hidden="true"
+          class="settings-error__icon"
+        />
         {props.message}
       </AlertDescription>
     </Alert>
@@ -271,7 +275,9 @@ function ResetButton(props: {
                     {...(dialogTriggerProps(
                       tooltipTriggerProps({
                         "aria-label": props.label,
-                        children: <RotateCcw class="button__icon" />,
+                        children: (
+                          <Icon icon="rotate_ccw" class="button__icon" />
+                        ),
                         class: "reset-settings-button",
                         size: "icon-sm",
                         type: "button",
@@ -368,7 +374,7 @@ function HotkeyConflictPill(props: {
               "aria-label": `${label()}: ${props.conflicts.join(", ")}`,
               children: (
                 <>
-                  <CircleAlert class="button__icon" />
+                  <Icon icon="circle_alert" class="button__icon" />
                   {count()}
                 </>
               ),
@@ -765,7 +771,7 @@ function HotkeySettingsSection(props: {
                       onClick={() => void commitBinding(command.id, null)}
                       tooltip="Restore default shortcut"
                     >
-                      <RotateCcw class="button__icon" />
+                      <Icon icon="rotate_ccw" class="button__icon" />
                     </HotkeyIconButton>
                   </Show>
                   <KbdGroup
@@ -814,7 +820,7 @@ function HotkeySettingsSection(props: {
                   onClick={() => void commitBinding(command.id, "")}
                   tooltip="Clear shortcut"
                 >
-                  <X class="button__icon" />
+                  <Icon icon="x" class="button__icon" />
                 </HotkeyIconButton>
               </div>
             </div>

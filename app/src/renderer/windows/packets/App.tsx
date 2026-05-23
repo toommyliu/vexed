@@ -3,6 +3,7 @@ import "../../polyfills";
 import "./style.css";
 import { createHotkey } from "@tanstack/solid-hotkeys";
 import {
+  Icon,
   AlertDialog,
   AlertDialogAction,
   AlertDialogCancel,
@@ -46,20 +47,6 @@ import {
   TooltipTrigger,
   type IconButtonProps,
 } from "@vexed/ui";
-import {
-  ArrowDown,
-  ArrowUp,
-  Check,
-  Copy,
-  Download,
-  HelpCircle,
-  Play,
-  Plus,
-  Search,
-  Square,
-  Trash2,
-  X,
-} from "lucide-solid";
 import {
   For,
   Show,
@@ -364,7 +351,7 @@ function PacketSenderLabelHelp(): JSX.Element {
             <Button
               {...(triggerProps({
                 "aria-label": "Packet placeholders",
-                children: <HelpCircle class="button__icon" />,
+                children: <Icon icon="help_circle" class="button__icon" />,
                 class: "packets-placeholder-help-button",
                 size: "icon-sm",
                 type: "button",
@@ -1075,7 +1062,7 @@ function App(): JSX.Element {
                 copiedPacketId() === props.entry.id,
             }}
           >
-            <Check aria-hidden="true" />
+            <Icon icon="check" aria-hidden="true" />
           </span>
         </button>
         <TooltipIconButton
@@ -1098,10 +1085,10 @@ function App(): JSX.Element {
           }
         >
           <span class="packets-log-row__queue-icon packets-log-row__queue-icon--plus">
-            <Plus class="button__icon" />
+            <Icon icon="plus" class="button__icon" />
           </span>
           <span class="packets-log-row__queue-icon packets-log-row__queue-icon--check">
-            <Check class="button__icon" />
+            <Icon icon="check" class="button__icon" />
           </span>
         </TooltipIconButton>
       </div>
@@ -1184,10 +1171,10 @@ function App(): JSX.Element {
                     class="packets-copy-button__icon-stack"
                   >
                     <span class="packets-copy-button__icon packets-copy-button__icon--copy">
-                      <Copy class="button__icon" />
+                      <Icon icon="copy" class="button__icon" />
                     </span>
                     <span class="packets-copy-button__icon packets-copy-button__icon--check">
-                      <Check class="button__icon" />
+                      <Icon icon="check" class="button__icon" />
                     </span>
                   </span>
                   <span
@@ -1210,7 +1197,7 @@ function App(): JSX.Element {
                   type="button"
                   variant="outline"
                 >
-                  <Download class="button__icon" />
+                  <Icon icon="download" class="button__icon" />
                   <span class="packets-header__button-label">Export</span>
                 </Button>
                 <Button
@@ -1223,9 +1210,9 @@ function App(): JSX.Element {
                   variant={captureRunning() ? "destructive-outline" : "default"}
                 >
                   {captureRunning() ? (
-                    <Square class="button__icon" />
+                    <Icon icon="square" class="button__icon" />
                   ) : (
-                    <Play class="button__icon" />
+                    <Icon icon="play" class="button__icon" />
                   )}
                   <span class="packets-header__button-label">
                     {captureRunning() ? "Stop capture" : "Start capture"}
@@ -1246,9 +1233,9 @@ function App(): JSX.Element {
                   variant={queueRunning() ? "destructive-outline" : "default"}
                 >
                   {queueRunning() ? (
-                    <Square class="button__icon" />
+                    <Icon icon="square" class="button__icon" />
                   ) : (
-                    <Play class="button__icon" />
+                    <Icon icon="play" class="button__icon" />
                   )}
                   <span class="packets-header__button-label">
                     {queueRunning() ? "Stop queue" : "Start queue"}
@@ -1279,7 +1266,7 @@ function App(): JSX.Element {
                   type="button"
                   variant="ghost"
                 >
-                  <X class="button__icon" />
+                  <Icon icon="x" class="button__icon" />
                 </IconButton>
               </div>
             </Show>
@@ -1290,7 +1277,7 @@ function App(): JSX.Element {
                   <div class="packets-log-tools">
                     <InputGroup class="packets-search">
                       <InputGroupAddon>
-                        <Search aria-hidden="true" />
+                        <Icon icon="search" aria-hidden="true" />
                       </InputGroupAddon>
                       <InputGroupInput
                         ref={(element) => {
@@ -1366,7 +1353,7 @@ function App(): JSX.Element {
                         type="button"
                         variant="destructive-outline"
                       >
-                        <Trash2 class="button__icon" />
+                        <Icon icon="trash_2" class="button__icon" />
                         Clear
                       </Button>
                     </div>
@@ -1531,7 +1518,7 @@ function App(): JSX.Element {
                             type="button"
                             variant="outline"
                           >
-                            <Plus class="button__icon" />
+                            <Icon icon="plus" class="button__icon" />
                             Add to queue
                           </Button>
                         </div>
@@ -1607,7 +1594,7 @@ function App(): JSX.Element {
                               onClick={() => moveQueuePacket(-1)}
                               tooltip="Move up"
                             >
-                              <ArrowUp class="button__icon" />
+                              <Icon icon="arrow_up" class="button__icon" />
                             </TooltipIconButton>
                             <TooltipIconButton
                               aria-label="Move packet down"
@@ -1617,7 +1604,7 @@ function App(): JSX.Element {
                               onClick={() => moveQueuePacket(1)}
                               tooltip="Move down"
                             >
-                              <ArrowDown class="button__icon" />
+                              <Icon icon="arrow_down" class="button__icon" />
                             </TooltipIconButton>
                           </div>
                           <div class="packets-queue__actions-group">
@@ -1629,7 +1616,7 @@ function App(): JSX.Element {
                               onClick={removeQueuePacket}
                               tooltip="Remove"
                             >
-                              <Trash2 class="button__icon" />
+                              <Icon icon="trash_2" class="button__icon" />
                             </TooltipIconButton>
                             <Button
                               disabled={queue().length === 0 || queueRunning()}

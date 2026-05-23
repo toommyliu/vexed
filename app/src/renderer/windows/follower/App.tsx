@@ -2,6 +2,7 @@
 import "../../polyfills";
 import "./style.css";
 import {
+  Icon,
   AppShell,
   AppShellBody,
   AppShellHeader,
@@ -28,14 +29,6 @@ import {
   TooltipTrigger,
   type IconButtonProps,
 } from "@vexed/ui";
-import {
-  HelpCircle,
-  Play,
-  SlidersHorizontal,
-  Square,
-  UserRound,
-  X,
-} from "lucide-solid";
 import {
   For,
   Show,
@@ -120,7 +113,7 @@ function LabelHelp(props: {
             <IconButton
               {...(triggerProps({
                 "aria-label": `${props.label} help`,
-                children: <HelpCircle class="button__icon" />,
+                children: <Icon icon="help_circle" class="button__icon" />,
                 class: "follower-help-button",
                 size: "icon-xs",
                 type: "button",
@@ -398,9 +391,9 @@ function App(): JSX.Element {
             onClick={toggle}
           >
             {running() ? (
-              <Square class="button__icon" />
+              <Icon icon="square" class="button__icon" />
             ) : (
-              <Play class="button__icon" />
+              <Icon icon="play" class="button__icon" />
             )}
             {running() ? "Stop" : "Start"}
           </Button>
@@ -418,7 +411,7 @@ function App(): JSX.Element {
                 variant="ghost"
                 onClick={() => setDismissedIssue(true)}
               >
-                <X class="button__icon" />
+                <Icon icon="x" class="button__icon" />
               </IconButton>
             </div>
           </Show>
@@ -448,7 +441,7 @@ function App(): JSX.Element {
                         disabled={running()}
                         onClick={() => void fillMe()}
                       >
-                        <UserRound class="button__icon" />
+                        <Icon icon="user_round" class="button__icon" />
                         Me
                       </Button>
                     </div>
@@ -566,7 +559,7 @@ function App(): JSX.Element {
                         tooltip="Configure skill profiles"
                         onClick={() => void openSkills()}
                       >
-                        <SlidersHorizontal class="button__icon" />
+                        <Icon icon="sliders_horizontal" class="button__icon" />
                       </TooltipIconButton>
                     </div>
                     <Select
