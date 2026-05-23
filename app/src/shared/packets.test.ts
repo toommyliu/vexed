@@ -4,6 +4,7 @@ import {
   PACKET_QUEUE_MIN_DELAY_MS,
   clampPacketQueueDelay,
   isPacketSendTarget,
+  normalizePacketQueuePayload,
   normalizePacketText,
   resolvePacketPlaceholders,
   type PacketPlaceholderContext,
@@ -48,6 +49,30 @@ describe("packet helpers", () => {
     expect(clampPacketQueueDelay("not-a-number")).toBe(
       PACKET_QUEUE_DEFAULT_DELAY_MS,
     );
+  });
+
+  it("normalizes queue payloads with at least one packet", () => {
+    expect(
+      normalizePacketQueuePayload({
+        delayMs: "1e3",
+        packets: ["%xt%", 42, "%json%"],
+        target: "server-string",
+      }),
+    ).toEqual({
+      delayMs: 1000,
+      packets: ["%xt%", "%json%"],
+      target: "server-string",
+    });
+  });
+
+  it("rejects queue payloads without sendable packets", () => {
+    expect(() =>
+      normalizePacketQueuePayload({
+        delayMs: 250,
+        packets: [42, null],
+        target: "server-string",
+      }),
+    ).toThrow("Packet queue is empty");
   });
 
   it("resolves semantic packet placeholders", () => {

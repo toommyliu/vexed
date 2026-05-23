@@ -7,11 +7,10 @@ import {
   type PacketsResponseMessage,
 } from "../shared/ipc";
 import {
-  clampPacketQueueDelay,
   isPacketCaptureType,
   isPacketSendTarget,
+  normalizePacketQueuePayload,
   type PacketCapturedPayload,
-  type PacketQueuePayload,
   type PacketSendPayload,
   type PacketsStatusPayload,
 } from "../shared/packets";
@@ -135,23 +134,6 @@ const normalizeSendPayload = (payload: unknown): PacketSendPayload => {
   };
 };
 
-const normalizeQueuePayload = (payload: unknown): PacketQueuePayload => {
-  const record = payload as Partial<PacketQueuePayload> | null;
-  if (!record || !Array.isArray(record.packets)) {
-    throw new Error("Packet queue is required");
-  }
-
-  if (!isPacketSendTarget(record.target)) {
-    throw new Error("Invalid packet send target");
-  }
-
-  return {
-    delayMs: clampPacketQueueDelay(record.delayMs),
-    packets: record.packets.filter((packet) => typeof packet === "string"),
-    target: record.target,
-  };
-};
-
 const normalizeCapturedPayload = (
   payload: unknown,
 ): PacketCapturedPayload | null => {
@@ -244,7 +226,11 @@ export const registerPacketsIpcHandlers = (
     PacketsIpcChannels.startQueue,
     async (event, payload: unknown) =>
       runWindowEffect(
-        sendPacketsRequest(event, "startQueue", normalizeQueuePayload(payload)),
+        sendPacketsRequest(
+          event,
+          "startQueue",
+          normalizePacketQueuePayload(payload),
+        ),
       ),
   );
 

@@ -96,6 +96,32 @@ export const normalizePacketText = (
     ? packet.slice(CLIENT_PACKET_PREFIX.length)
     : packet;
 
+export const normalizePacketQueuePayload = (
+  payload: unknown,
+): PacketQueuePayload => {
+  const record = payload as Partial<PacketQueuePayload> | null;
+  if (!record || !Array.isArray(record.packets)) {
+    throw new Error("Packet queue is required");
+  }
+
+  if (!isPacketSendTarget(record.target)) {
+    throw new Error("Invalid packet send target");
+  }
+
+  const packets = record.packets.filter(
+    (packet): packet is string => typeof packet === "string",
+  );
+  if (packets.length === 0) {
+    throw new Error("Packet queue is empty");
+  }
+
+  return {
+    delayMs: clampPacketQueueDelay(record.delayMs),
+    packets,
+    target: record.target,
+  };
+};
+
 export const resolvePacketPlaceholders = (
   packet: string,
   context: PacketPlaceholderContext,

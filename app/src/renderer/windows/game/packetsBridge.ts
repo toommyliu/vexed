@@ -2,6 +2,7 @@ import { Effect } from "effect";
 import {
   clampPacketQueueDelay,
   isPacketSendTarget,
+  normalizePacketQueuePayload,
   resolvePacketPlaceholders,
   type PacketPlaceholderContext,
   type PacketQueuePayload,
@@ -50,23 +51,6 @@ const normalizeSendPayload = (payload: unknown): PacketSendPayload => {
 
   return {
     packet: record.packet,
-    target: record.target,
-  };
-};
-
-const normalizeQueuePayload = (payload: unknown): PacketQueuePayload => {
-  const record = payload as Partial<PacketQueuePayload> | null;
-  if (!record || !Array.isArray(record.packets)) {
-    throw new Error("Packet queue is required");
-  }
-
-  if (!isPacketSendTarget(record.target)) {
-    throw new Error("Invalid packet send target");
-  }
-
-  return {
-    delayMs: clampPacketQueueDelay(record.delayMs),
-    packets: record.packets.filter((packet) => typeof packet === "string"),
     target: record.target,
   };
 };
@@ -244,11 +228,11 @@ export const installPacketsBridge = (
   };
 
   const startQueue = (payload: PacketQueuePayload): void => {
-    stopQueue(false);
     if (payload.packets.length === 0) {
-      return;
+      throw new Error("Packet queue is empty");
     }
 
+    stopQueue(false);
     queueState = {
       delayMs: clampPacketQueueDelay(payload.delayMs),
       index: 0,
@@ -272,7 +256,7 @@ export const installPacketsBridge = (
       } else if (request.kind === "send") {
         await sendPacket(normalizeSendPayload(request.payload));
       } else if (request.kind === "startQueue") {
-        startQueue(normalizeQueuePayload(request.payload));
+        startQueue(normalizePacketQueuePayload(request.payload));
       } else if (request.kind === "stopQueue") {
         stopQueue();
       } else {
