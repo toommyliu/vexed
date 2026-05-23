@@ -27,6 +27,7 @@ import { registerCombatProfilesIpcHandlers } from "./combat-profiles-ipc";
 import { createApplicationMenu } from "./menu";
 import { registerEnvironmentIpcHandlers } from "./environment-ipc";
 import { registerFollowerIpcHandlers } from "./follower-ipc";
+import { registerPacketsIpcHandlers } from "./packets-ipc";
 import * as Appearance from "./settings/Appearance";
 import * as Files from "./settings/Files";
 import * as Preferences from "./settings/Preferences";
@@ -349,6 +350,7 @@ app.whenReady().then(() => {
   registerCombatProfilesIpcHandlers();
   registerEnvironmentIpcHandlers(runConfiguredWindowEffect);
   registerFollowerIpcHandlers(runConfiguredWindowEffect);
+  registerPacketsIpcHandlers(runConfiguredWindowEffect);
   registerSettingsIpcHandlers();
   registerWindowIpcHandlers(runConfiguredWindowEffect);
   installNativeThemeChangeBroadcast();

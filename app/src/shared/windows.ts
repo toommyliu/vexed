@@ -6,8 +6,7 @@ export const WindowIds = {
   FastTravels: "fast-travels",
   LoaderGrabber: "loader-grabber",
   Follower: "follower",
-  PacketLogger: "packet-logger",
-  PacketSpammer: "packet-spammer",
+  Packets: "packets",
 } as const;
 
 export type WindowId = (typeof WindowIds)[keyof typeof WindowIds];
@@ -134,25 +133,16 @@ export const gameWindowGroups: readonly WindowGroup[] = [
     name: "Packets",
     items: [
       {
-        id: WindowIds.PacketLogger,
-        label: "Logger",
-        description: "Capture packets for the active game window.",
+        id: WindowIds.Packets,
+        label: "Packets",
+        description: "Capture and send packets for the active game window.",
         scope: "game-child",
         closeBehavior: "hide",
         dimensions: {
-          width: 643,
-          height: 534,
-        },
-      },
-      {
-        id: WindowIds.PacketSpammer,
-        label: "Spammer",
-        description: "Send packet payloads to the active game window.",
-        scope: "game-child",
-        closeBehavior: "hide",
-        dimensions: {
-          width: 641,
-          height: 542,
+          width: 760,
+          height: 560,
+          minWidth: 680,
+          minHeight: 500,
         },
       },
     ],

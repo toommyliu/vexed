@@ -147,8 +147,7 @@ const windowCommandIds: Partial<Record<WindowId, GameCommandId>> = {
   [WindowIds.FastTravels]: "openFastTravels",
   [WindowIds.LoaderGrabber]: "openLoaderGrabber",
   [WindowIds.Follower]: "openFollower",
-  [WindowIds.PacketLogger]: "openPacketLogger",
-  [WindowIds.PacketSpammer]: "openPacketSpammer",
+  [WindowIds.Packets]: "openPackets",
 };
 
 const windowHotkey = (bindings: HotkeyBindings, id: WindowId): string => {
@@ -308,7 +307,8 @@ export function TopNavOptionsMenuContent(
   );
 }
 
-export interface TopNavHiddenOptionsMenuProps extends TopNavOptionsMenuContentProps {
+export interface TopNavHiddenOptionsMenuProps
+  extends TopNavOptionsMenuContentProps {
   readonly open: Accessor<boolean>;
   readonly setOpen: (open: boolean) => void;
 }

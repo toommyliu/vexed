@@ -60,13 +60,8 @@ const solidRendererTargets = [
     html: "src/renderer/windows/index.html",
   },
   {
-    name: "packet-logger",
-    entryPoint: "./src/renderer/windows/packet-logger/App.tsx",
-    html: "src/renderer/windows/index.html",
-  },
-  {
-    name: "packet-spammer",
-    entryPoint: "./src/renderer/windows/packet-spammer/App.tsx",
+    name: "packets",
+    entryPoint: "./src/renderer/windows/packets/App.tsx",
     html: "src/renderer/windows/index.html",
   },
 ];

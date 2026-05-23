@@ -17,8 +17,7 @@ export type GameCommandId =
   | "openFastTravels"
   | "openLoaderGrabber"
   | "openFollower"
-  | "openPacketLogger"
-  | "openPacketSpammer"
+  | "openPackets"
   | "toggleAutoattack"
   | "toggleFollower"
   | "toggleBank"
@@ -121,19 +120,11 @@ export const GAME_COMMANDS: readonly CommandDefinition[] = [
     defaultHotkey: "Alt+F",
   },
   {
-    id: "openPacketLogger",
+    id: "openPackets",
     scope: "game",
     category: "Packets",
-    label: "Open Packet Logger",
-    keywords: ["window", "log", "capture"],
-    defaultHotkey: "",
-  },
-  {
-    id: "openPacketSpammer",
-    scope: "game",
-    category: "Packets",
-    label: "Open Packet Spammer",
-    keywords: ["window", "send", "spam"],
+    label: "Open Packets",
+    keywords: ["window", "packet", "packets", "log", "capture", "send"],
     defaultHotkey: "",
   },
   {

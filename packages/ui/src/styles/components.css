@@ -1045,6 +1045,9 @@ body::-webkit-scrollbar-corner,
 .checkbox__input:checked + .checkbox__control {
   background: rgb(var(--primary));
   border-color: rgb(var(--primary));
+}
+
+.checkbox__input:checked:not(:focus-visible) + .checkbox__control {
   box-shadow: none;
 }
 
@@ -1479,6 +1482,9 @@ a.badge--destructive:hover {
   --app-shell-padding-block: clamp(0.75rem, 1.25vw, 1.25rem);
   --app-shell-padding-inline: clamp(1rem, 2.5vw, 2rem);
   --app-shell-header-padding-block: clamp(0.375rem, 0.75vw, 0.625rem);
+  --app-shell-header-focus-gutter: 0.1875rem;
+  --app-shell-header-focus-gutter-double: 0.375rem;
+  --app-shell-header-focus-gutter-negative: -0.1875rem;
 
   background: rgb(var(--background));
   color: rgb(var(--foreground));
@@ -1588,6 +1594,30 @@ a.badge--destructive:hover {
   justify-content: flex-end;
 }
 
+.app-shell__header-action-region {
+  align-items: center;
+  display: flex;
+  flex: 0 1 auto;
+  gap: inherit;
+  justify-content: inherit;
+  margin: var(--app-shell-header-focus-gutter-negative);
+  max-width: calc(100% + var(--app-shell-header-focus-gutter-double));
+  min-width: 0;
+  overflow-x: auto;
+  overscroll-behavior-x: contain;
+  padding: var(--app-shell-header-focus-gutter);
+  scrollbar-width: none;
+  white-space: nowrap;
+}
+
+.app-shell__header-action-region::-webkit-scrollbar {
+  display: none;
+}
+
+.app-shell__header-action-region > * {
+  flex: 0 0 auto;
+}
+
 .app-shell__header[data-orientation="horizontal"] .app-shell__header-left {
   align-items: flex-start;
   flex-direction: column;
@@ -1598,6 +1628,17 @@ a.badge--destructive:hover {
   flex-direction: column;
   margin-top: auto;
   padding-top: 1rem;
+}
+
+.app-shell__header[data-orientation="horizontal"]
+  .app-shell__header-action-region {
+  align-items: stretch;
+  flex-direction: column;
+  max-height: calc(100% + var(--app-shell-header-focus-gutter-double));
+  max-width: none;
+  overflow-x: visible;
+  overflow-y: auto;
+  white-space: normal;
 }
 
 .app-shell__header-custom {

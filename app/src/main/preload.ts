@@ -9,6 +9,7 @@ import {
   CombatProfilesIpcChannels,
   EnvironmentIpcChannels,
   FollowerIpcChannels,
+  PacketsIpcChannels,
   SettingsIpcChannels,
   ScriptingIpcChannels,
   WindowIpcChannels,
@@ -44,6 +45,12 @@ import {
   type ManagedAccountGroupPatch,
   type ManagedAccountDraft,
   type ManagedAccountPatch,
+  type PacketCapturedPayload,
+  type PacketQueuePayload,
+  type PacketsRequestMessage,
+  type PacketsResponseMessage,
+  type PacketsStatusPayload,
+  type PacketSendPayload,
   type PreferencesPatch,
   type ScriptExecutePayload,
 } from "../shared/ipc";
@@ -89,6 +96,9 @@ const followerStartRequestListeners = new Set<
 >();
 const followerStopRequestListeners = new Set<
   () => Promise<FollowerState> | FollowerState
+>();
+const packetRequestListeners = new Set<
+  (request: PacketsRequestMessage) => void
 >();
 
 const latestEnvironmentFetchBoostsListener = ():
@@ -219,7 +229,9 @@ ipcRenderer.on(
     };
 
     void run()
-      .then((value) => respond({ requestId: request.requestId, ok: true, value }))
+      .then((value) =>
+        respond({ requestId: request.requestId, ok: true, value }),
+      )
       .catch((cause: unknown) =>
         respond({
           requestId: request.requestId,
@@ -227,6 +239,15 @@ ipcRenderer.on(
           error: followerRequestErrorMessage(cause),
         }),
       );
+  },
+);
+
+ipcRenderer.on(
+  PacketsIpcChannels.request,
+  (_event, request: PacketsRequestMessage) => {
+    for (const listener of packetRequestListeners) {
+      listener(request);
+    }
   },
 );
 
@@ -553,7 +574,9 @@ const bridge: AppBridge = {
       )) as FollowerState;
     },
     stop: async () => {
-      return (await ipcRenderer.invoke(FollowerIpcChannels.stop)) as FollowerState;
+      return (await ipcRenderer.invoke(
+        FollowerIpcChannels.stop,
+      )) as FollowerState;
     },
     publishState: async (state: FollowerState) => {
       await ipcRenderer.invoke(FollowerIpcChannels.publishState, state);
@@ -596,6 +619,64 @@ const bridge: AppBridge = {
       return () => {
         followerStopRequestListeners.delete(listener);
       };
+    },
+  },
+  packets: {
+    startCapture: async () => {
+      await ipcRenderer.invoke(PacketsIpcChannels.startCapture);
+    },
+    stopCapture: async () => {
+      await ipcRenderer.invoke(PacketsIpcChannels.stopCapture);
+    },
+    send: async (payload: PacketSendPayload) => {
+      await ipcRenderer.invoke(PacketsIpcChannels.send, payload);
+    },
+    startQueue: async (payload: PacketQueuePayload) => {
+      await ipcRenderer.invoke(PacketsIpcChannels.startQueue, payload);
+    },
+    stopQueue: async () => {
+      await ipcRenderer.invoke(PacketsIpcChannels.stopQueue);
+    },
+    publishCaptured: async (payload: PacketCapturedPayload) => {
+      await ipcRenderer.invoke(PacketsIpcChannels.publishCaptured, payload);
+    },
+    publishStatus: async (payload: PacketsStatusPayload) => {
+      await ipcRenderer.invoke(PacketsIpcChannels.publishStatus, payload);
+    },
+    onCaptured: (listener) => {
+      const subscription = (
+        _event: unknown,
+        payload: PacketCapturedPayload,
+      ) => {
+        listener(payload);
+      };
+
+      ipcRenderer.on(PacketsIpcChannels.captured, subscription);
+
+      return () => {
+        ipcRenderer.removeListener(PacketsIpcChannels.captured, subscription);
+      };
+    },
+    onStatus: (listener) => {
+      const subscription = (_event: unknown, payload: PacketsStatusPayload) => {
+        listener(payload);
+      };
+
+      ipcRenderer.on(PacketsIpcChannels.status, subscription);
+
+      return () => {
+        ipcRenderer.removeListener(PacketsIpcChannels.status, subscription);
+      };
+    },
+    onRequest: (listener) => {
+      packetRequestListeners.add(listener);
+
+      return () => {
+        packetRequestListeners.delete(listener);
+      };
+    },
+    respond: async (response: PacketsResponseMessage) => {
+      ipcRenderer.send(PacketsIpcChannels.response, response);
     },
   },
   platform: {
