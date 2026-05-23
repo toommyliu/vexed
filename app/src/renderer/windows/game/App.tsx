@@ -40,8 +40,19 @@ import { Settings, type SettingsShape } from "./flash/Services/Settings";
 import { Auth } from "./flash/Services/Auth";
 import { SwfMethodNotFoundError, SwfUnavailableError } from "./flash/Errors";
 import { Bank } from "./flash/Services/Bank";
+import { Combat } from "./flash/Services/Combat";
+import { Drops } from "./flash/Services/Drops";
+import { House } from "./flash/Services/House";
+import { Inventory } from "./flash/Services/Inventory";
+import { Outfits } from "./flash/Services/Outfits";
+import { Packet } from "./flash/Services/Packet";
 import { Player } from "./flash/Services/Player";
+import { Quests } from "./flash/Services/Quests";
+import { Shops } from "./flash/Services/Shops";
+import { TempInventory } from "./flash/Services/TempInventory";
 import { World } from "./flash/Services/World";
+import { Army } from "./army/Services/Army";
+import { Environment } from "./environment/Services/Environment";
 import {
   AutoAttack,
   type AutoAttackState,
@@ -74,6 +85,14 @@ import {
   type TopNavOptionItem,
 } from "./topNavOptions";
 import { ScriptRunner } from "./scripting/Services/ScriptRunner";
+
+declare global {
+  namespace NodeJS {
+    interface ProcessEnv {
+      readonly NODE_ENV?: string;
+    }
+  }
+}
 
 const ACCOUNT_SCRIPT_STATUS_POLL_MS = 1000;
 const AUTO_RELOGIN_DEFAULT_DELAY_MS = 3000;
@@ -147,6 +166,609 @@ const defaultSettings: AppSettings = {
   appearance: DEFAULT_APPEARANCE,
   hotkeys: DEFAULT_HOTKEYS,
 };
+
+type DebugEvalMode = "script" | "internal";
+
+interface DevDebugEvaluatorProps {
+  readonly applyLoadedScript: (source: string, name: string) => void;
+  readonly refreshScriptMeta: () => Promise<void>;
+}
+
+const createDebugScriptSource = (source: string): string =>
+  source.includes("module.exports")
+    ? source
+    : `module.exports = function* debug({ api, script, autoRelogin, autoZone, counterAttack }) {
+${source}
+};`;
+
+const formatEvalValue = (value: unknown): string => {
+  if (value === undefined) {
+    return "undefined";
+  }
+
+  if (typeof value === "string") {
+    return value;
+  }
+
+  try {
+    return JSON.stringify(value, null, 2) ?? String(value);
+  } catch {
+    return String(value);
+  }
+};
+
+const formatEvalError = (error: unknown): string =>
+  error instanceof Error && error.message !== ""
+    ? error.message
+    : String(error);
+
+const DevDebugEvaluator =
+  process.env.NODE_ENV === "development"
+    ? (props: DevDebugEvaluatorProps): JSX.Element => {
+        const DEBUG_EVAL_OUTPUT_LIMIT = 2000;
+        const DEBUG_EVAL_SOURCE_NAME = "debug-eval.js";
+        const DEFAULT_SCRIPT_DEBUG_SOURCE = `const cell = yield* api.player.getCell();
+script.log(\`Cell: \${cell}\`);`;
+        const DEFAULT_INTERNAL_DEBUG_SOURCE = `return yield* services.player.getCell();`;
+        const DEBUG_PANEL_MARGIN_PX = 12;
+        const DEBUG_PANEL_MIN_WIDTH_PX = 320;
+        const DEBUG_PANEL_MIN_HEIGHT_PX = 220;
+        const DEBUG_PANEL_DEFAULT_WIDTH_PX = 432;
+        const DEBUG_PANEL_DEFAULT_HEIGHT_PX = 360;
+        const EffectFunction = Function as unknown as new (
+          ...args: string[]
+        ) => (
+          services: Record<string, unknown>,
+          effect: typeof Effect,
+        ) => Effect.Effect<unknown, unknown>;
+        type DebugPanelFrame = {
+          readonly height: number;
+          readonly width: number;
+          readonly x: number;
+          readonly y: number;
+        };
+
+        const [open, setOpen] = createSignal(false);
+        const [mode, setMode] = createSignal<DebugEvalMode>("script");
+        const [scriptSource, setScriptSource] = createSignal(
+          DEFAULT_SCRIPT_DEBUG_SOURCE,
+        );
+        const [internalSource, setInternalSource] = createSignal(
+          DEFAULT_INTERNAL_DEBUG_SOURCE,
+        );
+        const [status, setStatus] = createSignal("Idle");
+        const [output, setOutput] = createSignal("");
+        const [running, setRunning] = createSignal(false);
+        const clampPanelFrame = (frame: DebugPanelFrame): DebugPanelFrame => {
+          const maxWidth = Math.max(
+            DEBUG_PANEL_MIN_WIDTH_PX,
+            window.innerWidth - DEBUG_PANEL_MARGIN_PX * 2,
+          );
+          const maxHeight = Math.max(
+            DEBUG_PANEL_MIN_HEIGHT_PX,
+            window.innerHeight - DEBUG_PANEL_MARGIN_PX * 2,
+          );
+          const width = Math.min(
+            Math.max(frame.width, DEBUG_PANEL_MIN_WIDTH_PX),
+            maxWidth,
+          );
+          const height = Math.min(
+            Math.max(frame.height, DEBUG_PANEL_MIN_HEIGHT_PX),
+            maxHeight,
+          );
+
+          return {
+            height,
+            width,
+            x: Math.min(
+              Math.max(frame.x, DEBUG_PANEL_MARGIN_PX),
+              Math.max(
+                DEBUG_PANEL_MARGIN_PX,
+                window.innerWidth - width - DEBUG_PANEL_MARGIN_PX,
+              ),
+            ),
+            y: Math.min(
+              Math.max(frame.y, DEBUG_PANEL_MARGIN_PX),
+              Math.max(
+                DEBUG_PANEL_MARGIN_PX,
+                window.innerHeight - height - DEBUG_PANEL_MARGIN_PX,
+              ),
+            ),
+          };
+        };
+        const createInitialPanelFrame = (): DebugPanelFrame => {
+          const width = Math.min(
+            DEBUG_PANEL_DEFAULT_WIDTH_PX,
+            Math.max(
+              DEBUG_PANEL_MIN_WIDTH_PX,
+              window.innerWidth - DEBUG_PANEL_MARGIN_PX * 2,
+            ),
+          );
+          const height = Math.min(
+            DEBUG_PANEL_DEFAULT_HEIGHT_PX,
+            Math.max(
+              DEBUG_PANEL_MIN_HEIGHT_PX,
+              window.innerHeight - DEBUG_PANEL_MARGIN_PX * 2,
+            ),
+          );
+
+          return clampPanelFrame({
+            height,
+            width,
+            x: window.innerWidth - width - DEBUG_PANEL_MARGIN_PX,
+            y: window.innerHeight - height - DEBUG_PANEL_MARGIN_PX,
+          });
+        };
+        const [panelFrame, setPanelFrame] = createSignal<DebugPanelFrame>(
+          createInitialPanelFrame(),
+        );
+        let panelElement: HTMLDivElement | undefined;
+        let panelResizeObserver: ResizeObserver | undefined;
+        let cleanupPanelPointer: (() => void) | undefined;
+
+        const currentSource = () =>
+          mode() === "script" ? scriptSource() : internalSource();
+
+        onMount(() => {
+          const handleResize = () => {
+            setPanelFrame(clampPanelFrame);
+          };
+          panelResizeObserver = new ResizeObserver((entries) => {
+            const entry = entries[0];
+            const borderBoxSize = entry?.borderBoxSize[0];
+            const width =
+              borderBoxSize === undefined
+                ? panelElement?.offsetWidth
+                : borderBoxSize.inlineSize;
+            const height =
+              borderBoxSize === undefined
+                ? panelElement?.offsetHeight
+                : borderBoxSize.blockSize;
+
+            if (width === undefined || height === undefined) {
+              return;
+            }
+
+            setPanelFrame((frame) =>
+              clampPanelFrame({
+                ...frame,
+                height: Math.round(height),
+                width: Math.round(width),
+              }),
+            );
+          });
+
+          window.addEventListener("resize", handleResize);
+          onCleanup(() => {
+            cleanupPanelPointer?.();
+            panelResizeObserver?.disconnect();
+            window.removeEventListener("resize", handleResize);
+          });
+        });
+
+        createEffect(() => {
+          const element = panelElement;
+          const observer = panelResizeObserver;
+          if (!open() || element === undefined || observer === undefined) {
+            return;
+          }
+
+          observer.observe(element);
+          onCleanup(() => {
+            observer.unobserve(element);
+          });
+        });
+
+        const truncateOutput = (value: string): string =>
+          value.length <= DEBUG_EVAL_OUTPUT_LIMIT
+            ? value
+            : `${value.slice(0, DEBUG_EVAL_OUTPUT_LIMIT)}...`;
+
+        const runInternalEval = (source: string): Promise<unknown> =>
+          runtime.runPromise(
+            Effect.gen(function* () {
+              const army = yield* Army;
+              const auth = yield* Auth;
+              const autoAttack = yield* AutoAttack;
+              const autoRelogin = yield* AutoRelogin;
+              const autoZone = yield* AutoZone;
+              const bank = yield* Bank;
+              const combat = yield* Combat;
+              const drops = yield* Drops;
+              const environment = yield* Environment;
+              const house = yield* House;
+              const inventory = yield* Inventory;
+              const outfits = yield* Outfits;
+              const packet = yield* Packet;
+              const player = yield* Player;
+              const quests = yield* Quests;
+              const settings = yield* Settings;
+              const shops = yield* Shops;
+              const tempInventory = yield* TempInventory;
+              const world = yield* World;
+              const services = {
+                army,
+                auth,
+                autoAttack,
+                autoRelogin,
+                autoZone,
+                bank,
+                combat,
+                drops,
+                environment,
+                house,
+                inventory,
+                outfits,
+                packet,
+                player,
+                quests,
+                settings,
+                shops,
+                tempInventory,
+                world,
+              };
+              const compileInternalEval = new EffectFunction(
+                "services",
+                "Effect",
+                `"use strict";
+return Effect.gen(function* debugInternalEval() {
+${source}
+});`,
+              );
+
+              return yield* compileInternalEval(services, Effect);
+            }),
+          );
+
+        const loadAsScript = () => {
+          if (running()) {
+            return;
+          }
+
+          if (mode() !== "script") {
+            setStatus("Script API mode required to load");
+            return;
+          }
+
+          const source = currentSource().trim();
+          if (source === "") {
+            setStatus("No code to load");
+            return;
+          }
+
+          props.applyLoadedScript(
+            createDebugScriptSource(source),
+            DEBUG_EVAL_SOURCE_NAME,
+          );
+          setStatus("Loaded into script runner");
+          setOutput("");
+          void props.refreshScriptMeta();
+        };
+
+        const runEval = () => {
+          if (running()) {
+            return;
+          }
+
+          const source = currentSource().trim();
+          if (source === "") {
+            setStatus("No code to evaluate");
+            setOutput("");
+            return;
+          }
+
+          const evalMode = mode();
+          setRunning(true);
+          setStatus(`Running ${evalMode} eval`);
+          setOutput("");
+
+          const task =
+            evalMode === "script"
+              ? runtime.runPromise(
+                  Effect.gen(function* () {
+                    const runner = yield* ScriptRunner;
+                    yield* runner.run(createDebugScriptSource(source), {
+                      name: DEBUG_EVAL_SOURCE_NAME,
+                    });
+                    return "Script eval started";
+                  }),
+                )
+              : runInternalEval(source);
+
+          void task
+            .then((value) => {
+              setStatus("Eval complete");
+              setOutput(truncateOutput(formatEvalValue(value)));
+              void props.refreshScriptMeta();
+            })
+            .catch((error: unknown) => {
+              setStatus("Eval failed");
+              setOutput(truncateOutput(formatEvalError(error)));
+              void props.refreshScriptMeta();
+            })
+            .finally(() => {
+              setRunning(false);
+            });
+        };
+
+        const startPanelDrag: JSX.EventHandler<HTMLElement, PointerEvent> = (
+          event,
+        ) => {
+          if (event.button !== 0) {
+            return;
+          }
+
+          event.preventDefault();
+          cleanupPanelPointer?.();
+          const startFrame = panelFrame();
+          const startX = event.clientX;
+          const startY = event.clientY;
+          event.currentTarget.setPointerCapture(event.pointerId);
+
+          const handlePointerMove = (moveEvent: PointerEvent) => {
+            setPanelFrame(
+              clampPanelFrame({
+                ...startFrame,
+                x: startFrame.x + moveEvent.clientX - startX,
+                y: startFrame.y + moveEvent.clientY - startY,
+              }),
+            );
+          };
+          const handlePointerUp = () => {
+            window.removeEventListener("pointermove", handlePointerMove);
+            window.removeEventListener("pointerup", handlePointerUp);
+            window.removeEventListener("pointercancel", handlePointerUp);
+            cleanupPanelPointer = undefined;
+          };
+
+          cleanupPanelPointer = handlePointerUp;
+          window.addEventListener("pointermove", handlePointerMove);
+          window.addEventListener("pointerup", handlePointerUp, { once: true });
+          window.addEventListener("pointercancel", handlePointerUp, {
+            once: true,
+          });
+        };
+
+        const handlePanelKeyDown: JSX.EventHandler<
+          HTMLElement,
+          KeyboardEvent
+        > = (event) => {
+          if ((event.metaKey || event.ctrlKey) && event.key === "Enter") {
+            event.preventDefault();
+            event.stopPropagation();
+
+            if (event.shiftKey) {
+              loadAsScript();
+            } else {
+              runEval();
+            }
+            return;
+          }
+
+          if (event.key !== "Escape" && event.key !== "Tab") {
+            event.stopPropagation();
+          }
+        };
+
+        return (
+          <aside
+            aria-label="Debug evaluator"
+            style={{
+              bottom: open() ? undefined : "0.75rem",
+              display: "grid",
+              gap: "0.5rem",
+              left: open() ? `${panelFrame().x}px` : undefined,
+              position: "fixed",
+              right: open() ? undefined : "0.75rem",
+              top: open() ? `${panelFrame().y}px` : undefined,
+              "z-index": "10002",
+              "pointer-events": "auto",
+            }}
+          >
+            <Show
+              when={open()}
+              fallback={
+                <button
+                  type="button"
+                  onClick={() => setOpen(true)}
+                  style={{
+                    "background-color": "var(--color-primary)",
+                    border: "1px solid rgba(var(--border), 0.8)",
+                    "border-radius": "var(--radius-sm)",
+                    color: "var(--color-primary-foreground)",
+                    cursor: "pointer",
+                    "font-size": "var(--text-sm)",
+                    padding: "0.375rem 0.625rem",
+                  }}
+                >
+                  Debug Eval
+                </button>
+              }
+            >
+              <div
+                ref={panelElement}
+                onKeyDown={handlePanelKeyDown}
+                style={{
+                  "background-color": "rgb(var(--popover))",
+                  border: "1px solid var(--color-border)",
+                  "border-radius": "var(--radius-md)",
+                  "box-sizing": "border-box",
+                  "box-shadow":
+                    "0 16px 44px rgba(var(--black), 0.22), 0 2px 8px rgba(var(--black), 0.12)",
+                  color: "rgb(var(--popover-foreground))",
+                  display: "grid",
+                  gap: "0.5rem",
+                  "grid-template-rows": "auto minmax(0, 1fr) auto auto",
+                  height: `${panelFrame().height}px`,
+                  "min-height": `${DEBUG_PANEL_MIN_HEIGHT_PX}px`,
+                  "min-width": `${DEBUG_PANEL_MIN_WIDTH_PX}px`,
+                  "max-height": `calc(100vh - ${panelFrame().y + DEBUG_PANEL_MARGIN_PX}px)`,
+                  "max-width": `calc(100vw - ${panelFrame().x + DEBUG_PANEL_MARGIN_PX}px)`,
+                  overflow: "hidden",
+                  padding: "0.625rem",
+                  position: "relative",
+                  resize: "both",
+                  width: `${panelFrame().width}px`,
+                }}
+              >
+                <div
+                  onPointerDown={startPanelDrag}
+                  style={{
+                    "align-items": "center",
+                    cursor: "move",
+                    display: "flex",
+                    gap: "0.5rem",
+                    "justify-content": "space-between",
+                    "touch-action": "none",
+                    "user-select": "none",
+                  }}
+                >
+                  <strong style={{ "font-size": "var(--text-sm)" }}>
+                    Debug Eval
+                  </strong>
+                  <div
+                    onPointerDown={(event) => event.stopPropagation()}
+                    style={{ display: "flex", gap: "0.375rem" }}
+                  >
+                    <select
+                      aria-label="Debug eval mode"
+                      value={mode()}
+                      onChange={(event) =>
+                        setMode(event.currentTarget.value as DebugEvalMode)
+                      }
+                      style={{
+                        "background-color": "var(--color-background)",
+                        border: "1px solid var(--color-border)",
+                        "border-radius": "var(--radius-sm)",
+                        color: "var(--color-foreground)",
+                        "font-size": "var(--text-sm)",
+                        padding: "0.25rem 0.375rem",
+                      }}
+                    >
+                      <option value="script">Script API</option>
+                      <option value="internal">Internal API</option>
+                    </select>
+                    <button
+                      aria-label="Close debug evaluator"
+                      type="button"
+                      onClick={() => setOpen(false)}
+                      style={{
+                        "background-color": "transparent",
+                        border: "1px solid var(--color-border)",
+                        "border-radius": "var(--radius-sm)",
+                        color: "var(--color-foreground)",
+                        cursor: "pointer",
+                        padding: "0.25rem 0.5rem",
+                      }}
+                    >
+                      Close
+                    </button>
+                  </div>
+                </div>
+                <textarea
+                  aria-label="Debug eval code"
+                  spellcheck={false}
+                  value={currentSource()}
+                  onInput={(event) => {
+                    if (mode() === "script") {
+                      setScriptSource(event.currentTarget.value);
+                    } else {
+                      setInternalSource(event.currentTarget.value);
+                    }
+                  }}
+                  style={{
+                    "background-color": "var(--color-background)",
+                    border: "1px solid var(--color-border)",
+                    "border-radius": "var(--radius-sm)",
+                    "box-sizing": "border-box",
+                    color: "var(--color-foreground)",
+                    "font-family": "var(--font-mono)",
+                    "font-size": "var(--text-sm)",
+                    height: "100%",
+                    "min-height": "0",
+                    padding: "0.5rem",
+                    resize: "none",
+                    width: "100%",
+                  }}
+                />
+                <div
+                  style={{
+                    display: "flex",
+                    gap: "0.375rem",
+                    "justify-content": "flex-end",
+                  }}
+                >
+                  <button
+                    type="button"
+                    disabled={running()}
+                    onClick={runEval}
+                    title="Run (Cmd/Ctrl+Enter)"
+                    style={{
+                      "background-color": "var(--color-primary)",
+                      border: "1px solid rgba(var(--border), 0.8)",
+                      "border-radius": "var(--radius-sm)",
+                      color: "var(--color-primary-foreground)",
+                      cursor: running() ? "not-allowed" : "pointer",
+                      padding: "0.375rem 0.625rem",
+                    }}
+                  >
+                    {running() ? "Running" : "Eval"}
+                  </button>
+                  <button
+                    type="button"
+                    disabled={mode() !== "script" || running()}
+                    onClick={loadAsScript}
+                    title="Load (Cmd/Ctrl+Shift+Enter)"
+                    style={{
+                      "background-color": "var(--color-background)",
+                      border: "1px solid var(--color-border)",
+                      "border-radius": "var(--radius-sm)",
+                      color: "var(--color-foreground)",
+                      cursor:
+                        mode() === "script" && !running()
+                          ? "pointer"
+                          : "not-allowed",
+                      padding: "0.375rem 0.625rem",
+                    }}
+                  >
+                    Load
+                  </button>
+                </div>
+                <div
+                  style={{
+                    color: "var(--color-muted-foreground)",
+                    display: "grid",
+                    "font-size": "var(--text-xs)",
+                    gap: "0.375rem",
+                  }}
+                >
+                  <span>{status()}</span>
+                  <Show when={output() !== ""}>
+                    <pre
+                      style={{
+                        "background-color": "rgba(var(--muted), 0.62)",
+                        border: "1px solid rgba(var(--border), 0.75)",
+                        "border-radius": "var(--radius-sm)",
+                        color: "var(--color-foreground)",
+                        "font-family": "var(--font-mono)",
+                        margin: "0",
+                        "max-height": "9rem",
+                        overflow: "auto",
+                        padding: "0.5rem",
+                        "white-space": "pre-wrap",
+                        "word-break": "break-word",
+                      }}
+                    >
+                      {output()}
+                    </pre>
+                  </Show>
+                </div>
+              </div>
+            </Show>
+          </aside>
+        );
+      }
+    : undefined;
 
 export default function App(props: {
   readonly initialSettings?: AppSettings | null;
@@ -1602,6 +2224,12 @@ export default function App(props: {
           handleOpenBank={handleOpenBank}
         />
       </Show>
+      {process.env.NODE_ENV === "development" && DevDebugEvaluator ? (
+        <DevDebugEvaluator
+          applyLoadedScript={applyLoadedScript}
+          refreshScriptMeta={refreshScriptMeta}
+        />
+      ) : null}
 
       <section
         id="loader-container"
