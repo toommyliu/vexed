@@ -18,3 +18,7 @@ List of capabilities added/removed/modified in the rewrite:
   - Custom script logic should be regular JavaScript functions/generators composed with `yield* api...` calls; custom command registration/subclassing is no longer part of the scripting model.
 
 - AutoRelogin: removed fallback server.
+- Combine Packet Logger and Spammer windows.
+- Follower / auto attack: introduce Combat Profiles.
+- Account Manager: introduce Groups.
+- 
