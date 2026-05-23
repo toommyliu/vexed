@@ -303,6 +303,27 @@ export const DEFAULT_COMBAT_PROFILE_LIBRARY: CombatProfileLibrary = {
   },
 };
 
+export const cloneCombatProfileLibrary = (
+  library: CombatProfileLibrary,
+): CombatProfileLibrary => ({
+  version: library.version,
+  profiles: library.profiles.map((profile) => ({
+    ...profile,
+    steps: profile.steps.map((step) => ({
+      ...step,
+      conditions: step.conditions.map((condition) => ({ ...condition })),
+    })),
+    ...(profile.animationTriggers === undefined
+      ? {}
+      : {
+          animationTriggers: profile.animationTriggers.map((trigger) => ({
+            ...trigger,
+          })),
+        }),
+  })),
+  autoAttack: { ...library.autoAttack },
+});
+
 const normalizeProfile = (
   value: unknown,
   reservedIds: Set<string>,
@@ -377,6 +398,26 @@ const normalizeAutoAttackState = (
   }
 
   return { mode: mode === "selected" ? "equipped-class" : mode };
+};
+
+export const parseCombatProfileAutoAttackState = (
+  value: unknown,
+  profileIds: ReadonlySet<string>,
+): CombatProfileAutoAttackState => {
+  if (!isRecord(value) || !isAutoAttackMode(value["mode"])) {
+    throw new Error("Auto attack state mode is invalid");
+  }
+
+  if (value["mode"] !== "selected") {
+    return { mode: value["mode"] };
+  }
+
+  const selectedProfileId = trimString(value["selectedProfileId"], 80);
+  if (selectedProfileId === undefined || !profileIds.has(selectedProfileId)) {
+    throw new Error("Selected combat profile does not exist");
+  }
+
+  return { mode: "selected", selectedProfileId };
 };
 
 export const normalizeCombatProfileLibrary = (

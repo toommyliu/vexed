@@ -1,7 +1,7 @@
 {
   "name": "vexed",
   "private": true,
-  "packageManager": "pnpm@10.17.0",
+  "packageManager": "pnpm@11.1.1",
   "scripts": {
     "as3": "pnpm run as3:bridge && pnpm run as3:build",
     "as3:bridge": "tsx scripts/gen-as3-bridge.ts",

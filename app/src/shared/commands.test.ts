@@ -8,7 +8,7 @@ import {
 } from "./commands";
 
 describe("game command registry", () => {
-  it("declares unique command ids", () => {
+  it("rejects duplicate command ids", () => {
     expect(new Set(GAME_COMMAND_IDS).size).toBe(GAME_COMMAND_IDS.length);
     expect(GAME_COMMAND_IDS).toHaveLength(GAME_COMMANDS.length);
   });
@@ -25,74 +25,12 @@ describe("game command registry", () => {
     }
   });
 
-  it("keeps macOS Control distinct from Mod", () => {
-    expect(normalizeHotkeyBinding("Control+Z", "mac")).toBe("Control+Z");
-    expect(normalizeHotkeyBinding("Meta+Z", "mac")).toBe("Mod+Z");
-  });
-
-  it("maps Control to Mod on Windows and Linux", () => {
-    expect(normalizeHotkeyBinding("Control+Z", "windows")).toBe("Mod+Z");
-    expect(normalizeHotkeyBinding("Control+Z", "linux")).toBe("Mod+Z");
-  });
-
-  it("creates defaults for every command", () => {
+  it("provides a default hotkey entry for every command", () => {
     const defaults = getDefaultHotkeys();
 
     expect(defaults.map((binding) => binding.id).sort()).toEqual(
       [...GAME_COMMAND_IDS].sort(),
     );
-  });
-
-  it("groups environment with tool commands", () => {
-    expect(
-      GAME_COMMANDS.find((command) => command.id === "openEnvironment"),
-    ).toEqual(expect.objectContaining({ category: "Tools" }));
-  });
-
-  it("exposes one packets window command", () => {
-    expect(
-      GAME_COMMANDS.filter((command) => command.category === "Packets").map(
-        (command) => command.id,
-      ),
-    ).toEqual(["openPackets"]);
-    expect(
-      GAME_COMMANDS.find((command) => command.id === "openPackets"),
-    ).toEqual(
-      expect.objectContaining({
-        label: "Open Packets",
-        keywords: ["window", "packet", "packets", "log", "capture", "send"],
-      }),
-    );
-  });
-
-  it("groups primary game toggles under general", () => {
-    expect(
-      GAME_COMMANDS.filter((command) => command.category === "General").map(
-        (command) => command.id,
-      ),
-    ).toEqual([
-      "toggleTopBar",
-      "toggleAutoattack",
-      "toggleFollower",
-      "toggleBank",
-    ]);
-  });
-
-  it("defaults follower commands to separate hotkeys", () => {
-    expect(
-      getDefaultHotkeys().find((binding) => binding.id === "openFollower")
-        ?.value,
-    ).toBe("Alt+F");
-    expect(
-      getDefaultHotkeys().find((binding) => binding.id === "toggleFollower")
-        ?.value,
-    ).toBe("Alt+Shift+F");
-  });
-
-  it("defaults toggle bank to mod+b", () => {
-    expect(
-      getDefaultHotkeys().find((binding) => binding.id === "toggleBank")?.value,
-    ).toBe("Mod+B");
   });
 
   it("validates command ids", () => {

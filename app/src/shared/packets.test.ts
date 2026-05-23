@@ -78,19 +78,10 @@ describe("packet helpers", () => {
   it("resolves semantic packet placeholders", () => {
     expect(
       resolvePacketPlaceholders(
-        "%xt%zm%cmd%{MAP_ID}%{ROOM_NUMBER}%{MAP_NAME}%{PLAYER_NAME}%",
+        "%xt%zm%cmd%{MAP_ID}%{ROOM_NUMBER}%{MAP_NAME}%{PLAYER_NAME}%{PLAYER_NAME}%",
         placeholderContext,
       ),
-    ).toBe("%xt%zm%cmd%12%34567%battleon%Artix%");
-  });
-
-  it("resolves repeated placeholders", () => {
-    expect(
-      resolvePacketPlaceholders(
-        "{PLAYER_NAME}:{PLAYER_NAME}:{MAP_ID}",
-        placeholderContext,
-      ),
-    ).toBe("Artix:Artix:12");
+    ).toBe("%xt%zm%cmd%12%34567%battleon%Artix%Artix%");
   });
 
   it("leaves unsupported placeholders unchanged", () => {

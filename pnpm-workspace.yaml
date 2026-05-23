@@ -11,3 +11,8 @@ onlyBuiltDependencies:
 ignoredBuiltDependencies:
   - core-js
   - unrs-resolver
+
+allowBuilds:
+  esbuild: true
+  msgpackr-extract: false
+  sharp: true

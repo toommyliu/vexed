@@ -1,7 +1,6 @@
 import { expect, test } from "vitest";
 import { DEFAULT_COMBAT_PROFILE_ID } from "./combat-profiles";
 import {
-  createIdleFollowerState,
   normalizeFollowerConfig,
   normalizeFollowerState,
   splitFollowerAttackPriority,
@@ -102,8 +101,8 @@ test("normalizes follower state with stopped errors", () => {
   });
 });
 
-test("creates idle follower state", () => {
-  expect(createIdleFollowerState()).toEqual({
+test("invalid follower state falls back to idle", () => {
+  expect(normalizeFollowerState(null)).toEqual({
     enabled: false,
     running: false,
     targetName: "",

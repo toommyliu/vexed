@@ -1,4 +1,3 @@
-import * as Files from "./Files";
 import {
   DEFAULT_PREFERENCES,
   type AppLaunchMode,
@@ -30,13 +29,7 @@ export const normalize = (value: unknown): Preferences => {
   };
 };
 
-export const path = (): string => Files.appDataJoin("preferences.json");
+export const fileName = "preferences.json";
 
-export const read = (): Preferences => normalize(Files.readJson(path()));
-
-export const write = (preferences: Preferences): void => {
-  Files.writeJson(path(), normalize(preferences));
-};
-
-export const ensure = (): Preferences =>
-  Files.ensureJson(path(), DEFAULT, normalize);
+export const serialize = (preferences: Preferences): Preferences =>
+  normalize(preferences);

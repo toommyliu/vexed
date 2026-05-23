@@ -128,15 +128,17 @@ const make = Effect.gen(function* () {
       }
 
       if (event.monMapId !== undefined) {
-        const targeted = yield* combat.attackMonster(event.monMapId).pipe(
-          Effect.catch((cause) =>
-            setLastError(
-              cause instanceof Error
-                ? cause.message
-                : "Animation trigger target failed",
-            ).pipe(Effect.as(false)),
-          ),
-        );
+        const targeted = yield* combat
+          .attackMonster(event.monMapId)
+          .pipe(
+            Effect.catch((cause) =>
+              setLastError(
+                cause instanceof Error
+                  ? cause.message
+                  : "Animation trigger target failed",
+              ).pipe(Effect.as(false)),
+            ),
+          );
 
         if (!targeted) {
           return;
@@ -190,10 +192,7 @@ const make = Effect.gen(function* () {
 
   const selectTarget = Effect.gen(function* () {
     const currentTarget = yield* combat.getTarget();
-    if (
-      currentTarget?.isMonster() &&
-      isAttackableMonster(currentTarget)
-    ) {
+    if (currentTarget?.isMonster() && isAttackableMonster(currentTarget)) {
       return currentTarget.monMapId;
     }
 

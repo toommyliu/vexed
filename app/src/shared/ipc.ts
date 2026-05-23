@@ -31,6 +31,10 @@ import type {
   CombatProfileAutoAttackState,
   CombatProfileLibrary,
 } from "./combat-profiles";
+import type {
+  ObservabilityInput,
+  ObservabilitySnapshot,
+} from "./observability";
 
 export type {
   ArmyBarrierPayload,
@@ -98,6 +102,15 @@ export type {
   PacketSendTarget,
   PacketsStatusPayload,
 } from "./packets";
+
+export type {
+  ObservabilityErrorInfo,
+  ObservabilityInput,
+  ObservabilityLevel,
+  ObservabilityRecord,
+  ObservabilitySnapshot,
+  ObservabilitySource,
+} from "./observability";
 
 export const ScriptingIpcChannels = {
   execute: "scripting:execute",
@@ -203,6 +216,17 @@ export const PacketsIpcChannels = {
   response: "packets:response",
 } as const;
 
+export const UpdatesIpcChannels = {
+  getState: "updates:get-state",
+  check: "updates:check",
+  changed: "updates:changed",
+} as const;
+
+export const ObservabilityIpcChannels = {
+  write: "observability:write",
+  snapshot: "observability:snapshot",
+} as const;
+
 export type FollowerRequestKind = "getState" | "me" | "start" | "stop";
 
 export type PacketsRequestKind =
@@ -259,6 +283,46 @@ export type AccountScriptStatus =
   | "running"
   | "stopped"
   | "failed";
+
+export interface UpdateReleaseInfo {
+  readonly version: string;
+  readonly tagName: string;
+  readonly name?: string;
+  readonly htmlUrl: string;
+  readonly publishedAt?: string;
+  readonly body?: string;
+}
+
+export type UpdateCheckState =
+  | {
+      readonly status: "idle";
+      readonly currentVersion: string;
+      readonly lastCheckedAt?: string;
+    }
+  | {
+      readonly status: "checking";
+      readonly currentVersion: string;
+      readonly lastCheckedAt?: string;
+    }
+  | {
+      readonly status: "current";
+      readonly currentVersion: string;
+      readonly latestVersion: string;
+      readonly checkedAt: string;
+    }
+  | {
+      readonly status: "available";
+      readonly currentVersion: string;
+      readonly latestVersion: string;
+      readonly checkedAt: string;
+      readonly release: UpdateReleaseInfo;
+    }
+  | {
+      readonly status: "failed";
+      readonly currentVersion: string;
+      readonly checkedAt: string;
+      readonly error: string;
+    };
 
 export interface ManagedAccount {
   readonly label: string;
@@ -752,6 +816,43 @@ export interface PacketsBridge {
   respond(response: PacketsResponseMessage): Promise<void>;
 }
 
+export interface UpdatesInvokeChannels {
+  readonly [UpdatesIpcChannels.getState]: IpcInvokeDefinition<
+    [],
+    UpdateCheckState
+  >;
+  readonly [UpdatesIpcChannels.check]: IpcInvokeDefinition<
+    [],
+    UpdateCheckState
+  >;
+}
+
+export interface UpdatesRendererEventChannels {
+  readonly [UpdatesIpcChannels.changed]: [state: UpdateCheckState];
+}
+
+export interface UpdatesBridge {
+  getState(): Promise<UpdateCheckState>;
+  check(): Promise<UpdateCheckState>;
+  onChanged(listener: (state: UpdateCheckState) => void): () => void;
+}
+
+export interface ObservabilityInvokeChannels {
+  readonly [ObservabilityIpcChannels.write]: IpcInvokeDefinition<
+    [record: ObservabilityInput],
+    void
+  >;
+  readonly [ObservabilityIpcChannels.snapshot]: IpcInvokeDefinition<
+    [],
+    ObservabilitySnapshot
+  >;
+}
+
+export interface ObservabilityBridge {
+  write(record: ObservabilityInput): Promise<void>;
+  snapshot(): Promise<ObservabilitySnapshot>;
+}
+
 export type AppPlatform = "mac" | "windows" | "linux";
 
 export interface PlatformBridge {
@@ -764,9 +865,11 @@ export interface AppBridge {
   readonly combatProfiles: CombatProfilesBridge;
   readonly environment: EnvironmentBridge;
   readonly follower: FollowerBridge;
+  readonly observability: ObservabilityBridge;
   readonly packets: PacketsBridge;
   readonly platform: PlatformBridge;
   readonly scripting: ScriptingBridge;
   readonly settings: SettingsBridge;
+  readonly updates: UpdatesBridge;
   readonly windows: WindowsBridge;
 }

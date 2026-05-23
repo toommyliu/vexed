@@ -1,380 +1,286 @@
 import "abort-controller/polyfill";
-import { unwatchFile, watchFile, type Stats } from "fs";
-import {
-  app,
-  BrowserWindow,
-  dialog,
-  ipcMain,
-  nativeTheme,
-  session,
-  type OpenDialogOptions,
-} from "electron";
+import { randomFillSync } from "crypto";
+import { app, BrowserWindow } from "electron";
 import { join } from "path";
 import process from "process";
-import { homedir } from "os";
-import { Effect, Layer } from "effect";
+import { Effect, Layer, ManagedRuntime } from "effect";
 import appBranding from "../../appBranding.json";
-import { createAppearanceSnapshot } from "../shared/appearance-snapshot";
-import { ScriptingIpcChannels, type ScriptExecutePayload } from "../shared/ipc";
-import { WindowIds } from "../shared/windows";
-import { registerAccountManagerIpcHandlers } from "./account-manager-ipc";
-import { registerArmyIpcHandlers } from "./army-ipc";
 import {
-  getArtixLauncherRequestHeaders,
-  getArtixLauncherUserAgent,
-} from "./artix-launcher-headers";
-import { registerCombatProfilesIpcHandlers } from "./combat-profiles-ipc";
-import { createApplicationMenu } from "./menu";
-import { registerEnvironmentIpcHandlers } from "./environment-ipc";
-import { registerFollowerIpcHandlers } from "./follower-ipc";
-import { registerPacketsIpcHandlers } from "./packets-ipc";
-import * as Appearance from "./settings/Appearance";
-import * as Files from "./settings/Files";
-import * as Preferences from "./settings/Preferences";
-import { getScriptsPath, updateCachedScriptPayload } from "./scripting";
-import { registerSettingsIpcHandlers } from "./settings-ipc";
+  configureGameWindow,
+  getLatestAppearanceSnapshot,
+  makeProgram,
+  resolveDevRendererUrl,
+} from "./app/MainApp";
 import {
-  installNativeThemeChangeBroadcast,
-  syncNativeTheme,
-} from "./settings-service";
-import { registerWindowIpcHandlers } from "./window-ipc";
+  MainEnvironment,
+  MainEnvironmentLive,
+  makeMainEnvironment,
+  resolveUserDataPath,
+  resolveWorkspaceHome,
+  type MainEnvironmentConfig,
+} from "./app/MainEnvironment";
+import { Observability, ObservabilityLive } from "./app/MainObservability";
+import { parseCliOptions } from "./cli";
+import { FlashTrustLive, trustOnlySync } from "./flash/FlashTrust";
+import { MainIpcLive } from "./ipc/MainIpc";
+import { Persistence, PersistenceLive } from "./persistence/Persistence";
+import { AccountManagerRepositoryLive } from "./persistence/accounts/AccountRepository";
+import { CombatProfileRepositoryLive } from "./persistence/combatProfiles/CombatProfileRepository";
 import {
-  getRendererGameWindowPath,
-  getRendererWindowPath,
   makeElectronWindowRuntime,
   makeWindowService,
-  WindowManagerError,
+  getRendererGameWindowPath,
+  getRendererWindowPath,
   WindowService,
   type WindowManagerConfig,
-  type WindowServiceShape,
-  type WindowEffectRunner,
-} from "./windows";
-
-const flash = require("nw-flash-trust");
+} from "./window/WindowService";
+import {
+  SettingsService,
+  SettingsServiceLive,
+} from "./settings/SettingsService";
+import {
+  makeUpdateCacheStore,
+  makeUpdateChecker,
+  UpdateChecker,
+  updateCacheFileName,
+} from "./updates/Updates";
+import { WorkspaceFilesLive } from "./workspace/WorkspaceFiles";
 
 process.env["ELECTRON_DISABLE_SECURITY_WARNINGS"] = "true";
 
-const isDevApp = !app.isPackaged;
+const ignoreRuntimeRejection = (promise: Promise<unknown>): void => {
+  void promise.catch((cause) => {
+    process.stderr.write(`Main runtime error: ${String(cause)}\n`);
+  });
+};
+
+const installMainCryptoFallback = (): void => {
+  if (globalThis.crypto !== undefined) {
+    return;
+  }
+
+  Object.defineProperty(globalThis, "crypto", {
+    configurable: true,
+    value: {
+      getRandomValues: <T extends ArrayBufferView>(array: T): T => {
+        randomFillSync(
+          Buffer.from(array.buffer, array.byteOffset, array.byteLength),
+        );
+        return array;
+      },
+    },
+  });
+};
+
+installMainCryptoFallback();
+
+const isDev = !app.isPackaged;
 const isDarwin = process.platform === "darwin";
 const isWin = process.platform === "win32";
 const isLinux = process.platform === "linux";
-const activeBranding = isDevApp ? appBranding.dev : appBranding.production;
+const activeBranding = isDev ? appBranding.dev : appBranding.production;
+const cliOptions = (() => {
+  try {
+    return parseCliOptions(process.argv);
+  } catch (error) {
+    const message = error instanceof Error ? error.message : String(error);
+    process.stderr.write(`Invalid CLI options: ${message}\n`);
+    app.exit(1);
+    throw error;
+  }
+})();
 
-const resolveAppDataBasePath = (): string =>
-  isWin
-    ? process.env["APPDATA"] || join(homedir(), "AppData", "Roaming")
-    : isDarwin
-      ? join(homedir(), "Library", "Application Support")
-      : process.env["XDG_CONFIG_HOME"] || join(homedir(), ".config");
-
-const resolveUserDataPath = (): string =>
-  join(resolveAppDataBasePath(), activeBranding.userDataDirName);
-
-app.setPath("userData", resolveUserDataPath());
-Files.configureAppDataHome(app.getPath("userData"));
+const userDataPath = resolveUserDataPath({ isDev });
+app.setPath("userData", userDataPath);
 app.setName(activeBranding.displayName);
 
 if (isWin) {
   app.setAppUserModelId(activeBranding.bundleId);
 }
 
-const assetsPath = join(app.getAppPath(), "..", "assets");
-const rendererPath = join(__dirname, "../renderer");
-const workspacePath = Files.resolveWorkspaceHome({
-  argv: process.argv,
-  documentsPath: app.getPath("documents"),
-});
-Files.configureWorkspaceHome(workspacePath);
-const devRendererReloadPath = process.env["VEXED_DEV_RENDERER_RELOAD"];
-const devRendererUrl = process.env["VEXED_DEV_RENDERER_URL"];
-
-const flashPath = join(
-  app.getPath("userData"),
-  "Pepper Data",
-  "Shockwave Flash",
-  "WritableRoot",
-);
-
-const flashPluginPath = isDarwin
-  ? Files.workspaceJoin("PepperFlashPlayer.plugin")
-  : isWin
-    ? Files.workspaceJoin("pepflashplayer.dll")
-    : isLinux
-      ? Files.workspaceJoin("libpepflashplayer.so")
-      : null;
-
-if (flashPluginPath) {
-  app.commandLine.appendSwitch("ppapi-flash-path", flashPluginPath);
-}
-
-const trustManager = flash.initSync("vexed", flashPath);
-trustManager.empty();
-
-trustManager.add(join(assetsPath, "loader.swf"));
-
-const getEventWindow = (senderId?: number): BrowserWindow | null => {
-  if (senderId !== undefined) {
-    for (const win of BrowserWindow.getAllWindows()) {
-      if (win.webContents.id === senderId) {
-        return win;
-      }
-    }
-  }
-
-  const focused = BrowserWindow.getFocusedWindow();
-  if (focused) {
-    return focused;
-  }
-
-  const [first] = BrowserWindow.getAllWindows();
-  return first ?? null;
+const envConfig: MainEnvironmentConfig = {
+  appDataDir: app.getPath("userData"),
+  workspaceDir: resolveWorkspaceHome({
+    argv: process.argv,
+    documentsPath: app.getPath("documents"),
+  }),
+  assetsDir: join(app.getAppPath(), "..", "assets"),
+  rendererDir: join(__dirname, "../renderer"),
+  preloadPath: join(__dirname, "../preload/index.js"),
+  ...(process.env["VEXED_DEV_RENDERER_RELOAD"] === undefined
+    ? {}
+    : { devRendererReloadPath: process.env["VEXED_DEV_RENDERER_RELOAD"] }),
+  ...(process.env["VEXED_DEV_RENDERER_URL"] === undefined
+    ? {}
+    : { devRendererUrl: process.env["VEXED_DEV_RENDERER_URL"] }),
+  ...(cliOptions.flashPluginPath === undefined
+    ? {}
+    : { flashPluginPathOverride: cliOptions.flashPluginPath }),
+  isDev,
+  isDarwin,
+  isWin,
+  isLinux,
 };
-
-const openScriptDialog = async (
-  win: BrowserWindow | null,
-): Promise<ScriptExecutePayload | null> => {
-  const options: OpenDialogOptions = {
-    title: "Open script",
-    defaultPath: getScriptsPath(),
-    filters: [
-      { name: "JavaScript", extensions: ["js", "cjs"] },
-      { name: "All Files", extensions: ["*"] },
-    ],
-    properties: ["openFile"],
-  };
-
-  const result =
-    win === null
-      ? await dialog.showOpenDialog(options)
-      : await dialog.showOpenDialog(win, options);
-
-  if (result.canceled || result.filePaths.length === 0) {
-    return null;
-  }
-
-  const [path] = result.filePaths;
-  if (!path) {
-    return null;
-  }
-
-  return await updateCachedScriptPayload(path);
-};
-
-let scriptingIpcRegistered = false;
-
-const registerScriptingIpcHandlers = () => {
-  if (scriptingIpcRegistered) {
-    return;
-  }
-
-  ipcMain.handle(ScriptingIpcChannels.openFile, async (event) => {
-    const win = getEventWindow(event.sender.id);
-    return await openScriptDialog(win);
-  });
-
-  ipcMain.handle(
-    ScriptingIpcChannels.readFile,
-    async (_event, path: unknown) => {
-      if (typeof path !== "string" || path.trim() === "") {
-        throw new Error("Invalid script path");
-      }
-
-      return await updateCachedScriptPayload(path.trim());
-    },
-  );
-
-  scriptingIpcRegistered = true;
-};
-
-const gameUserAgent = getArtixLauncherUserAgent();
-
-const configureGameWindow = (win: BrowserWindow): void => {
-  win.webContents.setUserAgent(gameUserAgent);
-};
-
-const installGameRequestHeaders = (): void => {
-  session.defaultSession.webRequest.onBeforeSendHeaders((details, callback) => {
-    const requestHeaders = details.requestHeaders;
-    for (const [name, value] of Object.entries(
-      getArtixLauncherRequestHeaders(),
-    )) {
-      Object.defineProperty(requestHeaders, name, { value });
-    }
-    callback({ requestHeaders, cancel: false });
-  });
-};
-
-const installDevRendererReloadWatcher = () => {
-  if (!devRendererReloadPath) {
-    return;
-  }
-
-  const listener = (current: Stats, previous: Stats) => {
-    if (
-      current.mtimeMs === previous.mtimeMs &&
-      current.size === previous.size
-    ) {
-      return;
-    }
-
-    if (current.mtimeMs === 0) {
-      return;
-    }
-
-    for (const win of BrowserWindow.getAllWindows()) {
-      if (!win.isDestroyed() && !win.webContents.isDestroyed()) {
-        win.webContents.reloadIgnoringCache();
-      }
-    }
-  };
-
-  watchFile(devRendererReloadPath, { interval: 250 }, listener);
-  app.once("will-quit", () => unwatchFile(devRendererReloadPath, listener));
-};
-
-const installDevDockIcon = () => {
-  if (!isDevApp || !isDarwin) {
-    return;
-  }
-
-  app.dock.setIcon(join(assetsPath, activeBranding.iconPng));
-};
-
-const resolveDevRendererUrl = (): string | null => {
-  if (!isDevApp || !devRendererUrl) {
-    return null;
-  }
-
-  try {
-    const url = new URL(devRendererUrl);
-    const isLoopback =
-      url.protocol === "http:" &&
-      (url.hostname === "127.0.0.1" || url.hostname === "localhost");
-
-    return isLoopback ? url.toString() : null;
-  } catch {
-    return null;
-  }
-};
-
-let runWindowEffect: WindowEffectRunner | null = null;
-let configuredWindowService: WindowServiceShape | null = null;
-
-const runConfiguredWindowEffect: WindowEffectRunner = (effect) => {
-  if (!runWindowEffect) {
-    return Promise.reject(
-      new WindowManagerError({
-        message: "Window service has not been configured",
-      }),
+const earlyEnvironment = makeMainEnvironment(envConfig);
+const earlyTrustedFlashPaths = [join(earlyEnvironment.assetsDir, "loader.swf")];
+const earlyFlashSetup = (() => {
+  if (earlyEnvironment.flashPluginPath) {
+    app.commandLine.appendSwitch(
+      "ppapi-flash-path",
+      earlyEnvironment.flashPluginPath,
     );
   }
 
-  return runWindowEffect(effect);
-};
-
-const markConfiguredWindowServiceQuitting = (): void => {
-  if (!configuredWindowService) {
-    throw new WindowManagerError({
-      message: "Window service has not been configured",
+  try {
+    trustOnlySync("vexed", earlyTrustedFlashPaths, {
+      customFolder: earlyEnvironment.flashRootPath,
     });
+    return {
+      status: "configured",
+      flashPluginPath: earlyEnvironment.flashPluginPath,
+      flashRootPath: earlyEnvironment.flashRootPath,
+      trustedPaths: earlyTrustedFlashPaths,
+    } as const;
+  } catch (cause) {
+    return {
+      status: "failed",
+      cause,
+      flashPluginPath: earlyEnvironment.flashPluginPath,
+      flashRootPath: earlyEnvironment.flashRootPath,
+      trustedPaths: earlyTrustedFlashPaths,
+    } as const;
   }
+})();
 
-  Effect.runSync(configuredWindowService.setQuitting(true));
-};
+const environmentLayer = MainEnvironmentLive(envConfig);
+const baseLayer = Layer.mergeAll(environmentLayer, PersistenceLive);
+const flashTrustLayer = FlashTrustLive;
+const observabilityLayer = ObservabilityLive.pipe(
+  Layer.provideMerge(baseLayer),
+);
+const settingsLayer = SettingsServiceLive.pipe(
+  Layer.provideMerge(observabilityLayer),
+);
+const persistedDocumentsLayer = Layer.mergeAll(
+  AccountManagerRepositoryLive,
+  CombatProfileRepositoryLive,
+  WorkspaceFilesLive,
+).pipe(Layer.provideMerge(observabilityLayer));
+const windowLayer = Layer.effect(WindowService)(
+  Effect.gen(function* () {
+    const observability = yield* Observability;
+    const config: WindowManagerConfig = {
+      gameWindowHtmlPath: getRendererGameWindowPath(envConfig.rendererDir),
+      isDev,
+      preloadPath: envConfig.preloadPath,
+      rendererUrl: resolveDevRendererUrl(isDev, envConfig.devRendererUrl),
+      windowHtmlPath: (id) => getRendererWindowPath(envConfig.rendererDir, id),
+      getAppearanceSnapshot: getLatestAppearanceSnapshot,
+      onGameWindowCreated: (window) =>
+        configureGameWindow(observability, window),
+    };
 
-const openStartupWindow = (launchMode: Preferences.AppLaunchMode): void => {
-  if (launchMode === "game") {
-    void runConfiguredWindowEffect(
-      Effect.gen(function* () {
-        const windows = yield* WindowService;
-        yield* windows.revealGameWindow;
-      }),
-    ).catch((error) => {
-      console.error("Failed to reveal game window:", error);
+    return makeWindowService(config, makeElectronWindowRuntime());
+  }),
+).pipe(Layer.provideMerge(observabilityLayer));
+const updatesLayer = Layer.effect(UpdateChecker)(
+  Effect.gen(function* () {
+    const env = yield* MainEnvironment;
+    const persistence = yield* Persistence;
+    const observability = yield* Observability;
+    const settings = yield* SettingsService;
+    const cacheStore = makeUpdateCacheStore({
+      path: env.appDataPath(updateCacheFileName),
+      readJson: persistence.readJson,
+      writeJson: persistence.writeJson,
     });
-    return;
-  }
 
-  void runConfiguredWindowEffect(
-    Effect.gen(function* () {
-      const windows = yield* WindowService;
-      yield* windows.openWindow(WindowIds.AccountManager);
-    }),
-  ).catch((error) => {
-    console.error("Failed to open startup window:", error);
-  });
-};
-
-const loadMainSettings = () => {
-  const preferences = Preferences.ensure();
-  const appearance = Appearance.ensure();
-  syncNativeTheme(appearance);
-  return { appearance, preferences };
-};
-
-const revealStartupWindow = (): void => {
-  const preferences = Preferences.read();
-  openStartupWindow(preferences.launchMode);
-};
-
-app.whenReady().then(() => {
-  const { preferences } = loadMainSettings();
-  const windowServiceConfig: WindowManagerConfig = {
-    gameWindowHtmlPath: getRendererGameWindowPath(rendererPath),
-    isDev: isDevApp,
-    preloadPath: join(__dirname, "../preload/index.js"),
-    rendererUrl: resolveDevRendererUrl(),
-    windowHtmlPath: (id) => getRendererWindowPath(rendererPath, id),
-    getAppearanceSnapshot: () =>
-      createAppearanceSnapshot(
-        Appearance.read(),
-        nativeTheme.shouldUseDarkColors,
+    return makeUpdateChecker({
+      currentVersion: app.getVersion(),
+      isEnabled: () =>
+        settings.get.pipe(
+          Effect.map((current) => current.preferences.checkForUpdates),
+          Effect.catch(() => Effect.succeed(true)),
+        ),
+      loadCache: cacheStore.load.pipe(
+        Effect.catch((error) =>
+          observability
+            .warn("updates", "Failed to load update cache", { error })
+            .pipe(Effect.as(null)),
+        ),
       ),
-    onGameWindowCreated: configureGameWindow,
-  };
-  const windowService = makeWindowService(
-    windowServiceConfig,
-    makeElectronWindowRuntime(),
-  );
-  const windowLayer = Layer.succeed(WindowService, windowService);
+      saveCache: (cache) =>
+        cacheStore.save(cache).pipe(
+          Effect.catch((error) =>
+            observability.warn("updates", "Failed to save update cache", {
+              error,
+            }),
+          ),
+        ),
+    });
+  }),
+).pipe(Layer.provideMerge(settingsLayer));
+const ipcLayer = MainIpcLive.pipe(Layer.provideMerge(observabilityLayer));
 
-  configuredWindowService = windowService;
+const mainLayer = Layer.mergeAll(
+  settingsLayer,
+  persistedDocumentsLayer,
+  windowLayer,
+  updatesLayer,
+  ipcLayer,
+  flashTrustLayer,
+);
 
-  runWindowEffect = <A>(
-    effect: Effect.Effect<A, WindowManagerError, WindowService>,
-  ): Promise<A> => Effect.runPromise(effect.pipe(Effect.provide(windowLayer)));
+const runtime = ManagedRuntime.make(mainLayer);
 
-  registerScriptingIpcHandlers();
-  registerArmyIpcHandlers();
-  registerAccountManagerIpcHandlers(runConfiguredWindowEffect);
-  registerCombatProfilesIpcHandlers();
-  registerEnvironmentIpcHandlers(runConfiguredWindowEffect);
-  registerFollowerIpcHandlers(runConfiguredWindowEffect);
-  registerPacketsIpcHandlers(runConfiguredWindowEffect);
-  registerSettingsIpcHandlers();
-  registerWindowIpcHandlers(runConfiguredWindowEffect);
-  installNativeThemeChangeBroadcast();
-  installGameRequestHeaders();
-  installDevRendererReloadWatcher();
-  installDevDockIcon();
-  createApplicationMenu(runConfiguredWindowEffect);
-  openStartupWindow(preferences.launchMode);
-});
+void runtime
+  .runPromise(makeProgram(earlyFlashSetup, cliOptions))
+  .catch((cause: unknown) => {
+    void runtime
+      .runPromise(
+        Effect.gen(function* () {
+          const observability = yield* Observability;
+          yield* observability.error("startup", "Main process failed", cause);
+        }),
+      )
+      .catch(() => {
+        process.stderr.write(`Main process failed: ${String(cause)}\n`);
+      })
+      .finally(() => {
+        app.quit();
+      });
+  });
 
 app.on("before-quit", () => {
-  try {
-    markConfiguredWindowServiceQuitting();
-  } catch (error) {
-    console.error("Failed to mark window service as quitting:", error);
-  }
+  ignoreRuntimeRejection(
+    runtime.runPromise(
+      Effect.gen(function* () {
+        const windows = yield* WindowService;
+        yield* windows.setQuitting(true);
+      }),
+    ),
+  );
+});
+
+app.on("will-quit", () => {
+  ignoreRuntimeRejection(runtime.dispose());
 });
 
 app.on("window-all-closed", () => {
-  if (process.platform !== "darwin") app.quit();
+  if (process.platform !== "darwin") {
+    app.quit();
+  }
 });
 
 app.on("activate", () => {
-  if (BrowserWindow.getAllWindows().length === 0) {
-    revealStartupWindow();
-  }
+  ignoreRuntimeRejection(
+    runtime.runPromise(
+      Effect.gen(function* () {
+        if (BrowserWindow.getAllWindows().length === 0) {
+          const windows = yield* WindowService;
+          yield* windows.revealGameWindow;
+        }
+      }),
+    ),
+  );
 });

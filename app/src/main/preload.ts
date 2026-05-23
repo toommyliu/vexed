@@ -9,9 +9,11 @@ import {
   CombatProfilesIpcChannels,
   EnvironmentIpcChannels,
   FollowerIpcChannels,
+  ObservabilityIpcChannels,
   PacketsIpcChannels,
   SettingsIpcChannels,
   ScriptingIpcChannels,
+  UpdatesIpcChannels,
   WindowIpcChannels,
   type AccountGameLaunchPayload,
   type AccountGameServersResult,
@@ -45,6 +47,8 @@ import {
   type ManagedAccountGroupPatch,
   type ManagedAccountDraft,
   type ManagedAccountPatch,
+  type ObservabilityInput,
+  type ObservabilitySnapshot,
   type PacketCapturedPayload,
   type PacketQueuePayload,
   type PacketsRequestMessage,
@@ -53,6 +57,7 @@ import {
   type PacketSendPayload,
   type PreferencesPatch,
   type ScriptExecutePayload,
+  type UpdateCheckState,
 } from "../shared/ipc";
 import type { WindowId } from "../shared/windows";
 
@@ -126,6 +131,23 @@ const followerRequestErrorMessage = (cause: unknown): string =>
     ? cause.message
     : "Follower request failed";
 
+const writePreloadError = (
+  message: string,
+  error: unknown,
+  data?: unknown,
+): void => {
+  void ipcRenderer
+    .invoke(ObservabilityIpcChannels.write, {
+      level: "error",
+      source: "renderer",
+      component: "preload",
+      message,
+      error,
+      ...(data === undefined ? {} : { data }),
+    })
+    .catch(() => undefined);
+};
+
 const deliverAccountGameLaunchPayload = (
   payload: AccountGameLaunchPayload,
 ): void => {
@@ -172,7 +194,7 @@ ipcRenderer.on(
         );
       })
       .catch((error: unknown) => {
-        console.error("Failed to fetch environment boosts:", error);
+        writePreloadError("Failed to fetch environment boosts", error);
         ipcRenderer.send(
           EnvironmentIpcChannels.fetchBoostsResponse,
           requestId,
@@ -357,7 +379,7 @@ const bridge: AppBridge = {
           }
         })
         .catch((error: unknown) => {
-          console.error("Failed to get account game launch:", error);
+          writePreloadError("Failed to get account game launch", error);
         });
 
       return () => {
@@ -621,6 +643,16 @@ const bridge: AppBridge = {
       };
     },
   },
+  observability: {
+    write: async (record: ObservabilityInput) => {
+      await ipcRenderer.invoke(ObservabilityIpcChannels.write, record);
+    },
+    snapshot: async () => {
+      return (await ipcRenderer.invoke(
+        ObservabilityIpcChannels.snapshot,
+      )) as ObservabilitySnapshot;
+    },
+  },
   packets: {
     startCapture: async () => {
       await ipcRenderer.invoke(PacketsIpcChannels.startCapture);
@@ -758,6 +790,29 @@ const bridge: AppBridge = {
 
       return () => {
         ipcRenderer.removeListener(SettingsIpcChannels.changed, subscription);
+      };
+    },
+  },
+  updates: {
+    getState: async () => {
+      return (await ipcRenderer.invoke(
+        UpdatesIpcChannels.getState,
+      )) as UpdateCheckState;
+    },
+    check: async () => {
+      return (await ipcRenderer.invoke(
+        UpdatesIpcChannels.check,
+      )) as UpdateCheckState;
+    },
+    onChanged: (listener) => {
+      const subscription = (_event: unknown, state: UpdateCheckState) => {
+        listener(state);
+      };
+
+      ipcRenderer.on(UpdatesIpcChannels.changed, subscription);
+
+      return () => {
+        ipcRenderer.removeListener(UpdatesIpcChannels.changed, subscription);
       };
     },
   },

@@ -176,7 +176,7 @@ const waitForEvent = <A>(promise: Promise<A>) =>
         : new PacketDomainTestError({
             cause,
             message: "event wait failed",
-      }),
+          }),
   });
 
 test("packet domain updates remote player position from uotls move packets", async () => {

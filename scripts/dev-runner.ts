@@ -35,6 +35,7 @@ type DevMode = (typeof DEV_RUNNER_MODES)[number];
 type CliInput = {
   mode: DevMode;
   dryRun: boolean;
+  electronArgs: ReadonlyArray<string>;
 };
 
 type DevBuildTarget = "main" | "preload" | "renderer" | "unknown";
@@ -78,6 +79,7 @@ const createWatchEnv = (): NodeJS.ProcessEnv => ({
   ...createBaseEnv(),
   VEXED_DEV_BUILD_NOTIFY: DEV_BUILD_NOTIFY_PATH,
   VEXED_DEV_BUILD_NOTIFY_SKIP_INITIAL: "1",
+  VEXED_DEV_RUNNER_PID: String(process.pid),
 });
 
 const createElectronEnv = (): NodeJS.ProcessEnv => ({
@@ -465,7 +467,7 @@ const watchElectronExit = (
     }),
   );
 
-const runDevLoop = () =>
+const runDevLoop = (electronArgs: ReadonlyArray<string>) =>
   Effect.gen(function* () {
     const baseEnv = createBaseEnv();
     const electronEnv = createElectronEnv();
@@ -486,7 +488,13 @@ const runDevLoop = () =>
 
     const startElectron = Effect.gen(function* () {
       yield* Console.log("[dev-runner] starting electron");
-      const electron = yield* spawnPnpm(["electron"], APP_DIR, electronEnv);
+      const electron = yield* spawnPnpm(
+        electronArgs.length === 0
+          ? ["electron"]
+          : ["electron", "--", ...electronArgs],
+        APP_DIR,
+        electronEnv,
+      );
       const managedExit = yield* Ref.make(false);
       yield* Ref.set(activeElectron, { child: electron, managedExit });
       yield* Effect.forkScoped(
@@ -594,8 +602,8 @@ const runDocsLoop = () =>
     );
   }).pipe(Effect.scoped);
 
-const runDefaultDevLoop = () =>
-  Effect.race(runDevLoop(), runDocsLoop()).pipe(
+const runDefaultDevLoop = (electronArgs: ReadonlyArray<string>) =>
+  Effect.race(runDevLoop(electronArgs), runDocsLoop()).pipe(
     Effect.mapError((cause) =>
       cause instanceof DevRunnerError
         ? cause
@@ -606,7 +614,7 @@ const runDefaultDevLoop = () =>
     ),
   );
 
-const dryRun = (mode: DevMode) =>
+const dryRun = (mode: DevMode, electronArgs: ReadonlyArray<string>) =>
   Effect.gen(function* () {
     yield* Console.log("[dev-runner] dry run");
     yield* Console.log(`mode=${mode}`);
@@ -619,9 +627,14 @@ const dryRun = (mode: DevMode) =>
       yield* Console.log(`rendererReloadFile=${DEV_RENDERER_RELOAD_PATH}`);
       yield* Console.log("app.initial=pnpm compile");
       yield* Console.log("app.watch=pnpm compile:watch");
-      yield* Console.log("app.electron=pnpm electron");
+      yield* Console.log(
+        electronArgs.length === 0
+          ? "app.electron=pnpm electron"
+          : `app.electron=pnpm electron -- ${electronArgs.join(" ")}`,
+      );
       yield* Console.log(`env.VEXED_DEV_BUILD_NOTIFY=${DEV_BUILD_NOTIFY_PATH}`);
       yield* Console.log("env.VEXED_DEV_BUILD_NOTIFY_SKIP_INITIAL=1");
+      yield* Console.log(`env.VEXED_DEV_RUNNER_PID=${process.pid}`);
       yield* Console.log(
         `env.VEXED_DEV_RENDERER_RELOAD=${DEV_RENDERER_RELOAD_PATH}`,
       );
@@ -635,42 +648,84 @@ const dryRun = (mode: DevMode) =>
 
 const runDevRunner = (input: CliInput) => {
   if (input.dryRun) {
-    return dryRun(input.mode);
+    return dryRun(input.mode, input.electronArgs);
   }
 
   switch (input.mode) {
     case "dev":
-      return runDefaultDevLoop();
+      return runDefaultDevLoop(input.electronArgs);
     case "app":
-      return runDevLoop();
+      return runDevLoop(input.electronArgs);
     case "docs":
       return runDocsLoop();
   }
 };
 
-const command = Command.make("dev-runner", {
-  mode: Argument.choice("mode", DEV_RUNNER_MODES).pipe(
-    Argument.withDescription("Development mode to run"),
-  ),
-  dryRun: Flag.boolean("dry-run").pipe(
-    Flag.withDescription("Print resolved dev commands without spawning them"),
-    Flag.withDefault(false),
-  ),
-}).pipe(
-  Command.withDescription("Run Vexed development modes"),
-  Command.withHandler(runDevRunner),
-);
+const makeCommand = (electronArgs: ReadonlyArray<string>) =>
+  Command.make("dev-runner", {
+    mode: Argument.choice("mode", DEV_RUNNER_MODES).pipe(
+      Argument.withDescription("Development mode to run"),
+    ),
+    dryRun: Flag.boolean("dry-run").pipe(
+      Flag.withDescription("Print resolved dev commands without spawning them"),
+      Flag.withDefault(false),
+    ),
+  }).pipe(
+    Command.withDescription("Run Vexed development modes"),
+    Command.withHandler((input) => runDevRunner({ ...input, electronArgs })),
+  );
 
-const getCliArgs = (): ReadonlyArray<string> =>
-  process.argv.slice(2).filter((arg) => arg !== "--");
+const isDevRunnerArg = (arg: string): boolean =>
+  arg === "--dry-run" ||
+  arg === "--help" ||
+  arg === "-h" ||
+  arg === "--version";
+
+const splitCliArgs = (
+  args: ReadonlyArray<string>,
+): {
+  readonly commandArgs: ReadonlyArray<string>;
+  readonly electronArgs: ReadonlyArray<string>;
+} => {
+  const commandArgs: string[] = [];
+  const electronArgs: string[] = [];
+  let forwarding = false;
+
+  for (const arg of args) {
+    if (forwarding) {
+      electronArgs.push(arg);
+      continue;
+    }
+
+    if (arg === "--") {
+      forwarding = true;
+      continue;
+    }
+
+    if (commandArgs.length === 0 && DEV_RUNNER_MODES.includes(arg as DevMode)) {
+      commandArgs.push(arg);
+      continue;
+    }
+
+    if (isDevRunnerArg(arg)) {
+      commandArgs.push(arg);
+      continue;
+    }
+
+    electronArgs.push(arg);
+  }
+
+  return { commandArgs, electronArgs };
+};
 
 if (
   process.argv[1] &&
   import.meta.url === pathToFileURL(process.argv[1]).href
 ) {
-  Command.runWith(command, {
+  const invocation = splitCliArgs(process.argv.slice(2));
+  Command.runWith(makeCommand(invocation.electronArgs), {
     version: "1.0.0",
-  })(getCliArgs()).pipe(
+  })(invocation.commandArgs).pipe(
     Effect.provide(NodeServices.layer),
     NodeRuntime.runMain,
   );

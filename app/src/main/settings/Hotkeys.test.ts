@@ -1,24 +1,14 @@
-import { join } from "node:path";
-import { afterEach, describe, expect, it } from "vitest";
-import * as Files from "./Files";
+import { describe, expect, it } from "vitest";
 import {
   DEFAULT,
   applyPatch,
   normalize,
   normalizeHotkeyValue,
-  path,
-  write,
+  serialize,
 } from "./Hotkeys";
-import {
-  normalizeHotkeyBinding,
-  readHotkeyBinding,
-} from "../../shared/hotkeys";
+import { readHotkeyBinding } from "../../shared/hotkeys";
 
 describe("hotkey settings", () => {
-  afterEach(() => {
-    Files.resetPathConfigurationForTests();
-  });
-
   it("normalizes valid bindings", () => {
     const bindings = normalize([
       { id: "loadScript", value: "mod+o" },
@@ -27,11 +17,6 @@ describe("hotkey settings", () => {
 
     expect(readHotkeyBinding(bindings, "loadScript")).toBe("Mod+O");
     expect(readHotkeyBinding(bindings, "toggleLagKiller")).toBe("Alt+L");
-  });
-
-  it("supports platform-explicit macOS Control bindings", () => {
-    expect(normalizeHotkeyBinding("Control+Z", "mac")).toBe("Control+Z");
-    expect(normalizeHotkeyBinding("Command+Z", "mac")).toBe("Mod+Z");
   });
 
   it("discards unknown command ids", () => {
@@ -75,19 +60,9 @@ describe("hotkey settings", () => {
     ).toBe(readHotkeyBinding(DEFAULT.bindings, "loadScript"));
   });
 
-  it("writes keybindings as a top-level array", () => {
-    Files.configureAppDataHome("/tmp/vexed-test");
-
-    write(normalize([{ id: "loadScript", value: "Alt+O" }]));
-
-    expect(Files.readJson(path())).toEqual(
-      expect.arrayContaining([{ id: "loadScript", value: "Alt+O" }]),
-    );
-  });
-
-  it("resolves hotkeys under app data", () => {
-    Files.configureAppDataHome("/tmp/vexed-test");
-
-    expect(path()).toBe(join("/tmp/vexed-test", "keybindings.json"));
+  it("serializes keybindings as a top-level array", () => {
+    expect(
+      serialize(normalize([{ id: "loadScript", value: "Alt+O" }])),
+    ).toEqual(expect.arrayContaining([{ id: "loadScript", value: "Alt+O" }]));
   });
 });
