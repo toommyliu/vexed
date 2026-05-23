@@ -8,7 +8,6 @@
     "url": "https://github.com/toommyliu/vexed.git"
   },
   "scripts": {
-    "clean": "pnpm --dir .. clean",
     "prepare": "cd .. && effect-language-service patch",
     "typecheck": "tsc --noEmit",
     "test": "vitest run",
@@ -18,9 +17,8 @@
     "compile:prod": "cross-env NODE_ENV=production tsx esbuild.config.js",
     "electron": "node scripts/start-electron.mjs",
     "dev:ui:electron11": "node scripts/start-ui-demo-electron11.mjs",
-    "build": "npm-run-all --sequential clean typecheck compile:prod \"electron-builder build\"",
+    "build": "pnpm run compile:prod",
     "build:fast": "npm-run-all --sequential compile:prod \"electron-builder build\"",
-    "build:all": "npm-run-all --sequential clean typecheck compile:prod \"electron-builder -mwl\"",
     "electron-builder": "electron-builder"
   },
   "dependencies": {
