@@ -47,8 +47,8 @@ export interface CombatProfileStep {
   readonly id: string;
   readonly skill: number;
   readonly conditions: readonly CombatProfileCondition[];
+  readonly cooldownMode?: CombatProfileCooldownMode;
   readonly waitMs?: number;
-  readonly skipIfUnavailable?: boolean;
 }
 
 export interface CombatProfileAnimationTrigger {
@@ -244,8 +244,12 @@ const normalizeStep = (
     id: trimString(value["id"], 80) ?? `step-${index + 1}`,
     skill,
     conditions,
+    ...(isCooldownMode(value["cooldownMode"])
+      ? { cooldownMode: value["cooldownMode"] }
+      : value["skipIfUnavailable"] === true
+        ? { cooldownMode: "use-if-ready" as const }
+        : {}),
     ...(waitMs > 0 ? { waitMs } : {}),
-    ...(value["skipIfUnavailable"] === true ? { skipIfUnavailable: true } : {}),
   };
 };
 

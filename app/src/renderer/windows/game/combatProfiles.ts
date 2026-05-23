@@ -198,9 +198,8 @@ export const castNextCombatProfileStep = (
         continue;
       }
 
-      const shouldWait =
-        profile.cooldownMode === "wait-for-cooldown" &&
-        step.skipIfUnavailable !== true;
+      const cooldownMode = step.cooldownMode ?? profile.cooldownMode;
+      const shouldWait = cooldownMode === "wait-for-cooldown";
 
       if (!shouldWait && !(yield* combat.canUseSkill(step.skill))) {
         continue;

@@ -55,8 +55,8 @@ describe("combat profile library", () => {
                   value: 1,
                 },
               ],
+              cooldownMode: "wait-for-cooldown",
               waitMs: 100,
-              skipIfUnavailable: true,
             },
           ],
           animationTriggers: [
@@ -105,8 +105,8 @@ describe("combat profile library", () => {
               value: 1,
             },
           ],
+          cooldownMode: "wait-for-cooldown",
           waitMs: 100,
-          skipIfUnavailable: true,
         },
       ],
       animationTriggers: [
@@ -181,5 +181,30 @@ describe("combat profile library", () => {
     expect(
       findCombatProfileByRef(library, "equipped-class", "void highlord").id,
     ).toBe(DEFAULT_COMBAT_PROFILE_ID);
+  });
+
+  it("maps legacy step skip flags to per-step cooldown mode", () => {
+    const library = normalizeCombatProfileLibrary({
+      profiles: [
+        {
+          id: "legacy",
+          label: "Legacy",
+          cooldownMode: "wait-for-cooldown",
+          steps: [
+            {
+              skill: 4,
+              skipIfUnavailable: true,
+            },
+          ],
+        },
+      ],
+    });
+
+    expect(library.profiles[1]?.steps[0]).toEqual({
+      id: "step-1",
+      skill: 4,
+      conditions: [],
+      cooldownMode: "use-if-ready",
+    });
   });
 });
