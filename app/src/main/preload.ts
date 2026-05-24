@@ -8,6 +8,7 @@ import {
   ArmyIpcChannels,
   CombatProfilesIpcChannels,
   EnvironmentIpcChannels,
+  FastTravelsIpcChannels,
   FollowerIpcChannels,
   ObservabilityIpcChannels,
   PacketsIpcChannels,
@@ -38,6 +39,11 @@ import {
   type EnvironmentItemRules,
   type EnvironmentQuestAutoRegisterOptions,
   type EnvironmentState,
+  type FastTravel,
+  type FastTravelDraft,
+  type FastTravelsRequestMessage,
+  type FastTravelsResponseMessage,
+  type FastTravelWarpPayload,
   type FollowerRequestMessage,
   type FollowerResponseMessage,
   type FollowerStartPayload,
@@ -104,6 +110,9 @@ const followerStopRequestListeners = new Set<
 >();
 const packetRequestListeners = new Set<
   (request: PacketsRequestMessage) => void
+>();
+const fastTravelRequestListeners = new Set<
+  (request: FastTravelsRequestMessage) => void
 >();
 
 const latestEnvironmentFetchBoostsListener = ():
@@ -268,6 +277,24 @@ ipcRenderer.on(
   PacketsIpcChannels.request,
   (_event, request: PacketsRequestMessage) => {
     for (const listener of packetRequestListeners) {
+      listener(request);
+    }
+  },
+);
+
+ipcRenderer.on(
+  FastTravelsIpcChannels.request,
+  (_event, request: FastTravelsRequestMessage) => {
+    if (fastTravelRequestListeners.size === 0) {
+      ipcRenderer.send(FastTravelsIpcChannels.response, {
+        error: "Fast travel is not available in this game window",
+        ok: false,
+        requestId: request.requestId,
+      } satisfies FastTravelsResponseMessage);
+      return;
+    }
+
+    for (const listener of fastTravelRequestListeners) {
       listener(request);
     }
   },
@@ -578,6 +605,62 @@ const bridge: AppBridge = {
       return () => {
         environmentFetchBoostsListeners.delete(listener);
       };
+    },
+  },
+  fastTravels: {
+    getAll: async () => {
+      return (await ipcRenderer.invoke(
+        FastTravelsIpcChannels.getAll,
+      )) as readonly FastTravel[];
+    },
+    create: async (draft: FastTravelDraft) => {
+      return (await ipcRenderer.invoke(
+        FastTravelsIpcChannels.create,
+        draft,
+      )) as readonly FastTravel[];
+    },
+    update: async (originalName: string, draft: FastTravelDraft) => {
+      return (await ipcRenderer.invoke(
+        FastTravelsIpcChannels.update,
+        originalName,
+        draft,
+      )) as readonly FastTravel[];
+    },
+    delete: async (name: string) => {
+      return (await ipcRenderer.invoke(
+        FastTravelsIpcChannels.delete,
+        name,
+      )) as readonly FastTravel[];
+    },
+    warp: async (payload: FastTravelWarpPayload) => {
+      await ipcRenderer.invoke(FastTravelsIpcChannels.warp, payload);
+    },
+    onChanged: (listener) => {
+      const subscription = (
+        _event: unknown,
+        locations: readonly FastTravel[],
+      ) => {
+        listener(locations);
+      };
+
+      ipcRenderer.on(FastTravelsIpcChannels.changed, subscription);
+
+      return () => {
+        ipcRenderer.removeListener(
+          FastTravelsIpcChannels.changed,
+          subscription,
+        );
+      };
+    },
+    onRequest: (listener) => {
+      fastTravelRequestListeners.add(listener);
+
+      return () => {
+        fastTravelRequestListeners.delete(listener);
+      };
+    },
+    respond: async (response: FastTravelsResponseMessage) => {
+      ipcRenderer.send(FastTravelsIpcChannels.response, response);
     },
   },
   follower: {

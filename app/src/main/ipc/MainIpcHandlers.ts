@@ -4,6 +4,7 @@ import { registerAccountManagerIpcHandlers } from "./methods/accounts";
 import { registerArmyIpcHandlers } from "./methods/army";
 import { registerCombatProfilesIpcHandlers } from "./methods/combatProfiles";
 import { registerEnvironmentIpcHandlers } from "./methods/environment";
+import { registerFastTravelsIpcHandlers } from "./methods/fastTravels";
 import { registerFollowerIpcHandlers } from "./methods/follower";
 import { registerObservabilityIpcHandlers } from "./methods/observability";
 import { registerPacketsIpcHandlers } from "./methods/packets";
@@ -14,6 +15,7 @@ import { registerWindowIpcHandlers } from "./methods/window";
 import { AccountManagerRepository } from "../persistence/accounts/AccountRepository";
 import { Observability } from "../app/MainObservability";
 import { CombatProfileRepository } from "../persistence/combatProfiles/CombatProfileRepository";
+import { FastTravelRepository } from "../persistence/fastTravels/FastTravelRepository";
 import { MainIpc } from "./MainIpc";
 import { SettingsService } from "../settings/SettingsService";
 import { UpdateChecker } from "../updates/Updates";
@@ -27,6 +29,7 @@ export const installMainIpcHandlers = (
   never,
   | AccountManagerRepository
   | CombatProfileRepository
+  | FastTravelRepository
   | MainIpc
   | Observability
   | Scope.Scope
@@ -45,6 +48,7 @@ export const installMainIpcHandlers = (
     yield* registerUpdatesIpcHandlers();
     yield* registerWindowIpcHandlers();
     yield* registerEnvironmentIpcHandlers(runWindowEffect);
+    yield* registerFastTravelsIpcHandlers(runWindowEffect);
     yield* registerFollowerIpcHandlers(runWindowEffect);
     yield* registerPacketsIpcHandlers(runWindowEffect);
   });

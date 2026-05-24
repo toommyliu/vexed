@@ -26,6 +26,7 @@ import { MainIpcLive } from "./ipc/MainIpc";
 import { Persistence, PersistenceLive } from "./persistence/Persistence";
 import { AccountManagerRepositoryLive } from "./persistence/accounts/AccountRepository";
 import { CombatProfileRepositoryLive } from "./persistence/combatProfiles/CombatProfileRepository";
+import { FastTravelRepositoryLive } from "./persistence/fastTravels/FastTravelRepository";
 import {
   makeElectronWindowRuntime,
   makeWindowService,
@@ -164,6 +165,7 @@ const settingsLayer = SettingsServiceLive.pipe(
 const persistedDocumentsLayer = Layer.mergeAll(
   AccountManagerRepositoryLive,
   CombatProfileRepositoryLive,
+  FastTravelRepositoryLive,
   WorkspaceFilesLive,
 ).pipe(Layer.provideMerge(observabilityLayer));
 const windowLayer = Layer.effect(WindowService)(
