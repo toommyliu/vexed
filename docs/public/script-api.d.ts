@@ -325,7 +325,7 @@ interface ScriptRuntimeOptionsApi {
     reset(): Effect<void, never>;
 }
 interface ScriptStdApi {
-    readonly effect: typeof EffectStd;
+    readonly effect: EffectStd;
 }
 interface SettingsApi {
     setEnemyMagnet(enabled: boolean): Effect<void, BridgeError>;

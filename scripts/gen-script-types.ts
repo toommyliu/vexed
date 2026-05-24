@@ -268,6 +268,7 @@ const transformTypeText = (type: string): string => {
   output = output.replace(/\bEffect\.Yieldable\s*</g, "EffectYieldable<");
   output = output.replace(/\bOption\.Option\s*</g, "Option<");
   output = output.replace(/\bDuration\.Input\b/g, "DurationInput");
+  output = output.replace(/\btypeof\s+EffectStd\b/g, "EffectStd");
   output = output.replace(/\bReadonlyArray\s*</g, "readonly ");
   output = output.replace(/\bSchema\.Schema\.Type<[^>]+>/g, "unknown");
   output = output.replace(

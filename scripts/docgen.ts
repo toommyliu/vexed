@@ -1784,10 +1784,11 @@ const renderFeaturesOverview = (groups: readonly ApiGroup[]): string => {
     "",
     "| Namespace | Description |",
     "| --- | --- |",
-    ...featureGroups.map(
-      (group) =>
-        `| [\`${group.title}\`](/scripting/${group.id}/) | ${group.description || `${group.label} feature controls.`} |`,
-    ),
+    ...featureGroups.map((group) => {
+      const description =
+        group.description || `${group.label} feature controls.`;
+      return `| [\`${group.title}\`](/scripting/${group.id}/) | ${escapeTableCell(description)} |`;
+    }),
   ];
 
   return finalizeMarkdown(lines);
