@@ -418,7 +418,7 @@ function App(): JSX.Element {
 
   return (
     <AppShell class="fast-travels-app">
-      <AppShellHeader class="fast-travels-header">
+      <AppShellHeader class="fast-travels-header" maxWidth={false}>
         <AppShellHeaderLeft>
           <AppShellTitle>Fast Travels</AppShellTitle>
         </AppShellHeaderLeft>

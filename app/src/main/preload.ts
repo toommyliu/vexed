@@ -10,6 +10,7 @@ import {
   EnvironmentIpcChannels,
   FastTravelsIpcChannels,
   FollowerIpcChannels,
+  LoaderGrabberIpcChannels,
   ObservabilityIpcChannels,
   PacketsIpcChannels,
   SettingsIpcChannels,
@@ -48,7 +49,12 @@ import {
   type FollowerResponseMessage,
   type FollowerStartPayload,
   type FollowerState,
+  type GrabbedData,
   type HotkeysPatch,
+  type LoaderGrabberGrabRequest,
+  type LoaderGrabberLoadRequest,
+  type LoaderGrabberRequestMessage,
+  type LoaderGrabberResponseMessage,
   type ManagedAccountGroupDraft,
   type ManagedAccountGroupPatch,
   type ManagedAccountDraft,
@@ -113,6 +119,9 @@ const packetRequestListeners = new Set<
 >();
 const fastTravelRequestListeners = new Set<
   (request: FastTravelsRequestMessage) => void
+>();
+const loaderGrabberRequestListeners = new Set<
+  (request: LoaderGrabberRequestMessage) => void
 >();
 
 const latestEnvironmentFetchBoostsListener = ():
@@ -296,6 +305,34 @@ ipcRenderer.on(
 
     for (const listener of fastTravelRequestListeners) {
       listener(request);
+    }
+  },
+);
+
+ipcRenderer.on(
+  LoaderGrabberIpcChannels.request,
+  (_event, request: LoaderGrabberRequestMessage) => {
+    const listener = latestSetListener(loaderGrabberRequestListeners);
+    if (!listener) {
+      ipcRenderer.send(LoaderGrabberIpcChannels.response, {
+        error: "Loader grabber is not available in this game window",
+        ok: false,
+        requestId: request.requestId,
+      } satisfies LoaderGrabberResponseMessage);
+      return;
+    }
+
+    try {
+      listener(request);
+    } catch (cause) {
+      ipcRenderer.send(LoaderGrabberIpcChannels.response, {
+        error:
+          cause instanceof Error && cause.message !== ""
+            ? cause.message
+            : "Loader grabber request failed",
+        ok: false,
+        requestId: request.requestId,
+      } satisfies LoaderGrabberResponseMessage);
     }
   },
 );
@@ -724,6 +761,27 @@ const bridge: AppBridge = {
       return () => {
         followerStopRequestListeners.delete(listener);
       };
+    },
+  },
+  loaderGrabber: {
+    load: async (payload: LoaderGrabberLoadRequest) => {
+      await ipcRenderer.invoke(LoaderGrabberIpcChannels.load, payload);
+    },
+    grab: async (payload: LoaderGrabberGrabRequest) => {
+      return (await ipcRenderer.invoke(
+        LoaderGrabberIpcChannels.grab,
+        payload,
+      )) as GrabbedData | null;
+    },
+    onRequest: (listener) => {
+      loaderGrabberRequestListeners.add(listener);
+
+      return () => {
+        loaderGrabberRequestListeners.delete(listener);
+      };
+    },
+    respond: async (response: LoaderGrabberResponseMessage) => {
+      ipcRenderer.send(LoaderGrabberIpcChannels.response, response);
     },
   },
   observability: {

@@ -32,6 +32,11 @@ import type {
   PacketSendPayload,
 } from "./packets";
 import type {
+  GrabbedData,
+  LoaderGrabberGrabRequest,
+  LoaderGrabberLoadRequest,
+} from "./loader-grabber";
+import type {
   CombatProfile,
   CombatProfileAutoAttackState,
   CombatProfileLibrary,
@@ -122,6 +127,15 @@ export type {
   ObservabilitySnapshot,
   ObservabilitySource,
 } from "./observability";
+
+export type {
+  GrabbedData,
+  GrabbedDataByType,
+  LoaderGrabberGrabRequest,
+  LoaderGrabberGrabType,
+  LoaderGrabberLoadRequest,
+  LoaderGrabberLoadType,
+} from "./loader-grabber";
 
 export const ScriptingIpcChannels = {
   execute: "scripting:execute",
@@ -238,6 +252,13 @@ export const PacketsIpcChannels = {
   response: "packets:response",
 } as const;
 
+export const LoaderGrabberIpcChannels = {
+  load: "loader-grabber:load",
+  grab: "loader-grabber:grab",
+  request: "loader-grabber:request",
+  response: "loader-grabber:response",
+} as const;
+
 export const UpdatesIpcChannels = {
   getState: "updates:get-state",
   check: "updates:check",
@@ -257,6 +278,8 @@ export type PacketsRequestKind =
   | "send"
   | "startQueue"
   | "stopQueue";
+
+export type LoaderGrabberRequestKind = "load" | "grab";
 
 export type FastTravelsRequestKind = "warp";
 
@@ -288,6 +311,30 @@ export type PacketsResponseMessage =
   | {
       readonly requestId: string;
       readonly ok: true;
+    }
+  | {
+      readonly error: string;
+      readonly ok: false;
+      readonly requestId: string;
+    };
+
+export type LoaderGrabberRequestMessage =
+  | {
+      readonly requestId: string;
+      readonly kind: "load";
+      readonly payload: LoaderGrabberLoadRequest;
+    }
+  | {
+      readonly requestId: string;
+      readonly kind: "grab";
+      readonly payload: LoaderGrabberGrabRequest;
+    };
+
+export type LoaderGrabberResponseMessage =
+  | {
+      readonly requestId: string;
+      readonly ok: true;
+      readonly value?: GrabbedData | null;
     }
   | {
       readonly error: string;
@@ -883,6 +930,38 @@ export interface PacketsInvokeChannels {
   >;
 }
 
+export interface LoaderGrabberInvokeChannels {
+  readonly [LoaderGrabberIpcChannels.load]: IpcInvokeDefinition<
+    [payload: LoaderGrabberLoadRequest],
+    void
+  >;
+  readonly [LoaderGrabberIpcChannels.grab]: IpcInvokeDefinition<
+    [payload: LoaderGrabberGrabRequest],
+    GrabbedData | null
+  >;
+}
+
+export interface LoaderGrabberRendererEventChannels {
+  readonly [LoaderGrabberIpcChannels.request]: [
+    request: LoaderGrabberRequestMessage,
+  ];
+}
+
+export interface LoaderGrabberMainEventChannels {
+  readonly [LoaderGrabberIpcChannels.response]: [
+    response: LoaderGrabberResponseMessage,
+  ];
+}
+
+export interface LoaderGrabberBridge {
+  load(payload: LoaderGrabberLoadRequest): Promise<void>;
+  grab(payload: LoaderGrabberGrabRequest): Promise<GrabbedData | null>;
+  onRequest(
+    listener: (request: LoaderGrabberRequestMessage) => void,
+  ): () => void;
+  respond(response: LoaderGrabberResponseMessage): Promise<void>;
+}
+
 export interface PacketsRendererEventChannels {
   readonly [PacketsIpcChannels.captured]: [payload: PacketCapturedPayload];
   readonly [PacketsIpcChannels.status]: [payload: PacketsStatusPayload];
@@ -957,6 +1036,7 @@ export interface AppBridge {
   readonly environment: EnvironmentBridge;
   readonly fastTravels: FastTravelsBridge;
   readonly follower: FollowerBridge;
+  readonly loaderGrabber: LoaderGrabberBridge;
   readonly observability: ObservabilityBridge;
   readonly packets: PacketsBridge;
   readonly platform: PlatformBridge;

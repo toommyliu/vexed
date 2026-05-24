@@ -38,6 +38,12 @@ export interface SelectProps
   readonly items?: ReadonlyArray<SelectOption>;
 }
 
+const defaultSelectPositioning: NonNullable<SelectProps["positioning"]> = {
+  fitViewport: true,
+  placement: "bottom-start",
+  sameWidth: true,
+};
+
 export function Select(props: SelectProps): JSX.Element {
   const [local, rest] = splitProps(props, [
     "children",
@@ -74,9 +80,7 @@ export function Select(props: SelectProps): JSX.Element {
         class={cn("select", local.class)}
         collection={collection()}
         data-slot="select"
-        positioning={
-          local.positioning ?? { fitViewport: true, sameWidth: true }
-        }
+        positioning={{ ...defaultSelectPositioning, ...local.positioning }}
       >
         {local.children}
       </SelectPrimitive.Root>

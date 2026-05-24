@@ -22,6 +22,7 @@
   },
   "dependencies": {
     "@tanstack/solid-hotkeys": "^0.10.0",
+    "@tanstack/solid-virtual": "3.13.24",
     "@vexed/collection": "workspace:*",
     "@vexed/game": "workspace:*",
     "@vexed/shared": "workspace:*",
