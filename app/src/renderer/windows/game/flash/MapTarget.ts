@@ -10,22 +10,52 @@ export interface MapTarget {
   readonly requireExactRoom: boolean;
 }
 
-export const hasExplicitRoomSuffix = (map: string): boolean => {
+const splitMapRoomSuffix = (
+  map: string,
+): { readonly name: string; readonly roomToken?: string } => {
   const trimmed = map.trim();
   const separatorIndex = trimmed.indexOf("-");
-  return separatorIndex > 0 && separatorIndex < trimmed.length - 1;
+  if (separatorIndex <= 0 || separatorIndex >= trimmed.length - 1) {
+    return { name: trimmed };
+  }
+
+  return {
+    name: trimmed.slice(0, separatorIndex),
+    roomToken: trimmed.slice(separatorIndex + 1),
+  };
+};
+
+const parseFixedRoomNumber = (roomToken: string): number | undefined => {
+  if (!/^\d+$/.test(roomToken)) {
+    return undefined;
+  }
+
+  const roomNumber = Number(roomToken);
+  return Number.isSafeInteger(roomNumber) && roomNumber <= MAX_FIXED_ROOM_NUMBER
+    ? roomNumber
+    : undefined;
+};
+
+export const hasExplicitRoomSuffix = (map: string): boolean => {
+  const { roomToken } = splitMapRoomSuffix(map);
+  return (
+    roomToken !== undefined && parseFixedRoomNumber(roomToken) !== undefined
+  );
 };
 
 export const withPrivateRoom = (map: string, roomNumber: number): string => {
-  const trimmed = map.trim();
-  return hasExplicitRoomSuffix(trimmed) ? trimmed : `${trimmed}-${roomNumber}`;
+  const target = splitMapRoomSuffix(map);
+  return target.roomToken !== undefined &&
+    parseFixedRoomNumber(target.roomToken) !== undefined
+    ? map.trim()
+    : `${target.name}-${roomNumber}`;
 };
 
 export const randomPrivateRoomNumber = (): Effect.Effect<number> =>
   Random.nextIntBetween(MIN_RANDOM_ROOM_NUMBER, MAX_FIXED_ROOM_NUMBER);
 
 export const parseMapTarget = (map: string): Effect.Effect<MapTarget> =>
-  Effect.sync(() => {
+  Effect.gen(function* () {
     const trimmed = map.trim();
     const separatorIndex = trimmed.indexOf("-");
     if (separatorIndex === -1) {
@@ -34,25 +64,22 @@ export const parseMapTarget = (map: string): Effect.Effect<MapTarget> =>
 
     const name = trimmed.slice(0, separatorIndex);
     const roomToken = trimmed.slice(separatorIndex + 1);
+    const roomNumber = parseFixedRoomNumber(roomToken);
 
-    if (/^\d+$/.test(roomToken)) {
-      const roomNumber = Number(roomToken);
-      if (
-        Number.isSafeInteger(roomNumber) &&
-        roomNumber <= MAX_FIXED_ROOM_NUMBER
-      ) {
-        return {
-          map: trimmed,
-          name,
-          roomNumber,
-          requireExactRoom: true,
-        };
-      }
+    if (roomNumber !== undefined) {
+      return {
+        map: trimmed,
+        name,
+        roomNumber,
+        requireExactRoom: true,
+      };
     }
 
+    const randomRoomNumber = yield* randomPrivateRoomNumber();
     return {
-      map: trimmed,
+      map: withPrivateRoom(name, randomRoomNumber),
       name,
-      requireExactRoom: false,
+      roomNumber: randomRoomNumber,
+      requireExactRoom: true,
     };
   });
