@@ -3,6 +3,7 @@ const {
   appendFileSync,
   copyFileSync,
   mkdirSync,
+  rmSync,
   unwatchFile,
   watchFile,
 } = require("fs");
@@ -316,7 +317,16 @@ function copyRendererHtml({ notify = false } = {}) {
   }
 }
 
+function cleanProductionOutput() {
+  if (!isProduction || isWatch) {
+    return;
+  }
+
+  rmSync("dist", { recursive: true, force: true });
+}
+
 async function buildOnce() {
+  cleanProductionOutput();
   await build(createMainBuildOptions());
   await build(createPreloadBuildOptions());
   copyRendererHtml();

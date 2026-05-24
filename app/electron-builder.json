@@ -6,8 +6,8 @@
   "directories": {
     "output": "build"
   },
+  "files": ["dist/**/*", "package.json", "!node_modules/**/*"],
   "mac": {
-    "files": ["dist/**/*"],
     "extraResources": [
       {
         "from": "../assets",
@@ -24,7 +24,6 @@
     "artifactName": "${productName}-${os}.${ext}"
   },
   "win": {
-    "files": ["dist/**/*"],
     "extraResources": [
       {
         "from": "../assets",
@@ -41,7 +40,6 @@
     "artifactName": "${productName}-${os}.${ext}"
   },
   "linux": {
-    "files": ["dist/**/*"],
     "extraResources": [
       {
         "from": "../assets",
