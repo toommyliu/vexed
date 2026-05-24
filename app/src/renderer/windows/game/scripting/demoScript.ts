@@ -3,6 +3,7 @@ export const demoScriptName = "demo-loop";
 export const demoScriptSource = `
 module.exports = function* run({ api, script }) {
   script.log("Demo script started")
+  yield* script.options.setUsePrivateRooms(true)
   yield* api.settings.setFrameRate(30)
   yield* api.settings.setLagKillerEnabled(true)
   yield* api.settings.setOtherPlayersVisible(false)

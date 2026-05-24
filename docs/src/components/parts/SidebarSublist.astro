@@ -41,10 +41,12 @@ const getLinkLabel = (entry: StarlightRouteData['sidebar'][number]): string =>
         ? 'Overview'
         : entry.label;
 
+const headerLinkGroups = new Set(['API', 'Features']);
+
 const isGroupHeaderLink = (
     groupLabel: string,
     entry: StarlightRouteData['sidebar'][number] | undefined
-) => groupLabel === 'API' && entry?.type === 'link' && entry.label === groupLabel;
+) => headerLinkGroups.has(groupLabel) && entry?.type === 'link' && entry.label === groupLabel;
 ---
 
 {

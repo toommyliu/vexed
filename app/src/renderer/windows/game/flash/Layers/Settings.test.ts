@@ -38,26 +38,26 @@ const withSettings = async <A>(
   );
 };
 
-test("counter attack is disabled by default", async () => {
+test("anti-counter is disabled by default", async () => {
   const enabled = await withSettings((settings) =>
-    settings.isCounterAttackEnabled(),
+    settings.isAntiCounterEnabled(),
   );
 
   expect(enabled).toBe(false);
 });
 
-test("counter attack state updates subscribers without bridge calls", async () => {
+test("anti-counter state updates subscribers without bridge calls", async () => {
   const result = await withSettings((settings, bridgeCalls) =>
     Effect.gen(function* () {
       const states: boolean[] = [];
       const dispose = yield* settings.onState((state) => {
-        states.push(state.counterAttackEnabled);
+        states.push(state.antiCounterEnabled);
       });
 
-      yield* settings.setCounterAttackEnabled(true);
-      const enabled = yield* settings.isCounterAttackEnabled();
-      yield* settings.setCounterAttackEnabled(false);
-      const disabled = yield* settings.isCounterAttackEnabled();
+      yield* settings.setAntiCounterEnabled(true);
+      const enabled = yield* settings.isAntiCounterEnabled();
+      yield* settings.setAntiCounterEnabled(false);
+      const disabled = yield* settings.isAntiCounterEnabled();
       dispose();
 
       return { bridgeCalls: [...bridgeCalls], disabled, enabled, states };

@@ -14,23 +14,26 @@ Scripts export a CommonJS generator function and receive one context object.
 
 ```js
 module.exports = function* run(ctx) {
-  const { api, script } = ctx
+  const { api, script, std } = ctx
+  const { Option } = std.effect
   script.log("started")
+  yield* script.options.setUsePrivateRooms(true)
   yield* api.player.joinMap("battleon")
+  const me = yield* api.world.players.me.get()
+  if (Option.isSome(me)) script.log(`Logged in as ${me.value.username}`)
 }
 ```
 
 ## Context
 
-The context is the object passed to your script. It separates gameplay APIs, current-script lifecycle helpers, and scriptable feature controls.
+The context is the object passed to your script.
 
 | Member | Description |
 | --- | --- |
-| [`api`](/scripting/api/) | Gameplay and game-state APIs. |
-| [`script`](/scripting/script/) | Current script lifecycle and diagnostics APIs. |
-| [`autoZone`](/scripting/auto-zone/) | Auto Zone feature controls. |
-| [`autoRelogin`](/scripting/auto-relogin/) | Auto Relogin feature controls. |
-| [`counterAttack`](/scripting/counter-attack/) | Counter Attack feature controls. |
+| [`api`](/scripting/api/) | Interact with the game. |
+| [`script`](/scripting/script/) | Manage the running script. |
+| [`features`](/scripting/features/) | Use feature controls. |
+| [`std`](/scripting/std/) | Use shared utility modules. |
 
 ## Reference
 
@@ -46,8 +49,12 @@ Download the generated declaration file [`script-api.d.ts`](/script-api.d.ts) an
 /// <reference path="./script-api.d.ts" />
 
 /** @param {ScriptContext} context */
-module.exports = function* run({ api }) {
+module.exports = function* run({ api, script, std }) {
+  const { Option } = std.effect
+  yield* script.options.setUsePrivateRooms(true)
   yield* api.player.joinMap("battleon")
+  const me = yield* api.world.players.me.get()
+  if (Option.isSome(me)) script.log(me.value.username)
 }
 ```
 

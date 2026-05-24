@@ -27,7 +27,7 @@ export type GameCommandId =
   | "toggleLagKiller"
   | "toggleHidePlayers"
   | "toggleSkipCutscenes"
-  | "toggleCounterAttack"
+  | "toggleAntiCounter"
   | "toggleDisableFx"
   | "toggleCollisions"
   | "toggleDeathAds";
@@ -200,11 +200,11 @@ export const GAME_COMMANDS: readonly CommandDefinition[] = [
     defaultHotkey: "",
   },
   {
-    id: "toggleCounterAttack",
+    id: "toggleAntiCounter",
     scope: "game",
     category: "Options",
-    label: "Toggle Counter Attack",
-    keywords: ["counter", "attack"],
+    label: "Toggle Anti-Counter",
+    keywords: ["anti", "counter"],
     defaultHotkey: "",
   },
   {

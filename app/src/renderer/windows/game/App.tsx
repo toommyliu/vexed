@@ -180,7 +180,7 @@ interface DevDebugEvaluatorProps {
 const createDebugScriptSource = (source: string): string =>
   source.includes("module.exports")
     ? source
-    : `module.exports = function* debug({ api, script, autoRelogin, autoZone, counterAttack }) {
+    : `module.exports = function* debug({ api, script, features, std }) {
 ${source}
 };`;
 
@@ -793,6 +793,7 @@ export default function App(props: {
   const [scriptRunning, setScriptRunning] = createSignal(false);
   const [scriptStatus, setScriptStatus] = createSignal("No script loaded");
   const [scriptDiagnosticsCount, setScriptDiagnosticsCount] = createSignal(0);
+  const [scriptUsePrivateRooms, setScriptUsePrivateRooms] = createSignal(false);
 
   const [customName, setCustomName] = createSignal("");
   const [customGuild, setCustomGuild] = createSignal("");
@@ -807,7 +808,7 @@ export default function App(props: {
   const [infiniteRangeEnabled, setInfiniteRangeEnabled] = createSignal(false);
   const [provokeCellEnabled, setProvokeCellEnabled] = createSignal(false);
   const [skipCutscenesEnabled, setSkipCutscenesEnabled] = createSignal(false);
-  const [counterAttackEnabled, setCounterAttackEnabled] = createSignal(false);
+  const [antiCounterEnabled, setAntiCounterEnabled] = createSignal(false);
   const [autoZoneEnabled, setAutoZoneEnabled] = createSignal(false);
   const [autoZoneMap, setAutoZoneMap] = createSignal<
     AutoZoneSupportedMap | undefined
@@ -986,7 +987,9 @@ export default function App(props: {
       });
       updateAccountLaunchStatus(payload, "running", `Running ${name}`);
       yield* runner
-        .run(script.source, { name })
+        .run(script.source, {
+          name,
+        })
         .pipe(
           Effect.mapError((error) =>
             accountLaunchError(
@@ -1049,19 +1052,21 @@ export default function App(props: {
 
   const refreshScriptMeta = async () => {
     try {
-      const { isRunning, diagnostics } = await runtime.runPromise(
+      const { isRunning, diagnostics, options } = await runtime.runPromise(
         Effect.gen(function* () {
           const runner = yield* ScriptRunner;
-          const [isRunning, diagnostics] = yield* Effect.all([
+          const [isRunning, diagnostics, options] = yield* Effect.all([
             runner.isRunning(),
             runner.diagnostics(),
+            runner.getOptions(),
           ]);
-          return { isRunning, diagnostics };
+          return { isRunning, diagnostics, options };
         }),
       );
 
       setScriptRunning(isRunning);
       setScriptDiagnosticsCount(diagnostics.length);
+      setScriptUsePrivateRooms(options.usePrivateRooms);
       setScriptStatus(formatScriptStatus(scriptLoaded(), isRunning));
     } catch (error) {
       console.error("Failed to refresh script metadata", error);
@@ -1131,6 +1136,25 @@ export default function App(props: {
         void refreshScriptMeta();
       });
     setScriptStatus("Stop requested");
+  };
+
+  const handleToggleScriptPrivateRooms = () => {
+    const nextEnabled = !scriptUsePrivateRooms();
+    setScriptUsePrivateRooms(nextEnabled);
+    void runtime
+      .runPromise(
+        Effect.gen(function* () {
+          const runner = yield* ScriptRunner;
+          yield* runner.setUsePrivateRooms(nextEnabled);
+        }),
+      )
+      .catch((error) => {
+        console.error("Failed to update script private room option", error);
+        setScriptUsePrivateRooms(!nextEnabled);
+      })
+      .finally(() => {
+        void refreshScriptMeta();
+      });
   };
 
   const canApplyGameSettings = () => gameLoaded() && playerReady();
@@ -1323,11 +1347,11 @@ export default function App(props: {
     );
   };
 
-  const handleToggleCounterAttack = () => {
-    const nextEnabled = !counterAttackEnabled();
-    setCounterAttackEnabled(nextEnabled);
-    runSettingsEffect("Toggle counter attack", (settings) =>
-      settings.setCounterAttackEnabled(nextEnabled),
+  const handleToggleAntiCounter = () => {
+    const nextEnabled = !antiCounterEnabled();
+    setAntiCounterEnabled(nextEnabled);
+    runSettingsEffect("Toggle anti-counter", (settings) =>
+      settings.setAntiCounterEnabled(nextEnabled),
     );
   };
 
@@ -1779,11 +1803,11 @@ export default function App(props: {
         onSelect: handleToggleSkipCutscenes,
       },
       {
-        id: "counter-attack",
-        label: "Counter Attack",
-        checked: counterAttackEnabled(),
+        id: "anti-counter",
+        label: "Anti-Counter",
+        checked: antiCounterEnabled(),
         disabled,
-        onSelect: handleToggleCounterAttack,
+        onSelect: handleToggleAntiCounter,
       },
       {
         id: "disable-fx",
@@ -2093,7 +2117,7 @@ export default function App(props: {
             setInfiniteRangeEnabled(state.infiniteRangeEnabled);
             setProvokeCellEnabled(state.provokeCellEnabled);
             setSkipCutscenesEnabled(state.skipCutscenesEnabled);
-            setCounterAttackEnabled(state.counterAttackEnabled);
+            setAntiCounterEnabled(state.antiCounterEnabled);
           });
         }),
       )
@@ -2261,9 +2285,11 @@ export default function App(props: {
           scriptRunning={scriptRunning}
           scriptStatus={scriptStatus}
           scriptDiagnosticsCount={scriptDiagnosticsCount}
+          scriptUsePrivateRooms={scriptUsePrivateRooms}
           loadScript={loadScript}
           startScript={startScript}
           stopScript={stopScript}
+          handleToggleScriptPrivateRooms={handleToggleScriptPrivateRooms}
           optionItems={topNavOptionsMenuProps.optionItems}
           walkSpeed={topNavOptionsMenuProps.walkSpeed}
           setWalkSpeed={topNavOptionsMenuProps.setWalkSpeed}

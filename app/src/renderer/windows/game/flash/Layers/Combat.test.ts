@@ -9,7 +9,7 @@ import { Combat, type CombatShape } from "../Services/Combat";
 import { Drops, type DropsShape } from "../Services/Drops";
 import {
   PacketDomain,
-  type PacketDomainCounterAttackEvent,
+  type PacketDomainAntiCounterEvent,
   type PacketDomainEventHandler,
   type PacketDomainShape,
 } from "../Services/PacketDomain";
@@ -115,14 +115,14 @@ const withCombat = async <A>(
   body: (combat: CombatShape) => Effect.Effect<A, unknown>,
   services?: {
     readonly player?: PlayerShape;
-    readonly counterAttackEnabled?: boolean;
+    readonly antiCounterEnabled?: boolean;
     readonly packetDomain?: PacketDomainShape;
     readonly world?: WorldShape;
   },
 ): Promise<A> => {
   const settings = {
-    isCounterAttackEnabled: () =>
-      Effect.succeed(services?.counterAttackEnabled ?? false),
+    isAntiCounterEnabled: () =>
+      Effect.succeed(services?.antiCounterEnabled ?? false),
   } as unknown as SettingsShape;
   const dependencies =
     services?.packetDomain === undefined
@@ -228,18 +228,18 @@ const makeKillWorld = (
   },
 });
 
-const counterAttackEvent = (
-  overrides: Partial<PacketDomainCounterAttackEvent>,
-): PacketDomainCounterAttackEvent =>
+const antiCounterEvent = (
+  overrides: Partial<PacketDomainAntiCounterEvent>,
+): PacketDomainAntiCounterEvent =>
   ({
     durationMs: 7_000,
     monMapId: 7,
     packet: {},
     source: "message",
-    triggerId: "counter-attack",
+    triggerId: "anti-counter",
     triggerText: "prepares a counter attack",
     ...overrides,
-  }) as PacketDomainCounterAttackEvent;
+  }) as PacketDomainAntiCounterEvent;
 
 test("force useSkill waits through cooldown and confirmation before casting", async () => {
   const calls: string[] = [];
@@ -317,17 +317,17 @@ test("useSkill is a no-op when the player is dead", async () => {
   expect(calls).toEqual([]);
 });
 
-test("counter attack start stops auto attack and clears the target when enabled", async () => {
+test("anti-counter start stops auto attack and clears the target when enabled", async () => {
   const calls: string[] = [];
-  let counterAttackStart:
-    | PacketDomainEventHandler<"counterAttackStart">
+  let antiCounterStart:
+    | PacketDomainEventHandler<"antiCounterStart">
     | undefined;
   const packetDomain = {
     started: true,
     on(event, handler) {
-      if (event === "counterAttackStart") {
-        counterAttackStart =
-          handler as PacketDomainEventHandler<"counterAttackStart">;
+      if (event === "antiCounterStart") {
+        antiCounterStart =
+          handler as PacketDomainEventHandler<"antiCounterStart">;
       }
 
       return Effect.succeed(() => undefined);
@@ -368,10 +368,10 @@ test("counter attack start stops auto attack and clears the target when enabled"
     bridge,
     () =>
       Effect.gen(function* () {
-        expect(counterAttackStart).toBeDefined();
-        yield* counterAttackStart!(counterAttackEvent({ monMapId: 7 }));
+        expect(antiCounterStart).toBeDefined();
+        yield* antiCounterStart!(antiCounterEvent({ monMapId: 7 }));
       }),
-    { counterAttackEnabled: true, packetDomain },
+    { antiCounterEnabled: true, packetDomain },
   );
 
   expect(calls).toEqual([
@@ -381,23 +381,20 @@ test("counter attack start stops auto attack and clears the target when enabled"
   ]);
 });
 
-test("counter attack end resumes a target stopped by counter attack", async () => {
+test("anti-counter end resumes a target stopped by anti-counter", async () => {
   const calls: string[] = [];
-  let counterAttackStart:
-    | PacketDomainEventHandler<"counterAttackStart">
+  let antiCounterStart:
+    | PacketDomainEventHandler<"antiCounterStart">
     | undefined;
-  let counterAttackEnd:
-    | PacketDomainEventHandler<"counterAttackEnd">
-    | undefined;
+  let antiCounterEnd: PacketDomainEventHandler<"antiCounterEnd"> | undefined;
   const packetDomain = {
     started: true,
     on(event, handler) {
-      if (event === "counterAttackStart") {
-        counterAttackStart =
-          handler as PacketDomainEventHandler<"counterAttackStart">;
-      } else if (event === "counterAttackEnd") {
-        counterAttackEnd =
-          handler as PacketDomainEventHandler<"counterAttackEnd">;
+      if (event === "antiCounterStart") {
+        antiCounterStart =
+          handler as PacketDomainEventHandler<"antiCounterStart">;
+      } else if (event === "antiCounterEnd") {
+        antiCounterEnd = handler as PacketDomainEventHandler<"antiCounterEnd">;
       }
 
       return Effect.succeed(() => undefined);
@@ -443,12 +440,12 @@ test("counter attack end resumes a target stopped by counter attack", async () =
     bridge,
     () =>
       Effect.gen(function* () {
-        expect(counterAttackStart).toBeDefined();
-        expect(counterAttackEnd).toBeDefined();
-        yield* counterAttackStart!(counterAttackEvent({ monMapId: 7 }));
-        yield* counterAttackEnd!(counterAttackEvent({ monMapId: 7 }));
+        expect(antiCounterStart).toBeDefined();
+        expect(antiCounterEnd).toBeDefined();
+        yield* antiCounterStart!(antiCounterEvent({ monMapId: 7 }));
+        yield* antiCounterEnd!(antiCounterEvent({ monMapId: 7 }));
       }),
-    { counterAttackEnabled: true, packetDomain },
+    { antiCounterEnabled: true, packetDomain },
   );
 
   expect(calls).toEqual([
@@ -459,24 +456,21 @@ test("counter attack end resumes a target stopped by counter attack", async () =
   ]);
 });
 
-test("counter attack end does not resume while another counter attack is active", async () => {
+test("anti-counter end does not resume while another anti-counter is active", async () => {
   const calls: string[] = [];
   let targetReadCount = 0;
-  let counterAttackStart:
-    | PacketDomainEventHandler<"counterAttackStart">
+  let antiCounterStart:
+    | PacketDomainEventHandler<"antiCounterStart">
     | undefined;
-  let counterAttackEnd:
-    | PacketDomainEventHandler<"counterAttackEnd">
-    | undefined;
+  let antiCounterEnd: PacketDomainEventHandler<"antiCounterEnd"> | undefined;
   const packetDomain = {
     started: true,
     on(event, handler) {
-      if (event === "counterAttackStart") {
-        counterAttackStart =
-          handler as PacketDomainEventHandler<"counterAttackStart">;
-      } else if (event === "counterAttackEnd") {
-        counterAttackEnd =
-          handler as PacketDomainEventHandler<"counterAttackEnd">;
+      if (event === "antiCounterStart") {
+        antiCounterStart =
+          handler as PacketDomainEventHandler<"antiCounterStart">;
+      } else if (event === "antiCounterEnd") {
+        antiCounterEnd = handler as PacketDomainEventHandler<"antiCounterEnd">;
       }
 
       return Effect.succeed(() => undefined);
@@ -522,22 +516,22 @@ test("counter attack end does not resume while another counter attack is active"
     bridge,
     () =>
       Effect.gen(function* () {
-        expect(counterAttackStart).toBeDefined();
-        expect(counterAttackEnd).toBeDefined();
-        yield* counterAttackStart!(
-          counterAttackEvent({ monMapId: 7, triggerId: "counter-attack-a" }),
+        expect(antiCounterStart).toBeDefined();
+        expect(antiCounterEnd).toBeDefined();
+        yield* antiCounterStart!(
+          antiCounterEvent({ monMapId: 7, triggerId: "anti-counter-a" }),
         );
-        yield* counterAttackStart!(
-          counterAttackEvent({ monMapId: 7, triggerId: "counter-attack-b" }),
+        yield* antiCounterStart!(
+          antiCounterEvent({ monMapId: 7, triggerId: "anti-counter-b" }),
         );
-        yield* counterAttackEnd!(
-          counterAttackEvent({ monMapId: 7, triggerId: "counter-attack-a" }),
+        yield* antiCounterEnd!(
+          antiCounterEvent({ monMapId: 7, triggerId: "anti-counter-a" }),
         );
-        yield* counterAttackEnd!(
-          counterAttackEvent({ monMapId: 7, triggerId: "counter-attack-b" }),
+        yield* antiCounterEnd!(
+          antiCounterEvent({ monMapId: 7, triggerId: "anti-counter-b" }),
         );
       }),
-    { counterAttackEnabled: true, packetDomain },
+    { antiCounterEnabled: true, packetDomain },
   );
 
   expect(calls).toEqual([
@@ -549,17 +543,17 @@ test("counter attack end does not resume while another counter attack is active"
   ]);
 });
 
-test("counter attack start does not cancel the current target when disabled", async () => {
+test("anti-counter start does not cancel the current target when disabled", async () => {
   const calls: string[] = [];
-  let counterAttackStart:
-    | PacketDomainEventHandler<"counterAttackStart">
+  let antiCounterStart:
+    | PacketDomainEventHandler<"antiCounterStart">
     | undefined;
   const packetDomain = {
     started: true,
     on(event, handler) {
-      if (event === "counterAttackStart") {
-        counterAttackStart =
-          handler as PacketDomainEventHandler<"counterAttackStart">;
+      if (event === "antiCounterStart") {
+        antiCounterStart =
+          handler as PacketDomainEventHandler<"antiCounterStart">;
       }
 
       return Effect.succeed(() => undefined);
@@ -582,26 +576,26 @@ test("counter attack start does not cancel the current target when disabled", as
     bridge,
     () =>
       Effect.gen(function* () {
-        expect(counterAttackStart).toBeDefined();
-        yield* counterAttackStart!(counterAttackEvent({ monMapId: 7 }));
+        expect(antiCounterStart).toBeDefined();
+        yield* antiCounterStart!(antiCounterEvent({ monMapId: 7 }));
       }),
-    { counterAttackEnabled: false, packetDomain },
+    { antiCounterEnabled: false, packetDomain },
   );
 
   expect(calls).toEqual([]);
 });
 
-test("useSkill ignores tracked counter attacks when counter attack is disabled", async () => {
+test("useSkill ignores tracked anti-counters when anti-counter is disabled", async () => {
   const calls: string[] = [];
-  let counterAttackStart:
-    | PacketDomainEventHandler<"counterAttackStart">
+  let antiCounterStart:
+    | PacketDomainEventHandler<"antiCounterStart">
     | undefined;
   const packetDomain = {
     started: true,
     on(event, handler) {
-      if (event === "counterAttackStart") {
-        counterAttackStart =
-          handler as PacketDomainEventHandler<"counterAttackStart">;
+      if (event === "antiCounterStart") {
+        antiCounterStart =
+          handler as PacketDomainEventHandler<"antiCounterStart">;
       }
 
       return Effect.succeed(() => undefined);
@@ -639,11 +633,11 @@ test("useSkill ignores tracked counter attacks when counter attack is disabled",
     bridge,
     (combat) =>
       Effect.gen(function* () {
-        expect(counterAttackStart).toBeDefined();
-        yield* counterAttackStart!(counterAttackEvent({ monMapId: 7 }));
+        expect(antiCounterStart).toBeDefined();
+        yield* antiCounterStart!(antiCounterEvent({ monMapId: 7 }));
         yield* combat.useSkill(1);
       }),
-    { counterAttackEnabled: false, packetDomain },
+    { antiCounterEnabled: false, packetDomain },
   );
 
   expect(calls).toEqual([
@@ -653,18 +647,18 @@ test("useSkill ignores tracked counter attacks when counter attack is disabled",
   ]);
 });
 
-test("useSkill stops auto attack and does not cast while counter attack is active", async () => {
+test("useSkill stops auto attack and does not cast while anti-counter is active", async () => {
   const calls: string[] = [];
   let targetReadCount = 0;
-  let counterAttackStart:
-    | PacketDomainEventHandler<"counterAttackStart">
+  let antiCounterStart:
+    | PacketDomainEventHandler<"antiCounterStart">
     | undefined;
   const packetDomain = {
     started: true,
     on(event, handler) {
-      if (event === "counterAttackStart") {
-        counterAttackStart =
-          handler as PacketDomainEventHandler<"counterAttackStart">;
+      if (event === "antiCounterStart") {
+        antiCounterStart =
+          handler as PacketDomainEventHandler<"antiCounterStart">;
       }
 
       return Effect.succeed(() => undefined);
@@ -702,11 +696,11 @@ test("useSkill stops auto attack and does not cast while counter attack is activ
     bridge,
     (combat) =>
       Effect.gen(function* () {
-        expect(counterAttackStart).toBeDefined();
-        yield* counterAttackStart!(counterAttackEvent({ monMapId: 7 }));
+        expect(antiCounterStart).toBeDefined();
+        yield* antiCounterStart!(antiCounterEvent({ monMapId: 7 }));
         yield* combat.useSkill(1);
       }),
-    { counterAttackEnabled: true, packetDomain },
+    { antiCounterEnabled: true, packetDomain },
   );
 
   expect(calls).toEqual([
@@ -717,17 +711,17 @@ test("useSkill stops auto attack and does not cast while counter attack is activ
   ]);
 });
 
-test("attackMonster does not hit while counter attack is active", async () => {
+test("attackMonster does not hit while anti-counter is active", async () => {
   const calls: string[] = [];
-  let counterAttackStart:
-    | PacketDomainEventHandler<"counterAttackStart">
+  let antiCounterStart:
+    | PacketDomainEventHandler<"antiCounterStart">
     | undefined;
   const packetDomain = {
     started: true,
     on(event, handler) {
-      if (event === "counterAttackStart") {
-        counterAttackStart =
-          handler as PacketDomainEventHandler<"counterAttackStart">;
+      if (event === "antiCounterStart") {
+        antiCounterStart =
+          handler as PacketDomainEventHandler<"antiCounterStart">;
       }
 
       return Effect.succeed(() => undefined);
@@ -767,12 +761,12 @@ test("attackMonster does not hit while counter attack is active", async () => {
     bridge,
     (combat) =>
       Effect.gen(function* () {
-        expect(counterAttackStart).toBeDefined();
-        yield* counterAttackStart!(counterAttackEvent({ monMapId: 7 }));
+        expect(antiCounterStart).toBeDefined();
+        yield* antiCounterStart!(antiCounterEvent({ monMapId: 7 }));
         const attacked = yield* combat.attackMonster(7);
         expect(attacked).toBe(false);
       }),
-    { counterAttackEnabled: true, packetDomain },
+    { antiCounterEnabled: true, packetDomain },
   );
 
   expect(calls).toEqual([
@@ -782,17 +776,17 @@ test("attackMonster does not hit while counter attack is active", async () => {
   ]);
 });
 
-test("attackMonster ignores tracked counter attacks when counter attack is disabled", async () => {
+test("attackMonster ignores tracked anti-counters when anti-counter is disabled", async () => {
   const calls: string[] = [];
-  let counterAttackStart:
-    | PacketDomainEventHandler<"counterAttackStart">
+  let antiCounterStart:
+    | PacketDomainEventHandler<"antiCounterStart">
     | undefined;
   const packetDomain = {
     started: true,
     on(event, handler) {
-      if (event === "counterAttackStart") {
-        counterAttackStart =
-          handler as PacketDomainEventHandler<"counterAttackStart">;
+      if (event === "antiCounterStart") {
+        antiCounterStart =
+          handler as PacketDomainEventHandler<"antiCounterStart">;
       }
 
       return Effect.succeed(() => undefined);
@@ -822,12 +816,12 @@ test("attackMonster ignores tracked counter attacks when counter attack is disab
     bridge,
     (combat) =>
       Effect.gen(function* () {
-        expect(counterAttackStart).toBeDefined();
-        yield* counterAttackStart!(counterAttackEvent({ monMapId: 7 }));
+        expect(antiCounterStart).toBeDefined();
+        yield* antiCounterStart!(antiCounterEvent({ monMapId: 7 }));
         const attacked = yield* combat.attackMonster(7);
         expect(attacked).toBe(true);
       }),
-    { counterAttackEnabled: false, packetDomain },
+    { antiCounterEnabled: false, packetDomain },
   );
 
   expect(calls).toEqual(["combat.attackMonsterById:7"]);

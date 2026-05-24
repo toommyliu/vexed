@@ -7,9 +7,11 @@ import type {
   ScriptNotReadyError,
 } from "../Errors";
 import type { ScriptDiagnostic } from "../Types";
+import type { ScriptOptions } from "../ipc";
 
 export interface RunScriptOptions {
   readonly name?: string;
+  readonly options?: Partial<ScriptOptions>;
 }
 
 export type ScriptRunnerError =
@@ -26,6 +28,8 @@ export interface ScriptRunnerShape {
   stop(reason?: string): Effect.Effect<void>;
   isRunning(): Effect.Effect<boolean>;
   diagnostics(): Effect.Effect<ReadonlyArray<ScriptDiagnostic>>;
+  getOptions(): Effect.Effect<Readonly<ScriptOptions>>;
+  setUsePrivateRooms(enabled: boolean): Effect.Effect<void>;
 }
 
 export class ScriptRunner extends ServiceMap.Service<

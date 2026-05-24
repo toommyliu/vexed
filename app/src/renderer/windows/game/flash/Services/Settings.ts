@@ -16,7 +16,7 @@ export interface SettingsState {
   infiniteRangeEnabled: boolean;
   provokeCellEnabled: boolean;
   skipCutscenesEnabled: boolean;
-  counterAttackEnabled: boolean;
+  antiCounterEnabled: boolean;
 }
 
 export type SettingsPatch = Partial<SettingsState>;
@@ -38,8 +38,8 @@ export interface SettingsShape {
   setInfiniteRangeEnabled(enabled: boolean): BridgeEffect<void>;
   setProvokeCellEnabled(enabled: boolean): BridgeEffect<void>;
   setSkipCutscenesEnabled(enabled: boolean): BridgeEffect<void>;
-  isCounterAttackEnabled(): Effect.Effect<boolean>;
-  setCounterAttackEnabled(enabled: boolean): Effect.Effect<void>;
+  isAntiCounterEnabled(): Effect.Effect<boolean>;
+  setAntiCounterEnabled(enabled: boolean): Effect.Effect<void>;
   setCustomName(name: string): BridgeEffect<void>;
   setCustomGuild(name: string): BridgeEffect<void>;
   setWalkSpeed(speed: number): BridgeEffect<void>;

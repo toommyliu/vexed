@@ -1,6 +1,8 @@
 import type { Collection } from "@vexed/collection";
 import type { Aura, Avatar, GameAction, Monster, Server } from "@vexed/game";
 import type { Duration, Effect, Option } from "effect";
+import type * as EffectStd from "effect";
+import type { ScriptOptions } from "../../../../shared/ipc";
 import type { ScriptExecutionError, ScriptNotReadyError } from "./Errors";
 import type { ScriptRecipesShape } from "./recipes";
 import type { ArmyShape } from "../army/Services/Army";
@@ -46,7 +48,7 @@ export type ScriptPacketListener = (
 
 export type ScriptPacketDisposer = () => void;
 
-export interface ScriptCounterAttackEvent {
+export interface ScriptAntiCounterEvent {
   readonly monMapId: number;
   readonly source: "message" | "aura";
   readonly triggerId: string;
@@ -54,14 +56,14 @@ export interface ScriptCounterAttackEvent {
   readonly durationMs?: number;
 }
 
-export type ScriptCounterAttackListener = (
-  event: ScriptCounterAttackEvent,
+export type ScriptAntiCounterListener = (
+  event: ScriptAntiCounterEvent,
 ) =>
   | void
   | Effect.Effect<unknown, unknown>
   | Generator<Effect.Yieldable<any, any, never, never>, unknown, never>;
 
-export type ScriptCounterAttackDisposer = () => void;
+export type ScriptAntiCounterDisposer = () => void;
 
 export interface ScriptAuthShape {
   connectTo(server: string): BridgeEffect<AuthConnectOutcome>;
@@ -180,17 +182,17 @@ export interface ScriptAutoZoneShape {
   setMap(map: AutoZoneSupportedMap | undefined): Effect.Effect<void>;
 }
 
-export interface ScriptCounterAttackShape {
+export interface ScriptAntiCounterShape {
   isEnabled(): Effect.Effect<boolean>;
   setEnabled(enabled: boolean): Effect.Effect<void>;
   enable(): Effect.Effect<void>;
   disable(): Effect.Effect<void>;
   onStart(
-    handler: ScriptCounterAttackListener,
-  ): Effect.Effect<ScriptCounterAttackDisposer, ScriptNotReadyError>;
+    handler: ScriptAntiCounterListener,
+  ): Effect.Effect<ScriptAntiCounterDisposer, ScriptNotReadyError>;
   onEnd(
-    handler: ScriptCounterAttackListener,
-  ): Effect.Effect<ScriptCounterAttackDisposer, ScriptNotReadyError>;
+    handler: ScriptAntiCounterListener,
+  ): Effect.Effect<ScriptAntiCounterDisposer, ScriptNotReadyError>;
 }
 
 export type ScriptEnvironmentShape = Omit<
@@ -200,13 +202,28 @@ export type ScriptEnvironmentShape = Omit<
 
 export interface ScriptContext {
   /**
-   * Gameplay and game-state APIs exposed to scripts.
+   * Interact with the game.
    */
   readonly api: ScriptApi;
   /**
-   * Current script lifecycle and diagnostics APIs.
+   * Manage the running script.
    */
   readonly script: ScriptRuntimeApi;
+  /**
+   * Use shared utility modules.
+   */
+  readonly std: ScriptStdApi;
+  /**
+   * Use feature controls.
+   */
+  readonly features: ScriptFeaturesApi;
+}
+
+export interface ScriptStdApi {
+  readonly effect: typeof EffectStd;
+}
+
+export interface ScriptFeaturesApi {
   /**
    * Controls automatic relogin behavior from scripts.
    */
@@ -216,9 +233,18 @@ export interface ScriptContext {
    */
   readonly autoZone: EffectValue<ScriptAutoZoneShape>;
   /**
-   * Controls combat counter-attack avoidance from scripts.
+   * Controls anti counter-attack behavior from scripts.
    */
-  readonly counterAttack: EffectValue<ScriptCounterAttackShape>;
+  readonly antiCounter: EffectValue<ScriptAntiCounterShape>;
+}
+
+export interface ScriptOptionsApi {
+  getUsePrivateRooms(): Effect.Effect<boolean>;
+  setUsePrivateRooms(
+    enabled: boolean,
+  ): Effect.Effect<void, ScriptExecutionError>;
+  getAll(): Effect.Effect<Readonly<ScriptOptions>>;
+  reset(): Effect.Effect<void>;
 }
 
 export interface ScriptRuntimeApi {
@@ -226,6 +252,7 @@ export interface ScriptRuntimeApi {
    * Current script cancellation signal; aborted when the script stops.
    */
   readonly signal: AbortSignal;
+  readonly options: ScriptOptionsApi;
   log(message: string): void;
   /**
    * Stops the current script.

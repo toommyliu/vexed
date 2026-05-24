@@ -12,6 +12,7 @@ import type { PlayerShape } from "../Services/Player";
 import { World } from "../Services/World";
 import { Inventory } from "../Services/Inventory";
 import { waitFor } from "../../utils/waitFor";
+import { parseMapTarget, type MapTarget } from "../MapTarget";
 
 const isFactionData = (value: unknown): value is FactionData => {
   if (!isRecord(value)) {
@@ -28,56 +29,6 @@ const isFactionData = (value: unknown): value is FactionData => {
     typeof value["sName"] === "string"
   );
 };
-
-const MIN_RANDOM_ROOM_NUMBER = 10_000;
-const MAX_FIXED_ROOM_NUMBER = 99_999;
-
-type MapTarget = {
-  readonly map: string;
-  readonly name: string;
-  readonly roomNumber?: number;
-  readonly requireExactRoom: boolean;
-};
-
-const parseMapTarget = (map: string): Effect.Effect<MapTarget> =>
-  Effect.gen(function* () {
-    const trimmed = map.trim();
-    const separatorIndex = trimmed.indexOf("-");
-    if (separatorIndex === -1) {
-      return { map: trimmed, name: trimmed, requireExactRoom: false };
-    }
-
-    const name = trimmed.slice(0, separatorIndex);
-    const roomToken = trimmed.slice(separatorIndex + 1);
-
-    if (/^\d+$/.test(roomToken)) {
-      const roomNumber = Number(roomToken);
-      if (
-        Number.isSafeInteger(roomNumber) &&
-        roomNumber <= MAX_FIXED_ROOM_NUMBER
-      ) {
-        return {
-          map: trimmed,
-          name,
-          roomNumber,
-          requireExactRoom: true,
-        };
-      }
-    }
-
-    // Fallback to a random room number.
-    const roomNumber = yield* Random.nextIntBetween(
-      MIN_RANDOM_ROOM_NUMBER,
-      MAX_FIXED_ROOM_NUMBER,
-    );
-
-    return {
-      map: `${name}-${roomNumber}`,
-      name,
-      roomNumber,
-      requireExactRoom: true,
-    };
-  });
 
 const getWarningMessage = (data: unknown): string | undefined =>
   Array.isArray(data) && typeof data[2] === "string" ? data[2] : undefined;

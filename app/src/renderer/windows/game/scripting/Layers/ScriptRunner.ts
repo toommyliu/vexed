@@ -1,5 +1,6 @@
+import * as EffectStd from "effect";
 import { Cause, Effect, Fiber, Layer, Option, Ref, Semaphore } from "effect";
-import { type ScriptExecutePayload } from "../ipc";
+import { type ScriptExecutePayload, type ScriptOptions } from "../ipc";
 import { Army, type ArmyShape } from "../../army/Services/Army";
 import type { ArmyLoopTauntHandle } from "../../army/LoopTaunt";
 import { Auth } from "../../flash/Services/Auth";
@@ -16,10 +17,10 @@ import { Outfits } from "../../flash/Services/Outfits";
 import { Packet } from "../../flash/Services/Packet";
 import {
   PacketDomain,
-  type PacketDomainCounterAttackEvent,
+  type PacketDomainAntiCounterEvent,
   type PacketDomainEvent,
 } from "../../flash/Services/PacketDomain";
-import { Player } from "../../flash/Services/Player";
+import { Player, type PlayerShape } from "../../flash/Services/Player";
 import { Quests } from "../../flash/Services/Quests";
 import { Settings } from "../../flash/Services/Settings";
 import type { BridgeEffect } from "../../flash/Services/Bridge";
@@ -39,9 +40,9 @@ import type {
   ScriptAutoReloginShape,
   ScriptAutoZoneShape,
   ScriptContext,
-  ScriptCounterAttackEvent,
-  ScriptCounterAttackListener,
-  ScriptCounterAttackShape,
+  ScriptAntiCounterEvent,
+  ScriptAntiCounterListener,
+  ScriptAntiCounterShape,
   ScriptMain,
   ScriptPacketListener,
   ScriptRuntimeApi,
@@ -54,6 +55,10 @@ import {
 } from "../scriptAsyncScope";
 import { makeScriptRecipes } from "../recipes";
 import { loadScriptModule } from "../scriptLoader";
+import {
+  randomPrivateRoomNumber,
+  withPrivateRoom,
+} from "../../flash/MapTarget";
 
 type ActiveScript = {
   readonly token: number;
@@ -65,9 +70,33 @@ type LaunchFiber = Fiber.Fiber<unknown, unknown>;
 
 const MAX_SCRIPT_DIAGNOSTICS = 50;
 
-const toScriptCounterAttackEvent = (
-  event: PacketDomainCounterAttackEvent,
-): ScriptCounterAttackEvent => ({
+const DEFAULT_SCRIPT_OPTIONS: ScriptOptions = {
+  usePrivateRooms: false,
+};
+
+const normalizeScriptOptionsPatch = (
+  patch: Partial<ScriptOptions> | undefined,
+): Partial<ScriptOptions> => {
+  if (patch?.usePrivateRooms === undefined) {
+    return {};
+  }
+
+  return {
+    usePrivateRooms: patch.usePrivateRooms === true,
+  };
+};
+
+const applyScriptOptionsPatch = (
+  current: ScriptOptions,
+  patch: Partial<ScriptOptions> | undefined,
+): ScriptOptions => ({
+  ...current,
+  ...normalizeScriptOptionsPatch(patch),
+});
+
+const toScriptAntiCounterEvent = (
+  event: PacketDomainAntiCounterEvent,
+): ScriptAntiCounterEvent => ({
   monMapId: event.monMapId,
   source: event.source,
   triggerId: event.triggerId,
@@ -141,6 +170,9 @@ const make = Effect.gen(function* () {
   const runSemaphore = yield* Semaphore.make(1);
   const nextDiagnosticIdRef = yield* Ref.make(0);
   const diagnosticsRef = yield* Ref.make<ReadonlyArray<ScriptDiagnostic>>([]);
+  const scriptOptionsRef = yield* Ref.make<ScriptOptions>(
+    DEFAULT_SCRIPT_OPTIONS,
+  );
   let nextPacketCleanupId = 0;
 
   const appendDiagnostic = (sourceName: string, input: ScriptDiagnosticInput) =>
@@ -440,23 +472,23 @@ const make = Effect.gen(function* () {
           ),
         )) satisfies ScriptApi["packet"][typeof listener];
 
-    const runCounterAttackHandler = (
+    const runAntiCounterHandler = (
       listener: string,
-      handler: ScriptCounterAttackListener,
-      event: PacketDomainCounterAttackEvent,
+      handler: ScriptAntiCounterListener,
+      event: PacketDomainAntiCounterEvent,
     ): Effect.Effect<void> =>
       Effect.suspend(() => {
         if (scriptScope.isCancelled()) {
           return Effect.void;
         }
 
-        const scriptEvent = toScriptCounterAttackEvent(event);
+        const scriptEvent = toScriptAntiCounterEvent(event);
         const result = Effect.try({
           try: () => handler(scriptEvent),
           catch: (cause) =>
             new ScriptExecutionError({
               sourceName,
-              message: `${listener} counterAttack handler threw before yielding`,
+              message: `${listener} antiCounter handler threw before yielding`,
               cause,
             }),
         });
@@ -476,26 +508,26 @@ const make = Effect.gen(function* () {
             return Effect.void;
           }),
           Effect.catchCause((cause) =>
-            handleScriptCallbackCause(listener, "counterAttack", cause),
+            handleScriptCallbackCause(listener, "antiCounter", cause),
           ),
         );
       });
 
-    const registerCounterAttackListener = (
+    const registerAntiCounterListener = (
       listener: "onStart" | "onEnd",
       eventName: Extract<
         PacketDomainEvent,
-        "counterAttackStart" | "counterAttackEnd"
+        "antiCounterStart" | "antiCounterEnd"
       >,
     ) =>
-      ((handler: ScriptCounterAttackListener) =>
+      ((handler: ScriptAntiCounterListener) =>
         wrapScriptEffect(
           Effect.uninterruptible(
             Effect.gen(function* () {
-              const cleanupKey = `counterAttack:${listener}:${++nextPacketCleanupId}`;
+              const cleanupKey = `antiCounter:${listener}:${++nextPacketCleanupId}`;
               let disposed = false;
               const dispose = yield* packetDomain.on(eventName, (event) =>
-                runCounterAttackHandler(listener, handler, event),
+                runAntiCounterHandler(listener, handler, event),
               );
               const cleanup = Effect.sync(() => {
                 if (!disposed) {
@@ -511,7 +543,7 @@ const make = Effect.gen(function* () {
               };
             }),
           ),
-        )) satisfies ScriptCounterAttackShape[typeof listener];
+        )) satisfies ScriptAntiCounterShape[typeof listener];
 
     const bestEffortScriptSetting = (
       setting: string,
@@ -729,6 +761,56 @@ const make = Effect.gen(function* () {
       },
     };
 
+    const scriptOptions: ScriptRuntimeApi["options"] = {
+      getUsePrivateRooms: () =>
+        Ref.get(scriptOptionsRef).pipe(
+          Effect.map((options) => options.usePrivateRooms),
+        ),
+      setUsePrivateRooms: (enabled) =>
+        Effect.suspend(() => {
+          if (typeof enabled !== "boolean") {
+            return Effect.fail(
+              new ScriptExecutionError({
+                sourceName,
+                message:
+                  "script.options.setUsePrivateRooms(enabled) expects a boolean",
+                cause: enabled,
+              }),
+            );
+          }
+
+          return Ref.update(scriptOptionsRef, (options) => ({
+            ...options,
+            usePrivateRooms: enabled,
+          }));
+        }),
+      getAll: () =>
+        Ref.get(scriptOptionsRef).pipe(
+          Effect.map((options) => ({ ...options })),
+        ),
+      reset: () => Ref.set(scriptOptionsRef, DEFAULT_SCRIPT_OPTIONS),
+    };
+
+    const resolveScriptJoinMap = (map: string): Effect.Effect<string> =>
+      Effect.gen(function* () {
+        const options = yield* Ref.get(scriptOptionsRef);
+        if (!options.usePrivateRooms) {
+          return map;
+        }
+
+        const roomNumber = yield* randomPrivateRoomNumber();
+        return withPrivateRoom(map, roomNumber);
+      });
+
+    const scriptPlayerService: PlayerShape = {
+      ...player,
+      joinMap: (map, cell, pad) =>
+        Effect.gen(function* () {
+          const targetMap = yield* resolveScriptJoinMap(map);
+          yield* player.joinMap(targetMap, cell, pad);
+        }),
+    };
+
     const scriptAutoRelogin: ScriptAutoReloginShape = {
       isEnabled: autoRelogin.isEnabled,
       enable: () => autoRelogin.enable().pipe(Effect.asVoid),
@@ -748,13 +830,13 @@ const make = Effect.gen(function* () {
       setMap: autoZone.setMap,
     };
 
-    const scriptCounterAttack: ScriptCounterAttackShape = {
-      isEnabled: settings.isCounterAttackEnabled,
-      setEnabled: settings.setCounterAttackEnabled,
-      enable: () => settings.setCounterAttackEnabled(true),
-      disable: () => settings.setCounterAttackEnabled(false),
-      onStart: registerCounterAttackListener("onStart", "counterAttackStart"),
-      onEnd: registerCounterAttackListener("onEnd", "counterAttackEnd"),
+    const scriptAntiCounter: ScriptAntiCounterShape = {
+      isEnabled: settings.isAntiCounterEnabled,
+      setEnabled: settings.setAntiCounterEnabled,
+      enable: () => settings.setAntiCounterEnabled(true),
+      disable: () => settings.setAntiCounterEnabled(false),
+      onStart: registerAntiCounterListener("onStart", "antiCounterStart"),
+      onEnd: registerAntiCounterListener("onEnd", "antiCounterEnd"),
     };
 
     const { getLoginSession: _getLoginSession, ...scriptAuth } = auth;
@@ -781,7 +863,7 @@ const make = Effect.gen(function* () {
       drops,
       inventory,
       packet,
-      player,
+      player: scriptPlayerService,
       quests,
       shops,
       tempInventory,
@@ -790,6 +872,7 @@ const make = Effect.gen(function* () {
 
     const script: ScriptRuntimeApi = {
       signal: scriptScope.signal,
+      options: scriptOptions,
       log: (message: string) => {
         const text = String(message);
         console.info(`[script:${sourceName}] ${text}`);
@@ -836,7 +919,7 @@ const make = Effect.gen(function* () {
           packet.onExtensionResponse,
         ),
       },
-      player: wrapValue(player) as ScriptApi["player"],
+      player: wrapValue(scriptPlayerService) as ScriptApi["player"],
       quests: wrapValue(quests) as ScriptApi["quests"],
       recipes: wrapValue(recipes) as ScriptApi["recipes"],
       settings: wrapValue(scriptSettings) as ScriptApi["settings"],
@@ -848,11 +931,20 @@ const make = Effect.gen(function* () {
     const context: ScriptContext = {
       api,
       script,
-      autoRelogin: wrapValue(scriptAutoRelogin) as ScriptContext["autoRelogin"],
-      autoZone: wrapValue(scriptAutoZone) as ScriptContext["autoZone"],
-      counterAttack: wrapValue(
-        scriptCounterAttack,
-      ) as ScriptContext["counterAttack"],
+      std: {
+        effect: EffectStd,
+      },
+      features: {
+        autoRelogin: wrapValue(
+          scriptAutoRelogin,
+        ) as ScriptContext["features"]["autoRelogin"],
+        autoZone: wrapValue(
+          scriptAutoZone,
+        ) as ScriptContext["features"]["autoZone"],
+        antiCounter: wrapValue(
+          scriptAntiCounter,
+        ) as ScriptContext["features"]["antiCounter"],
+      },
     };
 
     return Effect.gen(function* () {
@@ -953,6 +1045,9 @@ const make = Effect.gen(function* () {
             yield* ensureReady(sourceName);
             yield* stop("replaced by a new script");
             yield* Ref.set(diagnosticsRef, []);
+            yield* Ref.update(scriptOptionsRef, (current) =>
+              applyScriptOptionsPatch(current, options?.options),
+            );
 
             const token = yield* Ref.updateAndGet(
               nextScriptTokenRef,
@@ -987,11 +1082,24 @@ const make = Effect.gen(function* () {
   const diagnostics: ScriptRunnerShape["diagnostics"] = () =>
     Ref.get(diagnosticsRef);
 
+  const getOptions: ScriptRunnerShape["getOptions"] = () =>
+    Ref.get(scriptOptionsRef).pipe(Effect.map((options) => ({ ...options })));
+
+  const setUsePrivateRooms: ScriptRunnerShape["setUsePrivateRooms"] = (
+    enabled,
+  ) =>
+    Ref.update(scriptOptionsRef, (options) => ({
+      ...options,
+      usePrivateRooms: enabled,
+    }));
+
   return {
     run,
     stop,
     isRunning,
     diagnostics,
+    getOptions,
+    setUsePrivateRooms,
   } satisfies ScriptRunnerShape;
 });
 

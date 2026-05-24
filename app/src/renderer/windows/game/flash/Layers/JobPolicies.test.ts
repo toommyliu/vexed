@@ -16,7 +16,7 @@ import { FlashJobPoliciesLive } from "./JobPolicies";
 
 const defaultSettingsState = {
   collisionsEnabled: true,
-  counterAttackEnabled: false,
+  antiCounterEnabled: false,
   deathAdsVisible: true,
   effectsEnabled: true,
   enemyMagnetEnabled: false,

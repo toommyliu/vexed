@@ -3,21 +3,22 @@ const CELL = "r26";
 const TARGET = "Undead Raxgore";
 
 /** @param {ScriptContext} context */
-module.exports = function* run({ api, counterAttack, script }) {
-  const wasEnabled = yield* counterAttack.isEnabled();
-  const disposeStart = yield* counterAttack.onStart((event) => {
+module.exports = function* run({ api, features, script }) {
+  const { antiCounter } = features;
+  const wasEnabled = yield* antiCounter.isEnabled();
+  const disposeStart = yield* antiCounter.onStart((event) => {
     script.log(
-      `Counter attack started: monMapId=${event.monMapId}, trigger=${event.triggerText}`,
+      `Anti-counter started: monMapId=${event.monMapId}, trigger=${event.triggerText}`,
     );
   });
-  const disposeEnd = yield* counterAttack.onEnd((event) => {
+  const disposeEnd = yield* antiCounter.onEnd((event) => {
     script.log(
-      `Counter attack ended: monMapId=${event.monMapId}, trigger=${event.triggerText}`,
+      `Anti-counter ended: monMapId=${event.monMapId}, trigger=${event.triggerText}`,
     );
   });
 
   try {
-    yield* counterAttack.enable();
+    yield* antiCounter.enable();
     yield* api.settings.setInfiniteRange(true);
     yield* api.player.joinMap(MAP, CELL);
     yield* script.sleep(1000);
@@ -34,7 +35,7 @@ module.exports = function* run({ api, counterAttack, script }) {
     disposeEnd();
 
     if (!wasEnabled) {
-      yield* counterAttack.disable();
+      yield* antiCounter.disable();
     }
   }
 };

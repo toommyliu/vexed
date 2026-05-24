@@ -19,7 +19,11 @@ type EffectYieldable<
   Next = never,
 > = unknown;
 
-interface Effect<Value = unknown, Error = unknown, Requirements = never> {
+interface Effect<
+  Value = unknown,
+  Error = unknown,
+  Requirements = never,
+> {
   [Symbol.iterator](): Generator<EffectYieldable<Value, Error>, Value, any>;
 }
 
@@ -53,530 +57,351 @@ type ScriptMain = (
 ) => Generator<EffectYieldable<unknown, unknown>, unknown, any>;
 
 interface ScriptContext {
-  readonly api: ScriptApi;
-  readonly script: ScriptRuntimeApi;
-  readonly autoRelogin: ScriptContextAutoReloginApi;
-  readonly autoZone: ScriptContextAutoZoneApi;
-  readonly counterAttack: ScriptContextCounterAttackApi;
+    readonly api: ScriptApi;
+    readonly script: ScriptRuntimeApi;
+    readonly std: ScriptStdApi;
+    readonly features: ScriptFeaturesApi;
 }
 interface ScriptApi {
-  readonly army: ArmyApi;
-  readonly auth: AuthApi;
-  readonly bank: BankApi;
-  readonly combat: CombatApi;
-  readonly drops: DropsApi;
-  readonly environment: EnvironmentApi;
-  readonly house: HouseApi;
-  readonly inventory: InventoryApi;
-  readonly outfits: OutfitsApi;
-  readonly packet: ScriptPacketApi;
-  readonly player: PlayerApi;
-  readonly quests: QuestsApi;
-  readonly recipes: RecipesApi;
-  readonly settings: SettingsApi;
-  readonly shops: ShopsApi;
-  readonly tempInventory: TempInventoryApi;
-  readonly world: WorldApi;
+    readonly army: ArmyApi;
+    readonly auth: AuthApi;
+    readonly bank: BankApi;
+    readonly combat: CombatApi;
+    readonly drops: DropsApi;
+    readonly environment: EnvironmentApi;
+    readonly house: HouseApi;
+    readonly inventory: InventoryApi;
+    readonly outfits: OutfitsApi;
+    readonly packet: ScriptPacketApi;
+    readonly player: PlayerApi;
+    readonly quests: QuestsApi;
+    readonly recipes: RecipesApi;
+    readonly settings: SettingsApi;
+    readonly shops: ShopsApi;
+    readonly tempInventory: TempInventoryApi;
+    readonly world: WorldApi;
 }
 interface ScriptRuntimeApi {
   /** Current script cancellation signal; aborted when the script stops. */
-  readonly signal: AbortSignal;
-  log(message: string): void;
+    readonly signal: AbortSignal;
+    readonly options: ScriptRuntimeOptionsApi;
+    log(message: string): void;
   /** Stops the current script. */
-  stop(reason?: string): Effect<never, never>;
+    stop(reason?: string): Effect<never, never>;
   /** Waits for milliseconds and cancels when the script stops. Prefer this over homemade `setTimeout` helpers to avoid background timers that keep running after the script is stopped. */
-  sleep(ms: number): Effect<void, ScriptExecutionError>;
+    sleep(ms: number): Effect<void, ScriptExecutionError>;
 }
 interface ArmyApi {
-  start(
-    configName: string,
-  ): Effect<ArmySession, never | ArmyError | BridgeError>;
-  leave(): Effect<void, never | ArmyError | BridgeError>;
-  isStarted(): Effect<boolean, never | ArmyError | BridgeError>;
-  isLeader(): Effect<boolean, never | ArmyError | BridgeError>;
-  isMember(): Effect<boolean, never | ArmyError | BridgeError>;
-  getSession(): Effect<ArmySession | null, never | ArmyError | BridgeError>;
+    start(configName: string): Effect<ArmySession, never | ArmyError | BridgeError>;
+    leave(): Effect<void, never | ArmyError | BridgeError>;
+    isStarted(): Effect<boolean, never | ArmyError | BridgeError>;
+    isLeader(): Effect<boolean, never | ArmyError | BridgeError>;
+    isMember(): Effect<boolean, never | ArmyError | BridgeError>;
+    getSession(): Effect<ArmySession | null, never | ArmyError | BridgeError>;
   /** Reads a value from the active army config.
 
 Dot-separated keys read nested object values. An empty key returns the raw
 config object. Returns `defaultValue` when the army is not started (a.k.a. no config loaded), the key
 is missing, or a nested path cannot be resolved. */
-  getConfigValue(
-    key: string,
-    defaultValue?: unknown,
-  ): Effect<unknown, never | ArmyError | BridgeError>;
+    getConfigValue(key: string, defaultValue?: unknown): Effect<unknown, never | ArmyError | BridgeError>;
   /** Reads a string value from the active army config.
 
 Uses the same key resolution rules as `getConfigValue`, but returns
 `defaultValue` when the resolved value is missing or not a string. */
-  getConfigString(
-    key: string,
-    defaultValue?: string,
-  ): Effect<string, never | ArmyError | BridgeError>;
+    getConfigString(key: string, defaultValue?: string): Effect<string, never | ArmyError | BridgeError>;
   /** The player's number in the army, starting at 1 for the leader and incrementing
 for each member. */
-  getPlayerNumber(): Effect<number, never | ArmyError | BridgeError>;
-  sync(
-    label?: string,
-    options?: ArmyRunStepOptions,
-  ): Effect<void, never | ArmyError | BridgeError>;
-  runStep<A, E>(
-    label: string,
-    action: Effect<A, E, never>,
-    options?: ArmyRunStepOptions,
-  ): Effect<A, E | ArmyError | BridgeError>;
-  executeWithArmy<A, E>(
-    action: Effect<A, E, never>,
-  ): Effect<A, E | ArmyError | BridgeError>;
-  waitForAllInMap(): Effect<void, never | ArmyError | BridgeError>;
-  joinMap(
-    map: string,
-    cell?: string,
-    pad?: string,
-  ): Effect<void, never | ArmyError | BridgeError>;
-  kill(
-    target: MonsterIdentifierToken,
-    options?: CombatKillOptions,
-  ): Effect<void, never | ArmyError | BridgeError>;
-  killForItem(
-    target: MonsterIdentifierToken,
-    item: ItemIdentifierToken,
-    quantity?: number,
-    options?: CombatKillOptions,
-  ): Effect<void, never | ArmyError | BridgeError>;
-  killForTempItem(
-    target: MonsterIdentifierToken,
-    item: ItemIdentifierToken,
-    quantity?: number,
-    options?: CombatKillOptions,
-  ): Effect<void, never | ArmyError | BridgeError>;
-  equipSet(
-    setName: string,
-    options?: ArmyEquipSetOptions,
-  ): Effect<void, never | ArmyError | BridgeError>;
-  startLoopTaunt(
-    options: ArmyLoopTauntOptions,
-  ): Effect<ArmyLoopTauntHandle, never | ArmyError | BridgeError>;
-  stopLoopTaunt(id: string): Effect<boolean, never | ArmyError | BridgeError>;
-  stopAllLoopTaunts(): Effect<void, never | ArmyError | BridgeError>;
+    getPlayerNumber(): Effect<number, never | ArmyError | BridgeError>;
+    sync(label?: string, options?: ArmyRunStepOptions): Effect<void, never | ArmyError | BridgeError>;
+    runStep<A, E>(label: string, action: Effect<A, E, never>, options?: ArmyRunStepOptions): Effect<A, E | ArmyError | BridgeError>;
+    executeWithArmy<A, E>(action: Effect<A, E, never>): Effect<A, E | ArmyError | BridgeError>;
+    waitForAllInMap(): Effect<void, never | ArmyError | BridgeError>;
+    joinMap(map: string, cell?: string, pad?: string): Effect<void, never | ArmyError | BridgeError>;
+    kill(target: MonsterIdentifierToken, options?: CombatKillOptions): Effect<void, never | ArmyError | BridgeError>;
+    killForItem(target: MonsterIdentifierToken, item: ItemIdentifierToken, quantity?: number, options?: CombatKillOptions): Effect<void, never | ArmyError | BridgeError>;
+    killForTempItem(target: MonsterIdentifierToken, item: ItemIdentifierToken, quantity?: number, options?: CombatKillOptions): Effect<void, never | ArmyError | BridgeError>;
+    equipSet(setName: string, options?: ArmyEquipSetOptions): Effect<void, never | ArmyError | BridgeError>;
+    startLoopTaunt(options: ArmyLoopTauntOptions): Effect<ArmyLoopTauntHandle, never | ArmyError | BridgeError>;
+    stopLoopTaunt(id: string): Effect<boolean, never | ArmyError | BridgeError>;
+    stopAllLoopTaunts(): Effect<void, never | ArmyError | BridgeError>;
 }
 interface AuthApi {
-  connectTo(server: string): Effect<AuthConnectOutcome, BridgeError>;
-  getServers(): Effect<Server[], BridgeError>;
-  getUsername(): Effect<string, BridgeError>;
-  getPassword(): Effect<string, BridgeError>;
-  isLoggedIn(): Effect<boolean, BridgeError>;
-  isTemporarilyKicked(): Effect<boolean, BridgeError>;
-  login(username: string, password: string): Effect<void, BridgeError>;
-  logout(): Effect<void, BridgeError>;
+    connectTo(server: string): Effect<AuthConnectOutcome, BridgeError>;
+    getServers(): Effect<Server[], BridgeError>;
+    getUsername(): Effect<string, BridgeError>;
+    getPassword(): Effect<string, BridgeError>;
+    isLoggedIn(): Effect<boolean, BridgeError>;
+    isTemporarilyKicked(): Effect<boolean, BridgeError>;
+    login(username: string, password: string): Effect<void, BridgeError>;
+    logout(): Effect<void, BridgeError>;
 }
 interface BankApi {
-  contains(
-    item: ItemIdentifierToken,
-    quantity?: number,
-  ): Effect<boolean, BridgeError>;
-  deposit(item: ItemIdentifierToken): Effect<boolean, BridgeError>;
-  depositMany(...items: ItemIdentifierToken[]): Effect<void, BridgeError>;
-  getItem(item: ItemIdentifierToken): Effect<Item | null, BridgeError>;
-  getItems(): Effect<readonly Item[], BridgeError>;
-  getSlots(): Effect<number, BridgeError>;
-  getUsedSlots(): Effect<number, BridgeError>;
-  getAvailableSlots(): Effect<number, BridgeError>;
-  isOpen(): Effect<boolean, BridgeError>;
-  open(force?: boolean): Effect<void, BridgeError>;
-  swap(
-    invKey: ItemIdentifierToken,
-    bankKey: ItemIdentifierToken,
-  ): Effect<boolean, BridgeError>;
-  withdraw(key: ItemIdentifierToken): Effect<boolean, BridgeError>;
-  withdrawMany(...items: ItemIdentifierToken[]): Effect<void, BridgeError>;
+    contains(item: ItemIdentifierToken, quantity?: number): Effect<boolean, BridgeError>;
+    deposit(item: ItemIdentifierToken): Effect<boolean, BridgeError>;
+    depositMany(...items: ItemIdentifierToken[]): Effect<void, BridgeError>;
+    getItem(item: ItemIdentifierToken): Effect<Item | null, BridgeError>;
+    getItems(): Effect<readonly Item[], BridgeError>;
+    getSlots(): Effect<number, BridgeError>;
+    getUsedSlots(): Effect<number, BridgeError>;
+    getAvailableSlots(): Effect<number, BridgeError>;
+    isOpen(): Effect<boolean, BridgeError>;
+    open(force?: boolean): Effect<void, BridgeError>;
+    swap(invKey: ItemIdentifierToken, bankKey: ItemIdentifierToken): Effect<boolean, BridgeError>;
+    withdraw(key: ItemIdentifierToken): Effect<boolean, BridgeError>;
+    withdrawMany(...items: ItemIdentifierToken[]): Effect<void, BridgeError>;
 }
 interface CombatApi {
-  attackMonster(monster: MonsterIdentifierToken): Effect<boolean, BridgeError>;
-  cancelAutoAttack(): Effect<void, BridgeError>;
-  cancelTarget(): Effect<void, BridgeError>;
-  canUseSkill(index: string | number): Effect<boolean, BridgeError>;
-  exit(): Effect<boolean, BridgeError>;
-  getConsumableSkillItem(): Effect<ConsumableSkillItem | null, BridgeError>;
-  getTarget(): Effect<Monster | Avatar | null, BridgeError>;
-  hasTarget(): Effect<boolean, BridgeError>;
-  kill(
-    target: MonsterIdentifierToken,
-    options?: CombatKillOptions,
-  ): Effect<void, BridgeError>;
-  killForItem(
-    target: MonsterIdentifierToken,
-    item: ItemIdentifierToken,
-    quantity?: number,
-    options?: CombatKillOptions,
-  ): Effect<void, BridgeError>;
-  killForTempItem(
-    target: MonsterIdentifierToken,
-    item: ItemIdentifierToken,
-    quantity?: number,
-    options?: CombatKillOptions,
-  ): Effect<void, BridgeError>;
-  useSkill(
-    index: string | number,
-    force?: boolean,
-    wait?: boolean,
-  ): Effect<void, BridgeError>;
-  hunt(
-    target: MonsterIdentifierToken,
-    findMost?: boolean,
-  ): Effect<string, BridgeError>;
+    attackMonster(monster: MonsterIdentifierToken): Effect<boolean, BridgeError>;
+    cancelAutoAttack(): Effect<void, BridgeError>;
+    cancelTarget(): Effect<void, BridgeError>;
+    canUseSkill(index: string | number): Effect<boolean, BridgeError>;
+    exit(): Effect<boolean, BridgeError>;
+    getConsumableSkillItem(): Effect<ConsumableSkillItem | null, BridgeError>;
+    getTarget(): Effect<Monster | Avatar | null, BridgeError>;
+    hasTarget(): Effect<boolean, BridgeError>;
+    kill(target: MonsterIdentifierToken, options?: CombatKillOptions): Effect<void, BridgeError>;
+    killForItem(target: MonsterIdentifierToken, item: ItemIdentifierToken, quantity?: number, options?: CombatKillOptions): Effect<void, BridgeError>;
+    killForTempItem(target: MonsterIdentifierToken, item: ItemIdentifierToken, quantity?: number, options?: CombatKillOptions): Effect<void, BridgeError>;
+    useSkill(index: string | number, force?: boolean, wait?: boolean): Effect<void, BridgeError>;
+    hunt(target: MonsterIdentifierToken, findMost?: boolean): Effect<string, BridgeError>;
 }
 interface DropsApi {
-  acceptDrop(item: ItemIdentifierToken): Effect<void, BridgeError>;
-  containsDrop(item: ItemIdentifierToken): Effect<boolean, BridgeError>;
-  getDrops(): Effect<readonly ItemData[], never>;
-  isUsingCustomDrops(): Effect<boolean, BridgeError>;
-  rejectDrop(itemId: number, visual?: boolean): Effect<boolean, BridgeError>;
-  toggleUi(): Effect<void, BridgeError>;
+    acceptDrop(item: ItemIdentifierToken): Effect<void, BridgeError>;
+    containsDrop(item: ItemIdentifierToken): Effect<boolean, BridgeError>;
+    getDrops(): Effect<readonly ItemData[], never>;
+    isUsingCustomDrops(): Effect<boolean, BridgeError>;
+    rejectDrop(itemId: number, visual?: boolean): Effect<boolean, BridgeError>;
+    toggleUi(): Effect<void, BridgeError>;
 }
 interface EnvironmentApi {
-  getState(): Effect<EnvironmentState, unknown>;
-  clear(): Effect<EnvironmentState, unknown>;
-  addQuest(
-    questId: string | number,
-    rewardItemId?: string | number,
-  ): Effect<EnvironmentState, unknown>;
-  removeQuest(questId: string | number): Effect<EnvironmentState, unknown>;
-  setQuestReward(
-    questId: string | number,
-    rewardItemId: string | number,
-  ): Effect<EnvironmentState, unknown>;
-  clearQuestReward(questId: string | number): Effect<EnvironmentState, unknown>;
-  clearQuests(): Effect<EnvironmentState, unknown>;
+    getState(): Effect<EnvironmentState, unknown>;
+    clear(): Effect<EnvironmentState, unknown>;
+    addQuest(questId: string | number, rewardItemId?: string | number): Effect<EnvironmentState, unknown>;
+    removeQuest(questId: string | number): Effect<EnvironmentState, unknown>;
+    setQuestReward(questId: string | number, rewardItemId: string | number): Effect<EnvironmentState, unknown>;
+    clearQuestReward(questId: string | number): Effect<EnvironmentState, unknown>;
+    clearQuests(): Effect<EnvironmentState, unknown>;
   /** Enable or disable auto registration of quest requirements in the drop list. */
-  setAutoRegisterRequirements(
-    enabled: boolean,
-  ): Effect<EnvironmentState, unknown>;
+    setAutoRegisterRequirements(enabled: boolean): Effect<EnvironmentState, unknown>;
   /** Enable or disable auto registration of quest rewards in the drop list. */
-  setAutoRegisterRewards(enabled: boolean): Effect<EnvironmentState, unknown>;
-  addItem(name: string): Effect<EnvironmentState, unknown>;
-  removeItem(name: string): Effect<EnvironmentState, unknown>;
+    setAutoRegisterRewards(enabled: boolean): Effect<EnvironmentState, unknown>;
+    addItem(name: string): Effect<EnvironmentState, unknown>;
+    removeItem(name: string): Effect<EnvironmentState, unknown>;
   /** Accept or ignore member-only AC-tagged items. */
-  setAcceptAcMemberOnlyDrops(
-    enabled: boolean,
-  ): Effect<EnvironmentState, unknown>;
+    setAcceptAcMemberOnlyDrops(enabled: boolean): Effect<EnvironmentState, unknown>;
   /** Accept or ignore non-member AC-tagged items. */
-  setAcceptAcNonMemberDrops(
-    enabled: boolean,
-  ): Effect<EnvironmentState, unknown>;
+    setAcceptAcNonMemberDrops(enabled: boolean): Effect<EnvironmentState, unknown>;
   /** Accept or ignore member-only non-AC items. */
-  setAcceptNonAcMemberOnlyDrops(
-    enabled: boolean,
-  ): Effect<EnvironmentState, unknown>;
+    setAcceptNonAcMemberOnlyDrops(enabled: boolean): Effect<EnvironmentState, unknown>;
   /** Accept or ignore non-member non-AC items. */
-  setAcceptNonAcNonMemberDrops(
-    enabled: boolean,
-  ): Effect<EnvironmentState, unknown>;
+    setAcceptNonAcNonMemberDrops(enabled: boolean): Effect<EnvironmentState, unknown>;
   /** Reject or ignore unregistered drops that are not accepted by policy. */
-  setRejectUnregisteredDrops(
-    enabled: boolean,
-  ): Effect<EnvironmentState, unknown>;
+    setRejectUnregisteredDrops(enabled: boolean): Effect<EnvironmentState, unknown>;
   /** Update one or more drop handling options. */
-  setDropPolicy(
-    policy: Partial<EnvironmentDropPolicy>,
-  ): Effect<EnvironmentState, unknown>;
-  clearItems(): Effect<EnvironmentState, unknown>;
-  addBoost(name: string): Effect<EnvironmentState, unknown>;
-  removeBoost(name: string): Effect<EnvironmentState, unknown>;
-  clearBoosts(): Effect<EnvironmentState, unknown>;
-  fetchBoosts(): Effect<readonly string[], unknown>;
-  syncToAll(): Effect<EnvironmentState, unknown>;
+    setDropPolicy(policy: Partial<EnvironmentDropPolicy>): Effect<EnvironmentState, unknown>;
+    clearItems(): Effect<EnvironmentState, unknown>;
+    addBoost(name: string): Effect<EnvironmentState, unknown>;
+    removeBoost(name: string): Effect<EnvironmentState, unknown>;
+    clearBoosts(): Effect<EnvironmentState, unknown>;
+    fetchBoosts(): Effect<readonly string[], unknown>;
+    syncToAll(): Effect<EnvironmentState, unknown>;
 }
 interface HouseApi {
-  getItem(item: ItemIdentifierToken): Effect<Item | null, BridgeError>;
-  getItems(): Effect<readonly Item[], BridgeError>;
-  getSlots(): Effect<number, BridgeError>;
-  getUsedSlots(): Effect<number, BridgeError>;
-  getAvailableSlots(): Effect<number, BridgeError>;
+    getItem(item: ItemIdentifierToken): Effect<Item | null, BridgeError>;
+    getItems(): Effect<readonly Item[], BridgeError>;
+    getSlots(): Effect<number, BridgeError>;
+    getUsedSlots(): Effect<number, BridgeError>;
+    getAvailableSlots(): Effect<number, BridgeError>;
 }
 interface InventoryApi {
-  contains(
-    item: ItemIdentifierToken,
-    quantity?: number,
-  ): Effect<boolean, BridgeError>;
-  equip(item: ItemIdentifierToken): Effect<boolean, BridgeError>;
-  getItem(item: ItemIdentifierToken): Effect<Item | null, BridgeError>;
-  getItems(): Effect<readonly Item[], BridgeError>;
-  getSlots(): Effect<number, BridgeError>;
-  getUsedSlots(): Effect<number, BridgeError>;
-  getAvailableSlots(): Effect<number, BridgeError>;
+    contains(item: ItemIdentifierToken, quantity?: number): Effect<boolean, BridgeError>;
+    equip(item: ItemIdentifierToken): Effect<boolean, BridgeError>;
+    getItem(item: ItemIdentifierToken): Effect<Item | null, BridgeError>;
+    getItems(): Effect<readonly Item[], BridgeError>;
+    getSlots(): Effect<number, BridgeError>;
+    getUsedSlots(): Effect<number, BridgeError>;
+    getAvailableSlots(): Effect<number, BridgeError>;
 }
 interface OutfitsApi {
-  getAll(): Effect<readonly Outfit[], BridgeError>;
-  get(name: string): Effect<Outfit | null, BridgeError>;
-  equip(
-    name: string,
-    options?: OutfitEquipOptions,
-  ): Effect<boolean, BridgeError>;
-  wear(
-    name: string,
-    options?: OutfitEquipOptions,
-  ): Effect<boolean, BridgeError>;
+    getAll(): Effect<readonly Outfit[], BridgeError>;
+    get(name: string): Effect<Outfit | null, BridgeError>;
+    equip(name: string, options?: OutfitEquipOptions): Effect<boolean, BridgeError>;
+    wear(name: string, options?: OutfitEquipOptions): Effect<boolean, BridgeError>;
 }
 interface PlayerApi {
-  getCell(): Effect<string, BridgeError>;
+    getCell(): Effect<string, BridgeError>;
   /** Uppercased class name. */
-  getClassName(): Effect<string, BridgeError>;
-  getFactions(): Effect<Collection<string, Faction>, BridgeError>;
-  getGender(): Effect<string, BridgeError>;
-  getGold(): Effect<number, BridgeError>;
-  getHp(): Effect<number, BridgeError>;
-  getLevel(): Effect<number, BridgeError>;
-  getMaxHp(): Effect<number, BridgeError>;
-  getMaxMp(): Effect<number, BridgeError>;
-  getMp(): Effect<number, BridgeError>;
-  getPad(): Effect<string, BridgeError>;
-  getPosition(): Effect<[number, number], BridgeError>;
-  getState(): Effect<number, BridgeError>;
-  isAfk(): Effect<boolean, BridgeError>;
-  isReady(): Effect<boolean, BridgeError>;
-  isMember(): Effect<boolean, BridgeError>;
-  reloadAvatar(): Effect<boolean, BridgeError>;
-  jumpToCell(
-    cell: string,
-    pad?: string,
-    correction?: boolean,
-  ): Effect<void, BridgeError>;
-  joinMap(map: string, cell?: string, pad?: string): Effect<void, BridgeError>;
-  goToPlayer(name: string): Effect<void, BridgeError>;
-  rest(full?: boolean): Effect<void, BridgeError>;
-  useBoost(boost: ItemIdentifierToken): Effect<boolean, BridgeError>;
-  hasActiveBoost(
-    boostType: "classPoints" | "exp" | "gold" | "rep",
-  ): Effect<boolean, BridgeError>;
-  isAlive(): Effect<boolean, BridgeError>;
-  walkTo(
-    x: number,
-    y: number,
-    walkSpeed?: number,
-  ): Effect<boolean, BridgeError>;
+    getClassName(): Effect<string, BridgeError>;
+    getFactions(): Effect<Collection<string, Faction>, BridgeError>;
+    getGender(): Effect<string, BridgeError>;
+    getGold(): Effect<number, BridgeError>;
+    getHp(): Effect<number, BridgeError>;
+    getLevel(): Effect<number, BridgeError>;
+    getMaxHp(): Effect<number, BridgeError>;
+    getMaxMp(): Effect<number, BridgeError>;
+    getMp(): Effect<number, BridgeError>;
+    getPad(): Effect<string, BridgeError>;
+    getPosition(): Effect<[number, number], BridgeError>;
+    getState(): Effect<number, BridgeError>;
+    isAfk(): Effect<boolean, BridgeError>;
+    isReady(): Effect<boolean, BridgeError>;
+    isMember(): Effect<boolean, BridgeError>;
+    reloadAvatar(): Effect<boolean, BridgeError>;
+    jumpToCell(cell: string, pad?: string, correction?: boolean): Effect<void, BridgeError>;
+    joinMap(map: string, cell?: string, pad?: string): Effect<void, BridgeError>;
+    goToPlayer(name: string): Effect<void, BridgeError>;
+    rest(full?: boolean): Effect<void, BridgeError>;
+    useBoost(boost: ItemIdentifierToken): Effect<boolean, BridgeError>;
+    hasActiveBoost(boostType: 'classPoints' | 'exp' | 'gold' | 'rep'): Effect<boolean, BridgeError>;
+    isAlive(): Effect<boolean, BridgeError>;
+    walkTo(x: number, y: number, walkSpeed?: number): Effect<boolean, BridgeError>;
 }
 interface QuestsApi {
-  abandon(questId: number): Effect<void, BridgeError>;
-  accept(questId: number, silent?: boolean): Effect<void, BridgeError>;
-  canComplete(questId: number): Effect<boolean, BridgeError>;
-  complete(
-    questId: number,
-    turnIns?: number,
-    itemId?: number,
-    special?: boolean,
-  ): Effect<void, BridgeError>;
-  getMaxTurnIns(questId: number): Effect<number, BridgeError>;
-  load(questId: number, silent?: boolean): Effect<void, BridgeError>;
-  loadMany(questIds: number[], silent?: boolean): Effect<void, BridgeError>;
-  getTree(): Effect<Collection<number, Quest>, never>;
-  has(questId: number): Effect<boolean, never>;
-  getAccepted(): Effect<Quest[], BridgeError>;
-  isAvailable(questId: number): Effect<boolean, BridgeError>;
-  isInProgress(questId: number): Effect<boolean, BridgeError>;
+    abandon(questId: number): Effect<void, BridgeError>;
+    accept(questId: number, silent?: boolean): Effect<void, BridgeError>;
+    canComplete(questId: number): Effect<boolean, BridgeError>;
+    complete(questId: number, turnIns?: number, itemId?: number, special?: boolean): Effect<void, BridgeError>;
+    getMaxTurnIns(questId: number): Effect<number, BridgeError>;
+    load(questId: number, silent?: boolean): Effect<void, BridgeError>;
+    loadMany(questIds: number[], silent?: boolean): Effect<void, BridgeError>;
+    getTree(): Effect<Collection<number, Quest>, never>;
+    has(questId: number): Effect<boolean, never>;
+    getAccepted(): Effect<Quest[], BridgeError>;
+    isAvailable(questId: number): Effect<boolean, BridgeError>;
+    isInProgress(questId: number): Effect<boolean, BridgeError>;
 }
 interface RecipesApi {
-  buff(
-    skillList?: readonly number[] | null,
-    wait?: boolean,
-  ): Effect<void, unknown>;
-  ensureLifeSteal(quantity: number): Effect<void, unknown>;
-  ensureScrollOfEnrage(quantity: number): Effect<void, unknown>;
-  useConsumables(
-    items: string | readonly string[],
-    equipAfter?: string,
-  ): Effect<void, unknown>;
-  goToHouse(player?: string): Effect<void, unknown>;
-  beep(times?: number): Effect<void, unknown>;
-  doWheelOfDoom(toBank?: boolean): Effect<void, unknown>;
-  waitForPlayerCount(count: number, exact?: boolean): Effect<void, unknown>;
-  equipItemByEnhancement(
-    options: EquipEnhancementSelector,
-  ): Effect<void, unknown>;
-  enhanceItem(
-    item: string,
-    options: ScriptEnhanceItemOptions,
-  ): Effect<void, unknown>;
+    buff(skillList?: readonly number[] | null, wait?: boolean): Effect<void, unknown>;
+    ensureLifeSteal(quantity: number): Effect<void, unknown>;
+    ensureScrollOfEnrage(quantity: number): Effect<void, unknown>;
+    useConsumables(items: string | readonly string[], equipAfter?: string): Effect<void, unknown>;
+    goToHouse(player?: string): Effect<void, unknown>;
+    beep(times?: number): Effect<void, unknown>;
+    doWheelOfDoom(toBank?: boolean): Effect<void, unknown>;
+    waitForPlayerCount(count: number, exact?: boolean): Effect<void, unknown>;
+    equipItemByEnhancement(options: EquipEnhancementSelector): Effect<void, unknown>;
+    enhanceItem(item: string, options: ScriptEnhanceItemOptions): Effect<void, unknown>;
 }
-interface ScriptContextAutoReloginApi {
-  isEnabled(): Effect<boolean, never>;
-  enable(): Effect<void, never>;
-  disable(): Effect<void, never>;
-  getDelay(): Effect<number, never>;
-  setDelay(delayMs: number): Effect<void, never>;
-  getServer(): Effect<string | undefined, never>;
-  setServer(serverName: string): Effect<void, never>;
+interface ScriptFeaturesAntiCounterApi {
+    isEnabled(): Effect<boolean, never>;
+    setEnabled(enabled: boolean): Effect<void, never>;
+    enable(): Effect<void, never>;
+    disable(): Effect<void, never>;
+    onStart(handler: ScriptAntiCounterListener): Effect<ScriptAntiCounterDisposer, ScriptNotReadyError>;
+    onEnd(handler: ScriptAntiCounterListener): Effect<ScriptAntiCounterDisposer, ScriptNotReadyError>;
 }
-interface ScriptContextAutoZoneApi {
-  isEnabled(): Effect<boolean, never>;
-  getMap(): Effect<AutoZoneSupportedMap | undefined, never>;
-  enable(): Effect<void, never>;
-  disable(): Effect<void, never>;
-  setMap(
-    map:
-      | "ledgermayne"
-      | "moreskulls"
-      | "ultradage"
-      | "darkcarnax"
-      | "astralshrine"
-      | "queeniona"
-      | "magnumopus"
-      | undefined,
-  ): Effect<void, never>;
+interface ScriptFeaturesApi {
+    readonly autoRelogin: ScriptFeaturesAutoReloginApi;
+    readonly autoZone: ScriptFeaturesAutoZoneApi;
+    readonly antiCounter: ScriptFeaturesAntiCounterApi;
 }
-interface ScriptContextCounterAttackApi {
-  isEnabled(): Effect<boolean, never>;
-  setEnabled(enabled: boolean): Effect<void, never>;
-  enable(): Effect<void, never>;
-  disable(): Effect<void, never>;
-  onStart(
-    handler: ScriptCounterAttackListener,
-  ): Effect<ScriptCounterAttackDisposer, ScriptNotReadyError>;
-  onEnd(
-    handler: ScriptCounterAttackListener,
-  ): Effect<ScriptCounterAttackDisposer, ScriptNotReadyError>;
+interface ScriptFeaturesAutoReloginApi {
+    isEnabled(): Effect<boolean, never>;
+    enable(): Effect<void, never>;
+    disable(): Effect<void, never>;
+    getDelay(): Effect<number, never>;
+    setDelay(delayMs: number): Effect<void, never>;
+    getServer(): Effect<string | undefined, never>;
+    setServer(serverName: string): Effect<void, never>;
+}
+interface ScriptFeaturesAutoZoneApi {
+    isEnabled(): Effect<boolean, never>;
+    getMap(): Effect<AutoZoneSupportedMap | undefined, never>;
+    enable(): Effect<void, never>;
+    disable(): Effect<void, never>;
+    setMap(map: 'ledgermayne' | 'moreskulls' | 'ultradage' | 'darkcarnax' | 'astralshrine' | 'queeniona' | 'magnumopus' | undefined): Effect<void, never>;
 }
 interface ScriptPacketApi {
-  sendClient(
-    packet: string,
-    type?: ClientPacketSendType,
-  ): Effect<void, BridgeError>;
-  sendServer(
-    packet: string,
-    type?: ServerPacketSendType,
-  ): Effect<void, BridgeError>;
-  packetFromClient(
-    handler: ScriptPacketListener,
-  ): Effect<ScriptPacketDisposer, ScriptNotReadyError>;
-  packetFromServer(
-    handler: ScriptPacketListener,
-  ): Effect<ScriptPacketDisposer, ScriptNotReadyError>;
-  onExtensionResponse(
-    handler: ScriptPacketListener,
-  ): Effect<ScriptPacketDisposer, ScriptNotReadyError>;
+    sendClient(packet: string, type?: ClientPacketSendType): Effect<void, BridgeError>;
+    sendServer(packet: string, type?: ServerPacketSendType): Effect<void, BridgeError>;
+    packetFromClient(handler: ScriptPacketListener): Effect<ScriptPacketDisposer, ScriptNotReadyError>;
+    packetFromServer(handler: ScriptPacketListener): Effect<ScriptPacketDisposer, ScriptNotReadyError>;
+    onExtensionResponse(handler: ScriptPacketListener): Effect<ScriptPacketDisposer, ScriptNotReadyError>;
+}
+interface ScriptRuntimeOptionsApi {
+    getUsePrivateRooms(): Effect<boolean, never>;
+    setUsePrivateRooms(enabled: boolean): Effect<void, ScriptExecutionError>;
+    getAll(): Effect<Readonly<ScriptOptions>, never>;
+    reset(): Effect<void, never>;
+}
+interface ScriptStdApi {
+    readonly effect: EffectStd;
 }
 interface SettingsApi {
-  setEnemyMagnet(enabled: boolean): Effect<void, BridgeError>;
-  setInfiniteRange(enabled: boolean): Effect<void, BridgeError>;
-  setProvokeCell(enabled: boolean): Effect<void, BridgeError>;
-  setSkipCutscenes(enabled: boolean): Effect<void, BridgeError>;
-  setCustomName(name: string): Effect<void, BridgeError>;
-  setCustomGuild(name: string): Effect<void, BridgeError>;
-  setWalkSpeed(speed: number): Effect<void, BridgeError>;
-  setDeathAdsVisible(visible: boolean): Effect<void, BridgeError>;
-  setCollisionsEnabled(enabled: boolean): Effect<void, BridgeError>;
-  setEffectsEnabled(enabled: boolean): Effect<void, BridgeError>;
-  setOtherPlayersVisible(visible: boolean): Effect<void, BridgeError>;
-  setLagKillerEnabled(enabled: boolean): Effect<void, BridgeError>;
-  setFrameRate(fps: number): Effect<void, BridgeError>;
+    setEnemyMagnet(enabled: boolean): Effect<void, BridgeError>;
+    setInfiniteRange(enabled: boolean): Effect<void, BridgeError>;
+    setProvokeCell(enabled: boolean): Effect<void, BridgeError>;
+    setSkipCutscenes(enabled: boolean): Effect<void, BridgeError>;
+    setCustomName(name: string): Effect<void, BridgeError>;
+    setCustomGuild(name: string): Effect<void, BridgeError>;
+    setWalkSpeed(speed: number): Effect<void, BridgeError>;
+    setDeathAdsVisible(visible: boolean): Effect<void, BridgeError>;
+    setCollisionsEnabled(enabled: boolean): Effect<void, BridgeError>;
+    setEffectsEnabled(enabled: boolean): Effect<void, BridgeError>;
+    setOtherPlayersVisible(visible: boolean): Effect<void, BridgeError>;
+    setLagKillerEnabled(enabled: boolean): Effect<void, BridgeError>;
+    setFrameRate(fps: number): Effect<void, BridgeError>;
 }
 interface ShopsApi {
-  buyById(id: number, quantity?: number): Effect<boolean, BridgeError>;
-  buyByName(name: string, quantity?: number): Effect<boolean, BridgeError>;
-  canBuyItem(
-    key: ItemIdentifierToken,
-    quantity?: number,
-  ): Effect<boolean, BridgeError>;
-  close(shopId?: number): Effect<boolean, BridgeError>;
-  getInfo(): Effect<ShopInfo | null, BridgeError>;
-  getItem(key: ItemIdentifierToken): Effect<ShopItem | null, BridgeError>;
-  getItems(): Effect<readonly ShopItem[], BridgeError>;
-  getMaxBuyQuantity(key: ItemIdentifierToken): Effect<number, BridgeError>;
-  isOpen(shopId?: number): Effect<boolean, BridgeError>;
-  isMergeShop(): Effect<boolean, BridgeError>;
-  load(shopId: number): Effect<void, BridgeError>;
-  loadArmorCustomize(): Effect<void, BridgeError>;
-  loadHairShop(shopId: number): Effect<void, BridgeError>;
-  sellById(id: number, quantity?: number): Effect<boolean, BridgeError>;
-  sellByName(name: string, quantity?: number): Effect<boolean, BridgeError>;
+    buyById(id: number, quantity?: number): Effect<boolean, BridgeError>;
+    buyByName(name: string, quantity?: number): Effect<boolean, BridgeError>;
+    canBuyItem(key: ItemIdentifierToken, quantity?: number): Effect<boolean, BridgeError>;
+    close(shopId?: number): Effect<boolean, BridgeError>;
+    getInfo(): Effect<ShopInfo | null, BridgeError>;
+    getItem(key: ItemIdentifierToken): Effect<ShopItem | null, BridgeError>;
+    getItems(): Effect<readonly ShopItem[], BridgeError>;
+    getMaxBuyQuantity(key: ItemIdentifierToken): Effect<number, BridgeError>;
+    isOpen(shopId?: number): Effect<boolean, BridgeError>;
+    isMergeShop(): Effect<boolean, BridgeError>;
+    load(shopId: number): Effect<void, BridgeError>;
+    loadArmorCustomize(): Effect<void, BridgeError>;
+    loadHairShop(shopId: number): Effect<void, BridgeError>;
+    sellById(id: number, quantity?: number): Effect<boolean, BridgeError>;
+    sellByName(name: string, quantity?: number): Effect<boolean, BridgeError>;
 }
 interface TempInventoryApi {
-  contains(
-    item: ItemIdentifierToken,
-    quantity?: number,
-  ): Effect<boolean, BridgeError>;
-  getItem(item: ItemIdentifierToken): Effect<Item | null, BridgeError>;
-  getItems(): Effect<readonly Item[], BridgeError>;
+    contains(item: ItemIdentifierToken, quantity?: number): Effect<boolean, BridgeError>;
+    getItem(item: ItemIdentifierToken): Effect<Item | null, BridgeError>;
+    getItems(): Effect<readonly Item[], BridgeError>;
 }
 interface WorldApi {
-  readonly map: WorldMapApi;
-  readonly players: WorldPlayersApi;
-  readonly monsters: WorldMonstersApi;
+    readonly map: WorldMapApi;
+    readonly players: WorldPlayersApi;
+    readonly monsters: WorldMonstersApi;
 }
 interface WorldMapApi {
-  getCellMonsters(): Effect<Monster[], BridgeError>;
-  getCells(): Effect<string[], BridgeError>;
-  getCellPads(): Effect<string[], BridgeError>;
-  isLoaded(): Effect<boolean, BridgeError>;
-  isActionAvailable(
-    gameAction:
-      | "acceptQuest"
-      | "addLoadout"
-      | "buyItem"
-      | "doIA"
-      | "equipLoadout"
-      | "equipItem"
-      | "getMapItem"
-      | "loadEnhShop"
-      | "loadHairShop"
-      | "loadShop"
-      | "removeLoadout"
-      | "rest"
-      | "sellItem"
-      | "tfer"
-      | "tryQuestComplete"
-      | "unequipItem"
-      | "wearLoadout"
-      | "who",
-  ): Effect<boolean, BridgeError>;
-  getMapItem(itemId: number): Effect<void, BridgeError>;
-  loadSwf(path: string): Effect<void, BridgeError>;
-  reload(): Effect<void, BridgeError>;
-  setSpawnPoint(cell?: string, pad?: string): Effect<void, BridgeError>;
-  waitForGameAction(
-    gameAction:
-      | "acceptQuest"
-      | "addLoadout"
-      | "buyItem"
-      | "doIA"
-      | "equipLoadout"
-      | "equipItem"
-      | "getMapItem"
-      | "loadEnhShop"
-      | "loadHairShop"
-      | "loadShop"
-      | "removeLoadout"
-      | "rest"
-      | "sellItem"
-      | "tfer"
-      | "tryQuestComplete"
-      | "unequipItem"
-      | "wearLoadout"
-      | "who",
-    timeout?: DurationInput,
-  ): Effect<boolean, BridgeError>;
-  getName(): Effect<string, never>;
-  getId(): Effect<number, never>;
-  getRoomNumber(): Effect<number, never>;
+    getCellMonsters(): Effect<Monster[], BridgeError>;
+    getCells(): Effect<string[], BridgeError>;
+    getCellPads(): Effect<string[], BridgeError>;
+    isLoaded(): Effect<boolean, BridgeError>;
+    isActionAvailable(gameAction: 'acceptQuest' | 'addLoadout' | 'buyItem' | 'doIA' | 'equipLoadout' | 'equipItem' | 'getMapItem' | 'loadEnhShop' | 'loadHairShop' | 'loadShop' | 'removeLoadout' | 'rest' | 'sellItem' | 'tfer' | 'tryQuestComplete' | 'unequipItem' | 'wearLoadout' | 'who'): Effect<boolean, BridgeError>;
+    getMapItem(itemId: number): Effect<void, BridgeError>;
+    loadSwf(path: string): Effect<void, BridgeError>;
+    reload(): Effect<void, BridgeError>;
+    setSpawnPoint(cell?: string, pad?: string): Effect<void, BridgeError>;
+    waitForGameAction(gameAction: 'acceptQuest' | 'addLoadout' | 'buyItem' | 'doIA' | 'equipLoadout' | 'equipItem' | 'getMapItem' | 'loadEnhShop' | 'loadHairShop' | 'loadShop' | 'removeLoadout' | 'rest' | 'sellItem' | 'tfer' | 'tryQuestComplete' | 'unequipItem' | 'wearLoadout' | 'who', timeout?: DurationInput): Effect<boolean, BridgeError>;
+    getName(): Effect<string, never>;
+    getId(): Effect<number, never>;
+    getRoomNumber(): Effect<number, never>;
 }
 interface WorldMonstersApi {
-  getAll(): Effect<Collection<number, Monster>, never>;
-  get(monMapId: number): Effect<Option<Monster>, never>;
-  findByName(name: string, cell?: string): Effect<Option<Monster>, never>;
-  getAura(monMapId: number, auraName: string): Effect<Option<Aura>, never>;
+    getAll(): Effect<Collection<number, Monster>, never>;
+    get(monMapId: number): Effect<Option<Monster>, never>;
+    findByName(name: string, cell?: string): Effect<Option<Monster>, never>;
+    getAura(monMapId: number, auraName: string): Effect<Option<Aura>, never>;
 }
 interface WorldPlayersApi {
-  readonly me: WorldPlayersMeApi;
-  getAll(): Effect<Collection<string, Avatar>, never>;
-  get(username: string): Effect<Option<Avatar>, never>;
-  getByName(name: string): Effect<Option<Avatar>, never>;
-  getAuras(username: string): Effect<readonly Aura[], never>;
-  getAura(username: string, auraName: string): Effect<Option<Aura>, never>;
+    readonly me: WorldPlayersMeApi;
+    getAll(): Effect<Collection<string, Avatar>, never>;
+    get(username: string): Effect<Option<Avatar>, never>;
+    getByName(name: string): Effect<Option<Avatar>, never>;
+    getAuras(username: string): Effect<readonly Aura[], never>;
+    getAura(username: string, auraName: string): Effect<Option<Aura>, never>;
 }
 interface WorldPlayersMeApi {
-  get(): Effect<Option<Avatar>, never>;
-  getAuras(): Effect<readonly Aura[], never>;
-  getAura(auraName: string): Effect<Option<Aura>, never>;
+    get(): Effect<Option<Avatar>, never>;
+    getAuras(): Effect<readonly Aura[], never>;
+    getAura(auraName: string): Effect<Option<Aura>, never>;
 }
 
 interface ArmyEquipSetOptions {
@@ -632,14 +457,7 @@ type AuthConnectOutcome =
       readonly retryable: boolean;
       readonly serverName?: string;
     };
-type AutoZoneSupportedMap =
-  | "ledgermayne"
-  | "moreskulls"
-  | "ultradage"
-  | "darkcarnax"
-  | "astralshrine"
-  | "queeniona"
-  | "magnumopus";
+type AutoZoneSupportedMap = 'ledgermayne' | 'moreskulls' | 'ultradage' | 'darkcarnax' | 'astralshrine' | 'queeniona' | 'magnumopus';
 interface Avatar extends BaseEntity {
   readonly data: AvatarData;
   readonly pad: string;
@@ -653,10 +471,7 @@ interface Avatar extends BaseEntity {
 }
 type ClientPacketSendType = "str" | "json" | "xml";
 interface Collection<Key, Value> extends Map<Key, Value> {
-  ensure(
-    key: Key,
-    defaultValueGenerator: (key: Key, collection: this) => Value,
-  ): Value;
+  ensure(key: Key, defaultValueGenerator: (key: Key, collection: this) => Value): Value;
   hasAll(...keys: Key[]): boolean;
   hasAny(...keys: Key[]): boolean;
   first(): Value | undefined;
@@ -674,241 +489,67 @@ interface Collection<Key, Value> extends Map<Key, Value> {
   randomKey(): Key | undefined;
   randomKey(amount: number): Key[];
   reverse(): this;
-  find<NewValue extends Value>(
-    fn: (value: Value, key: Key, collection: this) => value is NewValue,
-  ): NewValue | undefined;
-  find(
-    fn: (value: Value, key: Key, collection: this) => unknown,
-  ): Value | undefined;
-  find<This, NewValue extends Value>(
-    fn: (
-      this: This,
-      value: Value,
-      key: Key,
-      collection: this,
-    ) => value is NewValue,
-    thisArg: This,
-  ): NewValue | undefined;
-  find<This>(
-    fn: (this: This, value: Value, key: Key, collection: this) => unknown,
-    thisArg: This,
-  ): Value | undefined;
-  findKey<NewKey extends Key>(
-    fn: (value: Value, key: Key, collection: this) => key is NewKey,
-  ): NewKey | undefined;
-  findKey(
-    fn: (value: Value, key: Key, collection: this) => unknown,
-  ): Key | undefined;
-  findKey<This, NewKey extends Key>(
-    fn: (this: This, value: Value, key: Key, collection: this) => key is NewKey,
-    thisArg: This,
-  ): NewKey | undefined;
-  findKey<This>(
-    fn: (this: This, value: Value, key: Key, collection: this) => unknown,
-    thisArg: This,
-  ): Key | undefined;
-  findLast<NewValue extends Value>(
-    fn: (value: Value, key: Key, collection: this) => value is NewValue,
-  ): NewValue | undefined;
-  findLast(
-    fn: (value: Value, key: Key, collection: this) => unknown,
-  ): Value | undefined;
-  findLast<This, NewValue extends Value>(
-    fn: (
-      this: This,
-      value: Value,
-      key: Key,
-      collection: this,
-    ) => value is NewValue,
-    thisArg: This,
-  ): NewValue | undefined;
-  findLast<This>(
-    fn: (this: This, value: Value, key: Key, collection: this) => unknown,
-    thisArg: This,
-  ): Value | undefined;
-  findLastKey<NewKey extends Key>(
-    fn: (value: Value, key: Key, collection: this) => key is NewKey,
-  ): NewKey | undefined;
-  findLastKey(
-    fn: (value: Value, key: Key, collection: this) => unknown,
-  ): Key | undefined;
-  findLastKey<This, NewKey extends Key>(
-    fn: (this: This, value: Value, key: Key, collection: this) => key is NewKey,
-    thisArg: This,
-  ): NewKey | undefined;
-  findLastKey<This>(
-    fn: (this: This, value: Value, key: Key, collection: this) => unknown,
-    thisArg: This,
-  ): Key | undefined;
+  find<NewValue extends Value>(fn: (value: Value, key: Key, collection: this) => value is NewValue): NewValue | undefined;
+  find(fn: (value: Value, key: Key, collection: this) => unknown): Value | undefined;
+  find<This, NewValue extends Value>(fn: (this: This, value: Value, key: Key, collection: this) => value is NewValue, thisArg: This): NewValue | undefined;
+  find<This>(fn: (this: This, value: Value, key: Key, collection: this) => unknown, thisArg: This): Value | undefined;
+  findKey<NewKey extends Key>(fn: (value: Value, key: Key, collection: this) => key is NewKey): NewKey | undefined;
+  findKey(fn: (value: Value, key: Key, collection: this) => unknown): Key | undefined;
+  findKey<This, NewKey extends Key>(fn: (this: This, value: Value, key: Key, collection: this) => key is NewKey, thisArg: This): NewKey | undefined;
+  findKey<This>(fn: (this: This, value: Value, key: Key, collection: this) => unknown, thisArg: This): Key | undefined;
+  findLast<NewValue extends Value>(fn: (value: Value, key: Key, collection: this) => value is NewValue): NewValue | undefined;
+  findLast(fn: (value: Value, key: Key, collection: this) => unknown): Value | undefined;
+  findLast<This, NewValue extends Value>(fn: (this: This, value: Value, key: Key, collection: this) => value is NewValue, thisArg: This): NewValue | undefined;
+  findLast<This>(fn: (this: This, value: Value, key: Key, collection: this) => unknown, thisArg: This): Value | undefined;
+  findLastKey<NewKey extends Key>(fn: (value: Value, key: Key, collection: this) => key is NewKey): NewKey | undefined;
+  findLastKey(fn: (value: Value, key: Key, collection: this) => unknown): Key | undefined;
+  findLastKey<This, NewKey extends Key>(fn: (this: This, value: Value, key: Key, collection: this) => key is NewKey, thisArg: This): NewKey | undefined;
+  findLastKey<This>(fn: (this: This, value: Value, key: Key, collection: this) => unknown, thisArg: This): Key | undefined;
   sweep(fn: (value: Value, key: Key, collection: this) => unknown): number;
-  sweep<This>(
-    fn: (this: This, value: Value, key: Key, collection: this) => unknown,
-    thisArg: This,
-  ): number;
-  filter<NewKey extends Key>(
-    fn: (value: Value, key: Key, collection: this) => key is NewKey,
-  ): Collection<NewKey, Value>;
-  filter<NewValue extends Value>(
-    fn: (value: Value, key: Key, collection: this) => value is NewValue,
-  ): Collection<Key, NewValue>;
-  filter(
-    fn: (value: Value, key: Key, collection: this) => unknown,
-  ): Collection<Key, Value>;
-  filter<This, NewKey extends Key>(
-    fn: (this: This, value: Value, key: Key, collection: this) => key is NewKey,
-    thisArg: This,
-  ): Collection<NewKey, Value>;
-  filter<This, NewValue extends Value>(
-    fn: (
-      this: This,
-      value: Value,
-      key: Key,
-      collection: this,
-    ) => value is NewValue,
-    thisArg: This,
-  ): Collection<Key, NewValue>;
-  filter<This>(
-    fn: (this: This, value: Value, key: Key, collection: this) => unknown,
-    thisArg: This,
-  ): Collection<Key, Value>;
-  partition<NewKey extends Key>(
-    fn: (value: Value, key: Key, collection: this) => key is NewKey,
-  ): [Collection<NewKey, Value>, Collection<Exclude<Key, NewKey>, Value>];
-  partition<NewValue extends Value>(
-    fn: (value: Value, key: Key, collection: this) => value is NewValue,
-  ): [Collection<Key, NewValue>, Collection<Key, Exclude<Value, NewValue>>];
-  partition(
-    fn: (value: Value, key: Key, collection: this) => unknown,
-  ): [Collection<Key, Value>, Collection<Key, Value>];
-  partition<This, NewKey extends Key>(
-    fn: (this: This, value: Value, key: Key, collection: this) => key is NewKey,
-    thisArg: This,
-  ): [Collection<NewKey, Value>, Collection<Exclude<Key, NewKey>, Value>];
-  partition<This, NewValue extends Value>(
-    fn: (
-      this: This,
-      value: Value,
-      key: Key,
-      collection: this,
-    ) => value is NewValue,
-    thisArg: This,
-  ): [Collection<Key, NewValue>, Collection<Key, Exclude<Value, NewValue>>];
-  partition<This>(
-    fn: (this: This, value: Value, key: Key, collection: this) => unknown,
-    thisArg: This,
-  ): [Collection<Key, Value>, Collection<Key, Value>];
-  flatMap<NewValue>(
-    fn: (value: Value, key: Key, collection: this) => Collection<Key, NewValue>,
-  ): Collection<Key, NewValue>;
-  flatMap<NewValue, This>(
-    fn: (
-      this: This,
-      value: Value,
-      key: Key,
-      collection: this,
-    ) => Collection<Key, NewValue>,
-    thisArg: This,
-  ): Collection<Key, NewValue>;
-  map<NewValue>(
-    fn: (value: Value, key: Key, collection: this) => NewValue,
-  ): NewValue[];
-  map<This, NewValue>(
-    fn: (this: This, value: Value, key: Key, collection: this) => NewValue,
-    thisArg: This,
-  ): NewValue[];
-  mapValues<NewValue>(
-    fn: (value: Value, key: Key, collection: this) => NewValue,
-  ): Collection<Key, NewValue>;
-  mapValues<This, NewValue>(
-    fn: (this: This, value: Value, key: Key, collection: this) => NewValue,
-    thisArg: This,
-  ): Collection<Key, NewValue>;
+  sweep<This>(fn: (this: This, value: Value, key: Key, collection: this) => unknown, thisArg: This): number;
+  filter<NewKey extends Key>(fn: (value: Value, key: Key, collection: this) => key is NewKey): Collection<NewKey, Value>;
+  filter<NewValue extends Value>(fn: (value: Value, key: Key, collection: this) => value is NewValue): Collection<Key, NewValue>;
+  filter(fn: (value: Value, key: Key, collection: this) => unknown): Collection<Key, Value>;
+  filter<This, NewKey extends Key>(fn: (this: This, value: Value, key: Key, collection: this) => key is NewKey, thisArg: This): Collection<NewKey, Value>;
+  filter<This, NewValue extends Value>(fn: (this: This, value: Value, key: Key, collection: this) => value is NewValue, thisArg: This): Collection<Key, NewValue>;
+  filter<This>(fn: (this: This, value: Value, key: Key, collection: this) => unknown, thisArg: This): Collection<Key, Value>;
+  partition<NewKey extends Key>(fn: (value: Value, key: Key, collection: this) => key is NewKey): [Collection<NewKey, Value>, Collection<Exclude<Key, NewKey>, Value>];
+  partition<NewValue extends Value>(fn: (value: Value, key: Key, collection: this) => value is NewValue): [Collection<Key, NewValue>, Collection<Key, Exclude<Value, NewValue>>];
+  partition(fn: (value: Value, key: Key, collection: this) => unknown): [Collection<Key, Value>, Collection<Key, Value>];
+  partition<This, NewKey extends Key>(fn: (this: This, value: Value, key: Key, collection: this) => key is NewKey, thisArg: This): [Collection<NewKey, Value>, Collection<Exclude<Key, NewKey>, Value>];
+  partition<This, NewValue extends Value>(fn: (this: This, value: Value, key: Key, collection: this) => value is NewValue, thisArg: This): [Collection<Key, NewValue>, Collection<Key, Exclude<Value, NewValue>>];
+  partition<This>(fn: (this: This, value: Value, key: Key, collection: this) => unknown, thisArg: This): [Collection<Key, Value>, Collection<Key, Value>];
+  flatMap<NewValue>(fn: (value: Value, key: Key, collection: this) => Collection<Key, NewValue>): Collection<Key, NewValue>;
+  flatMap<NewValue, This>(fn: (this: This, value: Value, key: Key, collection: this) => Collection<Key, NewValue>, thisArg: This): Collection<Key, NewValue>;
+  map<NewValue>(fn: (value: Value, key: Key, collection: this) => NewValue): NewValue[];
+  map<This, NewValue>(fn: (this: This, value: Value, key: Key, collection: this) => NewValue, thisArg: This): NewValue[];
+  mapValues<NewValue>(fn: (value: Value, key: Key, collection: this) => NewValue): Collection<Key, NewValue>;
+  mapValues<This, NewValue>(fn: (this: This, value: Value, key: Key, collection: this) => NewValue, thisArg: This): Collection<Key, NewValue>;
   some(fn: (value: Value, key: Key, collection: this) => unknown): boolean;
-  some<This>(
-    fn: (this: This, value: Value, key: Key, collection: this) => unknown,
-    thisArg: This,
-  ): boolean;
-  every<NewKey extends Key>(
-    fn: (value: Value, key: Key, collection: this) => key is NewKey,
-  ): boolean;
-  every<NewValue extends Value>(
-    fn: (value: Value, key: Key, collection: this) => value is NewValue,
-  ): boolean;
+  some<This>(fn: (this: This, value: Value, key: Key, collection: this) => unknown, thisArg: This): boolean;
+  every<NewKey extends Key>(fn: (value: Value, key: Key, collection: this) => key is NewKey): boolean;
+  every<NewValue extends Value>(fn: (value: Value, key: Key, collection: this) => value is NewValue): boolean;
   every(fn: (value: Value, key: Key, collection: this) => unknown): boolean;
-  every<This, NewKey extends Key>(
-    fn: (this: This, value: Value, key: Key, collection: this) => key is NewKey,
-    thisArg: This,
-  ): boolean;
-  every<This, NewValue extends Value>(
-    fn: (
-      this: This,
-      value: Value,
-      key: Key,
-      collection: this,
-    ) => value is NewValue,
-    thisArg: This,
-  ): boolean;
-  every<This>(
-    fn: (this: This, value: Value, key: Key, collection: this) => unknown,
-    thisArg: This,
-  ): boolean;
-  reduce(
-    fn: (accumulator: Value, value: Value, key: Key, collection: this) => Value,
-    initialValue?: Value,
-  ): Value;
-  reduce<InitialValue>(
-    fn: (
-      accumulator: InitialValue,
-      value: Value,
-      key: Key,
-      collection: this,
-    ) => InitialValue,
-    initialValue: InitialValue,
-  ): InitialValue;
-  reduceRight(
-    fn: (accumulator: Value, value: Value, key: Key, collection: this) => Value,
-    initialValue?: Value,
-  ): Value;
-  reduceRight<InitialValue>(
-    fn: (
-      accumulator: InitialValue,
-      value: Value,
-      key: Key,
-      collection: this,
-    ) => InitialValue,
-    initialValue: InitialValue,
-  ): InitialValue;
+  every<This, NewKey extends Key>(fn: (this: This, value: Value, key: Key, collection: this) => key is NewKey, thisArg: This): boolean;
+  every<This, NewValue extends Value>(fn: (this: This, value: Value, key: Key, collection: this) => value is NewValue, thisArg: This): boolean;
+  every<This>(fn: (this: This, value: Value, key: Key, collection: this) => unknown, thisArg: This): boolean;
+  reduce(fn: (accumulator: Value, value: Value, key: Key, collection: this) => Value, initialValue?: Value): Value;
+  reduce<InitialValue>(fn: (accumulator: InitialValue, value: Value, key: Key, collection: this) => InitialValue, initialValue: InitialValue): InitialValue;
+  reduceRight(fn: (accumulator: Value, value: Value, key: Key, collection: this) => Value, initialValue?: Value): Value;
+  reduceRight<InitialValue>(fn: (accumulator: InitialValue, value: Value, key: Key, collection: this) => InitialValue, initialValue: InitialValue): InitialValue;
   each(fn: (value: Value, key: Key, collection: this) => void): this;
-  each<This>(
-    fn: (this: This, value: Value, key: Key, collection: this) => void,
-    thisArg: This,
-  ): this;
+  each<This>(fn: (this: This, value: Value, key: Key, collection: this) => void, thisArg: This): this;
   tap(fn: (collection: this) => void): this;
   tap<This>(fn: (this: This, collection: this) => void, thisArg: This): this;
   clone(): Collection<Key, Value>;
-  concat(
-    ...collections: ReadonlyCollection<Key, Value>[]
-  ): Collection<Key, Value>;
+  concat(...collections: ReadonlyCollection<Key, Value>[]): Collection<Key, Value>;
   equals(collection: ReadonlyCollection<Key, Value>): boolean;
   sort(compareFunction?: Comparator<Key, Value>): this;
   intersection(other: ReadonlyCollection<Key, any>): Collection<Key, Value>;
-  union<OtherValue>(
-    other: ReadonlyCollection<Key, OtherValue>,
-  ): Collection<Key, Value | OtherValue>;
+  union<OtherValue>(other: ReadonlyCollection<Key, OtherValue>): Collection<Key, Value | OtherValue>;
   difference(other: ReadonlyCollection<Key, any>): Collection<Key, Value>;
-  symmetricDifference<OtherValue>(
-    other: ReadonlyCollection<Key, OtherValue>,
-  ): Collection<Key, Value | OtherValue>;
-  merge<OtherValue, ResultValue>(
-    other: ReadonlyCollection<Key, OtherValue>,
-    whenInSelf: (value: Value, key: Key) => Keep<ResultValue>,
-    whenInOther: (valueOther: OtherValue, key: Key) => Keep<ResultValue>,
-    whenInBoth: (
-      value: Value,
-      valueOther: OtherValue,
-      key: Key,
-    ) => Keep<ResultValue>,
-  ): Collection<Key, ResultValue>;
+  symmetricDifference<OtherValue>(other: ReadonlyCollection<Key, OtherValue>): Collection<Key, Value | OtherValue>;
+  merge<OtherValue, ResultValue>(other: ReadonlyCollection<Key, OtherValue>, whenInSelf: (value: Value, key: Key) => Keep<ResultValue>, whenInOther: (valueOther: OtherValue, key: Key) => Keep<ResultValue>, whenInBoth: (value: Value, valueOther: OtherValue, key: Key) => Keep<ResultValue>): Collection<Key, ResultValue>;
   toReversed(): Collection<Key, Value>;
   toSorted(compareFunction?: Comparator<Key, Value>): Collection<Key, Value>;
   toJSON(): [Key, Value][];
@@ -923,6 +564,7 @@ type ConsumableSkillItem = {
   itemId?: number;
   name?: string;
 };
+interface EffectStd { readonly [key: string]: unknown; }
 interface EnvironmentDropPolicy {
   /** Accept member-only AC-tagged items. */
   readonly acceptAcMemberOnlyDrops: boolean;
@@ -1065,9 +707,9 @@ interface Quest {
   isWeekly(): boolean;
   isMonthly(): boolean;
 }
-type ScriptCounterAttackDisposer = () => void;
-type ScriptCounterAttackListener = (
-  event: ScriptCounterAttackEvent,
+type ScriptAntiCounterDisposer = () => void;
+type ScriptAntiCounterListener = (
+  event: ScriptAntiCounterEvent,
 ) =>
   | void
   | Effect<unknown, unknown>
@@ -1075,6 +717,9 @@ type ScriptCounterAttackListener = (
 interface ScriptEnhanceItemOptions {
   readonly enhancement: string;
   readonly special?: string;
+}
+interface ScriptOptions {
+  readonly usePrivateRooms: boolean;
 }
 type ScriptPacketDisposer = () => void;
 type ScriptPacketListener = (
@@ -1084,18 +729,7 @@ type ScriptPacketListener = (
   | Effect<unknown, unknown>
   | Generator<EffectYieldable<any, any, never, never>, unknown, never>;
 interface Server {
-  data: {
-    readonly bOnline: number;
-    readonly bUpg: number;
-    readonly iChat: number;
-    readonly iCount: number;
-    readonly iLevel: number;
-    readonly iMax: number;
-    readonly iPort: number;
-    readonly sIP: string;
-    readonly sLang: string;
-    readonly sName: string;
-  };
+  data: { readonly bOnline: number; readonly bUpg: number; readonly iChat: number; readonly iCount: number; readonly iLevel: number; readonly iMax: number; readonly iPort: number; readonly sIP: string; readonly sLang: string; readonly sName: string; };
   readonly maxPlayers: number;
   readonly port: number;
   readonly langCode: string;
@@ -1122,7 +756,10 @@ type ShopInfo = {
 interface ShopItem extends Item {
   data: ShopItemData;
 }
-type ArmyEffect<A, E = never> = Effect<A, E | ArmyError | BridgeError>;
+type ArmyEffect<A, E = never> = Effect<
+  A,
+  E | ArmyError | BridgeError
+>;
 interface ArmyLoopTauntBaseOptions {
   readonly id?: string;
   readonly players?: readonly ArmyLoopTauntPlayer[];
@@ -1172,25 +809,14 @@ type AvatarData = BaseEntityData & {
   ty: number;
   uoName: string;
 };
-type ReadonlyCollection<Key, Value> = Omit<
-  Collection<Key, Value>,
-  keyof Map<Key, Value> | "ensure" | "reverse" | "sort" | "sweep"
-> &
-  ReadonlyMap<Key, Value>;
-type Comparator<Key, Value> = (
-  firstValue: Value,
-  secondValue: Value,
-  firstKey: Key,
-  secondKey: Key,
-) => number;
-type Keep<Value> =
-  | {
-      keep: false;
-    }
-  | {
-      keep: true;
-      value: Value;
-    };
+type ReadonlyCollection<Key, Value> = Omit<Collection<Key, Value>, keyof Map<Key, Value> | "ensure" | "reverse" | "sort" | "sweep"> & ReadonlyMap<Key, Value>;
+type Comparator<Key, Value> = (firstValue: Value, secondValue: Value, firstKey: Key, secondKey: Key) => number;
+type Keep<Value> = {
+    keep: false;
+} | {
+    keep: true;
+    value: Value;
+};
 interface EnvironmentQuestAutoRegisterOptions {
   readonly requirements: boolean;
   readonly rewards: boolean;
@@ -1227,39 +853,17 @@ type FactionData = {
    */
   sName: string;
 };
-interface CharID {
-  readonly [key: string]: unknown;
-}
-interface CharItemID {
-  readonly [key: string]: unknown;
-}
-interface EnhDPS {
-  readonly [key: string]: unknown;
-}
-interface EnhID {
-  readonly [key: string]: unknown;
-}
-interface EnhLvl {
-  readonly [key: string]: unknown;
-}
-interface EnhPatternID {
-  readonly [key: string]: unknown;
-}
-interface PatternID {
-  readonly [key: string]: unknown;
-}
-interface EnhRng {
-  readonly [key: string]: unknown;
-}
-interface EnhRty {
-  readonly [key: string]: unknown;
-}
-interface ItemID {
-  readonly [key: string]: unknown;
-}
-interface ProcID {
-  readonly [key: string]: unknown;
-}
+interface CharID { readonly [key: string]: unknown; }
+interface CharItemID { readonly [key: string]: unknown; }
+interface EnhDPS { readonly [key: string]: unknown; }
+interface EnhID { readonly [key: string]: unknown; }
+interface EnhLvl { readonly [key: string]: unknown; }
+interface EnhPatternID { readonly [key: string]: unknown; }
+interface PatternID { readonly [key: string]: unknown; }
+interface EnhRng { readonly [key: string]: unknown; }
+interface EnhRty { readonly [key: string]: unknown; }
+interface ItemID { readonly [key: string]: unknown; }
+interface ProcID { readonly [key: string]: unknown; }
 type MonsterData = BaseEntityData & {
   iLvl: number;
   intMP: number;
@@ -1374,22 +978,16 @@ type QuestRequirement = {
    */
   quantity: number;
 };
-interface ScriptCounterAttackEvent {
+interface ScriptAntiCounterEvent {
   readonly monMapId: number;
   readonly source: "message" | "aura";
   readonly triggerId: string;
   readonly triggerText: string;
   readonly durationMs?: number;
 }
-interface Json {
-  readonly [key: string]: unknown;
-}
-interface Location {
-  readonly [key: string]: unknown;
-}
-interface ShopID {
-  readonly [key: string]: unknown;
-}
+interface Json { readonly [key: string]: unknown; }
+interface Location { readonly [key: string]: unknown; }
+interface ShopID { readonly [key: string]: unknown; }
 type ShopItemData = ItemData & {
   /**
    * Faction ID associated with the item.
@@ -1465,26 +1063,14 @@ enum EntityState {
   /**
    * The entity is in combat.
    */
-  InCombat = 2,
+  InCombat = 2
 }
-type EnvironmentItemBucket =
-  | "ac-member"
-  | "ac-non-member"
-  | "non-ac-member"
-  | "non-ac-non-member";
+type EnvironmentItemBucket = 'ac-member' | 'ac-non-member' | 'non-ac-member' | 'non-ac-non-member';
 type EquipItemTypeFilter = "weapon" | "cape" | "helm" | "class";
-interface CharFactionID {
-  readonly [key: string]: unknown;
-}
-interface FactionID {
-  readonly [key: string]: unknown;
-}
-interface QuestID {
-  readonly [key: string]: unknown;
-}
-interface RequiredItems {
-  readonly [key: string]: unknown;
-}
+interface CharFactionID { readonly [key: string]: unknown; }
+interface FactionID { readonly [key: string]: unknown; }
+interface QuestID { readonly [key: string]: unknown; }
+interface RequiredItems { readonly [key: string]: unknown; }
 type QuestRequirementData = {
   /**
    * The item ID.
@@ -1499,9 +1085,7 @@ type QuestRequirementData = {
    */
   sName: string;
 };
-interface Rewards {
-  readonly [key: string]: unknown;
-}
+interface Rewards { readonly [key: string]: unknown; }
 type QuestBonusRewardData = {
   /**
    * The drop chance of the item with a percent sign.
@@ -1548,27 +1132,15 @@ type QuestTurnInData = {
    */
   iQty: number;
 };
-interface ItemProcID {
-  readonly [key: string]: unknown;
-}
-interface ShopItemID {
-  readonly [key: string]: unknown;
-}
+interface ItemProcID { readonly [key: string]: unknown; }
+interface ShopItemID { readonly [key: string]: unknown; }
 interface ArmyConfigCore {
   readonly leader: string;
   readonly players: readonly string[];
   readonly roomNumber: string;
 }
 type ArmyConfigRaw = Record<string, unknown>;
-interface Dead {
-  readonly [key: string]: unknown;
-}
-interface Idle {
-  readonly [key: string]: unknown;
-}
-interface InCombat {
-  readonly [key: string]: unknown;
-}
-interface DropChance {
-  readonly [key: string]: unknown;
-}
+interface Dead { readonly [key: string]: unknown; }
+interface Idle { readonly [key: string]: unknown; }
+interface InCombat { readonly [key: string]: unknown; }
+interface DropChance { readonly [key: string]: unknown; }
