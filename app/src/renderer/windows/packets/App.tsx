@@ -81,7 +81,6 @@ const LOG_ROW_WRAPPED_FIXED_WIDTH = 184;
 const LOG_ROW_WRAPPED_FIXED_WIDTH_WITH_TIMESTAMP = 278;
 const LOG_ROW_WRAPPED_TEXT_LINE_HEIGHT = 18;
 const LOG_ROW_WRAPPED_VERTICAL_CHROME = 11;
-const SEND_TARGET_SELECT_GUTTER = 4;
 
 interface PacketLogEntry {
   readonly id: string;
@@ -123,59 +122,6 @@ const sendTargetOptions = PacketSendTargets.map((target) => ({
 const packetPlaceholderHelp = `Placeholders resolve when packets are sent: ${PACKET_PLACEHOLDER_DEFINITIONS.map(
   (definition) => definition.token,
 ).join(", ")}.`;
-
-const updateSendTargetSelectPosition = ({
-  floatingElement,
-}: {
-  readonly floatingElement: HTMLElement | null;
-}): void => {
-  const trigger = document.getElementById("packet-target");
-  if (!trigger || !floatingElement) {
-    return;
-  }
-
-  const triggerRect = trigger.getBoundingClientRect();
-  const viewportWidth = document.documentElement.clientWidth;
-  const viewportHeight = document.documentElement.clientHeight;
-  const content = floatingElement.firstElementChild;
-  const contentHeight =
-    content instanceof HTMLElement
-      ? content.getBoundingClientRect().height || content.scrollHeight
-      : floatingElement.getBoundingClientRect().height;
-  const bottomY = triggerRect.bottom + SEND_TARGET_SELECT_GUTTER;
-  const topY = Math.max(
-    SEND_TARGET_SELECT_GUTTER,
-    triggerRect.top - contentHeight - SEND_TARGET_SELECT_GUTTER,
-  );
-  const hasMoreSpaceAbove =
-    triggerRect.top > viewportHeight - triggerRect.bottom;
-  const shouldOpenAbove =
-    bottomY + contentHeight > viewportHeight && hasMoreSpaceAbove;
-  const y = shouldOpenAbove ? topY : bottomY;
-  const x = Math.min(
-    Math.max(SEND_TARGET_SELECT_GUTTER, triggerRect.left),
-    Math.max(SEND_TARGET_SELECT_GUTTER, viewportWidth - triggerRect.width),
-  );
-  const availableHeight = shouldOpenAbove
-    ? Math.max(0, triggerRect.top - SEND_TARGET_SELECT_GUTTER)
-    : Math.max(0, viewportHeight - y - SEND_TARGET_SELECT_GUTTER);
-
-  floatingElement.style.setProperty("--x", `${Math.round(x)}px`);
-  floatingElement.style.setProperty("--y", `${Math.round(y)}px`);
-  floatingElement.style.setProperty(
-    "--reference-width",
-    `${Math.round(triggerRect.width)}px`,
-  );
-  floatingElement.style.setProperty(
-    "--available-width",
-    `${Math.max(0, viewportWidth - SEND_TARGET_SELECT_GUTTER * 2)}px`,
-  );
-  floatingElement.style.setProperty(
-    "--available-height",
-    `${Math.round(availableHeight)}px`,
-  );
-  floatingElement.style.setProperty("--z-index", "60");
-};
 
 const createEntryId = (): string => makeRandomId();
 
@@ -1449,13 +1395,8 @@ function App(): JSX.Element {
                       <Label for="packet-target">Send as</Label>
                       <Select
                         class="packets-select"
+                        ids={{ trigger: "packet-target" }}
                         items={sendTargetOptions}
-                        positioning={{
-                          fitViewport: true,
-                          sameWidth: true,
-                          strategy: "fixed",
-                          updatePosition: updateSendTargetSelectPosition,
-                        }}
                         value={[sendTarget()]}
                         onValueChange={(details) => {
                           const value = details.value[0];
@@ -1464,7 +1405,7 @@ function App(): JSX.Element {
                           }
                         }}
                       >
-                        <SelectTrigger id="packet-target">
+                        <SelectTrigger>
                           <span class="select__value">
                             {sendTargetLabels[sendTarget()]}
                           </span>

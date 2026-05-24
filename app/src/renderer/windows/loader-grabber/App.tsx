@@ -72,7 +72,6 @@ interface TextSegment {
 }
 
 const TREE_ROW_HEIGHT = 30;
-const SOURCE_SELECT_GUTTER = 4;
 
 const loaderLabels: Record<LoaderGrabberLoadType, string> = {
   "armor-customizer": "Armor customizer",
@@ -142,61 +141,6 @@ const preventPointerFocus: JSX.EventHandler<HTMLElement, PointerEvent> = (
     event.preventDefault();
   }
 };
-
-const updateSourceSelectPosition =
-  (triggerId: string) =>
-  ({
-    floatingElement,
-  }: {
-    readonly floatingElement: HTMLElement | null;
-  }): void => {
-    const trigger = document.getElementById(triggerId);
-    if (!trigger || !floatingElement) {
-      return;
-    }
-
-    const triggerRect = trigger.getBoundingClientRect();
-    const viewportWidth = document.documentElement.clientWidth;
-    const viewportHeight = document.documentElement.clientHeight;
-    const content = floatingElement.firstElementChild;
-    const contentHeight =
-      content instanceof HTMLElement
-        ? content.getBoundingClientRect().height || content.scrollHeight
-        : floatingElement.getBoundingClientRect().height;
-    const bottomY = triggerRect.bottom + SOURCE_SELECT_GUTTER;
-    const topY = Math.max(
-      SOURCE_SELECT_GUTTER,
-      triggerRect.top - contentHeight - SOURCE_SELECT_GUTTER,
-    );
-    const hasMoreSpaceAbove =
-      triggerRect.top > viewportHeight - triggerRect.bottom;
-    const shouldOpenAbove =
-      bottomY + contentHeight > viewportHeight && hasMoreSpaceAbove;
-    const y = shouldOpenAbove ? topY : bottomY;
-    const x = Math.min(
-      Math.max(SOURCE_SELECT_GUTTER, triggerRect.left),
-      Math.max(SOURCE_SELECT_GUTTER, viewportWidth - triggerRect.width),
-    );
-    const availableHeight = shouldOpenAbove
-      ? Math.max(0, triggerRect.top - SOURCE_SELECT_GUTTER)
-      : Math.max(0, viewportHeight - y - SOURCE_SELECT_GUTTER);
-
-    floatingElement.style.setProperty("--x", `${Math.round(x)}px`);
-    floatingElement.style.setProperty("--y", `${Math.round(y)}px`);
-    floatingElement.style.setProperty(
-      "--reference-width",
-      `${Math.round(triggerRect.width)}px`,
-    );
-    floatingElement.style.setProperty(
-      "--available-width",
-      `${Math.max(0, viewportWidth - SOURCE_SELECT_GUTTER * 2)}px`,
-    );
-    floatingElement.style.setProperty(
-      "--available-height",
-      `${Math.round(availableHeight)}px`,
-    );
-    floatingElement.style.setProperty("--z-index", "60");
-  };
 
 function Panel(props: {
   readonly action?: JSX.Element;
@@ -277,13 +221,8 @@ function SourceSelect<T extends string>(props: {
       <Label for={props.id}>{props.label}</Label>
       <Select
         class="loader-grabber-select"
+        ids={{ trigger: props.id }}
         items={props.options}
-        positioning={{
-          fitViewport: true,
-          sameWidth: true,
-          strategy: "fixed",
-          updatePosition: updateSourceSelectPosition(props.id),
-        }}
         value={[props.value]}
         onValueChange={(details) => {
           const value = details.value[0];
@@ -292,7 +231,7 @@ function SourceSelect<T extends string>(props: {
           }
         }}
       >
-        <SelectTrigger id={props.id}>
+        <SelectTrigger>
           <span class="select__value">
             {props.options.find((option) => option.value === props.value)
               ?.label ?? props.value}
