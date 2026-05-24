@@ -895,33 +895,6 @@ const collectScriptPacketMembers = (
   ].sort((a, b) => a.path.localeCompare(b.path));
 };
 
-const getProperty = (
-  declaration: ts.InterfaceDeclaration,
-  name: string,
-): ts.PropertySignature | null => {
-  for (const member of declaration.members) {
-    if (
-      ts.isPropertySignature(member) &&
-      getPropertyName(member.name) === name
-    ) {
-      return member;
-    }
-  }
-  return null;
-};
-
-const getMethod = (
-  declaration: ts.InterfaceDeclaration,
-  name: string,
-): ts.MethodSignature | null => {
-  for (const member of declaration.members) {
-    if (ts.isMethodSignature(member) && getPropertyName(member.name) === name) {
-      return member;
-    }
-  }
-  return null;
-};
-
 const collectApiGroups = (
   checker: ts.TypeChecker,
   declarations: ReadonlyMap<
@@ -937,62 +910,19 @@ const collectApiGroups = (
   readonly typeReferences: readonly string[];
 } => {
   const scriptApi = getInterface(declarations, "ScriptApi");
-  const scriptContext = getInterface(declarations, "ScriptContext");
   const scriptRuntimeApi = getInterface(declarations, "ScriptRuntimeApi");
   const helperTypeReferences = new Set<string>();
   const groups: ApiGroup[] = [];
 
-  const runtimeHelpers = [
-    ...["log", "stop", "sleep"].flatMap((name) => {
-      const method = getMethod(scriptRuntimeApi, name);
-      if (!method) {
-        return [];
-      }
-      const parameters = getParameterDocs(checker, method);
-      const returnDoc = getReturnDoc(checker, method);
-      for (const parameter of method.parameters) {
-        collectTypeReferences(parameter.type, helperTypeReferences);
-      }
-      collectTypeReferences(method.type, helperTypeReferences);
-      const path = `script.${name}`;
-      return [
-        {
-          path,
-          name,
-          kind: "method" as const,
-          summary: getSummary(method),
-          signature: methodSignature(path, parameters, returnDoc),
-          parameters,
-          returnDoc,
-          ...getSourceInfo(options, git, method),
-        },
-      ];
-    }),
-    ...["signal"].flatMap((name) => {
-      const property = getProperty(scriptRuntimeApi, name);
-      if (!property) {
-        return [];
-      }
-      collectTypeReferences(property.type, helperTypeReferences);
-      const returnDoc = parseEffectReturn(
-        formatType(checker, property.type),
-        property.type,
-        property.getSourceFile(),
-      );
-      return [
-        {
-          path: `script.${name}`,
-          name,
-          kind: "value" as const,
-          summary: getSummary(property),
-          signature: `script.${name}: ${returnDoc.raw}`,
-          parameters: [],
-          returnDoc,
-          ...getSourceInfo(options, git, property),
-        },
-      ];
-    }),
-  ].sort((a, b) => a.path.localeCompare(b.path));
+  const runtimeHelpers = collectMembersFromInterface(
+    checker,
+    declarations,
+    options,
+    git,
+    scriptRuntimeApi,
+    "script",
+    helperTypeReferences,
+  );
 
   const namespaces: ApiNamespace[] = [];
   for (const member of scriptApi.members) {
@@ -1052,13 +982,14 @@ const collectApiGroups = (
     });
   }
 
-  for (const member of scriptContext.members) {
+  const scriptFeaturesApi = getInterface(declarations, "ScriptFeaturesApi");
+  for (const member of scriptFeaturesApi.members) {
     if (!ts.isPropertySignature(member)) {
       continue;
     }
 
     const name = getPropertyName(member.name);
-    if (name === null || name === "api" || name === "script") {
+    if (name === null) {
       continue;
     }
 
@@ -1074,14 +1005,14 @@ const collectApiGroups = (
       options,
       git,
       getInterface(declarations, shapeName),
-      name,
+      `features.${name}`,
       typeReferences,
     );
 
     const summary = getSummary(member) || "";
     groups.push({
-      id: kebabCase(name),
-      title: name,
+      id: `features/${kebabCase(name)}`,
+      title: `features.${name}`,
       label: titleCase(name),
       description: summary,
       summary,
@@ -1712,23 +1643,26 @@ const renderIndex = (_namespaces: readonly ApiNamespace[]): string => {
     "",
     "```js",
     "module.exports = function* run(ctx) {",
-    "  const { api, script } = ctx",
+    "  const { api, script, std } = ctx",
+    "  const { Option } = std.effect",
     '  script.log("started")',
+    "  yield* script.options.setUsePrivateRooms(true)",
     '  yield* api.player.joinMap("battleon")',
+    "  const me = yield* api.world.players.me.get()",
+    "  if (Option.isSome(me)) script.log(`Logged in as ${me.value.username}`)",
     "}",
     "```",
     "",
     "## Context",
     "",
-    "The context is the object passed to your script. It separates gameplay APIs, current-script lifecycle helpers, and scriptable feature controls.",
+    "The context is the object passed to your script.",
     "",
     "| Member | Description |",
     "| --- | --- |",
-    "| [`api`](/scripting/api/) | Gameplay and game-state APIs. |",
-    "| [`script`](/scripting/script/) | Current script lifecycle and diagnostics APIs. |",
-    "| [`autoZone`](/scripting/auto-zone/) | Auto Zone feature controls. |",
-    "| [`autoRelogin`](/scripting/auto-relogin/) | Auto Relogin feature controls. |",
-    "| [`counterAttack`](/scripting/counter-attack/) | Counter Attack feature controls. |",
+    "| [`api`](/scripting/api/) | Interact with the game. |",
+    "| [`script`](/scripting/script/) | Manage the running script. |",
+    "| [`features`](/scripting/features/) | Use feature controls. |",
+    "| [`std`](/scripting/std/) | Use shared utility modules. |",
     "",
     "## Reference",
     "",
@@ -1744,8 +1678,12 @@ const renderIndex = (_namespaces: readonly ApiNamespace[]): string => {
     '/// <reference path="./script-api.d.ts" />',
     "",
     "/** @param {ScriptContext} context */",
-    "module.exports = function* run({ api }) {",
+    "module.exports = function* run({ api, script, std }) {",
+    "  const { Option } = std.effect",
+    "  yield* script.options.setUsePrivateRooms(true)",
     '  yield* api.player.joinMap("battleon")',
+    "  const me = yield* api.world.players.me.get()",
+    "  if (Option.isSome(me)) script.log(me.value.username)",
     "}",
     "```",
     "",
@@ -1763,6 +1701,40 @@ const renderIndex = (_namespaces: readonly ApiNamespace[]): string => {
     "}",
     "```",
   ];
+  return finalizeMarkdown(lines);
+};
+
+const renderStdOverview = (): string => {
+  const lines = [
+    frontmatter(
+      "Standard Library",
+      "Standard library modules exposed to scripts.",
+      "Std",
+    ),
+    "",
+    GENERATED_HEADER,
+    "",
+    "`std` exposes non-game utility modules for scripts. It is intentionally separate from `api` and `script` so gameplay APIs and runtime helpers stay easy to scan.",
+    "",
+    "## Members",
+    "",
+    "### `std.effect`",
+    "",
+    "`std.effect` is the full [`effect`](https://effect.website/) package. Use it when a script needs Effect modules and helpers such as `Effect`, `Option`, `pipe`, or error-handling utilities.",
+    "",
+    "```js",
+    "module.exports = function* run({ api, script, std }) {",
+    "  const { Option } = std.effect",
+    "  const me = yield* api.world.players.me.get()",
+    "  if (Option.isSome(me)) {",
+    "    script.log(me.value.username)",
+    "  }",
+    "}",
+    "```",
+    "",
+    "When a script yields an Effect, the script runner owns its execution and cancellation. Background work that is started manually, such as detached fibers or timers, should still be cleaned up by the script.",
+  ];
+
   return finalizeMarkdown(lines);
 };
 
@@ -1793,6 +1765,34 @@ const renderApiOverview = (namespaces: readonly ApiNamespace[]): string => {
   return finalizeMarkdown(lines);
 };
 
+const renderFeaturesOverview = (groups: readonly ApiGroup[]): string => {
+  const featureGroups = groups.filter((group) =>
+    group.id.startsWith("features/"),
+  );
+  const lines = [
+    frontmatter(
+      "Features",
+      "Higher-level gameplay automation features exposed to scripts.",
+      "Features",
+    ),
+    "",
+    GENERATED_HEADER,
+    "",
+    "`features` gives scripts access to higher-level automation controls that sit above the lower-level game API namespaces.",
+    "",
+    "## Namespaces",
+    "",
+    "| Namespace | Description |",
+    "| --- | --- |",
+    ...featureGroups.map(
+      (group) =>
+        `| [\`${group.title}\`](/scripting/${group.id}/) | ${group.description || `${group.label} feature controls.`} |`,
+    ),
+  ];
+
+  return finalizeMarkdown(lines);
+};
+
 const renderScriptOverview = (
   helpers: readonly MemberDoc[],
   typeLinks: ReadonlyMap<string, TypeLink>,
@@ -1806,7 +1806,7 @@ const renderScriptOverview = (
     "",
     GENERATED_HEADER,
     "",
-    "`script` gives scripts access to the current script's lifecycle and diagnostics helpers.",
+    "`script` gives scripts access to the current script's lifecycle, diagnostics, and session-backed options.",
     "",
     "## Members",
     "",
@@ -1981,8 +1981,16 @@ const renderFiles = (
       content: renderApiOverview(namespaces),
     },
     {
+      path: join(options.outputDir, "features.md"),
+      content: renderFeaturesOverview(groups),
+    },
+    {
       path: join(options.outputDir, "script.md"),
       content: renderScriptOverview(helpers, typeLinks),
+    },
+    {
+      path: join(options.outputDir, "std.md"),
+      content: renderStdOverview(),
     },
     {
       path: join(options.outputDir, "types/index.md"),

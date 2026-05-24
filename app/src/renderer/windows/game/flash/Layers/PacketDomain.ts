@@ -26,9 +26,9 @@ import { Auth } from "../Services/Auth";
 import { World } from "../Services/World";
 import {
   durationMsFromAura,
-  matchCounterAttackAura,
-  matchCounterAttackMessage,
-} from "../counterAttack";
+  matchAntiCounterAura,
+  matchAntiCounterMessage,
+} from "../antiCounter";
 
 const AURA_ADD_COMMANDS = new Set(["aura+", "aura++"]);
 const AURA_REMOVE_COMMANDS = new Set(["aura-", "aura--"]);
@@ -66,7 +66,7 @@ const normalizeAnimationMessage = (value: unknown): string | undefined => {
   return parts.join("...  ");
 };
 
-const getCounterAttackCastDurationMs = (
+const getAntiCounterCastDurationMs = (
   payload: Record<string, unknown>,
   monMapId: number,
 ): number | undefined => {
@@ -164,8 +164,8 @@ const createDomainHandlerStore = (): DomainHandlerStore => ({
   animationMessage: new Set(),
   auraAdded: new Set(),
   auraRemoved: new Set(),
-  counterAttackStart: new Set(),
-  counterAttackEnd: new Set(),
+  antiCounterStart: new Set(),
+  antiCounterEnd: new Set(),
   playerLocation: new Set(),
 });
 
@@ -815,8 +815,8 @@ const make = Effect.gen(function* () {
           packet,
         });
 
-        const counterAttackMatch = matchCounterAttackMessage(message);
-        if (!counterAttackMatch) {
+        const antiCounterMatch = matchAntiCounterMessage(message);
+        if (!antiCounterMatch) {
           continue;
         }
 
@@ -824,12 +824,12 @@ const make = Effect.gen(function* () {
           continue;
         }
 
-        const durationMs = getCounterAttackCastDurationMs(payload, monMapId);
-        yield* dispatchDomainEvent(domainHandlerStore, "counterAttackStart", {
+        const durationMs = getAntiCounterCastDurationMs(payload, monMapId);
+        yield* dispatchDomainEvent(domainHandlerStore, "antiCounterStart", {
           monMapId,
           source: "message",
-          triggerId: counterAttackMatch.triggerId,
-          triggerText: counterAttackMatch.triggerText,
+          triggerId: antiCounterMatch.triggerId,
+          triggerText: antiCounterMatch.triggerText,
           ...(durationMs === undefined ? {} : { durationMs }),
           packet,
         });
@@ -935,17 +935,17 @@ const make = Effect.gen(function* () {
               if (isNew) {
                 yield* world.monsters.addAura(targetId, aura);
 
-                const counterAttackMatch = matchCounterAttackAura(aura.name);
-                if (counterAttackMatch) {
+                const antiCounterMatch = matchAntiCounterAura(aura.name);
+                if (antiCounterMatch) {
                   const durationMs = durationMsFromAura(aura.duration);
                   yield* dispatchDomainEvent(
                     domainHandlerStore,
-                    "counterAttackStart",
+                    "antiCounterStart",
                     {
                       monMapId: targetId,
                       source: "aura",
-                      triggerId: counterAttackMatch.triggerId,
-                      triggerText: counterAttackMatch.triggerText,
+                      triggerId: antiCounterMatch.triggerId,
+                      triggerText: antiCounterMatch.triggerText,
                       ...(durationMs === undefined ? {} : { durationMs }),
                       packet,
                     },
@@ -979,19 +979,15 @@ const make = Effect.gen(function* () {
           } else {
             yield* world.monsters.removeAura(targetId, auraName);
 
-            const counterAttackMatch = matchCounterAttackAura(auraName);
-            if (counterAttackMatch) {
-              yield* dispatchDomainEvent(
-                domainHandlerStore,
-                "counterAttackEnd",
-                {
-                  monMapId: targetId,
-                  source: "aura",
-                  triggerId: counterAttackMatch.triggerId,
-                  triggerText: counterAttackMatch.triggerText,
-                  packet,
-                },
-              );
+            const antiCounterMatch = matchAntiCounterAura(auraName);
+            if (antiCounterMatch) {
+              yield* dispatchDomainEvent(domainHandlerStore, "antiCounterEnd", {
+                monMapId: targetId,
+                source: "aura",
+                triggerId: antiCounterMatch.triggerId,
+                triggerText: antiCounterMatch.triggerText,
+                packet,
+              });
             }
           }
 

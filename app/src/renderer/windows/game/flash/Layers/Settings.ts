@@ -22,7 +22,7 @@ const DEFAULT_STATE: SettingsState = {
   infiniteRangeEnabled: false,
   provokeCellEnabled: false,
   skipCutscenesEnabled: false,
-  counterAttackEnabled: false,
+  antiCounterEnabled: false,
 };
 
 const cloneState = (state: SettingsState): SettingsState => ({ ...state });
@@ -88,8 +88,8 @@ const normalizePatch = (patch: SettingsPatch): SettingsPatch => {
     normalized.skipCutscenesEnabled = patch.skipCutscenesEnabled;
   }
 
-  if (patch.counterAttackEnabled !== undefined) {
-    normalized.counterAttackEnabled = patch.counterAttackEnabled;
+  if (patch.antiCounterEnabled !== undefined) {
+    normalized.antiCounterEnabled = patch.antiCounterEnabled;
   }
 
   return normalized;
@@ -109,7 +109,7 @@ const hasPatchChanges = (patch: SettingsPatch): boolean =>
   patch.infiniteRangeEnabled !== undefined ||
   patch.provokeCellEnabled !== undefined ||
   patch.skipCutscenesEnabled !== undefined ||
-  patch.counterAttackEnabled !== undefined;
+  patch.antiCounterEnabled !== undefined;
 
 const make = Effect.gen(function* () {
   const bridge = yield* Bridge;
@@ -281,9 +281,9 @@ const make = Effect.gen(function* () {
   const skipCutscenes: SettingsShape["skipCutscenes"] = () =>
     bridge.call("settings.skipCutscenes");
 
-  const isCounterAttackEnabled: SettingsShape["isCounterAttackEnabled"] = () =>
+  const isAntiCounterEnabled: SettingsShape["isAntiCounterEnabled"] = () =>
     SynchronizedRef.get(stateRef).pipe(
-      Effect.map((state) => state.counterAttackEnabled),
+      Effect.map((state) => state.antiCounterEnabled),
     );
 
   const setEnemyMagnetEnabled: SettingsShape["setEnemyMagnetEnabled"] = (
@@ -302,9 +302,9 @@ const make = Effect.gen(function* () {
     enabled,
   ) => Effect.asVoid(patchState({ skipCutscenesEnabled: enabled }));
 
-  const setCounterAttackEnabled: SettingsShape["setCounterAttackEnabled"] = (
+  const setAntiCounterEnabled: SettingsShape["setAntiCounterEnabled"] = (
     enabled,
-  ) => Effect.asVoid(patchLocalState({ counterAttackEnabled: enabled }));
+  ) => Effect.asVoid(patchLocalState({ antiCounterEnabled: enabled }));
 
   const setCustomName: SettingsShape["setCustomName"] = (name) =>
     Effect.asVoid(patchState({ customName: name }));
@@ -355,8 +355,8 @@ const make = Effect.gen(function* () {
     setInfiniteRangeEnabled,
     setProvokeCellEnabled,
     setSkipCutscenesEnabled,
-    isCounterAttackEnabled,
-    setCounterAttackEnabled,
+    isAntiCounterEnabled,
+    setAntiCounterEnabled,
     setCustomName,
     setCustomGuild,
     setWalkSpeed,

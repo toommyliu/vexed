@@ -65,9 +65,22 @@ export default defineConfig({
           items: [
             { link: "/scripting/", label: "Overview" },
             { link: "/scripting/script/", label: "Script" },
-            { link: "/scripting/auto-zone/", label: "Auto Zone" },
-            { link: "/scripting/auto-relogin/", label: "Auto Relogin" },
-            { link: "/scripting/counter-attack/", label: "Counter Attack" },
+            { link: "/scripting/std/", label: "Std" },
+            {
+              label: "Features",
+              items: [
+                { link: "/scripting/features/", label: "Features" },
+                { link: "/scripting/features/auto-zone/", label: "Auto Zone" },
+                {
+                  link: "/scripting/features/auto-relogin/",
+                  label: "Auto Relogin",
+                },
+                {
+                  link: "/scripting/features/anti-counter/",
+                  label: "Anti-Counter",
+                },
+              ],
+            },
             {
               label: "API",
               items: [

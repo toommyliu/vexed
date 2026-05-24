@@ -1,4 +1,4 @@
-export type CounterAttackTrigger = {
+export type AntiCounterTrigger = {
   readonly id: string;
   readonly messagePatterns: readonly RegExp[];
   readonly auraNames: readonly string[];
@@ -7,8 +7,8 @@ export type CounterAttackTrigger = {
   readonly graceMs: number; // Buffer after packet duration to cover latency and delayed aura removal.
 };
 
-export type CounterAttackMatch = {
-  readonly trigger: CounterAttackTrigger;
+export type AntiCounterMatch = {
+  readonly trigger: AntiCounterTrigger;
   readonly triggerId: string;
   readonly triggerText: string;
 };
@@ -16,9 +16,9 @@ export type CounterAttackMatch = {
 const normalizeText = (value: string): string =>
   value.trim().toLowerCase().replace(/\s+/g, " ");
 
-export const counterAttackTriggers: readonly CounterAttackTrigger[] = [
+export const antiCounterTriggers: readonly AntiCounterTrigger[] = [
   {
-    id: "counter-attack",
+    id: "anti-counter",
     messagePatterns: [/prepares\s+a\s+counter\s+attack/i],
     auraNames: ["Counter Attack"],
     auraPatterns: [/\bcounter\b.*\battack\b/i],
@@ -27,18 +27,18 @@ export const counterAttackTriggers: readonly CounterAttackTrigger[] = [
   },
 ];
 
-const defaultTrigger = counterAttackTriggers[0]!;
+const defaultTrigger = antiCounterTriggers[0]!;
 
-const getTriggerById = (triggerId: string): CounterAttackTrigger =>
-  counterAttackTriggers.find((trigger) => trigger.id === triggerId) ??
+const getTriggerById = (triggerId: string): AntiCounterTrigger =>
+  antiCounterTriggers.find((trigger) => trigger.id === triggerId) ??
   defaultTrigger;
 
-export const matchCounterAttackMessage = (
+export const matchAntiCounterMessage = (
   message: string,
-): CounterAttackMatch | undefined => {
+): AntiCounterMatch | undefined => {
   const normalizedMessage = normalizeText(message);
 
-  for (const trigger of counterAttackTriggers) {
+  for (const trigger of antiCounterTriggers) {
     if (
       trigger.messagePatterns.some((pattern) => pattern.test(normalizedMessage))
     ) {
@@ -53,12 +53,12 @@ export const matchCounterAttackMessage = (
   return undefined;
 };
 
-export const matchCounterAttackAura = (
+export const matchAntiCounterAura = (
   name: string,
-): CounterAttackMatch | undefined => {
+): AntiCounterMatch | undefined => {
   const normalizedName = normalizeText(name);
 
-  for (const trigger of counterAttackTriggers) {
+  for (const trigger of antiCounterTriggers) {
     if (
       trigger.auraNames.some(
         (auraName) => normalizeText(auraName) === normalizedName,
@@ -72,7 +72,7 @@ export const matchCounterAttackAura = (
     }
   }
 
-  for (const trigger of counterAttackTriggers) {
+  for (const trigger of antiCounterTriggers) {
     if (trigger.auraPatterns.some((pattern) => pattern.test(normalizedName))) {
       return {
         trigger,
@@ -94,7 +94,7 @@ export const durationMsFromAura = (duration?: number): number | undefined => {
 };
 
 export const expiresAtMs = (
-  match: Pick<CounterAttackMatch, "triggerId">,
+  match: Pick<AntiCounterMatch, "triggerId">,
   durationMs?: number,
 ): number => {
   const trigger = getTriggerById(match.triggerId);

@@ -14,6 +14,7 @@ Referenced types are generated from the types directly linked by the documented 
 
 | Type | Kind | Summary |
 | --- | --- | --- |
+| <a href="/scripting/types/army-config-raw/" data-script-type="army-config-raw"><code>ArmyConfigRaw</code></a> | type alias |  |
 | <a href="/scripting/types/army-effect/" data-script-type="army-effect"><code>ArmyEffect</code></a> | type alias |  |
 | <a href="/scripting/types/army-equip-set-options/" data-script-type="army-equip-set-options"><code>ArmyEquipSetOptions</code></a> | interface |  |
 | <a href="/scripting/types/army-error/" data-script-type="army-error"><code>ArmyError</code></a> | class |  |
@@ -21,6 +22,7 @@ Referenced types are generated from the types directly linked by the documented 
 | <a href="/scripting/types/army-loop-taunt-options/" data-script-type="army-loop-taunt-options"><code>ArmyLoopTauntOptions</code></a> | type alias |  |
 | <a href="/scripting/types/army-run-step-options/" data-script-type="army-run-step-options"><code>ArmyRunStepOptions</code></a> | interface |  |
 | <a href="/scripting/types/army-session/" data-script-type="army-session"><code>ArmySession</code></a> | type alias |  |
+| <a href="/scripting/types/army-session-payload/" data-script-type="army-session-payload"><code>ArmySessionPayload</code></a> | interface |  |
 | <a href="/scripting/types/aura/" data-script-type="aura"><code>Aura</code></a> | type alias |  |
 | <a href="/scripting/types/auth-connect-failure-status/" data-script-type="auth-connect-failure-status"><code>AuthConnectFailureStatus</code></a> | type alias |  |
 | <a href="/scripting/types/auth-connect-outcome/" data-script-type="auth-connect-outcome"><code>AuthConnectOutcome</code></a> | type alias |  |
@@ -69,11 +71,12 @@ Referenced types are generated from the types directly linked by the documented 
 | <a href="/scripting/types/quest-reward-data/" data-script-type="quest-reward-data"><code>QuestRewardData</code></a> | type alias | Represents the raw data structure for a quest reward. |
 | <a href="/scripting/types/quest-turn-in-data/" data-script-type="quest-turn-in-data"><code>QuestTurnInData</code></a> | type alias | Represents the raw data structure for quest turn-in requirements. |
 | <a href="/scripting/types/readonly-collection/" data-script-type="readonly-collection"><code>ReadonlyCollection</code></a> | type alias | Represents an immutable version of a collection |
-| <a href="/scripting/types/script-counter-attack-disposer/" data-script-type="script-counter-attack-disposer"><code>ScriptCounterAttackDisposer</code></a> | type alias |  |
-| <a href="/scripting/types/script-counter-attack-event/" data-script-type="script-counter-attack-event"><code>ScriptCounterAttackEvent</code></a> | interface |  |
-| <a href="/scripting/types/script-counter-attack-listener/" data-script-type="script-counter-attack-listener"><code>ScriptCounterAttackListener</code></a> | type alias |  |
+| <a href="/scripting/types/script-anti-counter-disposer/" data-script-type="script-anti-counter-disposer"><code>ScriptAntiCounterDisposer</code></a> | type alias |  |
+| <a href="/scripting/types/script-anti-counter-event/" data-script-type="script-anti-counter-event"><code>ScriptAntiCounterEvent</code></a> | interface |  |
+| <a href="/scripting/types/script-anti-counter-listener/" data-script-type="script-anti-counter-listener"><code>ScriptAntiCounterListener</code></a> | type alias |  |
 | <a href="/scripting/types/script-enhance-item-options/" data-script-type="script-enhance-item-options"><code>ScriptEnhanceItemOptions</code></a> | interface |  |
 | <a href="/scripting/types/script-equip-item-by-enhancement-options/" data-script-type="script-equip-item-by-enhancement-options"><code>ScriptEquipItemByEnhancementOptions</code></a> | type alias |  |
+| <a href="/scripting/types/script-options/" data-script-type="script-options"><code>ScriptOptions</code></a> | interface |  |
 | <a href="/scripting/types/script-packet-disposer/" data-script-type="script-packet-disposer"><code>ScriptPacketDisposer</code></a> | type alias |  |
 | <a href="/scripting/types/script-packet-listener/" data-script-type="script-packet-listener"><code>ScriptPacketListener</code></a> | type alias |  |
 | <a href="/scripting/types/script-recipe-effect/" data-script-type="script-recipe-effect"><code>ScriptRecipeEffect</code></a> | type alias |  |

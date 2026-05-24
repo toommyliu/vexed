@@ -359,6 +359,10 @@ export type FastTravelsResponseMessage =
       readonly requestId: string;
     };
 
+export interface ScriptOptions {
+  readonly usePrivateRooms: boolean;
+}
+
 export interface ScriptExecutePayload {
   readonly source: string;
   readonly path?: string;

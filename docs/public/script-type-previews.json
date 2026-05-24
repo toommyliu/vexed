@@ -1,5 +1,17 @@
 {
   "types": {
+    "army-config-raw": {
+      "name": "ArmyConfigRaw",
+      "slug": "army-config-raw",
+      "kind": "type alias",
+      "summary": "",
+      "definition": "type ArmyConfigRaw = Record<string, unknown>",
+      "keys": [],
+      "source": {
+        "path": "app/src/shared/army.ts:1",
+        "url": "https://github.com/toommyliu/vexed/blob/dev/app/src/shared/army.ts#L1"
+      }
+    },
     "army-effect": {
       "name": "ArmyEffect",
       "slug": "army-effect",
@@ -170,6 +182,73 @@
       "source": {
         "path": "app/src/renderer/windows/game/army/Services/Army.ts:56",
         "url": "https://github.com/toommyliu/vexed/blob/dev/app/src/renderer/windows/game/army/Services/Army.ts#L56"
+      }
+    },
+    "army-session-payload": {
+      "name": "ArmySessionPayload",
+      "slug": "army-session-payload",
+      "kind": "interface",
+      "summary": "",
+      "definition": "interface ArmySessionPayload",
+      "keys": [
+        {
+          "kind": "property",
+          "name": "configName",
+          "signature": "readonly configName: string",
+          "description": ""
+        },
+        {
+          "kind": "property",
+          "name": "leader",
+          "signature": "readonly leader: string",
+          "description": ""
+        },
+        {
+          "kind": "property",
+          "name": "playerName",
+          "signature": "readonly playerName: string",
+          "description": ""
+        },
+        {
+          "kind": "property",
+          "name": "playerNumber",
+          "signature": "readonly playerNumber: number",
+          "description": ""
+        },
+        {
+          "kind": "property",
+          "name": "players",
+          "signature": "readonly players: readonly string[]",
+          "description": ""
+        },
+        {
+          "kind": "property",
+          "name": "raw",
+          "signature": "readonly raw: ArmyConfigRaw",
+          "description": ""
+        },
+        {
+          "kind": "property",
+          "name": "role",
+          "signature": "readonly role: \"leader\" | \"member\"",
+          "description": ""
+        },
+        {
+          "kind": "property",
+          "name": "roomNumber",
+          "signature": "readonly roomNumber: string",
+          "description": ""
+        },
+        {
+          "kind": "property",
+          "name": "sessionId",
+          "signature": "readonly sessionId: string",
+          "description": ""
+        }
+      ],
+      "source": {
+        "path": "app/src/shared/army.ts:19",
+        "url": "https://github.com/toommyliu/vexed/blob/dev/app/src/shared/army.ts#L19"
       }
     },
     "aura": {
@@ -2828,24 +2907,24 @@
         "url": "https://github.com/toommyliu/vexed/blob/dev/packages/collection/src/index.ts#L23"
       }
     },
-    "script-counter-attack-disposer": {
-      "name": "ScriptCounterAttackDisposer",
-      "slug": "script-counter-attack-disposer",
+    "script-anti-counter-disposer": {
+      "name": "ScriptAntiCounterDisposer",
+      "slug": "script-anti-counter-disposer",
       "kind": "type alias",
       "summary": "",
-      "definition": "type ScriptCounterAttackDisposer = () => void",
+      "definition": "type ScriptAntiCounterDisposer = () => void",
       "keys": [],
       "source": {
-        "path": "app/src/renderer/windows/game/scripting/ScriptApi.ts:64",
-        "url": "https://github.com/toommyliu/vexed/blob/dev/app/src/renderer/windows/game/scripting/ScriptApi.ts#L64"
+        "path": "app/src/renderer/windows/game/scripting/ScriptApi.ts:66",
+        "url": "https://github.com/toommyliu/vexed/blob/dev/app/src/renderer/windows/game/scripting/ScriptApi.ts#L66"
       }
     },
-    "script-counter-attack-event": {
-      "name": "ScriptCounterAttackEvent",
-      "slug": "script-counter-attack-event",
+    "script-anti-counter-event": {
+      "name": "ScriptAntiCounterEvent",
+      "slug": "script-anti-counter-event",
       "kind": "interface",
       "summary": "",
-      "definition": "interface ScriptCounterAttackEvent",
+      "definition": "interface ScriptAntiCounterEvent",
       "keys": [
         {
           "kind": "property",
@@ -2879,20 +2958,20 @@
         }
       ],
       "source": {
-        "path": "app/src/renderer/windows/game/scripting/ScriptApi.ts:49",
-        "url": "https://github.com/toommyliu/vexed/blob/dev/app/src/renderer/windows/game/scripting/ScriptApi.ts#L49"
+        "path": "app/src/renderer/windows/game/scripting/ScriptApi.ts:51",
+        "url": "https://github.com/toommyliu/vexed/blob/dev/app/src/renderer/windows/game/scripting/ScriptApi.ts#L51"
       }
     },
-    "script-counter-attack-listener": {
-      "name": "ScriptCounterAttackListener",
-      "slug": "script-counter-attack-listener",
+    "script-anti-counter-listener": {
+      "name": "ScriptAntiCounterListener",
+      "slug": "script-anti-counter-listener",
       "kind": "type alias",
       "summary": "",
-      "definition": "type ScriptCounterAttackListener = (event: ScriptCounterAttackEvent) => void | Effect.Effect<unknown, unknown> | Generator<Effect.Yieldable<any, any, never, never>, unknown, never>",
+      "definition": "type ScriptAntiCounterListener = (event: ScriptAntiCounterEvent) => void | Effect.Effect<unknown, unknown> | Generator<Effect.Yieldable<any, any, never, never>, unknown, never>",
       "keys": [],
       "source": {
-        "path": "app/src/renderer/windows/game/scripting/ScriptApi.ts:57",
-        "url": "https://github.com/toommyliu/vexed/blob/dev/app/src/renderer/windows/game/scripting/ScriptApi.ts#L57"
+        "path": "app/src/renderer/windows/game/scripting/ScriptApi.ts:59",
+        "url": "https://github.com/toommyliu/vexed/blob/dev/app/src/renderer/windows/game/scripting/ScriptApi.ts#L59"
       }
     },
     "script-enhance-item-options": {
@@ -2932,6 +3011,25 @@
         "url": "https://github.com/toommyliu/vexed/blob/dev/app/src/renderer/windows/game/scripting/recipes.ts#L60"
       }
     },
+    "script-options": {
+      "name": "ScriptOptions",
+      "slug": "script-options",
+      "kind": "interface",
+      "summary": "",
+      "definition": "interface ScriptOptions",
+      "keys": [
+        {
+          "kind": "property",
+          "name": "usePrivateRooms",
+          "signature": "readonly usePrivateRooms: boolean",
+          "description": ""
+        }
+      ],
+      "source": {
+        "path": "app/src/shared/ipc.ts:362",
+        "url": "https://github.com/toommyliu/vexed/blob/dev/app/src/shared/ipc.ts#L362"
+      }
+    },
     "script-packet-disposer": {
       "name": "ScriptPacketDisposer",
       "slug": "script-packet-disposer",
@@ -2940,8 +3038,8 @@
       "definition": "type ScriptPacketDisposer = () => void",
       "keys": [],
       "source": {
-        "path": "app/src/renderer/windows/game/scripting/ScriptApi.ts:47",
-        "url": "https://github.com/toommyliu/vexed/blob/dev/app/src/renderer/windows/game/scripting/ScriptApi.ts#L47"
+        "path": "app/src/renderer/windows/game/scripting/ScriptApi.ts:49",
+        "url": "https://github.com/toommyliu/vexed/blob/dev/app/src/renderer/windows/game/scripting/ScriptApi.ts#L49"
       }
     },
     "script-packet-listener": {
@@ -2952,8 +3050,8 @@
       "definition": "type ScriptPacketListener = (packet: string) => void | Effect.Effect<unknown, unknown> | Generator<Effect.Yieldable<any, any, never, never>, unknown, never>",
       "keys": [],
       "source": {
-        "path": "app/src/renderer/windows/game/scripting/ScriptApi.ts:40",
-        "url": "https://github.com/toommyliu/vexed/blob/dev/app/src/renderer/windows/game/scripting/ScriptApi.ts#L40"
+        "path": "app/src/renderer/windows/game/scripting/ScriptApi.ts:42",
+        "url": "https://github.com/toommyliu/vexed/blob/dev/app/src/renderer/windows/game/scripting/ScriptApi.ts#L42"
       }
     },
     "script-recipe-effect": {

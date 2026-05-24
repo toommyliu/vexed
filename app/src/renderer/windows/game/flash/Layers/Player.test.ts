@@ -177,3 +177,39 @@ test("joinMap ignores invalid-map warnings for other maps", async () => {
   expect(loaded).toBe(true);
   expect(packetState.disposed).toBe(true);
 });
+
+test("joinMap does not skip transfer when the target uses a different fixed room", async () => {
+  const packetState = {
+    warningHandler: undefined as ExtensionPacketHandler | undefined,
+    disposed: false,
+  };
+  let roomNumber = 999;
+  const bridgeCalls: unknown[][] = [];
+
+  const bridge = {
+    call(path, args) {
+      expect(path).toBe("player.joinMap");
+      bridgeCalls.push(args ?? []);
+      roomNumber = 48_392;
+      return Effect.void as never;
+    },
+    callGameFunction: () => Effect.void,
+    onConnection: () => Effect.succeed(() => undefined),
+  } as BridgeShape;
+
+  await withPlayer(
+    {
+      bridge,
+      packet: makePacket(packetState),
+      world: makeWorld({
+        isLoaded: () => true,
+        mapName: () => "battleon",
+        roomNumber: () => roomNumber,
+      }),
+    },
+    (player) => player.joinMap("battleon-48392"),
+  );
+
+  expect(bridgeCalls).toEqual([["battleon-48392"]]);
+  expect(packetState.disposed).toBe(true);
+});

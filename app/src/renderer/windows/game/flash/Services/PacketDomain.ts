@@ -11,8 +11,8 @@ export type PacketDomainEvent =
   | "animationMessage"
   | "auraAdded"
   | "auraRemoved"
-  | "counterAttackStart"
-  | "counterAttackEnd"
+  | "antiCounterStart"
+  | "antiCounterEnd"
   | "playerLocation";
 
 export interface PacketDomainMonsterDeathEvent {
@@ -47,7 +47,7 @@ export interface PacketDomainAuraEvent {
   readonly packet: ServerPacket;
 }
 
-export interface PacketDomainCounterAttackEvent {
+export interface PacketDomainAntiCounterEvent {
   readonly monMapId: number;
   readonly source: "message" | "aura";
   readonly triggerId: string;
@@ -72,8 +72,8 @@ export interface PacketDomainEventMap {
   animationMessage: PacketDomainAnimationMessageEvent;
   auraAdded: PacketDomainAuraEvent;
   auraRemoved: PacketDomainAuraEvent;
-  counterAttackStart: PacketDomainCounterAttackEvent;
-  counterAttackEnd: PacketDomainCounterAttackEvent;
+  antiCounterStart: PacketDomainAntiCounterEvent;
+  antiCounterEnd: PacketDomainAntiCounterEvent;
   playerLocation: PacketDomainPlayerLocationEvent;
 }
 
