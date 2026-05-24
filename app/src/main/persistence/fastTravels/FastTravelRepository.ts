@@ -59,29 +59,32 @@ export const FastTravelRepositoryLive = Layer.effect(FastTravelRepository)(
       return normalizeFastTravels(result.value);
     });
 
-    const get = SynchronizedRef.updateAndGetEffect(ref, (current) =>
-      current === null ? load : Effect.succeed(current),
-    ).pipe(Effect.map((locations) => locations ?? defaults()));
+    const get = SynchronizedRef.modifyEffect(ref, (current) =>
+      (current === null ? load : Effect.succeed(current)).pipe(
+        Effect.map((locations) => [locations, locations] as const),
+      ),
+    );
 
     const set = (locations: readonly FastTravel[]) =>
-      Effect.gen(function* () {
-        const normalized = normalizeFastTravels(locations);
-        yield* persistence.writeJson(path, normalized);
-        yield* SynchronizedRef.set(ref, normalized);
-        return normalized;
-      });
+      SynchronizedRef.modifyEffect(ref, () =>
+        Effect.gen(function* () {
+          const normalized = normalizeFastTravels(locations);
+          yield* persistence.writeJson(path, normalized);
+          return [normalized, normalized] as const;
+        }),
+      );
 
     const update = (
       f: (locations: readonly FastTravel[]) => readonly FastTravel[],
     ) =>
-      SynchronizedRef.updateAndGetEffect(ref, (current) =>
+      SynchronizedRef.modifyEffect(ref, (current) =>
         Effect.gen(function* () {
           const base = current ?? (yield* load);
           const normalized = normalizeFastTravels(f(base));
           yield* persistence.writeJson(path, normalized);
-          return normalized;
+          return [normalized, normalized] as const;
         }),
-      ).pipe(Effect.map((locations) => locations ?? defaults()));
+      );
 
     return { path, get, set, update };
   }),

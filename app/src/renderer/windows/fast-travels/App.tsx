@@ -356,7 +356,7 @@ function App(): JSX.Element {
           : "Failed to add location.",
       );
       setDialogError(message);
-      if (message.toLowerCase().includes("exists")) {
+      if (cause instanceof FastTravelDuplicateNameError) {
         setFieldError("name");
       }
     } finally {

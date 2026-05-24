@@ -74,7 +74,11 @@ const broadcastChanged = (locations: readonly FastTravel[]): void => {
       continue;
     }
 
-    win.webContents.send(FastTravelsIpcChannels.changed, locations);
+    try {
+      win.webContents.send(FastTravelsIpcChannels.changed, locations);
+    } catch {
+      // Window teardown can race the destroyed checks; broadcasts are best effort.
+    }
   }
 };
 
@@ -170,12 +174,20 @@ export const registerFastTravelsIpcHandlers = (
         pendingRequests.delete(fastTravelResponse.requestId);
         clearTimeout(pending.timeout);
 
+        if (typeof fastTravelResponse.ok !== "boolean") {
+          pending.reject(new Error("Invalid fast travel response"));
+          return;
+        }
+
         if (fastTravelResponse.ok) {
           pending.resolve();
         } else {
-          pending.reject(
-            new Error(fastTravelResponse.error || "Fast travel request failed"),
-          );
+          const message =
+            typeof fastTravelResponse.error === "string" &&
+            fastTravelResponse.error !== ""
+              ? fastTravelResponse.error
+              : "Fast travel request failed";
+          pending.reject(new Error(message));
         }
       }),
     );

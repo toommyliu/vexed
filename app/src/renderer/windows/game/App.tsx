@@ -850,6 +850,7 @@ export default function App(props: {
     | ReturnType<typeof installPacketsBridge>
     | undefined;
   let autoAttackToggleInFlight = false;
+  let fastTravelRequestChain = Promise.resolve();
   let cleanedUp = false;
   const accountLaunchFibers = new Set<Fiber.Fiber<void, unknown>>();
   const assignDisposer =
@@ -1924,20 +1925,38 @@ export default function App(props: {
       }),
     );
 
-  const handleFastTravelRequest = (
+  const respondFastTravel = (
+    requestId: string,
+    response:
+      | { readonly ok: true }
+      | { readonly ok: false; readonly error: string },
+  ) =>
+    window.ipc.fastTravels.respond({
+      requestId,
+      ...response,
+    });
+
+  const runFastTravelRequest = async (
     request: FastTravelsRequestMessage,
-  ): void => {
+  ): Promise<void> => {
+    if (cleanedUp) {
+      await respondFastTravel(request.requestId, {
+        ok: false,
+        error: "Game window is shutting down",
+      });
+      return;
+    }
+
     if (request.kind !== "warp") {
-      void window.ipc.fastTravels.respond({
-        requestId: request.requestId,
+      await respondFastTravel(request.requestId, {
         ok: false,
         error: `Unsupported fast travel request: ${String(request.kind)}`,
       });
       return;
     }
 
-    void runtime
-      .runPromise(
+    try {
+      await runtime.runPromise(
         Effect.gen(function* () {
           const player = yield* Player;
           const ready = yield* player.isReady();
@@ -1952,25 +1971,32 @@ export default function App(props: {
             location.pad,
           );
         }),
-      )
-      .then(() =>
-        window.ipc.fastTravels.respond({
-          requestId: request.requestId,
-          ok: true,
-        }),
-      )
-      .catch((error: unknown) => {
-        console.error("Fast travel request failed:", error);
-        const message =
-          error instanceof Error && error.message !== ""
-            ? error.message
-            : "Fast travel failed";
-        void window.ipc.fastTravels.respond({
-          requestId: request.requestId,
-          ok: false,
-          error: message,
-        });
+      );
+      await respondFastTravel(request.requestId, { ok: true });
+    } catch (error: unknown) {
+      console.error("Fast travel request failed:", error);
+      const message =
+        error instanceof Error && error.message !== ""
+          ? error.message
+          : "Fast travel failed";
+      await respondFastTravel(request.requestId, {
+        ok: false,
+        error: message,
       });
+    }
+  };
+
+  const handleFastTravelRequest = (
+    request: FastTravelsRequestMessage,
+  ): void => {
+    fastTravelRequestChain = fastTravelRequestChain
+      .catch((error: unknown) => {
+        console.error("Fast travel request chain failed:", error);
+      })
+      .then(() => runFastTravelRequest(request));
+    void fastTravelRequestChain.catch((error: unknown) => {
+      console.error("Fast travel request handling failed:", error);
+    });
   };
 
   onMount(() => {

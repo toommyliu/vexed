@@ -285,6 +285,15 @@ ipcRenderer.on(
 ipcRenderer.on(
   FastTravelsIpcChannels.request,
   (_event, request: FastTravelsRequestMessage) => {
+    if (fastTravelRequestListeners.size === 0) {
+      ipcRenderer.send(FastTravelsIpcChannels.response, {
+        error: "Fast travel is not available in this game window",
+        ok: false,
+        requestId: request.requestId,
+      } satisfies FastTravelsResponseMessage);
+      return;
+    }
+
     for (const listener of fastTravelRequestListeners) {
       listener(request);
     }
