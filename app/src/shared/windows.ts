@@ -112,8 +112,8 @@ export const gameWindowGroups: readonly WindowGroup[] = [
         scope: "game-child",
         closeBehavior: "hide",
         dimensions: {
-          width: 600,
-          height: 546,
+          width: 712,
+          height: 710,
         },
       },
       {

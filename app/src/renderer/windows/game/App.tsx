@@ -38,6 +38,7 @@ import { fastTravelMapTarget } from "../../../shared/fast-travels";
 import type { WindowId } from "../../../shared/windows";
 import { runtime } from "./Runtime";
 import { installPacketsBridge } from "./packetsBridge";
+import { installLoaderGrabberBridge } from "./loaderGrabberBridge";
 import { Settings, type SettingsShape } from "./flash/Services/Settings";
 import { Auth } from "./flash/Services/Auth";
 import { SwfMethodNotFoundError, SwfUnavailableError } from "./flash/Errors";
@@ -2038,6 +2039,7 @@ export default function App(props: {
       handleFastTravelRequest,
     );
     const packetsBridge = installPacketsBridge(runtime);
+    const loaderGrabberBridge = installLoaderGrabberBridge(runtime);
     packetsBridgeController = packetsBridge;
     let followerStateDisposer: (() => void) | undefined;
 
@@ -2173,6 +2175,7 @@ export default function App(props: {
       unsubscribeFollowerStop();
       unsubscribeFastTravels();
       packetsBridge.dispose();
+      loaderGrabberBridge.dispose();
       packetsBridgeController = undefined;
       followerStateDisposer?.();
       disposeGameLoadState();

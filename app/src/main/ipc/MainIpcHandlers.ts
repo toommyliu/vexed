@@ -6,6 +6,7 @@ import { registerCombatProfilesIpcHandlers } from "./methods/combatProfiles";
 import { registerEnvironmentIpcHandlers } from "./methods/environment";
 import { registerFastTravelsIpcHandlers } from "./methods/fastTravels";
 import { registerFollowerIpcHandlers } from "./methods/follower";
+import { registerLoaderGrabberIpcHandlers } from "./methods/loaderGrabber";
 import { registerObservabilityIpcHandlers } from "./methods/observability";
 import { registerPacketsIpcHandlers } from "./methods/packets";
 import { registerScriptingIpcHandlers } from "./methods/scripting";
@@ -51,4 +52,5 @@ export const installMainIpcHandlers = (
     yield* registerFastTravelsIpcHandlers(runWindowEffect);
     yield* registerFollowerIpcHandlers(runWindowEffect);
     yield* registerPacketsIpcHandlers(runWindowEffect);
+    yield* registerLoaderGrabberIpcHandlers(runWindowEffect);
   });
