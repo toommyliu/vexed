@@ -13,11 +13,6 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
   AppShell,
-  AppShellBody,
-  AppShellHeader,
-  AppShellHeaderLeft,
-  AppShellHeaderRight,
-  AppShellTitle,
   Button,
   type ButtonProps,
   Card,
@@ -546,11 +541,11 @@ function App(): JSX.Element {
 
   return (
     <AppShell class="skills-window">
-      <AppShellHeader class="skills-header" maxWidth={false}>
-        <AppShellHeaderLeft>
-          <AppShellTitle>Skills</AppShellTitle>
-        </AppShellHeaderLeft>
-        <AppShellHeaderRight class="skills-header__actions">
+      <AppShell.Header class="skills-header">
+        <AppShell.HeaderLeft>
+          <AppShell.Title>Skills</AppShell.Title>
+        </AppShell.HeaderLeft>
+        <AppShell.HeaderRight class="skills-header__actions">
           <Show when={saving()}>
             <Spinner class="skills-sync-spinner" size="sm" />
           </Show>
@@ -570,10 +565,10 @@ function App(): JSX.Element {
             <Icon icon="save" class="button__icon" />
             Save
           </Button>
-        </AppShellHeaderRight>
-      </AppShellHeader>
+        </AppShell.HeaderRight>
+      </AppShell.Header>
 
-      <AppShellBody>
+      <AppShell.Body>
         <div class="skills-body">
           <div class="skills-profile-dropdown">
             <span>Profile</span>
@@ -1092,7 +1087,7 @@ function App(): JSX.Element {
             </CardFrame>
           </section>
         </div>
-      </AppShellBody>
+      </AppShell.Body>
     </AppShell>
   );
 }

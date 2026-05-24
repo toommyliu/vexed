@@ -14,11 +14,6 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
   AppShell,
-  AppShellBody,
-  AppShellHeader,
-  AppShellHeaderLeft,
-  AppShellHeaderRight,
-  AppShellTitle,
   Badge,
   Button,
   type ButtonProps,
@@ -1088,18 +1083,18 @@ function App(): JSX.Element {
 
   return (
     <AppShell>
-      <AppShellHeader maxWidth={false}>
-        <AppShellHeaderLeft>
-          <AppShellTitle>Account Manager</AppShellTitle>
-        </AppShellHeaderLeft>
-        <AppShellHeaderRight>
+      <AppShell.Header>
+        <AppShell.HeaderLeft>
+          <AppShell.Title>Account Manager</AppShell.Title>
+        </AppShell.HeaderLeft>
+        <AppShell.HeaderRight>
           <Button onClick={openCreateDialog}>
             <Icon icon="plus" class="button__icon" />
             Add Account
           </Button>
-        </AppShellHeaderRight>
-      </AppShellHeader>
-      <AppShellBody class="account-manager" maxWidth={false} scroll={false}>
+        </AppShell.HeaderRight>
+      </AppShell.Header>
+      <AppShell.Body class="account-manager" scroll={false}>
         <section class="account-manager__surface" aria-label="Accounts">
           <div class="account-manager__controls">
             <InputGroup class="account-search">
@@ -2038,7 +2033,7 @@ function App(): JSX.Element {
             </form>
           </DialogContent>
         </Dialog>
-      </AppShellBody>
+      </AppShell.Body>
     </AppShell>
   );
 }

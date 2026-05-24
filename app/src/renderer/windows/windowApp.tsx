@@ -1,11 +1,6 @@
 import "../polyfills";
 import {
   AppShell,
-  AppShellBody,
-  AppShellHeader,
-  AppShellHeaderLeft,
-  AppShellHeaderRight,
-  AppShellTitle,
   Badge,
 } from "@vexed/ui";
 import type { JSX } from "solid-js";
@@ -18,17 +13,17 @@ export function WindowApp(props: { readonly id: WindowId }): JSX.Element {
 
   return (
     <AppShell>
-      <AppShellHeader>
-        <AppShellHeaderLeft>
-          <AppShellTitle>{title}</AppShellTitle>
-        </AppShellHeaderLeft>
-        <AppShellHeaderRight>
+      <AppShell.Header>
+        <AppShell.HeaderLeft>
+          <AppShell.Title>{title}</AppShell.Title>
+        </AppShell.HeaderLeft>
+        <AppShell.HeaderRight>
           <Badge variant="outline">{props.id}</Badge>
-        </AppShellHeaderRight>
-      </AppShellHeader>
-      <AppShellBody>
+        </AppShell.HeaderRight>
+      </AppShell.Header>
+      <AppShell.Body>
         <p>{definition?.description ?? "Window unavailable."}</p>
-      </AppShellBody>
+      </AppShell.Body>
     </AppShell>
   );
 }

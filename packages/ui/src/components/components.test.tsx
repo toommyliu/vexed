@@ -3,11 +3,6 @@ import { createSignal, type JSX } from "solid-js";
 import { render } from "solid-js/web";
 import {
   AppShell,
-  AppShellBody,
-  AppShellHeader,
-  AppShellHeaderLeft,
-  AppShellHeaderRight,
-  AppShellTitle,
   Badge,
   Button,
   Card,
@@ -334,12 +329,12 @@ describe("AppShell", () => {
   it("renders slots and defaults root slots to vertical orientation", () => {
     const root = renderUi(() => (
       <AppShell>
-        <AppShellHeader>
-          <AppShellHeaderLeft>
-            <AppShellTitle>Workspace</AppShellTitle>
-          </AppShellHeaderLeft>
-        </AppShellHeader>
-        <AppShellBody>Content</AppShellBody>
+        <AppShell.Header>
+          <AppShell.HeaderLeft>
+            <AppShell.Title>Workspace</AppShell.Title>
+          </AppShell.HeaderLeft>
+        </AppShell.Header>
+        <AppShell.Body>Content</AppShell.Body>
       </AppShell>
     ));
     const shell = root.querySelector("[data-slot='app-shell']");
@@ -355,12 +350,12 @@ describe("AppShell", () => {
   it("inherits horizontal orientation from the root shell", () => {
     const root = renderUi(() => (
       <AppShell orientation="horizontal">
-        <AppShellHeader>
-          <AppShellHeaderLeft>
-            <AppShellTitle>Navigation</AppShellTitle>
-          </AppShellHeaderLeft>
-        </AppShellHeader>
-        <AppShellBody>Content</AppShellBody>
+        <AppShell.Header>
+          <AppShell.HeaderLeft>
+            <AppShell.Title>Navigation</AppShell.Title>
+          </AppShell.HeaderLeft>
+        </AppShell.Header>
+        <AppShell.Body>Content</AppShell.Body>
       </AppShell>
     ));
     const shell = root.querySelector("[data-slot='app-shell']");
@@ -375,11 +370,11 @@ describe("AppShell", () => {
 
   it("defaults standalone headers to vertical orientation", () => {
     const root = renderUi(() => (
-      <AppShellHeader>
-        <AppShellHeaderLeft>
-          <AppShellTitle>Runtime</AppShellTitle>
-        </AppShellHeaderLeft>
-      </AppShellHeader>
+      <AppShell.Header>
+        <AppShell.HeaderLeft>
+          <AppShell.Title>Runtime</AppShell.Title>
+        </AppShell.HeaderLeft>
+      </AppShell.Header>
     ));
     const header = root.querySelector("[data-slot='app-shell-header']");
 
@@ -387,7 +382,7 @@ describe("AppShell", () => {
   });
 
   it("defaults standalone bodies to vertical orientation", () => {
-    const root = renderUi(() => <AppShellBody>Content</AppShellBody>);
+    const root = renderUi(() => <AppShell.Body>Content</AppShell.Body>);
     const body = root.querySelector("[data-slot='app-shell-body']");
 
     expect(body?.getAttribute("data-orientation")).toBe("vertical");
@@ -395,15 +390,15 @@ describe("AppShell", () => {
 
   it("renders header title and side content", () => {
     const root = renderUi(() => (
-      <AppShellHeader>
-        <AppShellHeaderLeft>
-          <AppShellTitle>Runtime</AppShellTitle>
+      <AppShell.Header>
+        <AppShell.HeaderLeft>
+          <AppShell.Title>Runtime</AppShell.Title>
           <Badge variant="success">Ready</Badge>
-        </AppShellHeaderLeft>
-        <AppShellHeaderRight>
+        </AppShell.HeaderLeft>
+        <AppShell.HeaderRight>
           <Button size="sm">Run</Button>
-        </AppShellHeaderRight>
-      </AppShellHeader>
+        </AppShell.HeaderRight>
+      </AppShell.Header>
     ));
 
     expect(root.querySelector(".app-shell__title")?.textContent).toBe(
@@ -424,21 +419,21 @@ describe("AppShell", () => {
     expect(root.querySelector("[data-slot='app-shell-title']")).not.toBeNull();
   });
 
-  it("renders custom header wrappers", () => {
+  it("renders header children inside the header layout", () => {
     const root = renderUi(() => (
-      <AppShellHeader wrapChildren>
+      <AppShell.Header>
         <nav>Navigation</nav>
-      </AppShellHeader>
+      </AppShell.Header>
     ));
 
-    expect(root.querySelector(".app-shell__header-custom")?.textContent).toBe(
+    expect(root.querySelector(".app-shell__header-layout")?.textContent).toBe(
       "Navigation",
     );
   });
 
   it("supports bodies without an inner max-width wrapper", () => {
     const root = renderUi(() => (
-      <AppShellBody maxWidth={false}>Content</AppShellBody>
+      <AppShell.Body>Content</AppShell.Body>
     ));
 
     expect(root.querySelector(".app-shell__container")).toBeNull();
@@ -446,9 +441,9 @@ describe("AppShell", () => {
 
   it("supports fixed bodies", () => {
     const root = renderUi(() => (
-      <AppShellBody maxWidth={false} scroll={false}>
+      <AppShell.Body scroll={false}>
         Content
-      </AppShellBody>
+      </AppShell.Body>
     ));
     const body = root.querySelector("[data-slot='app-shell-body']");
 

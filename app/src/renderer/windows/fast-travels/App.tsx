@@ -14,11 +14,6 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
   AppShell,
-  AppShellBody,
-  AppShellHeader,
-  AppShellHeaderLeft,
-  AppShellHeaderRight,
-  AppShellTitle,
   Button,
   Card,
   CardContent,
@@ -418,19 +413,19 @@ function App(): JSX.Element {
 
   return (
     <AppShell class="fast-travels-app">
-      <AppShellHeader class="fast-travels-header" maxWidth={false}>
-        <AppShellHeaderLeft>
-          <AppShellTitle>Fast Travels</AppShellTitle>
-        </AppShellHeaderLeft>
-        <AppShellHeaderRight class="fast-travels-header__actions">
+      <AppShell.Header class="fast-travels-header">
+        <AppShell.HeaderLeft>
+          <AppShell.Title>Fast Travels</AppShell.Title>
+        </AppShell.HeaderLeft>
+        <AppShell.HeaderRight class="fast-travels-header__actions">
           <Button size="sm" type="button" onClick={openCreateDialog}>
             <Icon icon="plus" class="button__icon" />
             Add Location
           </Button>
-        </AppShellHeaderRight>
-      </AppShellHeader>
+        </AppShell.HeaderRight>
+      </AppShell.Header>
 
-      <AppShellBody class="fast-travels-body">
+      <AppShell.Body class="fast-travels-body">
         <div class="fast-travels-shell">
           <Show when={error()}>
             {(message) => (
@@ -608,7 +603,7 @@ function App(): JSX.Element {
             </Card>
           </CardFrame>
         </div>
-      </AppShellBody>
+      </AppShell.Body>
 
       <Dialog
         open={dialogOpen()}
