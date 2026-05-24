@@ -5,10 +5,6 @@ import { createHotkey } from "@tanstack/solid-hotkeys";
 import { createVirtualizer } from "@tanstack/solid-virtual";
 import {
   AppShell,
-  AppShellBody,
-  AppShellHeader,
-  AppShellHeaderLeft,
-  AppShellTitle,
   Button,
   Card,
   CardContent,
@@ -616,12 +612,12 @@ function App(): JSX.Element {
 
   return (
     <AppShell class="loader-grabber-window">
-      <AppShellHeader class="loader-grabber-header" maxWidth={false}>
-        <AppShellHeaderLeft>
-          <AppShellTitle>Loader Grabber</AppShellTitle>
-        </AppShellHeaderLeft>
-      </AppShellHeader>
-      <AppShellBody class="loader-grabber-body" maxWidth={false}>
+      <AppShell.Header class="loader-grabber-header">
+        <AppShell.HeaderLeft>
+          <AppShell.Title>Loader Grabber</AppShell.Title>
+        </AppShell.HeaderLeft>
+      </AppShell.Header>
+      <AppShell.Body class="loader-grabber-body">
         <div class="loader-grabber-shell">
           <Show when={error() || notice()}>
             <div
@@ -832,7 +828,7 @@ function App(): JSX.Element {
             </Panel>
           </div>
         </div>
-      </AppShellBody>
+      </AppShell.Body>
     </AppShell>
   );
 }

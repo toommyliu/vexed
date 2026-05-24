@@ -4,11 +4,6 @@ import "./style.css";
 import {
   Icon,
   AppShell,
-  AppShellBody,
-  AppShellHeader,
-  AppShellHeaderLeft,
-  AppShellHeaderRight,
-  AppShellTitle,
   Badge,
   Button,
   Card,
@@ -338,11 +333,11 @@ function App(): JSX.Element {
 
   return (
     <AppShell class="environment-app">
-      <AppShellHeader class="environment-header" maxWidth={false}>
-        <AppShellHeaderLeft>
-          <AppShellTitle>Environment</AppShellTitle>
-        </AppShellHeaderLeft>
-        <AppShellHeaderRight class="environment-header__actions">
+      <AppShell.Header class="environment-header">
+        <AppShell.HeaderLeft>
+          <AppShell.Title>Environment</AppShell.Title>
+        </AppShell.HeaderLeft>
+        <AppShell.HeaderRight class="environment-header__actions">
           <Button
             variant="outline"
             size="sm"
@@ -368,10 +363,10 @@ function App(): JSX.Element {
             </Show>
             Sync to all
           </Button>
-        </AppShellHeaderRight>
-      </AppShellHeader>
+        </AppShell.HeaderRight>
+      </AppShell.Header>
 
-      <AppShellBody class="environment-body" maxWidth={false}>
+      <AppShell.Body class="environment-body">
         <section class="environment-shell" aria-label="Environment controls">
           <Show when={error()}>
             {(message) => <div class="environment-error">{message()}</div>}
@@ -702,7 +697,7 @@ function App(): JSX.Element {
             </Panel>
           </div>
         </section>
-      </AppShellBody>
+      </AppShell.Body>
     </AppShell>
   );
 }

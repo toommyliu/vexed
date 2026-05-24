@@ -5,11 +5,6 @@ import { render } from "solid-js/web";
 import {
   Icon,
   AppShell,
-  AppShellBody,
-  AppShellHeader,
-  AppShellHeaderLeft,
-  AppShellHeaderRight,
-  AppShellTitle,
   Badge,
   Button,
   Card,
@@ -1064,12 +1059,12 @@ function DemoApp() {
             </CardHeader>
             <CardContent class="demo-stack">
               <AppShell class="demo-app-shell-preview">
-                <AppShellHeader>
-                  <AppShellHeaderLeft>
-                    <AppShellTitle>Workspace</AppShellTitle>
+                <AppShell.Header>
+                  <AppShell.HeaderLeft>
+                    <AppShell.Title>Workspace</AppShell.Title>
                     <Badge variant="success">Synced</Badge>
-                  </AppShellHeaderLeft>
-                  <AppShellHeaderRight>
+                  </AppShell.HeaderLeft>
+                  <AppShell.HeaderRight>
                     <Button size="sm" variant="outline">
                       <Icon icon="search" class="button__icon" />
                       Search
@@ -1081,9 +1076,9 @@ function DemoApp() {
                     >
                       <Icon icon="settings" class="button__icon" />
                     </IconButton>
-                  </AppShellHeaderRight>
-                </AppShellHeader>
-                <AppShellBody>
+                  </AppShell.HeaderRight>
+                </AppShell.Header>
+                <AppShell.Body>
                   <div class="demo-app-shell-dashboard">
                     <div class="demo-app-shell-stat">
                       <span>Requests</span>
@@ -1103,14 +1098,14 @@ function DemoApp() {
                     <span>10:24:08 refreshed project cache</span>
                     <span>10:24:12 background sync completed</span>
                   </div>
-                </AppShellBody>
+                </AppShell.Body>
               </AppShell>
 
               <AppShell
                 class="demo-app-shell-preview demo-app-shell-preview--horizontal"
                 orientation="horizontal"
               >
-                <AppShellHeader maxWidth={false} wrapChildren>
+                <AppShell.Header>
                   <div class="demo-app-shell-nav">
                     <div class="demo-app-shell-nav__brand">Console</div>
                     <button
@@ -1129,8 +1124,8 @@ function DemoApp() {
                       <Badge variant="outline">Preview</Badge>
                     </div>
                   </div>
-                </AppShellHeader>
-                <AppShellBody scroll={false}>
+                </AppShell.Header>
+                <AppShell.Body scroll={false}>
                   <Card class="demo-app-shell-panel">
                     <CardHeader>
                       <CardTitle>Session</CardTitle>
@@ -1146,7 +1141,7 @@ function DemoApp() {
                       </div>
                     </CardPanel>
                   </Card>
-                </AppShellBody>
+                </AppShell.Body>
               </AppShell>
             </CardContent>
           </Card>

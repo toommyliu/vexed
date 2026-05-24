@@ -13,11 +13,6 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
   AppShell,
-  AppShellBody,
-  AppShellHeader,
-  AppShellHeaderLeft,
-  AppShellHeaderRight,
-  AppShellTitle,
   Button,
   type ButtonProps,
   Card,
@@ -1085,15 +1080,15 @@ function App(): JSX.Element {
       onValueChange={(details) => setActiveTab(details.value as ActiveTab)}
     >
       <AppShell class="packets-window">
-        <AppShellHeader class="packets-header">
-          <AppShellHeaderLeft>
-            <AppShellTitle>Packets</AppShellTitle>
+        <AppShell.Header class="packets-header">
+          <AppShell.HeaderLeft>
+            <AppShell.Title>Packets</AppShell.Title>
             <TabsList class="packets-tabs__list">
               <TabsTrigger value="log">Log</TabsTrigger>
               <TabsTrigger value="send">Send</TabsTrigger>
             </TabsList>
-          </AppShellHeaderLeft>
-          <AppShellHeaderRight>
+          </AppShell.HeaderLeft>
+          <AppShell.HeaderRight>
             <Show when={activeTab() === "log"}>
               <div class="packets-header__actions">
                 <Button
@@ -1189,10 +1184,10 @@ function App(): JSX.Element {
                 </Button>
               </div>
             </Show>
-          </AppShellHeaderRight>
-        </AppShellHeader>
+          </AppShell.HeaderRight>
+        </AppShell.Header>
 
-        <AppShellBody class="packets-body" maxWidth={false} scroll={false}>
+        <AppShell.Body class="packets-body" scroll={false}>
           <div class="packets-shell">
             <Show when={error() !== "" || notice() !== ""}>
               <div
@@ -1607,7 +1602,7 @@ function App(): JSX.Element {
               </AlertDialogContent>
             </AlertDialog>
           </div>
-        </AppShellBody>
+        </AppShell.Body>
       </AppShell>
     </Tabs>
   );

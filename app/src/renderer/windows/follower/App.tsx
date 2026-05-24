@@ -4,11 +4,6 @@ import "./style.css";
 import {
   Icon,
   AppShell,
-  AppShellBody,
-  AppShellHeader,
-  AppShellHeaderLeft,
-  AppShellHeaderRight,
-  AppShellTitle,
   Button,
   Card,
   CardContent,
@@ -379,11 +374,11 @@ function App(): JSX.Element {
 
   return (
     <AppShell class="follower-window">
-      <AppShellHeader class="follower-header" maxWidth={false}>
-        <AppShellHeaderLeft>
-          <AppShellTitle>Follower</AppShellTitle>
-        </AppShellHeaderLeft>
-        <AppShellHeaderRight class="follower-header__actions">
+      <AppShell.Header class="follower-header">
+        <AppShell.HeaderLeft>
+          <AppShell.Title>Follower</AppShell.Title>
+        </AppShell.HeaderLeft>
+        <AppShell.HeaderRight class="follower-header__actions">
           <Button
             disabled={busy() || (!running() && !targetName().trim())}
             size="sm"
@@ -397,10 +392,10 @@ function App(): JSX.Element {
             )}
             {running() ? "Stop" : "Start"}
           </Button>
-        </AppShellHeaderRight>
-      </AppShellHeader>
+        </AppShell.HeaderRight>
+      </AppShell.Header>
 
-      <AppShellBody class="follower-body" maxWidth={false}>
+      <AppShell.Body class="follower-body">
         <section class="follower-shell" aria-label="Follower controls">
           <Show when={showIssue()}>
             <div class="follower-issue">
@@ -611,7 +606,7 @@ function App(): JSX.Element {
             </CardFrame>
           </div>
         </section>
-      </AppShellBody>
+      </AppShell.Body>
     </AppShell>
   );
 }

@@ -40,12 +40,8 @@ export {
 } from "./components/Badge";
 export {
   AppShell,
-  AppShellBody,
-  AppShellHeader,
-  AppShellHeaderLeft,
-  AppShellHeaderRight,
-  AppShellTitle,
   type AppShellBodyProps,
+  type AppShellComponent,
   type AppShellHeaderProps,
   type AppShellHeaderLeftProps,
   type AppShellHeaderRightProps,
