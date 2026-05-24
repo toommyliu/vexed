@@ -19,6 +19,11 @@ import type {
   EnvironmentQuestAutoRegisterOptions,
   EnvironmentState,
 } from "./environment";
+import type {
+  FastTravel,
+  FastTravelDraft,
+  FastTravelWarpPayload,
+} from "./fast-travels";
 import type { FollowerStartPayload, FollowerState } from "./follower";
 import type {
   PacketCapturedPayload,
@@ -85,6 +90,12 @@ export type {
   EnvironmentQuestAutoRegisterOptions,
   EnvironmentState,
 } from "./environment";
+
+export type {
+  FastTravel,
+  FastTravelDraft,
+  FastTravelWarpPayload,
+} from "./fast-travels";
 
 export type {
   FollowerConfig,
@@ -183,6 +194,17 @@ export const EnvironmentIpcChannels = {
   changed: "environment:changed",
 } as const;
 
+export const FastTravelsIpcChannels = {
+  getAll: "fast-travels:get-all",
+  create: "fast-travels:create",
+  update: "fast-travels:update",
+  delete: "fast-travels:delete",
+  warp: "fast-travels:warp",
+  changed: "fast-travels:changed",
+  request: "fast-travels:request",
+  response: "fast-travels:response",
+} as const;
+
 export const CombatProfilesIpcChannels = {
   getState: "combat-profiles:get-state",
   saveProfile: "combat-profiles:save-profile",
@@ -236,6 +258,8 @@ export type PacketsRequestKind =
   | "startQueue"
   | "stopQueue";
 
+export type FastTravelsRequestKind = "warp";
+
 export interface FollowerRequestMessage {
   readonly requestId: string;
   readonly kind: FollowerRequestKind;
@@ -261,6 +285,23 @@ export interface PacketsRequestMessage {
 }
 
 export type PacketsResponseMessage =
+  | {
+      readonly requestId: string;
+      readonly ok: true;
+    }
+  | {
+      readonly error: string;
+      readonly ok: false;
+      readonly requestId: string;
+    };
+
+export interface FastTravelsRequestMessage {
+  readonly requestId: string;
+  readonly kind: FastTravelsRequestKind;
+  readonly payload: FastTravelWarpPayload;
+}
+
+export type FastTravelsResponseMessage =
   | {
       readonly requestId: string;
       readonly ok: true;
@@ -716,6 +757,56 @@ export interface EnvironmentBridge {
   ): () => void;
 }
 
+export interface FastTravelsInvokeChannels {
+  readonly [FastTravelsIpcChannels.getAll]: IpcInvokeDefinition<
+    [],
+    readonly FastTravel[]
+  >;
+  readonly [FastTravelsIpcChannels.create]: IpcInvokeDefinition<
+    [draft: FastTravelDraft],
+    readonly FastTravel[]
+  >;
+  readonly [FastTravelsIpcChannels.update]: IpcInvokeDefinition<
+    [originalName: string, draft: FastTravelDraft],
+    readonly FastTravel[]
+  >;
+  readonly [FastTravelsIpcChannels.delete]: IpcInvokeDefinition<
+    [name: string],
+    readonly FastTravel[]
+  >;
+  readonly [FastTravelsIpcChannels.warp]: IpcInvokeDefinition<
+    [payload: FastTravelWarpPayload],
+    void
+  >;
+}
+
+export interface FastTravelsRendererEventChannels {
+  readonly [FastTravelsIpcChannels.changed]: [locations: readonly FastTravel[]];
+  readonly [FastTravelsIpcChannels.request]: [
+    request: FastTravelsRequestMessage,
+  ];
+}
+
+export interface FastTravelsMainEventChannels {
+  readonly [FastTravelsIpcChannels.response]: [
+    response: FastTravelsResponseMessage,
+  ];
+}
+
+export interface FastTravelsBridge {
+  getAll(): Promise<readonly FastTravel[]>;
+  create(draft: FastTravelDraft): Promise<readonly FastTravel[]>;
+  update(
+    originalName: string,
+    draft: FastTravelDraft,
+  ): Promise<readonly FastTravel[]>;
+  delete(name: string): Promise<readonly FastTravel[]>;
+  warp(payload: FastTravelWarpPayload): Promise<void>;
+  onChanged(listener: (locations: readonly FastTravel[]) => void): () => void;
+  onRequest(listener: (request: FastTravelsRequestMessage) => void): () => void;
+  respond(response: FastTravelsResponseMessage): Promise<void>;
+}
+
 export interface CombatProfilesInvokeChannels {
   readonly [CombatProfilesIpcChannels.getState]: IpcInvokeDefinition<
     [],
@@ -864,6 +955,7 @@ export interface AppBridge {
   readonly army: ArmyBridge;
   readonly combatProfiles: CombatProfilesBridge;
   readonly environment: EnvironmentBridge;
+  readonly fastTravels: FastTravelsBridge;
   readonly follower: FollowerBridge;
   readonly observability: ObservabilityBridge;
   readonly packets: PacketsBridge;
