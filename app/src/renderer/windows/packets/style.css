@@ -517,11 +517,12 @@
   position: relative;
 }
 
-.packets-log-virtual__items {
+.packets-log-virtual__item {
   left: 0;
   position: absolute;
   right: 0;
   top: 0;
+  width: 100%;
 }
 
 .packets-log-flow {
@@ -531,13 +532,14 @@
 .packets-log-row {
   align-items: center;
   border-bottom: 1px solid rgba(var(--border), 0.5);
+  box-sizing: border-box;
   display: grid;
   grid-template-columns: minmax(0, 1fr) auto;
   height: var(--packet-log-row-height, 34px);
   min-width: 0;
 }
 
-.packets-log-row:last-child {
+.packets-log-virtual__item:last-child .packets-log-row {
   border-bottom: 0;
 }
 
@@ -563,8 +565,6 @@
 
 .packets-log-list--wrapped .packets-log-row {
   align-items: start;
-  content-visibility: auto;
-  contain-intrinsic-size: var(--packet-log-row-height, 34px);
   height: auto;
   min-height: var(--packet-log-row-height, 34px);
 }

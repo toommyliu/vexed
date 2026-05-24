@@ -2,6 +2,7 @@
 import "../../polyfills";
 import "./style.css";
 import { createHotkey } from "@tanstack/solid-hotkeys";
+import { createVirtualizer, type VirtualItem } from "@tanstack/solid-virtual";
 import {
   Icon,
   AlertDialog,
@@ -93,6 +94,11 @@ interface PacketTextSegment {
 interface PacketLogEmptyState {
   readonly description?: string;
   readonly title: string;
+}
+
+interface PacketLogVirtualRow {
+  readonly entry: PacketLogEntry;
+  readonly item: VirtualItem;
 }
 
 const packetTypeLabels: Record<PacketCaptureType, string> = {
@@ -344,12 +350,7 @@ function App(): JSX.Element {
     createSignal<string | null>(null);
   const [error, setError] = createSignal("");
   const [notice, setNotice] = createSignal("");
-  const [logScrollTop, setLogScrollTop] = createSignal(0);
-  const [logViewportHeight, setLogViewportHeight] = createSignal(0);
   const [logViewportWidth, setLogViewportWidth] = createSignal(0);
-  const [wrappedLogRowHeights, setWrappedLogRowHeights] = createSignal<
-    ReadonlyMap<string, number>
-  >(new Map());
   const [visiblePacketsCopied, setVisiblePacketsCopied] = createSignal(false);
   const [copiedPacketId, setCopiedPacketId] = createSignal<string | null>(null);
   const [queuedPacketId, setQueuedPacketId] = createSignal<string | null>(null);
@@ -357,7 +358,6 @@ function App(): JSX.Element {
   let visiblePacketsCopiedTimer: number | undefined;
   let copiedPacketTimer: number | undefined;
   let queuedPacketTimer: number | undefined;
-  let measuredLogLayoutKey = "";
 
   createHotkey(
     "/",
@@ -423,37 +423,6 @@ function App(): JSX.Element {
     };
   });
 
-  createEffect(() => {
-    const layoutKey = `${wrapPackets()}:${Math.round(logViewportWidth())}`;
-    if (layoutKey === measuredLogLayoutKey) {
-      return;
-    }
-
-    measuredLogLayoutKey = layoutKey;
-    setWrappedLogRowHeights(new Map());
-  });
-
-  createEffect(() => {
-    const liveIds = new Set(packets().map((entry) => entry.id));
-    setWrappedLogRowHeights((current) => {
-      if (current.size === 0) {
-        return current;
-      }
-
-      let changed = false;
-      const next = new Map<string, number>();
-      for (const [id, height] of current) {
-        if (liveIds.has(id)) {
-          next.set(id, height);
-        } else {
-          changed = true;
-        }
-      }
-
-      return changed ? next : current;
-    });
-  });
-
   const selectedPacket = createMemo(() =>
     packets().find((entry) => entry.id === selectedPacketId()),
   );
@@ -476,89 +445,58 @@ function App(): JSX.Element {
     () => trimmedSendText().length > 0 && !queueRunning(),
   );
   const canQueue = createMemo(() => queue().length > 0 && !queueRunning());
-  const virtualPackets = createMemo(() => {
-    const entries = filteredPackets();
-    const viewportHeight = logViewportHeight();
-    const wrapped = wrapPackets();
-    const totalHeight = entries.length * LOG_ROW_HEIGHT_COMPACT;
-    if (entries.length === 0) {
-      return {
-        entries: [],
-        offsetY: 0,
-        totalHeight,
-      };
-    }
+  const logVirtualizer = createVirtualizer<HTMLDivElement, HTMLDivElement>({
+    get count() {
+      return filteredPackets().length;
+    },
+    estimateSize: (index) => {
+      const entry = filteredPackets()[index];
+      if (!entry || !wrapPackets()) {
+        return LOG_ROW_HEIGHT_COMPACT;
+      }
 
-    if (!wrapped) {
-      const maxScrollTop = Math.max(0, totalHeight - viewportHeight);
-      const effectiveScrollTop = Math.min(logScrollTop(), maxScrollTop);
-      const firstVisibleIndex = Math.min(
-        entries.length - 1,
-        Math.floor(effectiveScrollTop / LOG_ROW_HEIGHT_COMPACT),
+      return estimateWrappedLogRowHeight(
+        entry,
+        logViewportWidth(),
+        showTimestamps(),
       );
-      const startIndex = Math.max(0, firstVisibleIndex - LOG_ROW_OVERSCAN);
-      const visibleCount =
-        Math.ceil(viewportHeight / LOG_ROW_HEIGHT_COMPACT) +
-        LOG_ROW_OVERSCAN * 2;
-      const endIndex = Math.min(entries.length, startIndex + visibleCount);
+    },
+    getItemKey: (index) => filteredPackets()[index]?.id ?? index,
+    getScrollElement: () => logViewport ?? null,
+    measureElement: (element) =>
+      wrapPackets()
+        ? Math.max(
+            LOG_ROW_HEIGHT_COMPACT,
+            Math.ceil(element.getBoundingClientRect().height),
+          )
+        : LOG_ROW_HEIGHT_COMPACT,
+    overscan: LOG_ROW_OVERSCAN,
+    useAnimationFrameWithResizeObserver: true,
+  });
 
-      return {
-        entries: entries.slice(startIndex, endIndex),
-        offsetY: startIndex * LOG_ROW_HEIGHT_COMPACT,
-        totalHeight,
-      };
-    }
+  const logVirtualRows = createMemo<readonly PacketLogVirtualRow[]>(() => {
+    const entries = filteredPackets();
+    const rows: PacketLogVirtualRow[] = [];
 
-    const measuredHeights = wrappedLogRowHeights();
-    const includeTimestamp = showTimestamps();
-    const viewportWidth = logViewportWidth();
-    const rowHeights = entries.map(
-      (entry) =>
-        measuredHeights.get(entry.id) ??
-        estimateWrappedLogRowHeight(entry, viewportWidth, includeTimestamp),
-    );
-    const rowOffsets: number[] = [];
-    let wrappedTotalHeight = 0;
-    for (const height of rowHeights) {
-      rowOffsets.push(wrappedTotalHeight);
-      wrappedTotalHeight += height;
-    }
+    for (const item of logVirtualizer.getVirtualItems()) {
+      if (!item) {
+        continue;
+      }
 
-    const maxScrollTop = Math.max(0, wrappedTotalHeight - viewportHeight);
-    const effectiveScrollTop = Math.min(logScrollTop(), maxScrollTop);
-    let firstVisibleIndex = 0;
-    let low = 0;
-    let high = entries.length - 1;
-    while (low <= high) {
-      const mid = Math.floor((low + high) / 2);
-      const rowOffset = rowOffsets[mid] ?? 0;
-      const rowHeight = rowHeights[mid] ?? LOG_ROW_HEIGHT_COMPACT;
-      if (rowOffset + rowHeight > effectiveScrollTop) {
-        firstVisibleIndex = mid;
-        high = mid - 1;
-      } else {
-        low = mid + 1;
+      const entry = entries[item.index];
+      if (entry) {
+        rows.push({ entry, item });
       }
     }
-    const startIndex = Math.max(0, firstVisibleIndex - LOG_ROW_OVERSCAN);
-    const visibleBottom = effectiveScrollTop + viewportHeight;
-    let endIndex = firstVisibleIndex;
-    while (
-      endIndex < entries.length &&
-      (rowOffsets[endIndex] ?? 0) < visibleBottom
-    ) {
-      endIndex += 1;
-    }
-    endIndex = Math.min(
-      entries.length,
-      Math.max(endIndex, firstVisibleIndex + 1) + LOG_ROW_OVERSCAN,
-    );
 
-    return {
-      entries: entries.slice(startIndex, endIndex),
-      offsetY: rowOffsets[startIndex] ?? 0,
-      totalHeight: wrappedTotalHeight,
-    };
+    return rows;
+  });
+
+  createEffect(() => {
+    wrapPackets();
+    showTimestamps();
+    Math.round(logViewportWidth());
+    logVirtualizer.measure();
   });
 
   const setOperationError = (message: string, cause: unknown): void => {
@@ -589,8 +527,9 @@ function App(): JSX.Element {
 
     if (autoScroll()) {
       requestAnimationFrame(() => {
-        if (logViewport) {
-          logViewport.scrollTop = logViewport.scrollHeight;
+        const lastIndex = filteredPackets().length - 1;
+        if (lastIndex >= 0) {
+          logVirtualizer.scrollToIndex(lastIndex, { align: "end" });
         }
       });
     }
@@ -616,7 +555,6 @@ function App(): JSX.Element {
 
   const clearPackets = (): void => {
     setPackets([]);
-    setWrappedLogRowHeights(new Map());
     setSelectedPacketId(null);
     setCopiedPacketId(null);
     setQueuedPacketId(null);
@@ -886,22 +824,7 @@ function App(): JSX.Element {
       return;
     }
 
-    setLogScrollTop(logViewport.scrollTop);
-    setLogViewportHeight(logViewport.clientHeight);
     setLogViewportWidth(logViewport.clientWidth);
-  };
-
-  const recordWrappedLogRowHeight = (id: string, height: number): void => {
-    const measuredHeight = Math.max(LOG_ROW_HEIGHT_COMPACT, Math.ceil(height));
-    setWrappedLogRowHeights((current) => {
-      if (current.get(id) === measuredHeight) {
-        return current;
-      }
-
-      const next = new Map(current);
-      next.set(id, measuredHeight);
-      return next;
-    });
   };
 
   const renderPacketText = (text: string): JSX.Element => {
@@ -925,47 +848,13 @@ function App(): JSX.Element {
 
   const PacketLogRowView = (props: {
     readonly entry: PacketLogEntry;
-    readonly measureWrapped: boolean;
   }): JSX.Element => {
-    let rowElement: HTMLDivElement | undefined;
-    let resizeObserver: ResizeObserver | undefined;
-
-    const disconnectResizeObserver = (): void => {
-      resizeObserver?.disconnect();
-      resizeObserver = undefined;
-    };
-
-    const measureRow = (): void => {
-      if (!rowElement) {
-        return;
-      }
-
-      recordWrappedLogRowHeight(
-        props.entry.id,
-        rowElement.getBoundingClientRect().height,
-      );
-    };
-
-    createEffect(() => {
-      if (!props.measureWrapped || !rowElement) {
-        disconnectResizeObserver();
-        return;
-      }
-
-      measureRow();
-      resizeObserver ??= new ResizeObserver(measureRow);
-      resizeObserver.observe(rowElement);
-    });
-
-    onCleanup(disconnectResizeObserver);
-
     return (
       <div
         class="packets-log-row"
         classList={{
           "packets-log-row--copied": copiedPacketId() === props.entry.id,
         }}
-        ref={rowElement}
       >
         <button
           class="packets-log-row__content"
@@ -1335,7 +1224,6 @@ function App(): JSX.Element {
                       classList={{
                         "packets-log-list--wrapped": wrapPackets(),
                       }}
-                      onScroll={updateLogViewportMetrics}
                       ref={logViewport}
                     >
                       <Show
@@ -1358,24 +1246,32 @@ function App(): JSX.Element {
                         <div
                           class="packets-log-virtual"
                           style={{
-                            height: `${virtualPackets().totalHeight}px`,
+                            height: `${logVirtualizer.getTotalSize()}px`,
                           }}
                         >
-                          <div
-                            class="packets-log-virtual__items"
-                            style={{
-                              top: `${virtualPackets().offsetY}px`,
-                            }}
-                          >
-                            <For each={virtualPackets().entries}>
-                              {(entry) => (
-                                <PacketLogRowView
-                                  entry={entry}
-                                  measureWrapped={wrapPackets()}
-                                />
-                              )}
-                            </For>
-                          </div>
+                          <For each={logVirtualRows()}>
+                            {(row) => (
+                              <div
+                                class="packets-log-virtual__item"
+                                ref={(element) => {
+                                  // TanStack reads data-index synchronously during measurement.
+                                  element.setAttribute(
+                                    "data-index",
+                                    String(row.item.index),
+                                  );
+                                  logVirtualizer.measureElement(element);
+                                }}
+                                style={{
+                                  height: wrapPackets()
+                                    ? undefined
+                                    : `${row.item.size}px`,
+                                  top: `${row.item.start}px`,
+                                }}
+                              >
+                                <PacketLogRowView entry={row.entry} />
+                              </div>
+                            )}
+                          </For>
                         </div>
                       </Show>
                     </div>
