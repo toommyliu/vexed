@@ -11,6 +11,7 @@ import {
   CardFrameHeader,
   CardFrameTitle,
   Checkbox,
+  Field,
   IconButton,
   Input,
   Label,
@@ -19,10 +20,7 @@ import {
   SelectItem,
   SelectTrigger,
   Textarea,
-  Tooltip,
-  TooltipContent,
-  TooltipTrigger,
-  type IconButtonProps,
+  TooltipIconButton,
 } from "@vexed/ui";
 import {
   For,
@@ -37,7 +35,6 @@ import {
 import {
   DEFAULT_COMBAT_PROFILE_ID,
   DEFAULT_COMBAT_PROFILE_LIBRARY,
-  type CombatProfile,
   type CombatProfileLibrary,
 } from "../../../shared/combat-profiles";
 import {
@@ -49,47 +46,14 @@ import {
   type FollowerState,
 } from "../../../shared/follower";
 import { WindowIds } from "../../../shared/windows";
+import {
+  getPreferredCombatProfileId,
+  readStoredId,
+  writeStoredId,
+} from "../../lib/combatProfileSelection";
 import { mountWindow } from "../mount";
 
 const selectedProfileStorageKey = "vexed.follower.selectedProfileId";
-
-const readLastSelectedProfileId = (): string | undefined => {
-  try {
-    return window.localStorage.getItem(selectedProfileStorageKey) ?? undefined;
-  } catch {
-    return undefined;
-  }
-};
-
-const writeLastSelectedProfileId = (profileId: string): void => {
-  try {
-    window.localStorage.setItem(selectedProfileStorageKey, profileId);
-  } catch {
-    // Best-effort convenience only.
-  }
-};
-
-const getPreferredProfileId = (
-  profiles: readonly CombatProfile[],
-  preferredId: string | undefined,
-): string =>
-  profiles.find((profile) => profile.id === preferredId)?.id ??
-  profiles.find((profile) => profile.id !== DEFAULT_COMBAT_PROFILE_ID)?.id ??
-  profiles[0]?.id ??
-  DEFAULT_COMBAT_PROFILE_ID;
-
-function Field(props: {
-  readonly label: JSX.Element;
-  readonly for?: string;
-  readonly children: JSX.Element;
-}): JSX.Element {
-  return (
-    <div class="follower-field">
-      <Label for={props.for}>{props.label}</Label>
-      {props.children}
-    </div>
-  );
-}
 
 function LabelHelp(props: {
   readonly label: string;
@@ -98,55 +62,15 @@ function LabelHelp(props: {
   return (
     <span class="follower-label-help">
       <span>{props.label}</span>
-      <Tooltip
-        closeDelay={0}
-        openDelay={200}
-        positioning={{ placement: "top" }}
+      <TooltipIconButton
+        aria-label={`${props.label} help`}
+        class="follower-help-button"
+        size="icon-xs"
+        tooltip={props.tooltip}
       >
-        <TooltipTrigger
-          asChild={(triggerProps) => (
-            <IconButton
-              {...(triggerProps({
-                "aria-label": `${props.label} help`,
-                children: <Icon icon="help_circle" class="button__icon" />,
-                class: "follower-help-button",
-                size: "icon-xs",
-                type: "button",
-                variant: "ghost",
-              } as IconButtonProps) as IconButtonProps)}
-            />
-          )}
-        />
-        <TooltipContent>{props.tooltip}</TooltipContent>
-      </Tooltip>
+        <Icon icon="help_circle" class="button__icon" />
+      </TooltipIconButton>
     </span>
-  );
-}
-
-function TooltipIconButton(props: {
-  readonly "aria-label": string;
-  readonly children: JSX.Element;
-  readonly tooltip: string;
-  readonly onClick: () => void;
-}): JSX.Element {
-  return (
-    <Tooltip closeDelay={0} openDelay={200} positioning={{ placement: "top" }}>
-      <TooltipTrigger
-        asChild={(triggerProps) => (
-          <IconButton
-            {...(triggerProps({
-              "aria-label": props["aria-label"],
-              children: props.children,
-              size: "icon-sm",
-              type: "button",
-              variant: "ghost",
-              onClick: props.onClick,
-            } as IconButtonProps) as IconButtonProps)}
-          />
-        )}
-      />
-      <TooltipContent>{props.tooltip}</TooltipContent>
-    </Tooltip>
   );
 }
 
@@ -167,7 +91,7 @@ function App(): JSX.Element {
   );
   const [maxAttempts, setMaxAttempts] = createSignal(DEFAULT_FOLLOWER_ATTEMPTS);
   const [selectedProfileId, setSelectedProfileId] = createSignal(
-    readLastSelectedProfileId() ?? DEFAULT_COMBAT_PROFILE_ID,
+    readStoredId(selectedProfileStorageKey) ?? DEFAULT_COMBAT_PROFILE_ID,
   );
   const [attackPriority, setAttackPriority] = createSignal("");
   const [lockedZoneFallbacks, setLockedZoneFallbacks] = createSignal("");
@@ -232,7 +156,7 @@ function App(): JSX.Element {
 
   const selectProfile = (profileId: string): void => {
     setSelectedProfileId(profileId);
-    writeLastSelectedProfileId(profileId);
+    writeStoredId(selectedProfileStorageKey, profileId);
   };
 
   const applyLibrary = (nextLibrary: CombatProfileLibrary): void => {
@@ -243,9 +167,9 @@ function App(): JSX.Element {
       )
     ) {
       selectProfile(
-        getPreferredProfileId(
+        getPreferredCombatProfileId(
           nextLibrary.profiles,
-          readLastSelectedProfileId(),
+          readStoredId(selectedProfileStorageKey),
         ),
       );
     }
@@ -418,7 +342,11 @@ function App(): JSX.Element {
               </CardFrameHeader>
               <Card class="follower-panel__body">
                 <CardContent class="follower-panel__content">
-                  <Field label="Player name" for="follower-target-name">
+                  <Field
+                    class="follower-field"
+                    label="Player name"
+                    for="follower-target-name"
+                  >
                     <div class="follower-target-row">
                       <Input
                         id="follower-target-name"
@@ -462,7 +390,7 @@ function App(): JSX.Element {
                       >
                         Retry failures
                       </Checkbox>
-                      <label
+                      <Label
                         class="follower-inline-number"
                         for="follower-retry-attempts"
                       >
@@ -485,10 +413,11 @@ function App(): JSX.Element {
                             }
                           }}
                         />
-                      </label>
+                      </Label>
                     </div>
                   </div>
                   <Field
+                    class="follower-field"
                     label="Locked-zone locations"
                     for="follower-locked-zone-fallbacks"
                   >
@@ -506,6 +435,7 @@ function App(): JSX.Element {
                     />
                   </Field>
                   <Field
+                    class="follower-field"
                     label={
                       <LabelHelp
                         label="Room override"
@@ -589,7 +519,11 @@ function App(): JSX.Element {
                       </SelectContent>
                     </Select>
                   </div>
-                  <Field label="Attack priority" for="follower-attack-priority">
+                  <Field
+                    class="follower-field"
+                    label="Attack priority"
+                    for="follower-attack-priority"
+                  >
                     <Input
                       id="follower-attack-priority"
                       value={attackPriority()}

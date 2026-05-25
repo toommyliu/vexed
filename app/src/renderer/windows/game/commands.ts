@@ -38,7 +38,6 @@ export interface GameCommand {
   readonly id: GameCommandId;
   readonly category: CommandCategory;
   readonly label: Accessor<string>;
-  readonly keywords: readonly string[];
   readonly hotkey: Accessor<string>;
   readonly enabled: Accessor<boolean>;
   readonly run: () => void;
@@ -194,7 +193,6 @@ export const createGameCommands = (
       id: definition.id,
       category: definition.category,
       label: createCommandLabel(runtime, definition.id, definition.label),
-      keywords: definition.keywords,
       hotkey: () => readHotkeyBinding(runtime.bindings(), definition.id),
       enabled,
       run: () => {

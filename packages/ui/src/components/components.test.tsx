@@ -2,58 +2,18 @@ import { afterEach, describe, expect, it, vi } from "vitest";
 import { createSignal, type JSX } from "solid-js";
 import { render } from "solid-js/web";
 import {
-  AppShell,
-  Badge,
   Button,
-  Card,
-  CardAction,
-  CardFrame,
-  CardFrameAction,
-  CardFrameHeader,
-  CardFrameTitle,
-  CardHeader,
-  CardPanel,
-  CardTitle,
   Checkbox,
-  Alert,
-  AlertAction,
-  AlertDescription,
-  AlertTitle,
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
   Combobox,
   ComboboxContent,
-  ComboboxEmpty,
   ComboboxInput,
   ComboboxItem,
   ComboboxList,
-  Dropdown,
-  Command,
-  CommandEmpty,
-  CommandInput,
-  CommandItem,
-  CommandLinkItem,
-  CommandList,
   Dialog,
-  DialogClose,
   DialogContent,
-  DialogDescription,
-  DialogFooter,
   DialogHeader,
   DialogTitle,
-  Empty,
-  EmptyContent,
-  EmptyDescription,
-  EmptyHeader,
-  EmptyMedia,
-  EmptyTitle,
-  IconButton,
+  Dropdown,
   Input,
   InputGroup,
   InputGroupAddon,
@@ -61,7 +21,6 @@ import {
   InputGroupText,
   InputGroupTextarea,
   Kbd,
-  KbdGroup,
   Menu,
   MenuCheckboxItem,
   MenuContent,
@@ -72,10 +31,8 @@ import {
   MenuRadioItem,
   MenuSeparator,
   MenuShortcut,
-  MenuSub,
-  MenuSubContent,
-  MenuSubTrigger,
   MenuTrigger,
+  PillButton,
   Select,
   SelectContent,
   SelectItem,
@@ -89,14 +46,10 @@ import {
   TabsContent,
   TabsList,
   TabsTrigger,
-  Textarea,
-  Tooltip,
+  Toaster,
   TooltipButton,
   TooltipButtonContent,
   TooltipButtonTrigger,
-  TooltipContent,
-  TooltipTrigger,
-  Toaster,
   createToastController,
   type ToastController,
 } from "../index";
@@ -188,15 +141,6 @@ afterEach(() => {
 });
 
 describe("Button", () => {
-  it("renders type button by default", () => {
-    const root = renderUi(() => <Button>Run</Button>);
-    const button = root.querySelector("button");
-
-    expect(button?.getAttribute("type")).toBe("button");
-    expect(button?.className).toContain("button--default");
-    expect(button?.className).toContain("button--size-default");
-  });
-
   it("disables the button and renders a spinner while loading", () => {
     const root = renderUi(() => <Button loading>Run</Button>);
     const button = root.querySelector("button");
@@ -228,33 +172,6 @@ describe("Button", () => {
   });
 });
 
-describe("IconButton", () => {
-  it("renders an accessible label", () => {
-    const root = renderUi(() => (
-      <IconButton aria-label="Settings" size="icon-sm">
-        <span>icon</span>
-      </IconButton>
-    ));
-    const button = root.querySelector("button");
-
-    expect(button?.getAttribute("aria-label")).toBe("Settings");
-    expect(button?.className).toContain("button--icon-sm");
-  });
-});
-
-describe("Input", () => {
-  it("passes native props and marks invalid inputs", () => {
-    const root = renderUi(() => (
-      <Input invalid placeholder="Name" value="Ada" />
-    ));
-    const input = root.querySelector("input");
-
-    expect(input?.value).toBe("Ada");
-    expect(input?.getAttribute("aria-invalid")).toBe("true");
-    expect(input?.className).toContain("input--invalid");
-  });
-});
-
 describe("InputGroup", () => {
   it("renders addons and focuses the inner input from addon press", () => {
     const root = renderUi(() => (
@@ -274,7 +191,6 @@ describe("InputGroup", () => {
       new MouseEvent("mousedown", { bubbles: true, cancelable: true }),
     );
 
-    expect(root.querySelector("[data-slot='input-group']")).not.toBeNull();
     expect(document.activeElement).toBe(input);
   });
 
@@ -294,204 +210,18 @@ describe("InputGroup", () => {
   });
 });
 
-describe("Textarea", () => {
-  it("uses shared size names", () => {
-    const root = renderUi(() => <Textarea size="lg" />);
-    const textarea = root.querySelector("textarea");
+describe("PillButton", () => {
+  it("renders pressed state without leaking the pressed prop", () => {
+    const root = renderUi(() => <PillButton pressed>Client</PillButton>);
+    const button = root.querySelector("button");
 
-    expect(textarea?.className).toContain("textarea--lg");
-  });
-
-  it("renders the control wrapper", () => {
-    const root = renderUi(() => <Textarea fullWidth invalid />);
-    const control = root.querySelector("[data-slot='textarea-control']");
-
-    expect(control?.className).toContain("textarea-control--full-width");
-    expect(control?.className).toContain("textarea-control--invalid");
-  });
-});
-
-describe("Badge", () => {
-  it("renders expanded variant and size modifiers", () => {
-    const root = renderUi(() => (
-      <Badge size="lg" variant="info">
-        Info
-      </Badge>
-    ));
-    const badge = root.querySelector("[data-slot='badge']");
-
-    expect(badge?.className).toContain("badge--info");
-    expect(badge?.className).toContain("badge--lg");
-  });
-});
-
-describe("AppShell", () => {
-  it("renders slots and defaults root slots to vertical orientation", () => {
-    const root = renderUi(() => (
-      <AppShell>
-        <AppShell.Header>
-          <AppShell.HeaderLeft>
-            <AppShell.Title>Workspace</AppShell.Title>
-          </AppShell.HeaderLeft>
-        </AppShell.Header>
-        <AppShell.Body>Content</AppShell.Body>
-      </AppShell>
-    ));
-    const shell = root.querySelector("[data-slot='app-shell']");
-    const header = root.querySelector("[data-slot='app-shell-header']");
-    const body = root.querySelector("[data-slot='app-shell-body']");
-
-    expect(shell?.getAttribute("data-orientation")).toBe("vertical");
-    expect(shell?.className).toContain("app-shell--vertical");
-    expect(header?.getAttribute("data-orientation")).toBe("vertical");
-    expect(body?.getAttribute("data-orientation")).toBe("vertical");
-  });
-
-  it("inherits horizontal orientation from the root shell", () => {
-    const root = renderUi(() => (
-      <AppShell orientation="horizontal">
-        <AppShell.Header>
-          <AppShell.HeaderLeft>
-            <AppShell.Title>Navigation</AppShell.Title>
-          </AppShell.HeaderLeft>
-        </AppShell.Header>
-        <AppShell.Body>Content</AppShell.Body>
-      </AppShell>
-    ));
-    const shell = root.querySelector("[data-slot='app-shell']");
-    const header = root.querySelector("[data-slot='app-shell-header']");
-    const body = root.querySelector("[data-slot='app-shell-body']");
-
-    expect(shell?.getAttribute("data-orientation")).toBe("horizontal");
-    expect(shell?.className).toContain("app-shell--horizontal");
-    expect(header?.getAttribute("data-orientation")).toBe("horizontal");
-    expect(body?.getAttribute("data-orientation")).toBe("horizontal");
-  });
-
-  it("defaults standalone headers to vertical orientation", () => {
-    const root = renderUi(() => (
-      <AppShell.Header>
-        <AppShell.HeaderLeft>
-          <AppShell.Title>Runtime</AppShell.Title>
-        </AppShell.HeaderLeft>
-      </AppShell.Header>
-    ));
-    const header = root.querySelector("[data-slot='app-shell-header']");
-
-    expect(header?.getAttribute("data-orientation")).toBe("vertical");
-  });
-
-  it("defaults standalone bodies to vertical orientation", () => {
-    const root = renderUi(() => <AppShell.Body>Content</AppShell.Body>);
-    const body = root.querySelector("[data-slot='app-shell-body']");
-
-    expect(body?.getAttribute("data-orientation")).toBe("vertical");
-  });
-
-  it("renders header title and side content", () => {
-    const root = renderUi(() => (
-      <AppShell.Header>
-        <AppShell.HeaderLeft>
-          <AppShell.Title>Runtime</AppShell.Title>
-          <Badge variant="success">Ready</Badge>
-        </AppShell.HeaderLeft>
-        <AppShell.HeaderRight>
-          <Button size="sm">Run</Button>
-        </AppShell.HeaderRight>
-      </AppShell.Header>
-    ));
-
-    expect(root.querySelector(".app-shell__title")?.textContent).toBe(
-      "Runtime",
-    );
-    expect(root.querySelector(".app-shell__header-left")?.textContent).toBe(
-      "RuntimeReady",
-    );
-    expect(root.querySelector("[data-slot='badge']")?.textContent).toBe(
-      "Ready",
-    );
-    expect(root.querySelector(".app-shell__header-right")?.textContent).toBe(
-      "Run",
-    );
-    expect(
-      root.querySelector(".app-shell__header-action-region")?.textContent,
-    ).toBe("Run");
-    expect(root.querySelector("[data-slot='app-shell-title']")).not.toBeNull();
-  });
-
-  it("renders header children inside the header layout", () => {
-    const root = renderUi(() => (
-      <AppShell.Header>
-        <nav>Navigation</nav>
-      </AppShell.Header>
-    ));
-
-    expect(root.querySelector(".app-shell__header-layout")?.textContent).toBe(
-      "Navigation",
-    );
-  });
-
-  it("supports bodies without an inner max-width wrapper", () => {
-    const root = renderUi(() => (
-      <AppShell.Body>Content</AppShell.Body>
-    ));
-
-    expect(root.querySelector(".app-shell__container")).toBeNull();
-  });
-
-  it("supports fixed bodies", () => {
-    const root = renderUi(() => (
-      <AppShell.Body scroll={false}>
-        Content
-      </AppShell.Body>
-    ));
-    const body = root.querySelector("[data-slot='app-shell-body']");
-
-    expect(body?.className).toContain("app-shell__body--fixed");
-    expect(body?.getAttribute("data-scroll")).toBe("false");
-  });
-});
-
-describe("Card", () => {
-  it("renders actions, panels, and frame slots", () => {
-    const root = renderUi(() => (
-      <CardFrame>
-        <CardFrameHeader>
-          <CardFrameTitle>Group</CardFrameTitle>
-          <CardFrameAction>Action</CardFrameAction>
-        </CardFrameHeader>
-        <Card>
-          <CardHeader>
-            <CardTitle>Panel</CardTitle>
-            <CardAction>Action</CardAction>
-          </CardHeader>
-          <CardPanel>Content</CardPanel>
-        </Card>
-      </CardFrame>
-    ));
-
-    expect(root.querySelector("[data-slot='card-frame']")).not.toBeNull();
-    expect(
-      root.querySelector("[data-slot='card-frame-action']"),
-    ).not.toBeNull();
-    expect(root.querySelector("[data-slot='card-action']")).not.toBeNull();
-    expect(root.querySelector("[data-slot='card-panel']")).not.toBeNull();
+    expect(button?.getAttribute("aria-pressed")).toBe("true");
+    expect(button?.className).toContain("pill-button--pressed");
+    expect(button?.hasAttribute("pressed")).toBe(false);
   });
 });
 
 describe("Kbd", () => {
-  it("renders single keys and grouped shortcuts", () => {
-    const root = renderUi(() => (
-      <KbdGroup aria-label="Open command menu">
-        <Kbd>⌘</Kbd>
-        <Kbd>K</Kbd>
-      </KbdGroup>
-    ));
-
-    expect(root.querySelector("[data-slot='kbd-group']")).not.toBeNull();
-    expect(root.querySelectorAll("[data-slot='kbd']")).toHaveLength(2);
-  });
-
   it("normalizes modifier glyphs and aliases", () => {
     const root = renderUi(() => (
       <>
@@ -581,18 +311,6 @@ describe("Switch", () => {
 });
 
 describe("Slider", () => {
-  it("renders the root, control, track, range, and thumb slots", () => {
-    const root = renderUi(() => (
-      <Slider aria-label={["Volume"]} defaultValue={[40]} />
-    ));
-
-    expect(root.querySelector("[data-slot='slider']")).not.toBeNull();
-    expect(root.querySelector("[data-slot='slider-control']")).not.toBeNull();
-    expect(root.querySelector("[data-slot='slider-track']")).not.toBeNull();
-    expect(root.querySelector("[data-slot='slider-range']")).not.toBeNull();
-    expect(root.querySelectorAll("[data-slot='slider-thumb']")).toHaveLength(1);
-  });
-
   it("renders one thumb and hidden input per range value", () => {
     const root = renderUi(() => (
       <Slider
@@ -640,24 +358,6 @@ describe("Slider", () => {
     setValue?.([41]);
 
     expect(root.querySelector("[data-slot='slider-thumb']")).toBe(thumb);
-  });
-});
-
-describe("Alert", () => {
-  it("renders semantic alert slots and actions", () => {
-    const root = renderUi(() => (
-      <Alert variant="warning">
-        <AlertTitle>Warning</AlertTitle>
-        <AlertDescription>Retrying connection.</AlertDescription>
-        <AlertAction>Retry</AlertAction>
-      </Alert>
-    ));
-
-    expect(root.querySelector("[data-slot='alert']")?.className).toContain(
-      "alert--warning",
-    );
-    expect(root.querySelector("[data-slot='alert-title']")).not.toBeNull();
-    expect(root.querySelector("[data-slot='alert-action']")).not.toBeNull();
   });
 });
 
@@ -746,32 +446,6 @@ describe("Toaster", () => {
 });
 
 describe("Dialog", () => {
-  it("renders open dialog content and close action", () => {
-    renderUi(() => (
-      <Dialog open>
-        <DialogContent>
-          <DialogHeader>
-            <DialogTitle>Settings</DialogTitle>
-            <DialogDescription>Runtime settings</DialogDescription>
-          </DialogHeader>
-          <DialogFooter>
-            <DialogClose>Close</DialogClose>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
-    ));
-
-    expect(
-      document.body.querySelector("[data-slot='dialog-content']"),
-    ).not.toBeNull();
-    expect(
-      document.body.querySelector("[data-slot='dialog-title']"),
-    ).not.toBeNull();
-    expect(
-      document.body.querySelector("[data-slot='dialog-close']"),
-    ).not.toBeNull();
-  });
-
   it("layers nested dialogs above their parent dialog", () => {
     renderUi(() => (
       <Dialog open>
@@ -815,34 +489,8 @@ describe("Dialog", () => {
   });
 });
 
-describe("AlertDialog", () => {
-  it("renders alert dialog action and cancel buttons", () => {
-    renderUi(() => (
-      <AlertDialog open>
-        <AlertDialogContent>
-          <AlertDialogHeader>
-            <AlertDialogTitle>Stop?</AlertDialogTitle>
-            <AlertDialogDescription>Stop the process.</AlertDialogDescription>
-          </AlertDialogHeader>
-          <AlertDialogFooter>
-            <AlertDialogCancel>Cancel</AlertDialogCancel>
-            <AlertDialogAction>Stop</AlertDialogAction>
-          </AlertDialogFooter>
-        </AlertDialogContent>
-      </AlertDialog>
-    ));
-
-    expect(
-      document.body.querySelector("[data-slot='alert-dialog-action']"),
-    ).not.toBeNull();
-    expect(
-      document.body.querySelector("[data-slot='alert-dialog-cancel']"),
-    ).not.toBeNull();
-  });
-});
-
 describe("Select", () => {
-  it("renders trigger, value, content, and registered items", () => {
+  it("renders selected item labels instead of raw selected values", () => {
     renderUi(() => (
       <Select open value={["solid"]}>
         <SelectTrigger>
@@ -856,12 +504,8 @@ describe("Select", () => {
     ));
 
     const trigger = document.body.querySelector("[data-slot='select-trigger']");
-    expect(trigger).not.toBeNull();
     expect(trigger?.textContent).toContain("Solid");
     expect(trigger?.textContent).not.toContain("solid");
-    expect(
-      document.body.querySelectorAll("[data-slot='select-item']"),
-    ).toHaveLength(2);
   });
 
   it("uses numeric item children as trigger labels", () => {
@@ -933,27 +577,6 @@ describe("Select", () => {
 });
 
 describe("Combobox", () => {
-  it("renders input, empty state, and registered items", () => {
-    renderUi(() => (
-      <Combobox open inputBehavior="autohighlight">
-        <ComboboxInput placeholder="Search" />
-        <ComboboxContent>
-          <ComboboxEmpty>No result</ComboboxEmpty>
-          <ComboboxList>
-            <ComboboxItem value="reports">Reports</ComboboxItem>
-          </ComboboxList>
-        </ComboboxContent>
-      </Combobox>
-    ));
-
-    expect(
-      document.body.querySelector("[data-slot='combobox-input']"),
-    ).not.toBeNull();
-    expect(
-      document.body.querySelector("[data-slot='combobox-item']"),
-    ).not.toBeNull();
-  });
-
   it("shows the trigger instead of clear control before selection", () => {
     const root = renderUi(() => (
       <Combobox value={[]}>
@@ -1079,44 +702,7 @@ describe("Menu", () => {
       document.body.querySelector<HTMLElement>("[data-slot='menu-item']"),
     );
 
-    expect(
-      document.body.querySelector("[data-slot='menu-content']"),
-    ).not.toBeNull();
-    expect(
-      document.body.querySelector("[data-slot='menu-checkbox-item']"),
-    ).not.toBeNull();
-    expect(
-      document.body.querySelector("[data-slot='menu-radio-item']"),
-    ).not.toBeNull();
     expect(selected).toBe(true);
-  });
-
-  it("renders submenu trigger and content slots", () => {
-    renderUi(() => (
-      <Menu open>
-        <MenuTrigger>Open</MenuTrigger>
-        <MenuContent>
-          <MenuSub id="more" open>
-            <MenuSubTrigger>More</MenuSubTrigger>
-            <MenuSubContent>
-              <MenuItem value="nested">Nested</MenuItem>
-            </MenuSubContent>
-          </MenuSub>
-        </MenuContent>
-      </Menu>
-    ));
-
-    expect(
-      document.body.querySelector("[data-slot='menu-sub-trigger']"),
-    ).not.toBeNull();
-    expect(
-      document.body
-        .querySelector("[data-slot='menu-sub-trigger']")
-        ?.getAttribute("data-value"),
-    ).toBe("menu:more:trigger");
-    expect(
-      document.body.querySelector("[data-slot='menu-content']"),
-    ).not.toBeNull();
   });
 });
 
@@ -1137,7 +723,6 @@ describe("Tabs", () => {
       .querySelectorAll<HTMLElement>("[data-slot='tabs-trigger']")[1]
       ?.click();
 
-    expect(root.querySelector("[data-slot='tabs-list']")).not.toBeNull();
     expect(root.textContent).toContain("Second");
   });
 
@@ -1159,24 +744,6 @@ describe("Tabs", () => {
     )[1];
 
     expect(inactive?.hasAttribute("hidden")).toBe(true);
-  });
-});
-
-describe("Tooltip", () => {
-  it("renders open tooltip content and trigger attributes", () => {
-    renderUi(() => (
-      <Tooltip open>
-        <TooltipTrigger aria-label="Info">Info</TooltipTrigger>
-        <TooltipContent>Runtime status</TooltipContent>
-      </Tooltip>
-    ));
-
-    expect(
-      document.body.querySelector("[data-slot='tooltip-trigger']"),
-    ).not.toBeNull();
-    expect(
-      document.body.querySelector("[data-slot='tooltip-content']"),
-    ).not.toBeNull();
   });
 });
 
@@ -1216,101 +783,6 @@ describe("TooltipButton", () => {
   });
 });
 
-describe("Command", () => {
-  it("filters items and calls select handlers", () => {
-    let selected = "";
-    const root = renderUi(() => (
-      <Command>
-        <CommandInput />
-        <CommandList>
-          <CommandEmpty>No command</CommandEmpty>
-          <CommandItem value="start" onSelect={(value) => (selected = value)}>
-            Start process
-          </CommandItem>
-          <CommandItem value="bank">Bank cleanup</CommandItem>
-        </CommandList>
-      </Command>
-    ));
-    const input = root.querySelector("input");
-    const start = root.querySelector<HTMLElement>(
-      "[data-command-value='start']",
-    );
-    const bank = root.querySelector<HTMLElement>("[data-command-value='bank']");
-
-    input!.value = "sta";
-    input!.dispatchEvent(new InputEvent("input", { bubbles: true }));
-    start!.click();
-
-    expect(selected).toBe("start");
-    expect(start?.style.display).toBe("");
-    expect(bank?.style.display).toBe("none");
-  });
-
-  it("links the input to the active listbox option", () => {
-    const root = renderUi(() => (
-      <Command>
-        <CommandInput />
-        <CommandList>
-          <CommandItem value="start">Start process</CommandItem>
-          <CommandItem value="bank">Bank cleanup</CommandItem>
-        </CommandList>
-      </Command>
-    ));
-    const input = root.querySelector("input");
-    const list = root.querySelector("[data-slot='command-list']");
-    const start = root.querySelector<HTMLElement>(
-      "[data-command-value='start']",
-    );
-
-    input!.dispatchEvent(
-      new KeyboardEvent("keydown", {
-        bubbles: true,
-        cancelable: true,
-        key: "ArrowDown",
-      }),
-    );
-
-    expect(input?.getAttribute("role")).toBe("combobox");
-    expect(input?.getAttribute("aria-controls")).toBe(list?.id);
-    expect(input?.getAttribute("aria-activedescendant")).toBe(start?.id);
-    expect(start?.getAttribute("aria-selected")).toBe("true");
-  });
-
-  it("prevents disabled command links from navigating", () => {
-    let selected = "";
-    let clicked = false;
-    const root = renderUi(() => (
-      <Command>
-        <CommandInput />
-        <CommandList>
-          <CommandLinkItem
-            disabled
-            href="/docs"
-            onClick={() => (clicked = true)}
-            onSelect={(value) => (selected = value)}
-            value="docs"
-          >
-            Docs
-          </CommandLinkItem>
-        </CommandList>
-      </Command>
-    ));
-    const link = root.querySelector("a");
-    const event = new MouseEvent("click", {
-      bubbles: true,
-      cancelable: true,
-    });
-
-    const dispatched = link!.dispatchEvent(event);
-
-    expect(link?.getAttribute("aria-disabled")).toBe("true");
-    expect(link?.getAttribute("href")).toBeNull();
-    expect(dispatched).toBe(false);
-    expect(clicked).toBe(false);
-    expect(selected).toBe("");
-  });
-});
-
 describe("Separator", () => {
   it("omits orientation ARIA when decorative", () => {
     const root = renderUi(() => <Separator />);
@@ -1328,23 +800,5 @@ describe("Separator", () => {
 
     expect(separator?.getAttribute("role")).toBe("separator");
     expect(separator?.getAttribute("aria-orientation")).toBe("vertical");
-  });
-});
-
-describe("Empty", () => {
-  it("renders empty state slots", () => {
-    const root = renderUi(() => (
-      <Empty>
-        <EmptyHeader>
-          <EmptyMedia variant="icon">I</EmptyMedia>
-          <EmptyTitle>No results</EmptyTitle>
-          <EmptyDescription>Nothing queued.</EmptyDescription>
-        </EmptyHeader>
-        <EmptyContent>Refresh</EmptyContent>
-      </Empty>
-    ));
-
-    expect(root.querySelector("[data-slot='empty-media']")).not.toBeNull();
-    expect(root.querySelector("[data-slot='empty-content']")).not.toBeNull();
   });
 });

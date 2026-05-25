@@ -116,36 +116,6 @@ export {
 } from "./components/Combobox";
 export { Dropdown, type DropdownProps } from "./components/Dropdown";
 export {
-  Command,
-  CommandDialog,
-  CommandEmpty,
-  CommandFooter,
-  CommandGroup,
-  CommandGroupHeading,
-  CommandGroupItems,
-  CommandInput,
-  CommandItem,
-  CommandLinkItem,
-  CommandList,
-  CommandLoading,
-  CommandPanel,
-  CommandSeparator,
-  CommandShortcut,
-  CommandState,
-  CommandViewport,
-  type CommandDialogProps,
-  type CommandEmptyProps,
-  type CommandFilterFn,
-  type CommandGroupProps,
-  type CommandInputProps,
-  type CommandItemProps,
-  type CommandLinkItemProps,
-  type CommandListProps,
-  type CommandLoadingProps,
-  type CommandProps,
-  type CommandShortcutProps,
-} from "./components/Command";
-export {
   Dialog,
   DialogClose,
   DialogContent,
@@ -178,6 +148,7 @@ export {
   type EmptyMediaVariant,
   type EmptyProps,
 } from "./components/Empty";
+export { Field, type FieldProps } from "./components/Field";
 export {
   IconButton,
   type IconButtonProps,
@@ -237,6 +208,7 @@ export {
   type MenuTriggerProps,
 } from "./components/Menu";
 export { Portal, type PortalProps } from "./components/Portal";
+export { PillButton, type PillButtonProps } from "./components/PillButton";
 export { Separator, type SeparatorProps } from "./components/Separator";
 export {
   Select,
@@ -299,6 +271,10 @@ export {
   type TooltipButtonTriggerProps,
 } from "./components/TooltipButton";
 export {
+  TooltipIconButton,
+  type TooltipIconButtonProps,
+} from "./components/TooltipIconButton";
+export {
   createToastController,
   Toaster,
   ToastBanner,
@@ -318,6 +294,5 @@ export {
 } from "./components/VisuallyHidden";
 export { cn } from "./lib/cn";
 export { composeEventHandlers } from "./lib/composeEventHandlers";
-export { computeCommandScore } from "./lib/commandScore";
 export { isAriaInvalid } from "./lib/domState";
 export { mergeRefs, type AssignableRef } from "./lib/mergeRefs";

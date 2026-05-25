@@ -37,7 +37,6 @@ export interface CommandDefinition {
   readonly scope: CommandScope;
   readonly category: CommandCategory;
   readonly label: string;
-  readonly keywords: readonly string[];
   readonly defaultHotkey: string;
 }
 
@@ -52,7 +51,6 @@ export const GAME_COMMANDS: readonly CommandDefinition[] = [
     scope: "game",
     category: "General",
     label: "Toggle Top Bar",
-    keywords: ["top", "bar", "navigation", "chrome"],
     defaultHotkey: "Mod+Shift+T",
   },
   {
@@ -60,7 +58,6 @@ export const GAME_COMMANDS: readonly CommandDefinition[] = [
     scope: "game",
     category: "Scripts",
     label: "Load Script",
-    keywords: ["open", "script"],
     defaultHotkey: "Mod+O",
   },
   {
@@ -68,7 +65,6 @@ export const GAME_COMMANDS: readonly CommandDefinition[] = [
     scope: "game",
     category: "Scripts",
     label: "Start or Stop Script",
-    keywords: ["run", "start", "stop", "script"],
     defaultHotkey: "",
   },
   {
@@ -76,7 +72,6 @@ export const GAME_COMMANDS: readonly CommandDefinition[] = [
     scope: "game",
     category: "Scripts",
     label: "Stop Script",
-    keywords: ["halt", "script"],
     defaultHotkey: "Mod+Shift+X",
   },
   {
@@ -84,7 +79,6 @@ export const GAME_COMMANDS: readonly CommandDefinition[] = [
     scope: "game",
     category: "Options",
     label: "Toggle Options Menu",
-    keywords: ["menu", "options", "settings", "open", "close"],
     defaultHotkey: "Mod+Shift+,",
   },
   {
@@ -92,7 +86,6 @@ export const GAME_COMMANDS: readonly CommandDefinition[] = [
     scope: "game",
     category: "Tools",
     label: "Open Environment",
-    keywords: ["window", "runtime", "state"],
     defaultHotkey: "Mod+E",
   },
   {
@@ -100,7 +93,6 @@ export const GAME_COMMANDS: readonly CommandDefinition[] = [
     scope: "game",
     category: "Tools",
     label: "Open Fast Travels",
-    keywords: ["window", "travel", "map"],
     defaultHotkey: "",
   },
   {
@@ -108,7 +100,6 @@ export const GAME_COMMANDS: readonly CommandDefinition[] = [
     scope: "game",
     category: "Tools",
     label: "Open Loader/Grabber",
-    keywords: ["window", "loader", "grabber", "asset"],
     defaultHotkey: "",
   },
   {
@@ -116,7 +107,6 @@ export const GAME_COMMANDS: readonly CommandDefinition[] = [
     scope: "game",
     category: "Tools",
     label: "Open Follower Window",
-    keywords: ["window", "follow", "follower"],
     defaultHotkey: "Alt+F",
   },
   {
@@ -124,7 +114,6 @@ export const GAME_COMMANDS: readonly CommandDefinition[] = [
     scope: "game",
     category: "Packets",
     label: "Open Packets",
-    keywords: ["window", "packet", "packets", "log", "capture", "send"],
     defaultHotkey: "",
   },
   {
@@ -132,7 +121,6 @@ export const GAME_COMMANDS: readonly CommandDefinition[] = [
     scope: "game",
     category: "General",
     label: "Toggle Auto Attack",
-    keywords: ["auto", "attack"],
     defaultHotkey: "Alt+A",
   },
   {
@@ -140,7 +128,6 @@ export const GAME_COMMANDS: readonly CommandDefinition[] = [
     scope: "game",
     category: "General",
     label: "Toggle Follower Feature",
-    keywords: ["follow", "follower", "feature"],
     defaultHotkey: "Alt+Shift+F",
   },
   {
@@ -148,7 +135,6 @@ export const GAME_COMMANDS: readonly CommandDefinition[] = [
     scope: "game",
     category: "General",
     label: "Toggle Bank",
-    keywords: ["bank"],
     defaultHotkey: "Mod+B",
   },
   {
@@ -156,7 +142,6 @@ export const GAME_COMMANDS: readonly CommandDefinition[] = [
     scope: "game",
     category: "Options",
     label: "Toggle Infinite Range",
-    keywords: ["range"],
     defaultHotkey: "Alt+I",
   },
   {
@@ -164,7 +149,6 @@ export const GAME_COMMANDS: readonly CommandDefinition[] = [
     scope: "game",
     category: "Options",
     label: "Toggle Provoke Cell",
-    keywords: ["provoke", "cell"],
     defaultHotkey: "",
   },
   {
@@ -172,7 +156,6 @@ export const GAME_COMMANDS: readonly CommandDefinition[] = [
     scope: "game",
     category: "Options",
     label: "Toggle Enemy Magnet",
-    keywords: ["enemy", "magnet"],
     defaultHotkey: "",
   },
   {
@@ -180,7 +163,6 @@ export const GAME_COMMANDS: readonly CommandDefinition[] = [
     scope: "game",
     category: "Options",
     label: "Toggle Lag Killer",
-    keywords: ["lag"],
     defaultHotkey: "Alt+L",
   },
   {
@@ -188,7 +170,6 @@ export const GAME_COMMANDS: readonly CommandDefinition[] = [
     scope: "game",
     category: "Options",
     label: "Toggle Hide Players",
-    keywords: ["players", "visibility"],
     defaultHotkey: "",
   },
   {
@@ -196,7 +177,6 @@ export const GAME_COMMANDS: readonly CommandDefinition[] = [
     scope: "game",
     category: "Options",
     label: "Toggle Skip Cutscenes",
-    keywords: ["cutscene"],
     defaultHotkey: "",
   },
   {
@@ -204,7 +184,6 @@ export const GAME_COMMANDS: readonly CommandDefinition[] = [
     scope: "game",
     category: "Options",
     label: "Toggle Anti-Counter",
-    keywords: ["anti", "counter"],
     defaultHotkey: "",
   },
   {
@@ -212,7 +191,6 @@ export const GAME_COMMANDS: readonly CommandDefinition[] = [
     scope: "game",
     category: "Options",
     label: "Toggle Disable FX",
-    keywords: ["effects", "fx"],
     defaultHotkey: "",
   },
   {
@@ -220,7 +198,6 @@ export const GAME_COMMANDS: readonly CommandDefinition[] = [
     scope: "game",
     category: "Options",
     label: "Toggle Collisions",
-    keywords: ["collision"],
     defaultHotkey: "",
   },
   {
@@ -228,7 +205,6 @@ export const GAME_COMMANDS: readonly CommandDefinition[] = [
     scope: "game",
     category: "Options",
     label: "Toggle Death Ads",
-    keywords: ["death", "ads"],
     defaultHotkey: "",
   },
 ] as const;

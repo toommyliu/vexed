@@ -4,6 +4,8 @@ import "./style.css";
 import { createHotkey } from "@tanstack/solid-hotkeys";
 import {
   Icon,
+  Alert,
+  AlertDescription,
   AlertDialog,
   AlertDialogAction,
   AlertDialogCancel,
@@ -41,6 +43,7 @@ import {
   InputGroupAddon,
   InputGroupInput,
   Kbd,
+  Label,
   Spinner,
   Tooltip,
   TooltipContent,
@@ -1230,9 +1233,9 @@ function App(): JSX.Element {
 
               <div class="account-manager__field-container">
                 <div class="account-manager__label account-manager__script-label">
-                  <label for={LAUNCH_WITH_SCRIPT_CHECKBOX_ID}>
+                  <Label for={LAUNCH_WITH_SCRIPT_CHECKBOX_ID}>
                     Launch with script
-                  </label>
+                  </Label>
                   <Show when={selectedScript() !== null}>
                     <Checkbox
                       aria-label="Launch with script"
@@ -1392,7 +1395,7 @@ function App(): JSX.Element {
               <div class="account-manager__group-row">
                 <div class="account-manager__group-label">
                   <span>Groups</span>
-                  <Tooltip closeDelay={0} openDelay={250}>
+                  <Tooltip closeDelay={0} openDelay={200}>
                     <TooltipTrigger
                       asChild={(triggerProps) => (
                         <Button
@@ -1760,9 +1763,11 @@ function App(): JSX.Element {
             >
               <div class="account-dialog__fields">
                 <Show when={groupDialogError()}>
-                  <div class="account-dialog__error">{groupDialogError()}</div>
+                  <Alert class="account-dialog__error" variant="error">
+                    <AlertDescription>{groupDialogError()}</AlertDescription>
+                  </Alert>
                 </Show>
-                <label class="account-dialog__field">
+                <Label class="account-dialog__field">
                   <span>Name</span>
                   <Input
                     fullWidth
@@ -1773,7 +1778,7 @@ function App(): JSX.Element {
                       setGroupFormName(event.currentTarget.value)
                     }
                   />
-                </label>
+                </Label>
                 <div class="account-dialog__field">
                   <span>Accounts</span>
                   <InputGroup class="account-group-dialog__search">
@@ -1792,25 +1797,25 @@ function App(): JSX.Element {
                     <Show
                       when={filteredGroupAccounts().length > 0}
                       fallback={
-                        <div class="account-group-dialog__empty">
+                        <Empty class="account-group-dialog__empty">
                           No matching accounts
-                        </div>
+                        </Empty>
                       }
                     >
                       <For each={filteredGroupAccounts()}>
                         {(account) => (
-                          <label class="account-group-dialog__member">
-                            <Checkbox
-                              checked={groupForm().usernames.has(
+                          <Checkbox
+                            class="account-group-dialog__member"
+                            checked={groupForm().usernames.has(
+                              account.username,
+                            )}
+                            onChange={(event) =>
+                              toggleGroupMember(
                                 account.username,
-                              )}
-                              onChange={(event) =>
-                                toggleGroupMember(
-                                  account.username,
-                                  event.currentTarget.checked,
-                                )
-                              }
-                            />
+                                event.currentTarget.checked,
+                              )
+                            }
+                          >
                             <span class="account-group-dialog__member-text">
                               <span class="account-group-dialog__member-name">
                                 {account.label}
@@ -1819,7 +1824,7 @@ function App(): JSX.Element {
                                 {account.username}
                               </span>
                             </span>
-                          </label>
+                          </Checkbox>
                         )}
                       </For>
                     </Show>
@@ -1831,13 +1836,21 @@ function App(): JSX.Element {
                 <Show when={groupDialogMode() === "edit"}>
                   <AlertDialog>
                     <AlertDialogTrigger
-                      class="button button--destructive-outline button--size-default"
-                      disabled={busy()}
-                      type="button"
-                    >
-                      <Icon icon="trash_2" class="button__icon" />
-                      Delete
-                    </AlertDialogTrigger>
+                      asChild={(triggerProps) => (
+                        <Button
+                          {...(triggerProps({
+                            children: (
+                              <>
+                                <Icon icon="trash_2" class="button__icon" />
+                                Delete
+                              </>
+                            ),
+                            disabled: busy(),
+                            variant: "destructive-outline",
+                          } as ButtonProps) as ButtonProps)}
+                        />
+                      )}
+                    />
                     <AlertDialogContent class="account-dialog">
                       <AlertDialogHeader>
                         <AlertDialogTitle>Delete Group</AlertDialogTitle>
@@ -1892,9 +1905,11 @@ function App(): JSX.Element {
             >
               <div class="account-dialog__fields">
                 <Show when={dialogError()}>
-                  <div class="account-dialog__error">{dialogError()}</div>
+                  <Alert class="account-dialog__error" variant="error">
+                    <AlertDescription>{dialogError()}</AlertDescription>
+                  </Alert>
                 </Show>
-                <label class="account-dialog__field">
+                <Label class="account-dialog__field">
                   <span>Username</span>
                   <Input
                     ref={(element) => {
@@ -1908,9 +1923,9 @@ function App(): JSX.Element {
                       setFormField("username", event.currentTarget.value)
                     }
                   />
-                </label>
+                </Label>
                 <div class="account-dialog__field">
-                  <label for={ACCOUNT_PASSWORD_INPUT_ID}>Password</label>
+                  <Label for={ACCOUNT_PASSWORD_INPUT_ID}>Password</Label>
                   <InputGroup
                     class="account-dialog__password-control"
                     size="lg"
@@ -1954,7 +1969,7 @@ function App(): JSX.Element {
                 </div>
 
                 <div class="account-dialog__optional-field">
-                  <label class="account-dialog__field">
+                  <Label class="account-dialog__field">
                     <div class="account-dialog__field-header">
                       <span>Label</span>
                       <span class="account-dialog__field-optional">
@@ -1972,7 +1987,7 @@ function App(): JSX.Element {
                         setFormField("label", event.currentTarget.value)
                       }
                     />
-                  </label>
+                  </Label>
                 </div>
               </div>
 
@@ -1980,13 +1995,21 @@ function App(): JSX.Element {
                 <Show when={dialogMode() === "edit"}>
                   <AlertDialog>
                     <AlertDialogTrigger
-                      class="button button--destructive-outline button--size-default"
-                      disabled={busy()}
-                      type="button"
-                    >
-                      <Icon icon="trash_2" class="button__icon" />
-                      Delete
-                    </AlertDialogTrigger>
+                      asChild={(triggerProps) => (
+                        <Button
+                          {...(triggerProps({
+                            children: (
+                              <>
+                                <Icon icon="trash_2" class="button__icon" />
+                                Delete
+                              </>
+                            ),
+                            disabled: busy(),
+                            variant: "destructive-outline",
+                          } as ButtonProps) as ButtonProps)}
+                        />
+                      )}
+                    />
                     <AlertDialogContent class="account-dialog">
                       <AlertDialogHeader>
                         <AlertDialogTitle>Delete Account</AlertDialogTitle>

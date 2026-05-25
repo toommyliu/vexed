@@ -6,11 +6,6 @@ import { createVirtualizer } from "@tanstack/solid-virtual";
 import {
   AppShell,
   Button,
-  Card,
-  CardContent,
-  CardFrame,
-  CardFrameHeader,
-  CardFrameTitle,
   Icon,
   IconButton,
   Input,
@@ -19,14 +14,12 @@ import {
   InputGroupInput,
   Kbd,
   Label,
+  PillButton,
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
-  Tooltip,
-  TooltipContent,
-  TooltipTrigger,
-  type IconButtonProps,
+  TooltipIconButton,
 } from "@vexed/ui";
 import {
   For,
@@ -56,15 +49,13 @@ import {
   toTreeJson,
   type FlattenedTreeItem,
 } from "./tree";
+import { SectionPanel } from "../../components/SectionPanel";
+import { downloadJson } from "../../lib/download";
+import { splitTextMatches } from "../../lib/text";
 
 interface SourceOption<T extends string> {
   readonly label: string;
   readonly value: T;
-}
-
-interface TextSegment {
-  readonly match: boolean;
-  readonly text: string;
 }
 
 const TREE_ROW_HEIGHT = 30;
@@ -98,35 +89,6 @@ const grabberOptions: readonly SourceOption<LoaderGrabberGrabType>[] =
     value,
   }));
 
-const escapeRegExp = (value: string): string =>
-  value.replaceAll(/[$()*+.?[\\\]^{|}]/g, "\\$&");
-
-const splitMatches = (value: string, query: string): readonly TextSegment[] => {
-  if (query === "") {
-    return [{ match: false, text: value }];
-  }
-
-  const matcher = new RegExp(`(${escapeRegExp(query)})`, "gi");
-  return value
-    .split(matcher)
-    .filter((part) => part !== "")
-    .map((part) => ({
-      match: part.toLocaleLowerCase() === query.toLocaleLowerCase(),
-      text: part,
-    }));
-};
-
-const downloadJson = (filename: string, data: unknown): void => {
-  const url = URL.createObjectURL(
-    new Blob([JSON.stringify(data, null, 2)], { type: "application/json" }),
-  );
-  const link = document.createElement("a");
-  link.href = url;
-  link.download = filename;
-  link.click();
-  URL.revokeObjectURL(url);
-};
-
 const operationErrorMessage = (cause: unknown, fallback: string): string =>
   cause instanceof Error && cause.message !== "" ? cause.message : fallback;
 
@@ -137,73 +99,6 @@ const preventPointerFocus: JSX.EventHandler<HTMLElement, PointerEvent> = (
     event.preventDefault();
   }
 };
-
-function Panel(props: {
-  readonly action?: JSX.Element;
-  readonly children: JSX.Element;
-  readonly title: string;
-  readonly titleAccessory?: JSX.Element;
-}): JSX.Element {
-  return (
-    <CardFrame class="loader-grabber-panel">
-      <CardFrameHeader class="loader-grabber-panel__header">
-        <div class="loader-grabber-panel__heading">
-          <CardFrameTitle class="loader-grabber-panel__title">
-            {props.title}
-          </CardFrameTitle>
-          <Show when={props.titleAccessory}>
-            {(accessory) => (
-              <div class="loader-grabber-panel__title-accessory">
-                {accessory()}
-              </div>
-            )}
-          </Show>
-        </div>
-        <Show when={props.action}>
-          {(action) => (
-            <div class="loader-grabber-panel__actions">{action()}</div>
-          )}
-        </Show>
-      </CardFrameHeader>
-      <Card class="loader-grabber-panel__body">
-        <CardContent class="loader-grabber-panel__content">
-          {props.children}
-        </CardContent>
-      </Card>
-    </CardFrame>
-  );
-}
-
-function TooltipIconButton(props: {
-  readonly "aria-label": string;
-  readonly children: JSX.Element;
-  readonly class?: string;
-  readonly disabled?: boolean;
-  readonly onClick: JSX.EventHandler<HTMLButtonElement, MouseEvent>;
-  readonly tooltip: string;
-}): JSX.Element {
-  return (
-    <Tooltip closeDelay={0} openDelay={200} positioning={{ placement: "top" }}>
-      <TooltipTrigger
-        asChild={(triggerProps) => (
-          <IconButton
-            {...(triggerProps({
-              "aria-label": props["aria-label"],
-              children: props.children,
-              class: props.class,
-              disabled: props.disabled,
-              onClick: props.onClick,
-              size: "icon-sm",
-              type: "button",
-              variant: "ghost",
-            } as IconButtonProps) as IconButtonProps)}
-          />
-        )}
-      />
-      <TooltipContent>{props.tooltip}</TooltipContent>
-    </Tooltip>
-  );
-}
 
 function SourceSelect<T extends string>(props: {
   readonly id: string;
@@ -448,7 +343,7 @@ function App(): JSX.Element {
     }
 
     return (
-      <For each={splitMatches(value, query)}>
+      <For each={splitTextMatches(value, query)}>
         {(segment) =>
           segment.match ? (
             <mark class="loader-grabber-tree-row__match">{segment.text}</mark>
@@ -566,7 +461,7 @@ function App(): JSX.Element {
           </Show>
           <Show when={props.item.value}>
             {(value) => (
-              <button
+              <PillButton
                 class="loader-grabber-tree-row__value"
                 classList={{
                   "loader-grabber-tree-row__value--copied": copied(),
@@ -596,7 +491,7 @@ function App(): JSX.Element {
                     class="loader-grabber-tree-row__value-icon loader-grabber-tree-row__value-icon--check"
                   />
                 </span>
-              </button>
+              </PillButton>
             )}
           </Show>
         </div>
@@ -642,7 +537,7 @@ function App(): JSX.Element {
 
           <div class="loader-grabber-workspace">
             <div class="loader-grabber-command">
-              <Panel title="Load">
+              <SectionPanel class="loader-grabber-panel" title="Load">
                 <form
                   class="loader-grabber-command-form"
                   onSubmit={(event) => {
@@ -687,9 +582,9 @@ function App(): JSX.Element {
                     Load
                   </Button>
                 </form>
-              </Panel>
+              </SectionPanel>
 
-              <Panel title="Grab">
+              <SectionPanel class="loader-grabber-panel" title="Grab">
                 <div class="loader-grabber-command-form">
                   <SourceSelect
                     id="grabber-source"
@@ -734,10 +629,11 @@ function App(): JSX.Element {
                     </Button>
                   </div>
                 </div>
-              </Panel>
+              </SectionPanel>
             </div>
 
-            <Panel
+            <SectionPanel
+              class="loader-grabber-panel"
               title="Grabbed Data"
               titleAccessory={
                 <Show when={grabbedData()}>
@@ -825,7 +721,7 @@ function App(): JSX.Element {
                   </div>
                 </Show>
               </div>
-            </Panel>
+            </SectionPanel>
           </div>
         </div>
       </AppShell.Body>
