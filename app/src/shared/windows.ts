@@ -66,7 +66,7 @@ export const appWindowGroups: readonly WindowGroup[] = [
 
 export const gameWindowGroups: readonly WindowGroup[] = [
   {
-    name: "Tools",
+    name: "Application",
     items: [
       {
         id: WindowIds.Skills,
@@ -81,6 +81,11 @@ export const gameWindowGroups: readonly WindowGroup[] = [
           minHeight: 500,
         },
       },
+    ],
+  },
+  {
+    name: "Tools",
+    items: [
       {
         id: WindowIds.Environment,
         label: "Environment",
