@@ -65,7 +65,7 @@ export default defineConfig({
           items: [
             { link: "/scripting/", label: "Overview" },
             { link: "/scripting/script/", label: "Script" },
-            { link: "/scripting/std/", label: "Std" },
+            { link: "/scripting/imports/", label: "Imports" },
             {
               label: "Features",
               items: [

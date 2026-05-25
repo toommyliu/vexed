@@ -2,6 +2,45 @@
 
 /* eslint-disable */
 
+type ScriptPipe = {
+  <A>(value: A): A;
+  <A, B>(value: A, ab: (a: A) => B): B;
+  <A, B, C>(value: A, ab: (a: A) => B, bc: (b: B) => C): C;
+  <A, B, C, D>(
+    value: A,
+    ab: (a: A) => B,
+    bc: (b: B) => C,
+    cd: (c: C) => D,
+  ): D;
+};
+
+interface ScriptEffectModule {
+  readonly [key: string]: any;
+}
+
+interface ScriptOptionModule {
+  some<Value>(value: Value): Option<Value>;
+  none<Value = never>(): Option<Value>;
+  isSome<Value>(
+    option: Option<Value>,
+  ): option is { readonly _tag: "Some"; readonly value: Value };
+  isNone<Value>(option: Option<Value>): option is { readonly _tag: "None" };
+  readonly [key: string]: any;
+}
+
+interface ScriptOpaqueModule {
+  readonly [key: string]: any;
+}
+
+interface ScriptEffectStd {
+  readonly Effect: ScriptEffectModule;
+  readonly Option: ScriptOptionModule;
+  readonly Duration: ScriptOpaqueModule;
+  readonly pipe: ScriptPipe;
+}
+
+declare function require(moduleName: "effect"): ScriptEffectStd;
+
 type DurationInput = number | string | bigint | DurationLike;
 
 interface DurationLike {
@@ -59,7 +98,6 @@ type ScriptMain = (
 interface ScriptContext {
     readonly api: ScriptApi;
     readonly script: ScriptRuntimeApi;
-    readonly std: ScriptStdApi;
     readonly features: ScriptFeaturesApi;
 }
 interface ScriptApi {
@@ -324,9 +362,6 @@ interface ScriptRuntimeOptionsApi {
     getAll(): Effect<Readonly<ScriptOptions>, never>;
     reset(): Effect<void, never>;
 }
-interface ScriptStdApi {
-    readonly effect: EffectStd;
-}
 interface SettingsApi {
     setEnemyMagnet(enabled: boolean): Effect<void, BridgeError>;
     setInfiniteRange(enabled: boolean): Effect<void, BridgeError>;
@@ -564,7 +599,6 @@ type ConsumableSkillItem = {
   itemId?: number;
   name?: string;
 };
-interface EffectStd { readonly [key: string]: unknown; }
 interface EnvironmentDropPolicy {
   /** Accept member-only AC-tagged items. */
   readonly acceptAcMemberOnlyDrops: boolean;

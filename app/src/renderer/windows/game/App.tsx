@@ -180,7 +180,7 @@ interface DevDebugEvaluatorProps {
 const createDebugScriptSource = (source: string): string =>
   source.includes("module.exports")
     ? source
-    : `module.exports = function* debug({ api, script, features, std }) {
+    : `module.exports = function* debug({ api, script, features }) {
 ${source}
 };`;
 
