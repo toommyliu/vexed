@@ -23,7 +23,6 @@ export interface WindowDimensions {
 export interface WindowDefinition {
   readonly id: WindowId;
   readonly label: string;
-  readonly description: string;
   readonly scope: WindowScope;
   readonly closeBehavior: WindowCloseBehavior;
   readonly dimensions: WindowDimensions;
@@ -41,7 +40,6 @@ export const appWindowGroups: readonly WindowGroup[] = [
       {
         id: WindowIds.AccountManager,
         label: "Account Manager",
-        description: "Manage saved accounts and launch game sessions.",
         scope: "app",
         closeBehavior: "hide",
         dimensions: {
@@ -52,7 +50,6 @@ export const appWindowGroups: readonly WindowGroup[] = [
       {
         id: WindowIds.Settings,
         label: "Settings",
-        description: "Configure Vexed application preferences.",
         scope: "app",
         closeBehavior: "hide",
         dimensions: {
@@ -71,7 +68,6 @@ export const gameWindowGroups: readonly WindowGroup[] = [
       {
         id: WindowIds.Skills,
         label: "Skills",
-        description: "Build combat profiles used by auto attack and scripts.",
         scope: "game-child",
         closeBehavior: "hide",
         dimensions: {
@@ -89,7 +85,6 @@ export const gameWindowGroups: readonly WindowGroup[] = [
       {
         id: WindowIds.Environment,
         label: "Environment",
-        description: "Inspect and adjust shared runtime environment state.",
         scope: "game-child",
         closeBehavior: "hide",
         dimensions: {
@@ -100,7 +95,6 @@ export const gameWindowGroups: readonly WindowGroup[] = [
       {
         id: WindowIds.Follower,
         label: "Follower",
-        description: "Coordinate follower behavior for the active game.",
         scope: "game-child",
         closeBehavior: "hide",
         dimensions: {
@@ -113,7 +107,6 @@ export const gameWindowGroups: readonly WindowGroup[] = [
       {
         id: WindowIds.LoaderGrabber,
         label: "Loader/grabber",
-        description: "Load and inspect external game assets.",
         scope: "game-child",
         closeBehavior: "hide",
         dimensions: {
@@ -124,7 +117,6 @@ export const gameWindowGroups: readonly WindowGroup[] = [
       {
         id: WindowIds.FastTravels,
         label: "Fast travels",
-        description: "Open fast-travel helpers for the active game window.",
         scope: "game-child",
         closeBehavior: "hide",
         dimensions: {
@@ -140,7 +132,6 @@ export const gameWindowGroups: readonly WindowGroup[] = [
       {
         id: WindowIds.Packets,
         label: "Packets",
-        description: "Capture and send packets for the active game window.",
         scope: "game-child",
         closeBehavior: "hide",
         dimensions: {

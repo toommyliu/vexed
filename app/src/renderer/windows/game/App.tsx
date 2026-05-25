@@ -2,7 +2,18 @@
 import "../../polyfills";
 import "./entrypoint";
 import "./style.css";
-import { Spinner, Toaster, createToastController } from "@vexed/ui";
+import {
+  Button,
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+  Spinner,
+  Textarea,
+  Toaster,
+  createToastController,
+} from "@vexed/ui";
 import { mountWindow } from "../mount";
 import { Data, Effect, Fiber } from "effect";
 import {
@@ -571,25 +582,17 @@ ${source}
             <Show
               when={open()}
               fallback={
-                <button
-                  type="button"
+                <Button
+                  class="game-debug-eval__open"
                   onClick={() => setOpen(true)}
-                  style={{
-                    "background-color": "var(--color-primary)",
-                    border: "1px solid rgba(var(--border), 0.8)",
-                    "border-radius": "var(--radius-sm)",
-                    color: "var(--color-primary-foreground)",
-                    cursor: "pointer",
-                    "font-size": "var(--text-sm)",
-                    padding: "0.375rem 0.625rem",
-                  }}
                 >
                   Debug Eval
-                </button>
+                </Button>
               }
             >
               <div
                 ref={panelElement}
+                class="game-debug-eval__panel"
                 onKeyDown={handlePanelKeyDown}
                 style={{
                   "background-color": "rgb(var(--popover))",
@@ -631,45 +634,46 @@ ${source}
                   </strong>
                   <div
                     onPointerDown={(event) => event.stopPropagation()}
-                    style={{ display: "flex", gap: "0.375rem" }}
+                    class="game-debug-eval__header-actions"
                   >
-                    <select
+                    <Select
                       aria-label="Debug eval mode"
-                      value={mode()}
-                      onChange={(event) =>
-                        setMode(event.currentTarget.value as DebugEvalMode)
-                      }
-                      style={{
-                        "background-color": "var(--color-background)",
-                        border: "1px solid var(--color-border)",
-                        "border-radius": "var(--radius-sm)",
-                        color: "var(--color-foreground)",
-                        "font-size": "var(--text-sm)",
-                        padding: "0.25rem 0.375rem",
+                      class="game-debug-eval__mode"
+                      value={[mode()]}
+                      onValueChange={(details) => {
+                        const nextMode = details.value[0];
+                        if (nextMode === "script" || nextMode === "internal") {
+                          setMode(nextMode);
+                        }
                       }}
                     >
-                      <option value="script">Script API</option>
-                      <option value="internal">Internal API</option>
-                    </select>
-                    <button
+                      <SelectTrigger
+                        class="game-debug-eval__mode-trigger"
+                        size="sm"
+                      >
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="script">Script API</SelectItem>
+                        <SelectItem value="internal">Internal API</SelectItem>
+                      </SelectContent>
+                    </Select>
+                    <Button
                       aria-label="Close debug evaluator"
-                      type="button"
+                      class="game-debug-eval__close"
                       onClick={() => setOpen(false)}
-                      style={{
-                        "background-color": "transparent",
-                        border: "1px solid var(--color-border)",
-                        "border-radius": "var(--radius-sm)",
-                        color: "var(--color-foreground)",
-                        cursor: "pointer",
-                        padding: "0.25rem 0.5rem",
-                      }}
+                      size="sm"
+                      variant="outline"
                     >
                       Close
-                    </button>
+                    </Button>
                   </div>
                 </div>
-                <textarea
+                <Textarea
                   aria-label="Debug eval code"
+                  class="game-debug-eval__source"
+                  fullWidth
+                  size="sm"
                   spellcheck={false}
                   value={currentSource()}
                   onInput={(event) => {
@@ -679,63 +683,25 @@ ${source}
                       setInternalSource(event.currentTarget.value);
                     }
                   }}
-                  style={{
-                    "background-color": "var(--color-background)",
-                    border: "1px solid var(--color-border)",
-                    "border-radius": "var(--radius-sm)",
-                    "box-sizing": "border-box",
-                    color: "var(--color-foreground)",
-                    "font-family": "var(--font-mono)",
-                    "font-size": "var(--text-sm)",
-                    height: "100%",
-                    "min-height": "0",
-                    padding: "0.5rem",
-                    resize: "none",
-                    width: "100%",
-                  }}
                 />
-                <div
-                  style={{
-                    display: "flex",
-                    gap: "0.375rem",
-                    "justify-content": "flex-end",
-                  }}
-                >
-                  <button
-                    type="button"
+                <div class="game-debug-eval__footer-actions">
+                  <Button
                     disabled={running()}
                     onClick={runEval}
+                    size="sm"
                     title="Run (Cmd/Ctrl+Enter)"
-                    style={{
-                      "background-color": "var(--color-primary)",
-                      border: "1px solid rgba(var(--border), 0.8)",
-                      "border-radius": "var(--radius-sm)",
-                      color: "var(--color-primary-foreground)",
-                      cursor: running() ? "not-allowed" : "pointer",
-                      padding: "0.375rem 0.625rem",
-                    }}
                   >
                     {running() ? "Running" : "Eval"}
-                  </button>
-                  <button
-                    type="button"
+                  </Button>
+                  <Button
                     disabled={mode() !== "script" || running()}
                     onClick={loadAsScript}
+                    size="sm"
                     title="Load (Cmd/Ctrl+Shift+Enter)"
-                    style={{
-                      "background-color": "var(--color-background)",
-                      border: "1px solid var(--color-border)",
-                      "border-radius": "var(--radius-sm)",
-                      color: "var(--color-foreground)",
-                      cursor:
-                        mode() === "script" && !running()
-                          ? "pointer"
-                          : "not-allowed",
-                      padding: "0.375rem 0.625rem",
-                    }}
+                    variant="outline"
                   >
                     Load
-                  </button>
+                  </Button>
                 </div>
                 <div
                   style={{

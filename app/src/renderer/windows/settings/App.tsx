@@ -38,8 +38,10 @@ import {
   TabsTrigger,
   Tooltip,
   TooltipContent,
+  TooltipIconButton,
   TooltipTrigger,
   type ButtonProps,
+  type TooltipProps,
 } from "@vexed/ui";
 import {
   For,
@@ -114,6 +116,12 @@ const settingsTabs: ReadonlyArray<{
   { label: "Hotkeys", value: "hotkeys" },
   { label: "Appearance", value: "appearance" },
 ];
+
+const defaultTooltipProps = {
+  closeDelay: 0,
+  openDelay: 200,
+  positioning: { placement: "top" },
+} satisfies TooltipProps;
 
 const themeModes: ReadonlyArray<{
   readonly label: string;
@@ -209,11 +217,19 @@ function SettingsRow(props: {
   readonly class?: string;
   readonly description?: string;
   readonly title: string;
+  readonly titleAction?: JSX.Element;
 }): JSX.Element {
   return (
     <div class={props.class ? `settings-row ${props.class}` : "settings-row"}>
       <div class="settings-row__content">
-        <div class="settings-row__title">{props.title}</div>
+        <div class="settings-row__title-line">
+          <div class="settings-row__title">{props.title}</div>
+          <Show when={props.titleAction}>
+            {(titleAction) => (
+              <div class="settings-row__title-action">{titleAction()}</div>
+            )}
+          </Show>
+        </div>
         <Show when={props.description}>
           {(description) => (
             <div class="settings-row__description">{description()}</div>
@@ -262,11 +278,7 @@ function ResetButton(props: {
   return (
     <AlertDialog>
       {props.iconOnly ? (
-        <Tooltip
-          closeDelay={0}
-          openDelay={200}
-          positioning={{ placement: "top" }}
-        >
+        <Tooltip {...defaultTooltipProps}>
           <AlertDialogTrigger
             asChild={(dialogTriggerProps) => (
               <TooltipTrigger
@@ -292,9 +304,18 @@ function ResetButton(props: {
           <TooltipContent>{props.label}</TooltipContent>
         </Tooltip>
       ) : (
-        <AlertDialogTrigger class="button button--destructive-outline button--sm reset-settings-button">
-          {props.label}
-        </AlertDialogTrigger>
+        <AlertDialogTrigger
+          asChild={(triggerProps) => (
+            <Button
+              {...(triggerProps({
+                children: props.label,
+                class: "reset-settings-button",
+                size: "sm",
+                variant: "destructive-outline",
+              } as ButtonProps) as ButtonProps)}
+            />
+          )}
+        />
       )}
       <AlertDialogContent>
         <AlertDialogHeader>
@@ -316,42 +337,6 @@ function ResetButton(props: {
   );
 }
 
-function HotkeyIconButton(props: {
-  readonly "aria-label": string;
-  readonly children: JSX.Element;
-  readonly class?: string;
-  readonly disabled?: boolean;
-  readonly tooltip: string;
-  readonly onClick: () => void;
-}): JSX.Element {
-  const className = () =>
-    props.class === undefined
-      ? "hotkey-row__icon-action"
-      : `hotkey-row__icon-action ${props.class}`;
-
-  return (
-    <Tooltip closeDelay={0} openDelay={200} positioning={{ placement: "top" }}>
-      <TooltipTrigger
-        asChild={(tooltipTriggerProps) => (
-          <Button
-            {...(tooltipTriggerProps({
-              "aria-label": props["aria-label"],
-              children: props.children,
-              class: className(),
-              disabled: props.disabled,
-              onClick: props.onClick,
-              size: "icon-sm",
-              type: "button",
-              variant: "ghost",
-            } as ButtonProps) as ButtonProps)}
-          />
-        )}
-      />
-      <TooltipContent>{props.tooltip}</TooltipContent>
-    </Tooltip>
-  );
-}
-
 function HotkeyConflictPill(props: {
   readonly conflicts: readonly string[];
 }): JSX.Element {
@@ -361,29 +346,23 @@ function HotkeyConflictPill(props: {
 
   return (
     <Tooltip
-      closeDelay={0}
+      {...defaultTooltipProps}
       interactive={false}
       openDelay={150}
-      positioning={{ placement: "top" }}
       unmountOnExit
     >
       <TooltipTrigger
         asChild={(tooltipTriggerProps) => (
-          <Button
+          <button
             {...(tooltipTriggerProps({
               "aria-label": `${label()}: ${props.conflicts.join(", ")}`,
-              children: (
-                <>
-                  <Icon icon="circle_alert" class="button__icon" />
-                  {count()}
-                </>
-              ),
               class: "hotkey-row__conflict-pill",
-              size: "xs",
               type: "button",
-              variant: "ghost",
             } as ButtonProps) as ButtonProps)}
-          />
+          >
+            <Icon icon="circle_alert" class="button__icon" />
+            {count()}
+          </button>
         )}
       />
       <TooltipContent class="hotkey-row__conflict-tooltip">
@@ -514,6 +493,25 @@ function FontSizeInput(props: {
   );
 }
 
+function RestoreDefaultButton(props: {
+  readonly "aria-label": string;
+  readonly disabled: boolean;
+  readonly tooltip: string;
+  readonly onClick: () => void;
+}): JSX.Element {
+  return (
+    <TooltipIconButton
+      aria-label={props["aria-label"]}
+      class="restore-default-button"
+      disabled={props.disabled}
+      onClick={props.onClick}
+      tooltip={props.tooltip}
+    >
+      <Icon icon="rotate_ccw" class="button__icon" />
+    </TooltipIconButton>
+  );
+}
+
 function ThemeTokenRow(props: {
   readonly defaultValue: ThemeRgb;
   readonly name: ThemeTokenName;
@@ -540,7 +538,17 @@ function ThemeTokenRow(props: {
 
   return (
     <div class="theme-token-row">
-      <div class="theme-token-row__name">{tokenLabel(props.name)}</div>
+      <div class="theme-token-row__name">
+        <span>{tokenLabel(props.name)}</span>
+        <Show when={isOverridden()}>
+          <RestoreDefaultButton
+            aria-label={`Restore default ${tokenLabel(props.name)} color`}
+            disabled={false}
+            onClick={props.onReset}
+            tooltip="Restore default color"
+          />
+        </Show>
+      </div>
       <div class="theme-token-row__controls">
         <ColorPicker
           aria-label={`${tokenLabel(props.name)} color`}
@@ -548,15 +556,6 @@ function ThemeTokenRow(props: {
           onInput={(event) => setDraft(event.currentTarget.value)}
           value={draft()}
         />
-        <Button
-          disabled={!isOverridden()}
-          onClick={props.onReset}
-          size="sm"
-          type="button"
-          variant="ghost"
-        >
-          Reset
-        </Button>
       </div>
     </div>
   );
@@ -764,15 +763,15 @@ function HotkeySettingsSection(props: {
               <div class="hotkey-row__controls">
                 <div class="hotkey-row__binding">
                   <Show when={command.defaultHotkey !== ""}>
-                    <HotkeyIconButton
+                    <TooltipIconButton
                       aria-label={`Restore default shortcut for ${command.label}`}
-                      class="hotkey-row__default-action"
+                      class="hotkey-row__icon-action hotkey-row__default-action"
                       disabled={value() === command.defaultHotkey}
                       onClick={() => void commitBinding(command.id, null)}
                       tooltip="Restore default shortcut"
                     >
                       <Icon icon="rotate_ccw" class="button__icon" />
-                    </HotkeyIconButton>
+                    </TooltipIconButton>
                   </Show>
                   <KbdGroup
                     aria-label={
@@ -813,15 +812,15 @@ function HotkeySettingsSection(props: {
                 >
                   {isRecording() ? "Cancel" : "Record"}
                 </Button>
-                <HotkeyIconButton
+                <TooltipIconButton
                   aria-label={`Clear shortcut for ${command.label}`}
-                  class="hotkey-row__clear-action"
+                  class="hotkey-row__icon-action hotkey-row__clear-action"
                   disabled={value() === ""}
                   onClick={() => void commitBinding(command.id, "")}
                   tooltip="Clear shortcut"
                 >
                   <Icon icon="x" class="button__icon" />
-                </HotkeyIconButton>
+                </TooltipIconButton>
               </div>
             </div>
           );
@@ -968,6 +967,21 @@ function AppearanceSettings(props: {
                 />
               }
               title="Sans font"
+              titleAction={
+                profile().sansFont ===
+                DEFAULT_THEME_PROFILE.sansFont ? undefined : (
+                  <RestoreDefaultButton
+                    aria-label={`Restore default ${variant} theme sans font`}
+                    disabled={false}
+                    onClick={() =>
+                      updateThemeProfile(variant, {
+                        sansFont: DEFAULT_THEME_PROFILE.sansFont,
+                      })
+                    }
+                    tooltip="Restore default sans font"
+                  />
+                )
+              }
             />
             <SettingsRow
               action={
@@ -982,6 +996,21 @@ function AppearanceSettings(props: {
                 />
               }
               title="Sans size"
+              titleAction={
+                profile().sansFontSize ===
+                DEFAULT_THEME_PROFILE.sansFontSize ? undefined : (
+                  <RestoreDefaultButton
+                    aria-label={`Restore default ${variant} theme sans font size`}
+                    disabled={false}
+                    onClick={() =>
+                      updateThemeProfile(variant, {
+                        sansFontSize: DEFAULT_THEME_PROFILE.sansFontSize,
+                      })
+                    }
+                    tooltip="Restore default sans size"
+                  />
+                )
+              }
             />
             <SettingsRow
               action={
@@ -998,6 +1027,21 @@ function AppearanceSettings(props: {
                 />
               }
               title="Mono font"
+              titleAction={
+                profile().monoFont ===
+                DEFAULT_THEME_PROFILE.monoFont ? undefined : (
+                  <RestoreDefaultButton
+                    aria-label={`Restore default ${variant} theme mono font`}
+                    disabled={false}
+                    onClick={() =>
+                      updateThemeProfile(variant, {
+                        monoFont: DEFAULT_THEME_PROFILE.monoFont,
+                      })
+                    }
+                    tooltip="Restore default mono font"
+                  />
+                )
+              }
             />
             <SettingsRow
               action={
@@ -1012,6 +1056,21 @@ function AppearanceSettings(props: {
                 />
               }
               title="Mono size"
+              titleAction={
+                profile().monoFontSize ===
+                DEFAULT_THEME_PROFILE.monoFontSize ? undefined : (
+                  <RestoreDefaultButton
+                    aria-label={`Restore default ${variant} theme mono font size`}
+                    disabled={false}
+                    onClick={() =>
+                      updateThemeProfile(variant, {
+                        monoFontSize: DEFAULT_THEME_PROFILE.monoFontSize,
+                      })
+                    }
+                    tooltip="Restore default mono size"
+                  />
+                )
+              }
             />
             <SettingsRow
               action={
@@ -1028,6 +1087,30 @@ function AppearanceSettings(props: {
                 </div>
               }
               title="Rounding"
+              titleAction={
+                <>
+                  <TooltipIconButton
+                    aria-label="About rounding"
+                    class="settings-row__title-action-button"
+                    tooltip="Applies to most elements."
+                  >
+                    <Icon icon="circle_question_mark" class="button__icon" />
+                  </TooltipIconButton>
+                  {profile().rounding ===
+                  DEFAULT_THEME_PROFILE.rounding ? undefined : (
+                    <RestoreDefaultButton
+                      aria-label={`Restore default ${variant} theme rounding`}
+                      disabled={false}
+                      onClick={() =>
+                        updateThemeProfile(variant, {
+                          rounding: DEFAULT_THEME_PROFILE.rounding,
+                        })
+                      }
+                      tooltip="Restore default rounding"
+                    />
+                  )}
+                </>
+              }
             />
           </div>
           <div class="theme-token-list">
@@ -1071,7 +1154,7 @@ function AppearanceSettings(props: {
             value={props.settings.appearance.themeMode}
           />
         }
-        description="Use light, dark, or match your system appearance."
+        description="Choose the app color mode."
         title="Theme"
       />
       <SettingsRow
@@ -1085,7 +1168,7 @@ function AppearanceSettings(props: {
             value={props.settings.appearance.reduceMotion}
           />
         }
-        description="Control animation and transition effects."
+        description="Limit animations and transitions."
         title="Reduce motion"
       />
       <SettingsRow
@@ -1102,7 +1185,7 @@ function AppearanceSettings(props: {
           />
         }
         class="settings-row--switch"
-        description="Change the cursor to a pointer when hovering over interactive elements."
+        description="Show a pointer cursor over clickable controls."
         title="Use cursor pointers"
       />
       <div class="theme-profile-panel">

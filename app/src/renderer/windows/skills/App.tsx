@@ -3,6 +3,8 @@ import "../../polyfills";
 import "./style.css";
 import {
   Icon,
+  Alert,
+  AlertDescription,
   AlertDialog,
   AlertDialogAction,
   AlertDialogCancel,
@@ -21,15 +23,14 @@ import {
   CardFrameHeader,
   CardFrameTitle,
   Input,
+  Label,
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
   Spinner,
-  Tooltip,
-  TooltipContent,
-  TooltipTrigger,
+  TooltipIconButton,
 } from "@vexed/ui";
 import {
   For,
@@ -55,6 +56,11 @@ import {
   type CombatProfileLibrary,
   type CombatProfileStep,
 } from "../../../shared/combat-profiles";
+import {
+  getPreferredCombatProfileId,
+  readStoredId,
+  writeStoredId,
+} from "../../lib/combatProfileSelection";
 import { mountWindow } from "../mount";
 
 type ConditionType = CombatProfileCondition["type"];
@@ -146,31 +152,6 @@ const conditionLabel = (condition: CombatProfileCondition): string => {
   }
 };
 
-const readLastSelectedProfileId = (): string | undefined => {
-  try {
-    return window.localStorage.getItem(selectedProfileStorageKey) ?? undefined;
-  } catch {
-    return undefined;
-  }
-};
-
-const writeLastSelectedProfileId = (profileId: string): void => {
-  try {
-    window.localStorage.setItem(selectedProfileStorageKey, profileId);
-  } catch {
-    // Selection persistence is best-effort; editing still works without storage.
-  }
-};
-
-const getPreferredProfileId = (
-  profiles: readonly CombatProfile[],
-  preferredId: string | undefined,
-): string =>
-  profiles.find((profile) => profile.id === preferredId)?.id ??
-  profiles.find((profile) => profile.id !== DEFAULT_COMBAT_PROFILE_ID)?.id ??
-  profiles[0]?.id ??
-  DEFAULT_COMBAT_PROFILE_ID;
-
 function SkillsLabelHelp(props: {
   readonly label: string;
   readonly tooltip: string;
@@ -178,27 +159,14 @@ function SkillsLabelHelp(props: {
   return (
     <span class="skills-label-help">
       <span>{props.label}</span>
-      <Tooltip
-        closeDelay={0}
-        openDelay={200}
-        positioning={{ placement: "top" }}
+      <TooltipIconButton
+        aria-label={`${props.label} help`}
+        class="skills-help-button"
+        size="icon-sm"
+        tooltip={props.tooltip}
       >
-        <TooltipTrigger
-          asChild={(triggerProps) => (
-            <Button
-              {...(triggerProps({
-                "aria-label": `${props.label} help`,
-                children: <Icon icon="help_circle" class="button__icon" />,
-                class: "skills-help-button",
-                size: "icon-sm",
-                type: "button",
-                variant: "ghost",
-              } as ButtonProps) as ButtonProps)}
-            />
-          )}
-        />
-        <TooltipContent>{props.tooltip}</TooltipContent>
-      </Tooltip>
+        <Icon icon="help_circle" class="button__icon" />
+      </TooltipIconButton>
     </span>
   );
 }
@@ -208,7 +176,7 @@ function App(): JSX.Element {
     DEFAULT_COMBAT_PROFILE_LIBRARY,
   );
   const [selectedId, setSelectedId] = createSignal(
-    readLastSelectedProfileId() ?? DEFAULT_COMBAT_PROFILE_ID,
+    readStoredId(selectedProfileStorageKey) ?? DEFAULT_COMBAT_PROFILE_ID,
   );
   const [label, setLabel] = createSignal("Generic");
   const [className, setClassName] = createSignal("");
@@ -248,7 +216,7 @@ function App(): JSX.Element {
   });
   const selectProfile = (profileId: string): void => {
     setSelectedId(profileId);
-    writeLastSelectedProfileId(profileId);
+    writeStoredId(selectedProfileStorageKey, profileId);
   };
 
   createEffect(() => {
@@ -280,9 +248,9 @@ function App(): JSX.Element {
         !nextLibrary.profiles.some((profile) => profile.id === selectedId())
       ) {
         selectProfile(
-          getPreferredProfileId(
+          getPreferredCombatProfileId(
             nextLibrary.profiles,
-            readLastSelectedProfileId(),
+            readStoredId(selectedProfileStorageKey),
           ),
         );
       }
@@ -293,9 +261,9 @@ function App(): JSX.Element {
       .then((nextLibrary) => {
         setLibrary(nextLibrary);
         selectProfile(
-          getPreferredProfileId(
+          getPreferredCombatProfileId(
             nextLibrary.profiles,
-            readLastSelectedProfileId(),
+            readStoredId(selectedProfileStorageKey),
           ),
         );
       })
@@ -419,7 +387,7 @@ function App(): JSX.Element {
       window.ipc.combatProfiles.deleteProfile(profile.id),
     );
     if (deleted) {
-      selectProfile(getPreferredProfileId(library().profiles, undefined));
+      selectProfile(getPreferredCombatProfileId(library().profiles, undefined));
     }
   };
 
@@ -604,7 +572,11 @@ function App(): JSX.Element {
 
           <section class="skills-editor">
             <Show when={error()}>
-              {(message) => <div class="skills-error">{message()}</div>}
+              {(message) => (
+                <Alert class="skills-error" variant="error">
+                  <AlertDescription>{message()}</AlertDescription>
+                </Alert>
+              )}
             </Show>
 
             <CardFrame>
@@ -650,14 +622,14 @@ function App(): JSX.Element {
               </CardFrameHeader>
               <Card>
                 <CardContent class="skills-form">
-                  <label>
+                  <Label>
                     <span>Name</span>
                     <Input
                       value={label()}
                       onInput={(event) => setLabel(event.currentTarget.value)}
                     />
-                  </label>
-                  <label>
+                  </Label>
+                  <Label>
                     <span>Class name</span>
                     <Input
                       placeholder="Any class"
@@ -666,23 +638,23 @@ function App(): JSX.Element {
                         setClassName(event.currentTarget.value)
                       }
                     />
-                  </label>
-                  <label>
+                  </Label>
+                  <Label>
                     <span>Role</span>
                     <Input
                       value={role()}
                       onInput={(event) => setRole(event.currentTarget.value)}
                     />
-                  </label>
-                  <label>
+                  </Label>
+                  <Label>
                     <span>Delay (ms)</span>
                     <Input
                       inputMode="numeric"
                       value={delayMs()}
                       onInput={(event) => setDelayMs(event.currentTarget.value)}
                     />
-                  </label>
-                  <label>
+                  </Label>
+                  <Label>
                     <span>Cooldown mode</span>
                     <Select
                       class="skills-select"
@@ -707,7 +679,7 @@ function App(): JSX.Element {
                         </For>
                       </SelectContent>
                     </Select>
-                  </label>
+                  </Label>
                 </CardContent>
               </Card>
             </CardFrame>
@@ -742,7 +714,7 @@ function App(): JSX.Element {
                     <Index each={draftAnimationTriggers()}>
                       {(trigger, triggerIndex) => (
                         <div class="skills-trigger">
-                          <label>
+                          <Label>
                             <span>Message</span>
                             <Input
                               value={trigger().messageIncludes}
@@ -757,8 +729,8 @@ function App(): JSX.Element {
                                 )
                               }
                             />
-                          </label>
-                          <label>
+                          </Label>
+                          <Label>
                             <span>Skill</span>
                             <Select
                               class="skills-select skills-select--skill"
@@ -789,8 +761,8 @@ function App(): JSX.Element {
                                 </For>
                               </SelectContent>
                             </Select>
-                          </label>
-                          <label>
+                          </Label>
+                          <Label>
                             <SkillsLabelHelp
                               label="Cooldown (ms)"
                               tooltip="Minimum time before this trigger can cast again. Leave empty or 0 to allow every matching message."
@@ -826,7 +798,7 @@ function App(): JSX.Element {
                                 )
                               }
                             />
-                          </label>
+                          </Label>
                           <Button
                             aria-label="Remove trigger"
                             size="icon-sm"
@@ -861,7 +833,7 @@ function App(): JSX.Element {
                     {(step, stepIndex) => (
                       <div class="skills-step">
                         <div class="skills-step__header">
-                          <label class="skills-inline-field">
+                          <Label class="skills-inline-field">
                             <span>Skill</span>
                             <Select
                               class="skills-select skills-select--skill"
@@ -886,8 +858,8 @@ function App(): JSX.Element {
                                 </For>
                               </SelectContent>
                             </Select>
-                          </label>
-                          <label class="skills-inline-field skills-inline-field--availability">
+                          </Label>
+                          <Label class="skills-inline-field skills-inline-field--availability">
                             <span>Availability</span>
                             <Select
                               class="skills-select skills-select--availability"
@@ -915,7 +887,7 @@ function App(): JSX.Element {
                                 </For>
                               </SelectContent>
                             </Select>
-                          </label>
+                          </Label>
                           <Button
                             size="sm"
                             variant="ghost"

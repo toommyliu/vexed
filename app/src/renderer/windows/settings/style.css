@@ -121,6 +121,10 @@
   min-width: 0;
 }
 
+#appearance.settings-section {
+  padding-bottom: 1.5rem;
+}
+
 .settings-section__header {
   align-items: start;
   display: grid;
@@ -179,11 +183,30 @@
   min-width: 16rem;
 }
 
+.settings-row__title-line {
+  align-items: center;
+  display: flex;
+  gap: 0.375rem;
+  min-width: 0;
+}
+
 .settings-row__title {
   color: rgb(var(--foreground));
   font-size: var(--text-md);
   font-weight: 500;
   line-height: 1.25;
+  min-width: 0;
+}
+
+.settings-row__title-action {
+  align-items: center;
+  display: flex;
+  flex: 0 0 auto;
+  gap: 0.125rem;
+}
+
+.settings-row__title-action-button {
+  color: rgb(var(--muted-foreground));
 }
 
 .settings-row__description {
@@ -286,23 +309,38 @@
   min-width: 0;
 }
 
-.hotkey-row__conflict-pill.button {
+.hotkey-row__conflict-pill {
+  align-items: center;
   background: rgba(var(--destructive), 0.12);
-  border-color: transparent;
-  border-radius: 999px;
+  border: 0;
+  border-radius: 9999px;
   color: rgb(var(--destructive));
+  cursor: var(--cursor-interactive);
+  display: inline-flex;
+  font: inherit;
   font-size: var(--text-sm);
-  font-weight: 600;
+  font-weight: 700;
+  gap: 0.25rem;
   height: var(--control-height-xs);
-  min-width: 0;
-  padding-inline: 0.375rem;
+  justify-content: center;
+  line-height: 1;
+  min-width: 2rem;
+  padding-inline: 0.5rem;
+  user-select: none;
+  white-space: nowrap;
 }
 
-.hotkey-row__conflict-pill.button:hover,
-.hotkey-row__conflict-pill.button:focus-visible {
+.hotkey-row__conflict-pill:hover {
   background: rgba(var(--destructive), 0.18);
-  border-color: transparent;
   box-shadow: 0 0 0 1px rgba(var(--destructive), 0.14);
+}
+
+.hotkey-row__conflict-pill:focus-visible {
+  background: rgba(var(--destructive), 0.18);
+  box-shadow:
+    0 0 0 1px rgb(var(--background)),
+    0 0 0 3px rgba(var(--ring), 0.42);
+  outline: none;
 }
 
 .hotkey-row__conflict-pill .button__icon {
@@ -310,7 +348,7 @@
   width: 0.75rem;
 }
 
-.hotkey-row__conflict-tooltip.tooltip__content {
+.hotkey-row__conflict-tooltip.tooltip__content:not([hidden]) {
   display: grid;
   gap: 0.125rem;
   text-align: left;
@@ -439,6 +477,10 @@
   width: 100%;
 }
 
+.restore-default-button {
+  flex: 0 0 auto;
+}
+
 .settings-number-input {
   width: 5.5rem;
 }
@@ -499,7 +541,10 @@
 }
 
 .theme-token-row__name {
+  align-items: center;
   color: rgb(var(--foreground));
+  display: flex;
+  gap: 0.375rem;
   font-size: var(--text-base);
   min-width: 0;
 }

@@ -3,17 +3,15 @@ import "../../polyfills";
 import "./style.css";
 import {
   Icon,
+  Alert,
+  AlertDescription,
   AppShell,
-  Badge,
   Button,
-  Card,
-  CardFrame,
-  CardFrameHeader,
-  CardFrameTitle,
-  CardContent,
   Checkbox,
+  Empty,
   IconButton,
   Input,
+  PillButton,
   Spinner,
 } from "@vexed/ui";
 import {
@@ -26,6 +24,7 @@ import {
   onMount,
   type JSX,
 } from "solid-js";
+import { SectionPanel } from "../../components/SectionPanel";
 import {
   EnvironmentItemBuckets,
   createEmptyEnvironmentState,
@@ -67,39 +66,8 @@ const isQuestToken = (
   token: ReturnType<typeof parseQuestToken>,
 ): token is NonNullable<ReturnType<typeof parseQuestToken>> => token !== null;
 
-function Panel(props: {
-  readonly action?: JSX.Element;
-  readonly count: number;
-  readonly tone: "quest" | "item" | "boost";
-  readonly title: string;
-  readonly children: JSX.Element;
-}): JSX.Element {
-  return (
-    <CardFrame class={`environment-panel environment-panel--${props.tone}`}>
-      <CardFrameHeader class="environment-panel__header">
-        <div class="environment-panel__title-group">
-          <CardFrameTitle class="environment-panel__title">
-            {props.title}
-          </CardFrameTitle>
-          <Badge class="environment-panel__count" variant="default">
-            {props.count}
-          </Badge>
-        </div>
-        <Show when={props.action}>
-          {(action) => <div class="environment-panel__actions">{action()}</div>}
-        </Show>
-      </CardFrameHeader>
-      <Card class="environment-panel__body">
-        <CardContent class="environment-panel__content">
-          {props.children}
-        </CardContent>
-      </Card>
-    </CardFrame>
-  );
-}
-
 function EmptyList(props: { readonly label: string }): JSX.Element {
-  return <div class="environment-empty">{props.label}</div>;
+  return <Empty class="environment-empty">{props.label}</Empty>;
 }
 
 function App(): JSX.Element {
@@ -369,13 +337,17 @@ function App(): JSX.Element {
       <AppShell.Body class="environment-body">
         <section class="environment-shell" aria-label="Environment controls">
           <Show when={error()}>
-            {(message) => <div class="environment-error">{message()}</div>}
+            {(message) => (
+              <Alert class="environment-error" variant="error">
+                <AlertDescription>{message()}</AlertDescription>
+              </Alert>
+            )}
           </Show>
 
           <div class="environment-grid">
-            <Panel
+            <SectionPanel
               title="Drops"
-              tone="item"
+              class="environment-panel environment-panel--item"
               count={state().itemNames.length}
               action={
                 <Button
@@ -452,8 +424,8 @@ function App(): JSX.Element {
                 >
                   <For each={state().itemNames}>
                     {(item) => (
-                      <div class="environment-pill">
-                        <span>{item}</span>
+                      <div class="environment-chip">
+                        <span class="environment-chip__label">{item}</span>
                         <IconButton
                           type="button"
                           class="environment-icon-action environment-remove-button"
@@ -473,11 +445,11 @@ function App(): JSX.Element {
                   </For>
                 </Show>
               </div>
-            </Panel>
+            </SectionPanel>
 
-            <Panel
+            <SectionPanel
               title="Quests"
-              tone="quest"
+              class="environment-panel environment-panel--quest"
               count={state().questIds.length}
               action={
                 <Button
@@ -550,10 +522,10 @@ function App(): JSX.Element {
                 >
                   <For each={state().questIds}>
                     {(questId) => (
-                      <div class="environment-pill environment-pill--quest">
-                        <button
+                      <div class="environment-chip environment-chip--quest">
+                        <PillButton
                           type="button"
-                          class="environment-token environment-token--id environment-quest-id-button"
+                          class="environment-chip__id environment-quest-id-button"
                           aria-label={`Edit reward item ID for quest ${questId}`}
                           title="Double-click to set reward item ID"
                           onDblClick={() => editQuestReward(questId)}
@@ -565,7 +537,7 @@ function App(): JSX.Element {
                           }}
                         >
                           {questId}
-                        </button>
+                        </PillButton>
                         <Show when={showQuestRewardInput(questId)}>
                           <span class="environment-quest-separator">:</span>
                           <Input
@@ -610,14 +582,14 @@ function App(): JSX.Element {
                   </For>
                 </Show>
               </div>
-            </Panel>
+            </SectionPanel>
 
-            <Panel
+            <SectionPanel
               title="Boosts"
-              tone="boost"
+              class="environment-panel environment-panel--boost"
               count={state().boosts.length}
               action={
-                <div class="environment-panel__actions">
+                <>
                   <Button
                     size="sm"
                     variant="outline"
@@ -641,7 +613,7 @@ function App(): JSX.Element {
                     <Icon icon="trash_2" class="button__icon" />
                     Clear
                   </Button>
-                </div>
+                </>
               }
             >
               <form
@@ -673,8 +645,8 @@ function App(): JSX.Element {
                 >
                   <For each={state().boosts}>
                     {(boost) => (
-                      <div class="environment-pill">
-                        <span>{boost}</span>
+                      <div class="environment-chip">
+                        <span class="environment-chip__label">{boost}</span>
                         <IconButton
                           type="button"
                           class="environment-icon-action environment-remove-button"
@@ -694,7 +666,7 @@ function App(): JSX.Element {
                   </For>
                 </Show>
               </div>
-            </Panel>
+            </SectionPanel>
           </div>
         </section>
       </AppShell.Body>

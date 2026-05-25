@@ -41,19 +41,6 @@ import {
   ComboboxItem,
   ComboboxList,
   Dropdown,
-  Command,
-  CommandEmpty,
-  CommandFooter,
-  CommandGroup,
-  CommandGroupHeading,
-  CommandGroupItems,
-  CommandInput,
-  CommandItem,
-  CommandLinkItem,
-  CommandList,
-  CommandLoading,
-  CommandPanel,
-  CommandShortcut,
   Dialog,
   DialogClose,
   DialogContent,
@@ -117,6 +104,7 @@ import {
   type AlertVariant,
   type BadgeSize,
   type BadgeVariant,
+  type ButtonProps,
   type ButtonSize,
   type ButtonVariant,
   type EmptyMediaVariant,
@@ -450,9 +438,16 @@ function DemoApp() {
             <CardContent class="demo-stack">
               <div class="demo-row">
                 <Dialog>
-                  <DialogTrigger class="button button--outline button--size-default">
-                    Default footer
-                  </DialogTrigger>
+                  <DialogTrigger
+                    asChild={(triggerProps) => (
+                      <Button
+                        {...(triggerProps({
+                          children: "Default footer",
+                          variant: "outline",
+                        } as ButtonProps) as ButtonProps)}
+                      />
+                    )}
+                  />
                   <DialogContent>
                     <DialogHeader>
                       <DialogTitle>Default footer</DialogTitle>
@@ -476,9 +471,16 @@ function DemoApp() {
                 </Dialog>
 
                 <Dialog>
-                  <DialogTrigger class="button button--outline button--size-default">
-                    Bare footer
-                  </DialogTrigger>
+                  <DialogTrigger
+                    asChild={(triggerProps) => (
+                      <Button
+                        {...(triggerProps({
+                          children: "Bare footer",
+                          variant: "outline",
+                        } as ButtonProps) as ButtonProps)}
+                      />
+                    )}
+                  />
                   <DialogContent>
                     <DialogHeader>
                       <DialogTitle>Bare footer</DialogTitle>
@@ -501,9 +503,16 @@ function DemoApp() {
                 </Dialog>
 
                 <AlertDialog>
-                  <AlertDialogTrigger class="button button--destructive button--size-default">
-                    Default alert footer
-                  </AlertDialogTrigger>
+                  <AlertDialogTrigger
+                    asChild={(triggerProps) => (
+                      <Button
+                        {...(triggerProps({
+                          children: "Default alert footer",
+                          variant: "destructive",
+                        } as ButtonProps) as ButtonProps)}
+                      />
+                    )}
+                  />
                   <AlertDialogContent>
                     <AlertDialogHeader>
                       <AlertDialogTitle>Default alert footer</AlertDialogTitle>
@@ -520,9 +529,16 @@ function DemoApp() {
                 </AlertDialog>
 
                 <AlertDialog>
-                  <AlertDialogTrigger class="button button--destructive button--size-default">
-                    Bare alert footer
-                  </AlertDialogTrigger>
+                  <AlertDialogTrigger
+                    asChild={(triggerProps) => (
+                      <Button
+                        {...(triggerProps({
+                          children: "Bare alert footer",
+                          variant: "destructive",
+                        } as ButtonProps) as ButtonProps)}
+                      />
+                    )}
+                  />
                   <AlertDialogContent>
                     <AlertDialogHeader>
                       <AlertDialogTitle>Bare alert footer</AlertDialogTitle>
@@ -725,9 +741,16 @@ function DemoApp() {
             <CardContent class="demo-stack">
               <div class="demo-row demo-row--stretch">
                 <Menu>
-                  <MenuTrigger class="button button--outline button--size-default">
-                    Default menu
-                  </MenuTrigger>
+                  <MenuTrigger
+                    asChild={(triggerProps) => (
+                      <Button
+                        {...(triggerProps({
+                          children: "Default menu",
+                          variant: "outline",
+                        } as ButtonProps) as ButtonProps)}
+                      />
+                    )}
+                  />
                   <MenuContent>
                     <MenuGroup>
                       <MenuLabel>Actions</MenuLabel>
@@ -757,9 +780,16 @@ function DemoApp() {
                 </Menu>
 
                 <Menu>
-                  <MenuTrigger class="button button--destructive-outline button--size-default">
-                    Variant menu
-                  </MenuTrigger>
+                  <MenuTrigger
+                    asChild={(triggerProps) => (
+                      <Button
+                        {...(triggerProps({
+                          children: "Variant menu",
+                          variant: "destructive-outline",
+                        } as ButtonProps) as ButtonProps)}
+                      />
+                    )}
+                  />
                   <MenuContent>
                     <MenuItem inset value="inset">
                       Inset item
@@ -857,58 +887,6 @@ function DemoApp() {
                     </TooltipButton>
                   )}
                 </For>
-              </div>
-            </CardContent>
-          </Card>
-
-          <Card>
-            <CardHeader>
-              <CardTitle>Command</CardTitle>
-              <CardDescription>
-                Filtered command palette primitives.
-              </CardDescription>
-            </CardHeader>
-            <CardContent>
-              <CommandPanel>
-                <Command loop>
-                  <CommandInput placeholder="Search commands..." />
-                  <CommandList>
-                    <CommandEmpty>No command found.</CommandEmpty>
-                    <CommandGroup>
-                      <CommandGroupHeading>Actions</CommandGroupHeading>
-                      <CommandGroupItems>
-                        <CommandItem value="start">
-                          <span>Start process</span>
-                          <CommandShortcut>Enter</CommandShortcut>
-                        </CommandItem>
-                        <CommandItem
-                          value="search"
-                          keywords={["find", "lookup"]}
-                        >
-                          <span>Search records</span>
-                          <Icon icon="search" class="button__icon" />
-                        </CommandItem>
-                        <CommandItem value="guard">
-                          <span>Enable guard rails</span>
-                          <Icon icon="shield_alert" class="button__icon" />
-                        </CommandItem>
-                        <CommandLinkItem href="#" value="docs">
-                          <span>Open docs</span>
-                          <CommandShortcut>⌘K</CommandShortcut>
-                        </CommandLinkItem>
-                      </CommandGroupItems>
-                    </CommandGroup>
-                  </CommandList>
-                  <CommandFooter>
-                    <span>Use arrows to move</span>
-                    <span>Enter to select</span>
-                  </CommandFooter>
-                </Command>
-              </CommandPanel>
-              <Separator />
-              <div class="demo-row">
-                <CommandEmpty>No command found.</CommandEmpty>
-                <CommandLoading>Loading commands</CommandLoading>
               </div>
             </CardContent>
           </Card>

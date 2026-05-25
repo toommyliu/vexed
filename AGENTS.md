@@ -1,5 +1,9 @@
 # AGENTS.md
 
+## Task Completion Requirements
+
+- Before considering a task complete, `pnpm format`, `pnpm lint`, and `pnpm typecheck` must pass.
+
 ## Project Description
 
 vexed is a third-party toolkit for enhancing gameplay experiences in AdventureQuest Worlds (AQW).
@@ -28,4 +32,4 @@ Long term maintainability is a core priority. If you add new functionality, firs
 
 ## References
 
-- Efffect v3 to v4 beta migration guide: https://github.com/Effect-TS/effect-smol/blob/main/MIGRATION.md https://github.com/Effect-TS/effect-smol/blob/main/migration/schema.md
+- Effect v3 to v4 beta migration guide: https://github.com/Effect-TS/effect-smol/blob/main/MIGRATION.md https://github.com/Effect-TS/effect-smol/blob/main/migration/schema.md

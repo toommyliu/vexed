@@ -25,19 +25,16 @@ import {
   DialogFooter,
   DialogHeader,
   DialogTitle,
-  IconButton,
+  Empty,
+  Field,
   Input,
   InputGroup,
   InputGroupAddon,
   InputGroupInput,
   Kbd,
-  Label,
   Spinner,
   Switch,
-  Tooltip,
-  TooltipContent,
-  TooltipTrigger,
-  type IconButtonProps,
+  TooltipIconButton,
 } from "@vexed/ui";
 import {
   For,
@@ -116,57 +113,6 @@ const locationSubtitle = (location: FastTravel): string => {
   }
   return parts.join(" / ");
 };
-
-function TooltipIconButton(props: {
-  readonly "aria-label": string;
-  readonly class?: string;
-  readonly children: JSX.Element;
-  readonly disabled?: boolean;
-  readonly tooltip: string;
-  readonly onClick: JSX.EventHandler<HTMLButtonElement, MouseEvent>;
-}): JSX.Element {
-  return (
-    <Tooltip closeDelay={0} openDelay={200} positioning={{ placement: "top" }}>
-      <TooltipTrigger
-        asChild={(triggerProps) => (
-          <IconButton
-            {...(triggerProps({
-              "aria-label": props["aria-label"],
-              children: props.children,
-              class: props.class,
-              disabled: props.disabled,
-              size: "icon",
-              type: "button",
-              variant: "ghost",
-              onClick: props.onClick,
-            } as IconButtonProps) as IconButtonProps)}
-          />
-        )}
-      />
-      <TooltipContent>{props.tooltip}</TooltipContent>
-    </Tooltip>
-  );
-}
-
-function FormField(props: {
-  readonly children: JSX.Element;
-  readonly error?: boolean;
-  readonly for: string;
-  readonly label: string;
-  readonly optional?: boolean;
-}): JSX.Element {
-  return (
-    <div class="fast-travels-form__field">
-      <Label for={props.for}>
-        {props.label}
-        <Show when={props.optional}>
-          <span class="fast-travels-form__optional">Optional</span>
-        </Show>
-      </Label>
-      <div data-invalid={props.error ? "" : undefined}>{props.children}</div>
-    </div>
-  );
-}
 
 function App(): JSX.Element {
   const [locations, setLocations] = createSignal<readonly FastTravel[]>([]);
@@ -503,20 +449,20 @@ function App(): JSX.Element {
                 <Show
                   when={!loading()}
                   fallback={
-                    <div class="fast-travels-empty">
+                    <Empty class="fast-travels-empty">
                       <Spinner size="lg" />
                       <span>Loading locations...</span>
-                    </div>
+                    </Empty>
                   }
                 >
                   <Show
                     when={filteredLocations().length > 0}
                     fallback={
-                      <div class="fast-travels-empty">
+                      <Empty class="fast-travels-empty">
                         {searchQuery().trim()
                           ? "No matching locations"
                           : "No saved locations"}
-                      </div>
+                      </Empty>
                     }
                   >
                     <div class="fast-travels-grid">
@@ -570,6 +516,7 @@ function App(): JSX.Element {
                               <div class="fast-travels-location__actions">
                                 <TooltipIconButton
                                   aria-label={`Edit ${location.name}`}
+                                  size="icon"
                                   tooltip="Edit"
                                   disabled={busy()}
                                   onClick={(event) => {
@@ -582,6 +529,7 @@ function App(): JSX.Element {
                                 <TooltipIconButton
                                   aria-label={`Delete ${location.name}`}
                                   class="fast-travels-location__delete"
+                                  size="icon"
                                   tooltip="Delete"
                                   disabled={busy()}
                                   onClick={(event) => {
@@ -640,7 +588,8 @@ function App(): JSX.Element {
             </Show>
 
             <div class="fast-travels-form__grid">
-              <FormField
+              <Field
+                class="fast-travels-form__field"
                 for="fast-travel-name"
                 label="Name"
                 error={fieldError() === "name"}
@@ -659,9 +608,10 @@ function App(): JSX.Element {
                     setFormField("name", event.currentTarget.value)
                   }
                 />
-              </FormField>
+              </Field>
 
-              <FormField
+              <Field
+                class="fast-travels-form__field"
                 for="fast-travel-map"
                 label="Map"
                 error={fieldError() === "map"}
@@ -677,9 +627,14 @@ function App(): JSX.Element {
                     setFormField("map", event.currentTarget.value)
                   }
                 />
-              </FormField>
+              </Field>
 
-              <FormField for="fast-travel-cell" label="Cell" optional>
+              <Field
+                class="fast-travels-form__field"
+                for="fast-travel-cell"
+                label="Cell"
+                optional
+              >
                 <Input
                   id="fast-travel-cell"
                   fullWidth
@@ -690,9 +645,14 @@ function App(): JSX.Element {
                     setFormField("cell", event.currentTarget.value)
                   }
                 />
-              </FormField>
+              </Field>
 
-              <FormField for="fast-travel-pad" label="Pad" optional>
+              <Field
+                class="fast-travels-form__field"
+                for="fast-travel-pad"
+                label="Pad"
+                optional
+              >
                 <Input
                   id="fast-travel-pad"
                   fullWidth
@@ -703,7 +663,7 @@ function App(): JSX.Element {
                     setFormField("pad", event.currentTarget.value)
                   }
                 />
-              </FormField>
+              </Field>
             </div>
 
             <DialogFooter>

@@ -16,12 +16,11 @@ import {
   AppShell,
   Button,
   type ButtonProps,
-  Card,
-  CardContent,
-  CardFrame,
-  CardFrameHeader,
-  CardFrameTitle,
   Checkbox,
+  Empty,
+  EmptyDescription,
+  EmptyHeader,
+  EmptyTitle,
   IconButton,
   Input,
   InputGroup,
@@ -33,6 +32,7 @@ import {
   SelectContent,
   SelectItem,
   SelectTrigger,
+  PillButton,
   Tabs,
   TabsContent,
   TabsList,
@@ -41,7 +41,7 @@ import {
   Tooltip,
   TooltipContent,
   TooltipTrigger,
-  type IconButtonProps,
+  TooltipIconButton,
 } from "@vexed/ui";
 import {
   For,
@@ -67,16 +67,20 @@ import {
   type PacketSendTarget,
 } from "../../../shared/packets";
 import { makeRandomId } from "../../../shared/random-id";
+import { SectionPanel } from "../../components/SectionPanel";
+import { downloadText } from "../../lib/download";
 import { mountWindow } from "../mount";
+import { splitTextMatches } from "../../lib/text";
 
 type ActiveTab = "log" | "send";
 const LOG_ROW_HEIGHT_COMPACT = 34;
 const LOG_ROW_OVERSCAN = 8;
 const LOG_ROW_WRAPPED_APPROX_CHAR_WIDTH = 7.2;
 const LOG_ROW_WRAPPED_FIXED_WIDTH = 184;
-const LOG_ROW_WRAPPED_FIXED_WIDTH_WITH_TIMESTAMP = 278;
+const LOG_ROW_WRAPPED_FIXED_WIDTH_WITH_TIMESTAMP = 290;
 const LOG_ROW_WRAPPED_TEXT_LINE_HEIGHT = 18;
 const LOG_ROW_WRAPPED_VERTICAL_CHROME = 11;
+const LOG_ROW_WRAPPED_MAX_HEIGHT = 220;
 
 interface PacketLogEntry {
   readonly id: string;
@@ -84,11 +88,6 @@ interface PacketLogEntry {
   readonly text: string;
   readonly timestamp: number;
   readonly type: PacketCaptureType;
-}
-
-interface PacketTextSegment {
-  readonly match: boolean;
-  readonly text: string;
 }
 
 interface PacketLogEmptyState {
@@ -138,38 +137,6 @@ const formatTimestamp = (timestamp: number): string => {
 const includesSearch = (value: string, query: string): boolean =>
   value.toLocaleLowerCase().includes(query.toLocaleLowerCase());
 
-const splitSearchMatches = (
-  value: string,
-  query: string,
-): readonly PacketTextSegment[] => {
-  if (query === "") {
-    return [{ match: false, text: value }];
-  }
-
-  const normalizedValue = value.toLocaleLowerCase();
-  const normalizedQuery = query.toLocaleLowerCase();
-  const segments: PacketTextSegment[] = [];
-  let cursor = 0;
-
-  while (cursor < value.length) {
-    const index = normalizedValue.indexOf(normalizedQuery, cursor);
-    if (index === -1) {
-      segments.push({ match: false, text: value.slice(cursor) });
-      break;
-    }
-
-    if (index > cursor) {
-      segments.push({ match: false, text: value.slice(cursor, index) });
-    }
-
-    const endIndex = index + query.length;
-    segments.push({ match: true, text: value.slice(index, endIndex) });
-    cursor = endIndex;
-  }
-
-  return segments;
-};
-
 const estimateWrappedLogRowHeight = (
   entry: PacketLogEntry,
   viewportWidth: number,
@@ -191,11 +158,14 @@ const estimateWrappedLogRowHeight = (
       0,
     );
 
-  return Math.max(
-    LOG_ROW_HEIGHT_COMPACT,
-    Math.ceil(
-      textLineCount * LOG_ROW_WRAPPED_TEXT_LINE_HEIGHT +
-        LOG_ROW_WRAPPED_VERTICAL_CHROME,
+  return Math.min(
+    LOG_ROW_WRAPPED_MAX_HEIGHT,
+    Math.max(
+      LOG_ROW_HEIGHT_COMPACT,
+      Math.ceil(
+        textLineCount * LOG_ROW_WRAPPED_TEXT_LINE_HEIGHT +
+          LOG_ROW_WRAPPED_VERTICAL_CHROME,
+      ),
     ),
   );
 };
@@ -209,80 +179,6 @@ const toExportLine = (
     : "";
   return `${timestamp}[${entry.type.toUpperCase()}] ${entry.text}`;
 };
-
-const downloadText = (filename: string, content: string): void => {
-  const url = URL.createObjectURL(new Blob([content], { type: "text/plain" }));
-  const link = document.createElement("a");
-  link.href = url;
-  link.download = filename;
-  link.click();
-  URL.revokeObjectURL(url);
-};
-
-function Panel(props: {
-  readonly action?: JSX.Element;
-  readonly title: string;
-  readonly titleAccessory?: JSX.Element;
-  readonly children: JSX.Element;
-}): JSX.Element {
-  return (
-    <CardFrame class="packets-panel">
-      <CardFrameHeader class="packets-panel__header">
-        <div class="packets-panel__heading">
-          <CardFrameTitle class="packets-panel__title">
-            {props.title}
-          </CardFrameTitle>
-          <Show when={props.titleAccessory}>
-            {(titleAccessory) => (
-              <div class="packets-panel__title-accessory">
-                {titleAccessory()}
-              </div>
-            )}
-          </Show>
-        </div>
-        <Show when={props.action}>
-          {(action) => <div class="packets-panel__actions">{action()}</div>}
-        </Show>
-      </CardFrameHeader>
-      <Card class="packets-panel__body">
-        <CardContent class="packets-panel__content">
-          {props.children}
-        </CardContent>
-      </Card>
-    </CardFrame>
-  );
-}
-
-function TooltipIconButton(props: {
-  readonly "aria-label": string;
-  readonly children: JSX.Element;
-  readonly class?: string;
-  readonly disabled?: boolean;
-  readonly onClick: () => void;
-  readonly tooltip: string;
-}): JSX.Element {
-  return (
-    <Tooltip closeDelay={0} openDelay={200} positioning={{ placement: "top" }}>
-      <TooltipTrigger
-        asChild={(triggerProps) => (
-          <IconButton
-            {...(triggerProps({
-              "aria-label": props["aria-label"],
-              children: props.children,
-              class: props.class,
-              disabled: props.disabled,
-              size: "icon-sm",
-              type: "button",
-              variant: "ghost",
-              onClick: props.onClick,
-            } as IconButtonProps) as IconButtonProps)}
-          />
-        )}
-      />
-      <TooltipContent>{props.tooltip}</TooltipContent>
-    </Tooltip>
-  );
-}
 
 function PacketSenderLabelHelp(): JSX.Element {
   return (
@@ -463,13 +359,21 @@ function App(): JSX.Element {
     },
     getItemKey: (index) => filteredPackets()[index]?.id ?? index,
     getScrollElement: () => logViewport ?? null,
-    measureElement: (element) =>
-      wrapPackets()
-        ? Math.max(
-            LOG_ROW_HEIGHT_COMPACT,
-            Math.ceil(element.getBoundingClientRect().height),
+    measureElement: (element) => {
+      if (!wrapPackets()) {
+        return LOG_ROW_HEIGHT_COMPACT;
+      }
+
+      const index = Number(element.getAttribute("data-index"));
+      const entry = Number.isInteger(index) ? filteredPackets()[index] : null;
+      return entry
+        ? estimateWrappedLogRowHeight(
+            entry,
+            logViewportWidth(),
+            showTimestamps(),
           )
-        : LOG_ROW_HEIGHT_COMPACT,
+        : LOG_ROW_WRAPPED_MAX_HEIGHT;
+    },
     overscan: LOG_ROW_OVERSCAN,
     useAnimationFrameWithResizeObserver: true,
   });
@@ -834,7 +738,7 @@ function App(): JSX.Element {
     }
 
     return (
-      <For each={splitSearchMatches(text, query)}>
+      <For each={splitTextMatches(text, query)}>
         {(segment) =>
           segment.match ? (
             <mark class="packets-log-row__match">{segment.text}</mark>
@@ -1189,31 +1093,26 @@ function App(): JSX.Element {
                     </div>
                   </div>
 
-                  <Panel
+                  <SectionPanel
+                    class="packets-panel"
                     title="Log"
                     titleAccessory={
                       <div class="packets-filter-row packets-filter-row--header">
                         <For each={PacketCaptureTypes}>
                           {(type) => (
-                            <div
-                              class="packets-filter-pill"
-                              classList={{
-                                "packets-filter-pill--active": filters()[type],
-                              }}
+                            <PillButton
+                              aria-label={`${packetTypeLabels[type]} packets`}
+                              class="packets-filter-button"
+                              pressed={filters()[type]}
+                              onClick={() => toggleFilter(type)}
                             >
-                              <button
-                                aria-label={`${packetTypeLabels[type]} packets`}
-                                aria-pressed={filters()[type]}
-                                class="packets-filter-pill__button"
-                                onClick={() => toggleFilter(type)}
-                                type="button"
-                              >
+                              <span class="packets-filter-button__label">
                                 {packetTypeLabels[type]}
-                              </button>
-                              <span class="packets-filter-pill__count">
+                              </span>
+                              <span class="packets-filter-button__count">
                                 {stats()[type]}
                               </span>
-                            </div>
+                            </PillButton>
                           )}
                         </For>
                       </div>
@@ -1229,18 +1128,20 @@ function App(): JSX.Element {
                       <Show
                         when={filteredPackets().length > 0}
                         fallback={
-                          <div class="packets-empty">
-                            <span class="packets-empty__title">
-                              {logEmptyState().title}
-                            </span>
-                            <Show when={logEmptyState().description}>
-                              {(description) => (
-                                <span class="packets-empty__description">
-                                  {description()}
-                                </span>
-                              )}
-                            </Show>
-                          </div>
+                          <Empty class="packets-empty">
+                            <EmptyHeader>
+                              <EmptyTitle class="packets-empty__title">
+                                {logEmptyState().title}
+                              </EmptyTitle>
+                              <Show when={logEmptyState().description}>
+                                {(description) => (
+                                  <EmptyDescription class="packets-empty__description">
+                                    {description()}
+                                  </EmptyDescription>
+                                )}
+                              </Show>
+                            </EmptyHeader>
+                          </Empty>
                         }
                       >
                         <div
@@ -1262,9 +1163,7 @@ function App(): JSX.Element {
                                   logVirtualizer.measureElement(element);
                                 }}
                                 style={{
-                                  height: wrapPackets()
-                                    ? undefined
-                                    : `${row.item.size}px`,
+                                  height: `${row.item.size}px`,
                                   top: `${row.item.start}px`,
                                 }}
                               >
@@ -1275,7 +1174,7 @@ function App(): JSX.Element {
                         </div>
                       </Show>
                     </div>
-                  </Panel>
+                  </SectionPanel>
                 </div>
               </TabsContent>
 
@@ -1315,7 +1214,7 @@ function App(): JSX.Element {
                   </div>
 
                   <div class="packets-send-grid">
-                    <Panel title="Sender">
+                    <SectionPanel class="packets-panel" title="Sender">
                       <form
                         class="packets-sender"
                         onSubmit={(event) => {
@@ -1355,9 +1254,9 @@ function App(): JSX.Element {
                           </Button>
                         </div>
                       </form>
-                    </Panel>
+                    </SectionPanel>
 
-                    <Panel title="Queue">
+                    <SectionPanel class="packets-panel" title="Queue">
                       <div class="packets-queue">
                         <div class="packets-queue__toolbar">
                           <div class="packets-queue-delay">
@@ -1383,7 +1282,9 @@ function App(): JSX.Element {
                           <Show
                             when={queue().length > 0}
                             fallback={
-                              <div class="packets-empty">Queue is empty</div>
+                              <Empty class="packets-empty">
+                                Queue is empty
+                              </Empty>
                             }
                           >
                             <For each={queue()}>
@@ -1462,7 +1363,7 @@ function App(): JSX.Element {
                           </div>
                         </div>
                       </div>
-                    </Panel>
+                    </SectionPanel>
                   </div>
                 </div>
               </TabsContent>

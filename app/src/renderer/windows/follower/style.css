@@ -212,7 +212,8 @@
   min-width: 0;
 }
 
-.follower-inline-number {
+.follower-inline-number,
+.follower-inline-number.label {
   align-items: center;
   color: var(--color-muted-foreground);
   display: grid;
