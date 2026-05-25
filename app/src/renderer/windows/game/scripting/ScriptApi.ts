@@ -1,7 +1,6 @@
 import type { Collection } from "@vexed/collection";
 import type { Aura, Avatar, GameAction, Monster, Server } from "@vexed/game";
 import type { Duration, Effect, Option } from "effect";
-import type * as EffectStd from "effect";
 import type { ScriptOptions } from "../../../../shared/ipc";
 import type { ScriptExecutionError, ScriptNotReadyError } from "./Errors";
 import type { ScriptRecipesShape } from "./recipes";
@@ -210,17 +209,9 @@ export interface ScriptContext {
    */
   readonly script: ScriptRuntimeApi;
   /**
-   * Use shared utility modules.
-   */
-  readonly std: ScriptStdApi;
-  /**
    * Use feature controls.
    */
   readonly features: ScriptFeaturesApi;
-}
-
-export interface ScriptStdApi {
-  readonly effect: typeof EffectStd;
 }
 
 export interface ScriptFeaturesApi {

@@ -13,9 +13,10 @@ tableOfContents:
 Scripts export a CommonJS generator function and receive one context object.
 
 ```js
+const { Option } = require("effect")
+
 module.exports = function* run(ctx) {
-  const { api, script, std } = ctx
-  const { Option } = std.effect
+  const { api, script } = ctx
   script.log("started")
   yield* script.options.setUsePrivateRooms(true)
   yield* api.player.joinMap("battleon")
@@ -33,7 +34,7 @@ The context is the object passed to your script.
 | [`api`](/scripting/api/) | Interact with the game. |
 | [`script`](/scripting/script/) | Manage the running script. |
 | [`features`](/scripting/features/) | Use feature controls. |
-| [`std`](/scripting/std/) | Use shared utility modules. |
+| [`imports`](/scripting/imports/) | Import supported script modules. |
 
 ## Reference
 
@@ -48,9 +49,10 @@ Download the generated declaration file [`script-api.d.ts`](/script-api.d.ts) an
 ```js
 /// <reference path="./script-api.d.ts" />
 
+const { Option } = require("effect")
+
 /** @param {ScriptContext} context */
-module.exports = function* run({ api, script, std }) {
-  const { Option } = std.effect
+module.exports = function* run({ api, script }) {
   yield* script.options.setUsePrivateRooms(true)
   yield* api.player.joinMap("battleon")
   const me = yield* api.world.players.me.get()

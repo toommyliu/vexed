@@ -83,11 +83,55 @@ const SUPPORT_TYPE_NAMES = new Set([
   "MonsterName",
   "Option",
   "ScriptExecutionError",
+  "ScriptEffectModule",
+  "ScriptEffectStd",
+  "ScriptOpaqueModule",
   "ScriptNotReadyError",
+  "ScriptOptionModule",
+  "ScriptPipe",
   "Skill",
 ]);
 
 const SUPPORT_DECLARATIONS = `
+type ScriptPipe = {
+  <A>(value: A): A;
+  <A, B>(value: A, ab: (a: A) => B): B;
+  <A, B, C>(value: A, ab: (a: A) => B, bc: (b: B) => C): C;
+  <A, B, C, D>(
+    value: A,
+    ab: (a: A) => B,
+    bc: (b: B) => C,
+    cd: (c: C) => D,
+  ): D;
+};
+
+interface ScriptEffectModule {
+  readonly [key: string]: any;
+}
+
+interface ScriptOptionModule {
+  some<Value>(value: Value): Option<Value>;
+  none<Value = never>(): Option<Value>;
+  isSome<Value>(
+    option: Option<Value>,
+  ): option is { readonly _tag: "Some"; readonly value: Value };
+  isNone<Value>(option: Option<Value>): option is { readonly _tag: "None" };
+  readonly [key: string]: any;
+}
+
+interface ScriptOpaqueModule {
+  readonly [key: string]: any;
+}
+
+interface ScriptEffectStd {
+  readonly Effect: ScriptEffectModule;
+  readonly Option: ScriptOptionModule;
+  readonly Duration: ScriptOpaqueModule;
+  readonly pipe: ScriptPipe;
+}
+
+declare function require(moduleName: "effect"): ScriptEffectStd;
+
 type DurationInput = number | string | bigint | DurationLike;
 
 interface DurationLike {
@@ -268,7 +312,6 @@ const transformTypeText = (type: string): string => {
   output = output.replace(/\bEffect\.Yieldable\s*</g, "EffectYieldable<");
   output = output.replace(/\bOption\.Option\s*</g, "Option<");
   output = output.replace(/\bDuration\.Input\b/g, "DurationInput");
-  output = output.replace(/\btypeof\s+EffectStd\b/g, "EffectStd");
   output = output.replace(/\bReadonlyArray\s*</g, "readonly ");
   output = output.replace(/\bSchema\.Schema\.Type<[^>]+>/g, "unknown");
   output = output.replace(
@@ -526,6 +569,19 @@ const renderInterfaceFromDeclaration = (
     }
 
     const reference = parseTypeReference(member.type);
+    if (reference !== null && SUPPORT_TYPE_NAMES.has(reference.unqualifiedName)) {
+      const readonly = member.modifiers?.some(
+        (modifier) => modifier.kind === ts.SyntaxKind.ReadonlyKeyword,
+      )
+        ? "readonly "
+        : "";
+      const optional = member.questionToken === undefined ? "" : "?";
+      lines.push(
+        `${getJsDocComment(member)}    ${readonly}${name}${optional}: ${reference.unqualifiedName};`,
+      );
+      continue;
+    }
+
     const childDeclaration =
       reference === null
         ? null

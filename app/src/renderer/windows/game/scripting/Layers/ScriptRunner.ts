@@ -1,4 +1,3 @@
-import * as EffectStd from "effect";
 import { Cause, Effect, Fiber, Layer, Option, Ref, Semaphore } from "effect";
 import { type ScriptExecutePayload, type ScriptOptions } from "../ipc";
 import { Army, type ArmyShape } from "../../army/Services/Army";
@@ -931,9 +930,6 @@ const make = Effect.gen(function* () {
     const context: ScriptContext = {
       api,
       script,
-      std: {
-        effect: EffectStd,
-      },
       features: {
         autoRelogin: wrapValue(
           scriptAutoRelogin,

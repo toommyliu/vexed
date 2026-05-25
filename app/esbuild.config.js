@@ -327,10 +327,12 @@ function cleanProductionOutput() {
 
 async function buildOnce() {
   cleanProductionOutput();
-  await build(createMainBuildOptions());
-  await build(createPreloadBuildOptions());
   copyRendererHtml();
-  await build(createRendererBuildOptions());
+  await Promise.all([
+    build(createMainBuildOptions()),
+    build(createPreloadBuildOptions()),
+    build(createRendererBuildOptions()),
+  ]);
   console.log("Build complete.");
 }
 
