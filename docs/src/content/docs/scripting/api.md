@@ -32,4 +32,5 @@ tableOfContents:
 | [`api.settings`](/scripting/api/settings/) | Settings APIs. |
 | [`api.shops`](/scripting/api/shops/) | Shops APIs. |
 | [`api.tempInventory`](/scripting/api/temp-inventory/) | Temp Inventory APIs. |
+| [`api.wait`](/scripting/api/wait/) | Wait APIs. |
 | [`api.world`](/scripting/api/world/) | World APIs. |

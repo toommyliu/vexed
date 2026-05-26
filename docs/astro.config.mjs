@@ -103,6 +103,7 @@ export default defineConfig({
                   link: "/scripting/api/temp-inventory/",
                   label: "Temp Inventory",
                 },
+                { link: "/scripting/api/wait/", label: "Wait" },
                 { link: "/scripting/api/world/", label: "World" },
               ],
             },

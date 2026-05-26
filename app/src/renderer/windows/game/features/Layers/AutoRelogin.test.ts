@@ -15,6 +15,7 @@ import {
 } from "../../jobs/Services/Jobs";
 import { Player, type PlayerShape } from "../../flash/Services/Player";
 import { Settings, type SettingsShape } from "../../flash/Services/Settings";
+import { WaitLive } from "../../flash/Layers/Wait";
 import {
   AutoRelogin,
   type AutoReloginShape,
@@ -367,6 +368,7 @@ const withAutoRelogin = async <A>(
               Layer.succeed(Jobs)(jobs),
               Layer.succeed(Player)(player),
               Layer.succeed(Settings)(settings),
+              WaitLive.pipe(Layer.provide(Layer.succeed(Bridge)(bridge))),
             ),
           ),
         ),

@@ -2995,8 +2995,8 @@
         }
       ],
       "source": {
-        "path": "app/src/renderer/windows/game/scripting/recipes.ts:55",
-        "url": "https://github.com/toommyliu/vexed/blob/dev/app/src/renderer/windows/game/scripting/recipes.ts#L55"
+        "path": "app/src/renderer/windows/game/scripting/recipes.ts:56",
+        "url": "https://github.com/toommyliu/vexed/blob/dev/app/src/renderer/windows/game/scripting/recipes.ts#L56"
       }
     },
     "script-equip-item-by-enhancement-options": {
@@ -3007,8 +3007,76 @@
       "definition": "type ScriptEquipItemByEnhancementOptions = EquipEnhancementSelector",
       "keys": [],
       "source": {
-        "path": "app/src/renderer/windows/game/scripting/recipes.ts:60",
-        "url": "https://github.com/toommyliu/vexed/blob/dev/app/src/renderer/windows/game/scripting/recipes.ts#L60"
+        "path": "app/src/renderer/windows/game/scripting/recipes.ts:61",
+        "url": "https://github.com/toommyliu/vexed/blob/dev/app/src/renderer/windows/game/scripting/recipes.ts#L61"
+      }
+    },
+    "script-item-wait-options": {
+      "name": "ScriptItemWaitOptions",
+      "slug": "script-item-wait-options",
+      "kind": "interface",
+      "summary": "",
+      "definition": "interface ScriptItemWaitOptions",
+      "keys": [
+        {
+          "kind": "property",
+          "name": "interval",
+          "signature": "readonly interval?: Input",
+          "description": ""
+        },
+        {
+          "kind": "property",
+          "name": "quantity",
+          "signature": "readonly quantity?: number",
+          "description": ""
+        },
+        {
+          "kind": "property",
+          "name": "timeout",
+          "signature": "readonly timeout?: Input",
+          "description": ""
+        }
+      ],
+      "source": {
+        "path": "app/src/renderer/windows/game/scripting/ScriptApi.ts:123",
+        "url": "https://github.com/toommyliu/vexed/blob/dev/app/src/renderer/windows/game/scripting/ScriptApi.ts#L123"
+      }
+    },
+    "script-monster-wait-options": {
+      "name": "ScriptMonsterWaitOptions",
+      "slug": "script-monster-wait-options",
+      "kind": "interface",
+      "summary": "",
+      "definition": "interface ScriptMonsterWaitOptions",
+      "keys": [
+        {
+          "kind": "property",
+          "name": "cell",
+          "signature": "readonly cell?: string",
+          "description": ""
+        },
+        {
+          "kind": "property",
+          "name": "currentCell",
+          "signature": "readonly currentCell?: boolean",
+          "description": ""
+        },
+        {
+          "kind": "property",
+          "name": "interval",
+          "signature": "readonly interval?: Input",
+          "description": ""
+        },
+        {
+          "kind": "property",
+          "name": "timeout",
+          "signature": "readonly timeout?: Input",
+          "description": ""
+        }
+      ],
+      "source": {
+        "path": "app/src/renderer/windows/game/scripting/ScriptApi.ts:118",
+        "url": "https://github.com/toommyliu/vexed/blob/dev/app/src/renderer/windows/game/scripting/ScriptApi.ts#L118"
       }
     },
     "script-options": {
@@ -3054,6 +3122,37 @@
         "url": "https://github.com/toommyliu/vexed/blob/dev/app/src/renderer/windows/game/scripting/ScriptApi.ts#L41"
       }
     },
+    "script-player-count-wait-options": {
+      "name": "ScriptPlayerCountWaitOptions",
+      "slug": "script-player-count-wait-options",
+      "kind": "interface",
+      "summary": "",
+      "definition": "interface ScriptPlayerCountWaitOptions",
+      "keys": [
+        {
+          "kind": "property",
+          "name": "exact",
+          "signature": "readonly exact?: boolean",
+          "description": ""
+        },
+        {
+          "kind": "property",
+          "name": "interval",
+          "signature": "readonly interval?: Input",
+          "description": ""
+        },
+        {
+          "kind": "property",
+          "name": "timeout",
+          "signature": "readonly timeout?: Input",
+          "description": ""
+        }
+      ],
+      "source": {
+        "path": "app/src/renderer/windows/game/scripting/ScriptApi.ts:114",
+        "url": "https://github.com/toommyliu/vexed/blob/dev/app/src/renderer/windows/game/scripting/ScriptApi.ts#L114"
+      }
+    },
     "script-recipe-effect": {
       "name": "ScriptRecipeEffect",
       "slug": "script-recipe-effect",
@@ -3064,6 +3163,43 @@
       "source": {
         "path": "app/src/renderer/windows/game/scripting/recipes.ts:37",
         "url": "https://github.com/toommyliu/vexed/blob/dev/app/src/renderer/windows/game/scripting/recipes.ts#L37"
+      }
+    },
+    "script-wait-options": {
+      "name": "ScriptWaitOptions",
+      "slug": "script-wait-options",
+      "kind": "interface",
+      "summary": "",
+      "definition": "interface ScriptWaitOptions",
+      "keys": [
+        {
+          "kind": "property",
+          "name": "interval",
+          "signature": "readonly interval?: Input",
+          "description": ""
+        },
+        {
+          "kind": "property",
+          "name": "timeout",
+          "signature": "readonly timeout?: Input",
+          "description": ""
+        }
+      ],
+      "source": {
+        "path": "app/src/renderer/windows/game/scripting/ScriptApi.ts:109",
+        "url": "https://github.com/toommyliu/vexed/blob/dev/app/src/renderer/windows/game/scripting/ScriptApi.ts#L109"
+      }
+    },
+    "script-wait-predicate": {
+      "name": "ScriptWaitPredicate",
+      "slug": "script-wait-predicate",
+      "kind": "type alias",
+      "summary": "",
+      "definition": "type ScriptWaitPredicate = () => boolean | Effect.Effect<boolean, unknown> | Generator<Effect.Yieldable<any, any, never, never>, boolean, never>",
+      "keys": [],
+      "source": {
+        "path": "app/src/renderer/windows/game/scripting/ScriptApi.ts:127",
+        "url": "https://github.com/toommyliu/vexed/blob/dev/app/src/renderer/windows/game/scripting/ScriptApi.ts#L127"
       }
     },
     "server": {

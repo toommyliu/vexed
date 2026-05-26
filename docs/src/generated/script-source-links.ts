@@ -243,12 +243,20 @@ export const scriptSourceLinks: Record<string, { path: string; url: string }> =
       url: "https://github.com/toommyliu/vexed/blob/dev/app/src/renderer/windows/game/scripting/ScriptApi.ts#L58",
     },
     "scripting/types/script-enhance-item-options": {
-      path: "app/src/renderer/windows/game/scripting/recipes.ts:55",
-      url: "https://github.com/toommyliu/vexed/blob/dev/app/src/renderer/windows/game/scripting/recipes.ts#L55",
+      path: "app/src/renderer/windows/game/scripting/recipes.ts:56",
+      url: "https://github.com/toommyliu/vexed/blob/dev/app/src/renderer/windows/game/scripting/recipes.ts#L56",
     },
     "scripting/types/script-equip-item-by-enhancement-options": {
-      path: "app/src/renderer/windows/game/scripting/recipes.ts:60",
-      url: "https://github.com/toommyliu/vexed/blob/dev/app/src/renderer/windows/game/scripting/recipes.ts#L60",
+      path: "app/src/renderer/windows/game/scripting/recipes.ts:61",
+      url: "https://github.com/toommyliu/vexed/blob/dev/app/src/renderer/windows/game/scripting/recipes.ts#L61",
+    },
+    "scripting/types/script-item-wait-options": {
+      path: "app/src/renderer/windows/game/scripting/ScriptApi.ts:123",
+      url: "https://github.com/toommyliu/vexed/blob/dev/app/src/renderer/windows/game/scripting/ScriptApi.ts#L123",
+    },
+    "scripting/types/script-monster-wait-options": {
+      path: "app/src/renderer/windows/game/scripting/ScriptApi.ts:118",
+      url: "https://github.com/toommyliu/vexed/blob/dev/app/src/renderer/windows/game/scripting/ScriptApi.ts#L118",
     },
     "scripting/types/script-options": {
       path: "app/src/shared/ipc.ts:362",
@@ -262,9 +270,21 @@ export const scriptSourceLinks: Record<string, { path: string; url: string }> =
       path: "app/src/renderer/windows/game/scripting/ScriptApi.ts:41",
       url: "https://github.com/toommyliu/vexed/blob/dev/app/src/renderer/windows/game/scripting/ScriptApi.ts#L41",
     },
+    "scripting/types/script-player-count-wait-options": {
+      path: "app/src/renderer/windows/game/scripting/ScriptApi.ts:114",
+      url: "https://github.com/toommyliu/vexed/blob/dev/app/src/renderer/windows/game/scripting/ScriptApi.ts#L114",
+    },
     "scripting/types/script-recipe-effect": {
       path: "app/src/renderer/windows/game/scripting/recipes.ts:37",
       url: "https://github.com/toommyliu/vexed/blob/dev/app/src/renderer/windows/game/scripting/recipes.ts#L37",
+    },
+    "scripting/types/script-wait-options": {
+      path: "app/src/renderer/windows/game/scripting/ScriptApi.ts:109",
+      url: "https://github.com/toommyliu/vexed/blob/dev/app/src/renderer/windows/game/scripting/ScriptApi.ts#L109",
+    },
+    "scripting/types/script-wait-predicate": {
+      path: "app/src/renderer/windows/game/scripting/ScriptApi.ts:127",
+      url: "https://github.com/toommyliu/vexed/blob/dev/app/src/renderer/windows/game/scripting/ScriptApi.ts#L127",
     },
     "scripting/types/server": {
       path: "packages/game/src/models/Server.ts:6",

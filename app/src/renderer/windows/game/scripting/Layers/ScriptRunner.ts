@@ -1,3 +1,5 @@
+import { parseMonsterMapIdToken } from "@vexed/game";
+import { equalsIgnoreCase } from "@vexed/shared/string";
 import { Cause, Effect, Fiber, Layer, Option, Ref, Semaphore } from "effect";
 import { type ScriptExecutePayload, type ScriptOptions } from "../ipc";
 import { Army, type ArmyShape } from "../../army/Services/Army";
@@ -25,6 +27,7 @@ import { Settings } from "../../flash/Services/Settings";
 import type { BridgeEffect } from "../../flash/Services/Bridge";
 import { Shops } from "../../flash/Services/Shops";
 import { TempInventory } from "../../flash/Services/TempInventory";
+import { Wait } from "../../flash/Services/Wait";
 import { World } from "../../flash/Services/World";
 import {
   ScriptExecutionError,
@@ -46,6 +49,9 @@ import type {
   ScriptPacketListener,
   ScriptRuntimeApi,
   ScriptSettingsShape,
+  ScriptWaitOptions,
+  ScriptWaitPredicate,
+  ScriptWaitShape,
   ScriptWorldShape,
 } from "../ScriptApi";
 import {
@@ -55,6 +61,7 @@ import {
 import { makeScriptRecipes } from "../recipes";
 import { loadScriptModule } from "../scriptLoader";
 import {
+  parseMapTarget,
   randomPrivateRoomNumber,
   withPrivateRoom,
 } from "../../flash/MapTarget";
@@ -152,6 +159,7 @@ const make = Effect.gen(function* () {
   const settings = yield* Settings;
   const shops = yield* Shops;
   const tempInventory = yield* TempInventory;
+  const wait = yield* Wait;
   const world = yield* World;
 
   const services = yield* Effect.services();
@@ -544,6 +552,331 @@ const make = Effect.gen(function* () {
           ),
         )) satisfies ScriptAntiCounterShape[typeof listener];
 
+    const toScriptWaitOptions = (
+      options: ScriptWaitOptions | undefined,
+    ): ScriptWaitOptions | undefined =>
+      options === undefined
+        ? undefined
+        : {
+            ...(options.timeout === undefined
+              ? {}
+              : { timeout: options.timeout }),
+            ...(options.interval === undefined
+              ? {}
+              : { interval: options.interval }),
+          };
+
+    const assertScriptWaitBoolean = (
+      value: unknown,
+    ): Effect.Effect<boolean, ScriptExecutionError> =>
+      typeof value === "boolean"
+        ? Effect.succeed(value)
+        : Effect.fail(
+            new ScriptExecutionError({
+              sourceName,
+              message: "api.wait.until predicate must return a boolean",
+              cause: value,
+            }),
+          );
+
+    const evaluateScriptWaitPredicate = (
+      predicate: ScriptWaitPredicate,
+    ): Effect.Effect<boolean, unknown> =>
+      Effect.suspend(() => {
+        if (typeof predicate !== "function") {
+          return Effect.fail(
+            new ScriptExecutionError({
+              sourceName,
+              message: "api.wait.until(predicate) expects a function",
+              cause: predicate,
+            }),
+          );
+        }
+
+        const result = Effect.try({
+          try: () => predicate(),
+          catch: (cause) =>
+            new ScriptExecutionError({
+              sourceName,
+              message: "api.wait.until predicate threw before yielding",
+              cause,
+            }),
+        });
+
+        return result.pipe(
+          Effect.flatMap((predicateResult) => {
+            if (Effect.isEffect(predicateResult)) {
+              return wrapScriptEffect(
+                predicateResult as Effect.Effect<boolean, unknown, never>,
+              ).pipe(Effect.flatMap(assertScriptWaitBoolean));
+            }
+
+            if (isGenerator(predicateResult)) {
+              return Effect.gen(() => predicateResult).pipe(
+                Effect.flatMap(assertScriptWaitBoolean),
+              );
+            }
+
+            return assertScriptWaitBoolean(predicateResult);
+          }),
+        );
+      });
+
+    const waitUntilForScript: ScriptWaitShape["until"] = (predicate, options) =>
+      wrapScriptEffect(
+        wait.until(
+          wrapScriptEffect(evaluateScriptWaitPredicate(predicate)),
+          toScriptWaitOptions(options),
+        ),
+      );
+
+    const waitForTargetMap = (map: string | undefined): BridgeEffect<boolean> =>
+      Effect.gen(function* () {
+        if (!(yield* world.map.isLoaded())) {
+          return false;
+        }
+
+        if (map === undefined || map.trim() === "") {
+          return true;
+        }
+
+        const targetMap = yield* parseMapTarget(map);
+        const currentMapName = yield* world.map.getName();
+        if (!equalsIgnoreCase(currentMapName, targetMap.name)) {
+          return false;
+        }
+
+        if (targetMap.requireExactRoom && targetMap.roomNumber !== undefined) {
+          const currentRoomNumber = yield* world.map.getRoomNumber();
+          return currentRoomNumber === targetMap.roomNumber;
+        }
+
+        return true;
+      });
+
+    const waitForLocation = (location: {
+      readonly cell?: string;
+      readonly pad?: string;
+    }): BridgeEffect<boolean> =>
+      Effect.gen(function* () {
+        if (location.cell === undefined && location.pad === undefined) {
+          return true;
+        }
+
+        if (location.cell !== undefined) {
+          const cell = yield* player.getCell();
+          if (!equalsIgnoreCase(cell, location.cell)) {
+            return false;
+          }
+        }
+
+        if (location.pad !== undefined) {
+          const pad = yield* player.getPad();
+          if (!equalsIgnoreCase(pad, location.pad)) {
+            return false;
+          }
+        }
+
+        return true;
+      });
+
+    const isMonsterAlive = (monster: {
+      readonly alive: boolean;
+      isDead(): boolean;
+    }): boolean => monster.alive && !monster.isDead();
+
+    const monsterMatchesCell = (
+      monster: { readonly cell: string },
+      cell: string | undefined,
+    ): boolean => cell === undefined || equalsIgnoreCase(monster.cell, cell);
+
+    const getMonsterWaitCell = (
+      options: { readonly cell?: string; readonly currentCell?: boolean } = {},
+    ): BridgeEffect<string | undefined> =>
+      options.currentCell === true
+        ? player.getCell()
+        : Effect.succeed(options.cell);
+
+    const findMonster = (
+      monster: MonsterIdentifierToken,
+      cell: string | undefined,
+    ) =>
+      Effect.gen(function* () {
+        const monMapId = parseMonsterMapIdToken(monster);
+        if (monMapId !== undefined) {
+          const byId = yield* world.monsters.get(monMapId);
+          return Option.isSome(byId) && monsterMatchesCell(byId.value, cell)
+            ? Option.some(byId.value)
+            : Option.none();
+        }
+
+        return yield* world.monsters.findByName(String(monster), cell);
+      });
+
+    const isMonsterSpawned = (
+      monster: MonsterIdentifierToken,
+      options?: { readonly cell?: string; readonly currentCell?: boolean },
+    ) =>
+      Effect.gen(function* () {
+        const cell = yield* getMonsterWaitCell(options);
+        const match = yield* findMonster(monster, cell);
+        return Option.isSome(match) && isMonsterAlive(match.value);
+      });
+
+    const isMonsterAvailable = (
+      monster: MonsterIdentifierToken,
+      options?: { readonly cell?: string; readonly currentCell?: boolean },
+    ) =>
+      Effect.gen(function* () {
+        const cell = yield* getMonsterWaitCell(options);
+        const match = yield* findMonster(monster, cell);
+        if (Option.isNone(match) || !isMonsterAlive(match.value)) {
+          return false;
+        }
+
+        return yield* bridge.call("world.isMonsterAvailable", [
+          match.value.monMapId,
+        ]);
+      });
+
+    const isMonsterDead = (
+      monster: MonsterIdentifierToken,
+      options?: { readonly cell?: string; readonly currentCell?: boolean },
+    ) =>
+      Effect.gen(function* () {
+        const cell = yield* getMonsterWaitCell(options);
+        const match = yield* findMonster(monster, cell);
+        return Option.isNone(match) || !isMonsterAlive(match.value);
+      });
+
+    const scriptWait: ScriptWaitShape = {
+      until: waitUntilForScript,
+      isGameActionAvailable: wait.isGameActionAvailable,
+      forGameAction: wait.forGameAction,
+      forPlayerReady: (options) =>
+        wait.until(player.isReady(), toScriptWaitOptions(options)),
+      forPlayerPosition: (x, y, options) =>
+        wait.until(
+          Effect.map(player.getPosition(), ([currentX, currentY]) => {
+            return currentX === x && currentY === y;
+          }),
+          toScriptWaitOptions(options),
+        ),
+      forCombatExit: (options) =>
+        wait.until(
+          world.players
+            .withSelf((self) => !self.isInCombat())
+            .pipe(Effect.map(Option.getOrElse(() => false))),
+          toScriptWaitOptions(options),
+        ),
+      forFullyRested: (options) =>
+        wait.until(
+          Effect.gen(function* () {
+            const [hp, mp, maxHp, maxMp] = yield* Effect.all([
+              player.getHp(),
+              player.getMp(),
+              player.getMaxHp(),
+              player.getMaxMp(),
+            ]);
+
+            return hp >= maxHp && mp >= maxMp;
+          }),
+          toScriptWaitOptions(options),
+        ),
+      forMapLoaded: (map, options) =>
+        wait.until(waitForTargetMap(map), toScriptWaitOptions(options)),
+      forLocation: (location, options) =>
+        wait.until(waitForLocation(location), toScriptWaitOptions(options)),
+      forPlayerCount: (count, options) =>
+        wait.until(
+          Effect.map(world.players.getAll(), (players) =>
+            options?.exact === true
+              ? players.size === count
+              : players.size >= count,
+          ),
+          toScriptWaitOptions(options),
+        ),
+      forMonsterSpawn: (monster, options) =>
+        wait.until(
+          isMonsterSpawned(monster, options),
+          toScriptWaitOptions(options),
+        ),
+      forMonsterAvailable: (monster, options) =>
+        wait.until(
+          isMonsterAvailable(monster, options),
+          toScriptWaitOptions(options),
+        ),
+      forMonsterDeath: (monster, options) =>
+        wait.until(
+          isMonsterDead(monster, options),
+          toScriptWaitOptions(options),
+        ),
+      forDrop: (item, options) =>
+        wait.until(drops.containsDrop(item), toScriptWaitOptions(options)),
+      forDropRemoved: (item, options) =>
+        wait.until(
+          drops.containsDrop(item).pipe(Effect.map((exists) => !exists)),
+          toScriptWaitOptions(options),
+        ),
+      forInventoryItem: (item, options) =>
+        wait.until(
+          inventory.contains(item, options?.quantity),
+          toScriptWaitOptions(options),
+        ),
+      forInventoryItemRemoved: (item, options) =>
+        wait.until(
+          inventory
+            .contains(item, options?.quantity)
+            .pipe(Effect.map((exists) => !exists)),
+          toScriptWaitOptions(options),
+        ),
+      forItemEquipped: (item, options) =>
+        wait.until(
+          inventory
+            .getItem(item)
+            .pipe(
+              Effect.map(
+                (inventoryItem) =>
+                  inventoryItem !== null &&
+                  (inventoryItem.isEquipped() || inventoryItem.isWearing()),
+              ),
+            ),
+          toScriptWaitOptions(options),
+        ),
+      forBankOpen: (options) =>
+        wait.until(bank.isOpen(), toScriptWaitOptions(options)),
+      forBankItem: (item, options) =>
+        wait.until(
+          bank.contains(item, options?.quantity),
+          toScriptWaitOptions(options),
+        ),
+      forBankItemRemoved: (item, options) =>
+        wait.until(
+          bank
+            .contains(item, options?.quantity)
+            .pipe(Effect.map((exists) => !exists)),
+          toScriptWaitOptions(options),
+        ),
+      forHouseItem: (item, options) =>
+        wait.until(
+          house.getItem(item).pipe(Effect.map((item) => item !== null)),
+          toScriptWaitOptions(options),
+        ),
+      forQuestLoaded: (questId, options) =>
+        wait.until(quests.has(questId), toScriptWaitOptions(options)),
+      forQuestAccepted: (questId, options) =>
+        wait.until(quests.isInProgress(questId), toScriptWaitOptions(options)),
+      forQuestCompleted: (questId, options) =>
+        wait.until(
+          quests
+            .isInProgress(questId)
+            .pipe(Effect.map((accepted) => !accepted)),
+          toScriptWaitOptions(options),
+        ),
+      forSkillReady: (index, options) =>
+        wait.until(combat.canUseSkill(index), toScriptWaitOptions(options)),
+    };
+
     const bestEffortScriptSetting = (
       setting: string,
       effect: BridgeEffect<void>,
@@ -730,12 +1063,10 @@ const make = Effect.gen(function* () {
         getCells: world.map.getCells,
         getCellPads: world.map.getCellPads,
         isLoaded: world.map.isLoaded,
-        isActionAvailable: world.map.isActionAvailable,
         getMapItem: world.map.getMapItem,
         loadSwf: world.map.loadSwf,
         reload: world.map.reload,
         setSpawnPoint: world.map.setSpawnPoint,
-        waitForGameAction: world.map.waitForGameAction,
         getName: world.map.getName,
         getId: world.map.getId,
         getRoomNumber: world.map.getRoomNumber,
@@ -866,6 +1197,7 @@ const make = Effect.gen(function* () {
       quests,
       shops,
       tempInventory,
+      wait,
       world,
     });
 
@@ -924,6 +1256,7 @@ const make = Effect.gen(function* () {
       settings: wrapValue(scriptSettings) as ScriptApi["settings"],
       shops: wrapValue(shops) as ScriptApi["shops"],
       tempInventory: wrapValue(tempInventory) as ScriptApi["tempInventory"],
+      wait: wrapValue(scriptWait) as ScriptApi["wait"],
       world: wrapValue(scriptWorld) as ScriptApi["world"],
     };
 

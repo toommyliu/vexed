@@ -7,9 +7,9 @@ import {
   type ExtensionPacketHandler,
   type PacketShape,
 } from "../Services/Packet";
-import { World, type WorldShape } from "../Services/World";
 import { Quests } from "../Services/Quests";
 import { QuestsLive } from "./Quests";
+import { WaitLive } from "./Wait";
 
 const questInfo = (questId: number): QuestInfo =>
   ({
@@ -21,13 +21,6 @@ const questInfo = (questId: number): QuestInfo =>
     reward: [],
     sName: `Quest ${questId}`,
   }) as unknown as QuestInfo;
-
-const makeWorld = (): WorldShape =>
-  ({
-    map: {
-      waitForGameAction: () => Effect.succeed(true),
-    },
-  }) as unknown as WorldShape;
 
 test("silent loadMany waits until fetched quests are in the local tree", async () => {
   const jsonHandlers = new Map<string, Parameters<PacketShape["json"]>[1]>();
@@ -110,7 +103,7 @@ test("silent loadMany waits until fetched quests are in the local tree", async (
             Layer.mergeAll(
               Layer.succeed(Bridge)(bridge),
               Layer.succeed(Packet)(packet),
-              Layer.succeed(World)(makeWorld()),
+              WaitLive.pipe(Layer.provide(Layer.succeed(Bridge)(bridge))),
             ),
           ),
         ),

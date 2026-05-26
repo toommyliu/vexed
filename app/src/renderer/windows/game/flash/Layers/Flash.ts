@@ -14,16 +14,23 @@ import { QuestsLive } from "./Quests";
 import { SettingsLive } from "./Settings";
 import { ShopsLive } from "./Shops";
 import { TempInventoryLive } from "./TempInventory";
+import { WaitLive } from "./Wait";
 import { WorldLive } from "./World";
 
 const BridgeCoreLive = BridgeLive;
+const WaitRuntimeLive = WaitLive.pipe(Layer.provide(BridgeCoreLive));
 const PacketRuntimeLive = PacketLive.pipe(Layer.provide(BridgeCoreLive));
 
-const AuthRuntimeLive = AuthLive.pipe(Layer.provide(BridgeCoreLive));
-const WorldRuntimeLive = WorldLive.pipe(Layer.provide(BridgeCoreLive));
+const AuthRuntimeLive = AuthLive.pipe(
+  Layer.provide(Layer.mergeAll(BridgeCoreLive, WaitRuntimeLive)),
+);
+const WorldRuntimeLive = WorldLive.pipe(
+  Layer.provide(Layer.mergeAll(BridgeCoreLive, WaitRuntimeLive)),
+);
 
 const CoreRuntimeLive = Layer.mergeAll(
   BridgeCoreLive,
+  WaitRuntimeLive,
   PacketRuntimeLive,
   AuthRuntimeLive,
   WorldRuntimeLive,

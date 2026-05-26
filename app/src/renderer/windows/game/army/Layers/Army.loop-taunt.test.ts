@@ -16,6 +16,7 @@ import {
   type PacketDomainShape,
 } from "../../flash/Services/PacketDomain";
 import { Player, type PlayerShape } from "../../flash/Services/Player";
+import { Wait, type WaitShape } from "../../flash/Services/Wait";
 import { World, type WorldShape } from "../../flash/Services/World";
 import { JobGate, type JobGateShape } from "../../jobs/Services/JobGate";
 import { JobsLive } from "../../jobs/Layers/Jobs";
@@ -36,6 +37,13 @@ const createStore = (): HandlerStore => ({
   playerLocation: new Set(),
   zone: new Set(),
 });
+
+const wait = {
+  until: (condition) => condition,
+  untilSome: (condition) => condition,
+  isGameActionAvailable: () => Effect.succeed(true),
+  forGameAction: () => Effect.succeed(true),
+} as WaitShape;
 
 const makeSession = (
   playerNumber: number,
@@ -84,7 +92,6 @@ const makeWorld = (auras: Map<string, Aura>): WorldShape => ({
     getMapItem: () => Effect.void,
     getName: () => Effect.succeed("test"),
     getRoomNumber: () => Effect.succeed(1),
-    isActionAvailable: () => Effect.succeed(true),
     isLoaded: () => Effect.succeed(true),
     loadSwf: () => Effect.void,
     reload: () => Effect.void,
@@ -93,7 +100,6 @@ const makeWorld = (auras: Map<string, Aura>): WorldShape => ({
     setName: () => Effect.void,
     setRoomNumber: () => Effect.void,
     setSpawnPoint: () => Effect.void,
-    waitForGameAction: () => Effect.succeed(true),
   },
   players: {
     add: () => Effect.void,
@@ -322,6 +328,7 @@ const withArmy = async <A>(
         Layer.succeed(Inventory)(inventory),
         Layer.succeed(PacketDomain)(packetDomain),
         Layer.succeed(Player)(player),
+        Layer.succeed(Wait)(wait),
         Layer.succeed(World)(makeWorld(auras)),
       ),
     ),

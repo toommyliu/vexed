@@ -19,9 +19,9 @@ import { Bridge } from "../../flash/Services/Bridge";
 import { Jobs } from "../../jobs/Services/Jobs";
 import { Player } from "../../flash/Services/Player";
 import { Settings } from "../../flash/Services/Settings";
+import { Wait } from "../../flash/Services/Wait";
 import type { SettingsState } from "../../flash/Services/Settings";
 import type { LoginSession } from "../../flash/Types";
-import { waitFor } from "../../utils/waitFor";
 import {
   AutoRelogin,
   type AutoReloginShape,
@@ -317,6 +317,7 @@ const make = Effect.gen(function* () {
   const jobs = yield* Jobs;
   const player = yield* Player;
   const settings = yield* Settings;
+  const wait = yield* Wait;
 
   const runFork = Effect.runForkWith(yield* Effect.services());
   const stateRef = yield* SynchronizedRef.make<RuntimeState>(initialState());
@@ -523,18 +524,19 @@ const make = Effect.gen(function* () {
     });
 
   const interruptSignal = (connectionSeq: number) =>
-    waitFor(getInterruptReason(connectionSeq).pipe(Effect.map(Option.isSome)), {
-      schedule: Schedule.spaced("100 millis"),
-    }).pipe(
-      Effect.flatMap(() => getInterruptReason(connectionSeq)),
-      Effect.flatMap((reason) =>
-        Option.match(reason, {
-          onNone: () => Effect.never,
-          onSome: (value) =>
-            Effect.fail(new AutoReloginInterrupted({ reason: value })),
-        }),
-      ),
-    );
+    wait
+      .untilSome(getInterruptReason(connectionSeq), {
+        schedule: Schedule.spaced("100 millis"),
+      })
+      .pipe(
+        Effect.flatMap((reason) =>
+          Option.match(reason, {
+            onNone: () => Effect.never,
+            onSome: (value) =>
+              Effect.fail(new AutoReloginInterrupted({ reason: value })),
+          }),
+        ),
+      );
 
   const interruptible = <A, E>(
     connectionSeq: number,
@@ -725,7 +727,7 @@ const make = Effect.gen(function* () {
       return outcome?.status === "server-select";
     });
 
-  const waitForServers = waitFor(
+  const waitForServers = wait.until(
     auth.getServers().pipe(
       Effect.catchTag("SwfCallError", () => Effect.succeed([])),
       Effect.map((servers) => servers.length > 0),
@@ -827,7 +829,7 @@ const make = Effect.gen(function* () {
   const waitForReadyPlayer = () =>
     Effect.gen(function* () {
       yield* logStage("waiting for player ready");
-      const ready = yield* waitFor(isPlayerReady(), {
+      const ready = yield* wait.until(isPlayerReady(), {
         timeout: PLAYER_READY_TIMEOUT,
         schedule: Schedule.spaced("250 millis"),
       });
@@ -846,7 +848,7 @@ const make = Effect.gen(function* () {
       }
 
       yield* logStage("avatar reload requested");
-      const readyAfterReload = yield* waitFor(isPlayerReady(), {
+      const readyAfterReload = yield* wait.until(isPlayerReady(), {
         timeout: AVATAR_RELOAD_READY_TIMEOUT,
         schedule: Schedule.spaced("250 millis"),
       });
@@ -957,7 +959,7 @@ const make = Effect.gen(function* () {
             connectionSeq: attempt.connectionSeq,
           });
           yield* logStage("waiting for temporary kick clear");
-          const tempKickCleared = yield* waitFor(
+          const tempKickCleared = yield* wait.until(
             auth
               .isTemporarilyKicked()
               .pipe(Effect.map((temporarilyKicked) => !temporarilyKicked)),
