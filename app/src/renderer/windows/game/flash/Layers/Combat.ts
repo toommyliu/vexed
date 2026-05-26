@@ -15,6 +15,7 @@ import { expiresAtMs as antiCounterExpiresAtMs } from "../antiCounter";
 const DEFAULT_SKILL_ROTATION: readonly Skill[] = [1, 2, 3, 4];
 const DEFAULT_SKILL_DELAY_MS = 150;
 const ANTI_COUNTER_WAIT_MS = 50;
+const KILL_TARGET_RECHECK_MS = 50;
 const SKILL_READY_CONFIRMATION_DELAY_MS = 150;
 
 type ResolvedKillTarget =
@@ -945,6 +946,58 @@ const make = Effect.gen(function* () {
           return undefined;
         });
 
+      const isSelectedAttackCurrent = (monMapId: number) =>
+        Effect.gen(function* () {
+          const nextAttack = yield* resolveNextAttack();
+          return (
+            nextAttack?.kind === "attack" && nextAttack.monMapId === monMapId
+          );
+        });
+
+      const waitForSelectedSkillReady = (idx: number, monMapId: number) =>
+        Effect.gen(function* () {
+          while (true) {
+            if (!(yield* isSelectedAttackCurrent(monMapId))) {
+              return false;
+            }
+
+            const cooldown = yield* getSkillCooldownRemaining(idx);
+            if (cooldown > 0) {
+              yield* Effect.sleep(
+                `${Math.min(cooldown, KILL_TARGET_RECHECK_MS)} millis`,
+              );
+              continue;
+            }
+
+            let confirmationRemaining = SKILL_READY_CONFIRMATION_DELAY_MS;
+            while (confirmationRemaining > 0) {
+              if (!(yield* isSelectedAttackCurrent(monMapId))) {
+                return false;
+              }
+
+              const confirmationDelay = Math.min(
+                confirmationRemaining,
+                KILL_TARGET_RECHECK_MS,
+              );
+              yield* Effect.sleep(`${confirmationDelay} millis`);
+              confirmationRemaining -= confirmationDelay;
+            }
+
+            if (!(yield* isSelectedAttackCurrent(monMapId))) {
+              return false;
+            }
+
+            const confirmedCooldown = yield* getSkillCooldownRemaining(idx);
+            if (confirmedCooldown === 0) {
+              return true;
+            }
+
+            yield* Effect.sleep(
+              `${Math.min(confirmedCooldown, KILL_TARGET_RECHECK_MS)} millis`,
+            );
+          }
+        });
+
       let didKillTarget = false;
       let targetMonMapId =
         resolvedTarget.kind === "monMapId"
@@ -1007,7 +1060,15 @@ const make = Effect.gen(function* () {
             skillIndex += 1;
 
             if (skill !== undefined) {
-              yield* useSkill(skill, false, normalizedKillOptions.skillWait);
+              const idx = Number.parseInt(String(skill), 10);
+              const shouldUseSkill =
+                !normalizedKillOptions.skillWait ||
+                (isValidSkillIndex(idx) &&
+                  (yield* waitForSelectedSkillReady(idx, nextAttack.monMapId)));
+
+              if (shouldUseSkill) {
+                yield* useSkill(skill, false, false);
+              }
             }
           }
         } else if (nextAttack?.kind === "blocked") {

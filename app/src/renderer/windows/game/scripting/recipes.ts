@@ -440,6 +440,17 @@ const goToHouse = (
     yield* deps.combat.exit();
     yield* deps.world.map.waitForGameAction("tfer");
     yield* deps.packet.sendServer(`%xt%zm%house%1%${playerName}%`);
+    yield* waitFor(
+      Effect.gen(function* () {
+        if (!(yield* deps.world.map.isLoaded())) return false;
+
+        const mapName = yield* deps.world.map.getName();
+        if (!equalsIgnoreCase(mapName, "house")) return false;
+
+        return yield* deps.player.isReady();
+      }),
+      { timeout: "5 seconds" },
+    );
   });
 
 const beep = (
