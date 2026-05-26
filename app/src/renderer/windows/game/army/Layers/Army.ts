@@ -31,9 +31,9 @@ import { Combat } from "../../flash/Services/Combat";
 import { Inventory } from "../../flash/Services/Inventory";
 import { PacketDomain } from "../../flash/Services/PacketDomain";
 import { Player } from "../../flash/Services/Player";
+import { Wait } from "../../flash/Services/Wait";
 import { World } from "../../flash/Services/World";
 import { Jobs } from "../../jobs/Services/Jobs";
-import { waitFor } from "../../utils/waitFor";
 
 interface ArmyState {
   readonly session: ArmySession | null;
@@ -135,6 +135,7 @@ const make = Effect.gen(function* () {
   const jobs = yield* Jobs;
   const packetDomain = yield* PacketDomain;
   const player = yield* Player;
+  const wait = yield* Wait;
   const world = yield* World;
   const runFork = Effect.runFork;
   const stateRef = yield* SynchronizedRef.make<ArmyState>(DEFAULT_STATE);
@@ -264,7 +265,7 @@ const make = Effect.gen(function* () {
   const waitForAllInMap: ArmyShape["waitForAllInMap"] = () =>
     Effect.gen(function* () {
       const session = yield* getState.pipe(Effect.flatMap(assertStarted));
-      const ready = yield* waitFor(
+      const ready = yield* wait.until(
         Effect.gen(function* () {
           for (const armyPlayer of session.players) {
             const match = yield* world.players.getByName(armyPlayer);
@@ -475,7 +476,7 @@ const make = Effect.gen(function* () {
     });
 
   const waitForLoopTauntCombatTarget = (monMapId: number) =>
-    waitFor(
+    wait.until(
       combat.getTarget().pipe(
         Effect.map(
           (target) =>

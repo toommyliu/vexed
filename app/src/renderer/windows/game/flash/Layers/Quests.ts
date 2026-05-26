@@ -1,14 +1,13 @@
 import { Collection } from "@vexed/collection";
 import { Quest, type QuestInfo } from "@vexed/game";
 import { Effect, Layer, SynchronizedRef } from "effect";
-import { waitFor, waitForRef } from "../../utils/waitFor";
 import { asNumber, asRecord } from "../PacketPayload";
 import { positiveInt, uniquePositiveInts } from "@vexed/shared/number";
 import { Bridge } from "../Services/Bridge";
 import { Packet } from "../Services/Packet";
 import { Quests } from "../Services/Quests";
 import type { QuestLoadedListener, QuestsShape } from "../Services/Quests";
-import { World } from "../Services/World";
+import { Wait } from "../Services/Wait";
 
 const asQuestMap = (value: unknown): Record<string, QuestInfo> | null => {
   const payload = asRecord(value);
@@ -42,7 +41,7 @@ const QUEST_ACCEPT_TIMEOUT = "5 seconds";
 const make = Effect.gen(function* () {
   const bridge = yield* Bridge;
   const packets = yield* Packet;
-  const world = yield* World;
+  const wait = yield* Wait;
 
   const quests = yield* SynchronizedRef.make<Collection<number, Quest>>(
     new Collection(),
@@ -111,19 +110,20 @@ const make = Effect.gen(function* () {
   yield* packets.jsonScoped("getQuests", (packet) => updateQuests(packet.data));
 
   const waitForQuestLoad = (questId: number) =>
-    waitForRef(quests, (tree) => tree.has(questId), {
-      timeout: QUEST_LOAD_TIMEOUT,
-    });
+    wait.until(
+      SynchronizedRef.get(quests).pipe(Effect.map((tree) => tree.has(questId))),
+      { timeout: QUEST_LOAD_TIMEOUT },
+    );
 
   const waitForQuestAccept = (questId: number) =>
-    waitFor(isInProgress(questId), { timeout: QUEST_ACCEPT_TIMEOUT });
+    wait.until(isInProgress(questId), { timeout: QUEST_ACCEPT_TIMEOUT });
 
   const abandon: QuestsShape["abandon"] = (questId) =>
     bridge.call("quests.abandon", [questId]);
 
   const accept: QuestsShape["accept"] = (questId, silent = false) =>
     Effect.gen(function* () {
-      const canAccept = yield* world.map.waitForGameAction("acceptQuest");
+      const canAccept = yield* wait.forGameAction("acceptQuest");
       if (!canAccept) {
         return;
       }

@@ -4,11 +4,12 @@ import { Auth } from "../Services/Auth";
 import type { BankShape } from "../Services/Bank";
 import { Bank } from "../Services/Bank";
 import { Bridge } from "../Services/Bridge";
-import { waitFor } from "../../utils/waitFor";
+import { Wait } from "../Services/Wait";
 
 const make = Effect.gen(function* () {
   const bridge = yield* Bridge;
   const auth = yield* Auth;
+  const wait = yield* Wait;
   const itemCache = yield* makeItemCache;
   const runFork = Effect.runForkWith(yield* Effect.services());
 
@@ -80,7 +81,7 @@ const make = Effect.gen(function* () {
       if (isBankOpen) {
         if (force) {
           yield* bridge.call("bank.open"); // Close first
-          yield* waitFor(
+          yield* wait.until(
             Effect.gen(function* () {
               return !(yield* isOpen());
             }),

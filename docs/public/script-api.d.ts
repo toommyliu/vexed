@@ -108,6 +108,7 @@ interface ScriptApi {
   readonly settings: SettingsApi;
   readonly shops: ShopsApi;
   readonly tempInventory: TempInventoryApi;
+  readonly wait: WaitApi;
   readonly world: WorldApi;
 }
 interface ScriptRuntimeApi {
@@ -542,6 +543,151 @@ interface TempInventoryApi {
   getItem(item: ItemIdentifierToken): Effect<Item | null, BridgeError>;
   getItems(): Effect<readonly Item[], BridgeError>;
 }
+interface WaitApi {
+  /** Waits until a predicate returns true, or returns false when the optional timeout expires.
+
+```js
+const loaded = yield* api.wait.until(
+  function* () {
+    const map = yield* api.world.map.getName();
+    return map === "battleon";
+  },
+  { timeout: "10 seconds", interval: "250 millis" },
+);
+
+if (!loaded) {
+  script.log("Battleon did not load in time.");
+}
+``` */
+  until(
+    predicate: ScriptWaitPredicate,
+    options?: ScriptWaitOptions,
+  ): Effect<boolean, unknown>;
+  isGameActionAvailable(
+    gameAction:
+      | "acceptQuest"
+      | "addLoadout"
+      | "buyItem"
+      | "doIA"
+      | "equipLoadout"
+      | "equipItem"
+      | "getMapItem"
+      | "loadEnhShop"
+      | "loadHairShop"
+      | "loadShop"
+      | "removeLoadout"
+      | "rest"
+      | "sellItem"
+      | "tfer"
+      | "tryQuestComplete"
+      | "unequipItem"
+      | "wearLoadout"
+      | "who",
+  ): Effect<boolean, BridgeError>;
+  forGameAction(
+    gameAction:
+      | "acceptQuest"
+      | "addLoadout"
+      | "buyItem"
+      | "doIA"
+      | "equipLoadout"
+      | "equipItem"
+      | "getMapItem"
+      | "loadEnhShop"
+      | "loadHairShop"
+      | "loadShop"
+      | "removeLoadout"
+      | "rest"
+      | "sellItem"
+      | "tfer"
+      | "tryQuestComplete"
+      | "unequipItem"
+      | "wearLoadout"
+      | "who",
+    options?: ScriptWaitOptions | DurationInput,
+  ): Effect<boolean, BridgeError>;
+  forPlayerReady(options?: ScriptWaitOptions): Effect<boolean, BridgeError>;
+  forPlayerPosition(
+    x: number,
+    y: number,
+    options?: ScriptWaitOptions,
+  ): Effect<boolean, BridgeError>;
+  forCombatExit(options?: ScriptWaitOptions): Effect<boolean, unknown>;
+  forFullyRested(options?: ScriptWaitOptions): Effect<boolean, BridgeError>;
+  forMapLoaded(
+    map?: string,
+    options?: ScriptWaitOptions,
+  ): Effect<boolean, BridgeError>;
+  forLocation(
+    location: { readonly cell?: string; readonly pad?: string },
+    options?: ScriptWaitOptions,
+  ): Effect<boolean, BridgeError>;
+  forPlayerCount(
+    count: number,
+    options?: ScriptPlayerCountWaitOptions,
+  ): Effect<boolean, unknown>;
+  forMonsterSpawn(
+    monster: MonsterIdentifierToken,
+    options?: ScriptMonsterWaitOptions,
+  ): Effect<boolean, unknown>;
+  forMonsterAvailable(
+    monster: MonsterIdentifierToken,
+    options?: ScriptMonsterWaitOptions,
+  ): Effect<boolean, BridgeError>;
+  forMonsterDeath(
+    monster: MonsterIdentifierToken,
+    options?: ScriptMonsterWaitOptions,
+  ): Effect<boolean, unknown>;
+  forDrop(
+    item: ItemIdentifierToken,
+    options?: ScriptWaitOptions,
+  ): Effect<boolean, BridgeError>;
+  forDropRemoved(
+    item: ItemIdentifierToken,
+    options?: ScriptWaitOptions,
+  ): Effect<boolean, BridgeError>;
+  forInventoryItem(
+    item: ItemIdentifierToken,
+    options?: ScriptItemWaitOptions,
+  ): Effect<boolean, BridgeError>;
+  forInventoryItemRemoved(
+    item: ItemIdentifierToken,
+    options?: ScriptItemWaitOptions,
+  ): Effect<boolean, BridgeError>;
+  forItemEquipped(
+    item: ItemIdentifierToken,
+    options?: ScriptWaitOptions,
+  ): Effect<boolean, BridgeError>;
+  forBankOpen(options?: ScriptWaitOptions): Effect<boolean, BridgeError>;
+  forBankItem(
+    item: ItemIdentifierToken,
+    options?: ScriptItemWaitOptions,
+  ): Effect<boolean, BridgeError>;
+  forBankItemRemoved(
+    item: ItemIdentifierToken,
+    options?: ScriptItemWaitOptions,
+  ): Effect<boolean, BridgeError>;
+  forHouseItem(
+    item: ItemIdentifierToken,
+    options?: ScriptWaitOptions,
+  ): Effect<boolean, BridgeError>;
+  forQuestLoaded(
+    questId: number,
+    options?: ScriptWaitOptions,
+  ): Effect<boolean, unknown>;
+  forQuestAccepted(
+    questId: number,
+    options?: ScriptWaitOptions,
+  ): Effect<boolean, BridgeError>;
+  forQuestCompleted(
+    questId: number,
+    options?: ScriptWaitOptions,
+  ): Effect<boolean, BridgeError>;
+  forSkillReady(
+    index: string | number,
+    options?: ScriptWaitOptions,
+  ): Effect<boolean, BridgeError>;
+}
 interface WorldApi {
   readonly map: WorldMapApi;
   readonly players: WorldPlayersApi;
@@ -552,53 +698,10 @@ interface WorldMapApi {
   getCells(): Effect<string[], BridgeError>;
   getCellPads(): Effect<string[], BridgeError>;
   isLoaded(): Effect<boolean, BridgeError>;
-  isActionAvailable(
-    gameAction:
-      | "acceptQuest"
-      | "addLoadout"
-      | "buyItem"
-      | "doIA"
-      | "equipLoadout"
-      | "equipItem"
-      | "getMapItem"
-      | "loadEnhShop"
-      | "loadHairShop"
-      | "loadShop"
-      | "removeLoadout"
-      | "rest"
-      | "sellItem"
-      | "tfer"
-      | "tryQuestComplete"
-      | "unequipItem"
-      | "wearLoadout"
-      | "who",
-  ): Effect<boolean, BridgeError>;
   getMapItem(itemId: number): Effect<void, BridgeError>;
   loadSwf(path: string): Effect<void, BridgeError>;
   reload(): Effect<void, BridgeError>;
   setSpawnPoint(cell?: string, pad?: string): Effect<void, BridgeError>;
-  waitForGameAction(
-    gameAction:
-      | "acceptQuest"
-      | "addLoadout"
-      | "buyItem"
-      | "doIA"
-      | "equipLoadout"
-      | "equipItem"
-      | "getMapItem"
-      | "loadEnhShop"
-      | "loadHairShop"
-      | "loadShop"
-      | "removeLoadout"
-      | "rest"
-      | "sellItem"
-      | "tfer"
-      | "tryQuestComplete"
-      | "unequipItem"
-      | "wearLoadout"
-      | "who",
-    timeout?: DurationInput,
-  ): Effect<boolean, BridgeError>;
   getName(): Effect<string, never>;
   getId(): Effect<number, never>;
   getRoomNumber(): Effect<number, never>;
@@ -1120,6 +1223,13 @@ interface ScriptEnhanceItemOptions {
   readonly enhancement: string;
   readonly special?: string;
 }
+interface ScriptItemWaitOptions extends ScriptWaitOptions {
+  readonly quantity?: number;
+}
+interface ScriptMonsterWaitOptions extends ScriptWaitOptions {
+  readonly cell?: string;
+  readonly currentCell?: boolean;
+}
 interface ScriptOptions {
   readonly usePrivateRooms: boolean;
 }
@@ -1130,6 +1240,17 @@ type ScriptPacketListener = (
   | void
   | Effect<unknown, unknown>
   | Generator<EffectYieldable<any, any, never, never>, unknown, never>;
+interface ScriptPlayerCountWaitOptions extends ScriptWaitOptions {
+  readonly exact?: boolean;
+}
+interface ScriptWaitOptions {
+  readonly timeout?: DurationInput;
+  readonly interval?: DurationInput;
+}
+type ScriptWaitPredicate = () =>
+  | boolean
+  | Effect<boolean, unknown>
+  | Generator<EffectYieldable<any, any, never, never>, boolean, never>;
 interface Server {
   data: {
     readonly bOnline: number;

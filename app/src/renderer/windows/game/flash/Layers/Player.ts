@@ -9,9 +9,9 @@ import type { BridgeEffect } from "../Services/Bridge";
 import { Packet } from "../Services/Packet";
 import { Player } from "../Services/Player";
 import type { PlayerShape } from "../Services/Player";
+import { Wait } from "../Services/Wait";
 import { World } from "../Services/World";
 import { Inventory } from "../Services/Inventory";
-import { waitFor } from "../../utils/waitFor";
 import { parseMapTarget, type MapTarget } from "../MapTarget";
 
 const isFactionData = (value: unknown): value is FactionData => {
@@ -57,6 +57,7 @@ const make = Effect.gen(function* () {
   const world = yield* World;
   const auth = yield* Auth;
   const inventory = yield* Inventory;
+  const wait = yield* Wait;
 
   const _factions = yield* Ref.make<Collection<string, Faction>>(
     new Collection(),
@@ -150,7 +151,7 @@ const make = Effect.gen(function* () {
       }
 
       if (correction) {
-        yield* waitFor(
+        yield* wait.until(
           Effect.gen(function* () {
             const currentCell = yield* getCell();
             return currentCell === cell;
@@ -254,7 +255,7 @@ const make = Effect.gen(function* () {
         yield* bridge.call("player.jump", [targetCell, targetPad]);
       }
 
-      yield* waitFor(isAtTargetLocation(targetCell, targetPad), {
+      yield* wait.until(isAtTargetLocation(targetCell, targetPad), {
         timeout: "5 seconds",
       });
     });
@@ -269,10 +270,7 @@ const make = Effect.gen(function* () {
         return;
       }
 
-      const canTransfer = yield* world.map.waitForGameAction(
-        "tfer",
-        "10 seconds",
-      );
+      const canTransfer = yield* wait.forGameAction("tfer", "10 seconds");
 
       if (!canTransfer) {
         return;
@@ -309,7 +307,7 @@ const make = Effect.gen(function* () {
         }
 
         return yield* Effect.raceFirst(
-          waitFor(isTargetMapLoaded(targetMap), {
+          wait.until(isTargetMapLoaded(targetMap), {
             timeout: "5 seconds",
           }),
           Deferred.await(invalidMapWarning).pipe(Effect.as(false)),
@@ -335,7 +333,10 @@ const make = Effect.gen(function* () {
 
   const rest: PlayerShape["rest"] = (full) =>
     Effect.gen(function* () {
-      yield* world.map.waitForGameAction("rest");
+      const canRest = yield* wait.forGameAction("rest");
+      if (!canRest) {
+        return;
+      }
 
       const hp = yield* getHp();
       const mp = yield* getMp();
@@ -349,7 +350,7 @@ const make = Effect.gen(function* () {
       yield* bridge.call("player.rest");
 
       if (full) {
-        yield* waitFor(
+        yield* wait.until(
           Effect.map(
             Effect.all([getHp(), getMp()]),
             ([currentHp, currentMp]) =>
@@ -392,7 +393,7 @@ const make = Effect.gen(function* () {
         return false;
       }
 
-      return yield* waitFor(
+      return yield* wait.until(
         Effect.gen(function* () {
           const [currentX, currentY] = yield* getPosition();
           return currentX === x && currentY === y;

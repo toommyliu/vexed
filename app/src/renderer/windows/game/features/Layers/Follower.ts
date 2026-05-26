@@ -19,11 +19,11 @@ import {
   makeCombatProfileCursor,
   matchesCombatProfileAnimationTriggerMessage,
 } from "../../combatProfiles";
-import { waitFor } from "../../utils/waitFor";
 import { Combat } from "../../flash/Services/Combat";
 import { PacketDomain } from "../../flash/Services/PacketDomain";
 import { Player } from "../../flash/Services/Player";
 import { Packet } from "../../flash/Services/Packet";
+import { Wait } from "../../flash/Services/Wait";
 import { World } from "../../flash/Services/World";
 import { Jobs } from "../../jobs/Services/Jobs";
 import {
@@ -123,6 +123,7 @@ const make = Effect.gen(function* () {
   const packet = yield* Packet;
   const maybePacketDomain = yield* Effect.serviceOption(PacketDomain);
   const player = yield* Player;
+  const wait = yield* Wait;
   const world = yield* World;
   const enabledRef = yield* Ref.make(false);
   const runningRef = yield* Ref.make(false);
@@ -347,7 +348,7 @@ const make = Effect.gen(function* () {
           yield* player.jumpToCell(target.cell, target.pad);
         }
 
-        return yield* waitFor(isAtTarget(config), {
+        return yield* wait.until(isAtTarget(config), {
           timeout: SAME_LOCATION_TIMEOUT,
         });
       });
@@ -434,7 +435,7 @@ const make = Effect.gen(function* () {
       const denied = yield* Effect.gen(function* () {
         yield* player.goToPlayer(config.targetName);
         const reachedTarget = yield* Effect.raceFirst(
-          waitFor(isAtTarget(config), {
+          wait.until(isAtTarget(config), {
             timeout: GOTO_PLAYER_TIMEOUT,
           }),
           Deferred.await(gotoDenied).pipe(Effect.as(false)),
@@ -554,7 +555,7 @@ const make = Effect.gen(function* () {
       if (!sameCellPad(self, target)) {
         yield* setPhase("following");
         yield* player.jumpToCell(target.cell, target.pad);
-        const reachedTarget = yield* waitFor(isAtTarget(config), {
+        const reachedTarget = yield* wait.until(isAtTarget(config), {
           timeout: SAME_LOCATION_TIMEOUT,
         });
 

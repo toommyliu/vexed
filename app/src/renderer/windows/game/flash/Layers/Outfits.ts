@@ -7,7 +7,7 @@ import type {
   OutfitEquipOptions,
   OutfitsShape,
 } from "../Services/Outfits";
-import { World } from "../Services/World";
+import { Wait } from "../Services/Wait";
 
 const normalizeOutfit = (value: unknown): Outfit | null => {
   const record = asRecord(value);
@@ -29,7 +29,7 @@ const keepColors = (options: OutfitEquipOptions | undefined): boolean =>
 
 const make = Effect.gen(function* () {
   const bridge = yield* Bridge;
-  const world = yield* World;
+  const wait = yield* Wait;
 
   const getAll: OutfitsShape["getAll"] = () =>
     bridge
@@ -47,10 +47,7 @@ const make = Effect.gen(function* () {
 
   const equip: OutfitsShape["equip"] = (name, options) =>
     Effect.gen(function* () {
-      const available = yield* world.map.waitForGameAction(
-        "equipLoadout",
-        "3 seconds",
-      );
+      const available = yield* wait.forGameAction("equipLoadout", "3 seconds");
       if (!available) {
         return false;
       }
@@ -60,10 +57,7 @@ const make = Effect.gen(function* () {
 
   const wear: OutfitsShape["wear"] = (name, options) =>
     Effect.gen(function* () {
-      const available = yield* world.map.waitForGameAction(
-        "wearLoadout",
-        "3 seconds",
-      );
+      const available = yield* wait.forGameAction("wearLoadout", "3 seconds");
       if (!available) {
         return false;
       }

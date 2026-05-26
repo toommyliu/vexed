@@ -11,6 +11,7 @@ import {
   type SynchronizedRef as SynchronizedRefType,
 } from "effect";
 import { Bridge } from "../Services/Bridge";
+import { Wait } from "../Services/Wait";
 import { World } from "../Services/World";
 import type {
   WorldMapShape,
@@ -18,7 +19,6 @@ import type {
   WorldPlayersShape,
   WorldShape,
 } from "../Services/World";
-import { waitFor } from "../../utils/waitFor";
 
 type RuntimeState = {
   readonly players: Collection<string, Avatar>;
@@ -131,6 +131,7 @@ const clearRuntimeState = (state: RuntimeState): void => {
 
 const make = Effect.gen(function* () {
   const bridge = yield* Bridge;
+  const wait = yield* Wait;
 
   const stateRef = yield* SynchronizedRef.make(initialState());
   const runFork = Effect.runForkWith(yield* Effect.services());
@@ -178,17 +179,9 @@ const make = Effect.gen(function* () {
   const isLoaded: WorldMapShape["isLoaded"] = () =>
     bridge.call("world.isLoaded");
 
-  const isActionAvailable: WorldMapShape["isActionAvailable"] = (gameAction) =>
-    bridge.call("world.isActionAvailable", [gameAction]);
-
-  const waitForGameAction: WorldMapShape["waitForGameAction"] = (
-    gameAction,
-    timeout = "2 seconds",
-  ) => waitFor(isActionAvailable(gameAction), { timeout });
-
   const getMapItem: WorldMapShape["getMapItem"] = (itemId) =>
     Effect.gen(function* () {
-      yield* waitForGameAction("getMapItem");
+      yield* wait.forGameAction("getMapItem");
       return yield* bridge.call("world.getMapItem", [itemId]);
     });
 
@@ -423,8 +416,6 @@ const make = Effect.gen(function* () {
     getCells,
     getCellPads,
     isLoaded,
-    isActionAvailable,
-    waitForGameAction,
     getMapItem,
     loadSwf,
     reload,

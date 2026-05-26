@@ -106,20 +106,148 @@ export interface ScriptSettingsShape {
 
 export type ScriptQuestsShape = Omit<QuestsShape, "onLoaded">;
 
+export interface ScriptWaitOptions {
+  readonly timeout?: Duration.Input;
+  readonly interval?: Duration.Input;
+}
+
+export interface ScriptPlayerCountWaitOptions extends ScriptWaitOptions {
+  readonly exact?: boolean;
+}
+
+export interface ScriptMonsterWaitOptions extends ScriptWaitOptions {
+  readonly cell?: string;
+  readonly currentCell?: boolean;
+}
+
+export interface ScriptItemWaitOptions extends ScriptWaitOptions {
+  readonly quantity?: number;
+}
+
+export type ScriptWaitPredicate = () =>
+  | boolean
+  | Effect.Effect<boolean, unknown>
+  | Generator<Effect.Yieldable<any, any, never, never>, boolean, never>;
+
+export interface ScriptWaitShape {
+  /**
+   * Waits until a predicate returns true, or returns false when the optional timeout expires.
+   *
+   * ```js
+   * const loaded = yield* api.wait.until(
+   *   function* () {
+   *     const map = yield* api.world.map.getName();
+   *     return map === "battleon";
+   *   },
+   *   { timeout: "10 seconds", interval: "250 millis" },
+   * );
+   *
+   * if (!loaded) {
+   *   script.log("Battleon did not load in time.");
+   * }
+   * ```
+   */
+  until(
+    predicate: ScriptWaitPredicate,
+    options?: ScriptWaitOptions,
+  ): Effect.Effect<boolean, unknown>;
+  isGameActionAvailable(gameAction: GameAction): BridgeEffect<boolean>;
+  forGameAction(
+    gameAction: GameAction,
+    options?: ScriptWaitOptions | Duration.Input,
+  ): BridgeEffect<boolean>;
+  forPlayerReady(options?: ScriptWaitOptions): BridgeEffect<boolean>;
+  forPlayerPosition(
+    x: number,
+    y: number,
+    options?: ScriptWaitOptions,
+  ): BridgeEffect<boolean>;
+  forCombatExit(options?: ScriptWaitOptions): Effect.Effect<boolean, unknown>;
+  forFullyRested(options?: ScriptWaitOptions): BridgeEffect<boolean>;
+  forMapLoaded(
+    map?: string,
+    options?: ScriptWaitOptions,
+  ): BridgeEffect<boolean>;
+  forLocation(
+    location: { readonly cell?: string; readonly pad?: string },
+    options?: ScriptWaitOptions,
+  ): BridgeEffect<boolean>;
+  forPlayerCount(
+    count: number,
+    options?: ScriptPlayerCountWaitOptions,
+  ): Effect.Effect<boolean, unknown>;
+  forMonsterSpawn(
+    monster: MonsterIdentifierToken,
+    options?: ScriptMonsterWaitOptions,
+  ): Effect.Effect<boolean, unknown>;
+  forMonsterAvailable(
+    monster: MonsterIdentifierToken,
+    options?: ScriptMonsterWaitOptions,
+  ): BridgeEffect<boolean>;
+  forMonsterDeath(
+    monster: MonsterIdentifierToken,
+    options?: ScriptMonsterWaitOptions,
+  ): Effect.Effect<boolean, unknown>;
+  forDrop(
+    item: ItemIdentifierToken,
+    options?: ScriptWaitOptions,
+  ): BridgeEffect<boolean>;
+  forDropRemoved(
+    item: ItemIdentifierToken,
+    options?: ScriptWaitOptions,
+  ): BridgeEffect<boolean>;
+  forInventoryItem(
+    item: ItemIdentifierToken,
+    options?: ScriptItemWaitOptions,
+  ): BridgeEffect<boolean>;
+  forInventoryItemRemoved(
+    item: ItemIdentifierToken,
+    options?: ScriptItemWaitOptions,
+  ): BridgeEffect<boolean>;
+  forItemEquipped(
+    item: ItemIdentifierToken,
+    options?: ScriptWaitOptions,
+  ): BridgeEffect<boolean>;
+  forBankOpen(options?: ScriptWaitOptions): BridgeEffect<boolean>;
+  forBankItem(
+    item: ItemIdentifierToken,
+    options?: ScriptItemWaitOptions,
+  ): BridgeEffect<boolean>;
+  forBankItemRemoved(
+    item: ItemIdentifierToken,
+    options?: ScriptItemWaitOptions,
+  ): BridgeEffect<boolean>;
+  forHouseItem(
+    item: ItemIdentifierToken,
+    options?: ScriptWaitOptions,
+  ): BridgeEffect<boolean>;
+  forQuestLoaded(
+    questId: number,
+    options?: ScriptWaitOptions,
+  ): Effect.Effect<boolean, unknown>;
+  forQuestAccepted(
+    questId: number,
+    options?: ScriptWaitOptions,
+  ): BridgeEffect<boolean>;
+  forQuestCompleted(
+    questId: number,
+    options?: ScriptWaitOptions,
+  ): BridgeEffect<boolean>;
+  forSkillReady(
+    index: number | string,
+    options?: ScriptWaitOptions,
+  ): BridgeEffect<boolean>;
+}
+
 export interface ScriptWorldMapShape {
   getCellMonsters(): BridgeEffect<Monster[]>;
   getCells(): BridgeEffect<string[]>;
   getCellPads(): BridgeEffect<string[]>;
   isLoaded(): BridgeEffect<boolean>;
-  isActionAvailable(gameAction: GameAction): BridgeEffect<boolean>;
   getMapItem(itemId: number): BridgeEffect<void>;
   loadSwf(path: string): BridgeEffect<void>;
   reload(): BridgeEffect<void>;
   setSpawnPoint(cell?: string, pad?: string): BridgeEffect<void>;
-  waitForGameAction(
-    gameAction: GameAction,
-    timeout?: Duration.Input,
-  ): BridgeEffect<boolean>;
 
   getName(): Effect.Effect<string>;
   getId(): Effect.Effect<number>;
@@ -275,6 +403,7 @@ export interface ScriptApi {
   readonly settings: EffectValue<ScriptSettingsShape>;
   readonly shops: EffectValue<ShopsShape>;
   readonly tempInventory: EffectValue<TempInventoryShape>;
+  readonly wait: EffectValue<ScriptWaitShape>;
   readonly world: EffectValue<ScriptWorldShape>;
 }
 

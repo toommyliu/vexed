@@ -1,13 +1,14 @@
-import type { ShopInfo } from "@vexed/game";
+import type { GameAction, ShopInfo } from "@vexed/game";
 import { equalsIgnoreCase } from "@vexed/shared/string";
 import { Effect, Layer, Ref } from "effect";
 import { makeShopItemCache } from "../ItemCache";
 import { asNumber, asRecord } from "../PacketPayload";
 import { Bridge } from "../Services/Bridge";
+import type { BridgeEffect } from "../Services/Bridge";
 import { Packet } from "../Services/Packet";
 import { Shops } from "../Services/Shops";
 import type { ShopsShape } from "../Services/Shops";
-import { World } from "../Services/World";
+import { Wait } from "../Services/Wait";
 
 const asShopInfo = (value: unknown): ShopInfo | null => {
   const record = asRecord(value);
@@ -56,7 +57,7 @@ const isItemMatch = (value: unknown, key: ItemIdentifierToken): boolean => {
 const make = Effect.gen(function* () {
   const bridge = yield* Bridge;
   const packet = yield* Packet;
-  const world = yield* World;
+  const wait = yield* Wait;
 
   const itemCache = yield* makeShopItemCache;
 
@@ -90,21 +91,34 @@ const make = Effect.gen(function* () {
 
   yield* Effect.addFinalizer(() => Effect.sync(dispose));
 
-  const buyById: ShopsShape["buyById"] = (id, quantity) =>
+  const runWhenActionAvailable = (
+    gameAction: GameAction,
+    operation: BridgeEffect<boolean>,
+  ): BridgeEffect<boolean> =>
     Effect.gen(function* () {
-      yield* world.map.waitForGameAction("buyItem");
-      return yield* quantity === undefined
-        ? bridge.call("shops.buyById", [id])
-        : bridge.call("shops.buyById", [id, quantity]);
+      const isAvailable = yield* wait.forGameAction(gameAction);
+      if (!isAvailable) {
+        return false;
+      }
+
+      return yield* operation;
     });
 
+  const buyById: ShopsShape["buyById"] = (id, quantity) =>
+    runWhenActionAvailable(
+      "buyItem",
+      quantity === undefined
+        ? bridge.call("shops.buyById", [id])
+        : bridge.call("shops.buyById", [id, quantity]),
+    );
+
   const buyByName: ShopsShape["buyByName"] = (name, quantity) =>
-    Effect.gen(function* () {
-      yield* world.map.waitForGameAction("buyItem");
-      return yield* quantity === undefined
+    runWhenActionAvailable(
+      "buyItem",
+      quantity === undefined
         ? bridge.call("shops.buyByName", [name])
-        : bridge.call("shops.buyByName", [name, quantity]);
-    });
+        : bridge.call("shops.buyByName", [name, quantity]),
+    );
 
   const canBuyItem: ShopsShape["canBuyItem"] = (key, quantity) =>
     quantity === undefined
@@ -170,20 +184,20 @@ const make = Effect.gen(function* () {
     bridge.call("shops.loadHairShop", [shopId]);
 
   const sellById: ShopsShape["sellById"] = (id, quantity) =>
-    Effect.gen(function* () {
-      yield* world.map.waitForGameAction("sellItem");
-      return yield* quantity === undefined
+    runWhenActionAvailable(
+      "sellItem",
+      quantity === undefined
         ? bridge.call("shops.sellById", [id])
-        : bridge.call("shops.sellById", [id, quantity]);
-    });
+        : bridge.call("shops.sellById", [id, quantity]),
+    );
 
   const sellByName: ShopsShape["sellByName"] = (name, quantity) =>
-    Effect.gen(function* () {
-      yield* world.map.waitForGameAction("sellItem");
-      return yield* quantity === undefined
+    runWhenActionAvailable(
+      "sellItem",
+      quantity === undefined
         ? bridge.call("shops.sellByName", [name])
-        : bridge.call("shops.sellByName", [name, quantity]);
-    });
+        : bridge.call("shops.sellByName", [name, quantity]),
+    );
 
   return {
     buyById,

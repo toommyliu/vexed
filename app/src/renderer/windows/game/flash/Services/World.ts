@@ -2,13 +2,12 @@ import type {
   Aura,
   Avatar,
   AvatarData,
-  GameAction,
   Monster,
   MonsterData,
 } from "@vexed/game";
 import type { Collection } from "@vexed/collection";
 import { ServiceMap } from "effect";
-import type { Duration, Effect, Option } from "effect";
+import type { Effect, Option } from "effect";
 import type { BridgeEffect } from "./Bridge";
 
 export interface WorldMapShape {
@@ -17,15 +16,10 @@ export interface WorldMapShape {
   getCells(): BridgeEffect<string[]>;
   getCellPads(): BridgeEffect<string[]>;
   isLoaded(): BridgeEffect<boolean>;
-  isActionAvailable(gameAction: GameAction): BridgeEffect<boolean>;
   getMapItem(itemId: number): BridgeEffect<void>;
   loadSwf(path: string): BridgeEffect<void>;
   reload(): BridgeEffect<void>;
   setSpawnPoint(cell?: string, pad?: string): BridgeEffect<void>;
-  waitForGameAction(
-    gameAction: GameAction,
-    timeout?: Duration.Input,
-  ): BridgeEffect<boolean>;
 
   // State methods
   getName(): Effect.Effect<string>;

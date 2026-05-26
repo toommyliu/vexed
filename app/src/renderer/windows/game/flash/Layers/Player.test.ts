@@ -9,6 +9,7 @@ import {
   type PacketShape,
 } from "../Services/Packet";
 import { Player, type PlayerShape } from "../Services/Player";
+import { Wait, type WaitShape } from "../Services/Wait";
 import { World, type WorldShape } from "../Services/World";
 import { PlayerLive } from "./Player";
 
@@ -28,13 +29,19 @@ const makeWorld = (state: {
       isLoaded: () => Effect.succeed(state.isLoaded()),
       getName: () => Effect.succeed(state.mapName()),
       getRoomNumber: () => Effect.succeed(state.roomNumber()),
-      waitForGameAction: () => Effect.succeed(true),
       getCells: () => Effect.succeed([]),
     },
     players: {
       withSelf: () => Effect.succeed(Option.none()),
     },
   }) as unknown as WorldShape;
+
+const wait = {
+  until: (condition) => condition,
+  untilSome: (condition) => condition,
+  isGameActionAvailable: () => Effect.succeed(true),
+  forGameAction: () => Effect.succeed(true),
+} as WaitShape;
 
 const makePacket = (state: {
   warningHandler: ExtensionPacketHandler | undefined;
@@ -74,6 +81,7 @@ const withPlayer = async <A>(
               Layer.succeed(Bridge)(services.bridge),
               Layer.succeed(Inventory)(inventory),
               Layer.succeed(Packet)(services.packet),
+              Layer.succeed(Wait)(wait),
               Layer.succeed(World)(services.world),
             ),
           ),

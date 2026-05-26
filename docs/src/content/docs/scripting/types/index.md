@@ -76,10 +76,15 @@ Referenced types are generated from the types directly linked by the documented 
 | <a href="/scripting/types/script-anti-counter-listener/" data-script-type="script-anti-counter-listener"><code>ScriptAntiCounterListener</code></a> | type alias |  |
 | <a href="/scripting/types/script-enhance-item-options/" data-script-type="script-enhance-item-options"><code>ScriptEnhanceItemOptions</code></a> | interface |  |
 | <a href="/scripting/types/script-equip-item-by-enhancement-options/" data-script-type="script-equip-item-by-enhancement-options"><code>ScriptEquipItemByEnhancementOptions</code></a> | type alias |  |
+| <a href="/scripting/types/script-item-wait-options/" data-script-type="script-item-wait-options"><code>ScriptItemWaitOptions</code></a> | interface |  |
+| <a href="/scripting/types/script-monster-wait-options/" data-script-type="script-monster-wait-options"><code>ScriptMonsterWaitOptions</code></a> | interface |  |
 | <a href="/scripting/types/script-options/" data-script-type="script-options"><code>ScriptOptions</code></a> | interface |  |
 | <a href="/scripting/types/script-packet-disposer/" data-script-type="script-packet-disposer"><code>ScriptPacketDisposer</code></a> | type alias |  |
 | <a href="/scripting/types/script-packet-listener/" data-script-type="script-packet-listener"><code>ScriptPacketListener</code></a> | type alias |  |
+| <a href="/scripting/types/script-player-count-wait-options/" data-script-type="script-player-count-wait-options"><code>ScriptPlayerCountWaitOptions</code></a> | interface |  |
 | <a href="/scripting/types/script-recipe-effect/" data-script-type="script-recipe-effect"><code>ScriptRecipeEffect</code></a> | type alias |  |
+| <a href="/scripting/types/script-wait-options/" data-script-type="script-wait-options"><code>ScriptWaitOptions</code></a> | interface |  |
+| <a href="/scripting/types/script-wait-predicate/" data-script-type="script-wait-predicate"><code>ScriptWaitPredicate</code></a> | type alias |  |
 | <a href="/scripting/types/server/" data-script-type="server"><code>Server</code></a> | class | Represents a game server. |
 | <a href="/scripting/types/server-packet-send-type/" data-script-type="server-packet-send-type"><code>ServerPacketSendType</code></a> | type alias |  |
 | <a href="/scripting/types/shop-info/" data-script-type="shop-info"><code>ShopInfo</code></a> | type alias |  |

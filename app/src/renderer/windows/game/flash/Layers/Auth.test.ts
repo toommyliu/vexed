@@ -6,6 +6,7 @@ import type { AuthShape } from "../Services/Auth";
 import { Bridge, type BridgeShape } from "../Services/Bridge";
 import type { ConnectToSelectionResult } from "../Types";
 import { AuthLive } from "./Auth";
+import { WaitLive } from "./Wait";
 
 type HarnessOptions = {
   readonly backButtonVisible?: boolean;
@@ -118,10 +119,24 @@ const withAuth = async <A>(
       Effect.provide(
         runOptions?.testClock === true
           ? Layer.mergeAll(
-              AuthLive.pipe(Layer.provide(Layer.succeed(Bridge)(bridge))),
+              AuthLive.pipe(
+                Layer.provide(
+                  Layer.mergeAll(
+                    Layer.succeed(Bridge)(bridge),
+                    WaitLive.pipe(Layer.provide(Layer.succeed(Bridge)(bridge))),
+                  ),
+                ),
+              ),
               TestClock.layer(),
             )
-          : AuthLive.pipe(Layer.provide(Layer.succeed(Bridge)(bridge))),
+          : AuthLive.pipe(
+              Layer.provide(
+                Layer.mergeAll(
+                  Layer.succeed(Bridge)(bridge),
+                  WaitLive.pipe(Layer.provide(Layer.succeed(Bridge)(bridge))),
+                ),
+              ),
+            ),
       ),
     ),
   );

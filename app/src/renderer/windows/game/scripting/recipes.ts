@@ -22,6 +22,7 @@ import type { PlayerShape } from "../flash/Services/Player";
 import type { QuestsShape } from "../flash/Services/Quests";
 import type { ShopsShape } from "../flash/Services/Shops";
 import type { TempInventoryShape } from "../flash/Services/TempInventory";
+import type { WaitShape } from "../flash/Services/Wait";
 import type { WorldShape } from "../flash/Services/World";
 import { asItemData } from "../flash/ItemDataPayload";
 import {
@@ -31,7 +32,6 @@ import {
   asString,
 } from "../flash/PacketPayload";
 import type { ConsumableSkillItem } from "../flash/Types";
-import { waitFor } from "../utils/waitFor";
 import { ScriptExecutionError } from "./Errors";
 
 export type ScriptRecipeEffect<A> = Effect.Effect<A, unknown>;
@@ -49,6 +49,7 @@ export interface ScriptRecipeDependencies {
   readonly quests: QuestsShape;
   readonly shops: ShopsShape;
   readonly tempInventory: TempInventoryShape;
+  readonly wait: WaitShape;
   readonly world: WorldShape;
 }
 
@@ -155,7 +156,7 @@ const loadShopById = (
 ): Effect.Effect<void, unknown> =>
   Effect.gen(function* () {
     yield* deps.shops.load(shopId);
-    yield* waitFor(
+    yield* deps.wait.until(
       deps.shops
         .getInfo()
         .pipe(
@@ -248,7 +249,7 @@ const waitForConsumableSkillSlot = (
   deps: ScriptRecipeDependencies,
   expectedItem: Item,
 ) =>
-  waitFor(
+  deps.wait.until(
     Effect.map(deps.combat.getConsumableSkillItem(), (consumableSkillItem) =>
       consumableSkillItemMatches(consumableSkillItem, expectedItem),
     ),
@@ -438,9 +439,9 @@ const goToHouse = (
         : yield* requireNonEmptyString(deps, "goToHouse", "player", player);
 
     yield* deps.combat.exit();
-    yield* deps.world.map.waitForGameAction("tfer");
+    yield* deps.wait.forGameAction("tfer");
     yield* deps.packet.sendServer(`%xt%zm%house%1%${playerName}%`);
-    yield* waitFor(
+    yield* deps.wait.until(
       Effect.gen(function* () {
         if (!(yield* deps.world.map.isLoaded())) return false;
 
@@ -584,7 +585,7 @@ const waitForPlayerCount = (
       ),
     );
 
-    yield* waitFor(
+    yield* deps.wait.until(
       Effect.map(deps.world.players.getAll(), (players) =>
         exact
           ? players.size === normalizedCount
@@ -882,29 +883,31 @@ const enhanceItem = (
       item: [itemRecord.id],
     });
 
-    yield* waitFor(
-      deps.inventory
-        .getItem(itemRecord.id)
-        .pipe(
-          Effect.map(
-            (updatedItem) =>
-              updatedItem !== null &&
-              matchesAppliedEnhancement(updatedItem, strategy),
+    yield* deps.wait
+      .until(
+        deps.inventory
+          .getItem(itemRecord.id)
+          .pipe(
+            Effect.map(
+              (updatedItem) =>
+                updatedItem !== null &&
+                matchesAppliedEnhancement(updatedItem, strategy),
+            ),
           ),
+        { timeout: "5 seconds" },
+      )
+      .pipe(
+        Effect.catch(() =>
+          logRecipeWarning("Enhancement request did not apply in time", {
+            recipe: "enhanceItem",
+            enhancement,
+            item: itemName,
+            special,
+            shopId: strategy.shopId,
+            strategy,
+          }),
         ),
-      { timeout: "5 seconds" },
-    ).pipe(
-      Effect.catch(() =>
-        logRecipeWarning("Enhancement request did not apply in time", {
-          recipe: "enhanceItem",
-          enhancement,
-          item: itemName,
-          special,
-          shopId: strategy.shopId,
-          strategy,
-        }),
-      ),
-    );
+      );
   });
 
 export const makeScriptRecipes = (

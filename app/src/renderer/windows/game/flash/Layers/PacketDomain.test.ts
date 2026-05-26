@@ -11,6 +11,7 @@ import {
 import { World, type WorldShape } from "../Services/World";
 import { PacketLive } from "./Packet";
 import { PacketDomainLive } from "./PacketDomain";
+import { WaitLive } from "./Wait";
 import { WorldLive } from "./World";
 
 type PacketWindow = Pick<Window, "onExtensionResponse" | "packetFromServer">;
@@ -60,9 +61,13 @@ const auth = {
 } satisfies AuthShape;
 
 const bridgeLayer = Layer.succeed(Bridge)(bridge);
+const waitRuntimeLayer = WaitLive.pipe(Layer.provide(bridgeLayer));
 const packetRuntimeLayer = PacketLive.pipe(Layer.provide(bridgeLayer));
-const worldRuntimeLayer = WorldLive.pipe(Layer.provide(bridgeLayer));
+const worldRuntimeLayer = WorldLive.pipe(
+  Layer.provide(Layer.mergeAll(bridgeLayer, waitRuntimeLayer)),
+);
 const coreRuntimeLayer = Layer.mergeAll(
+  waitRuntimeLayer,
   packetRuntimeLayer,
   worldRuntimeLayer,
   Layer.succeed(Auth)(auth),

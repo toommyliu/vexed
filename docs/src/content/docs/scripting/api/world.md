@@ -14,7 +14,7 @@ tableOfContents:
 
 <a id="member-api-world-map-getcellmonsters"></a>
 
-### `api.world.map.getCellMonsters()` <a class="source-reference__heading-link" style="float: right; display: inline-flex; align-items: center; justify-content: center; margin-block: -0.125rem; margin-inline-start: 0.5rem; border-radius: var(--radius-sm); text-decoration: none;" href="https://github.com/toommyliu/vexed/blob/dev/app/src/renderer/windows/game/scripting/ScriptApi.ts#L110" tabindex="-1" aria-hidden="true" title="Open source: app/src/renderer/windows/game/scripting/ScriptApi.ts:110" target="_blank" rel="noreferrer"><svg class="source-reference__icon" width="16" height="16" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m18 16 4-4-4-4"></path><path d="m6 8-4 4 4 4"></path><path d="m14.5 4-5 16"></path></svg></a>
+### `api.world.map.getCellMonsters()` <a class="source-reference__heading-link" style="float: right; display: inline-flex; align-items: center; justify-content: center; margin-block: -0.125rem; margin-inline-start: 0.5rem; border-radius: var(--radius-sm); text-decoration: none;" href="https://github.com/toommyliu/vexed/blob/dev/app/src/renderer/windows/game/scripting/ScriptApi.ts#L243" tabindex="-1" aria-hidden="true" title="Open source: app/src/renderer/windows/game/scripting/ScriptApi.ts:243" target="_blank" rel="noreferrer"><svg class="source-reference__icon" width="16" height="16" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m18 16 4-4-4-4"></path><path d="m6 8-4 4 4 4"></path><path d="m14.5 4-5 16"></path></svg></a>
 
 ```ts
 api.world.map.getCellMonsters(): BridgeEffect<Monster[]>
@@ -26,7 +26,7 @@ api.world.map.getCellMonsters(): BridgeEffect<Monster[]>
 
 <a id="member-api-world-map-getcellpads"></a>
 
-### `api.world.map.getCellPads()` <a class="source-reference__heading-link" style="float: right; display: inline-flex; align-items: center; justify-content: center; margin-block: -0.125rem; margin-inline-start: 0.5rem; border-radius: var(--radius-sm); text-decoration: none;" href="https://github.com/toommyliu/vexed/blob/dev/app/src/renderer/windows/game/scripting/ScriptApi.ts#L112" tabindex="-1" aria-hidden="true" title="Open source: app/src/renderer/windows/game/scripting/ScriptApi.ts:112" target="_blank" rel="noreferrer"><svg class="source-reference__icon" width="16" height="16" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m18 16 4-4-4-4"></path><path d="m6 8-4 4 4 4"></path><path d="m14.5 4-5 16"></path></svg></a>
+### `api.world.map.getCellPads()` <a class="source-reference__heading-link" style="float: right; display: inline-flex; align-items: center; justify-content: center; margin-block: -0.125rem; margin-inline-start: 0.5rem; border-radius: var(--radius-sm); text-decoration: none;" href="https://github.com/toommyliu/vexed/blob/dev/app/src/renderer/windows/game/scripting/ScriptApi.ts#L245" tabindex="-1" aria-hidden="true" title="Open source: app/src/renderer/windows/game/scripting/ScriptApi.ts:245" target="_blank" rel="noreferrer"><svg class="source-reference__icon" width="16" height="16" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m18 16 4-4-4-4"></path><path d="m6 8-4 4 4 4"></path><path d="m14.5 4-5 16"></path></svg></a>
 
 ```ts
 api.world.map.getCellPads(): BridgeEffect<string[]>
@@ -38,7 +38,7 @@ api.world.map.getCellPads(): BridgeEffect<string[]>
 
 <a id="member-api-world-map-getcells"></a>
 
-### `api.world.map.getCells()` <a class="source-reference__heading-link" style="float: right; display: inline-flex; align-items: center; justify-content: center; margin-block: -0.125rem; margin-inline-start: 0.5rem; border-radius: var(--radius-sm); text-decoration: none;" href="https://github.com/toommyliu/vexed/blob/dev/app/src/renderer/windows/game/scripting/ScriptApi.ts#L111" tabindex="-1" aria-hidden="true" title="Open source: app/src/renderer/windows/game/scripting/ScriptApi.ts:111" target="_blank" rel="noreferrer"><svg class="source-reference__icon" width="16" height="16" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m18 16 4-4-4-4"></path><path d="m6 8-4 4 4 4"></path><path d="m14.5 4-5 16"></path></svg></a>
+### `api.world.map.getCells()` <a class="source-reference__heading-link" style="float: right; display: inline-flex; align-items: center; justify-content: center; margin-block: -0.125rem; margin-inline-start: 0.5rem; border-radius: var(--radius-sm); text-decoration: none;" href="https://github.com/toommyliu/vexed/blob/dev/app/src/renderer/windows/game/scripting/ScriptApi.ts#L244" tabindex="-1" aria-hidden="true" title="Open source: app/src/renderer/windows/game/scripting/ScriptApi.ts:244" target="_blank" rel="noreferrer"><svg class="source-reference__icon" width="16" height="16" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m18 16 4-4-4-4"></path><path d="m6 8-4 4 4 4"></path><path d="m14.5 4-5 16"></path></svg></a>
 
 ```ts
 api.world.map.getCells(): BridgeEffect<string[]>
@@ -50,7 +50,7 @@ api.world.map.getCells(): BridgeEffect<string[]>
 
 <a id="member-api-world-map-getid"></a>
 
-### `api.world.map.getId()` <a class="source-reference__heading-link" style="float: right; display: inline-flex; align-items: center; justify-content: center; margin-block: -0.125rem; margin-inline-start: 0.5rem; border-radius: var(--radius-sm); text-decoration: none;" href="https://github.com/toommyliu/vexed/blob/dev/app/src/renderer/windows/game/scripting/ScriptApi.ts#L125" tabindex="-1" aria-hidden="true" title="Open source: app/src/renderer/windows/game/scripting/ScriptApi.ts:125" target="_blank" rel="noreferrer"><svg class="source-reference__icon" width="16" height="16" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m18 16 4-4-4-4"></path><path d="m6 8-4 4 4 4"></path><path d="m14.5 4-5 16"></path></svg></a>
+### `api.world.map.getId()` <a class="source-reference__heading-link" style="float: right; display: inline-flex; align-items: center; justify-content: center; margin-block: -0.125rem; margin-inline-start: 0.5rem; border-radius: var(--radius-sm); text-decoration: none;" href="https://github.com/toommyliu/vexed/blob/dev/app/src/renderer/windows/game/scripting/ScriptApi.ts#L253" tabindex="-1" aria-hidden="true" title="Open source: app/src/renderer/windows/game/scripting/ScriptApi.ts:253" target="_blank" rel="noreferrer"><svg class="source-reference__icon" width="16" height="16" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m18 16 4-4-4-4"></path><path d="m6 8-4 4 4 4"></path><path d="m14.5 4-5 16"></path></svg></a>
 
 ```ts
 api.world.map.getId(): Effect.Effect<number, never, never>
@@ -62,7 +62,7 @@ api.world.map.getId(): Effect.Effect<number, never, never>
 
 <a id="member-api-world-map-getmapitem"></a>
 
-### `api.world.map.getMapItem()` <a class="source-reference__heading-link" style="float: right; display: inline-flex; align-items: center; justify-content: center; margin-block: -0.125rem; margin-inline-start: 0.5rem; border-radius: var(--radius-sm); text-decoration: none;" href="https://github.com/toommyliu/vexed/blob/dev/app/src/renderer/windows/game/scripting/ScriptApi.ts#L115" tabindex="-1" aria-hidden="true" title="Open source: app/src/renderer/windows/game/scripting/ScriptApi.ts:115" target="_blank" rel="noreferrer"><svg class="source-reference__icon" width="16" height="16" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m18 16 4-4-4-4"></path><path d="m6 8-4 4 4 4"></path><path d="m14.5 4-5 16"></path></svg></a>
+### `api.world.map.getMapItem()` <a class="source-reference__heading-link" style="float: right; display: inline-flex; align-items: center; justify-content: center; margin-block: -0.125rem; margin-inline-start: 0.5rem; border-radius: var(--radius-sm); text-decoration: none;" href="https://github.com/toommyliu/vexed/blob/dev/app/src/renderer/windows/game/scripting/ScriptApi.ts#L247" tabindex="-1" aria-hidden="true" title="Open source: app/src/renderer/windows/game/scripting/ScriptApi.ts:247" target="_blank" rel="noreferrer"><svg class="source-reference__icon" width="16" height="16" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m18 16 4-4-4-4"></path><path d="m6 8-4 4 4 4"></path><path d="m14.5 4-5 16"></path></svg></a>
 
 ```ts
 api.world.map.getMapItem(itemId: number): BridgeEffect<void>
@@ -78,7 +78,7 @@ api.world.map.getMapItem(itemId: number): BridgeEffect<void>
 
 <a id="member-api-world-map-getname"></a>
 
-### `api.world.map.getName()` <a class="source-reference__heading-link" style="float: right; display: inline-flex; align-items: center; justify-content: center; margin-block: -0.125rem; margin-inline-start: 0.5rem; border-radius: var(--radius-sm); text-decoration: none;" href="https://github.com/toommyliu/vexed/blob/dev/app/src/renderer/windows/game/scripting/ScriptApi.ts#L124" tabindex="-1" aria-hidden="true" title="Open source: app/src/renderer/windows/game/scripting/ScriptApi.ts:124" target="_blank" rel="noreferrer"><svg class="source-reference__icon" width="16" height="16" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m18 16 4-4-4-4"></path><path d="m6 8-4 4 4 4"></path><path d="m14.5 4-5 16"></path></svg></a>
+### `api.world.map.getName()` <a class="source-reference__heading-link" style="float: right; display: inline-flex; align-items: center; justify-content: center; margin-block: -0.125rem; margin-inline-start: 0.5rem; border-radius: var(--radius-sm); text-decoration: none;" href="https://github.com/toommyliu/vexed/blob/dev/app/src/renderer/windows/game/scripting/ScriptApi.ts#L252" tabindex="-1" aria-hidden="true" title="Open source: app/src/renderer/windows/game/scripting/ScriptApi.ts:252" target="_blank" rel="noreferrer"><svg class="source-reference__icon" width="16" height="16" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m18 16 4-4-4-4"></path><path d="m6 8-4 4 4 4"></path><path d="m14.5 4-5 16"></path></svg></a>
 
 ```ts
 api.world.map.getName(): Effect.Effect<string, never, never>
@@ -90,7 +90,7 @@ api.world.map.getName(): Effect.Effect<string, never, never>
 
 <a id="member-api-world-map-getroomnumber"></a>
 
-### `api.world.map.getRoomNumber()` <a class="source-reference__heading-link" style="float: right; display: inline-flex; align-items: center; justify-content: center; margin-block: -0.125rem; margin-inline-start: 0.5rem; border-radius: var(--radius-sm); text-decoration: none;" href="https://github.com/toommyliu/vexed/blob/dev/app/src/renderer/windows/game/scripting/ScriptApi.ts#L126" tabindex="-1" aria-hidden="true" title="Open source: app/src/renderer/windows/game/scripting/ScriptApi.ts:126" target="_blank" rel="noreferrer"><svg class="source-reference__icon" width="16" height="16" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m18 16 4-4-4-4"></path><path d="m6 8-4 4 4 4"></path><path d="m14.5 4-5 16"></path></svg></a>
+### `api.world.map.getRoomNumber()` <a class="source-reference__heading-link" style="float: right; display: inline-flex; align-items: center; justify-content: center; margin-block: -0.125rem; margin-inline-start: 0.5rem; border-radius: var(--radius-sm); text-decoration: none;" href="https://github.com/toommyliu/vexed/blob/dev/app/src/renderer/windows/game/scripting/ScriptApi.ts#L254" tabindex="-1" aria-hidden="true" title="Open source: app/src/renderer/windows/game/scripting/ScriptApi.ts:254" target="_blank" rel="noreferrer"><svg class="source-reference__icon" width="16" height="16" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m18 16 4-4-4-4"></path><path d="m6 8-4 4 4 4"></path><path d="m14.5 4-5 16"></path></svg></a>
 
 ```ts
 api.world.map.getRoomNumber(): Effect.Effect<number, never, never>
@@ -100,25 +100,9 @@ api.world.map.getRoomNumber(): Effect.Effect<number, never, never>
 
 **Errors:** `never`
 
-<a id="member-api-world-map-isactionavailable"></a>
-
-### `api.world.map.isActionAvailable()` <a class="source-reference__heading-link" style="float: right; display: inline-flex; align-items: center; justify-content: center; margin-block: -0.125rem; margin-inline-start: 0.5rem; border-radius: var(--radius-sm); text-decoration: none;" href="https://github.com/toommyliu/vexed/blob/dev/app/src/renderer/windows/game/scripting/ScriptApi.ts#L114" tabindex="-1" aria-hidden="true" title="Open source: app/src/renderer/windows/game/scripting/ScriptApi.ts:114" target="_blank" rel="noreferrer"><svg class="source-reference__icon" width="16" height="16" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m18 16 4-4-4-4"></path><path d="m6 8-4 4 4 4"></path><path d="m14.5 4-5 16"></path></svg></a>
-
-```ts
-api.world.map.isActionAvailable(gameAction: 'acceptQuest' | 'addLoadout' | 'buyItem' | 'doIA' | 'equipLoadout' | 'equipItem' | 'getMapItem' | 'loadEnhShop' | 'loadHairShop' | 'loadShop' | 'removeLoadout' | 'rest' | 'sellItem' | 'tfer' | 'tryQuestComplete' | 'unequipItem' | 'wearLoadout' | 'who'): BridgeEffect<boolean>
-```
-
-| Name | Type | Required | Description |
-| --- | --- | --- | --- |
-| `gameAction` | '`acceptQuest`' \| '`addLoadout`' \| '`buyItem`' \| '`doIA`' \| '`equipLoadout`' \| '`equipItem`' \| '`getMapItem`' \| '`loadEnhShop`' \| '`loadHairShop`' \| '`loadShop`' \| '`removeLoadout`' \| '`rest`' \| '`sellItem`' \| '`tfer`' \| '`tryQuestComplete`' \| '`unequipItem`' \| '`wearLoadout`' \| '`who`' | <span class="required-mark" role="img" aria-label="Required"></span> |  |
-
-**Yields:** `boolean`
-
-**Errors:** <a href="/scripting/types/bridge-error/" data-script-type="bridge-error"><code>BridgeError</code></a>
-
 <a id="member-api-world-map-isloaded"></a>
 
-### `api.world.map.isLoaded()` <a class="source-reference__heading-link" style="float: right; display: inline-flex; align-items: center; justify-content: center; margin-block: -0.125rem; margin-inline-start: 0.5rem; border-radius: var(--radius-sm); text-decoration: none;" href="https://github.com/toommyliu/vexed/blob/dev/app/src/renderer/windows/game/scripting/ScriptApi.ts#L113" tabindex="-1" aria-hidden="true" title="Open source: app/src/renderer/windows/game/scripting/ScriptApi.ts:113" target="_blank" rel="noreferrer"><svg class="source-reference__icon" width="16" height="16" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m18 16 4-4-4-4"></path><path d="m6 8-4 4 4 4"></path><path d="m14.5 4-5 16"></path></svg></a>
+### `api.world.map.isLoaded()` <a class="source-reference__heading-link" style="float: right; display: inline-flex; align-items: center; justify-content: center; margin-block: -0.125rem; margin-inline-start: 0.5rem; border-radius: var(--radius-sm); text-decoration: none;" href="https://github.com/toommyliu/vexed/blob/dev/app/src/renderer/windows/game/scripting/ScriptApi.ts#L246" tabindex="-1" aria-hidden="true" title="Open source: app/src/renderer/windows/game/scripting/ScriptApi.ts:246" target="_blank" rel="noreferrer"><svg class="source-reference__icon" width="16" height="16" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m18 16 4-4-4-4"></path><path d="m6 8-4 4 4 4"></path><path d="m14.5 4-5 16"></path></svg></a>
 
 ```ts
 api.world.map.isLoaded(): BridgeEffect<boolean>
@@ -130,7 +114,7 @@ api.world.map.isLoaded(): BridgeEffect<boolean>
 
 <a id="member-api-world-map-loadswf"></a>
 
-### `api.world.map.loadSwf()` <a class="source-reference__heading-link" style="float: right; display: inline-flex; align-items: center; justify-content: center; margin-block: -0.125rem; margin-inline-start: 0.5rem; border-radius: var(--radius-sm); text-decoration: none;" href="https://github.com/toommyliu/vexed/blob/dev/app/src/renderer/windows/game/scripting/ScriptApi.ts#L116" tabindex="-1" aria-hidden="true" title="Open source: app/src/renderer/windows/game/scripting/ScriptApi.ts:116" target="_blank" rel="noreferrer"><svg class="source-reference__icon" width="16" height="16" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m18 16 4-4-4-4"></path><path d="m6 8-4 4 4 4"></path><path d="m14.5 4-5 16"></path></svg></a>
+### `api.world.map.loadSwf()` <a class="source-reference__heading-link" style="float: right; display: inline-flex; align-items: center; justify-content: center; margin-block: -0.125rem; margin-inline-start: 0.5rem; border-radius: var(--radius-sm); text-decoration: none;" href="https://github.com/toommyliu/vexed/blob/dev/app/src/renderer/windows/game/scripting/ScriptApi.ts#L248" tabindex="-1" aria-hidden="true" title="Open source: app/src/renderer/windows/game/scripting/ScriptApi.ts:248" target="_blank" rel="noreferrer"><svg class="source-reference__icon" width="16" height="16" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m18 16 4-4-4-4"></path><path d="m6 8-4 4 4 4"></path><path d="m14.5 4-5 16"></path></svg></a>
 
 ```ts
 api.world.map.loadSwf(path: string): BridgeEffect<void>
@@ -146,7 +130,7 @@ api.world.map.loadSwf(path: string): BridgeEffect<void>
 
 <a id="member-api-world-map-reload"></a>
 
-### `api.world.map.reload()` <a class="source-reference__heading-link" style="float: right; display: inline-flex; align-items: center; justify-content: center; margin-block: -0.125rem; margin-inline-start: 0.5rem; border-radius: var(--radius-sm); text-decoration: none;" href="https://github.com/toommyliu/vexed/blob/dev/app/src/renderer/windows/game/scripting/ScriptApi.ts#L117" tabindex="-1" aria-hidden="true" title="Open source: app/src/renderer/windows/game/scripting/ScriptApi.ts:117" target="_blank" rel="noreferrer"><svg class="source-reference__icon" width="16" height="16" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m18 16 4-4-4-4"></path><path d="m6 8-4 4 4 4"></path><path d="m14.5 4-5 16"></path></svg></a>
+### `api.world.map.reload()` <a class="source-reference__heading-link" style="float: right; display: inline-flex; align-items: center; justify-content: center; margin-block: -0.125rem; margin-inline-start: 0.5rem; border-radius: var(--radius-sm); text-decoration: none;" href="https://github.com/toommyliu/vexed/blob/dev/app/src/renderer/windows/game/scripting/ScriptApi.ts#L249" tabindex="-1" aria-hidden="true" title="Open source: app/src/renderer/windows/game/scripting/ScriptApi.ts:249" target="_blank" rel="noreferrer"><svg class="source-reference__icon" width="16" height="16" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m18 16 4-4-4-4"></path><path d="m6 8-4 4 4 4"></path><path d="m14.5 4-5 16"></path></svg></a>
 
 ```ts
 api.world.map.reload(): BridgeEffect<void>
@@ -158,7 +142,7 @@ api.world.map.reload(): BridgeEffect<void>
 
 <a id="member-api-world-map-setspawnpoint"></a>
 
-### `api.world.map.setSpawnPoint()` <a class="source-reference__heading-link" style="float: right; display: inline-flex; align-items: center; justify-content: center; margin-block: -0.125rem; margin-inline-start: 0.5rem; border-radius: var(--radius-sm); text-decoration: none;" href="https://github.com/toommyliu/vexed/blob/dev/app/src/renderer/windows/game/scripting/ScriptApi.ts#L118" tabindex="-1" aria-hidden="true" title="Open source: app/src/renderer/windows/game/scripting/ScriptApi.ts:118" target="_blank" rel="noreferrer"><svg class="source-reference__icon" width="16" height="16" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m18 16 4-4-4-4"></path><path d="m6 8-4 4 4 4"></path><path d="m14.5 4-5 16"></path></svg></a>
+### `api.world.map.setSpawnPoint()` <a class="source-reference__heading-link" style="float: right; display: inline-flex; align-items: center; justify-content: center; margin-block: -0.125rem; margin-inline-start: 0.5rem; border-radius: var(--radius-sm); text-decoration: none;" href="https://github.com/toommyliu/vexed/blob/dev/app/src/renderer/windows/game/scripting/ScriptApi.ts#L250" tabindex="-1" aria-hidden="true" title="Open source: app/src/renderer/windows/game/scripting/ScriptApi.ts:250" target="_blank" rel="noreferrer"><svg class="source-reference__icon" width="16" height="16" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m18 16 4-4-4-4"></path><path d="m6 8-4 4 4 4"></path><path d="m14.5 4-5 16"></path></svg></a>
 
 ```ts
 api.world.map.setSpawnPoint(cell?: string, pad?: string): BridgeEffect<void>
@@ -173,26 +157,9 @@ api.world.map.setSpawnPoint(cell?: string, pad?: string): BridgeEffect<void>
 
 **Errors:** <a href="/scripting/types/bridge-error/" data-script-type="bridge-error"><code>BridgeError</code></a>
 
-<a id="member-api-world-map-waitforgameaction"></a>
-
-### `api.world.map.waitForGameAction()` <a class="source-reference__heading-link" style="float: right; display: inline-flex; align-items: center; justify-content: center; margin-block: -0.125rem; margin-inline-start: 0.5rem; border-radius: var(--radius-sm); text-decoration: none;" href="https://github.com/toommyliu/vexed/blob/dev/app/src/renderer/windows/game/scripting/ScriptApi.ts#L119" tabindex="-1" aria-hidden="true" title="Open source: app/src/renderer/windows/game/scripting/ScriptApi.ts:119" target="_blank" rel="noreferrer"><svg class="source-reference__icon" width="16" height="16" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m18 16 4-4-4-4"></path><path d="m6 8-4 4 4 4"></path><path d="m14.5 4-5 16"></path></svg></a>
-
-```ts
-api.world.map.waitForGameAction(gameAction: 'acceptQuest' | 'addLoadout' | 'buyItem' | 'doIA' | 'equipLoadout' | 'equipItem' | 'getMapItem' | 'loadEnhShop' | 'loadHairShop' | 'loadShop' | 'removeLoadout' | 'rest' | 'sellItem' | 'tfer' | 'tryQuestComplete' | 'unequipItem' | 'wearLoadout' | 'who', timeout?: Duration.Input): BridgeEffect<boolean>
-```
-
-| Name | Type | Required | Description |
-| --- | --- | --- | --- |
-| `gameAction` | '`acceptQuest`' \| '`addLoadout`' \| '`buyItem`' \| '`doIA`' \| '`equipLoadout`' \| '`equipItem`' \| '`getMapItem`' \| '`loadEnhShop`' \| '`loadHairShop`' \| '`loadShop`' \| '`removeLoadout`' \| '`rest`' \| '`sellItem`' \| '`tfer`' \| '`tryQuestComplete`' \| '`unequipItem`' \| '`wearLoadout`' \| '`who`' | <span class="required-mark" role="img" aria-label="Required"></span> |  |
-| `timeout` | `Duration`.`Input` |  |  |
-
-**Yields:** `boolean`
-
-**Errors:** <a href="/scripting/types/bridge-error/" data-script-type="bridge-error"><code>BridgeError</code></a>
-
 <a id="member-api-world-monsters-findbyname"></a>
 
-### `api.world.monsters.findByName()` <a class="source-reference__heading-link" style="float: right; display: inline-flex; align-items: center; justify-content: center; margin-block: -0.125rem; margin-inline-start: 0.5rem; border-radius: var(--radius-sm); text-decoration: none;" href="https://github.com/toommyliu/vexed/blob/dev/app/src/renderer/windows/game/scripting/ScriptApi.ts#L150" tabindex="-1" aria-hidden="true" title="Open source: app/src/renderer/windows/game/scripting/ScriptApi.ts:150" target="_blank" rel="noreferrer"><svg class="source-reference__icon" width="16" height="16" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m18 16 4-4-4-4"></path><path d="m6 8-4 4 4 4"></path><path d="m14.5 4-5 16"></path></svg></a>
+### `api.world.monsters.findByName()` <a class="source-reference__heading-link" style="float: right; display: inline-flex; align-items: center; justify-content: center; margin-block: -0.125rem; margin-inline-start: 0.5rem; border-radius: var(--radius-sm); text-decoration: none;" href="https://github.com/toommyliu/vexed/blob/dev/app/src/renderer/windows/game/scripting/ScriptApi.ts#L278" tabindex="-1" aria-hidden="true" title="Open source: app/src/renderer/windows/game/scripting/ScriptApi.ts:278" target="_blank" rel="noreferrer"><svg class="source-reference__icon" width="16" height="16" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m18 16 4-4-4-4"></path><path d="m6 8-4 4 4 4"></path><path d="m14.5 4-5 16"></path></svg></a>
 
 ```ts
 api.world.monsters.findByName(name: string, cell?: string): Effect.Effect<Option.Option<Monster>, never, never>
@@ -209,7 +176,7 @@ api.world.monsters.findByName(name: string, cell?: string): Effect.Effect<Option
 
 <a id="member-api-world-monsters-get"></a>
 
-### `api.world.monsters.get()` <a class="source-reference__heading-link" style="float: right; display: inline-flex; align-items: center; justify-content: center; margin-block: -0.125rem; margin-inline-start: 0.5rem; border-radius: var(--radius-sm); text-decoration: none;" href="https://github.com/toommyliu/vexed/blob/dev/app/src/renderer/windows/game/scripting/ScriptApi.ts#L149" tabindex="-1" aria-hidden="true" title="Open source: app/src/renderer/windows/game/scripting/ScriptApi.ts:149" target="_blank" rel="noreferrer"><svg class="source-reference__icon" width="16" height="16" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m18 16 4-4-4-4"></path><path d="m6 8-4 4 4 4"></path><path d="m14.5 4-5 16"></path></svg></a>
+### `api.world.monsters.get()` <a class="source-reference__heading-link" style="float: right; display: inline-flex; align-items: center; justify-content: center; margin-block: -0.125rem; margin-inline-start: 0.5rem; border-radius: var(--radius-sm); text-decoration: none;" href="https://github.com/toommyliu/vexed/blob/dev/app/src/renderer/windows/game/scripting/ScriptApi.ts#L277" tabindex="-1" aria-hidden="true" title="Open source: app/src/renderer/windows/game/scripting/ScriptApi.ts:277" target="_blank" rel="noreferrer"><svg class="source-reference__icon" width="16" height="16" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m18 16 4-4-4-4"></path><path d="m6 8-4 4 4 4"></path><path d="m14.5 4-5 16"></path></svg></a>
 
 ```ts
 api.world.monsters.get(monMapId: number): Effect.Effect<Option.Option<Monster>, never, never>
@@ -225,7 +192,7 @@ api.world.monsters.get(monMapId: number): Effect.Effect<Option.Option<Monster>, 
 
 <a id="member-api-world-monsters-getall"></a>
 
-### `api.world.monsters.getAll()` <a class="source-reference__heading-link" style="float: right; display: inline-flex; align-items: center; justify-content: center; margin-block: -0.125rem; margin-inline-start: 0.5rem; border-radius: var(--radius-sm); text-decoration: none;" href="https://github.com/toommyliu/vexed/blob/dev/app/src/renderer/windows/game/scripting/ScriptApi.ts#L148" tabindex="-1" aria-hidden="true" title="Open source: app/src/renderer/windows/game/scripting/ScriptApi.ts:148" target="_blank" rel="noreferrer"><svg class="source-reference__icon" width="16" height="16" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m18 16 4-4-4-4"></path><path d="m6 8-4 4 4 4"></path><path d="m14.5 4-5 16"></path></svg></a>
+### `api.world.monsters.getAll()` <a class="source-reference__heading-link" style="float: right; display: inline-flex; align-items: center; justify-content: center; margin-block: -0.125rem; margin-inline-start: 0.5rem; border-radius: var(--radius-sm); text-decoration: none;" href="https://github.com/toommyliu/vexed/blob/dev/app/src/renderer/windows/game/scripting/ScriptApi.ts#L276" tabindex="-1" aria-hidden="true" title="Open source: app/src/renderer/windows/game/scripting/ScriptApi.ts:276" target="_blank" rel="noreferrer"><svg class="source-reference__icon" width="16" height="16" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m18 16 4-4-4-4"></path><path d="m6 8-4 4 4 4"></path><path d="m14.5 4-5 16"></path></svg></a>
 
 ```ts
 api.world.monsters.getAll(): Effect.Effect<Collection<number, Monster>, never, never>
@@ -237,7 +204,7 @@ api.world.monsters.getAll(): Effect.Effect<Collection<number, Monster>, never, n
 
 <a id="member-api-world-monsters-getaura"></a>
 
-### `api.world.monsters.getAura()` <a class="source-reference__heading-link" style="float: right; display: inline-flex; align-items: center; justify-content: center; margin-block: -0.125rem; margin-inline-start: 0.5rem; border-radius: var(--radius-sm); text-decoration: none;" href="https://github.com/toommyliu/vexed/blob/dev/app/src/renderer/windows/game/scripting/ScriptApi.ts#L154" tabindex="-1" aria-hidden="true" title="Open source: app/src/renderer/windows/game/scripting/ScriptApi.ts:154" target="_blank" rel="noreferrer"><svg class="source-reference__icon" width="16" height="16" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m18 16 4-4-4-4"></path><path d="m6 8-4 4 4 4"></path><path d="m14.5 4-5 16"></path></svg></a>
+### `api.world.monsters.getAura()` <a class="source-reference__heading-link" style="float: right; display: inline-flex; align-items: center; justify-content: center; margin-block: -0.125rem; margin-inline-start: 0.5rem; border-radius: var(--radius-sm); text-decoration: none;" href="https://github.com/toommyliu/vexed/blob/dev/app/src/renderer/windows/game/scripting/ScriptApi.ts#L282" tabindex="-1" aria-hidden="true" title="Open source: app/src/renderer/windows/game/scripting/ScriptApi.ts:282" target="_blank" rel="noreferrer"><svg class="source-reference__icon" width="16" height="16" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m18 16 4-4-4-4"></path><path d="m6 8-4 4 4 4"></path><path d="m14.5 4-5 16"></path></svg></a>
 
 ```ts
 api.world.monsters.getAura(monMapId: number, auraName: string): Effect.Effect<Option.Option<Aura>, never, never>
@@ -254,7 +221,7 @@ api.world.monsters.getAura(monMapId: number, auraName: string): Effect.Effect<Op
 
 <a id="member-api-world-players-get"></a>
 
-### `api.world.players.get()` <a class="source-reference__heading-link" style="float: right; display: inline-flex; align-items: center; justify-content: center; margin-block: -0.125rem; margin-inline-start: 0.5rem; border-radius: var(--radius-sm); text-decoration: none;" href="https://github.com/toommyliu/vexed/blob/dev/app/src/renderer/windows/game/scripting/ScriptApi.ts#L132" tabindex="-1" aria-hidden="true" title="Open source: app/src/renderer/windows/game/scripting/ScriptApi.ts:132" target="_blank" rel="noreferrer"><svg class="source-reference__icon" width="16" height="16" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m18 16 4-4-4-4"></path><path d="m6 8-4 4 4 4"></path><path d="m14.5 4-5 16"></path></svg></a>
+### `api.world.players.get()` <a class="source-reference__heading-link" style="float: right; display: inline-flex; align-items: center; justify-content: center; margin-block: -0.125rem; margin-inline-start: 0.5rem; border-radius: var(--radius-sm); text-decoration: none;" href="https://github.com/toommyliu/vexed/blob/dev/app/src/renderer/windows/game/scripting/ScriptApi.ts#L260" tabindex="-1" aria-hidden="true" title="Open source: app/src/renderer/windows/game/scripting/ScriptApi.ts:260" target="_blank" rel="noreferrer"><svg class="source-reference__icon" width="16" height="16" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m18 16 4-4-4-4"></path><path d="m6 8-4 4 4 4"></path><path d="m14.5 4-5 16"></path></svg></a>
 
 ```ts
 api.world.players.get(username: string): Effect.Effect<Option.Option<Avatar>, never, never>
@@ -270,7 +237,7 @@ api.world.players.get(username: string): Effect.Effect<Option.Option<Avatar>, ne
 
 <a id="member-api-world-players-getall"></a>
 
-### `api.world.players.getAll()` <a class="source-reference__heading-link" style="float: right; display: inline-flex; align-items: center; justify-content: center; margin-block: -0.125rem; margin-inline-start: 0.5rem; border-radius: var(--radius-sm); text-decoration: none;" href="https://github.com/toommyliu/vexed/blob/dev/app/src/renderer/windows/game/scripting/ScriptApi.ts#L131" tabindex="-1" aria-hidden="true" title="Open source: app/src/renderer/windows/game/scripting/ScriptApi.ts:131" target="_blank" rel="noreferrer"><svg class="source-reference__icon" width="16" height="16" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m18 16 4-4-4-4"></path><path d="m6 8-4 4 4 4"></path><path d="m14.5 4-5 16"></path></svg></a>
+### `api.world.players.getAll()` <a class="source-reference__heading-link" style="float: right; display: inline-flex; align-items: center; justify-content: center; margin-block: -0.125rem; margin-inline-start: 0.5rem; border-radius: var(--radius-sm); text-decoration: none;" href="https://github.com/toommyliu/vexed/blob/dev/app/src/renderer/windows/game/scripting/ScriptApi.ts#L259" tabindex="-1" aria-hidden="true" title="Open source: app/src/renderer/windows/game/scripting/ScriptApi.ts:259" target="_blank" rel="noreferrer"><svg class="source-reference__icon" width="16" height="16" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m18 16 4-4-4-4"></path><path d="m6 8-4 4 4 4"></path><path d="m14.5 4-5 16"></path></svg></a>
 
 ```ts
 api.world.players.getAll(): Effect.Effect<Collection<string, Avatar>, never, never>
@@ -282,7 +249,7 @@ api.world.players.getAll(): Effect.Effect<Collection<string, Avatar>, never, nev
 
 <a id="member-api-world-players-getaura"></a>
 
-### `api.world.players.getAura()` <a class="source-reference__heading-link" style="float: right; display: inline-flex; align-items: center; justify-content: center; margin-block: -0.125rem; margin-inline-start: 0.5rem; border-radius: var(--radius-sm); text-decoration: none;" href="https://github.com/toommyliu/vexed/blob/dev/app/src/renderer/windows/game/scripting/ScriptApi.ts#L135" tabindex="-1" aria-hidden="true" title="Open source: app/src/renderer/windows/game/scripting/ScriptApi.ts:135" target="_blank" rel="noreferrer"><svg class="source-reference__icon" width="16" height="16" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m18 16 4-4-4-4"></path><path d="m6 8-4 4 4 4"></path><path d="m14.5 4-5 16"></path></svg></a>
+### `api.world.players.getAura()` <a class="source-reference__heading-link" style="float: right; display: inline-flex; align-items: center; justify-content: center; margin-block: -0.125rem; margin-inline-start: 0.5rem; border-radius: var(--radius-sm); text-decoration: none;" href="https://github.com/toommyliu/vexed/blob/dev/app/src/renderer/windows/game/scripting/ScriptApi.ts#L263" tabindex="-1" aria-hidden="true" title="Open source: app/src/renderer/windows/game/scripting/ScriptApi.ts:263" target="_blank" rel="noreferrer"><svg class="source-reference__icon" width="16" height="16" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m18 16 4-4-4-4"></path><path d="m6 8-4 4 4 4"></path><path d="m14.5 4-5 16"></path></svg></a>
 
 ```ts
 api.world.players.getAura(username: string, auraName: string): Effect.Effect<Option.Option<Aura>, never, never>
@@ -299,7 +266,7 @@ api.world.players.getAura(username: string, auraName: string): Effect.Effect<Opt
 
 <a id="member-api-world-players-getauras"></a>
 
-### `api.world.players.getAuras()` <a class="source-reference__heading-link" style="float: right; display: inline-flex; align-items: center; justify-content: center; margin-block: -0.125rem; margin-inline-start: 0.5rem; border-radius: var(--radius-sm); text-decoration: none;" href="https://github.com/toommyliu/vexed/blob/dev/app/src/renderer/windows/game/scripting/ScriptApi.ts#L134" tabindex="-1" aria-hidden="true" title="Open source: app/src/renderer/windows/game/scripting/ScriptApi.ts:134" target="_blank" rel="noreferrer"><svg class="source-reference__icon" width="16" height="16" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m18 16 4-4-4-4"></path><path d="m6 8-4 4 4 4"></path><path d="m14.5 4-5 16"></path></svg></a>
+### `api.world.players.getAuras()` <a class="source-reference__heading-link" style="float: right; display: inline-flex; align-items: center; justify-content: center; margin-block: -0.125rem; margin-inline-start: 0.5rem; border-radius: var(--radius-sm); text-decoration: none;" href="https://github.com/toommyliu/vexed/blob/dev/app/src/renderer/windows/game/scripting/ScriptApi.ts#L262" tabindex="-1" aria-hidden="true" title="Open source: app/src/renderer/windows/game/scripting/ScriptApi.ts:262" target="_blank" rel="noreferrer"><svg class="source-reference__icon" width="16" height="16" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m18 16 4-4-4-4"></path><path d="m6 8-4 4 4 4"></path><path d="m14.5 4-5 16"></path></svg></a>
 
 ```ts
 api.world.players.getAuras(username: string): Effect.Effect<readonly Aura[], never, never>
@@ -315,7 +282,7 @@ api.world.players.getAuras(username: string): Effect.Effect<readonly Aura[], nev
 
 <a id="member-api-world-players-getbyname"></a>
 
-### `api.world.players.getByName()` <a class="source-reference__heading-link" style="float: right; display: inline-flex; align-items: center; justify-content: center; margin-block: -0.125rem; margin-inline-start: 0.5rem; border-radius: var(--radius-sm); text-decoration: none;" href="https://github.com/toommyliu/vexed/blob/dev/app/src/renderer/windows/game/scripting/ScriptApi.ts#L133" tabindex="-1" aria-hidden="true" title="Open source: app/src/renderer/windows/game/scripting/ScriptApi.ts:133" target="_blank" rel="noreferrer"><svg class="source-reference__icon" width="16" height="16" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m18 16 4-4-4-4"></path><path d="m6 8-4 4 4 4"></path><path d="m14.5 4-5 16"></path></svg></a>
+### `api.world.players.getByName()` <a class="source-reference__heading-link" style="float: right; display: inline-flex; align-items: center; justify-content: center; margin-block: -0.125rem; margin-inline-start: 0.5rem; border-radius: var(--radius-sm); text-decoration: none;" href="https://github.com/toommyliu/vexed/blob/dev/app/src/renderer/windows/game/scripting/ScriptApi.ts#L261" tabindex="-1" aria-hidden="true" title="Open source: app/src/renderer/windows/game/scripting/ScriptApi.ts:261" target="_blank" rel="noreferrer"><svg class="source-reference__icon" width="16" height="16" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m18 16 4-4-4-4"></path><path d="m6 8-4 4 4 4"></path><path d="m14.5 4-5 16"></path></svg></a>
 
 ```ts
 api.world.players.getByName(name: string): Effect.Effect<Option.Option<Avatar>, never, never>
@@ -331,7 +298,7 @@ api.world.players.getByName(name: string): Effect.Effect<Option.Option<Avatar>, 
 
 <a id="member-api-world-players-me-get"></a>
 
-### `api.world.players.me.get()` <a class="source-reference__heading-link" style="float: right; display: inline-flex; align-items: center; justify-content: center; margin-block: -0.125rem; margin-inline-start: 0.5rem; border-radius: var(--radius-sm); text-decoration: none;" href="https://github.com/toommyliu/vexed/blob/dev/app/src/renderer/windows/game/scripting/ScriptApi.ts#L142" tabindex="-1" aria-hidden="true" title="Open source: app/src/renderer/windows/game/scripting/ScriptApi.ts:142" target="_blank" rel="noreferrer"><svg class="source-reference__icon" width="16" height="16" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m18 16 4-4-4-4"></path><path d="m6 8-4 4 4 4"></path><path d="m14.5 4-5 16"></path></svg></a>
+### `api.world.players.me.get()` <a class="source-reference__heading-link" style="float: right; display: inline-flex; align-items: center; justify-content: center; margin-block: -0.125rem; margin-inline-start: 0.5rem; border-radius: var(--radius-sm); text-decoration: none;" href="https://github.com/toommyliu/vexed/blob/dev/app/src/renderer/windows/game/scripting/ScriptApi.ts#L270" tabindex="-1" aria-hidden="true" title="Open source: app/src/renderer/windows/game/scripting/ScriptApi.ts:270" target="_blank" rel="noreferrer"><svg class="source-reference__icon" width="16" height="16" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m18 16 4-4-4-4"></path><path d="m6 8-4 4 4 4"></path><path d="m14.5 4-5 16"></path></svg></a>
 
 ```ts
 api.world.players.me.get(): Effect.Effect<Option.Option<Avatar>, never, never>
@@ -343,7 +310,7 @@ api.world.players.me.get(): Effect.Effect<Option.Option<Avatar>, never, never>
 
 <a id="member-api-world-players-me-getaura"></a>
 
-### `api.world.players.me.getAura()` <a class="source-reference__heading-link" style="float: right; display: inline-flex; align-items: center; justify-content: center; margin-block: -0.125rem; margin-inline-start: 0.5rem; border-radius: var(--radius-sm); text-decoration: none;" href="https://github.com/toommyliu/vexed/blob/dev/app/src/renderer/windows/game/scripting/ScriptApi.ts#L144" tabindex="-1" aria-hidden="true" title="Open source: app/src/renderer/windows/game/scripting/ScriptApi.ts:144" target="_blank" rel="noreferrer"><svg class="source-reference__icon" width="16" height="16" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m18 16 4-4-4-4"></path><path d="m6 8-4 4 4 4"></path><path d="m14.5 4-5 16"></path></svg></a>
+### `api.world.players.me.getAura()` <a class="source-reference__heading-link" style="float: right; display: inline-flex; align-items: center; justify-content: center; margin-block: -0.125rem; margin-inline-start: 0.5rem; border-radius: var(--radius-sm); text-decoration: none;" href="https://github.com/toommyliu/vexed/blob/dev/app/src/renderer/windows/game/scripting/ScriptApi.ts#L272" tabindex="-1" aria-hidden="true" title="Open source: app/src/renderer/windows/game/scripting/ScriptApi.ts:272" target="_blank" rel="noreferrer"><svg class="source-reference__icon" width="16" height="16" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m18 16 4-4-4-4"></path><path d="m6 8-4 4 4 4"></path><path d="m14.5 4-5 16"></path></svg></a>
 
 ```ts
 api.world.players.me.getAura(auraName: string): Effect.Effect<Option.Option<Aura>, never, never>
@@ -359,7 +326,7 @@ api.world.players.me.getAura(auraName: string): Effect.Effect<Option.Option<Aura
 
 <a id="member-api-world-players-me-getauras"></a>
 
-### `api.world.players.me.getAuras()` <a class="source-reference__heading-link" style="float: right; display: inline-flex; align-items: center; justify-content: center; margin-block: -0.125rem; margin-inline-start: 0.5rem; border-radius: var(--radius-sm); text-decoration: none;" href="https://github.com/toommyliu/vexed/blob/dev/app/src/renderer/windows/game/scripting/ScriptApi.ts#L143" tabindex="-1" aria-hidden="true" title="Open source: app/src/renderer/windows/game/scripting/ScriptApi.ts:143" target="_blank" rel="noreferrer"><svg class="source-reference__icon" width="16" height="16" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m18 16 4-4-4-4"></path><path d="m6 8-4 4 4 4"></path><path d="m14.5 4-5 16"></path></svg></a>
+### `api.world.players.me.getAuras()` <a class="source-reference__heading-link" style="float: right; display: inline-flex; align-items: center; justify-content: center; margin-block: -0.125rem; margin-inline-start: 0.5rem; border-radius: var(--radius-sm); text-decoration: none;" href="https://github.com/toommyliu/vexed/blob/dev/app/src/renderer/windows/game/scripting/ScriptApi.ts#L271" tabindex="-1" aria-hidden="true" title="Open source: app/src/renderer/windows/game/scripting/ScriptApi.ts:271" target="_blank" rel="noreferrer"><svg class="source-reference__icon" width="16" height="16" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m18 16 4-4-4-4"></path><path d="m6 8-4 4 4 4"></path><path d="m14.5 4-5 16"></path></svg></a>
 
 ```ts
 api.world.players.me.getAuras(): Effect.Effect<readonly Aura[], never, never>

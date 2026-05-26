@@ -5,11 +5,13 @@ import { Bridge } from "../Services/Bridge";
 import { Inventory } from "../Services/Inventory";
 import type { InventoryShape } from "../Services/Inventory";
 import { Packet } from "../Services/Packet";
+import { Wait } from "../Services/Wait";
 import { World } from "../Services/World";
 
 const make = Effect.gen(function* () {
   const bridge = yield* Bridge;
   const packet = yield* Packet;
+  const wait = yield* Wait;
   const world = yield* World;
   const itemCache = yield* makeItemCache;
 
@@ -35,7 +37,10 @@ const make = Effect.gen(function* () {
         return false;
       }
 
-      yield* world.map.waitForGameAction("equipItem");
+      const canEquip = yield* wait.forGameAction("equipItem");
+      if (!canEquip) {
+        return false;
+      }
 
       const result = yield* Deferred.make<boolean>();
       const itemId = toEquip.id;

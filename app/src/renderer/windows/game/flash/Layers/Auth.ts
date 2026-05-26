@@ -15,7 +15,7 @@ import type {
   LoginSession,
   LoginSessionPayload,
 } from "../Types";
-import { waitFor } from "../../utils/waitFor";
+import { Wait } from "../Services/Wait";
 
 const CONNECT_TO_TIMEOUT = "15 seconds";
 const LOGIN_READY_TIMEOUT = "15 seconds";
@@ -324,6 +324,7 @@ const connectErrorMessage = (connText: string): string => {
 
 const make = Effect.gen(function* () {
   const bridge = yield* Bridge;
+  const wait = yield* Wait;
   const stateRef = yield* SynchronizedRef.make(initialState());
   const runFork = Effect.runForkWith(yield* Effect.services());
 
@@ -539,7 +540,7 @@ const make = Effect.gen(function* () {
       }
       yield* clearSessionState;
       yield* Effect.sleep("1 second");
-      const loginReady = yield* waitFor(isLoginFormReady(), {
+      const loginReady = yield* wait.until(isLoginFormReady(), {
         timeout: LOGIN_READY_TIMEOUT,
         schedule: Schedule.spaced("100 millis"),
       });

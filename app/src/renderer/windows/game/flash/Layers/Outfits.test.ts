@@ -2,7 +2,7 @@ import { Effect, Layer } from "effect";
 import { expect, test } from "vitest";
 import { Bridge, type BridgeShape } from "../Services/Bridge";
 import { Outfits } from "../Services/Outfits";
-import { World, type WorldShape } from "../Services/World";
+import { Wait, type WaitShape } from "../Services/Wait";
 import { OutfitsLive } from "./Outfits";
 
 type BridgeCall = {
@@ -10,19 +10,19 @@ type BridgeCall = {
   readonly args: readonly unknown[] | undefined;
 };
 
-const makeWorld = (
-  waitForGameAction: WorldShape["map"]["waitForGameAction"] = () =>
-    Effect.succeed(true),
-): WorldShape =>
+const makeWait = (
+  forGameAction: WaitShape["forGameAction"] = () => Effect.succeed(true),
+): WaitShape =>
   ({
-    map: {
-      waitForGameAction,
-    },
-  }) as unknown as WorldShape;
+    until: (condition) => condition,
+    untilSome: (condition) => condition,
+    isGameActionAvailable: () => Effect.succeed(true),
+    forGameAction,
+  }) as WaitShape;
 
 const withOutfits = <A>(
   bridge: BridgeShape,
-  world: WorldShape,
+  wait: WaitShape,
   effect: Effect.Effect<A, unknown, Outfits>,
 ): Promise<A> =>
   Effect.runPromise(
@@ -32,7 +32,7 @@ const withOutfits = <A>(
           Layer.provide(
             Layer.mergeAll(
               Layer.succeed(Bridge)(bridge),
-              Layer.succeed(World)(world),
+              Layer.succeed(Wait)(wait),
             ),
           ),
         ),
@@ -68,7 +68,7 @@ test("getAll normalizes raw outfit records", async () => {
 
   const result = await withOutfits(
     bridge,
-    makeWorld(),
+    makeWait(),
     Effect.gen(function* () {
       const outfits = yield* Outfits;
       return yield* outfits.getAll();
@@ -102,7 +102,7 @@ test("equip waits for the native loadout action and forwards keepColors", async 
     },
   } as BridgeShape;
 
-  const world = makeWorld((gameAction) =>
+  const wait = makeWait((gameAction) =>
     Effect.sync(() => {
       actions.push(gameAction);
       return true;
@@ -111,7 +111,7 @@ test("equip waits for the native loadout action and forwards keepColors", async 
 
   const result = await withOutfits(
     bridge,
-    world,
+    wait,
     Effect.gen(function* () {
       const outfits = yield* Outfits;
       return yield* outfits.equip("Farm", { keepColors: true });
@@ -146,7 +146,7 @@ test("equip returns false when the native loadout action stays locked", async ()
 
   const result = await withOutfits(
     bridge,
-    makeWorld(() => Effect.succeed(false)),
+    makeWait(() => Effect.succeed(false)),
     Effect.gen(function* () {
       const outfits = yield* Outfits;
       return yield* outfits.equip("Farm");
@@ -174,7 +174,7 @@ test("wear waits for the native cosmetic loadout action", async () => {
     },
   } as BridgeShape;
 
-  const world = makeWorld((gameAction) =>
+  const wait = makeWait((gameAction) =>
     Effect.sync(() => {
       actions.push(gameAction);
       return true;
@@ -183,7 +183,7 @@ test("wear waits for the native cosmetic loadout action", async () => {
 
   const result = await withOutfits(
     bridge,
-    world,
+    wait,
     Effect.gen(function* () {
       const outfits = yield* Outfits;
       return yield* outfits.wear("Cosmetic");

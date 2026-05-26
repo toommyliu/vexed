@@ -14,6 +14,7 @@ import {
   type PacketDomainShape,
 } from "../../flash/Services/PacketDomain";
 import { Player, type PlayerShape } from "../../flash/Services/Player";
+import { Wait, type WaitShape } from "../../flash/Services/Wait";
 import { World, type WorldShape } from "../../flash/Services/World";
 import { Jobs, type JobsShape } from "../../jobs/Services/Jobs";
 import { Follower, type FollowerShape } from "../Services/Follower";
@@ -45,6 +46,13 @@ const library: CombatProfileLibrary = {
     mode: "equipped-class",
   },
 };
+
+const wait = {
+  until: (condition) => condition,
+  untilSome: (condition) => condition,
+  isGameActionAvailable: () => Effect.succeed(true),
+  forGameAction: () => Effect.succeed(true),
+} as WaitShape;
 
 const withFollower = async <A>(
   body: (
@@ -120,6 +128,7 @@ const withFollower = async <A>(
                 ? []
                 : [Layer.succeed(PacketDomain)(packetDomain)]),
               Layer.succeed(Player)(player),
+              Layer.succeed(Wait)(wait),
               Layer.succeed(World)(world),
             ),
           ),
