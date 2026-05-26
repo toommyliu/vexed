@@ -1,9 +1,10 @@
+const { features, script, api } = require("vexed");
+
 const TARGET = "Boss Dummy";
 const TAUNT_SKILL = 5;
 const TAUNT_PLAYERS = [1, 2];
 
-/** @param {ScriptContext} context */
-module.exports = function* run({ api }) {
+module.exports = function* run() {
   yield* api.settings.setFrameRate(10);
   yield* api.settings.setLagKillerEnabled(true);
   yield* api.settings.setOtherPlayersVisible(false);

@@ -1,3 +1,5 @@
+const { features, script, api } = require("vexed")
+
 const BOSS = 'The First Speaker'
 
 function getSkillPlan(className) {
@@ -15,7 +17,7 @@ function getSkillPlan(className) {
   }
 }
 
-function* healIfNeeded(api, healSkill, healAt) {
+function* healIfNeeded(healSkill, healAt) {
   if (!healSkill || !healAt) return false
 
   const playerNumber = yield* api.army.getPlayerNumber()
@@ -32,7 +34,7 @@ function* healIfNeeded(api, healSkill, healAt) {
   return false
 }
 
-function* keepEnterWalkPosition(api) {
+function* keepEnterWalkPosition() {
   const mapName = yield* api.world.map.getName()
   if (mapName !== 'ultraspeaker') return
 
@@ -42,7 +44,7 @@ function* keepEnterWalkPosition(api) {
   yield* api.player.walkTo(28, 235)
 }
 
-module.exports = function* run({ api, script }) {
+module.exports = function* run() {
   yield* api.recipes.goToHouse()
   yield* api.settings.setFrameRate(10)
   yield* api.settings.setLagKillerEnabled(true)
@@ -64,7 +66,7 @@ module.exports = function* run({ api, script }) {
   let index = 0
 
   while (!(yield* api.inventory.contains('The First Speaker Silenced', 1))) {
-    yield* keepEnterWalkPosition(api)
+    yield* keepEnterWalkPosition()
 
     if (!(yield* api.player.isAlive())) {
       yield* script.sleep(1000)
@@ -75,7 +77,7 @@ module.exports = function* run({ api, script }) {
       yield* api.combat.attackMonster(BOSS)
     }
 
-    if (yield* healIfNeeded(api, healSkill, healAt)) {
+    if (yield* healIfNeeded(healSkill, healAt)) {
       yield* script.sleep(100)
       continue
     }

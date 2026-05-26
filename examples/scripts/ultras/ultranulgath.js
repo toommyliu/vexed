@@ -1,3 +1,5 @@
+const { features, script, api } = require("vexed")
+
 const BOSS = 'Nulgath the Archfiend'
 const BLADE = 'Overfiend Blade'
 
@@ -15,7 +17,7 @@ function getSkillPlan(className) {
   }
 }
 
-function* healIfNeeded(api, healSkill) {
+function* healIfNeeded(healSkill) {
   if (!healSkill) return false
 
   const playerNumber = yield* api.army.getPlayerNumber()
@@ -32,7 +34,7 @@ function* healIfNeeded(api, healSkill) {
   return false
 }
 
-function* killUntilDefeated(api, script, options) {
+function* killUntilDefeated(options) {
   const className = yield* api.player.getClassName()
   const { rotation, healSkill } = getSkillPlan(className)
   let index = 0
@@ -44,7 +46,7 @@ function* killUntilDefeated(api, script, options) {
       continue
     }
 
-    if (yield* healIfNeeded(api, healSkill)) {
+    if (yield* healIfNeeded(healSkill)) {
       yield* script.sleep(100)
       continue
     }
@@ -73,7 +75,7 @@ function* killUntilDefeated(api, script, options) {
   }
 }
 
-module.exports = function* run({ api, script }) {
+module.exports = function* run() {
   yield* api.recipes.goToHouse()
   yield* api.settings.setFrameRate(10)
   yield* api.settings.setLagKillerEnabled(true)
@@ -90,12 +92,12 @@ module.exports = function* run({ api, script }) {
 
   const playerNumber = yield* api.army.getPlayerNumber()
   if (playerNumber === 1 || playerNumber === 4) {
-    yield* killUntilDefeated(api, script, {
+    yield* killUntilDefeated({
       tauntBoss: true,
       tauntCadence: playerNumber === 1 ? 1 : 2,
     })
   } else {
-    yield* killUntilDefeated(api, script, { killPriority: [BLADE] })
+    yield* killUntilDefeated({ killPriority: [BLADE] })
   }
 
   yield* api.player.jumpToCell('Enter')

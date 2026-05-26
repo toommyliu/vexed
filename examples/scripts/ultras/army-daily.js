@@ -1,3 +1,5 @@
+const { features, script, api } = require("vexed")
+
 function getSkillPlan(className) {
   switch (className) {
     case 'LEGION REVENANT':
@@ -12,7 +14,7 @@ function getSkillPlan(className) {
   }
 }
 
-function* healIfNeeded(api, healSkill) {
+function* healIfNeeded(healSkill) {
   if (!healSkill) return false
 
   const players = yield* api.world.players.getAll()
@@ -26,7 +28,7 @@ function* healIfNeeded(api, healSkill) {
   return false
 }
 
-function* killForTempItem(api, script, target, item, options = {}) {
+function* killForTempItem(target, item, options = {}) {
   const className = yield* api.player.getClassName()
   const { rotation, healSkill } = getSkillPlan(className)
   let index = 0
@@ -37,7 +39,7 @@ function* killForTempItem(api, script, target, item, options = {}) {
       continue
     }
 
-    if (yield* healIfNeeded(api, healSkill)) {
+    if (yield* healIfNeeded(healSkill)) {
       yield* script.sleep(100)
       continue
     }
@@ -65,13 +67,13 @@ function* killForTempItem(api, script, target, item, options = {}) {
   }
 }
 
-function* runUltra(api, script, map, setName, target, item, options = {}) {
+function* runUltra(map, setName, target, item, options = {}) {
   yield* api.army.joinMap(map)
   yield* api.army.equipSet(setName, { resolveItems: true })
   yield* api.recipes.buff()
   yield* api.combat.hunt(target)
   yield* api.world.map.setSpawnPoint()
-  yield* killForTempItem(api, script, target, item, options)
+  yield* killForTempItem(target, item, options)
   yield* api.player.jumpToCell('Enter', options.enterPad)
 }
 
@@ -81,7 +83,7 @@ function tyndariusPriority(playerNumber) {
   return ['id.1', 'id.3']
 }
 
-module.exports = function* run({ api, script }) {
+module.exports = function* run() {
   yield* api.recipes.goToHouse()
   yield* api.settings.setFrameRate(10)
   yield* api.settings.setLagKillerEnabled(true)
@@ -89,8 +91,6 @@ module.exports = function* run({ api, script }) {
   yield* api.army.start('config')
 
   yield* runUltra(
-    api,
-    script,
     'ultraezrajal',
     'UltraEzrajal',
     'Ultra Ezrajal',
@@ -98,16 +98,12 @@ module.exports = function* run({ api, script }) {
     { enterPad: 'Spawn' },
   )
   yield* runUltra(
-    api,
-    script,
     'ultrawarden',
     'UltraWarden',
     'Ultra Warden',
     'Ultra Warden Defeated',
   )
   yield* runUltra(
-    api,
-    script,
     'ultraengineer',
     'UltraEngineer',
     'id.3',
@@ -122,7 +118,7 @@ module.exports = function* run({ api, script }) {
   yield* api.world.map.setSpawnPoint()
 
   const playerNumber = yield* api.army.getPlayerNumber()
-  yield* killForTempItem(api, script, 'id.2', 'Ultra Avatar Tyndarius Defeated', {
+  yield* killForTempItem('id.2', 'Ultra Avatar Tyndarius Defeated', {
     killPriority: tyndariusPriority(playerNumber),
     archpaladinOnlyTyndariusTaunt: true,
   })

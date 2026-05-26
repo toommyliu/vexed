@@ -45,6 +45,7 @@ import type {
   ScriptAntiCounterEvent,
   ScriptAntiCounterListener,
   ScriptAntiCounterShape,
+  ScriptFeaturesApi,
   ScriptMain,
   ScriptPacketListener,
   ScriptRuntimeApi,
@@ -60,6 +61,7 @@ import {
 } from "../scriptAsyncScope";
 import { makeScriptRecipes } from "../recipes";
 import { loadScriptModule } from "../scriptLoader";
+import type { ScriptRuntimeStdBinding } from "../ScriptRuntimeStd";
 import {
   parseMapTarget,
   randomPrivateRoomNumber,
@@ -305,6 +307,7 @@ const make = Effect.gen(function* () {
   const executeScript = (
     sourceName: string,
     main: ScriptMain,
+    runtime: ScriptRuntimeStdBinding,
     scriptScope: ScriptAsyncScope,
   ) => {
     const wrapScriptEffect = <A, E>(
@@ -1260,25 +1263,27 @@ const make = Effect.gen(function* () {
       world: wrapValue(scriptWorld) as ScriptApi["world"],
     };
 
+    const features: ScriptFeaturesApi = {
+      autoRelogin: wrapValue(
+        scriptAutoRelogin,
+      ) as ScriptFeaturesApi["autoRelogin"],
+      autoZone: wrapValue(scriptAutoZone) as ScriptFeaturesApi["autoZone"],
+      antiCounter: wrapValue(
+        scriptAntiCounter,
+      ) as ScriptFeaturesApi["antiCounter"],
+    };
+
     const context: ScriptContext = {
       api,
       script,
-      features: {
-        autoRelogin: wrapValue(
-          scriptAutoRelogin,
-        ) as ScriptContext["features"]["autoRelogin"],
-        autoZone: wrapValue(
-          scriptAutoZone,
-        ) as ScriptContext["features"]["autoZone"],
-        antiCounter: wrapValue(
-          scriptAntiCounter,
-        ) as ScriptContext["features"]["antiCounter"],
-      },
+      features,
     };
 
     return Effect.gen(function* () {
+      runtime.setContext(context);
+
       const generator = yield* Effect.try({
-        try: () => main(context),
+        try: () => main(),
         catch: (cause) =>
           new ScriptExecutionError({
             sourceName,
@@ -1310,7 +1315,15 @@ const make = Effect.gen(function* () {
               ),
             ),
       ),
-      Effect.ensuring(scriptScope.close("script finished")),
+      Effect.ensuring(
+        scriptScope.close("script finished").pipe(
+          Effect.ensuring(
+            Effect.sync(() => {
+              runtime.clearContext();
+            }),
+          ),
+        ),
+      ),
     );
   };
 
@@ -1360,7 +1373,7 @@ const make = Effect.gen(function* () {
           ? options.name
           : "inline-script";
 
-        const main = yield* loadScriptModule(source, sourceName).pipe(
+        const loaded = yield* loadScriptModule(source, sourceName).pipe(
           Effect.tapError((error) =>
             Effect.gen(function* () {
               yield* Ref.set(diagnosticsRef, []);
@@ -1384,9 +1397,12 @@ const make = Effect.gen(function* () {
             );
             const scriptScope = makeScriptAsyncScope(runFork);
             const fiber = yield* Effect.forkDetach(
-              executeScript(sourceName, main, scriptScope).pipe(
-                Effect.ensuring(clearActiveScript(token)),
-              ),
+              executeScript(
+                sourceName,
+                loaded.main,
+                loaded.runtime,
+                scriptScope,
+              ).pipe(Effect.ensuring(clearActiveScript(token))),
             );
 
             yield* Ref.set(

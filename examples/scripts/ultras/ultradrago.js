@@ -1,3 +1,5 @@
+const { features, script, api } = require("vexed")
+
 const BOSS = 'King Drago'
 const LEFT_ADD = 'Executioner Dene'
 const RIGHT_ADD = 'Bowmaster Algie'
@@ -17,7 +19,7 @@ function getSkillPlan(className) {
   }
 }
 
-function* keepTauntOn(api, targetName, cadence, skillState) {
+function* keepTauntOn(targetName, cadence, skillState) {
   if (skillState.loops % cadence === 0) {
     yield* api.combat.attackMonster(targetName)
     yield* api.combat.useSkill(5, true, true)
@@ -25,7 +27,7 @@ function* keepTauntOn(api, targetName, cadence, skillState) {
   }
 }
 
-function* killDragoSide(api, script, addName, cadence, killPriority) {
+function* killDragoSide(addName, cadence, killPriority) {
   yield* api.combat.hunt(BOSS)
   yield* api.world.map.setSpawnPoint()
 
@@ -39,7 +41,7 @@ function* killDragoSide(api, script, addName, cadence, killPriority) {
       continue
     }
 
-    yield* keepTauntOn(api, addName, cadence, state)
+    yield* keepTauntOn(addName, cadence, state)
     yield* api.combat.kill(BOSS, {
       killPriority,
       skillSet: [rotation[state.index]],
@@ -51,7 +53,7 @@ function* killDragoSide(api, script, addName, cadence, killPriority) {
   }
 }
 
-module.exports = function* run({ api, script }) {
+module.exports = function* run() {
   yield* api.recipes.goToHouse()
   yield* api.settings.setFrameRate(10)
   yield* api.settings.setLagKillerEnabled(true)
@@ -66,9 +68,9 @@ module.exports = function* run({ api, script }) {
 
   const playerNumber = yield* api.army.getPlayerNumber()
   if (playerNumber === 1 || playerNumber === 3) {
-    yield* killDragoSide(api, script, LEFT_ADD, playerNumber, [LEFT_ADD, RIGHT_ADD])
+    yield* killDragoSide(LEFT_ADD, playerNumber, [LEFT_ADD, RIGHT_ADD])
   } else {
-    yield* killDragoSide(api, script, RIGHT_ADD, playerNumber === 2 ? 1 : 2, [
+    yield* killDragoSide(RIGHT_ADD, playerNumber === 2 ? 1 : 2, [
       RIGHT_ADD,
       LEFT_ADD,
     ])

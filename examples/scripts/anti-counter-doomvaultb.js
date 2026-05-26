@@ -1,10 +1,7 @@
-const MAP = "doomvaultb-1e99";
-const CELL = "r26";
-const TARGET = "Undead Raxgore";
+const { features, script, api } = require("vexed");
+const { antiCounter } = features;
 
-/** @param {ScriptContext} context */
-module.exports = function* run({ api, features, script }) {
-  const { antiCounter } = features;
+module.exports = function* run() {
   const wasEnabled = yield* antiCounter.isEnabled();
   const disposeStart = yield* antiCounter.onStart((event) => {
     script.log(
@@ -20,11 +17,11 @@ module.exports = function* run({ api, features, script }) {
   try {
     yield* antiCounter.enable();
     yield* api.settings.setInfiniteRange(true);
-    yield* api.player.joinMap(MAP, CELL);
+    yield* api.player.joinMap("doomvaultb-1e99", "r26");
     yield* script.sleep(1000);
 
     while (true) {
-      yield* api.combat.kill(TARGET, {
+      yield* api.combat.kill("Undead Raxgore", {
         skillSet: [1, 2, 3, 4],
         skillDelay: 250,
       });
