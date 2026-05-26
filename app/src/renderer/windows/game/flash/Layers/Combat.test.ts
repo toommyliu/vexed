@@ -975,3 +975,119 @@ test("kill restores the starting combat cell and pad after respawn", async () =>
     calls.filter((call) => call === "combat.attackMonsterById:7"),
   ).toHaveLength(2);
 });
+
+test("kill switches to a respawned priority target before waiting on skill readiness", async () => {
+  const calls: string[] = [];
+  const avatar = new Avatar(avatarData());
+  const boss = new Monster(
+    monsterData({
+      monMapId: 7,
+      strMonName: "Nulgath the Archfiend",
+    }),
+  );
+  const blade = new Monster(
+    monsterData({
+      intHP: 0,
+      intState: EntityState.Dead,
+      monMapId: 8,
+      strMonName: "Overfiend Blade",
+    }),
+  );
+
+  const world = makeKillWorld(avatar, boss);
+  const twoMonsterWorld = {
+    ...world,
+    monsters: {
+      ...world.monsters,
+      getAll: () =>
+        Effect.succeed(
+          new Collection([
+            [boss.monMapId, boss],
+            [blade.monMapId, blade],
+          ]),
+        ),
+      get: (monMapId: number) =>
+        Effect.succeed(
+          monMapId === boss.monMapId
+            ? Option.some(boss)
+            : monMapId === blade.monMapId
+              ? Option.some(blade)
+              : Option.none(),
+        ),
+    },
+  } satisfies WorldShape;
+
+  const bridge: BridgeShape = {
+    call<K extends keyof Window["swf"]>(
+      path: K,
+      args?: Parameters<Window["swf"][K]>,
+    ) {
+      if (path === "combat.attackMonsterById") {
+        const monMapId = Number(args?.[0]);
+        calls.push(`combat.attackMonsterById:${monMapId}`);
+
+        if (monMapId === boss.monMapId) {
+          blade.data.intHP = blade.data.intHPMax;
+          blade.data.intState = EntityState.Idle;
+        } else if (monMapId === blade.monMapId) {
+          boss.data.intHP = 0;
+          boss.data.intState = EntityState.Dead;
+        }
+
+        return Effect.void as Effect.Effect<ReturnType<Window["swf"][K]>>;
+      }
+
+      if (path === "combat.getTarget") {
+        calls.push("combat.getTarget");
+        return Effect.succeed(null) as Effect.Effect<
+          ReturnType<Window["swf"][K]>
+        >;
+      }
+
+      if (path === "combat.getSkillCooldownRemaining") {
+        calls.push("combat.getSkillCooldownRemaining");
+        return Effect.succeed(0) as Effect.Effect<ReturnType<Window["swf"][K]>>;
+      }
+
+      if (path === "combat.useSkill") {
+        calls.push(`combat.useSkill:${String(args?.[0])}`);
+        return Effect.void as Effect.Effect<ReturnType<Window["swf"][K]>>;
+      }
+
+      if (
+        path === "combat.cancelAutoAttack" ||
+        path === "combat.cancelTarget"
+      ) {
+        calls.push(path);
+        return Effect.void as Effect.Effect<ReturnType<Window["swf"][K]>>;
+      }
+
+      throw new Error(`unexpected bridge call: ${String(path)}`);
+    },
+    callGameFunction() {
+      return Effect.void;
+    },
+    onConnection() {
+      return Effect.succeed(() => undefined);
+    },
+  };
+
+  await withCombat(
+    bridge,
+    (combat) =>
+      combat.kill("Nulgath the Archfiend", {
+        killPriority: ["Overfiend Blade"],
+        skillDelay: 0,
+        skillSet: [1],
+        skillWait: true,
+      }),
+    { world: twoMonsterWorld },
+  );
+
+  expect(calls.indexOf("combat.attackMonsterById:7")).toBeLessThan(
+    calls.indexOf("combat.attackMonsterById:8"),
+  );
+  expect(calls.indexOf("combat.useSkill:1")).toBeGreaterThan(
+    calls.indexOf("combat.attackMonsterById:8"),
+  );
+});
