@@ -35,6 +35,7 @@ interface ScriptEffectStd {
 }
 
 declare function require(moduleName: "effect"): ScriptEffectStd;
+declare function require(moduleName: "vexed"): ScriptVexedStd;
 
 type DurationInput = number | string | bigint | DurationLike;
 
@@ -82,11 +83,18 @@ type MonsterMapID = number;
 type MonsterIdentifierToken = MonsterName | MonsterMapID;
 type Skill = number | string;
 
-type ScriptMain = (
-  context: ScriptContext,
-) => Generator<EffectYieldable<unknown, unknown>, unknown, any>;
+type ScriptMain = () => Generator<
+  EffectYieldable<unknown, unknown>,
+  unknown,
+  any
+>;
 
 interface ScriptContext {
+  readonly api: ScriptApi;
+  readonly script: ScriptRuntimeApi;
+  readonly features: ScriptFeaturesApi;
+}
+interface ScriptVexedStd {
   readonly api: ScriptApi;
   readonly script: ScriptRuntimeApi;
   readonly features: ScriptFeaturesApi;

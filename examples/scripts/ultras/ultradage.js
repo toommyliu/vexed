@@ -1,3 +1,7 @@
+const { features, script, api } = require("vexed")
+const { Option } = require("effect")
+const { autoZone } = features
+
 const BOSS = 'Dage the Dark Lord'
 
 function getSkillPlan(className) {
@@ -13,11 +17,7 @@ function getSkillPlan(className) {
   }
 }
 
-function isSome(option) {
-  return option && option._tag === 'Some'
-}
-
-function* useSkill(api, playerNumber, skill) {
+function* useSkill(playerNumber, skill) {
   const target = yield* api.combat.getTarget()
   if (
     (playerNumber === 1 || playerNumber === 3) &&
@@ -26,7 +26,7 @@ function* useSkill(api, playerNumber, skill) {
     skill === 5
   ) {
     const focus = yield* api.world.monsters.getAura(target.monMapId, 'Focus')
-    if (!isSome(focus)) {
+    if (Option.isNone(focus)) {
       yield* api.combat.useSkill(5, true, false)
       return
     }
@@ -35,7 +35,7 @@ function* useSkill(api, playerNumber, skill) {
   yield* api.combat.useSkill(skill)
 }
 
-module.exports = function* run({ api, autoZone, script }) {
+module.exports = function* run() {
   yield* api.recipes.goToHouse()
   yield* api.settings.setFrameRate(10)
   yield* api.settings.setLagKillerEnabled(true)
@@ -66,7 +66,7 @@ module.exports = function* run({ api, autoZone, script }) {
       yield* api.combat.attackMonster(BOSS)
     }
 
-    yield* useSkill(api, playerNumber, rotation[index])
+    yield* useSkill(playerNumber, rotation[index])
     index = (index + 1) % rotation.length
     yield* script.sleep(100)
   }

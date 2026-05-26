@@ -1,6 +1,10 @@
 import { Effect } from "effect";
 import { ScriptLoadError } from "./Errors";
 import { scriptEffectStd } from "./ScriptEffectStd";
+import {
+  makeScriptRuntimeStd,
+  type ScriptRuntimeStdBinding,
+} from "./ScriptRuntimeStd";
 import type { ScriptMain } from "./ScriptApi";
 
 interface CommonJsModule {
@@ -8,6 +12,11 @@ interface CommonJsModule {
 }
 
 type ScriptRequire = (specifier: string) => unknown;
+
+export interface LoadedScriptModule {
+  readonly main: ScriptMain;
+  readonly runtime: ScriptRuntimeStdBinding;
+}
 
 const isGeneratorFunction = (value: unknown): value is ScriptMain =>
   typeof value === "function" &&
@@ -17,10 +26,14 @@ const sanitizeSourceUrl = (sourceName: string): string =>
   `__script__/${sourceName.replace(/[^a-zA-Z0-9._/-]/g, "_")}`;
 
 const createScriptRequire =
-  (sourceName: string): ScriptRequire =>
+  (sourceName: string, runtime: ScriptRuntimeStdBinding): ScriptRequire =>
   (specifier) => {
     if (specifier === "effect") {
       return scriptEffectStd;
+    }
+
+    if (specifier === "vexed") {
+      return runtime.module;
     }
 
     throw new ScriptLoadError({
@@ -33,10 +46,11 @@ const createScriptRequire =
 export const loadScriptModule = (
   source: string,
   sourceName: string,
-): Effect.Effect<ScriptMain, ScriptLoadError> =>
+): Effect.Effect<LoadedScriptModule, ScriptLoadError> =>
   Effect.gen(function* () {
     const module: CommonJsModule = { exports: {} };
-    const scriptRequire = createScriptRequire(sourceName);
+    const runtime = makeScriptRuntimeStd(sourceName);
+    const scriptRequire = createScriptRequire(sourceName, runtime);
 
     yield* Effect.try({
       try: () => {
@@ -64,10 +78,13 @@ export const loadScriptModule = (
       return yield* new ScriptLoadError({
         sourceName,
         message:
-          "Script must assign a generator function to module.exports, for example: module.exports = function* run({ api, script, features }) { ... }",
+          'Script must assign a generator function to module.exports, for example: const { features, script, api } = require("vexed"); module.exports = function* run() { script.log("ready") }',
         cause: module.exports,
       });
     }
 
-    return module.exports;
+    return {
+      main: module.exports,
+      runtime,
+    };
   });

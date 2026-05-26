@@ -407,6 +407,14 @@ export interface ScriptApi {
   readonly world: EffectValue<ScriptWorldShape>;
 }
 
-export type ScriptMain = (
-  context: ScriptContext,
-) => Generator<Effect.Yieldable<any, any, never, never>, unknown, never>;
+export interface ScriptVexedStd {
+  readonly api: ScriptApi;
+  readonly script: ScriptRuntimeApi;
+  readonly features: ScriptFeaturesApi;
+}
+
+export type ScriptMain = () => Generator<
+  Effect.Yieldable<any, any, never, never>,
+  unknown,
+  never
+>;

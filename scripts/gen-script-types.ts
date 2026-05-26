@@ -131,6 +131,7 @@ interface ScriptEffectStd {
 }
 
 declare function require(moduleName: "effect"): ScriptEffectStd;
+declare function require(moduleName: "vexed"): ScriptVexedStd;
 
 type DurationInput = number | string | bigint | DurationLike;
 
@@ -560,7 +561,7 @@ const renderInterfaceFromDeclaration = (
     const shapeName = parseEffectValueShape(member.type);
     if (shapeName !== null) {
       const childOutputName =
-        outputName === "ScriptApi"
+        outputName === "ScriptApi" || outputName === "ScriptVexedStd"
           ? interfaceNameForProperty(name)
           : nestedInterfaceName(outputName, name);
       renderApiInterface(state, shapeName, childOutputName);
@@ -588,7 +589,7 @@ const renderInterfaceFromDeclaration = (
         : getDeclaration(state.declarations, reference.unqualifiedName);
     if (childDeclaration && ts.isInterfaceDeclaration(childDeclaration)) {
       const childOutputName =
-        outputName === "ScriptContext"
+        outputName === "ScriptContext" || outputName === "ScriptVexedStd"
           ? childDeclaration.name.text
           : nestedInterfaceName(outputName, name);
       renderApiInterface(state, childDeclaration.name.text, childOutputName);
@@ -864,6 +865,7 @@ const renderScriptTypes = (
   };
 
   renderApiInterface(state, "ScriptContext", "ScriptContext");
+  renderApiInterface(state, "ScriptVexedStd", "ScriptVexedStd");
 
   const interfaceNames = new Set(state.rendered.keys());
   const referencedDeclarations = renderReferencedDeclarations(
@@ -874,6 +876,8 @@ const renderScriptTypes = (
     .sort((left, right) => {
       if (left.name === "ScriptContext") return -1;
       if (right.name === "ScriptContext") return 1;
+      if (left.name === "ScriptVexedStd") return -1;
+      if (right.name === "ScriptVexedStd") return 1;
       if (left.name === "ScriptApi") return -1;
       if (right.name === "ScriptApi") return 1;
       if (left.name === "ScriptRuntimeApi") return -1;
@@ -889,9 +893,7 @@ const renderScriptTypes = (
     "",
     SUPPORT_DECLARATIONS.trimEnd(),
     "",
-    "type ScriptMain = (",
-    "  context: ScriptContext,",
-    ") => Generator<EffectYieldable<unknown, unknown>, unknown, any>;",
+    "type ScriptMain = () => Generator<EffectYieldable<unknown, unknown>, unknown, any>;",
     "",
     ...interfaces,
     "",

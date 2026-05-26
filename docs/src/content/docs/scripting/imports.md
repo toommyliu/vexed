@@ -12,14 +12,41 @@ tableOfContents:
 
 Scripts can import a small set of supported modules. For now, other imports are not available.
 
+### `require("vexed")`
+
+`require("vexed")` returns the active script API facade.
+
+```js
+const { features, script, api } = require("vexed")
+
+module.exports = function* run() {
+  yield* api.player.joinMap("battleon")
+  yield* api.wait.forMapLoaded("battleon", { timeout: "10 seconds" })
+  script.log("ready")
+}
+```
+
+Feature controls remain grouped under `features`.
+
+```js
+const { features, script, api } = require("vexed")
+const { autoZone } = features
+
+module.exports = function* run() {
+  yield* autoZone.setMap("ultradage")
+  yield* autoZone.enable()
+}
+```
+
 ### `require("effect")`
 
 `require("effect")` returns the exposed Effect modules available for use.
 
 ```js
+const { features, script, api } = require("vexed")
 const { Effect, Option, pipe } = require("effect")
 
-module.exports = function* run({ api, script }) {
+module.exports = function* run() {
   const me = yield* api.world.players.me.get()
   if (Option.isSome(me)) {
     script.log(me.value.username)

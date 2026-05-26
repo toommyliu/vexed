@@ -1,3 +1,5 @@
+const { features, script, api } = require("vexed")
+
 const BOSS = 'Champion Drakath'
 
 const BOUNDARIES = [
@@ -27,7 +29,7 @@ function getSkillPlan(className) {
   }
 }
 
-function* healIfNeeded(api, healSkill) {
+function* healIfNeeded(healSkill) {
   if (!healSkill) return false
 
   const playerNumber = yield* api.army.getPlayerNumber()
@@ -44,7 +46,7 @@ function* healIfNeeded(api, healSkill) {
   return false
 }
 
-function* tauntBoundaryIfNeeded(api, script, nextBoundaryIndex) {
+function* tauntBoundaryIfNeeded(nextBoundaryIndex) {
   const playerNumber = yield* api.army.getPlayerNumber()
   if (playerNumber !== 1) return nextBoundaryIndex
 
@@ -62,8 +64,7 @@ function* tauntBoundaryIfNeeded(api, script, nextBoundaryIndex) {
   return nextBoundaryIndex + 1
 }
 
-/** @param {ScriptContext} context */
-module.exports = function* run({ api, script }) {
+module.exports = function* run() {
   yield* api.settings.setFrameRate(10)
   yield* api.settings.setLagKillerEnabled(true)
   yield* api.settings.setOtherPlayersVisible(false)
@@ -100,9 +101,9 @@ module.exports = function* run({ api, script }) {
       yield* api.combat.attackMonster(BOSS)
     }
 
-    nextBoundaryIndex = yield* tauntBoundaryIfNeeded(api, script, nextBoundaryIndex)
+    nextBoundaryIndex = yield* tauntBoundaryIfNeeded(nextBoundaryIndex)
 
-    if (yield* healIfNeeded(api, healSkill)) {
+    if (yield* healIfNeeded(healSkill)) {
       yield* script.sleep(100)
       continue
     }
