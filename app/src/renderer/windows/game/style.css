@@ -61,15 +61,32 @@
 }
 
 .game-debug-eval__mode {
-    min-width: 8.75rem;
-}
-
-.game-debug-eval__mode-trigger.select__trigger {
+    appearance: auto;
+    background-color: rgb(var(--background));
     border-color: var(--color-border);
     border-radius: var(--radius-sm);
+    border-style: solid;
+    border-width: 1px;
     box-shadow: none;
+    color: rgb(var(--foreground));
+    font-family: var(--font-sans);
     font-size: var(--text-sm);
-    min-width: 0;
+    min-height: var(--control-height-sm);
+    min-width: 8.75rem;
+    padding: 0 0.5rem;
+}
+
+.game-debug-eval__mode:focus-visible {
+    border-color: rgb(var(--ring));
+    box-shadow:
+        0 0 0 1px rgb(var(--background)),
+        0 0 0 3px rgba(var(--ring), 0.42);
+    outline: none;
+}
+
+.game-debug-eval__mode:disabled {
+    opacity: 0.64;
+    pointer-events: none;
 }
 
 .game-debug-eval__close.button {
