@@ -139,9 +139,6 @@ const make = Effect.gen(function* () {
   const isMember: PlayerShape["isMember"] = () =>
     bridge.call("player.isMember");
 
-  const reloadAvatar: PlayerShape["reloadAvatar"] = () =>
-    bridge.call("player.reloadAvatar");
-
   const jumpToCell: PlayerShape["jumpToCell"] = (cell, pad, correction) =>
     Effect.gen(function* () {
       if (pad === undefined) {
@@ -419,7 +416,6 @@ const make = Effect.gen(function* () {
     isAfk,
     isReady,
     isMember,
-    reloadAvatar,
     jumpToCell,
     joinMap,
     goToPlayer,

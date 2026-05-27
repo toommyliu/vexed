@@ -378,7 +378,6 @@ interface PlayerApi {
   isAfk(): Effect<boolean, BridgeError>;
   isReady(): Effect<boolean, BridgeError>;
   isMember(): Effect<boolean, BridgeError>;
-  reloadAvatar(): Effect<boolean, BridgeError>;
   jumpToCell(
     cell: string,
     pad?: string,

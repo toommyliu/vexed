@@ -1,6 +1,6 @@
 import { Server, type ServerData } from "@vexed/game";
 import { Effect, Exit, Fiber, Layer } from "effect";
-import { expect, test } from "vitest";
+import { expect, test, vi } from "vitest";
 import { SwfCallError } from "../../flash/Errors";
 import {
   Auth,
@@ -59,12 +59,12 @@ type HarnessOptions = {
   readonly iUpgDays?: number;
   readonly invalidCredentials?: boolean;
   readonly loginStalls?: boolean;
+  readonly logoutFails?: boolean;
   readonly password?: string;
   readonly playerReadyAfterConnectDelayMs?: number;
-  readonly playerReadyAfterReload?: boolean;
+  readonly playerReadyOnConnectOutcomes?: readonly boolean[];
   readonly playerReadyFailures?: number;
   readonly playerReadyOnConnect?: boolean;
-  readonly playerReloadSucceeds?: boolean;
   readonly serverInfo?: string;
   readonly serverSelectStalls?: boolean;
   readonly servers?: readonly ServerData[];
@@ -79,7 +79,6 @@ type Harness = {
   };
   readonly emitConnection: (status: ConnectionStatus) => void;
   readonly manualLogin: (server?: ServerData) => void;
-  readonly playerReloads: readonly string[];
   readonly settingsPatches: readonly unknown[];
 };
 
@@ -91,7 +90,6 @@ const withAutoRelogin = async <A>(
   ) => Effect.Effect<A, unknown>,
 ): Promise<A> => {
   const authCalls: string[] = [];
-  const playerReloads: string[] = [];
   const settingsPatches: unknown[] = [];
   const connectionHandlers = new Set<(status: ConnectionStatus) => void>();
   const jobsState: {
@@ -110,6 +108,9 @@ const withAutoRelogin = async <A>(
   const password = options.password ?? "secret-password";
   const servers = options.servers ?? [twigServer];
   let remainingPlayerReadyFailures = options.playerReadyFailures ?? 0;
+  const playerReadyOnConnectOutcomes = [
+    ...(options.playerReadyOnConnectOutcomes ?? []),
+  ];
 
   const bridge = {
     call<K extends keyof Window["swf"]>(
@@ -204,7 +205,10 @@ const withAutoRelogin = async <A>(
             `${options.playerReadyAfterConnectDelayMs} millis`,
           );
         }
-        if (options.playerReadyOnConnect !== false) {
+        const readyOnConnect =
+          playerReadyOnConnectOutcomes.shift() ??
+          options.playerReadyOnConnect !== false;
+        if (readyOnConnect) {
           playerReady = true;
         }
         return connectedOutcome(server);
@@ -246,6 +250,14 @@ const withAutoRelogin = async <A>(
     },
     logout() {
       authCalls.push("logout");
+      if (options.logoutFails === true) {
+        return Effect.fail(
+          new SwfCallError({
+            method: "auth.logout",
+            cause: "logout failed",
+          }),
+        );
+      }
       return Effect.void;
     },
   } satisfies AuthShape;
@@ -291,15 +303,6 @@ const withAutoRelogin = async <A>(
           });
         }
         return playerReady;
-      });
-    },
-    reloadAvatar() {
-      return Effect.sync(() => {
-        playerReloads.push("reloadAvatar");
-        if (options.playerReadyAfterReload === true) {
-          playerReady = true;
-        }
-        return options.playerReloadSucceeds ?? true;
       });
     },
   } as unknown as PlayerShape;
@@ -354,7 +357,6 @@ const withAutoRelogin = async <A>(
               handler("OnConnection");
             }
           },
-          playerReloads,
           settingsPatches,
         });
       }),
@@ -690,11 +692,10 @@ test("direct login cancels and fails explicitly when authentication stalls", asy
   );
 });
 
-test("direct login reloads avatar art when connected player stays unready", async () => {
+test("direct login retries after connected player stays unready", async () => {
   const result = await withAutoRelogin(
     {
-      playerReadyAfterReload: true,
-      playerReadyOnConnect: false,
+      playerReadyOnConnectOutcomes: [false, true],
     },
     (autoRelogin, harness) =>
       Effect.gen(function* () {
@@ -704,15 +705,21 @@ test("direct login reloads avatar art when connected player stays unready", asyn
           server: "Twig",
         });
         return {
+          calls: harness.authCalls,
           outcome,
-          reloads: harness.playerReloads,
         };
       }),
   );
 
   expect(result.outcome).toEqual({ stage: "player-ready" });
-  expect(result.reloads).toEqual(["reloadAvatar"]);
-}, 15_000);
+  expect(result.calls).toEqual([
+    "login:Hero:secret-password",
+    "connectTo:Twig",
+    "logout",
+    "login:Hero:secret-password",
+    "connectTo:Twig",
+  ]);
+}, 25_000);
 
 test("socket connection during relogin does not interrupt before player ready", async () => {
   const result = await withAutoRelogin(
@@ -766,19 +773,161 @@ test("waits delayMs after logout before attempting", async () => {
   ]);
 });
 
-test("does not start logout delay while connected but still loading", async () => {
-  const harness = await withAutoRelogin({}, (autoRelogin, currentHarness) =>
-    Effect.gen(function* () {
-      yield* autoRelogin.enable();
-      yield* autoRelogin.setDelay(0);
-      currentHarness.emitConnection("OnConnection");
-      yield* Effect.sleep("10 millis");
-      yield* currentHarness.jobsState.task!;
-      return currentHarness;
-    }),
-  );
+test("does not logout steady-state connected player while still loading", async () => {
+  const now = vi.spyOn(Date, "now").mockReturnValue(1_000);
+  try {
+    const harness = await withAutoRelogin({}, (autoRelogin, currentHarness) =>
+      Effect.gen(function* () {
+        yield* autoRelogin.enable();
+        yield* autoRelogin.setDelay(0);
+        currentHarness.emitConnection("OnConnection");
+        yield* Effect.sleep("10 millis");
 
-  expect(harness.authCalls).toEqual([]);
+        now.mockReturnValue(11_000);
+        yield* currentHarness.jobsState.task!;
+        return currentHarness;
+      }),
+    );
+
+    expect(harness.authCalls).toEqual([]);
+  } finally {
+    now.mockRestore();
+  }
+});
+
+test("connected unready session waits before logout", async () => {
+  const now = vi.spyOn(Date, "now").mockReturnValue(1_000);
+  try {
+    const result = await withAutoRelogin(
+      { playerReadyOnConnect: false },
+      (autoRelogin, harness) =>
+        Effect.gen(function* () {
+          yield* autoRelogin.enable();
+          yield* autoRelogin.setDelay(0);
+          harness.emitConnection("OnConnectionLost");
+          yield* Effect.sleep("10 millis");
+          harness.emitConnection("OnConnection");
+          yield* Effect.sleep("10 millis");
+
+          now.mockReturnValue(10_999);
+          yield* harness.jobsState.task!;
+          return {
+            calls: harness.authCalls,
+            state: yield* autoRelogin.getState(),
+          };
+        }),
+    );
+
+    expect(result.calls).toEqual([]);
+    expect(result.state.lastError).toBeUndefined();
+  } finally {
+    now.mockRestore();
+  }
+});
+
+test("connected unready missing capture reports once", async () => {
+  const now = vi.spyOn(Date, "now").mockReturnValue(1_000);
+  const states: AutoReloginState[] = [];
+  try {
+    const result = await withAutoRelogin(
+      { serverInfo: "null" },
+      (autoRelogin, harness) =>
+        Effect.gen(function* () {
+          yield* autoRelogin.onState((state) => {
+            states.push(state);
+          });
+          yield* autoRelogin.enable();
+          yield* autoRelogin.setDelay(0);
+          harness.emitConnection("OnConnectionLost");
+          yield* Effect.sleep("10 millis");
+          harness.emitConnection("OnConnection");
+          yield* Effect.sleep("10 millis");
+          states.length = 0;
+
+          now.mockReturnValue(11_000);
+          yield* harness.jobsState.task!;
+          const emittedAfterFirstRun = states.length;
+
+          now.mockReturnValue(12_000);
+          yield* harness.jobsState.task!;
+          return {
+            emittedAfterFirstRun,
+            emittedAfterSecondRun: states.length,
+            state: yield* autoRelogin.getState(),
+          };
+        }),
+    );
+
+    expect(result.emittedAfterFirstRun).toBe(1);
+    expect(result.emittedAfterSecondRun).toBe(1);
+    expect(result.state.lastError).toBe("current session is not capturable");
+  } finally {
+    now.mockRestore();
+  }
+});
+
+test("connected unready session logs out and retries relogin after timeout", async () => {
+  const now = vi.spyOn(Date, "now").mockReturnValue(1_000);
+  try {
+    const result = await withAutoRelogin({}, (autoRelogin, harness) =>
+      Effect.gen(function* () {
+        yield* autoRelogin.enable();
+        yield* autoRelogin.setDelay(0);
+        harness.emitConnection("OnConnectionLost");
+        yield* Effect.sleep("10 millis");
+        harness.emitConnection("OnConnection");
+        yield* Effect.sleep("10 millis");
+
+        now.mockReturnValue(11_000);
+        yield* harness.jobsState.task!;
+        return {
+          calls: harness.authCalls,
+          state: yield* autoRelogin.getState(),
+        };
+      }),
+    );
+
+    expect(result.calls).toEqual([
+      "logout",
+      "login:Hero:secret-password",
+      "connectTo:Twig",
+    ]);
+    expect(result.state.lastError).toBeUndefined();
+    expect(result.state.attempting).toBe(false);
+  } finally {
+    now.mockRestore();
+  }
+});
+
+test("connected unready session stops when recovery logout fails", async () => {
+  const now = vi.spyOn(Date, "now").mockReturnValue(1_000);
+  try {
+    const result = await withAutoRelogin(
+      { logoutFails: true },
+      (autoRelogin, harness) =>
+        Effect.gen(function* () {
+          yield* autoRelogin.enable();
+          yield* autoRelogin.setDelay(0);
+          harness.emitConnection("OnConnectionLost");
+          yield* Effect.sleep("10 millis");
+          harness.emitConnection("OnConnection");
+          yield* Effect.sleep("10 millis");
+
+          now.mockReturnValue(11_000);
+          yield* harness.jobsState.task!;
+          return {
+            calls: harness.authCalls,
+            state: yield* autoRelogin.getState(),
+          };
+        }),
+    );
+
+    expect(result.calls).toEqual(["logout"]);
+    expect(result.state.enabled).toBe(false);
+    expect(result.state.lastError).toBe("logout failed");
+  } finally {
+    now.mockRestore();
+  }
 });
 
 test("starts delay from connection lost event", async () => {

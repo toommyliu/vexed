@@ -179,37 +179,6 @@ package vexed.game {
     }
 
     [BridgeExport]
-    public static function reloadAvatar():Boolean {
-      var reloaded:Boolean = false;
-      try {
-        var avatar:Object = game.world.myAvatar;
-        if (!avatar || !avatar.pMC || !avatar.objData) {
-          return false;
-        }
-
-        if (avatar.pMC.artLoaded()) {
-          return true;
-        }
-
-        if (avatar.objData.eqp != null) {
-          for (var slot:String in avatar.objData.eqp) {
-            var item:Object = avatar.objData.eqp[slot];
-            if (item != null && item.sFile != null && item.sLink != null) {
-              avatar.loadMovieAtES(slot, item.sFile, item.sLink);
-            }
-          }
-        }
-
-        avatar.pMC.loadHair();
-        reloaded = true;
-      }
-      catch (e:Error) {
-        reloaded = false;
-      }
-      return reloaded;
-    }
-
-    [BridgeExport]
     public static function goToPlayer(name:String):void {
       if (!name) {
         return;

@@ -38,8 +38,8 @@ const MAX_DELAY_MS = 300_000;
 const TEMP_KICK_TIMEOUT = "70 seconds";
 const SERVER_SELECT_TIMEOUT = "10 seconds";
 const SERVERS_LOAD_TIMEOUT = "5 seconds";
-const PLAYER_READY_TIMEOUT = "10 seconds";
-const AVATAR_RELOAD_READY_TIMEOUT = "20 seconds";
+const PLAYER_READY_TIMEOUT_MS = 10_000;
+const PLAYER_READY_TIMEOUT_DURATION = `${PLAYER_READY_TIMEOUT_MS} millis`;
 const MIN_FAILURE_COOLDOWN_MS = 5_000;
 const MAX_FAILURE_COOLDOWN_MS = 60_000;
 const MAX_RELOGIN_RETRIES = 3;
@@ -47,6 +47,8 @@ const INVALID_CREDENTIALS_DETAIL =
   "The username and password you entered did not match.\rPlease check the spelling and try again.";
 const INVALID_CREDENTIALS_ERROR = "invalid username or password";
 const LOGIN_STALLED_ERROR = "login did not reach server select";
+const LOGOUT_FAILED_ERROR = "logout failed";
+const PLAYER_NOT_READY_ERROR = "player did not become ready";
 
 class AutoReloginAttemptError extends Data.TaggedError(
   "AutoReloginAttemptError",
@@ -86,6 +88,8 @@ type RuntimeState = {
   loggedOutSince: number | undefined;
   // SmartFox can be connected while player.isReady() is still false.
   connected: boolean;
+  // Tracks connected sessions that have not reached player readiness yet.
+  connectedUnreadySince: number | undefined;
   // Prevents the relogin attempt's own socket connection from interrupting itself.
   ownedConnectionServerName: string | undefined;
   // Bumped on external connections so long waits can be interrupted safely.
@@ -123,9 +127,14 @@ const initialState = (): RuntimeState => ({
   lastAttemptAt: 0,
   loggedOutSince: undefined,
   connected: false,
+  connectedUnreadySince: undefined,
   ownedConnectionServerName: undefined,
   connectionSeq: 0,
 });
+
+const clearConnectedUnreadyRecovery = (state: RuntimeState) => {
+  state.connectedUnreadySince = undefined;
+};
 
 const isWaitingForReloginDelay = (state: RuntimeState): boolean => {
   if (
@@ -397,6 +406,7 @@ const make = Effect.gen(function* () {
         state.attempting = false;
         state.attemptsRemaining = terminal ? undefined : 0;
         state.connected = false;
+        clearConnectedUnreadyRecovery(state);
         state.ownedConnectionServerName = undefined;
 
         // Non-retryable failures, such as the captured server being unavailable
@@ -426,6 +436,7 @@ const make = Effect.gen(function* () {
       state.attemptsRemaining = undefined;
       state.attempting = false;
       state.connected = true;
+      clearConnectedUnreadyRecovery(state);
       state.ownedConnectionServerName = undefined;
       state.loggedOutSince = undefined;
       state.lastAttemptAt = 0;
@@ -437,6 +448,7 @@ const make = Effect.gen(function* () {
     updateState((state) => {
       state.attempting = false;
       state.attemptsRemaining = undefined;
+      clearConnectedUnreadyRecovery(state);
       state.ownedConnectionServerName = undefined;
     });
 
@@ -454,6 +466,7 @@ const make = Effect.gen(function* () {
       state.attempting = false;
       state.attemptsRemaining = undefined;
       state.connected = true;
+      clearConnectedUnreadyRecovery(state);
       state.ownedConnectionServerName = undefined;
       state.loggedOutSince = undefined;
       state.lastAttemptAt = 0;
@@ -471,6 +484,7 @@ const make = Effect.gen(function* () {
       state.attempting = false;
       state.attemptsRemaining = undefined;
       state.connected = false;
+      clearConnectedUnreadyRecovery(state);
       state.ownedConnectionServerName = undefined;
     });
 
@@ -479,6 +493,7 @@ const make = Effect.gen(function* () {
       // A ready player closes the disconnect window.
       state.connected = true;
       state.attemptsRemaining = undefined;
+      clearConnectedUnreadyRecovery(state);
       state.ownedConnectionServerName = undefined;
       state.loggedOutSince = undefined;
       state.lastAttemptAt = 0;
@@ -491,6 +506,7 @@ const make = Effect.gen(function* () {
       (state): readonly [LogoutObservation, RuntimeState] => {
         // Keep the first logout timestamp stable across periodic job ticks.
         state.connected = false;
+        clearConnectedUnreadyRecovery(state);
         state.ownedConnectionServerName = undefined;
         if (state.loggedOutSince !== undefined) {
           return [
@@ -766,6 +782,24 @@ const make = Effect.gen(function* () {
   const failAttempt = (message: string, retryable: boolean) =>
     Effect.fail(new AutoReloginAttemptError({ message, retryable }));
 
+  const logoutForReadinessRecovery = () =>
+    auth.logout().pipe(
+      Effect.catchCause((cause) =>
+        Effect.logError({
+          message: "[autorelogin] logout failed during readiness recovery",
+          cause,
+        }).pipe(Effect.andThen(failAttempt(LOGOUT_FAILED_ERROR, false))),
+      ),
+    );
+
+  const isRetryableAttemptError = (error: unknown) =>
+    error instanceof AutoReloginAttemptError && error.retryable;
+
+  const isPlayerNotReadyAttemptError = (error: unknown) =>
+    error instanceof AutoReloginAttemptError &&
+    error.retryable &&
+    error.message === PLAYER_NOT_READY_ERROR;
+
   const connectFailureMessage = (
     outcome: Exclude<AuthConnectOutcome, { readonly status: "connected" }>,
     requestedServer: string,
@@ -830,7 +864,7 @@ const make = Effect.gen(function* () {
     Effect.gen(function* () {
       yield* logStage("waiting for player ready");
       const ready = yield* wait.until(isPlayerReady(), {
-        timeout: PLAYER_READY_TIMEOUT,
+        timeout: PLAYER_READY_TIMEOUT_DURATION,
         schedule: Schedule.spaced("250 millis"),
       });
       if (ready) {
@@ -838,23 +872,13 @@ const make = Effect.gen(function* () {
       }
 
       yield* logStage("player ready timed out", {
-        recovery: "reload avatar",
+        recovery: "logout",
       });
-      const reloadStarted = yield* player
-        .reloadAvatar()
-        .pipe(Effect.catchCause(() => Effect.succeed(false)));
-      if (!reloadStarted) {
-        return yield* failAttempt("player avatar did not load", true);
-      }
-
-      yield* logStage("avatar reload requested");
-      const readyAfterReload = yield* wait.until(isPlayerReady(), {
-        timeout: AVATAR_RELOAD_READY_TIMEOUT,
-        schedule: Schedule.spaced("250 millis"),
-      });
-      if (!readyAfterReload) {
-        return yield* failAttempt("player avatar did not load", true);
-      }
+      yield* Effect.logWarning(
+        "[autorelogin] player still not ready after 10s; logging out",
+      );
+      yield* logoutForReadinessRecovery();
+      return yield* failAttempt(PLAYER_NOT_READY_ERROR, true);
     });
 
   const performLogin = (
@@ -927,7 +951,13 @@ const make = Effect.gen(function* () {
   ): Effect.Effect<AutoLoginOutcome, unknown> =>
     Effect.gen(function* () {
       yield* markLoginStart();
-      return yield* performLogin(credentials).pipe(
+      const runLogin = performLogin(credentials).pipe(
+        Effect.retry({
+          schedule: reloginRetrySchedule,
+          while: isPlayerNotReadyAttemptError,
+        }),
+      );
+      return yield* runLogin.pipe(
         Effect.matchEffect({
           onFailure: (error) =>
             markLoginFailure(error, credentials).pipe(
@@ -1102,6 +1132,103 @@ const make = Effect.gen(function* () {
       return attempt;
     });
 
+  type ConnectedUnreadyAction =
+    | {
+        readonly status: "wait";
+      }
+    | {
+        readonly status: "logout";
+      }
+    | {
+        readonly status: "missing-capture";
+      };
+
+  const reserveConnectedUnreadyAction = (
+    now: number,
+  ): Effect.Effect<ConnectedUnreadyAction> =>
+    SynchronizedRef.modify(
+      stateRef,
+      (state): readonly [ConnectedUnreadyAction, RuntimeState] => {
+        if (
+          !state.enabled ||
+          !state.connected ||
+          state.attempting ||
+          state.loggedOutSince === undefined ||
+          state.connectedUnreadySince === undefined
+        ) {
+          return [{ status: "wait" }, state] as const;
+        }
+
+        if (
+          now <
+          state.connectedUnreadySince + PLAYER_READY_TIMEOUT_MS
+        ) {
+          return [{ status: "wait" }, state] as const;
+        }
+
+        if (state.captured === null) {
+          state.connectedUnreadySince = undefined;
+          return [{ status: "missing-capture" }, state] as const;
+        }
+
+        return [{ status: "logout" }, state] as const;
+      },
+    );
+
+  const runReloginAttempt = (attempt: ReservedAttempt) =>
+    interruptible(
+      attempt.connectionSeq,
+      performRelogin(attempt).pipe(
+        Effect.retry({
+          schedule: reloginRetrySchedule,
+          while: isRetryableAttemptError,
+        }),
+      ),
+    ).pipe(
+      Effect.matchEffect({
+        onFailure: (error) =>
+          error instanceof AutoReloginInterrupted
+            ? markInterrupted(error).pipe(Effect.asVoid)
+            : markFailure(error).pipe(Effect.asVoid),
+        onSuccess: () =>
+          logStage("attempt succeeded").pipe(
+            Effect.andThen(markReloginSuccess()),
+            Effect.asVoid,
+          ),
+      }),
+    );
+
+  const handleConnectedUnready = (
+    now: number,
+  ): Effect.Effect<void, AutoReloginAttemptError> =>
+    Effect.gen(function* () {
+      const action = yield* reserveConnectedUnreadyAction(now);
+      if (action.status === "wait") {
+        return;
+      }
+
+      if (action.status === "missing-capture") {
+        yield* updateState((state) => {
+          state.lastError = "current session is not capturable";
+        });
+        return;
+      }
+
+      yield* Effect.logWarning(
+        "[autorelogin] player still not ready after 10s; logging out",
+      );
+      yield* logoutForReadinessRecovery();
+      yield* markLoggedOut(Date.now());
+
+      const attempt = yield* reserveAttempt(Date.now());
+      if (attempt === null) {
+        yield* emitCurrentState;
+        return;
+      }
+
+      yield* runReloginAttempt(attempt);
+    });
+
   const runAttemptCycle = Effect.gen(function* () {
     const now = Date.now();
     const ready = yield* isPlayerReady();
@@ -1117,6 +1244,7 @@ const make = Effect.gen(function* () {
       })),
     );
     if (connectionState.connected) {
+      yield* handleConnectedUnready(now);
       return;
     }
 
@@ -1139,28 +1267,7 @@ const make = Effect.gen(function* () {
       return;
     }
 
-    yield* interruptible(
-      attempt.connectionSeq,
-      performRelogin(attempt).pipe(
-        Effect.retry({
-          schedule: reloginRetrySchedule,
-          while: (error) =>
-            error instanceof AutoReloginAttemptError && error.retryable,
-        }),
-      ),
-    ).pipe(
-      Effect.matchEffect({
-        onFailure: (error) =>
-          error instanceof AutoReloginInterrupted
-            ? markInterrupted(error).pipe(Effect.asVoid)
-            : markFailure(error).pipe(Effect.asVoid),
-        onSuccess: () =>
-          logStage("attempt succeeded").pipe(
-            Effect.andThen(markReloginSuccess()),
-            Effect.asVoid,
-          ),
-      }),
-    );
+    yield* runReloginAttempt(attempt);
   }).pipe(
     Effect.catchCause((cause) =>
       Cause.hasInterruptsOnly(cause)
@@ -1212,6 +1319,7 @@ const make = Effect.gen(function* () {
       return yield* updateState((state) => {
         state.enabled = false;
         state.attempting = false;
+        clearConnectedUnreadyRecovery(state);
         state.ownedConnectionServerName = undefined;
         state.lastError = undefined;
         state.attemptsRemaining = undefined;
@@ -1307,9 +1415,10 @@ const make = Effect.gen(function* () {
         SynchronizedRef.modify(stateRef, (state) => {
           const ownedConnectionServerName = state.ownedConnectionServerName;
           // objServerInfo is refreshed after SmartFox connects.
-          state.loggedOutSince = undefined;
           state.lastAttemptAt = 0;
           state.connected = true;
+          state.connectedUnreadySince =
+            state.loggedOutSince === undefined ? undefined : Date.now();
           if (ownedConnectionServerName === undefined) {
             state.connectionSeq += 1;
           }
