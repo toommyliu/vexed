@@ -6,7 +6,18 @@
     "dist",
     "build",
     "scripts",
+    "**/*.css",
+    "**/*.html",
+    "**/*.json",
+    "**/*.jsonc",
+    "**/*.md",
+    "**/*.toml",
+    "**/*.yaml",
+    "**/*.yml",
+    "**/*.ts",
+    "**/*.tsx",
     "*.tsbuildinfo"
   ],
-  "sortPackageJson": {}
+  "printWidth": 80,
+  "sortPackageJson": false
 }
