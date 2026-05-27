@@ -4,11 +4,6 @@ import "./entrypoint";
 import "./style.css";
 import {
   Button,
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
   Spinner,
   Textarea,
   Toaster,
@@ -99,6 +94,10 @@ import {
   type TopNavOptionItem,
 } from "./topNavOptions";
 import { ScriptRunner } from "./scripting/Services/ScriptRunner";
+import {
+  DEBUG_EVAL_SOURCE_NAME,
+  createDebugScriptSource,
+} from "./debugEval";
 
 declare global {
   namespace NodeJS {
@@ -188,13 +187,6 @@ interface DevDebugEvaluatorProps {
   readonly refreshScriptMeta: () => Promise<void>;
 }
 
-const createDebugScriptSource = (source: string): string =>
-  source.includes("module.exports")
-    ? source
-    : `module.exports = function* debug({ api, script, features }) {
-${source}
-};`;
-
 const formatEvalValue = (value: unknown): string => {
   if (value === undefined) {
     return "undefined";
@@ -220,7 +212,6 @@ const DevDebugEvaluator =
   process.env.NODE_ENV === "development"
     ? (props: DevDebugEvaluatorProps): JSX.Element => {
         const DEBUG_EVAL_OUTPUT_LIMIT = 2000;
-        const DEBUG_EVAL_SOURCE_NAME = "debug-eval.js";
         const DEFAULT_SCRIPT_DEBUG_SOURCE = `const cell = yield* api.player.getCell();
 script.log(\`Cell: \${cell}\`);`;
         const DEFAULT_INTERNAL_DEBUG_SOURCE = `return yield* services.player.getCell();`;
@@ -636,28 +627,20 @@ ${source}
                     onPointerDown={(event) => event.stopPropagation()}
                     class="game-debug-eval__header-actions"
                   >
-                    <Select
+                    <select
                       aria-label="Debug eval mode"
                       class="game-debug-eval__mode"
-                      value={[mode()]}
-                      onValueChange={(details) => {
-                        const nextMode = details.value[0];
+                      value={mode()}
+                      onChange={(event) => {
+                        const nextMode = event.currentTarget.value;
                         if (nextMode === "script" || nextMode === "internal") {
                           setMode(nextMode);
                         }
                       }}
                     >
-                      <SelectTrigger
-                        class="game-debug-eval__mode-trigger"
-                        size="sm"
-                      >
-                        <SelectValue />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="script">Script API</SelectItem>
-                        <SelectItem value="internal">Internal API</SelectItem>
-                      </SelectContent>
-                    </Select>
+                      <option value="script">Script API</option>
+                      <option value="internal">Internal API</option>
+                    </select>
                     <Button
                       aria-label="Close debug evaluator"
                       class="game-debug-eval__close"
