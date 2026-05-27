@@ -655,7 +655,7 @@ function App(): JSX.Element {
                     disabled={!grabbedData()}
                     onInput={(event) => setSearch(event.currentTarget.value)}
                     placeholder="Search results..."
-                    type="search"
+                    type="text"
                     value={search()}
                   />
                   <InputGroupAddon
