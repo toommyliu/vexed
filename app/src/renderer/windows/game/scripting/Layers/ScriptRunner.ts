@@ -8,7 +8,7 @@ import { Auth } from "../../flash/Services/Auth";
 import { AutoRelogin } from "../../features/Services/AutoRelogin";
 import { AutoZone } from "../../features/Services/AutoZone";
 import { Bank } from "../../flash/Services/Bank";
-import { Bridge } from "../../flash/Services/Bridge";
+import { Bridge, BridgeFailurePolicy } from "../../flash/Services/Bridge";
 import { Combat } from "../../flash/Services/Combat";
 import { Drops } from "../../flash/Services/Drops";
 import { Environment } from "../../environment/Services/Environment";
@@ -24,7 +24,7 @@ import {
 import { Player, type PlayerShape } from "../../flash/Services/Player";
 import { Quests } from "../../flash/Services/Quests";
 import { Settings } from "../../flash/Services/Settings";
-import type { BridgeEffect } from "../../flash/Services/Bridge";
+import type { BridgeEffect, BridgeError } from "../../flash/Services/Bridge";
 import { Shops } from "../../flash/Services/Shops";
 import { TempInventory } from "../../flash/Services/TempInventory";
 import { Wait } from "../../flash/Services/Wait";
@@ -62,6 +62,7 @@ import {
 import { makeScriptRecipes } from "../recipes";
 import { loadScriptModule } from "../scriptLoader";
 import type { ScriptRuntimeStdBinding } from "../ScriptRuntimeStd";
+import { toDiagnosticDetails, toErrorMessage } from "../errorDetails";
 import {
   parseMapTarget,
   randomPrivateRoomNumber,
@@ -77,6 +78,7 @@ type ActiveScript = {
 type LaunchFiber = Fiber.Fiber<unknown, unknown>;
 
 const MAX_SCRIPT_DIAGNOSTICS = 50;
+const BRIDGE_FAILURE_DIAGNOSTIC_WINDOW_MS = 5_000;
 
 const DEFAULT_SCRIPT_OPTIONS: ScriptOptions = {
   usePrivateRooms: false,
@@ -136,10 +138,8 @@ const scriptNameFromPayload = (payload: ScriptExecutePayload): string => {
   return "inline-script";
 };
 
-const causeMessage = (cause: Cause.Cause<unknown>): string => {
-  const error = Cause.squash(cause);
-  return error instanceof Error ? error.message : String(error);
-};
+const causeMessage = (cause: Cause.Cause<unknown>): string =>
+  toErrorMessage(Cause.squash(cause));
 
 const make = Effect.gen(function* () {
   const auth = yield* Auth;
@@ -179,6 +179,10 @@ const make = Effect.gen(function* () {
   const runSemaphore = yield* Semaphore.make(1);
   const nextDiagnosticIdRef = yield* Ref.make(0);
   const diagnosticsRef = yield* Ref.make<ReadonlyArray<ScriptDiagnostic>>([]);
+  const bridgeFailureDiagnosticState = new Map<
+    string,
+    { lastEmittedAt: number; suppressed: number }
+  >();
   const scriptOptionsRef = yield* Ref.make<ScriptOptions>(
     DEFAULT_SCRIPT_OPTIONS,
   );
@@ -216,7 +220,40 @@ const make = Effect.gen(function* () {
     appendDiagnostic(sourceName, {
       severity: "error",
       message,
-      ...(cause === undefined ? null : { details: { cause: String(cause) } }),
+      ...(cause === undefined ? null : { details: toDiagnosticDetails(cause) }),
+    });
+
+  const appendBridgeFailureDiagnostic = (
+    sourceName: string,
+    error: BridgeError,
+  ) =>
+    Effect.gen(function* () {
+      const now = Date.now();
+      const key = `${sourceName}:${error._tag}:${error.method}`;
+      const current = bridgeFailureDiagnosticState.get(key);
+      if (
+        current &&
+        now - current.lastEmittedAt < BRIDGE_FAILURE_DIAGNOSTIC_WINDOW_MS
+      ) {
+        current.suppressed += 1;
+        return false;
+      }
+
+      const suppressed = current?.suppressed ?? 0;
+      bridgeFailureDiagnosticState.set(key, {
+        lastEmittedAt: now,
+        suppressed: 0,
+      });
+
+      yield* appendDiagnostic(sourceName, {
+        severity: "warning",
+        message:
+          suppressed > 0
+            ? `Flash bridge call failed: ${error.method} (${suppressed} repeated failures suppressed)`
+            : `Flash bridge call failed: ${error.method}`,
+        details: toDiagnosticDetails(error),
+      });
+      return true;
     });
 
   const clearPendingLaunch = (fiber: LaunchFiber) =>
@@ -310,6 +347,22 @@ const make = Effect.gen(function* () {
     runtime: ScriptRuntimeStdBinding,
     scriptScope: ScriptAsyncScope,
   ) => {
+    const tolerantBridgeFailurePolicy = {
+      mode: "tolerant" as const,
+      onFailure: (error: BridgeError) =>
+        appendBridgeFailureDiagnostic(sourceName, error).pipe(
+          Effect.flatMap((emitted) =>
+            emitted
+              ? Effect.logWarning({
+                  message: `Flash bridge call failed: ${error.method}`,
+                  sourceName,
+                  details: toDiagnosticDetails(error),
+                })
+              : Effect.void,
+          ),
+        ),
+    };
+
     const wrapScriptEffect = <A, E>(
       effect: Effect.Effect<A, E, never>,
     ): Effect.Effect<A, E | ScriptNotReadyError> =>
@@ -318,7 +371,13 @@ const make = Effect.gen(function* () {
           return Effect.interrupt as Effect.Effect<A, E | ScriptNotReadyError>;
         }
 
-        return ensureReady(sourceName).pipe(Effect.andThen(effect));
+        return ensureReady(sourceName).pipe(
+          Effect.andThen(effect),
+          Effect.provideService(
+            BridgeFailurePolicy,
+            tolerantBridgeFailurePolicy,
+          ),
+        );
       });
 
     const wrapValue = (
@@ -1387,6 +1446,7 @@ const make = Effect.gen(function* () {
             yield* ensureReady(sourceName);
             yield* stop("replaced by a new script");
             yield* Ref.set(diagnosticsRef, []);
+            bridgeFailureDiagnosticState.clear();
             yield* Ref.update(scriptOptionsRef, (current) =>
               applyScriptOptionsPatch(current, options?.options),
             );

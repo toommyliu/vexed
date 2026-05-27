@@ -1,5 +1,4 @@
-import { ServiceMap } from "effect";
-import type { Effect } from "effect";
+import { Effect, ServiceMap } from "effect";
 import {
   SwfCallError,
   SwfMethodNotFoundError,
@@ -14,6 +13,22 @@ export type BridgeError =
 export type BridgeEffect<A> = Effect.Effect<A, BridgeError>;
 
 export type BridgeEventDisposer = () => void;
+
+export interface BridgeFailurePolicyShape {
+  readonly mode: "strict" | "tolerant";
+  onFailure(error: BridgeError): Effect.Effect<void>;
+}
+
+export const BridgeFailurePolicy =
+  ServiceMap.Reference<BridgeFailurePolicyShape>(
+    "flash/Services/BridgeFailurePolicy",
+    {
+      defaultValue: () => ({
+        mode: "strict",
+        onFailure: () => Effect.void,
+      }),
+    },
+  );
 
 export interface BridgeShape {
   call<K extends keyof Window["swf"]>(
