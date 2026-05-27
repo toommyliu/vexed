@@ -223,12 +223,14 @@ package vexed {
 			return this.stg;
 		}
 
+		[BridgeFallback("null")]
 		[BridgeExport]
 		public static function getGameObject(path:String):String {
 			var obj:* = _getObjectS(_instance.game, path);
 			return JSON.stringify(obj);
 		}
 
+		[BridgeFallback("null")]
 		[BridgeExport]
 		public static function getGameObjectS(path:String):String {
 			if (_gameClass == null) {
@@ -238,6 +240,7 @@ package vexed {
 			return JSON.stringify(obj);
 		}
 
+		[BridgeFallback("null")]
 		[BridgeExport]
 		public static function getGameObjectKey(path:String, key:String):String {
 			var obj:* = _getObjectS(_instance.game, path);
@@ -260,6 +263,7 @@ package vexed {
 			obj[key] = value;
 		}
 
+		[BridgeFallback("null")]
 		[BridgeExport]
 		public static function getArrayObject(path:String, index:int):String {
 			var obj:* = _getObjectS(_instance.game, path);
@@ -272,6 +276,7 @@ package vexed {
 			obj[index] = value;
 		}
 
+		[BridgeFallback("null")]
 		[BridgeExport]
 		public static function callGameFunction(path:String, ...args):String {
 			var parts:Array = path.split('.');
@@ -281,6 +286,7 @@ package vexed {
 			return JSON.stringify(func.apply(null, args));
 		}
 
+		[BridgeFallback("null")]
 		[BridgeExport]
 		public static function callGameFunction0(path:String):String {
 			var parts:Array = path.split('.');
@@ -290,6 +296,7 @@ package vexed {
 			return JSON.stringify(func.apply());
 		}
 
+		[BridgeFallback("[]")]
 		[BridgeExport]
 		public static function selectArrayObjects(path:String, selector:String):String {
 			var obj:* = _getObjectS(_instance.game, path);

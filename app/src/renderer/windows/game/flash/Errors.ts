@@ -4,15 +4,18 @@ export class SwfUnavailableError extends Data.TaggedError(
   "SwfUnavailableError",
 )<{
   readonly method: string;
+  readonly args?: readonly unknown[];
 }> {}
 
 export class SwfMethodNotFoundError extends Data.TaggedError(
   "SwfMethodNotFoundError",
 )<{
   readonly method: string;
+  readonly args?: readonly unknown[];
 }> {}
 
 export class SwfCallError extends Data.TaggedError("SwfCallError")<{
   readonly method: string;
+  readonly args?: readonly unknown[];
   readonly cause: unknown;
 }> {}
