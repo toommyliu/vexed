@@ -252,10 +252,9 @@
   font-weight: 400;
   height: calc(var(--control-height-lg) - 2px);
   justify-content: flex-start;
-  line-height: 1.25;
+  line-height: 1.5;
   max-width: 100%;
   min-width: 0;
-  overflow: hidden;
   padding-left: 0.75rem;
   padding-right: 0.75rem;
   width: 100%;
@@ -264,6 +263,7 @@
 .account-manager__script-display .button__content {
   flex: 1 1 auto;
   justify-content: flex-start;
+  line-height: 1.5;
   max-width: 100%;
   min-width: 0;
   overflow: hidden;
