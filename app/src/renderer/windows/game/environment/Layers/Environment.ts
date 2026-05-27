@@ -83,10 +83,26 @@ const make = Effect.gen(function* () {
     new Set(),
   );
   const lastQuestMutationAtRef = yield* Ref.make(0);
+  const unavailableQuestWarningsRef = yield* Ref.make<ReadonlySet<number>>(
+    new Set(),
+  );
   const questMutationSemaphore = yield* Semaphore.make(1);
 
   const setState = (state: EnvironmentState) =>
-    Ref.set(stateRef, normalizeEnvironmentState(state));
+    Effect.gen(function* () {
+      const normalizedState = normalizeEnvironmentState(state);
+      yield* Ref.set(stateRef, normalizedState);
+      yield* Ref.update(unavailableQuestWarningsRef, (questIds) => {
+        const activeQuestIds = new Set(normalizedState.questIds);
+        const next = new Set<number>();
+        for (const questId of questIds) {
+          if (activeQuestIds.has(questId)) {
+            next.add(questId);
+          }
+        }
+        return next;
+      });
+    });
 
   const invokeState = (
     invoke: () => Promise<EnvironmentState>,
@@ -323,6 +339,42 @@ const make = Effect.gen(function* () {
       }
     });
 
+  const warnQuestUnavailableOnce = (questId: number) =>
+    Effect.gen(function* () {
+      const shouldWarn = yield* Ref.modify(
+        unavailableQuestWarningsRef,
+        (questIds) => {
+          if (questIds.has(questId)) {
+            return [false, questIds] as const;
+          }
+
+          const next = new Set(questIds);
+          next.add(questId);
+          return [true, next] as const;
+        },
+      );
+
+      if (!shouldWarn) {
+        return;
+      }
+
+      yield* Effect.logWarning({
+        message: "environment quest is unavailable; skipping accept",
+        questId,
+      });
+    });
+
+  const clearQuestUnavailableWarning = (questId: number) =>
+    Ref.update(unavailableQuestWarningsRef, (questIds) => {
+      if (!questIds.has(questId)) {
+        return questIds;
+      }
+
+      const next = new Set(questIds);
+      next.delete(questId);
+      return next;
+    });
+
   const determineQuestAutomationIntent = (
     state: EnvironmentState,
     questId: number,
@@ -353,6 +405,12 @@ const make = Effect.gen(function* () {
         : yield* quests
             .isAvailable(questId)
             .pipe(Effect.catchCause(() => Effect.succeed(false)));
+
+      if (inProgress || available) {
+        yield* clearQuestUnavailableWarning(questId);
+      } else {
+        yield* warnQuestUnavailableOnce(questId);
+      }
 
       const rewardItemId = state.questRewards[questId];
       return createQuestAutomationIntent({
@@ -417,48 +475,67 @@ const make = Effect.gen(function* () {
         return;
       }
 
-      yield* questMutationSemaphore.withPermits(1)(
-        Effect.gen(function* () {
-          const beforeDelay = Date.now();
-          const lastMutationAt = yield* Ref.get(lastQuestMutationAtRef);
-          const delayMs = getQuestMutationDelayMs(
-            lastMutationAt,
-            beforeDelay,
-            QUEST_MUTATION_DELAY_MS,
-          );
-          if (delayMs > 0) {
-            yield* Effect.sleep(`${delayMs} millis`);
+      yield* Effect.gen(function* () {
+        if (intent.action === "accept") {
+          const available = yield* quests
+            .isAvailable(intent.questId)
+            .pipe(Effect.catchCause(() => Effect.succeed(false)));
+
+          if (!available) {
+            yield* warnQuestUnavailableOnce(intent.questId);
+            return;
           }
 
-          const startedAt = Date.now();
-          yield* Ref.set(lastQuestMutationAtRef, startedAt);
+          yield* clearQuestUnavailableWarning(intent.questId);
+        }
 
-          const effect =
-            intent.action === "accept"
-              ? quests.accept(intent.questId, true)
-              : quests.complete(intent.questId, undefined, intent.rewardItemId);
+        yield* questMutationSemaphore.withPermits(1)(
+          Effect.gen(function* () {
+            const beforeDelay = Date.now();
+            const lastMutationAt = yield* Ref.get(lastQuestMutationAtRef);
+            const delayMs = getQuestMutationDelayMs(
+              lastMutationAt,
+              beforeDelay,
+              QUEST_MUTATION_DELAY_MS,
+            );
+            if (delayMs > 0) {
+              yield* Effect.sleep(`${delayMs} millis`);
+            }
 
-          const completed = yield* effect.pipe(
-            Effect.timeoutOption(QUEST_ACTION_TIMEOUT),
-            Effect.map(Option.isSome),
-            Effect.catchCause((cause) =>
-              Effect.logError({
-                message: "environment quest mutation failed",
-                questId: intent.questId,
-                action: intent.action,
-                cause,
-              }).pipe(Effect.as(false)),
-            ),
-          );
+            const startedAt = Date.now();
+            yield* Ref.set(lastQuestMutationAtRef, startedAt);
 
-          const finishedAt = Date.now();
-          yield* Ref.update(questActionFailuresRef, (current) =>
-            completed
-              ? clearQuestActionFailure(current, key)
-              : recordQuestActionFailure(current, key, finishedAt),
-          );
-        }).pipe(Effect.ensuring(releaseQuestAction(key))),
-      );
+            const effect =
+              intent.action === "accept"
+                ? quests.accept(intent.questId, true)
+                : quests.complete(
+                    intent.questId,
+                    undefined,
+                    intent.rewardItemId,
+                  );
+
+            const completed = yield* effect.pipe(
+              Effect.timeoutOption(QUEST_ACTION_TIMEOUT),
+              Effect.map(Option.isSome),
+              Effect.catchCause((cause) =>
+                Effect.logError({
+                  message: "environment quest mutation failed",
+                  questId: intent.questId,
+                  action: intent.action,
+                  cause,
+                }).pipe(Effect.as(false)),
+              ),
+            );
+
+            const finishedAt = Date.now();
+            yield* Ref.update(questActionFailuresRef, (current) =>
+              completed
+                ? clearQuestActionFailure(current, key)
+                : recordQuestActionFailure(current, key, finishedAt),
+            );
+          }),
+        );
+      }).pipe(Effect.ensuring(releaseQuestAction(key)));
     });
   };
 
