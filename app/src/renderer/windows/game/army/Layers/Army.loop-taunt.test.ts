@@ -284,7 +284,6 @@ const withArmy = async <A>(
     isReady: () => Effect.succeed(true),
     joinMap: () => Effect.void,
     jumpToCell: () => Effect.void,
-    reloadAvatar: () => Effect.succeed(true),
     rest: () => Effect.void,
     useBoost: () => Effect.succeed(true),
     walkTo: () => Effect.succeed(true),
