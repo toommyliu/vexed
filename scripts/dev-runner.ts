@@ -1,4 +1,8 @@
 import {
+  execFileSync,
+  type ExecFileSyncOptionsWithStringEncoding,
+} from "node:child_process";
+import {
   readFileSync,
   rmSync,
   unwatchFile,
@@ -20,6 +24,15 @@ const SCRIPT_DIR = dirname(fileURLToPath(import.meta.url));
 const REPO_ROOT = join(SCRIPT_DIR, "..");
 const APP_DIR = join(REPO_ROOT, "app");
 const DOCS_DIR = join(REPO_ROOT, "docs");
+const DEV_ELECTRON_RUNTIME_BINARY = join(
+  APP_DIR,
+  ".electron-runtime",
+  "Vexed (Dev).app",
+  "Contents",
+  "MacOS",
+  "Electron",
+);
+const APP_DEV_ROOT_ARG = `--app-dev-root=${APP_DIR}`;
 const DEV_BUILD_NOTIFY_PATH = join(APP_DIR, "dist", ".vexed-dev-build.json");
 const DEV_RENDERER_RELOAD_PATH = join(
   APP_DIR,
@@ -27,7 +40,9 @@ const DEV_RENDERER_RELOAD_PATH = join(
   ".vexed-renderer-reload.json",
 );
 const RESTART_DEBOUNCE_MS = 300;
-const FORCE_KILL_AFTER = "1500 millis";
+const FORCE_KILL_AFTER_MS = 1500;
+const FORCE_KILL_AFTER = `${FORCE_KILL_AFTER_MS} millis`;
+const PROCESS_GROUP_POLL_INTERVAL_MS = 50;
 const DEV_RUNNER_MODES = ["dev", "app", "docs"] as const;
 
 type DevMode = (typeof DEV_RUNNER_MODES)[number];
@@ -63,12 +78,23 @@ type ActiveElectron = {
   readonly managedExit: Ref.Ref<boolean>;
 };
 
+type ExistingDevElectronProcess = {
+  readonly pid: number;
+  readonly processGroupId: number;
+};
+
 class DevRunnerError extends Data.TaggedError("DevRunnerError")<{
   readonly message: string;
   readonly cause?: unknown;
 }> {}
 
 const toExitCodeNumber = (exitCode: unknown): number => Number(exitCode);
+
+const isErrnoException = (cause: unknown): cause is NodeJS.ErrnoException =>
+  cause instanceof Error && "code" in cause;
+
+const isNoSuchProcessError = (cause: unknown): boolean =>
+  isErrnoException(cause) && cause.code === "ESRCH";
 
 const createBaseEnv = (): NodeJS.ProcessEnv => ({
   ...process.env,
@@ -112,34 +138,111 @@ const spawnPnpm = (
   env: NodeJS.ProcessEnv,
 ) => ChildProcess.make("pnpm", args, childOptions(cwd, env));
 
-const runRequiredCommand = (
-  label: string,
-  args: ReadonlyArray<string>,
-  cwd: string,
-  env: NodeJS.ProcessEnv,
-) =>
-  Effect.gen(function* () {
-    const child = yield* spawnPnpm(args, cwd, env);
-    const exitCode = yield* child.exitCode;
-    const numericExitCode = toExitCodeNumber(exitCode);
+const isProcessGroupAlive = (processGroupId: number): boolean => {
+  try {
+    process.kill(-processGroupId, 0);
+    return true;
+  } catch (cause) {
+    return !isNoSuchProcessError(cause);
+  }
+};
 
-    if (numericExitCode !== 0) {
-      return yield* new DevRunnerError({
-        message: `${label} exited with code ${numericExitCode}`,
-      });
+const signalProcessGroup = (
+  label: string,
+  processGroupId: number,
+  signal: NodeJS.Signals,
+) =>
+  Effect.sync(() => {
+    try {
+      process.kill(-processGroupId, signal);
+      return true;
+    } catch (cause) {
+      if (isNoSuchProcessError(cause)) {
+        return false;
+      }
+
+      throw cause;
     }
   }).pipe(
-    Effect.mapError((cause) =>
-      cause instanceof DevRunnerError
-        ? cause
-        : new DevRunnerError({
-            message: `${label} failed`,
-            cause,
-          }),
+    Effect.catch((cause) =>
+      Console.error(
+        `[dev-runner] failed to send ${signal} to ${label} process group ${processGroupId}: ${String(cause)}`,
+      ).pipe(Effect.as(false)),
     ),
   );
 
-const stopChild = (label: string, child: ChildProcessHandle) =>
+const waitForProcessGroupExit = (
+  processGroupId: number,
+  timeoutMs: number,
+) =>
+  Effect.gen(function* () {
+    const deadline = Date.now() + timeoutMs;
+
+    while (true) {
+      const alive = yield* Effect.sync(() =>
+        isProcessGroupAlive(processGroupId),
+      );
+
+      if (!alive) {
+        return true;
+      }
+
+      if (Date.now() >= deadline) {
+        return false;
+      }
+
+      yield* Effect.sleep(`${PROCESS_GROUP_POLL_INTERVAL_MS} millis`);
+    }
+  });
+
+const stopProcessGroup = (label: string, processGroupId: number) =>
+  Effect.gen(function* () {
+    const alive = yield* Effect.sync(() =>
+      isProcessGroupAlive(processGroupId),
+    );
+
+    if (!alive) {
+      return;
+    }
+
+    yield* Console.log(
+      `[dev-runner] stopping ${label} process group ${processGroupId} with SIGTERM`,
+    );
+    yield* signalProcessGroup(label, processGroupId, "SIGTERM");
+
+    const stopped = yield* waitForProcessGroupExit(
+      processGroupId,
+      FORCE_KILL_AFTER_MS,
+    );
+
+    if (stopped) {
+      return;
+    }
+
+    yield* Console.error(
+      `[dev-runner] ${label} process group ${processGroupId} did not stop after ${FORCE_KILL_AFTER}; force killing`,
+    );
+    yield* signalProcessGroup(label, processGroupId, "SIGKILL");
+
+    const forceStopped = yield* waitForProcessGroupExit(
+      processGroupId,
+      FORCE_KILL_AFTER_MS,
+    );
+
+    if (forceStopped) {
+      return;
+    }
+
+    yield* Console.error(
+      `[dev-runner] ${label} process group ${processGroupId} is still alive after SIGKILL`,
+    );
+
+    return yield* new DevRunnerError({
+      message: `${label} process group ${processGroupId} survived SIGKILL`,
+    });
+  });
+
+const stopChildProcess = (label: string, child: ChildProcessHandle) =>
   Effect.gen(function* () {
     const running = yield* child.isRunning.pipe(
       Effect.catch(() => Effect.succeed(false)),
@@ -186,6 +289,159 @@ const stopChild = (label: string, child: ChildProcessHandle) =>
         ),
       );
   });
+
+const runRequiredCommand = (
+  label: string,
+  args: ReadonlyArray<string>,
+  cwd: string,
+  env: NodeJS.ProcessEnv,
+) =>
+  Effect.gen(function* () {
+    const child = yield* spawnPnpm(args, cwd, env);
+    const exitCode = yield* child.exitCode;
+    const numericExitCode = toExitCodeNumber(exitCode);
+
+    if (numericExitCode !== 0) {
+      return yield* new DevRunnerError({
+        message: `${label} exited with code ${numericExitCode}`,
+      });
+    }
+  }).pipe(
+    Effect.mapError((cause) =>
+      cause instanceof DevRunnerError
+        ? cause
+        : new DevRunnerError({
+            message: `${label} failed`,
+            cause,
+          }),
+    ),
+  );
+
+const stopChild = (label: string, child: ChildProcessHandle) =>
+  Effect.gen(function* () {
+    if (process.platform === "win32") {
+      yield* stopChildProcess(label, child);
+      return;
+    }
+
+    if (child.pid === undefined) {
+      yield* stopChildProcess(label, child);
+      return;
+    }
+
+    const processGroupId = child.pid;
+    const groupAlive = yield* Effect.sync(() =>
+      isProcessGroupAlive(processGroupId),
+    );
+    const running = yield* child.isRunning.pipe(
+      Effect.catch(() => Effect.succeed(false)),
+    );
+
+    if (!running && !groupAlive) {
+      return;
+    }
+
+    if (groupAlive) {
+      yield* stopProcessGroup(label, processGroupId);
+      return;
+    }
+
+    yield* stopChildProcess(label, child);
+  });
+
+const commandHasAppDevRootArg = (command: string): boolean => {
+  const markerIndex = command.indexOf(APP_DEV_ROOT_ARG);
+  if (markerIndex === -1) {
+    return false;
+  }
+
+  const before = command[markerIndex - 1];
+  const after = command[markerIndex + APP_DEV_ROOT_ARG.length];
+  return (
+    (before === undefined || before === " ") &&
+    (after === undefined || after === " ")
+  );
+};
+
+const commandMatchesDevElectronRuntime = (command: string): boolean => {
+  const devElectronCommand = `${DEV_ELECTRON_RUNTIME_BINARY} .`;
+  return (
+    command === devElectronCommand ||
+    command.startsWith(`${devElectronCommand} `)
+  );
+};
+
+const parseExistingDevElectronProcess = (
+  line: string,
+): ExistingDevElectronProcess | null => {
+  const match = /^\s*(\d+)\s+(\d+)\s+(.+)$/.exec(line);
+  if (!match) {
+    return null;
+  }
+
+  const pidText = match[1] ?? "";
+  const processGroupText = match[2] ?? "";
+  const command = match[3] ?? "";
+  if (
+    !commandHasAppDevRootArg(command) &&
+    !commandMatchesDevElectronRuntime(command)
+  ) {
+    return null;
+  }
+
+  return {
+    pid: Number(pidText),
+    processGroupId: Number(processGroupText),
+  };
+};
+
+const readExistingDevElectronProcesses =
+  (): ReadonlyArray<ExistingDevElectronProcess> => {
+    if (process.platform === "win32") {
+      return [];
+    }
+
+    try {
+      const options = {
+        encoding: "utf8",
+      } satisfies ExecFileSyncOptionsWithStringEncoding;
+      const output = execFileSync(
+        "ps",
+        ["-ww", "-axo", "pid=,pgid=,command="],
+        options,
+      );
+
+      return output
+        .split("\n")
+        .map(parseExistingDevElectronProcess)
+        .filter(
+          (process): process is ExistingDevElectronProcess =>
+            process !== null &&
+            Number.isInteger(process.pid) &&
+            process.pid > 0 &&
+            Number.isInteger(process.processGroupId) &&
+            process.processGroupId > 0,
+        );
+    } catch {
+      return [];
+    }
+  };
+
+const stopExistingDevElectronProcesses = Effect.gen(function* () {
+  const existing = readExistingDevElectronProcesses();
+  const processGroups = new Map<number, ExistingDevElectronProcess>();
+
+  for (const process of existing) {
+    processGroups.set(process.processGroupId, process);
+  }
+
+  for (const process of processGroups.values()) {
+    yield* Console.error(
+      `[dev-runner] found existing dev Electron process pid=${process.pid} processGroup=${process.processGroupId}; stopping it before launch`,
+    );
+    yield* stopProcessGroup("existing electron", process.processGroupId);
+  }
+});
 
 const isRendererOnlyRebuild = (targets: ReadonlySet<DevBuildTarget>): boolean =>
   targets.size > 0 && [...targets].every((target) => target === "renderer");
@@ -473,6 +729,8 @@ const runDevLoop = (electronArgs: ReadonlyArray<string>) =>
     const electronEnv = createElectronEnv();
     const watchEnv = createWatchEnv();
 
+    yield* stopExistingDevElectronProcesses;
+
     yield* Console.log("[dev-runner] building app");
     yield* runRequiredCommand("initial compile", ["compile"], APP_DIR, baseEnv);
 
@@ -489,11 +747,14 @@ const runDevLoop = (electronArgs: ReadonlyArray<string>) =>
     const startElectron = Effect.gen(function* () {
       yield* Console.log("[dev-runner] starting electron");
       const electron = yield* spawnPnpm(
-        electronArgs.length === 0
-          ? ["electron"]
-          : ["electron", "--", ...electronArgs],
+        ["electron", "--", APP_DEV_ROOT_ARG, ...electronArgs],
         APP_DIR,
         electronEnv,
+      );
+      yield* Console.log(
+        process.platform === "win32"
+          ? `[dev-runner] electron command pid=${electron.pid}`
+          : `[dev-runner] electron command pid=${electron.pid} processGroup=${electron.pid}`,
       );
       const managedExit = yield* Ref.make(false);
       yield* Ref.set(activeElectron, { child: electron, managedExit });
@@ -628,9 +889,10 @@ const dryRun = (mode: DevMode, electronArgs: ReadonlyArray<string>) =>
       yield* Console.log("app.initial=pnpm compile");
       yield* Console.log("app.watch=pnpm compile:watch");
       yield* Console.log(
-        electronArgs.length === 0
-          ? "app.electron=pnpm electron"
-          : `app.electron=pnpm electron -- ${electronArgs.join(" ")}`,
+        `app.electron=pnpm electron -- ${[
+          APP_DEV_ROOT_ARG,
+          ...electronArgs,
+        ].join(" ")}`,
       );
       yield* Console.log(`env.VEXED_DEV_BUILD_NOTIFY=${DEV_BUILD_NOTIFY_PATH}`);
       yield* Console.log("env.VEXED_DEV_BUILD_NOTIFY_SKIP_INITIAL=1");

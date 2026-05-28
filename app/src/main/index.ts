@@ -49,6 +49,11 @@ import { WorkspaceFilesLive } from "./workspace/WorkspaceFiles";
 
 process.env["ELECTRON_DISABLE_SECURITY_WARNINGS"] = "true";
 
+const SIGNAL_FORCE_EXIT_AFTER_MS = 1500;
+const TERMINATION_SIGNALS = ["SIGTERM", "SIGINT", "SIGHUP"] as const;
+let terminationForceExitTimer: NodeJS.Timeout | undefined;
+let receivedTerminationSignal: NodeJS.Signals | null = null;
+
 const ignoreRuntimeRejection = (promise: Promise<unknown>): void => {
   void promise.catch((cause) => {
     process.stderr.write(`Main runtime error: ${String(cause)}\n`);
@@ -74,6 +79,37 @@ const installMainCryptoFallback = (): void => {
 };
 
 installMainCryptoFallback();
+
+const clearTerminationForceExitTimer = (): void => {
+  if (!terminationForceExitTimer) {
+    return;
+  }
+
+  clearTimeout(terminationForceExitTimer);
+  terminationForceExitTimer = undefined;
+};
+
+const installTerminationSignalHandlers = (): void => {
+  for (const signal of TERMINATION_SIGNALS) {
+    process.once(signal, () => {
+      if (receivedTerminationSignal !== null) {
+        return;
+      }
+
+      receivedTerminationSignal = signal;
+      process.stderr.write(`Received ${signal}; quitting app.\n`);
+      app.quit();
+
+      terminationForceExitTimer = setTimeout(() => {
+        process.stderr.write(
+          `App did not quit after ${SIGNAL_FORCE_EXIT_AFTER_MS}ms; forcing exit.\n`,
+        );
+        app.exit(0);
+      }, SIGNAL_FORCE_EXIT_AFTER_MS);
+      terminationForceExitTimer.unref?.();
+    });
+  }
+};
 
 const isDev = !app.isPackaged;
 const isDarwin = process.platform === "darwin";
@@ -265,6 +301,7 @@ app.on("before-quit", () => {
 });
 
 app.on("will-quit", () => {
+  clearTerminationForceExitTimer();
   ignoreRuntimeRejection(runtime.dispose());
 });
 
@@ -286,3 +323,5 @@ app.on("activate", () => {
     ),
   );
 });
+
+installTerminationSignalHandlers();
