@@ -88,7 +88,6 @@ export const bridgeFallbacks = {
   "player.isMember": () => false,
   "player.joinMap": () => undefined,
   "player.jump": () => undefined,
-  "player.reloadAvatar": () => false,
   "player.rest": () => undefined,
   "player.useBoost": () => false,
   "player.walkTo": () => false,

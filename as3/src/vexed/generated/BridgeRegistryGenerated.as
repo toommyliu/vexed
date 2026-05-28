@@ -108,7 +108,6 @@ package vexed.generated
       external.externalize("player.isMember", Player.isMember);
       external.externalize("player.joinMap", Player.joinMap);
       external.externalize("player.jump", Player.jump);
-      external.externalize("player.reloadAvatar", Player.reloadAvatar);
       external.externalize("player.rest", Player.rest);
       external.externalize("player.useBoost", Player.useBoost);
       external.externalize("player.walkTo", Player.walkTo);

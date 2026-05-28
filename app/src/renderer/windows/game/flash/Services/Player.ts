@@ -23,7 +23,6 @@ export interface PlayerShape {
   isAfk(): BridgeEffect<boolean>;
   isReady(): BridgeEffect<boolean>;
   isMember(): BridgeEffect<boolean>;
-  reloadAvatar(): BridgeEffect<boolean>;
   jumpToCell(
     cell: string,
     pad?: string,
