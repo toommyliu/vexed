@@ -585,6 +585,19 @@ export const makeWindowService = (
         const gameWindow = gameWindows.get(gameWindowId)?.gameWindow;
         return isWindowUsable(gameWindow) ? gameWindow : null;
       }),
+    requestCloseGameWindow: (gameWindowId) =>
+      Effect.sync(() => {
+        const gameWindow = gameWindows.get(gameWindowId)?.gameWindow;
+        if (!isWindowOpen(gameWindow)) {
+          return;
+        }
+
+        setTimeout(() => {
+          if (!gameWindow.isDestroyed()) {
+            gameWindow.close();
+          }
+        }, 0);
+      }),
     setQuitting: (quitting) =>
       Effect.sync(() => {
         isQuitting = quitting;

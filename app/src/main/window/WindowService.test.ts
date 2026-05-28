@@ -47,6 +47,7 @@ class FakeWindow extends EventEmitter {
   public hidden = false;
   public readonly webContents = new FakeWebContents();
   public failLoad = false;
+  public closeCalls = 0;
 
   public constructor(
     public readonly id: number,
@@ -97,6 +98,7 @@ class FakeWindow extends EventEmitter {
   }
 
   public close(): boolean {
+    this.closeCalls += 1;
     let prevented = false;
     this.emit("close", {
       preventDefault() {
@@ -189,6 +191,11 @@ const createHarness = (
 
 const run = <A>(effect: Effect.Effect<A, WindowManagerError>) =>
   Effect.runPromise(effect);
+
+const waitForScheduledClose = () =>
+  new Promise<void>((resolve) => {
+    setTimeout(resolve, 0);
+  });
 
 describe("window reveal", () => {
   it("reveals when the first trigger fires", () => {
@@ -404,6 +411,55 @@ describe("window service", () => {
     )) as unknown as FakeWindow;
 
     expect(gameWindow.close()).toBe(false);
+
+    expect(environment.destroyed).toBe(true);
+    expect(packets.destroyed).toBe(true);
+  });
+
+  it("requests tracked game windows to close asynchronously", async () => {
+    const harness = createHarness();
+    const gameWindow = (await run(
+      harness.service.openGameWindow,
+    )) as unknown as FakeWindow;
+
+    await run(harness.service.requestCloseGameWindow(gameWindow.id));
+
+    expect(gameWindow.destroyed).toBe(false);
+
+    await waitForScheduledClose();
+
+    expect(gameWindow.closeCalls).toBe(1);
+    expect(gameWindow.destroyed).toBe(true);
+  });
+
+  it("ignores missing or destroyed game windows when close is requested", async () => {
+    const harness = createHarness();
+    const gameWindow = (await run(
+      harness.service.openGameWindow,
+    )) as unknown as FakeWindow;
+    gameWindow.destroy();
+
+    await run(harness.service.requestCloseGameWindow(gameWindow.id));
+    await run(harness.service.requestCloseGameWindow(9999));
+    await waitForScheduledClose();
+
+    expect(gameWindow.closeCalls).toBe(0);
+  });
+
+  it("cleans up child windows when a requested game window close runs", async () => {
+    const harness = createHarness();
+    const gameWindow = (await run(
+      harness.service.openGameWindow,
+    )) as unknown as FakeWindow;
+    const environment = (await run(
+      harness.service.openWindow(WindowIds.Environment, gameWindow.id),
+    )) as unknown as FakeWindow;
+    const packets = (await run(
+      harness.service.openWindow(WindowIds.Packets, gameWindow.id),
+    )) as unknown as FakeWindow;
+
+    await run(harness.service.requestCloseGameWindow(gameWindow.id));
+    await waitForScheduledClose();
 
     expect(environment.destroyed).toBe(true);
     expect(packets.destroyed).toBe(true);

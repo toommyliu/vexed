@@ -26,4 +26,21 @@ export const registerWindowIpcHandlers = (): Effect.Effect<
         yield* windows.openWindow(id, senderWindowId);
       }),
     );
+
+    yield* ipc.handle(WindowIpcChannels.requestCloseGameWindow, (event) =>
+      Effect.gen(function* () {
+        const senderWindow = BrowserWindow.fromWebContents(event.sender);
+        if (!senderWindow) {
+          return;
+        }
+
+        const windows = yield* WindowService;
+        const gameWindowId = yield* windows.getGameWindowId(senderWindow.id);
+        if (gameWindowId === undefined) {
+          return;
+        }
+
+        yield* windows.requestCloseGameWindow(gameWindowId);
+      }),
+    );
   });

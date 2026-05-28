@@ -37,6 +37,9 @@ export interface WindowServiceShape {
   readonly getGameWindow: (
     gameWindowId: number,
   ) => Effect.Effect<BrowserWindow | null>;
+  readonly requestCloseGameWindow: (
+    gameWindowId: number,
+  ) => Effect.Effect<void>;
   readonly setQuitting: (quitting: boolean) => Effect.Effect<void>;
 }
 

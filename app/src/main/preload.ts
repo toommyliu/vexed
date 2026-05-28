@@ -961,6 +961,13 @@ const bridge: AppBridge = {
     open: async (id: WindowId) => {
       await ipcRenderer.invoke(WindowIpcChannels.open, id);
     },
+    requestCloseGameWindow: () => {
+      void ipcRenderer
+        .invoke(WindowIpcChannels.requestCloseGameWindow)
+        .catch((cause: unknown) => {
+          writePreloadError("Failed to request game window close", cause);
+        });
+    },
   },
 };
 

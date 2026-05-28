@@ -9,7 +9,7 @@ import type { EnvironmentShape } from "../environment/Services/Environment";
 import type { AuthConnectOutcome } from "../flash/Services/Auth";
 import type { AutoZoneSupportedMap } from "../features/Services/AutoZone";
 import type { BankShape } from "../flash/Services/Bank";
-import type { BridgeEffect } from "../flash/Services/Bridge";
+import type { BridgeEffect, BridgeError } from "../flash/Services/Bridge";
 import type { CombatShape } from "../flash/Services/Combat";
 import type { DropsShape } from "../flash/Services/Drops";
 import type { HouseShape } from "../flash/Services/House";
@@ -366,6 +366,11 @@ export interface ScriptOptionsApi {
   reset(): Effect.Effect<void>;
 }
 
+export interface ScriptExitOptions {
+  readonly logout?: boolean;
+  readonly closeWindow?: boolean;
+}
+
 export interface ScriptRuntimeApi {
   /**
    * Current script cancellation signal; aborted when the script stops.
@@ -381,6 +386,12 @@ export interface ScriptRuntimeApi {
    * Waits for milliseconds and cancels when the script stops. Prefer this over homemade `setTimeout` helpers to avoid background timers that keep running after the script is stopped.
    */
   sleep(ms: number): Effect.Effect<void, ScriptExecutionError>;
+  /**
+   * Intentionally exits the current script, optionally logging out and closing the owning game window during teardown.
+   */
+  exit(
+    options?: ScriptExitOptions,
+  ): Effect.Effect<never, ScriptExecutionError | BridgeError>;
 }
 
 export interface ScriptApi {
