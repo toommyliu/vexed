@@ -42,6 +42,7 @@ import type {
   ScriptAutoReloginShape,
   ScriptAutoZoneShape,
   ScriptContext,
+  ScriptExitOptions,
   ScriptAntiCounterEvent,
   ScriptAntiCounterListener,
   ScriptAntiCounterShape,
@@ -438,12 +439,99 @@ const make = Effect.gen(function* () {
         return Effect.sleep(`${Math.trunc(ms)} millis`);
       });
 
+    let closeWindowOnExit = false;
+
+    const validateExitOptions = (
+      options: ScriptExitOptions | undefined,
+    ): Effect.Effect<ScriptExitOptions, ScriptExecutionError> =>
+      Effect.suspend(() => {
+        if (options === undefined) {
+          return Effect.succeed({});
+        }
+
+        if (
+          typeof options !== "object" ||
+          options === null ||
+          Array.isArray(options)
+        ) {
+          return Effect.fail(
+            new ScriptExecutionError({
+              sourceName,
+              message: "script.exit(options) expects an options object",
+              cause: options,
+            }),
+          );
+        }
+
+        if (
+          options.logout !== undefined &&
+          typeof options.logout !== "boolean"
+        ) {
+          return Effect.fail(
+            new ScriptExecutionError({
+              sourceName,
+              message: "script.exit(options.logout) expects a boolean",
+              cause: options.logout,
+            }),
+          );
+        }
+
+        if (
+          options.closeWindow !== undefined &&
+          typeof options.closeWindow !== "boolean"
+        ) {
+          return Effect.fail(
+            new ScriptExecutionError({
+              sourceName,
+              message: "script.exit(options.closeWindow) expects a boolean",
+              cause: options.closeWindow,
+            }),
+          );
+        }
+
+        return Effect.succeed(options);
+      });
+
     const stopScript = (reason?: string): Effect.Effect<never> =>
       Effect.gen(function* () {
         const stopReason = reason?.trim() ? reason : "script request";
 
         yield* scriptScope.requestInterrupt(stopReason);
         runFork(interruptActiveScript(stopReason));
+
+        return yield* Effect.interrupt;
+      });
+
+    const exitScript = (
+      options?: ScriptExitOptions,
+    ): Effect.Effect<never, ScriptExecutionError | BridgeError> =>
+      Effect.gen(function* () {
+        const normalizedOptions = yield* validateExitOptions(options);
+        const shouldCloseWindow = normalizedOptions.closeWindow === true;
+        const shouldLogout = normalizedOptions.logout === true;
+
+        closeWindowOnExit = shouldCloseWindow;
+
+        if (shouldLogout) {
+          const loggedIn = yield* auth
+            .isLoggedIn()
+            .pipe(Effect.catchCause(() => Effect.succeed(false)));
+
+          if (loggedIn) {
+            yield* auth.logout().pipe(
+              Effect.catchCause((cause) =>
+                Cause.hasInterruptsOnly(cause)
+                  ? Effect.failCause(cause)
+                  : Effect.sync(() => {
+                      closeWindowOnExit = false;
+                    }).pipe(Effect.andThen(Effect.failCause(cause))),
+              ),
+            );
+          }
+        }
+
+        yield* scriptScope.requestInterrupt("script exit");
+        runFork(interruptActiveScript("script exit"));
 
         return yield* Effect.interrupt;
       });
@@ -1278,6 +1366,7 @@ const make = Effect.gen(function* () {
       },
       stop: stopScript,
       sleep,
+      exit: exitScript,
     };
 
     const api: ScriptApi = {
@@ -1379,6 +1468,13 @@ const make = Effect.gen(function* () {
           Effect.ensuring(
             Effect.sync(() => {
               runtime.clearContext();
+            }),
+          ),
+          Effect.ensuring(
+            Effect.sync(() => {
+              if (closeWindowOnExit) {
+                window.ipc.windows.requestCloseGameWindow();
+              }
             }),
           ),
         ),

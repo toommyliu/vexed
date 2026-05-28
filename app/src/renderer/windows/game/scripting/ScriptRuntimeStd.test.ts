@@ -34,6 +34,7 @@ const makeContext = (): ScriptContext => {
       log: (message: string) => `log:${message}`,
       stop: () => "stop",
       sleep: (ms: number) => `sleep:${ms}`,
+      exit: (_options?: unknown) => "exit",
     },
     features,
   } as unknown as ScriptContext;
@@ -54,6 +55,7 @@ describe("script runtime std", () => {
     expect(api.wait.forMapLoaded("battleon")).toBe("map:battleon");
     expect(useSkill(1)).toBe("skill:1");
     expect(script.log("ready")).toBe("log:ready");
+    expect(script.exit()).toBe("exit");
     expect(autoZone.enable()).toBe("zone:enabled");
     expect(api.wait.until(() => true)).toBe("until");
   });

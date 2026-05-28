@@ -146,6 +146,7 @@ export const ScriptingIpcChannels = {
 
 export const WindowIpcChannels = {
   open: "windows:open",
+  requestCloseGameWindow: "windows:request-close-game-window",
 } as const;
 
 export const AccountManagerIpcChannels = {
@@ -535,10 +536,15 @@ export interface ScriptingBridge {
 
 export interface WindowInvokeChannels {
   readonly [WindowIpcChannels.open]: IpcInvokeDefinition<[id: WindowId], void>;
+  readonly [WindowIpcChannels.requestCloseGameWindow]: IpcInvokeDefinition<
+    [],
+    void
+  >;
 }
 
 export interface WindowsBridge {
   open(id: WindowId): Promise<void>;
+  requestCloseGameWindow(): void;
 }
 
 export interface AccountManagerInvokeChannels {
