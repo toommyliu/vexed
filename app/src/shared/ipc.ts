@@ -3,6 +3,10 @@ import type {
   ArmyBarrierPayload,
   ArmyConfigPayload,
   ArmyLeavePayload,
+  ArmyLoopTauntCommandPayload,
+  ArmyLoopTauntObservationPayload,
+  ArmyLoopTauntStartPayload,
+  ArmyLoopTauntStopPayload,
   ArmySessionPayload,
   ArmyStartPayload,
   ArmyStatusPayload,
@@ -50,6 +54,13 @@ export type {
   ArmyBarrierPayload,
   ArmyConfigPayload,
   ArmyLeavePayload,
+  ArmyLoopTauntCastOutcomeReason,
+  ArmyLoopTauntCommandPayload,
+  ArmyLoopTauntObservationPayload,
+  ArmyLoopTauntObservationType,
+  ArmyLoopTauntParticipantPayload,
+  ArmyLoopTauntStartPayload,
+  ArmyLoopTauntStopPayload,
   ArmySessionPayload,
   ArmyStartPayload,
   ArmyStatusPayload,
@@ -184,6 +195,10 @@ export const ArmyIpcChannels = {
   leave: "army:leave",
   barrier: "army:barrier",
   status: "army:status",
+  loopTauntStart: "army:loop-taunt:start",
+  loopTauntStop: "army:loop-taunt:stop",
+  loopTauntObservation: "army:loop-taunt:observation",
+  loopTauntCommand: "army:loop-taunt:command",
 } as const;
 
 export const EnvironmentIpcChannels = {
@@ -689,6 +704,24 @@ export interface ArmyInvokeChannels {
     [payload: ArmyStatusPayload],
     ArmyStatusResult
   >;
+  readonly [ArmyIpcChannels.loopTauntStart]: IpcInvokeDefinition<
+    [payload: ArmyLoopTauntStartPayload],
+    void
+  >;
+  readonly [ArmyIpcChannels.loopTauntStop]: IpcInvokeDefinition<
+    [payload: ArmyLoopTauntStopPayload],
+    void
+  >;
+  readonly [ArmyIpcChannels.loopTauntObservation]: IpcInvokeDefinition<
+    [payload: ArmyLoopTauntObservationPayload],
+    void
+  >;
+}
+
+export interface ArmyRendererEventChannels {
+  readonly [ArmyIpcChannels.loopTauntCommand]: [
+    payload: ArmyLoopTauntCommandPayload,
+  ];
 }
 
 export interface ArmyBridge {
@@ -697,6 +730,14 @@ export interface ArmyBridge {
   leave(payload: ArmyLeavePayload): Promise<void>;
   barrier(payload: ArmyBarrierPayload): Promise<void>;
   status(payload: ArmyStatusPayload): Promise<ArmyStatusResult>;
+  startLoopTaunt(payload: ArmyLoopTauntStartPayload): Promise<void>;
+  stopLoopTaunt(payload: ArmyLoopTauntStopPayload): Promise<void>;
+  publishLoopTauntObservation(
+    payload: ArmyLoopTauntObservationPayload,
+  ): Promise<void>;
+  onLoopTauntCommand(
+    listener: (payload: ArmyLoopTauntCommandPayload) => void,
+  ): () => void;
 }
 
 export interface EnvironmentInvokeChannels {

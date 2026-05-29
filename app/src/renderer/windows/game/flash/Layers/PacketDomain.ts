@@ -29,6 +29,11 @@ import {
   matchAntiCounterAura,
   matchAntiCounterMessage,
 } from "../antiCounter";
+import {
+  LOOP_TAUNT_FOCUS_AURA_ICON,
+  LOOP_TAUNT_FOCUS_AURA_NAME,
+  LOOP_TAUNT_SCROLL_ITEM_ID,
+} from "../../../../../shared/loop-taunt";
 
 const AURA_ADD_COMMANDS = new Set(["aura+", "aura++"]);
 const AURA_REMOVE_COMMANDS = new Set(["aura-", "aura--"]);
@@ -41,12 +46,110 @@ const parseMonsterMapIdFromEntityInfo = (
     return undefined;
   }
 
-  const [entityType, entityId] = info.split(":");
-  if (entityType !== "m") {
+  for (const token of info.split(",")) {
+    const [entityType, entityId] = token.trim().split(":");
+    if (entityType !== "m") {
+      continue;
+    }
+
+    const monMapId = asNumber(entityId);
+    if (monMapId !== undefined) {
+      return monMapId;
+    }
+  }
+
+  return undefined;
+};
+
+const parseLoopTauntScrollTarget = (
+  token: unknown,
+): number | undefined => {
+  const text = asString(token);
+  if (!text?.startsWith("i1>m:")) {
     return undefined;
   }
 
-  return asNumber(entityId);
+  return asNumber(text.slice("i1>m:".length));
+};
+
+interface ServerLoopTauntConfirmation {
+  readonly auraIcon: string;
+  readonly auraName: string;
+  readonly monMapId: number;
+}
+
+const getServerLoopTauntConfirmation = (
+  payload: Record<string, unknown>,
+): ServerLoopTauntConfirmation | undefined => {
+  const actionTargets = new Set<number>();
+
+  for (const rawAction of asArray(payload["sarsa"])) {
+    const action = asRecord(rawAction);
+    if (!action) {
+      continue;
+    }
+
+    for (const rawApplied of asArray(action["a"])) {
+      const applied = asRecord(rawApplied);
+      if (!applied || asString(applied["actRef"]) !== "i1") {
+        continue;
+      }
+
+      const target = parseMonsterMapIdFromEntityInfo(applied["tInf"]);
+      if (target !== undefined) {
+        actionTargets.add(target);
+      }
+    }
+  }
+
+  if (actionTargets.size === 0) {
+    return undefined;
+  }
+
+  for (const rawAuraEvent of asArray(payload["a"])) {
+    const auraEvent = asRecord(rawAuraEvent);
+    const cmd = auraEvent ? asString(auraEvent["cmd"]) : undefined;
+    if (!auraEvent || cmd === undefined || !AURA_ADD_COMMANDS.has(cmd)) {
+      continue;
+    }
+
+    const targetInfo = asString(auraEvent["tInf"]);
+    if (!targetInfo) {
+      continue;
+    }
+
+    const [targetType, rawTargetId] = targetInfo.split(":");
+    const targetId = asNumber(rawTargetId);
+    if (
+      targetType !== "m" ||
+      targetId === undefined ||
+      !actionTargets.has(targetId)
+    ) {
+      continue;
+    }
+
+    for (const rawAura of asArray(auraEvent["auras"])) {
+      const aura = asRecord(rawAura);
+      if (!aura) {
+        continue;
+      }
+
+      const auraName = asString(aura["nam"]);
+      const auraIcon = asString(aura["icon"]);
+      if (
+        auraName === LOOP_TAUNT_FOCUS_AURA_NAME &&
+        auraIcon === LOOP_TAUNT_FOCUS_AURA_ICON
+      ) {
+        return {
+          auraIcon,
+          auraName,
+          monMapId: targetId,
+        };
+      }
+    }
+  }
+
+  return undefined;
 };
 
 const normalizeAnimationMessage = (value: unknown): string | undefined => {
@@ -166,6 +269,8 @@ const createDomainHandlerStore = (): DomainHandlerStore => ({
   auraRemoved: new Set(),
   antiCounterStart: new Set(),
   antiCounterEnd: new Set(),
+  loopTauntClientCastAttempt: new Set(),
+  loopTauntServerCastConfirmed: new Set(),
   playerLocation: new Set(),
 });
 
@@ -788,11 +893,50 @@ const make = Effect.gen(function* () {
     }),
   );
 
+  yield* packets.clientScoped("gar", (packet) =>
+    Effect.gen(function* () {
+      const monMapId = packet.params
+        .map(parseLoopTauntScrollTarget)
+        .find((value): value is number => value !== undefined);
+      const itemId = packet.params
+        .map(asNumber)
+        .find((value) => value === LOOP_TAUNT_SCROLL_ITEM_ID);
+
+      if (monMapId === undefined || itemId === undefined) {
+        return;
+      }
+
+      yield* dispatchDomainEvent(
+        domainHandlerStore,
+        "loopTauntClientCastAttempt",
+        {
+          itemId,
+          monMapId,
+          packet,
+        },
+      );
+    }),
+  );
+
   yield* packets.serverScoped("ct", (packet) =>
     Effect.gen(function* () {
       const payload = asRecord(packet.data);
       if (!payload) {
         return;
+      }
+
+      const loopTauntConfirmation = getServerLoopTauntConfirmation(payload);
+      if (loopTauntConfirmation !== undefined) {
+        yield* dispatchDomainEvent(
+          domainHandlerStore,
+          "loopTauntServerCastConfirmed",
+          {
+            auraIcon: loopTauntConfirmation.auraIcon,
+            auraName: loopTauntConfirmation.auraName,
+            monMapId: loopTauntConfirmation.monMapId,
+            packet,
+          },
+        );
       }
 
       for (const rawAnimation of asArray(payload["anims"])) {
@@ -806,12 +950,18 @@ const make = Effect.gen(function* () {
           continue;
         }
 
-        const monMapId =
-          parseMonsterMapIdFromEntityInfo(animation["cInf"]) ??
-          parseMonsterMapIdFromEntityInfo(animation["tInf"]);
+        const sourceMonMapId = parseMonsterMapIdFromEntityInfo(
+          animation["cInf"],
+        );
+        const targetMonMapId = parseMonsterMapIdFromEntityInfo(
+          animation["tInf"],
+        );
+        const monMapId = sourceMonMapId ?? targetMonMapId;
         yield* dispatchDomainEvent(domainHandlerStore, "animationMessage", {
           message,
           ...(monMapId === undefined ? {} : { monMapId }),
+          ...(sourceMonMapId === undefined ? {} : { sourceMonMapId }),
+          ...(targetMonMapId === undefined ? {} : { targetMonMapId }),
           packet,
         });
 
@@ -913,6 +1063,11 @@ const make = Effect.gen(function* () {
               name: auraName,
               duration: asNumber(auraPayload["dur"]) ?? 0,
             };
+
+            const category = asString(auraPayload["cat"]);
+            if (category !== undefined) {
+              aura.cat = category;
+            }
 
             const icon = asString(auraPayload["icon"]);
             if (icon !== undefined) {

@@ -1,4 +1,5 @@
 export type Aura = {
+  cat?: string;
   duration?: number;
   icon?: string;
   isNew?: boolean;

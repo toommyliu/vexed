@@ -64,6 +64,10 @@ const addAuraToTarget = (
       existing.duration = aura.duration;
     }
 
+    if (aura.cat !== undefined) {
+      existing.cat = aura.cat;
+    }
+
     if (aura.icon !== undefined) {
       existing.icon = aura.icon;
     }
@@ -86,6 +90,10 @@ const updateAuraOnTarget = (
   if (existing) {
     if (aura.duration !== undefined) {
       existing.duration = aura.duration;
+    }
+
+    if (aura.cat !== undefined) {
+      existing.cat = aura.cat;
     }
 
     if (aura.icon !== undefined) {

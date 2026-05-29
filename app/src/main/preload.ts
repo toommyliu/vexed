@@ -27,6 +27,10 @@ import {
   type ArmyBarrierPayload,
   type ArmyConfigPayload,
   type ArmyLeavePayload,
+  type ArmyLoopTauntCommandPayload,
+  type ArmyLoopTauntObservationPayload,
+  type ArmyLoopTauntStartPayload,
+  type ArmyLoopTauntStopPayload,
   type ArmySessionPayload,
   type ArmyStartPayload,
   type ArmyStatusPayload,
@@ -475,6 +479,34 @@ const bridge: AppBridge = {
         ArmyIpcChannels.status,
         payload,
       )) as ArmyStatusResult;
+    },
+    startLoopTaunt: async (payload: ArmyLoopTauntStartPayload) => {
+      await ipcRenderer.invoke(ArmyIpcChannels.loopTauntStart, payload);
+    },
+    stopLoopTaunt: async (payload: ArmyLoopTauntStopPayload) => {
+      await ipcRenderer.invoke(ArmyIpcChannels.loopTauntStop, payload);
+    },
+    publishLoopTauntObservation: async (
+      payload: ArmyLoopTauntObservationPayload,
+    ) => {
+      await ipcRenderer.invoke(ArmyIpcChannels.loopTauntObservation, payload);
+    },
+    onLoopTauntCommand: (listener) => {
+      const subscription = (
+        _event: unknown,
+        payload: ArmyLoopTauntCommandPayload,
+      ) => {
+        listener(payload);
+      };
+
+      ipcRenderer.on(ArmyIpcChannels.loopTauntCommand, subscription);
+
+      return () => {
+        ipcRenderer.removeListener(
+          ArmyIpcChannels.loopTauntCommand,
+          subscription,
+        );
+      };
     },
   },
   combatProfiles: {

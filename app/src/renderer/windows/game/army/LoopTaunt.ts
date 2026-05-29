@@ -1,14 +1,78 @@
 import { parseMonsterMapIdToken } from "@vexed/game";
 import type { Aura } from "@vexed/game";
 import { equalsIgnoreCase } from "@vexed/shared/string";
+import type { Effect } from "effect";
+import type {
+  WorldMonstersShape,
+  WorldPlayersShape,
+} from "../flash/Services/World";
 import type { ArmyEffect } from "./Services/Army";
+export {
+  DEFAULT_LOOP_TAUNT_CAST_SETTLE_MS,
+  DEFAULT_LOOP_TAUNT_DELAY_MS,
+  DEFAULT_LOOP_TAUNT_MESSAGE_DEBOUNCE_MS,
+  DEFAULT_LOOP_TAUNT_RESPAWN_RECOVERY_MS,
+  LOOP_TAUNT_ACTION_LOCK_AURA_CATEGORIES,
+  LOOP_TAUNT_FOCUS_AURA_ICON,
+  LOOP_TAUNT_RETRY_SETTLE_MS,
+  LOOP_TAUNT_SHORT_RETRY_MS,
+} from "../../../../shared/loop-taunt";
+import {
+  DEFAULT_LOOP_TAUNT_DELAY_MS,
+  DEFAULT_LOOP_TAUNT_MESSAGE_DEBOUNCE_MS,
+  LOOP_TAUNT_FOCUS_AURA_ICON,
+} from "../../../../shared/loop-taunt";
 
 // Army player number or player name.
 export type ArmyLoopTauntPlayer = number | string;
 
+export type ArmyLoopTauntNoEligiblePolicy = "throw" | "cast-scheduled";
+
+export type NormalizedLoopTauntTrigger =
+  | {
+      readonly aura: string;
+      readonly delayMs: number;
+      readonly type: "aura";
+    }
+  | {
+      readonly debounceMs: number;
+      readonly message: string;
+      readonly type: "message";
+    };
+
+export interface ArmyLoopTauntTurnContext {
+  readonly id: string;
+  readonly target: {
+    readonly token: MonsterIdentifierToken;
+    readonly monMapId: number;
+  };
+  readonly localPlayer: ResolvedArmyPlayer;
+  readonly scheduled: ResolvedArmyPlayer;
+  readonly candidate: ResolvedArmyPlayer;
+  readonly participants: readonly ResolvedArmyPlayer[];
+  readonly turn: {
+    readonly index: number;
+    readonly triggerCount: number;
+  };
+  readonly trigger: NormalizedLoopTauntTrigger;
+  readonly world: {
+    readonly players: Pick<
+      WorldPlayersShape,
+      "getAll" | "getByName" | "getAuras" | "getAura"
+    >;
+    readonly monsters: Pick<WorldMonstersShape, "get" | "getAura">;
+  };
+}
+
+export type ArmyLoopTauntShouldTaunt = (
+  context: ArmyLoopTauntTurnContext,
+) => boolean | Effect.Effect<boolean, unknown>;
+
 interface ArmyLoopTauntBaseOptions {
   readonly id?: string;
+  readonly noEligiblePolicy?: ArmyLoopTauntNoEligiblePolicy;
   readonly players?: readonly ArmyLoopTauntPlayer[];
+  readonly shouldTaunt?: ArmyLoopTauntShouldTaunt;
   readonly skill: Skill;
   readonly target: MonsterIdentifierToken;
 }
@@ -17,10 +81,12 @@ export type ArmyLoopTauntOptions =
   | (ArmyLoopTauntBaseOptions & {
       readonly aura: string;
       readonly delayMs?: number;
+      readonly debounceMs?: never;
       readonly message?: never;
     })
   | (ArmyLoopTauntBaseOptions & {
       readonly aura?: never;
+      readonly debounceMs?: number;
       readonly delayMs?: never;
       readonly message: string;
     });
@@ -37,27 +103,40 @@ export interface ResolvedArmyPlayer {
 
 export type NormalizedLoopTauntOptions = {
   readonly id: string;
+  readonly noEligiblePolicy: ArmyLoopTauntNoEligiblePolicy;
   readonly participants: readonly ResolvedArmyPlayer[];
+  readonly shouldTaunt?: ArmyLoopTauntShouldTaunt;
   readonly skill: Skill;
   readonly target: MonsterIdentifierToken;
-  readonly trigger:
-    | {
-        readonly aura: string;
-        readonly delayMs: number;
-        readonly type: "aura";
-      }
-    | {
-        readonly message: string;
-        readonly type: "message";
-      };
+  readonly trigger: NormalizedLoopTauntTrigger;
 };
 
 export interface LoopTauntTurnState {
   readonly nextIndex: number;
+  readonly triggerCount: number;
 }
 
-export const DEFAULT_LOOP_TAUNT_DELAY_MS = 4_000;
-export const LOOP_TAUNT_FOCUS_AURA_ICON = "iwd1,ied1"; // Scroll of Enrage
+export interface LoopTauntTurnResolution {
+  readonly nextState: LoopTauntTurnState;
+  readonly scheduled: ResolvedArmyPlayer;
+  readonly selected: ResolvedArmyPlayer;
+  readonly selectedIndex: number;
+  readonly skipped: readonly ResolvedArmyPlayer[];
+}
+
+export type LoopTauntCastOutcome =
+  | {
+      readonly type: "cast";
+    }
+  | {
+      readonly reason:
+        | "failed"
+        | "in-flight"
+        | "not-alive"
+        | "not-ready"
+        | "not-usable";
+      readonly type: "skipped";
+    };
 
 const normalizeText = (value: string): string =>
   value.trim().toLowerCase().replace(/\s+/g, " ");
@@ -167,6 +246,50 @@ const assertValidDelayMs = (delayMs: unknown): number => {
   return Math.trunc(delayMs);
 };
 
+const assertValidMessageDebounceMs = (debounceMs: unknown): number => {
+  if (debounceMs === undefined) {
+    return DEFAULT_LOOP_TAUNT_MESSAGE_DEBOUNCE_MS;
+  }
+
+  if (
+    typeof debounceMs !== "number" ||
+    !Number.isFinite(debounceMs) ||
+    debounceMs < 0
+  ) {
+    throw new Error("debounceMs must be a finite non-negative number");
+  }
+
+  return Math.trunc(debounceMs);
+};
+
+const assertValidNoEligiblePolicy = (
+  policy: unknown,
+): ArmyLoopTauntNoEligiblePolicy => {
+  if (policy === undefined) {
+    return "throw";
+  }
+
+  if (policy !== "throw" && policy !== "cast-scheduled") {
+    throw new Error('noEligiblePolicy must be "throw" or "cast-scheduled"');
+  }
+
+  return policy;
+};
+
+const assertValidShouldTaunt = (
+  shouldTaunt: unknown,
+): ArmyLoopTauntShouldTaunt | undefined => {
+  if (shouldTaunt === undefined) {
+    return undefined;
+  }
+
+  if (typeof shouldTaunt !== "function") {
+    throw new Error("shouldTaunt must be a function");
+  }
+
+  return shouldTaunt as ArmyLoopTauntShouldTaunt;
+};
+
 export const resolveLoopTauntParticipants = (
   sessionPlayers: readonly string[],
   players: readonly ArmyLoopTauntPlayer[] | undefined,
@@ -240,10 +363,13 @@ export const normalizeLoopTauntOptions = (
     sessionPlayers,
     options.players,
   );
+  const shouldTaunt = assertValidShouldTaunt(options.shouldTaunt);
 
   return {
     id: createLoopTauntId(options),
+    noEligiblePolicy: assertValidNoEligiblePolicy(options.noEligiblePolicy),
     participants,
+    ...(shouldTaunt === undefined ? {} : { shouldTaunt }),
     skill,
     target,
     trigger: hasAura
@@ -253,6 +379,7 @@ export const normalizeLoopTauntOptions = (
           type: "aura",
         }
       : {
+          debounceMs: assertValidMessageDebounceMs(options.debounceMs),
           message: assertNonEmptyString("message", options.message),
           type: "message",
         },
@@ -271,4 +398,57 @@ export const advanceLoopTauntTurn = (
 ): LoopTauntTurnState => ({
   nextIndex:
     participants.length === 0 ? 0 : (state.nextIndex + 1) % participants.length,
+  triggerCount: state.triggerCount,
 });
+
+export const resolveLoopTauntTurn = (
+  participants: readonly ResolvedArmyPlayer[],
+  state: LoopTauntTurnState,
+  shouldSelect: (
+    candidate: ResolvedArmyPlayer,
+    index: number,
+  ) => boolean = () => true,
+  noEligiblePolicy: ArmyLoopTauntNoEligiblePolicy = "throw",
+): LoopTauntTurnResolution => {
+  if (participants.length === 0) {
+    throw new Error("Loop Taunt requires at least one participant");
+  }
+
+  const startIndex = state.nextIndex % participants.length;
+  const scheduled = participants[startIndex]!;
+  const skipped: ResolvedArmyPlayer[] = [];
+
+  for (let offset = 0; offset < participants.length; offset += 1) {
+    const candidateIndex = (startIndex + offset) % participants.length;
+    const candidate = participants[candidateIndex]!;
+    if (shouldSelect(candidate, candidateIndex)) {
+      return {
+        nextState: {
+          nextIndex: (candidateIndex + 1) % participants.length,
+          triggerCount: state.triggerCount + 1,
+        },
+        scheduled,
+        selected: candidate,
+        selectedIndex: candidateIndex,
+        skipped,
+      };
+    }
+
+    skipped.push(candidate);
+  }
+
+  if (noEligiblePolicy === "cast-scheduled") {
+    return {
+      nextState: {
+        nextIndex: (startIndex + 1) % participants.length,
+        triggerCount: state.triggerCount + 1,
+      },
+      scheduled,
+      selected: scheduled,
+      selectedIndex: startIndex,
+      skipped,
+    };
+  }
+
+  throw new Error("Loop Taunt found no eligible participant");
+};
