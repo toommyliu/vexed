@@ -49,6 +49,68 @@ export interface ArmyStatusResult {
   readonly waitingBarriers?: number;
 }
 
+export interface ArmyLoopTauntParticipantPayload {
+  readonly name: string;
+  readonly number: number;
+}
+
+export interface ArmyLoopTauntStartPayload {
+  readonly sessionId: string;
+  readonly playerName: string;
+  readonly id: string;
+  readonly aura: string;
+  readonly delayMs: number;
+  readonly skill: number | string;
+  readonly targetMonMapId: number;
+  readonly participants: readonly ArmyLoopTauntParticipantPayload[];
+}
+
+export interface ArmyLoopTauntStopPayload {
+  readonly sessionId: string;
+  readonly playerName: string;
+  readonly id: string;
+}
+
+export type ArmyLoopTauntObservationType =
+  | "aura-added"
+  | "aura-missing"
+  | "aura-removed"
+  | "cast-outcome"
+  | "client-cast-attempt"
+  | "server-cast-confirmed";
+
+export type ArmyLoopTauntCastOutcomeReason =
+  | "failed"
+  | "in-flight"
+  | "not-alive"
+  | "not-ready"
+  | "not-usable";
+
+export interface ArmyLoopTauntObservationPayload {
+  readonly sessionId: string;
+  readonly playerName: string;
+  readonly id: string;
+  readonly type: ArmyLoopTauntObservationType;
+  readonly targetMonMapId: number;
+  readonly auraName?: string;
+  readonly auraIcon?: string;
+  readonly epoch?: number;
+  readonly attempt?: number;
+  readonly outcome?: "cast" | "skipped";
+  readonly reason?: ArmyLoopTauntCastOutcomeReason;
+}
+
+export interface ArmyLoopTauntCommandPayload {
+  readonly sessionId: string;
+  readonly id: string;
+  readonly epoch: number;
+  readonly attempt: number;
+  readonly reason: string;
+  readonly skill: number | string;
+  readonly targetMonMapId: number;
+  readonly selected: ArmyLoopTauntParticipantPayload;
+}
+
 export const normalizeArmyConfigName = (fileName: string): string => {
   let normalized = fileName.trim();
   for (const extension of [".yaml", ".yml", ".json"] as const) {

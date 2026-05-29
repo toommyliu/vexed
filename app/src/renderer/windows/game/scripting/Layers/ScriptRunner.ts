@@ -3,7 +3,11 @@ import { equalsIgnoreCase } from "@vexed/shared/string";
 import { Cause, Effect, Fiber, Layer, Option, Ref, Semaphore } from "effect";
 import { type ScriptExecutePayload, type ScriptOptions } from "../ipc";
 import { Army, type ArmyShape } from "../../army/Services/Army";
-import type { ArmyLoopTauntHandle } from "../../army/LoopTaunt";
+import type {
+  ArmyLoopTauntHandle,
+  ArmyLoopTauntShouldTaunt,
+  ArmyLoopTauntTurnContext,
+} from "../../army/LoopTaunt";
 import { Auth } from "../../flash/Services/Auth";
 import { AutoRelogin } from "../../features/Services/AutoRelogin";
 import { AutoZone } from "../../features/Services/AutoZone";
@@ -420,13 +424,63 @@ const make = Effect.gen(function* () {
       return proxy;
     };
 
+    type ScriptLoopTauntOptions = Parameters<ArmyShape["startLoopTaunt"]>[0] & {
+      readonly shouldTaunt?: (
+        context: ArmyLoopTauntTurnContext,
+      ) =>
+        | boolean
+        | Effect.Effect<boolean, unknown>
+        | Generator<Effect.Yieldable<any, any, never, never>, boolean, never>;
+    };
+
+    const wrapLoopTauntOptions = (
+      options: Parameters<ArmyShape["startLoopTaunt"]>[0],
+    ): Parameters<ArmyShape["startLoopTaunt"]>[0] => {
+      const scriptOptions = options as ScriptLoopTauntOptions;
+      if (typeof scriptOptions.shouldTaunt !== "function") {
+        return options;
+      }
+
+      const shouldTaunt: ArmyLoopTauntShouldTaunt = (context) =>
+        Effect.try({
+          try: () => scriptOptions.shouldTaunt?.(context),
+          catch: (cause) =>
+            new ScriptExecutionError({
+              sourceName,
+              message: "shouldTaunt callback failed",
+              cause,
+            }),
+        }).pipe(
+          Effect.flatMap((result) => {
+            if (Effect.isEffect(result)) {
+              return wrapScriptEffect(
+                result as Effect.Effect<boolean, unknown, never>,
+              );
+            }
+
+            if (isGenerator(result)) {
+              return wrapScriptEffect(Effect.gen(() => result)).pipe(
+                Effect.map((value) => value === true),
+              );
+            }
+
+            return Effect.succeed(result === true);
+          }),
+        );
+
+      return {
+        ...options,
+        shouldTaunt,
+      };
+    };
+
     const sleep = (ms: number): Effect.Effect<void, ScriptExecutionError> =>
       Effect.suspend(() => {
         if (!Number.isFinite(ms) || ms < 0) {
           return Effect.fail(
             new ScriptExecutionError({
               sourceName,
-              message: "script.sleep(ms) expects a finite non-negative number",
+              message: "expected a finite non-negative number",
               cause: ms,
             }),
           );
@@ -1103,7 +1157,9 @@ const make = Effect.gen(function* () {
       options,
     ) =>
       Effect.gen(function* () {
-        const handle = yield* army.startLoopTaunt(options);
+        const handle = yield* army.startLoopTaunt(
+          wrapLoopTauntOptions(options),
+        );
         const cleanupKey = `loop-taunt:${handle.id}`;
         let stopped = false;
 

@@ -89,6 +89,7 @@ const CONSUMABLE_SKILL_INDEX = 5;
 const GEAR_OF_DOOM = "Gear of Doom";
 const TREASURE_POTION = "Treasure Potion";
 const WHEEL_OF_DOOM_QUEST_ID = 3_076;
+const SCROLL_OF_ENRAGE_QUEST_ID = 2_330;
 
 const requireFiniteNumber = (
   deps: ScriptRecipeDependencies,
@@ -245,6 +246,24 @@ const consumableSkillItemMatches = (
   return false;
 };
 
+const abandonQuestAfterClientSettle = (
+  deps: ScriptRecipeDependencies,
+  questId: number,
+): Effect.Effect<void, unknown> =>
+  Effect.gen(function* () {
+    // Quest abandon is client-local in AQW. Give late quest-complete handlers
+    // and auto-reaccept a chance to run, then clear the in-progress flag.
+    yield* Effect.sleep("750 millis");
+
+    for (let attempt = 0; attempt < 3; attempt++) {
+      if (yield* deps.quests.isInProgress(questId)) {
+        yield* deps.quests.abandon(questId);
+      }
+
+      yield* Effect.sleep("250 millis");
+    }
+  });
+
 const waitForConsumableSkillSlot = (
   deps: ScriptRecipeDependencies,
   expectedItem: Item,
@@ -397,7 +416,7 @@ const ensureScrollOfEnrage = (
         yield* deps.drops.acceptDrop(itemName);
       }
 
-      yield* deps.quests.accept(2330, true);
+      yield* deps.quests.accept(SCROLL_OF_ENRAGE_QUEST_ID, true);
 
       if (!(yield* deps.inventory.contains("Gold Voucher 100k", 1))) {
         if ((yield* deps.player.getGold()) < 100_000) {
@@ -420,13 +439,23 @@ const ensureScrollOfEnrage = (
         yield* deps.shops.buyByName("Zealous Ink", 5);
       }
 
-      if (!(yield* deps.quests.canComplete(2330))) {
+      if (!(yield* deps.quests.canComplete(SCROLL_OF_ENRAGE_QUEST_ID))) {
         return;
       }
-      yield* deps.quests.complete(2330, 5);
+      yield* deps.quests.complete(SCROLL_OF_ENRAGE_QUEST_ID, 5);
     }
-    yield* deps.quests.abandon(2330);
+    yield* abandonQuestAfterClientSettle(deps, SCROLL_OF_ENRAGE_QUEST_ID);
   });
+
+const getCurrentHouseOwner = (
+  deps: ScriptRecipeDependencies,
+): Effect.Effect<string | undefined, unknown> =>
+  deps.bridge.call("flash.getGameObject", ["world.objHouseData"]).pipe(
+    Effect.map((objHouseData) => {
+      const houseData = asRecord(objHouseData);
+      return houseData ? asString(houseData["unm"]) : undefined;
+    }),
+  );
 
 const goToHouse = (
   deps: ScriptRecipeDependencies,
@@ -438,6 +467,17 @@ const goToHouse = (
         ? yield* deps.auth.getUsername()
         : yield* requireNonEmptyString(deps, "goToHouse", "player", player);
 
+    const mapName = yield* deps.world.map.getName();
+    if (equalsIgnoreCase(mapName, "house")) {
+      const houseOwner = yield* getCurrentHouseOwner(deps);
+      if (
+        houseOwner !== undefined &&
+        equalsIgnoreCase(houseOwner, playerName)
+      ) {
+        return;
+      }
+    }
+
     yield* deps.combat.exit();
     yield* deps.wait.forGameAction("tfer");
     yield* deps.packet.sendServer(`%xt%zm%house%1%${playerName}%`);
@@ -447,6 +487,14 @@ const goToHouse = (
 
         const mapName = yield* deps.world.map.getName();
         if (!equalsIgnoreCase(mapName, "house")) return false;
+
+        const houseOwner = yield* getCurrentHouseOwner(deps);
+        if (
+          houseOwner === undefined ||
+          !equalsIgnoreCase(houseOwner, playerName)
+        ) {
+          return false;
+        }
 
         return yield* deps.player.isReady();
       }),

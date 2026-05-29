@@ -126,6 +126,9 @@ export class Army extends ServiceMap.Service<Army, ArmyShape>()(
 export type { ArmyConfigRaw };
 export type {
   ArmyLoopTauntHandle,
+  ArmyLoopTauntNoEligiblePolicy,
   ArmyLoopTauntOptions,
   ArmyLoopTauntPlayer,
+  ArmyLoopTauntShouldTaunt,
+  ArmyLoopTauntTurnContext,
 } from "../LoopTaunt";

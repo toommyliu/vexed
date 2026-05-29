@@ -13,8 +13,12 @@ import { PacketLive } from "./Packet";
 import { PacketDomainLive } from "./PacketDomain";
 import { WaitLive } from "./Wait";
 import { WorldLive } from "./World";
+import { LOOP_TAUNT_SCROLL_ITEM_ID } from "../../../../../shared/loop-taunt";
 
-type PacketWindow = Pick<Window, "onExtensionResponse" | "packetFromServer">;
+type PacketWindow = Pick<
+  Window,
+  "onExtensionResponse" | "packetFromClient" | "packetFromServer"
+>;
 
 class PacketDomainTestError extends Data.TaggedError("PacketDomainTestError")<{
   readonly cause?: unknown;
@@ -141,6 +145,17 @@ const emitServerPacket = (raw: string): void => {
   if (typeof handler !== "function") {
     throw new PacketDomainTestError({
       message: "window.packetFromServer was not registered",
+    });
+  }
+
+  handler(raw);
+};
+
+const emitClientPacket = (raw: string): void => {
+  const handler = (window as PacketWindow).packetFromClient;
+  if (typeof handler !== "function") {
+    throw new PacketDomainTestError({
+      message: "window.packetFromClient was not registered",
     });
   }
 
@@ -291,6 +306,36 @@ test("packet domain emits animation message events with monster ids", async () =
       );
 
       emitServerPacket(
+        '{"t":"xt","b":{"o":{"cmd":"ct","anims":[{"msg":"defense shattering","cInf":"m:3","tInf":"m:2"}]}}}',
+      );
+
+      return yield* waitForEvent(observed);
+    }),
+  );
+
+  expect(event.message).toBe("defense shattering");
+  expect(event.monMapId).toBe(3);
+  expect(event.sourceMonMapId).toBe(3);
+  expect(event.targetMonMapId).toBe(2);
+});
+
+test("packet domain preserves animation message target monster id fallback", async () => {
+  const event = await withPacketDomain((packetDomain) =>
+    Effect.gen(function* () {
+      let resolveEvent:
+        | ((event: PacketDomainEventMap["animationMessage"]) => void)
+        | undefined;
+      const observed = new Promise<PacketDomainEventMap["animationMessage"]>(
+        (resolve) => {
+          resolveEvent = resolve;
+        },
+      );
+
+      yield* packetDomain.on("animationMessage", (messageEvent) =>
+        Effect.sync(() => resolveEvent?.(messageEvent)),
+      );
+
+      emitServerPacket(
         '{"t":"xt","b":{"o":{"cmd":"ct","anims":[{"msg":"defense shattering","tInf":"m:2"}]}}}',
       );
 
@@ -300,6 +345,38 @@ test("packet domain emits animation message events with monster ids", async () =
 
   expect(event.message).toBe("defense shattering");
   expect(event.monMapId).toBe(2);
+  expect(event.sourceMonMapId).toBeUndefined();
+  expect(event.targetMonMapId).toBe(2);
+});
+
+test("packet domain parses monster ids from animation target lists", async () => {
+  const event = await withPacketDomain((packetDomain) =>
+    Effect.gen(function* () {
+      let resolveEvent:
+        | ((event: PacketDomainEventMap["animationMessage"]) => void)
+        | undefined;
+      const observed = new Promise<PacketDomainEventMap["animationMessage"]>(
+        (resolve) => {
+          resolveEvent = resolve;
+        },
+      );
+
+      yield* packetDomain.on("animationMessage", (messageEvent) =>
+        Effect.sync(() => resolveEvent?.(messageEvent)),
+      );
+
+      emitServerPacket(
+        '{"t":"xt","b":{"o":{"cmd":"ct","anims":[{"msg":"defense shattering","cInf":"p:1","tInf":"p:2,m:4,m:5"}]}}}',
+      );
+
+      return yield* waitForEvent(observed);
+    }),
+  );
+
+  expect(event.message).toBe("defense shattering");
+  expect(event.monMapId).toBe(4);
+  expect(event.sourceMonMapId).toBeUndefined();
+  expect(event.targetMonMapId).toBe(4);
 });
 
 test("packet domain emits monster aura add and remove events", async () => {
@@ -335,7 +412,7 @@ test("packet domain emits monster aura add and remove events", async () => {
       );
 
       emitServerPacket(
-        '{"t":"xt","b":{"o":{"cmd":"ct","a":[{"cmd":"aura+","tInf":"m:2","auras":[{"icon":"iwd1,ied1","isNew":true,"nam":"Focus"}]},{"cmd":"aura-","tInf":"m:2","aura":{"nam":"Focus"}}]}}}',
+        '{"t":"xt","b":{"o":{"cmd":"ct","a":[{"cmd":"aura+","tInf":"m:2","auras":[{"cat":"stone","icon":"iwd1,ied1","isNew":true,"nam":"Focus"}]},{"cmd":"aura-","tInf":"m:2","aura":{"nam":"Focus"}}]}}}',
       );
 
       return yield* waitForEvent(done);
@@ -344,11 +421,86 @@ test("packet domain emits monster aura add and remove events", async () => {
 
   expect(events).toMatchObject([
     {
-      aura: { icon: "iwd1,ied1" },
+      aura: { cat: "stone", icon: "iwd1,ied1" },
       auraName: "Focus",
       targetId: 2,
       targetType: "monster",
     },
     { auraName: "Focus", targetId: 2, targetType: "monster" },
   ]);
+});
+
+test("packet domain reports outgoing loop taunt scroll attempt telemetry", async () => {
+  const event = await withPacketDomain((packetDomain) =>
+    Effect.gen(function* () {
+      let resolveObserved: (
+        event: PacketDomainEventMap["loopTauntClientCastAttempt"],
+      ) => void;
+      const observed = new Promise<
+        PacketDomainEventMap["loopTauntClientCastAttempt"]
+      >((resolve) => {
+        resolveObserved = resolve;
+      });
+      yield* packetDomain.on("loopTauntClientCastAttempt", (payload) =>
+        Effect.sync(() => resolveObserved(payload)),
+      );
+
+      emitClientPacket("%xt%zm%gar%1%0%i1>m:7%12917%wvz%");
+
+      return yield* waitForEvent(observed);
+    }),
+  );
+
+  expect(event.itemId).toBe(LOOP_TAUNT_SCROLL_ITEM_ID);
+  expect(event.monMapId).toBe(7);
+});
+
+test("packet domain reports server-confirmed loop taunt actions with matching Focus aura", async () => {
+  const event = await withPacketDomain((packetDomain) =>
+    Effect.gen(function* () {
+      let resolveObserved: (
+        event: PacketDomainEventMap["loopTauntServerCastConfirmed"],
+      ) => void;
+      const observed = new Promise<
+        PacketDomainEventMap["loopTauntServerCastConfirmed"]
+      >((resolve) => {
+        resolveObserved = resolve;
+      });
+      yield* packetDomain.on("loopTauntServerCastConfirmed", (payload) =>
+        Effect.sync(() => resolveObserved(payload)),
+      );
+
+      emitServerPacket(
+        '{"t":"xt","b":{"o":{"cmd":"ct","sarsa":[{"a":[{"actRef":"i1","tInf":"m:7"}]}],"a":[{"cmd":"aura+","tInf":"m:7","auras":[{"nam":"Focus","icon":"iwd1,ied1","dur":6,"t":"s","isNew":true}]}]}}}',
+      );
+
+      return yield* waitForEvent(observed);
+    }),
+  );
+
+  expect(event.auraIcon).toBe("iwd1,ied1");
+  expect(event.auraName).toBe("Focus");
+  expect(event.monMapId).toBe(7);
+});
+
+test("packet domain does not confirm loop taunt from server action without matching Focus aura", async () => {
+  const observed = await withPacketDomain((packetDomain) =>
+    Effect.gen(function* () {
+      let observed = false;
+      yield* packetDomain.on("loopTauntServerCastConfirmed", () =>
+        Effect.sync(() => {
+          observed = true;
+        }),
+      );
+
+      emitServerPacket(
+        '{"t":"xt","b":{"o":{"cmd":"ct","sarsa":[{"a":[{"actRef":"i1","tInf":"m:7"}]}]}}}',
+      );
+      yield* Effect.sleep("25 millis");
+
+      return observed;
+    }),
+  );
+
+  expect(observed).toBe(false);
 });

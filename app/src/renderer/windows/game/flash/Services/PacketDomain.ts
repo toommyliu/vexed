@@ -1,7 +1,11 @@
 import { ServiceMap } from "effect";
 import type { Effect } from "effect";
 import type { Aura } from "@vexed/game";
-import type { ExtensionPacket, ServerPacket } from "../PacketTypes";
+import type {
+  ClientPacket,
+  ExtensionPacket,
+  ServerPacket,
+} from "../PacketTypes";
 import type { PacketListenerDisposer } from "./Packet";
 
 export type PacketDomainEvent =
@@ -13,6 +17,8 @@ export type PacketDomainEvent =
   | "auraRemoved"
   | "antiCounterStart"
   | "antiCounterEnd"
+  | "loopTauntClientCastAttempt"
+  | "loopTauntServerCastConfirmed"
   | "playerLocation";
 
 export interface PacketDomainMonsterDeathEvent {
@@ -36,6 +42,8 @@ export interface PacketDomainJoinMapEvent {
 export interface PacketDomainAnimationMessageEvent {
   readonly message: string;
   readonly monMapId?: number;
+  readonly sourceMonMapId?: number;
+  readonly targetMonMapId?: number;
   readonly packet: ServerPacket;
 }
 
@@ -65,6 +73,19 @@ export interface PacketDomainPlayerLocationEvent {
   readonly packet: ExtensionPacket;
 }
 
+export interface PacketDomainLoopTauntClientCastAttemptEvent {
+  readonly itemId: number;
+  readonly monMapId: number;
+  readonly packet: ClientPacket;
+}
+
+export interface PacketDomainLoopTauntServerCastConfirmedEvent {
+  readonly auraIcon: string;
+  readonly auraName: string;
+  readonly monMapId: number;
+  readonly packet: ServerPacket;
+}
+
 export interface PacketDomainEventMap {
   monsterDeath: PacketDomainMonsterDeathEvent;
   zone: PacketDomainZoneEvent;
@@ -74,6 +95,8 @@ export interface PacketDomainEventMap {
   auraRemoved: PacketDomainAuraEvent;
   antiCounterStart: PacketDomainAntiCounterEvent;
   antiCounterEnd: PacketDomainAntiCounterEvent;
+  loopTauntClientCastAttempt: PacketDomainLoopTauntClientCastAttemptEvent;
+  loopTauntServerCastConfirmed: PacketDomainLoopTauntServerCastConfirmedEvent;
   playerLocation: PacketDomainPlayerLocationEvent;
 }
 

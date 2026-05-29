@@ -1,8 +1,18 @@
 import { Collection } from "@vexed/collection";
-import { EntityState, Monster, type Aura } from "@vexed/game";
+import { Avatar, EntityState, Monster, type Aura } from "@vexed/game";
 import { Effect, Layer, Option } from "effect";
-import { expect, test } from "vitest";
+import { expect, test, vi } from "vitest";
 import type { ArmyBarrierPayload } from "../../../../../shared/army";
+import type {
+  ArmyLoopTauntCommandPayload,
+  ArmyLoopTauntObservationPayload,
+  ArmyLoopTauntStartPayload,
+  ArmyLoopTauntStopPayload,
+} from "../../../../../shared/army";
+import {
+  DEFAULT_LOOP_TAUNT_CAST_SETTLE_MS,
+  DEFAULT_LOOP_TAUNT_RESPAWN_RECOVERY_MS,
+} from "../LoopTaunt";
 import type { ArmySession } from "../Services/Army";
 import { Army } from "../Services/Army";
 import { Auth, type AuthShape } from "../../flash/Services/Auth";
@@ -33,6 +43,8 @@ const createStore = (): HandlerStore => ({
   antiCounterEnd: new Set(),
   antiCounterStart: new Set(),
   joinMap: new Set(),
+  loopTauntClientCastAttempt: new Set(),
+  loopTauntServerCastConfirmed: new Set(),
   monsterDeath: new Set(),
   playerLocation: new Set(),
   zone: new Set(),
@@ -81,9 +93,27 @@ const monster = new Monster({
   strMonName: "Ultra Boss",
 });
 
+const otherMonster = new Monster({
+  iLvl: 1,
+  intHP: 100,
+  intHPMax: 100,
+  intMP: 100,
+  intMPMax: 100,
+  intState: EntityState.Idle,
+  monId: 2,
+  monMapId: 8,
+  sRace: "None",
+  strFrame: "Boss",
+  strMonName: "Other Boss",
+});
+
 const auraKey = (auraName: string): string => auraName.trim().toLowerCase();
 
-const makeWorld = (auras: Map<string, Aura>): WorldShape => ({
+const makeWorld = (
+  auras: Map<string, Aura>,
+  playerNames: readonly string[],
+  playerAuras: ReadonlyMap<number, ReadonlyMap<string, Aura>> = new Map(),
+): WorldShape => ({
   map: {
     getCellMonsters: () => Effect.succeed([monster]),
     getCells: () => Effect.succeed(["Enter", "Boss"]),
@@ -105,11 +135,96 @@ const makeWorld = (auras: Map<string, Aura>): WorldShape => ({
     add: () => Effect.void,
     addAura: () => Effect.void,
     clearAuras: () => Effect.void,
-    get: () => Effect.succeed(Option.none()),
-    getAll: () => Effect.succeed(new Collection()),
-    getAura: () => Effect.succeed(Option.none()),
-    getAuras: () => Effect.succeed([]),
-    getByName: () => Effect.succeed(Option.none()),
+    get: (username) =>
+      Effect.succeed(
+        Option.fromNullishOr(
+          playerNames
+            .map(
+              (name, index) =>
+                new Avatar({
+                  afk: false,
+                  entID: index + 1,
+                  entType: "player",
+                  intHP: 100,
+                  intHPMax: 100,
+                  intLevel: 100,
+                  intMP: 100,
+                  intMPMax: 100,
+                  intState: EntityState.Idle,
+                  strFrame: "Boss",
+                  strPad: "Spawn",
+                  strUsername: name,
+                  tx: 0,
+                  ty: 0,
+                  uoName: name.toLowerCase(),
+                }),
+            )
+            .find(
+              (player) =>
+                player.username.toLowerCase() === username.toLowerCase(),
+            ),
+        ),
+      ),
+    getAll: () =>
+      Effect.succeed(
+        new Collection(
+          playerNames.map((name, index) => [
+            name.toLowerCase(),
+            new Avatar({
+              afk: false,
+              entID: index + 1,
+              entType: "player",
+              intHP: 100,
+              intHPMax: 100,
+              intLevel: 100,
+              intMP: 100,
+              intMPMax: 100,
+              intState: EntityState.Idle,
+              strFrame: "Boss",
+              strPad: "Spawn",
+              strUsername: name,
+              tx: 0,
+              ty: 0,
+              uoName: name.toLowerCase(),
+            }),
+          ]),
+        ),
+      ),
+    getAura: (entId, auraName) =>
+      Effect.succeed(
+        Option.fromNullishOr(playerAuras.get(entId)?.get(auraKey(auraName))),
+      ),
+    getAuras: (entId) =>
+      Effect.succeed(Array.from(playerAuras.get(entId)?.values() ?? [])),
+    getByName: (name) =>
+      Effect.succeed(
+        Option.fromNullishOr(
+          playerNames
+            .map(
+              (playerName, index) =>
+                new Avatar({
+                  afk: false,
+                  entID: index + 1,
+                  entType: "player",
+                  intHP: 100,
+                  intHPMax: 100,
+                  intLevel: 100,
+                  intMP: 100,
+                  intMPMax: 100,
+                  intState: EntityState.Idle,
+                  strFrame: "Boss",
+                  strPad: "Spawn",
+                  strUsername: playerName,
+                  tx: 0,
+                  ty: 0,
+                  uoName: playerName.toLowerCase(),
+                }),
+            )
+            .find(
+              (player) => player.username.toLowerCase() === name.toLowerCase(),
+            ),
+        ),
+      ),
     getSelf: () => Effect.succeed(Option.none()),
     register: () => Effect.void,
     remove: () => Effect.void,
@@ -128,8 +243,21 @@ const makeWorld = (auras: Map<string, Aura>): WorldShape => ({
         name === "Ultra Boss" ? Option.some(monster) : Option.none(),
       ),
     get: (monMapId) =>
-      Effect.succeed(monMapId === 7 ? Option.some(monster) : Option.none()),
-    getAll: () => Effect.succeed(new Collection([[7, monster]])),
+      Effect.succeed(
+        Option.fromNullishOr(
+          new Map([
+            [7, monster],
+            [8, otherMonster],
+          ]).get(monMapId),
+        ),
+      ),
+    getAll: () =>
+      Effect.succeed(
+        new Collection([
+          [7, monster],
+          [8, otherMonster],
+        ]),
+      ),
     getAura: (_monMapId, auraName) =>
       Effect.succeed(Option.fromNullishOr(auras.get(auraKey(auraName)))),
     removeAura: () => Effect.void,
@@ -164,11 +292,20 @@ const withArmy = async <A>(
   ) => Effect.Effect<A, unknown>,
   options?: {
     readonly hasAura?: boolean;
+    readonly isAlive?: () => Effect.Effect<boolean>;
+    readonly isReady?: () => Effect.Effect<boolean>;
+    readonly playerAuras?: ReadonlyMap<number, ReadonlyMap<string, Aura>>;
   },
 ): Promise<A> => {
   const store = createStore();
   const calls: string[] = [];
   const barriers: ArmyBarrierPayload[] = [];
+  const loopTauntCommandListeners = new Set<
+    (payload: ArmyLoopTauntCommandPayload) => void
+  >();
+  let loopTaunt:
+    | (ArmyLoopTauntStartPayload & { readonly nextIndex: number })
+    | undefined;
   const auras = new Map<string, Aura>();
   if (options?.hasAura === true) {
     auras.set(auraKey("Focus"), {
@@ -190,8 +327,69 @@ const withArmy = async <A>(
           },
           leave: async () => undefined,
           loadConfig: async () => session,
+          onLoopTauntCommand: (
+            listener: (payload: ArmyLoopTauntCommandPayload) => void,
+          ) => {
+            loopTauntCommandListeners.add(listener);
+            return () => {
+              loopTauntCommandListeners.delete(listener);
+            };
+          },
+          publishLoopTauntObservation: async (
+            observation: ArmyLoopTauntObservationPayload,
+          ) => {
+            if (
+              loopTaunt === undefined ||
+              loopTaunt.id !== observation.id ||
+              loopTaunt.targetMonMapId !== observation.targetMonMapId ||
+              (observation.type !== "aura-missing" &&
+                observation.type !== "aura-removed")
+            ) {
+              return;
+            }
+
+            const selected =
+              loopTaunt.participants[
+                loopTaunt.nextIndex % loopTaunt.participants.length
+              ];
+            if (selected === undefined) {
+              return;
+            }
+
+            loopTaunt = {
+              ...loopTaunt,
+              nextIndex: (loopTaunt.nextIndex + 1) % loopTaunt.participants.length,
+            };
+
+            const command: ArmyLoopTauntCommandPayload = {
+              attempt: 1,
+              epoch: loopTaunt.nextIndex,
+              id: loopTaunt.id,
+              reason: observation.type,
+              selected,
+              sessionId: loopTaunt.sessionId,
+              skill: loopTaunt.skill,
+              targetMonMapId: loopTaunt.targetMonMapId,
+            };
+            const sendCommand = () => {
+              for (const listener of loopTauntCommandListeners) {
+                listener(command);
+              }
+            };
+
+            setTimeout(
+              sendCommand,
+              observation.type === "aura-removed" ? loopTaunt.delayMs : 0,
+            );
+          },
           start: async () => session,
+          startLoopTaunt: async (payload: ArmyLoopTauntStartPayload) => {
+            loopTaunt = { ...payload, nextIndex: 0 };
+          },
           status: async () => ({ active: true }),
+          stopLoopTaunt: async (_payload: ArmyLoopTauntStopPayload) => {
+            loopTaunt = undefined;
+          },
         },
       },
     },
@@ -238,7 +436,13 @@ const withArmy = async <A>(
     exit: () => Effect.succeed(true),
     getConsumableSkillItem: () => Effect.succeed(null),
     getTarget: () =>
-      Effect.succeed(currentTargetMonMapId === 7 ? monster : null),
+      Effect.succeed(
+        currentTargetMonMapId === 7
+          ? monster
+          : currentTargetMonMapId === 8
+            ? otherMonster
+            : null,
+      ),
     hasTarget: () => Effect.succeed(false),
     hunt: () => Effect.succeed(""),
     kill: () => Effect.void,
@@ -279,9 +483,9 @@ const withArmy = async <A>(
     goToPlayer: () => Effect.void,
     hasActiveBoost: () => Effect.succeed(false),
     isAfk: () => Effect.succeed(false),
-    isAlive: () => Effect.succeed(true),
+    isAlive: options?.isAlive ?? (() => Effect.succeed(true)),
     isMember: () => Effect.succeed(false),
-    isReady: () => Effect.succeed(true),
+    isReady: options?.isReady ?? (() => Effect.succeed(true)),
     joinMap: () => Effect.void,
     jumpToCell: () => Effect.void,
     rest: () => Effect.void,
@@ -328,7 +532,9 @@ const withArmy = async <A>(
         Layer.succeed(PacketDomain)(packetDomain),
         Layer.succeed(Player)(player),
         Layer.succeed(Wait)(wait),
-        Layer.succeed(World)(makeWorld(auras)),
+        Layer.succeed(World)(
+          makeWorld(auras, session.players, options?.playerAuras),
+        ),
       ),
     ),
   );
@@ -373,6 +579,86 @@ test("Loop Taunt autonomously taunts first in aura mode when aura is absent", as
   expect(calls).toEqual(["attack:7", "attack:7", "skill:5"]);
 });
 
+test("Loop Taunt skips local cast while player is petrified", async () => {
+  const calls = await withArmy(
+    makeSession(1),
+    (army, _emit, calls) =>
+      Effect.gen(function* () {
+        yield* army.start("config");
+        const handle = yield* army.startLoopTaunt({
+          aura: "Focus",
+          skill: 5,
+          target: "Ultra Boss",
+        });
+
+        yield* Effect.sleep("100 millis");
+        yield* handle.stop();
+        return calls;
+      }),
+    {
+      playerAuras: new Map([
+        [
+          1,
+          new Map([
+            [
+              auraKey("Petrified"),
+              {
+                cat: "stone",
+                duration: 4,
+                name: "Petrified",
+              },
+            ],
+          ]),
+        ],
+      ]),
+    },
+  );
+
+  expect(calls).toEqual(["attack:7"]);
+});
+
+test("Loop Taunt selects replacement participant in aura mode", async () => {
+  const calls = await withArmy(makeSession(2), (army, _emit, calls) =>
+    Effect.gen(function* () {
+      yield* army.start("config");
+      const handle = yield* army.startLoopTaunt({
+        aura: "Focus",
+        players: [1, 2],
+        shouldTaunt: ({ candidate }) => candidate.number === 2,
+        skill: 5,
+        target: "Ultra Boss",
+      });
+
+      yield* Effect.sleep("100 millis");
+      yield* handle.stop();
+      return calls;
+    }),
+  );
+
+  expect(calls).toEqual(["attack:7", "attack:7", "skill:5"]);
+});
+
+test("Loop Taunt does not cast locally when replacement is another participant", async () => {
+  const calls = await withArmy(makeSession(1), (army, _emit, calls) =>
+    Effect.gen(function* () {
+      yield* army.start("config");
+      const handle = yield* army.startLoopTaunt({
+        aura: "Focus",
+        players: [1, 2],
+        shouldTaunt: ({ candidate }) => candidate.number === 2,
+        skill: 5,
+        target: "Ultra Boss",
+      });
+
+      yield* Effect.sleep("100 millis");
+      yield* handle.stop();
+      return calls;
+    }),
+  );
+
+  expect(calls).toEqual(["attack:7"]);
+});
+
 test("Loop Taunt advances message turns and only casts on local player turn", async () => {
   const calls = await withArmy(makeSession(2), (army, emit, calls) =>
     Effect.gen(function* () {
@@ -406,73 +692,483 @@ test("Loop Taunt advances message turns and only casts on local player turn", as
   expect(calls).toEqual(["attack:7", "attack:7", "skill:5"]);
 });
 
-test("Loop Taunt waits for aura removal and delay before next participant casts", async () => {
-  const result = await withArmy(makeSession(2), (army, emit, calls) =>
+test("Loop Taunt selects replacement participant in message mode", async () => {
+  const calls = await withArmy(makeSession(2), (army, emit, calls) =>
+    Effect.gen(function* () {
+      yield* army.start("config");
+      const handle = yield* army.startLoopTaunt({
+        message: "defense shattering",
+        players: [1, 2],
+        shouldTaunt: ({ candidate }) => candidate.number === 2,
+        skill: 5,
+        target: "id:7",
+      });
+
+      yield* Effect.sleep("25 millis");
+      yield* emit("animationMessage", {
+        message: "defense shattering",
+        monMapId: 7,
+        packet: { cmd: "ct", data: {}, raw: "", type: "server" },
+      });
+      yield* Effect.sleep("25 millis");
+
+      yield* handle.stop();
+      return calls;
+    }),
+  );
+
+  expect(calls).toEqual(["attack:7", "attack:7", "skill:5"]);
+});
+
+test("Loop Taunt message mode prefers animation source monster id", async () => {
+  const calls = await withArmy(makeSession(2), (army, emit, calls) =>
+    Effect.gen(function* () {
+      yield* army.start("config");
+      const handle = yield* army.startLoopTaunt({
+        message: "defense shattering",
+        players: [2],
+        skill: 5,
+        target: "id:7",
+      });
+
+      yield* Effect.sleep("25 millis");
+      yield* emit("animationMessage", {
+        message: "defense shattering",
+        monMapId: 8,
+        packet: { cmd: "ct", data: {}, raw: "", type: "server" },
+        sourceMonMapId: 8,
+        targetMonMapId: 7,
+      });
+      yield* Effect.sleep("25 millis");
+      const afterWrongSource = [...calls];
+
+      yield* emit("animationMessage", {
+        message: "defense shattering",
+        monMapId: 7,
+        packet: { cmd: "ct", data: {}, raw: "", type: "server" },
+        sourceMonMapId: 7,
+        targetMonMapId: 8,
+      });
+      yield* Effect.sleep("25 millis");
+
+      yield* handle.stop();
+      return { afterWrongSource, calls };
+    }),
+  );
+
+  expect(calls.afterWrongSource).toEqual(["attack:7"]);
+  expect(calls.calls).toEqual(["attack:7", "attack:7", "skill:5"]);
+});
+
+test("Loop Taunt debounces duplicate message triggers for the same target", async () => {
+  const calls = await withArmy(makeSession(2), (army, emit, calls) =>
+    Effect.gen(function* () {
+      yield* army.start("config");
+      const handle = yield* army.startLoopTaunt({
+        debounceMs: 1000,
+        message: "defense shattering",
+        players: [2],
+        skill: 5,
+        target: "id:7",
+      });
+
+      yield* Effect.sleep("25 millis");
+      yield* emit("animationMessage", {
+        message: "defense shattering",
+        monMapId: 7,
+        packet: { cmd: "ct", data: {}, raw: "", type: "server" },
+        sourceMonMapId: 7,
+      });
+      yield* Effect.sleep("25 millis");
+      yield* emit("animationMessage", {
+        message: "defense shattering",
+        monMapId: 7,
+        packet: { cmd: "ct", data: {}, raw: "", type: "server" },
+        sourceMonMapId: 7,
+      });
+      yield* Effect.sleep("25 millis");
+
+      yield* handle.stop();
+      return calls;
+    }),
+  );
+
+  expect(calls).toEqual(["attack:7", "attack:7", "skill:5"]);
+});
+
+test("Loop Taunt debounces message triggers per target", async () => {
+  const calls = await withArmy(makeSession(2), (army, emit, calls) =>
+    Effect.gen(function* () {
+      yield* army.start("config");
+      const first = yield* army.startLoopTaunt({
+        debounceMs: 1000,
+        id: "first",
+        message: "defense shattering",
+        players: [2],
+        skill: 5,
+        target: "id:7",
+      });
+      const second = yield* army.startLoopTaunt({
+        debounceMs: 1000,
+        id: "second",
+        message: "defense shattering",
+        players: [2],
+        skill: 5,
+        target: "id:8",
+      });
+
+      yield* Effect.sleep("25 millis");
+      yield* emit("animationMessage", {
+        message: "defense shattering",
+        monMapId: 7,
+        packet: { cmd: "ct", data: {}, raw: "", type: "server" },
+        sourceMonMapId: 7,
+      });
+      yield* emit("animationMessage", {
+        message: "defense shattering",
+        monMapId: 8,
+        packet: { cmd: "ct", data: {}, raw: "", type: "server" },
+        sourceMonMapId: 8,
+      });
+      yield* Effect.sleep("25 millis");
+
+      yield* first.stop();
+      yield* second.stop();
+      return calls;
+    }),
+  );
+
+  expect(calls.filter((call) => call === "skill:5")).toHaveLength(2);
+  expect(calls).toContain("attack:7");
+  expect(calls).toContain("attack:8");
+});
+
+test("Loop Taunt skips a candidate when shouldTaunt fails", async () => {
+  const calls = await withArmy(makeSession(2), (army, _emit, calls) =>
     Effect.gen(function* () {
       yield* army.start("config");
       const handle = yield* army.startLoopTaunt({
         aura: "Focus",
-        delayMs: 30,
         players: [1, 2],
+        shouldTaunt: ({ candidate }) => {
+          if (candidate.number === 1) {
+            throw new Error("candidate unavailable");
+          }
+
+          return true;
+        },
         skill: 5,
         target: "Ultra Boss",
       });
 
       yield* Effect.sleep("100 millis");
-      yield* emit("auraRemoved", {
-        auraName: "Focus",
-        packet: { cmd: "ct", data: {}, raw: "", type: "server" },
-        targetId: 7,
-        targetType: "monster",
-      });
-      yield* Effect.sleep("50 millis");
-      const afterStaleRemoval = [...calls];
-
-      yield* emit("auraAdded", {
-        aura: { duration: 4, icon: "i,i,i,Chavengea2", name: "Focus" },
-        auraName: "Focus",
-        packet: { cmd: "ct", data: {}, raw: "", type: "server" },
-        targetId: 7,
-        targetType: "monster",
-      });
-      yield* emit("auraRemoved", {
-        auraName: "Focus",
-        packet: { cmd: "ct", data: {}, raw: "", type: "server" },
-        targetId: 7,
-        targetType: "monster",
-      });
-      yield* Effect.sleep("50 millis");
-      const afterClassFocus = [...calls];
-
-      yield* emit("auraAdded", {
-        aura: { duration: 6, icon: "iwd1,ied1", name: "Focus" },
-        auraName: "Focus",
-        packet: { cmd: "ct", data: {}, raw: "", type: "server" },
-        targetId: 7,
-        targetType: "monster",
-      });
-      yield* emit("auraRemoved", {
-        auraName: "Focus",
-        packet: { cmd: "ct", data: {}, raw: "", type: "server" },
-        targetId: 7,
-        targetType: "monster",
-      });
-      yield* Effect.sleep("10 millis");
-      const beforeDelay = [...calls];
-      yield* Effect.sleep("50 millis");
-
       yield* handle.stop();
-      return {
-        afterClassFocus,
-        afterStaleRemoval,
-        beforeDelay,
-        calls,
-      };
+      return calls;
     }),
   );
 
-  expect(result.afterStaleRemoval).toEqual(["attack:7"]);
-  expect(result.afterClassFocus).toEqual(["attack:7"]);
+  expect(calls).toEqual(["attack:7", "attack:7", "skill:5"]);
+});
+
+test("Loop Taunt shouldTaunt can skip a high Vendetta candidate", async () => {
+  const calls = await withArmy(
+    makeSession(2),
+    (army, _emit, calls) =>
+      Effect.gen(function* () {
+        yield* army.start("config");
+        const handle = yield* army.startLoopTaunt({
+          aura: "Focus",
+          players: [1, 2],
+          shouldTaunt: ({ candidate, world }) =>
+            Effect.gen(function* () {
+              const player = yield* world.players.getByName(candidate.name);
+              if (Option.isNone(player)) {
+                return false;
+              }
+
+              const vendetta = yield* world.players.getAura(
+                player.value.data.entID,
+                "Vendetta",
+              );
+              if (Option.isNone(vendetta)) {
+                return true;
+              }
+
+              return (vendetta.value.stack ?? vendetta.value.value ?? 1) <= 3;
+            }),
+          skill: 5,
+          target: "Ultra Boss",
+        });
+
+        yield* Effect.sleep("100 millis");
+        yield* handle.stop();
+        return calls;
+      }),
+    {
+      playerAuras: new Map([
+        [
+          1,
+          new Map([
+            [auraKey("Vendetta"), { duration: 10, name: "Vendetta", stack: 4 }],
+          ]),
+        ],
+      ]),
+    },
+  );
+
+  expect(calls).toEqual(["attack:7", "attack:7", "skill:5"]);
+});
+
+test("Loop Taunt stops without casting when every participant is skipped", async () => {
+  const calls = await withArmy(makeSession(1), (army, _emit, calls) =>
+    Effect.gen(function* () {
+      yield* army.start("config");
+      const handle = yield* army.startLoopTaunt({
+        aura: "Focus",
+        players: [1, 2],
+        shouldTaunt: () => false,
+        skill: 5,
+        target: "Ultra Boss",
+      });
+
+      yield* Effect.sleep("100 millis");
+      yield* handle.stop();
+      return calls;
+    }),
+  );
+
+  expect(calls).toEqual(["attack:7"]);
+});
+
+test("Loop Taunt does not retry locally when selected player is unavailable", async () => {
+  vi.useFakeTimers();
+  try {
+    let aliveChecks = 0;
+    const promise = withArmy(
+      makeSession(1),
+      (army, _emit, calls) =>
+        Effect.gen(function* () {
+          yield* army.start("config");
+          const handle = yield* army.startLoopTaunt({
+            aura: "Focus",
+            delayMs: 0,
+            players: [1],
+            skill: 5,
+            target: "Ultra Boss",
+          });
+
+          yield* Effect.sleep(
+            `${DEFAULT_LOOP_TAUNT_CAST_SETTLE_MS + 500} millis`,
+          );
+          yield* handle.stop();
+          return calls;
+        }),
+      {
+        isAlive: () =>
+          Effect.sync(() => {
+            aliveChecks += 1;
+            return aliveChecks > 1;
+          }),
+      },
+    );
+
+    await vi.advanceTimersByTimeAsync(DEFAULT_LOOP_TAUNT_CAST_SETTLE_MS + 500);
+    const calls = await promise;
+
+    expect(calls).toEqual(["attack:7"]);
+  } finally {
+    vi.useRealTimers();
+  }
+});
+
+test("Loop Taunt leaves missed-turn handoff to the coordinator", async () => {
+  vi.useFakeTimers();
+  try {
+    const recoveryMs =
+      DEFAULT_LOOP_TAUNT_CAST_SETTLE_MS +
+      DEFAULT_LOOP_TAUNT_RESPAWN_RECOVERY_MS +
+      DEFAULT_LOOP_TAUNT_CAST_SETTLE_MS +
+      50;
+    const promise = withArmy(makeSession(2), (army, _emit, calls) =>
+      Effect.gen(function* () {
+        yield* army.start("config");
+        const handle = yield* army.startLoopTaunt({
+          aura: "Focus",
+          delayMs: 0,
+          players: [1, 2],
+          skill: 5,
+          target: "Ultra Boss",
+        });
+
+        yield* Effect.sleep(`${recoveryMs} millis`);
+        yield* handle.stop();
+        return calls;
+      }),
+    );
+
+    await vi.advanceTimersByTimeAsync(recoveryMs);
+    const calls = await promise;
+
+    expect(calls).toEqual(["attack:7"]);
+  } finally {
+    vi.useRealTimers();
+  }
+});
+
+test("Loop Taunt cancels recovery when Focus is restored", async () => {
+  vi.useFakeTimers();
+  try {
+    const recoveryMs =
+      DEFAULT_LOOP_TAUNT_CAST_SETTLE_MS +
+      DEFAULT_LOOP_TAUNT_RESPAWN_RECOVERY_MS +
+      DEFAULT_LOOP_TAUNT_CAST_SETTLE_MS +
+      50;
+    const promise = withArmy(makeSession(2), (army, emit, calls) =>
+      Effect.gen(function* () {
+        yield* army.start("config");
+        const handle = yield* army.startLoopTaunt({
+          aura: "Focus",
+          delayMs: 0,
+          players: [1, 2],
+          skill: 5,
+          target: "Ultra Boss",
+        });
+
+        yield* Effect.sleep(
+          `${DEFAULT_LOOP_TAUNT_CAST_SETTLE_MS + 100} millis`,
+        );
+        yield* emit("auraAdded", {
+          aura: { duration: 6, icon: "iwd1,ied1", name: "Focus" },
+          auraName: "Focus",
+          packet: { cmd: "ct", data: {}, raw: "", type: "server" },
+          targetId: 7,
+          targetType: "monster",
+        });
+        yield* Effect.sleep(`${recoveryMs} millis`);
+        yield* handle.stop();
+        return calls;
+      }),
+    );
+
+    await vi.advanceTimersByTimeAsync(
+      recoveryMs + DEFAULT_LOOP_TAUNT_CAST_SETTLE_MS + 100,
+    );
+    const calls = await promise;
+
+    expect(calls).toEqual(["attack:7"]);
+  } finally {
+    vi.useRealTimers();
+  }
+});
+
+test("Loop Taunt renderer does not run local recovery timers", async () => {
+  vi.useFakeTimers();
+  try {
+    const delayMs = 1_000;
+    const beforeRecoveryMs =
+      delayMs + DEFAULT_LOOP_TAUNT_CAST_SETTLE_MS - 1;
+    const recoveryMs =
+      DEFAULT_LOOP_TAUNT_RESPAWN_RECOVERY_MS +
+      DEFAULT_LOOP_TAUNT_CAST_SETTLE_MS +
+      50;
+    const promise = withArmy(makeSession(2), (army, _emit, calls) =>
+      Effect.gen(function* () {
+        yield* army.start("config");
+        const handle = yield* army.startLoopTaunt({
+          aura: "Focus",
+          delayMs,
+          players: [1, 2],
+          skill: 5,
+          target: "Ultra Boss",
+        });
+
+        yield* Effect.sleep(`${beforeRecoveryMs} millis`);
+        const beforeRecovery = [...calls];
+        yield* Effect.sleep(`${recoveryMs} millis`);
+        yield* handle.stop();
+        return { beforeRecovery, calls };
+      }),
+    );
+
+    await vi.advanceTimersByTimeAsync(beforeRecoveryMs + recoveryMs);
+    const result = await promise;
+
+    expect(result.beforeRecovery).toEqual(["attack:7"]);
+    expect(result.calls).toEqual(["attack:7"]);
+  } finally {
+    vi.useRealTimers();
+  }
+});
+
+test("Loop Taunt finalizer interrupts pending recovery", async () => {
+  vi.useFakeTimers();
+  try {
+    const recoveryStartedMs = DEFAULT_LOOP_TAUNT_CAST_SETTLE_MS + 100;
+    const afterStopMs =
+      DEFAULT_LOOP_TAUNT_RESPAWN_RECOVERY_MS +
+      DEFAULT_LOOP_TAUNT_CAST_SETTLE_MS +
+      100;
+    const promise = withArmy(makeSession(2), (army, _emit, calls) =>
+      Effect.gen(function* () {
+        yield* army.start("config");
+        const handle = yield* army.startLoopTaunt({
+          aura: "Focus",
+          delayMs: 0,
+          players: [1, 2],
+          skill: 5,
+          target: "Ultra Boss",
+        });
+
+        yield* Effect.sleep(`${recoveryStartedMs} millis`);
+        yield* handle.stop();
+        yield* Effect.sleep(`${afterStopMs} millis`);
+        return calls;
+      }),
+    );
+
+    await vi.advanceTimersByTimeAsync(recoveryStartedMs + afterStopMs);
+    const calls = await promise;
+
+    expect(calls).toEqual(["attack:7"]);
+  } finally {
+    vi.useRealTimers();
+  }
+});
+
+test("Loop Taunt waits for aura removal and delay before next participant casts", async () => {
+  const result = await withArmy(
+    makeSession(2),
+    (army, emit, calls) =>
+      Effect.gen(function* () {
+        yield* army.start("config");
+        const handle = yield* army.startLoopTaunt({
+          aura: "Focus",
+          delayMs: 30,
+          players: [2],
+          skill: 5,
+          target: "Ultra Boss",
+        });
+
+        yield* Effect.sleep("100 millis");
+        yield* emit("auraRemoved", {
+          auraName: "Focus",
+          packet: { cmd: "ct", data: {}, raw: "", type: "server" },
+          targetId: 7,
+          targetType: "monster",
+        });
+        yield* Effect.sleep("10 millis");
+        const beforeDelay = [...calls];
+        yield* Effect.sleep("50 millis");
+
+        yield* handle.stop();
+        return {
+          beforeDelay,
+          calls,
+        };
+      }),
+    { hasAura: true },
+  );
+
   expect(result.beforeDelay).toEqual(["attack:7"]);
   expect(result.calls).toEqual(["attack:7", "attack:7", "skill:5"]);
 });
