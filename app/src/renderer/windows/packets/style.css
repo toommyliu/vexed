@@ -30,7 +30,7 @@
 }
 
 .packets-copy-button.button {
-  min-width: 5rem;
+  min-width: 5.75rem;
   padding-left: 0.4375rem;
   padding-right: 0.4375rem;
 }
@@ -83,7 +83,7 @@
 
 .packets-copy-button__label-stack {
   display: inline-grid;
-  min-width: 2.75rem;
+  min-width: 3.5rem;
 }
 
 .packets-copy-button__label {
@@ -898,8 +898,51 @@
   background: rgba(var(--primary), 0.1);
 }
 
+.packets-queue-row--editing {
+  background: rgba(var(--primary), 0.08);
+  cursor: default;
+}
+
 .packets-queue-row__index {
   font-weight: 700;
+}
+
+.packets-queue-row__editor {
+  align-items: start;
+  display: grid;
+  gap: 0.5rem;
+  grid-template-columns: minmax(0, 1fr) auto;
+  min-width: 0;
+}
+
+.packets-queue-row__editor .textarea-control {
+  height: 4.5rem;
+  max-height: min(7.5rem, 38vh);
+  min-height: 4.5rem;
+  min-width: 0;
+  overflow: hidden;
+  width: 100%;
+}
+
+.packets-queue-row__editor .textarea {
+  box-sizing: border-box;
+  font-family: var(--font-mono);
+  font-size: var(--text-xs);
+  height: 4.5rem;
+  line-height: 1.45;
+  max-height: min(7.5rem, 38vh);
+  min-height: 4.5rem;
+  overflow-wrap: anywhere;
+  resize: none;
+  white-space: pre-wrap;
+}
+
+.packets-queue-row__edit-actions {
+  align-items: center;
+  display: flex;
+  flex-direction: column;
+  gap: 0.375rem;
+  min-width: 0;
 }
 
 @media (max-width: 720px) {
