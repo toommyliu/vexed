@@ -2,6 +2,18 @@ import type { AccountGameServer } from "../../shared/ipc";
 
 export type StoredAccountLoginServerPreference = string | null | undefined;
 
+export type AccountLoginServerResolution =
+  | {
+      readonly type: "server";
+      readonly name: string;
+    }
+  | {
+      readonly type: "none";
+    }
+  | {
+      readonly type: "unavailable";
+    };
+
 const ACCOUNT_LOGIN_SERVER_STORAGE_KEY = "vexed.account-manager.login-server";
 
 const parseStoredAccountLoginServerPreference = (
@@ -52,26 +64,28 @@ export function readStoredAccountLoginServerPreference(): StoredAccountLoginServ
 }
 
 export function writeStoredAccountLoginServerPreference(
-  serverName: string,
+  serverName: string | null,
 ): void {
   try {
     window.localStorage.setItem(
       ACCOUNT_LOGIN_SERVER_STORAGE_KEY,
       JSON.stringify(
-        serverName === ""
+        serverName === null || serverName.trim() === ""
           ? { type: "none" }
           : { type: "server", name: serverName },
       ),
     );
-  } catch {}
+  } catch (error) {
+    console.warn("Failed to write account login server preference:", error);
+  }
 }
 
 export function resolveAccountLoginServerPreference(
   servers: readonly AccountGameServer[],
   preferredServerName: StoredAccountLoginServerPreference,
-): string {
+): AccountLoginServerResolution {
   if (preferredServerName === null) {
-    return "";
+    return { type: "none" };
   }
 
   if (preferredServerName !== undefined) {
@@ -79,12 +93,14 @@ export function resolveAccountLoginServerPreference(
       (server) => server.name === preferredServerName,
     );
     if (preferredServer?.online === true) {
-      return preferredServer.name;
+      return { type: "server", name: preferredServer.name };
     }
   }
 
-  return (
-    servers.find((server) => server.online && server.playerCount < server.maxPlayers)
-      ?.name ?? ""
+  const fallbackServer = servers.find(
+    (server) => server.online && server.playerCount < server.maxPlayers,
   );
+  return fallbackServer === undefined
+    ? { type: "unavailable" }
+    : { type: "server", name: fallbackServer.name };
 }

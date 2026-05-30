@@ -961,16 +961,20 @@ function App(): JSX.Element {
       setServerRefreshCooldownUntil(nextServers.refreshAvailableAt);
       setServers(nextServers.servers);
       if (!serverSelectionInitialized()) {
-        const nextLaunchServerName = resolveAccountLoginServerPreference(
+        const nextLaunchServerResolution = resolveAccountLoginServerPreference(
           nextServers.servers,
           readStoredAccountLoginServerPreference(),
         );
+        const nextLaunchServerName =
+          nextLaunchServerResolution.type === "server"
+            ? nextLaunchServerResolution.name
+            : "";
         const nextLaunchServer =
-          nextLaunchServerName === ""
-            ? undefined
-            : nextServers.servers.find(
-                (server) => server.name === nextLaunchServerName,
-              );
+          nextLaunchServerResolution.type === "server"
+            ? nextServers.servers.find(
+                (server) => server.name === nextLaunchServerResolution.name,
+              )
+            : undefined;
         setLaunchServer(nextLaunchServerName);
         setServerInputValue(
           serverDisplayLabel(nextLaunchServer, nextLaunchServerName),
@@ -1600,7 +1604,9 @@ function App(): JSX.Element {
                     const value = details.value[0] ?? NO_SERVER_VALUE;
                     const nextLaunchServer =
                       value === NO_SERVER_VALUE ? "" : value;
-                    writeStoredAccountLoginServerPreference(nextLaunchServer);
+                    writeStoredAccountLoginServerPreference(
+                      nextLaunchServer === "" ? null : nextLaunchServer,
+                    );
                     setLaunchServer(nextLaunchServer);
                     setServerInputValue(
                       serverComboboxOpen() || serverInputFocused()
