@@ -71,6 +71,15 @@ import { SectionPanel } from "../../components/SectionPanel";
 import { downloadText } from "../../lib/download";
 import { mountWindow } from "../mount";
 import { splitTextMatches } from "../../lib/text";
+import {
+  formatPacketLogEntries,
+  formatPacketTimestamp,
+} from "./logFormatting";
+import {
+  QUEUE_PACKET_EMPTY_ERROR,
+  isValidQueuePacketDraft,
+  replaceQueuePacketAt,
+} from "./queueState";
 
 type ActiveTab = "log" | "send";
 const LOG_ROW_HEIGHT_COMPACT = 34;
@@ -125,15 +134,6 @@ const packetPlaceholderHelp = `Placeholders resolve when packets are sent: ${PAC
 
 const createEntryId = (): string => makeRandomId();
 
-const formatTimestamp = (timestamp: number): string => {
-  const date = new Date(timestamp);
-  const hh = date.getHours().toString().padStart(2, "0");
-  const mm = date.getMinutes().toString().padStart(2, "0");
-  const ss = date.getSeconds().toString().padStart(2, "0");
-  const ms = date.getMilliseconds().toString().padStart(3, "0");
-  return `${hh}:${mm}:${ss}.${ms}`;
-};
-
 const includesSearch = (value: string, query: string): boolean =>
   value.toLocaleLowerCase().includes(query.toLocaleLowerCase());
 
@@ -170,16 +170,6 @@ const estimateWrappedLogRowHeight = (
   );
 };
 
-const toExportLine = (
-  entry: PacketLogEntry,
-  includeTimestamp: boolean,
-): string => {
-  const timestamp = includeTimestamp
-    ? `[${formatTimestamp(entry.timestamp)}] `
-    : "";
-  return `${timestamp}[${entry.type.toUpperCase()}] ${entry.text}`;
-};
-
 function PacketSenderLabelHelp(): JSX.Element {
   return (
     <span class="packets-sender__label-help">
@@ -211,6 +201,7 @@ function PacketSenderLabelHelp(): JSX.Element {
 
 function App(): JSX.Element {
   let packetSearchInput: HTMLInputElement | undefined;
+  let editingQueueTextarea: HTMLTextAreaElement | undefined;
 
   const [activeTab, setActiveTab] = createSignal<ActiveTab>("log");
   const [captureRunning, setCaptureRunning] = createSignal(false);
@@ -240,6 +231,10 @@ function App(): JSX.Element {
   const [selectedQueueIndex, setSelectedQueueIndex] = createSignal<
     number | null
   >(null);
+  const [editingQueueIndex, setEditingQueueIndex] = createSignal<number | null>(
+    null,
+  );
+  const [editingQueueText, setEditingQueueText] = createSignal("");
   const [confirmKeyboardSendOpen, setConfirmKeyboardSendOpen] =
     createSignal(false);
   const [pendingKeyboardSendPacket, setPendingKeyboardSendPacket] =
@@ -247,11 +242,11 @@ function App(): JSX.Element {
   const [error, setError] = createSignal("");
   const [notice, setNotice] = createSignal("");
   const [logViewportWidth, setLogViewportWidth] = createSignal(0);
-  const [visiblePacketsCopied, setVisiblePacketsCopied] = createSignal(false);
+  const [allPacketsCopied, setAllPacketsCopied] = createSignal(false);
   const [copiedPacketId, setCopiedPacketId] = createSignal<string | null>(null);
   const [queuedPacketId, setQueuedPacketId] = createSignal<string | null>(null);
   let logViewport: HTMLDivElement | undefined;
-  let visiblePacketsCopiedTimer: number | undefined;
+  let allPacketsCopiedTimer: number | undefined;
   let copiedPacketTimer: number | undefined;
   let queuedPacketTimer: number | undefined;
 
@@ -337,10 +332,13 @@ function App(): JSX.Element {
 
   const parsedDelayMs = createMemo(() => clampPacketQueueDelay(delayMs()));
   const trimmedSendText = createMemo(() => sendText().trim());
+  const hasUnsavedQueueEdit = createMemo(() => editingQueueIndex() !== null);
   const canSend = createMemo(
     () => trimmedSendText().length > 0 && !queueRunning(),
   );
-  const canQueue = createMemo(() => queue().length > 0 && !queueRunning());
+  const canQueue = createMemo(
+    () => queue().length > 0 && !queueRunning() && !hasUnsavedQueueEdit(),
+  );
   const logVirtualizer = createVirtualizer<HTMLDivElement, HTMLDivElement>({
     get count() {
       return filteredPackets().length;
@@ -488,15 +486,15 @@ function App(): JSX.Element {
     }, 900);
   };
 
-  const markVisiblePacketsCopied = (): void => {
-    if (visiblePacketsCopiedTimer !== undefined) {
-      window.clearTimeout(visiblePacketsCopiedTimer);
+  const markAllPacketsCopied = (): void => {
+    if (allPacketsCopiedTimer !== undefined) {
+      window.clearTimeout(allPacketsCopiedTimer);
     }
 
-    setVisiblePacketsCopied(true);
-    visiblePacketsCopiedTimer = window.setTimeout(() => {
-      setVisiblePacketsCopied(false);
-      visiblePacketsCopiedTimer = undefined;
+    setAllPacketsCopied(true);
+    allPacketsCopiedTimer = window.setTimeout(() => {
+      setAllPacketsCopied(false);
+      allPacketsCopiedTimer = undefined;
     }, 900);
   };
 
@@ -523,23 +521,19 @@ function App(): JSX.Element {
     setDelayMs(String(parsedDelayMs()));
   };
 
-  const copyVisible = (): void => {
-    const content = filteredPackets()
-      .map((entry) => toExportLine(entry, showTimestamps()))
-      .join("\n");
+  const copyAllCaptured = (): void => {
+    const content = formatPacketLogEntries(packets(), showTimestamps());
     if (content) {
       void copyText(content).then((copied) => {
         if (copied) {
-          markVisiblePacketsCopied();
+          markAllPacketsCopied();
         }
       });
     }
   };
 
   const exportVisible = (): void => {
-    const content = filteredPackets()
-      .map((entry) => toExportLine(entry, true))
-      .join("\n");
+    const content = formatPacketLogEntries(filteredPackets(), true);
     if (content) {
       downloadText("packets.txt", content);
     }
@@ -635,9 +629,90 @@ function App(): JSX.Element {
     addQueuePacket();
   };
 
+  const cancelQueuePacketEdit = (): void => {
+    setEditingQueueIndex(null);
+    setEditingQueueText("");
+    setError("");
+    setNotice("");
+  };
+
+  const focusEditingQueueTextarea = (): void => {
+    requestAnimationFrame(() => {
+      editingQueueTextarea?.focus();
+      editingQueueTextarea?.select();
+    });
+  };
+
+  const startQueuePacketEditAt = (index: number): void => {
+    const currentEditingIndex = editingQueueIndex();
+    if (queueRunning() || currentEditingIndex !== null) {
+      return;
+    }
+
+    const packet = queue()[index];
+    if (packet === undefined) {
+      return;
+    }
+
+    setEditingQueueIndex(index);
+    setEditingQueueText(packet);
+    setSelectedQueueIndex(index);
+    setError("");
+    setNotice("");
+    focusEditingQueueTextarea();
+  };
+
+  const startQueuePacketEdit = (): void => {
+    const index = selectedQueueIndex();
+    if (index !== null) {
+      startQueuePacketEditAt(index);
+    }
+  };
+
+  const saveQueuePacketEdit = (): void => {
+    const index = editingQueueIndex();
+    if (index === null || queueRunning()) {
+      return;
+    }
+
+    const packet = editingQueueText().trim();
+    if (!isValidQueuePacketDraft(packet)) {
+      setNotice("");
+      setError(QUEUE_PACKET_EMPTY_ERROR);
+      focusEditingQueueTextarea();
+      return;
+    }
+
+    setQueue((current) => replaceQueuePacketAt(current, index, packet));
+    setSelectedQueueIndex(index);
+    cancelQueuePacketEdit();
+    setError("");
+    setNotice("");
+  };
+
+  const handleQueueEditorKeyDown: JSX.EventHandler<
+    HTMLTextAreaElement,
+    KeyboardEvent
+  > = (event) => {
+    if (event.key === "Escape") {
+      event.preventDefault();
+      cancelQueuePacketEdit();
+      return;
+    }
+
+    if (
+      event.key === "Enter" &&
+      !event.shiftKey &&
+      (event.metaKey || event.ctrlKey)
+    ) {
+      event.preventDefault();
+      saveQueuePacketEdit();
+    }
+  };
+
   const removeQueuePacket = (): void => {
     const index = selectedQueueIndex();
-    if (index === null || queueRunning()) {
+    if (index === null || queueRunning() || hasUnsavedQueueEdit()) {
       return;
     }
 
@@ -650,7 +725,7 @@ function App(): JSX.Element {
   const moveQueuePacket = (offset: -1 | 1): void => {
     const index = selectedQueueIndex();
     const current = queue();
-    if (index === null || queueRunning()) {
+    if (index === null || queueRunning() || hasUnsavedQueueEdit()) {
       return;
     }
 
@@ -670,7 +745,7 @@ function App(): JSX.Element {
   };
 
   const clearQueue = (): void => {
-    if (queueRunning()) {
+    if (queueRunning() || hasUnsavedQueueEdit()) {
       return;
     }
     setQueue([]);
@@ -718,6 +793,9 @@ function App(): JSX.Element {
   }): void => {
     setCaptureRunning(status.captureRunning);
     setQueueRunning(status.queueRunning);
+    if (status.queueRunning) {
+      cancelQueuePacketEdit();
+    }
     if (status.stoppedReason) {
       setNotice(status.stoppedReason);
     }
@@ -774,7 +852,7 @@ function App(): JSX.Element {
         >
           <Show when={showTimestamps()}>
             <span class="packets-log-row__time">
-              {formatTimestamp(props.entry.timestamp)}
+              {formatPacketTimestamp(props.entry.timestamp)}
             </span>
           </Show>
           <span
@@ -840,8 +918,8 @@ function App(): JSX.Element {
     }
 
     onCleanup(() => {
-      if (visiblePacketsCopiedTimer !== undefined) {
-        window.clearTimeout(visiblePacketsCopiedTimer);
+      if (allPacketsCopiedTimer !== undefined) {
+        window.clearTimeout(allPacketsCopiedTimer);
       }
       if (copiedPacketTimer !== undefined) {
         window.clearTimeout(copiedPacketTimer);
@@ -886,16 +964,16 @@ function App(): JSX.Element {
               <div class="packets-header__actions">
                 <Button
                   aria-label={
-                    visiblePacketsCopied()
-                      ? "Copied visible packets"
-                      : "Copy visible packets"
+                    allPacketsCopied()
+                      ? "Copied captured packets"
+                      : "Copy all captured packets"
                   }
                   class="packets-copy-button"
                   classList={{
-                    "packets-copy-button--copied": visiblePacketsCopied(),
+                    "packets-copy-button--copied": allPacketsCopied(),
                   }}
-                  disabled={filteredPackets().length === 0}
-                  onClick={copyVisible}
+                  disabled={packets().length === 0}
+                  onClick={copyAllCaptured}
                   size="sm"
                   type="button"
                   variant="outline"
@@ -916,7 +994,7 @@ function App(): JSX.Element {
                     class="packets-copy-button__label-stack"
                   >
                     <span class="packets-copy-button__label packets-copy-button__label--copy">
-                      Copy
+                      Copy all
                     </span>
                     <span class="packets-copy-button__label packets-copy-button__label--copied">
                       Copied
@@ -1289,29 +1367,83 @@ function App(): JSX.Element {
                           >
                             <For each={queue()}>
                               {(packet, index) => (
-                                <button
-                                  class="packets-queue-row"
-                                  classList={{
-                                    "packets-queue-row--selected":
-                                      selectedQueueIndex() === index(),
-                                  }}
-                                  disabled={queueRunning()}
-                                  onClick={() =>
-                                    setSelectedQueueIndex(
-                                      selectedQueueIndex() === index()
-                                        ? null
-                                        : index(),
-                                    )
+                                <Show
+                                  when={editingQueueIndex() === index()}
+                                  fallback={
+                                    <button
+                                      class="packets-queue-row"
+                                      classList={{
+                                        "packets-queue-row--selected":
+                                          selectedQueueIndex() === index(),
+                                      }}
+                                      disabled={queueRunning()}
+                                      onDblClick={(event) => {
+                                        event.preventDefault();
+                                        startQueuePacketEditAt(index());
+                                      }}
+                                      onClick={() =>
+                                        setSelectedQueueIndex(
+                                          selectedQueueIndex() === index()
+                                            ? null
+                                            : index(),
+                                        )
+                                      }
+                                      type="button"
+                                    >
+                                      <span class="packets-queue-row__index">
+                                        {String(index() + 1).padStart(2, "0")}
+                                      </span>
+                                      <span class="packets-queue-row__packet">
+                                        {packet}
+                                      </span>
+                                    </button>
                                   }
-                                  type="button"
                                 >
-                                  <span class="packets-queue-row__index">
-                                    {String(index() + 1).padStart(2, "0")}
-                                  </span>
-                                  <span class="packets-queue-row__packet">
-                                    {packet}
-                                  </span>
-                                </button>
+                                  <div class="packets-queue-row packets-queue-row--editing">
+                                    <span class="packets-queue-row__index">
+                                      {String(index() + 1).padStart(2, "0")}
+                                    </span>
+                                    <div class="packets-queue-row__editor">
+                                      <Textarea
+                                        ref={(element) => {
+                                          editingQueueTextarea = element;
+                                        }}
+                                        aria-label={`Edit queue packet ${
+                                          index() + 1
+                                        }`}
+                                        disabled={queueRunning()}
+                                        onInput={(event) =>
+                                          setEditingQueueText(
+                                            event.currentTarget.value,
+                                          )
+                                        }
+                                        onKeyDown={handleQueueEditorKeyDown}
+                                        value={editingQueueText()}
+                                      />
+                                      <div class="packets-queue-row__edit-actions">
+                                        <TooltipIconButton
+                                          aria-label="Save packet edit"
+                                          disabled={queueRunning()}
+                                          onClick={saveQueuePacketEdit}
+                                          tooltip="Save"
+                                        >
+                                          <Icon
+                                            icon="check"
+                                            class="button__icon"
+                                          />
+                                        </TooltipIconButton>
+                                        <TooltipIconButton
+                                          aria-label="Cancel packet edit"
+                                          disabled={queueRunning()}
+                                          onClick={cancelQueuePacketEdit}
+                                          tooltip="Cancel"
+                                        >
+                                          <Icon icon="x" class="button__icon" />
+                                        </TooltipIconButton>
+                                      </div>
+                                    </div>
+                                  </div>
+                                </Show>
                               )}
                             </For>
                           </Show>
@@ -1322,7 +1454,9 @@ function App(): JSX.Element {
                             <TooltipIconButton
                               aria-label="Move packet up"
                               disabled={
-                                selectedQueueIndex() === null || queueRunning()
+                                selectedQueueIndex() === null ||
+                                queueRunning() ||
+                                hasUnsavedQueueEdit()
                               }
                               onClick={() => moveQueuePacket(-1)}
                               tooltip="Move up"
@@ -1332,19 +1466,35 @@ function App(): JSX.Element {
                             <TooltipIconButton
                               aria-label="Move packet down"
                               disabled={
-                                selectedQueueIndex() === null || queueRunning()
+                                selectedQueueIndex() === null ||
+                                queueRunning() ||
+                                hasUnsavedQueueEdit()
                               }
                               onClick={() => moveQueuePacket(1)}
                               tooltip="Move down"
                             >
                               <Icon icon="arrow_down" class="button__icon" />
                             </TooltipIconButton>
+                            <TooltipIconButton
+                              aria-label="Edit packet"
+                              disabled={
+                                selectedQueueIndex() === null ||
+                                queueRunning() ||
+                                editingQueueIndex() !== null
+                              }
+                              onClick={startQueuePacketEdit}
+                              tooltip="Edit"
+                            >
+                              <Icon icon="pencil" class="button__icon" />
+                            </TooltipIconButton>
                           </div>
                           <div class="packets-queue__actions-group">
                             <TooltipIconButton
                               aria-label="Remove packet"
                               disabled={
-                                selectedQueueIndex() === null || queueRunning()
+                                selectedQueueIndex() === null ||
+                                queueRunning() ||
+                                hasUnsavedQueueEdit()
                               }
                               onClick={removeQueuePacket}
                               tooltip="Remove"
@@ -1352,7 +1502,11 @@ function App(): JSX.Element {
                               <Icon icon="trash_2" class="button__icon" />
                             </TooltipIconButton>
                             <Button
-                              disabled={queue().length === 0 || queueRunning()}
+                              disabled={
+                                queue().length === 0 ||
+                                queueRunning() ||
+                                hasUnsavedQueueEdit()
+                              }
                               onClick={clearQueue}
                               size="sm"
                               type="button"
