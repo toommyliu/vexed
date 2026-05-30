@@ -14,6 +14,7 @@ import {
   DialogHeader,
   DialogTitle,
   Dropdown,
+  Icon,
   Input,
   InputGroup,
   InputGroupAddon,
@@ -169,6 +170,15 @@ describe("Button", () => {
     expect(link?.tabIndex).toBe(-1);
     expect(dispatched).toBe(false);
     expect(clicked).toBe(false);
+  });
+});
+
+describe("Icon", () => {
+  it("renders the loader circle as a 12-to-9 arc", () => {
+    const root = renderUi(() => <Icon icon="loader_circle" />);
+    const path = root.querySelector("svg path");
+
+    expect(path?.getAttribute("d")).toBe("M12 3a9 9 0 1 1-9 9");
   });
 });
 
