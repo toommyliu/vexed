@@ -360,7 +360,7 @@ export const registerEnvironmentIpcHandlers = (
           const senderWindowId = getSenderWindowId(event);
           const state = getWindowState(sourceGameWindowId);
           const windows = yield* WindowService;
-          const gameWindowIds = yield* windows.getGameWindowIds;
+          const gameWindowIds = yield* windows.getGameWindowIds();
 
           for (const gameWindowId of gameWindowIds) {
             setWindowState(gameWindowId, state);

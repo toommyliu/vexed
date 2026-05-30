@@ -627,7 +627,7 @@ export const startAccountGameLaunch = async (
   const gameWindow = await dependencies.runWindowEffect(
     Effect.gen(function* () {
       const windows = yield* WindowService;
-      return yield* windows.openGameWindow;
+      return yield* windows.openGameWindow();
     }),
   );
   const gameWindowId = gameWindow.id;

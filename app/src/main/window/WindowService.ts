@@ -14,6 +14,7 @@ import {
   isAppWindowDefinition,
   isGameChildWindowDefinition,
   isWindowId,
+  WindowIds,
   type WindowDefinition,
   type WindowId,
 } from "../../shared/windows";
@@ -63,6 +64,11 @@ const isWindowUsable = (
   window: BrowserWindow | null | undefined,
 ): window is BrowserWindow =>
   Boolean(window && !window.isDestroyed() && !window.webContents.isDestroyed());
+
+const isWindowPresented = (
+  window: BrowserWindow | null | undefined,
+): window is BrowserWindow =>
+  Boolean(isWindowUsable(window) && window.isVisible() && !window.isMinimized());
 
 const createLoadFailure = (
   target: string,
@@ -171,6 +177,7 @@ export const makeWindowService = (
   const forceClosingWindowIds = new Set<number>();
   let isQuitting = false;
   let lastFocusedGameWindowId: number | null = null;
+  let lastFocusedPrimaryWindowId: number | null = null;
 
   const getGameWindowIdSync = (windowId: number): number | undefined => {
     if (gameWindows.has(windowId)) {
@@ -267,10 +274,10 @@ export const makeWindowService = (
     };
 
     gameWindows.set(gameWindowId, entry);
-    lastFocusedGameWindowId = gameWindowId;
 
     window.on("focus", () => {
       lastFocusedGameWindowId = gameWindowId;
+      lastFocusedPrimaryWindowId = gameWindowId;
     });
 
     window.on("close", () => {
@@ -282,6 +289,9 @@ export const makeWindowService = (
       gameWindows.delete(gameWindowId);
       if (lastFocusedGameWindowId === gameWindowId) {
         lastFocusedGameWindowId = null;
+      }
+      if (lastFocusedPrimaryWindowId === gameWindowId) {
+        lastFocusedPrimaryWindowId = null;
       }
     });
   };
@@ -295,6 +305,9 @@ export const makeWindowService = (
     gameWindows.delete(window.id);
     if (lastFocusedGameWindowId === window.id) {
       lastFocusedGameWindowId = null;
+    }
+    if (lastFocusedPrimaryWindowId === window.id) {
+      lastFocusedPrimaryWindowId = null;
     }
   };
 
@@ -343,6 +356,42 @@ export const makeWindowService = (
     return null;
   };
 
+  const resolveAccountManagerWindow = (): BrowserWindow | null => {
+    const window = appWindows.get(WindowIds.AccountManager);
+    return isWindowUsable(window) ? window : null;
+  };
+
+  const isPrimaryWindow = (window: BrowserWindow): boolean => {
+    if (gameWindows.get(window.id)?.gameWindow === window) {
+      return true;
+    }
+
+    return appWindows.get(WindowIds.AccountManager) === window;
+  };
+
+  const resolveLastFocusedPrimaryWindow = (): BrowserWindow | null => {
+    if (lastFocusedPrimaryWindowId === null) {
+      return null;
+    }
+
+    const window = runtime.fromId(lastFocusedPrimaryWindowId);
+    return isWindowUsable(window) && isPrimaryWindow(window) ? window : null;
+  };
+
+  const hasPresentedPrimaryWindow = (): boolean => {
+    if (isWindowPresented(resolveAccountManagerWindow())) {
+      return true;
+    }
+
+    for (const entry of gameWindows.values()) {
+      if (isWindowPresented(entry.gameWindow)) {
+        return true;
+      }
+    }
+
+    return false;
+  };
+
   const requireWindowDefinition = (
     id: WindowId,
   ): Effect.Effect<WindowDefinition, WindowManagerError> => {
@@ -381,8 +430,8 @@ export const makeWindowService = (
     return loadWindow(window, url.toString(), "url");
   };
 
-  const openGameWindow: WindowServiceShape["openGameWindow"] = Effect.gen(
-    function* () {
+  const openGameWindow: WindowServiceShape["openGameWindow"] = () =>
+    Effect.gen(function* () {
       const window = yield* createManagedWindow(
         createGameWindowOptions(config),
       );
@@ -401,8 +450,7 @@ export const makeWindowService = (
       );
 
       return window;
-    },
-  );
+    });
 
   const resolveOrCreateGameWindow = (
     senderWindowId?: number,
@@ -412,7 +460,7 @@ export const makeWindowService = (
       return Effect.succeed(resolvedGameWindow);
     }
 
-    return openGameWindow;
+    return openGameWindow();
   };
 
   const openGameChildWindow = (
@@ -486,6 +534,12 @@ export const makeWindowService = (
       appWindows.set(definition.id, appWindow);
       revealWhenReady(appWindow);
 
+      if (definition.id === WindowIds.AccountManager) {
+        appWindow.on("focus", () => {
+          lastFocusedPrimaryWindowId = appWindow.id;
+        });
+      }
+
       appWindow.on("close", (event: ElectronEvent) => {
         if (isQuitting) {
           return;
@@ -501,6 +555,9 @@ export const makeWindowService = (
         const current = appWindows.get(definition.id);
         if (current === appWindow) {
           appWindows.delete(definition.id);
+        }
+        if (lastFocusedPrimaryWindowId === appWindow.id) {
+          lastFocusedPrimaryWindowId = null;
         }
       });
 
@@ -551,30 +608,59 @@ export const makeWindowService = (
       return null;
     });
 
-  const revealGameWindow: WindowServiceShape["revealGameWindow"] = Effect.gen(
-    function* () {
+  const revealGameWindow: WindowServiceShape["revealGameWindow"] = () =>
+    Effect.gen(function* () {
       const gameWindow = resolveGameWindow();
       if (gameWindow) {
         revealWindow(runtime, gameWindow);
         return;
       }
 
-      yield* openGameWindow;
-    },
-  ).pipe(Effect.asVoid);
+      yield* openGameWindow();
+    }).pipe(Effect.asVoid);
+
+  const revealWindowForAppActivation: WindowServiceShape["revealWindowForAppActivation"] =
+    () =>
+      Effect.gen(function* () {
+        if (hasPresentedPrimaryWindow()) {
+          return;
+        }
+
+        const lastFocusedPrimaryWindow = resolveLastFocusedPrimaryWindow();
+        if (lastFocusedPrimaryWindow) {
+          revealWindow(runtime, lastFocusedPrimaryWindow);
+          return;
+        }
+
+        const accountManagerWindow = resolveAccountManagerWindow();
+        if (accountManagerWindow) {
+          revealWindow(runtime, accountManagerWindow);
+          return;
+        }
+
+        const gameWindow = resolveGameWindow();
+        if (gameWindow) {
+          revealWindow(runtime, gameWindow);
+          return;
+        }
+
+        yield* openGameWindow();
+      }).pipe(Effect.asVoid);
 
   return {
     openGameWindow,
     openWindow,
     getOpenWindow,
     revealGameWindow,
+    revealWindowForAppActivation,
     getGameWindowId: (windowId) =>
       Effect.succeed(getGameWindowIdSync(windowId)),
-    getGameWindowIds: Effect.sync(() =>
-      Array.from(gameWindows.entries())
-        .filter(([, entry]) => isWindowUsable(entry.gameWindow))
-        .map(([gameWindowId]) => gameWindowId),
-    ),
+    getGameWindowIds: () =>
+      Effect.sync(() =>
+        Array.from(gameWindows.entries())
+          .filter(([, entry]) => isWindowUsable(entry.gameWindow))
+          .map(([gameWindowId]) => gameWindowId),
+      ),
     getGameChildWindow: (gameWindowId, id) =>
       Effect.sync(() => {
         const childWindow = gameWindows.get(gameWindowId)?.childWindows.get(id);
