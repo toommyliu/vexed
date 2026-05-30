@@ -643,12 +643,19 @@
 }
 
 @media (prefers-reduced-motion: reduce) {
-    .game-topnav__alert-icon,
-    .game-topnav__delay-icon,
-    .game-topnav__retry-spinner,
-    .game-menu__status-icon--spin {
+    :root:not([data-reduce-motion="off"]) .game-topnav__alert-icon,
+    :root:not([data-reduce-motion="off"]) .game-topnav__delay-icon,
+    :root:not([data-reduce-motion="off"]) .game-topnav__retry-spinner,
+    :root:not([data-reduce-motion="off"]) .game-menu__status-icon--spin {
         animation: none;
     }
+}
+
+:root[data-reduce-motion="on"] .game-topnav__alert-icon,
+:root[data-reduce-motion="on"] .game-topnav__delay-icon,
+:root[data-reduce-motion="on"] .game-topnav__retry-spinner,
+:root[data-reduce-motion="on"] .game-menu__status-icon--spin {
+    animation: none;
 }
 
 .game-menu__error {

@@ -20,7 +20,8 @@ const sizeTokens = {
 const defaultSize = 24;
 const defaultStrokeWidth = 2;
 
-// Lucide icon node data, copied from Lucide v1.14.0 (ISC license).
+// Lucide icon node data, copied from Lucide v1.14.0 (ISC license), with
+// local adjustments noted inline.
 // To add another icon, run `pnpm --dir packages/ui icon:print <lucide-icon-name>`
 // and paste the generated entry into this map.
 
@@ -165,9 +166,9 @@ const icons = {
     ["path", { d: "M12 16v-4", key: "1dtifu" }],
     ["path", { d: "M12 8h.01", key: "e9boi3" }],
   ],
-  loader_circle: [
-    ["path", { d: "M21 12a9 9 0 1 1-6.219-8.56", key: "13zald" }],
-  ],
+  // Local spinner arc: 270deg from 12 o'clock to 9 o'clock, so reduced-motion
+  // states read as intentional loading instead of a frozen animation frame.
+  loader_circle: [["path", { d: "M12 3a9 9 0 1 1-9 9", key: "13zald" }]],
   pause: [
     [
       "rect",

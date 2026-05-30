@@ -3129,6 +3129,22 @@ a.badge--destructive:hover {
   }
 }
 
+@media (prefers-reduced-motion: reduce) {
+  :root:not([data-reduce-motion="off"]) .spinner {
+    animation: none !important;
+    border-color: currentColor;
+    border-top-color: transparent;
+    transform: rotate(-45deg);
+  }
+}
+
+:root[data-reduce-motion="on"] .spinner {
+  animation: none !important;
+  border-color: currentColor;
+  border-top-color: transparent;
+  transform: rotate(-45deg);
+}
+
 /* Coarse Pointer Hit Areas */
 
 @media (pointer: coarse) {
