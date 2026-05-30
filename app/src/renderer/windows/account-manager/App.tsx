@@ -74,6 +74,11 @@ import {
   type ManagedAccountDraft,
   type ScriptExecutePayload,
 } from "../../../shared/ipc";
+import {
+  readStoredAccountLoginServerPreference,
+  resolveAccountLoginServerPreference,
+  writeStoredAccountLoginServerPreference,
+} from "../../lib/accountLoginServerSelection";
 import { mountWindow } from "../mount";
 
 interface AccountFormState {
@@ -956,11 +961,20 @@ function App(): JSX.Element {
       setServerRefreshCooldownUntil(nextServers.refreshAvailableAt);
       setServers(nextServers.servers);
       if (!serverSelectionInitialized()) {
+        const nextLaunchServerResolution = resolveAccountLoginServerPreference(
+          nextServers.servers,
+          readStoredAccountLoginServerPreference(),
+        );
+        const nextLaunchServerName =
+          nextLaunchServerResolution.type === "server"
+            ? nextLaunchServerResolution.name
+            : "";
         const nextLaunchServer =
-          nextServers.servers.find(
-            (server) => server.online && server.playerCount < server.maxPlayers,
-          ) ?? undefined;
-        const nextLaunchServerName = nextLaunchServer?.name ?? "";
+          nextLaunchServerResolution.type === "server"
+            ? nextServers.servers.find(
+                (server) => server.name === nextLaunchServerResolution.name,
+              )
+            : undefined;
         setLaunchServer(nextLaunchServerName);
         setServerInputValue(
           serverDisplayLabel(nextLaunchServer, nextLaunchServerName),
@@ -1590,6 +1604,9 @@ function App(): JSX.Element {
                     const value = details.value[0] ?? NO_SERVER_VALUE;
                     const nextLaunchServer =
                       value === NO_SERVER_VALUE ? "" : value;
+                    writeStoredAccountLoginServerPreference(
+                      nextLaunchServer === "" ? null : nextLaunchServer,
+                    );
                     setLaunchServer(nextLaunchServer);
                     setServerInputValue(
                       serverComboboxOpen() || serverInputFocused()
