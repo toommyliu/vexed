@@ -401,6 +401,23 @@
   flex: 0 0 auto;
 }
 
+.hotkey-row__inline-error {
+  align-items: center;
+  color: rgb(var(--destructive));
+  display: flex;
+  flex-basis: 100%;
+  font-size: var(--text-sm);
+  gap: 0.375rem;
+  line-height: 1.35;
+  min-width: 0;
+}
+
+.hotkey-row__inline-error-icon {
+  flex: 0 0 auto;
+  height: 0.8125rem;
+  width: 0.8125rem;
+}
+
 .hotkey-row__value {
   align-items: center;
   display: flex;
