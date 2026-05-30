@@ -1,6 +1,6 @@
 import "abort-controller/polyfill";
 import { randomFillSync } from "crypto";
-import { app, BrowserWindow } from "electron";
+import { app } from "electron";
 import { join } from "path";
 import process from "process";
 import { Effect, Layer, ManagedRuntime } from "effect";
@@ -315,10 +315,8 @@ app.on("activate", () => {
   ignoreRuntimeRejection(
     runtime.runPromise(
       Effect.gen(function* () {
-        if (BrowserWindow.getAllWindows().length === 0) {
-          const windows = yield* WindowService;
-          yield* windows.revealGameWindow;
-        }
+        const windows = yield* WindowService;
+        yield* windows.revealWindowForAppActivation();
       }),
     ),
   );

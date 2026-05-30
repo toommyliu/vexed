@@ -235,7 +235,7 @@ export const makeProgram = (
       ) {
         yield* windowService.openWindow(WindowIds.AccountManager);
       } else {
-        yield* windowService.revealGameWindow;
+        yield* windowService.revealGameWindow();
       }
 
       yield* updates.checkNow();

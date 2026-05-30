@@ -87,6 +87,10 @@ class FakeWindow extends EventEmitter {
     this.emit("focus");
   }
 
+  public blur(): void {
+    this.focused = false;
+  }
+
   public destroy(): void {
     if (this.destroyed) {
       return;
@@ -254,7 +258,7 @@ describe("window service", () => {
     const harness = createHarness("darwin", snapshot);
 
     const gameWindow = (await run(
-      harness.service.openGameWindow,
+      harness.service.openGameWindow(),
     )) as unknown as FakeWindow;
 
     expect(gameWindow.options.backgroundColor).toBe(snapshot.backgroundColor);
@@ -266,7 +270,7 @@ describe("window service", () => {
   it("denies renderer-created windows through the Electron 11 new-window event", async () => {
     const harness = createHarness();
     const gameWindow = (await run(
-      harness.service.openGameWindow,
+      harness.service.openGameWindow(),
     )) as unknown as FakeWindow;
     const event = {
       prevented: false,
@@ -283,7 +287,7 @@ describe("window service", () => {
   it("denies renderer-created windows through the modern window-open handler", async () => {
     const harness = createHarness();
     const gameWindow = (await run(
-      harness.service.openGameWindow,
+      harness.service.openGameWindow(),
     )) as unknown as FakeWindow;
 
     expect(gameWindow.webContents.windowOpenHandler?.()).toEqual({
@@ -333,7 +337,7 @@ describe("window service", () => {
   it("tracks Environment and other game-child windows against the resolved game", async () => {
     const harness = createHarness();
     const gameWindow = (await run(
-      harness.service.openGameWindow,
+      harness.service.openGameWindow(),
     )) as unknown as FakeWindow;
 
     const environment = (await run(
@@ -356,10 +360,10 @@ describe("window service", () => {
   it("resolves child senders back to their owning game", async () => {
     const harness = createHarness();
     const firstGame = (await run(
-      harness.service.openGameWindow,
+      harness.service.openGameWindow(),
     )) as unknown as FakeWindow;
     const secondGame = (await run(
-      harness.service.openGameWindow,
+      harness.service.openGameWindow(),
     )) as unknown as FakeWindow;
     secondGame.focus();
 
@@ -382,7 +386,7 @@ describe("window service", () => {
   it("reveals an existing game window instead of creating another one", async () => {
     const harness = createHarness();
     const gameWindow = (await run(
-      harness.service.openGameWindow,
+      harness.service.openGameWindow(),
     )) as unknown as FakeWindow;
 
     gameWindow.emit("ready-to-show");
@@ -390,7 +394,7 @@ describe("window service", () => {
     gameWindow.minimized = true;
     gameWindow.focused = false;
 
-    await run(harness.service.revealGameWindow);
+    await run(harness.service.revealGameWindow());
 
     expect(gameWindow.visible).toBe(true);
     expect(gameWindow.minimized).toBe(false);
@@ -398,10 +402,134 @@ describe("window service", () => {
     expect(harness.windows).toHaveLength(1);
   });
 
+  it("reveals a hidden account manager window for app activation", async () => {
+    const harness = createHarness();
+    const accountManager = (await run(
+      harness.service.openWindow(WindowIds.AccountManager),
+    )) as unknown as FakeWindow;
+    accountManager.emit("ready-to-show");
+
+    expect(accountManager.close()).toBe(true);
+    accountManager.blur();
+
+    await run(harness.service.revealWindowForAppActivation());
+
+    expect(accountManager.visible).toBe(true);
+    expect(accountManager.focused).toBe(true);
+    expect(harness.windows).toHaveLength(1);
+  });
+
+  it("does not restore settings as the primary app activation window", async () => {
+    const harness = createHarness();
+    const accountManager = (await run(
+      harness.service.openWindow(WindowIds.AccountManager),
+    )) as unknown as FakeWindow;
+    const settings = (await run(
+      harness.service.openWindow(WindowIds.Settings),
+    )) as unknown as FakeWindow;
+    accountManager.emit("ready-to-show");
+    settings.emit("ready-to-show");
+
+    expect(accountManager.close()).toBe(true);
+    expect(settings.close()).toBe(true);
+    accountManager.blur();
+    settings.blur();
+
+    await run(harness.service.revealWindowForAppActivation());
+
+    expect(accountManager.visible).toBe(true);
+    expect(accountManager.focused).toBe(true);
+    expect(settings.visible).toBe(false);
+  });
+
+  it("does nothing for app activation while a primary window is presented", async () => {
+    const harness = createHarness();
+    const gameWindow = (await run(
+      harness.service.openGameWindow(),
+    )) as unknown as FakeWindow;
+    const accountManager = (await run(
+      harness.service.openWindow(WindowIds.AccountManager),
+    )) as unknown as FakeWindow;
+    gameWindow.emit("ready-to-show");
+    accountManager.emit("ready-to-show");
+    expect(accountManager.close()).toBe(true);
+    accountManager.blur();
+    gameWindow.blur();
+
+    await run(harness.service.revealWindowForAppActivation());
+
+    expect(gameWindow.visible).toBe(true);
+    expect(gameWindow.focused).toBe(false);
+    expect(accountManager.visible).toBe(false);
+  });
+
+  it("restores a minimized last-focused game window for app activation", async () => {
+    const harness = createHarness();
+    const gameWindow = (await run(
+      harness.service.openGameWindow(),
+    )) as unknown as FakeWindow;
+    gameWindow.emit("ready-to-show");
+    gameWindow.minimized = true;
+    gameWindow.blur();
+
+    await run(harness.service.revealWindowForAppActivation());
+
+    expect(gameWindow.visible).toBe(true);
+    expect(gameWindow.minimized).toBe(false);
+    expect(gameWindow.focused).toBe(true);
+    expect(harness.windows).toHaveLength(1);
+  });
+
+  it("creates a game window for app activation when no primary window exists", async () => {
+    const harness = createHarness();
+
+    await run(harness.service.revealWindowForAppActivation());
+
+    expect(harness.windows).toHaveLength(1);
+    expect(harness.windows[0]?.options.webPreferences?.plugins).toBe(true);
+  });
+
+  it("ignores unusable primary windows during app activation", async () => {
+    const harness = createHarness();
+    const accountManager = (await run(
+      harness.service.openWindow(WindowIds.AccountManager),
+    )) as unknown as FakeWindow;
+    accountManager.emit("ready-to-show");
+    accountManager.webContents.destroyed = true;
+    accountManager.hide();
+    accountManager.blur();
+
+    await run(harness.service.revealWindowForAppActivation());
+
+    expect(accountManager.visible).toBe(false);
+    expect(harness.windows).toHaveLength(2);
+    expect(harness.windows[1]?.options.webPreferences?.plugins).toBe(true);
+  });
+
+  it("ignores destroyed primary windows during app activation", async () => {
+    const harness = createHarness();
+    const accountManager = (await run(
+      harness.service.openWindow(WindowIds.AccountManager),
+    )) as unknown as FakeWindow;
+    const gameWindow = (await run(
+      harness.service.openGameWindow(),
+    )) as unknown as FakeWindow;
+    accountManager.emit("ready-to-show");
+    gameWindow.emit("ready-to-show");
+    expect(accountManager.close()).toBe(true);
+    accountManager.blur();
+    gameWindow.destroy();
+
+    await run(harness.service.revealWindowForAppActivation());
+
+    expect(accountManager.visible).toBe(true);
+    expect(accountManager.focused).toBe(true);
+  });
+
   it("destroys game children when their owning game window closes", async () => {
     const harness = createHarness();
     const gameWindow = (await run(
-      harness.service.openGameWindow,
+      harness.service.openGameWindow(),
     )) as unknown as FakeWindow;
     const environment = (await run(
       harness.service.openWindow(WindowIds.Environment, gameWindow.id),
@@ -419,7 +547,7 @@ describe("window service", () => {
   it("requests tracked game windows to close asynchronously", async () => {
     const harness = createHarness();
     const gameWindow = (await run(
-      harness.service.openGameWindow,
+      harness.service.openGameWindow(),
     )) as unknown as FakeWindow;
 
     await run(harness.service.requestCloseGameWindow(gameWindow.id));
@@ -435,7 +563,7 @@ describe("window service", () => {
   it("ignores missing or destroyed game windows when close is requested", async () => {
     const harness = createHarness();
     const gameWindow = (await run(
-      harness.service.openGameWindow,
+      harness.service.openGameWindow(),
     )) as unknown as FakeWindow;
     gameWindow.destroy();
 
@@ -449,7 +577,7 @@ describe("window service", () => {
   it("cleans up child windows when a requested game window close runs", async () => {
     const harness = createHarness();
     const gameWindow = (await run(
-      harness.service.openGameWindow,
+      harness.service.openGameWindow(),
     )) as unknown as FakeWindow;
     const environment = (await run(
       harness.service.openWindow(WindowIds.Environment, gameWindow.id),
@@ -468,7 +596,7 @@ describe("window service", () => {
   it("destroys game children when their owning game window is destroyed", async () => {
     const harness = createHarness();
     const gameWindow = (await run(
-      harness.service.openGameWindow,
+      harness.service.openGameWindow(),
     )) as unknown as FakeWindow;
     const environment = (await run(
       harness.service.openWindow(WindowIds.Environment, gameWindow.id),
@@ -486,7 +614,7 @@ describe("window service", () => {
   it("lets hidden-on-close children close while quitting", async () => {
     const harness = createHarness();
     const gameWindow = (await run(
-      harness.service.openGameWindow,
+      harness.service.openGameWindow(),
     )) as unknown as FakeWindow;
     const child = (await run(
       harness.service.openWindow(WindowIds.FastTravels, gameWindow.id),
@@ -519,7 +647,7 @@ describe("window service", () => {
   it("destroys and unregisters windows when renderer loading fails", async () => {
     const harness = createHarness();
     const gameWindow = (await run(
-      harness.service.openGameWindow,
+      harness.service.openGameWindow(),
     )) as unknown as FakeWindow;
 
     harness.failNextLoad();
@@ -542,7 +670,7 @@ describe("window service", () => {
   it("ignores destroyed game windows during owner resolution", async () => {
     const harness = createHarness();
     const destroyedGame = (await run(
-      harness.service.openGameWindow,
+      harness.service.openGameWindow(),
     )) as unknown as FakeWindow;
     destroyedGame.destroy();
 
@@ -571,7 +699,7 @@ describe("window service", () => {
     const harness = createHarness("linux");
 
     const gameWindow = (await run(
-      harness.service.openGameWindow,
+      harness.service.openGameWindow(),
     )) as unknown as FakeWindow;
 
     expect(gameWindow.visible).toBe(true);

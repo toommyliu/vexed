@@ -19,17 +19,24 @@ export interface WindowManagerConfig {
 }
 
 export interface WindowServiceShape {
-  readonly openGameWindow: Effect.Effect<BrowserWindow, WindowManagerError>;
+  readonly openGameWindow: () => Effect.Effect<
+    BrowserWindow,
+    WindowManagerError
+  >;
   readonly openWindow: (
     id: WindowId,
     senderWindowId?: number,
   ) => Effect.Effect<BrowserWindow, WindowManagerError>;
   readonly getOpenWindow: (id: WindowId) => Effect.Effect<BrowserWindow | null>;
-  readonly revealGameWindow: Effect.Effect<void, WindowManagerError>;
+  readonly revealGameWindow: () => Effect.Effect<void, WindowManagerError>;
+  readonly revealWindowForAppActivation: () => Effect.Effect<
+    void,
+    WindowManagerError
+  >;
   readonly getGameWindowId: (
     windowId: number,
   ) => Effect.Effect<number | undefined>;
-  readonly getGameWindowIds: Effect.Effect<readonly number[]>;
+  readonly getGameWindowIds: () => Effect.Effect<readonly number[]>;
   readonly getGameChildWindow: (
     gameWindowId: number,
     id: WindowId,
