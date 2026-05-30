@@ -1000,6 +1000,7 @@ body::-webkit-scrollbar-corner,
   font-family: var(--font-sans);
   font-size: var(--text-base);
   gap: 0.5rem;
+  position: relative;
   user-select: none;
 }
 
@@ -1038,9 +1039,13 @@ body::-webkit-scrollbar-corner,
 .checkbox__input,
 .switch__input {
   height: 1px;
+  left: 0;
+  margin: 0;
   opacity: 0;
   overflow: hidden;
   position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
   width: 1px;
 }
 

@@ -3,6 +3,10 @@ import "../../polyfills";
 import "./style.css";
 import { createHotkey } from "@tanstack/solid-hotkeys";
 import {
+  formatHotkeyDisplay,
+  formatHotkeyDisplayParts,
+} from "@vexed/shared/hotkeyDisplay";
+import {
   Icon,
   Alert,
   AlertDescription,
@@ -43,6 +47,7 @@ import {
   InputGroupAddon,
   InputGroupInput,
   Kbd,
+  KbdGroup,
   Label,
   Spinner,
   Tooltip,
@@ -95,6 +100,19 @@ const NO_SERVER_VALUE = "__no_server__";
 const MANUAL_GROUP_VALUE = "__manual_selection__";
 const LAUNCH_WITH_SCRIPT_CHECKBOX_ID = "account-manager-launch-with-script";
 const ACCOUNT_PASSWORD_INPUT_ID = "account-manager-account-password";
+const SERVER_CAPACITY_WARNING_MIN_SPARE_SLOTS = 2;
+const KEYBOARD_SHORTCUTS_HOTKEY = { key: "/", shift: true } as const;
+const KEYBOARD_SHORTCUTS_HOTKEY_DISPLAY = "?";
+const KEYBOARD_SHORTCUTS_ARIA_KEYSHORTCUTS = "Shift+/";
+const NEW_ACCOUNT_HOTKEY = "Mod+N";
+const LOGIN_SERVER_HOTKEY = "Mod+L";
+const SELECT_SCRIPT_HOTKEY = "Mod+O";
+const TOGGLE_LAUNCH_WITH_SCRIPT_HOTKEY = "Mod+Shift+S";
+const START_SELECTED_HOTKEY = "Mod+Enter";
+const TOGGLE_VISIBLE_SELECTION_HOTKEY = "Mod+A";
+
+const hasOpenAlertDialog = (): boolean =>
+  document.querySelector("[data-slot='alert-dialog-content']") !== null;
 
 const emptyState: AccountManagerState = {
   accounts: [],
@@ -143,6 +161,15 @@ const serverAvailability = (server: AccountGameServer): ServerAvailability => {
 
 const serverMeta = (server: AccountGameServer): string =>
   `(${server.playerCount}/${server.maxPlayers})`;
+
+const serverDisplayLabel = (
+  server: AccountGameServer | undefined,
+  fallbackName: string,
+): string =>
+  server === undefined ? fallbackName : `${server.name} ${serverMeta(server)}`;
+
+const pluralize = (count: number, singular: string, plural = `${singular}s`) =>
+  count === 1 ? singular : plural;
 
 const statusVariant = (
   status: AccountScriptSession["status"] | undefined,
@@ -337,14 +364,26 @@ function AccountDeleteTrigger(props: {
   );
 }
 
+function ShortcutKbd(props: {
+  readonly label: string;
+  readonly parts: readonly string[];
+}): JSX.Element {
+  return (
+    <KbdGroup aria-label={props.label}>
+      <For each={props.parts}>{(part) => <Kbd>{part}</Kbd>}</For>
+    </KbdGroup>
+  );
+}
+
 function App(): JSX.Element {
   let accountSearchInput: HTMLInputElement | undefined;
+  let serverFieldElement: HTMLDivElement | undefined;
+  let serverComboboxInput: HTMLInputElement | undefined;
   let groupFieldElement: HTMLDivElement | undefined;
   let groupComboboxInput: HTMLInputElement | undefined;
+  let groupSearchInput: HTMLInputElement | undefined;
   let usernameInput: HTMLInputElement | undefined;
-  let scriptPathInputElement: HTMLInputElement | undefined;
   let serverSelectionSettlingTimeout: number | undefined;
-  let skipNextScriptPathBlur = false;
   const [state, setState] = createSignal<AccountManagerState>(emptyState);
   const [stateLoaded, setStateLoaded] = createSignal(false);
   const [selectedAccountUsernames, setSelectedAccountUsernames] = createSignal<
@@ -375,11 +414,10 @@ function App(): JSX.Element {
   const [launchScript, setLaunchScript] = createSignal<LaunchScriptSelection>(
     emptyLaunchScriptSelection(),
   );
-  const [scriptPathInput, setScriptPathInput] = createSignal("");
-  const [scriptPathDraft, setScriptPathDraft] = createSignal("");
-  const [scriptPathEditing, setScriptPathEditing] = createSignal(false);
   const [scriptError, setScriptError] = createSignal("");
   const [launchServer, setLaunchServer] = createSignal("");
+  const [serverComboboxOpen, setServerComboboxOpen] = createSignal(false);
+  const [serverInputFocused, setServerInputFocused] = createSignal(false);
   const [serverInputValue, setServerInputValue] = createSignal("");
   const [serverSearchQuery, setServerSearchQuery] = createSignal("");
   const [serverSelectionInitialized, setServerSelectionInitialized] =
@@ -393,6 +431,7 @@ function App(): JSX.Element {
     createSignal(0);
   const [serverRefreshNow, setServerRefreshNow] = createSignal(Date.now());
   const [busy, setBusy] = createSignal(false);
+  const [shortcutDialogOpen, setShortcutDialogOpen] = createSignal(false);
 
   const accounts = createMemo(() => state().accounts);
   const accountUsernames = createMemo(
@@ -430,6 +469,27 @@ function App(): JSX.Element {
   const selectedAccountCount = createMemo(
     () => selectedAccountUsernames().size,
   );
+  const canStartSelected = createMemo(
+    () => !busy() && selectedLaunchUsernames().length > 0,
+  );
+  const canSelectVisibleAccounts = createMemo(
+    () => !busy() && filteredAccounts().length > 0,
+  );
+  const allVisibleAccountsSelected = createMemo(() => {
+    const visibleAccounts = filteredAccounts();
+    return (
+      visibleAccounts.length > 0 &&
+      visibleAccounts.every((account) =>
+        selectedAccountUsernames().has(account.username),
+      )
+    );
+  });
+  const canFocusLoginServer = createMemo(
+    () => !busy() && !serversLoading() && serverError() === "",
+  );
+  const canToggleLaunchWithScript = createMemo(
+    () => !busy() && launchScript().payload !== null,
+  );
   const filteredGroupAccounts = createMemo(() => {
     const query = groupSearchQuery().trim().toLowerCase();
     if (query === "") {
@@ -447,6 +507,23 @@ function App(): JSX.Element {
   );
   const groupFormSubmittable = createMemo(() => groupForm().name.trim() !== "");
   const serverOptions = createMemo(() => servers());
+  const selectedLaunchServer = createMemo(() => {
+    const serverName = launchServer();
+    return serverName === ""
+      ? undefined
+      : serverOptions().find((server) => server.name === serverName);
+  });
+  const selectedServerDisplayValue = createMemo(() => {
+    const serverName = launchServer();
+    return serverName === ""
+      ? ""
+      : serverDisplayLabel(selectedLaunchServer(), serverName);
+  });
+  const selectedServerInputValue = createMemo(() =>
+    serverComboboxOpen() || serverInputFocused()
+      ? launchServer()
+      : selectedServerDisplayValue(),
+  );
   const filteredServerOptions = createMemo(() => {
     const query = serverSearchQuery().trim().toLowerCase();
     if (query === "") {
@@ -476,18 +553,134 @@ function App(): JSX.Element {
   const selectedGroupLabel = createMemo(
     () => selectedGroupName() || "Manual selection",
   );
+  const newAccountHotkeyDisplay = createMemo(() =>
+    formatHotkeyDisplay(NEW_ACCOUNT_HOTKEY, window.ipc.platform.os),
+  );
+  const newAccountHotkeyDisplayParts = createMemo(() =>
+    formatHotkeyDisplayParts(NEW_ACCOUNT_HOTKEY, window.ipc.platform.os),
+  );
+  const loginServerHotkeyDisplay = createMemo(() =>
+    formatHotkeyDisplay(LOGIN_SERVER_HOTKEY, window.ipc.platform.os),
+  );
+  const loginServerHotkeyDisplayParts = createMemo(() =>
+    formatHotkeyDisplayParts(LOGIN_SERVER_HOTKEY, window.ipc.platform.os),
+  );
+  const selectScriptHotkeyDisplay = createMemo(() =>
+    formatHotkeyDisplay(SELECT_SCRIPT_HOTKEY, window.ipc.platform.os),
+  );
+  const selectScriptHotkeyDisplayParts = createMemo(() =>
+    formatHotkeyDisplayParts(SELECT_SCRIPT_HOTKEY, window.ipc.platform.os),
+  );
+  const toggleLaunchWithScriptHotkeyDisplay = createMemo(() =>
+    formatHotkeyDisplay(
+      TOGGLE_LAUNCH_WITH_SCRIPT_HOTKEY,
+      window.ipc.platform.os,
+    ),
+  );
+  const toggleLaunchWithScriptHotkeyDisplayParts = createMemo(() =>
+    formatHotkeyDisplayParts(
+      TOGGLE_LAUNCH_WITH_SCRIPT_HOTKEY,
+      window.ipc.platform.os,
+    ),
+  );
+  const startSelectedHotkeyDisplay = createMemo(() =>
+    formatHotkeyDisplay(START_SELECTED_HOTKEY, window.ipc.platform.os),
+  );
+  const startSelectedHotkeyDisplayParts = createMemo(() =>
+    formatHotkeyDisplayParts(START_SELECTED_HOTKEY, window.ipc.platform.os),
+  );
+  const toggleVisibleSelectionHotkeyDisplay = createMemo(() =>
+    formatHotkeyDisplay(
+      TOGGLE_VISIBLE_SELECTION_HOTKEY,
+      window.ipc.platform.os,
+    ),
+  );
+  const toggleVisibleSelectionHotkeyDisplayParts = createMemo(() =>
+    formatHotkeyDisplayParts(
+      TOGGLE_VISIBLE_SELECTION_HOTKEY,
+      window.ipc.platform.os,
+    ),
+  );
+  const modAriaKey = createMemo(() =>
+    window.ipc.platform.os === "mac" ? "Meta" : "Control",
+  );
+  const newAccountAriaKeyshortcuts = createMemo(() => `${modAriaKey()}+N`);
+  const loginServerAriaKeyshortcuts = createMemo(() => `${modAriaKey()}+L`);
+  const selectScriptAriaKeyshortcuts = createMemo(
+    () => `${modAriaKey()}+O`,
+  );
+  const toggleLaunchWithScriptAriaKeyshortcuts = createMemo(
+    () => `${modAriaKey()}+Shift+S`,
+  );
+  const startSelectedAriaKeyshortcuts = createMemo(
+    () => `${modAriaKey()}+Enter`,
+  );
+  const toggleVisibleSelectionAriaKeyshortcuts = createMemo(
+    () => `${modAriaKey()}+A`,
+  );
   const launchScriptPayload = createMemo(() => {
     const selection = launchScript();
     return selection.enabled ? selection.payload : null;
   });
+  const launchCapacityWarning = createMemo(() => {
+    const server = selectedLaunchServer();
+    const launchCount = selectedLaunchUsernames().length;
+    if (server === undefined || !server.online || launchCount === 0) {
+      return "";
+    }
+
+    const openSlots = Math.max(server.maxPlayers - server.playerCount, 0);
+    const slotsAfterLaunch = openSlots - launchCount;
+    if (slotsAfterLaunch > SERVER_CAPACITY_WARNING_MIN_SPARE_SLOTS) {
+      return "";
+    }
+
+    if (openSlots === 0 || slotsAfterLaunch >= 0) {
+      return "This server may be full by the time launch starts.";
+    }
+
+    const excessCount = Math.abs(slotsAfterLaunch);
+    return `${openSlots} open ${pluralize(
+      openSlots,
+      "slot",
+    )}, but ${launchCount} ${pluralize(
+      launchCount,
+      "account is",
+      "accounts are",
+    )} selected. ${excessCount} ${pluralize(
+      excessCount,
+      "account",
+    )} might not get in.`;
+  });
+  const accountManagerShortcutsBlocked = (): boolean =>
+    busy() ||
+    dialogOpen() ||
+    groupDialogOpen() ||
+    shortcutDialogOpen() ||
+    hasOpenAlertDialog();
+  const ignoreAccountManagerShortcut = (event: KeyboardEvent): boolean =>
+    event.repeat || accountManagerShortcutsBlocked();
 
   createHotkey(
     "/",
     (event) => {
-      if (event.repeat) {
+      if (
+        groupDialogOpen() &&
+        !event.repeat &&
+        !busy() &&
+        !hasOpenAlertDialog()
+      ) {
+        event.preventDefault();
+        groupSearchInput?.focus();
+        groupSearchInput?.select();
         return;
       }
 
+      if (ignoreAccountManagerShortcut(event)) {
+        return;
+      }
+
+      event.preventDefault();
       accountSearchInput?.focus();
       accountSearchInput?.select();
     },
@@ -495,16 +688,19 @@ function App(): JSX.Element {
       eventType: "keydown",
       conflictBehavior: "replace",
       ignoreInputs: true,
+      preventDefault: false,
+      stopPropagation: false,
     },
   );
 
   createHotkey(
     "G",
     (event) => {
-      if (event.repeat) {
+      if (ignoreAccountManagerShortcut(event)) {
         return;
       }
 
+      event.preventDefault();
       groupComboboxInput?.focus();
       groupFieldElement
         ?.querySelector<HTMLButtonElement>(".combobox__trigger")
@@ -514,6 +710,150 @@ function App(): JSX.Element {
       eventType: "keydown",
       conflictBehavior: "replace",
       ignoreInputs: true,
+      preventDefault: false,
+      stopPropagation: false,
+    },
+  );
+
+  createHotkey(
+    KEYBOARD_SHORTCUTS_HOTKEY,
+    (event) => {
+      if (ignoreAccountManagerShortcut(event)) {
+        return;
+      }
+
+      event.preventDefault();
+      setShortcutDialogOpen(true);
+    },
+    {
+      eventType: "keydown",
+      conflictBehavior: "replace",
+      ignoreInputs: true,
+      preventDefault: false,
+      stopPropagation: false,
+    },
+  );
+
+  createHotkey(
+    NEW_ACCOUNT_HOTKEY,
+    (event) => {
+      if (ignoreAccountManagerShortcut(event)) {
+        return;
+      }
+
+      event.preventDefault();
+      openCreateDialog();
+    },
+    {
+      eventType: "keydown",
+      conflictBehavior: "replace",
+      ignoreInputs: true,
+      preventDefault: false,
+      stopPropagation: false,
+    },
+  );
+
+  createHotkey(
+    SELECT_SCRIPT_HOTKEY,
+    (event) => {
+      if (ignoreAccountManagerShortcut(event)) {
+        return;
+      }
+
+      event.preventDefault();
+      void handleLoadScript();
+    },
+    {
+      eventType: "keydown",
+      conflictBehavior: "replace",
+      ignoreInputs: true,
+      preventDefault: false,
+      stopPropagation: false,
+    },
+  );
+
+  createHotkey(
+    LOGIN_SERVER_HOTKEY,
+    (event) => {
+      if (ignoreAccountManagerShortcut(event) || !canFocusLoginServer()) {
+        return;
+      }
+
+      event.preventDefault();
+      serverComboboxInput?.focus();
+      serverComboboxInput?.select();
+      if (!serverComboboxOpen()) {
+        serverFieldElement
+          ?.querySelector<HTMLButtonElement>(".combobox__trigger")
+          ?.click();
+      }
+    },
+    {
+      eventType: "keydown",
+      conflictBehavior: "replace",
+      ignoreInputs: true,
+      preventDefault: false,
+      stopPropagation: false,
+    },
+  );
+
+  createHotkey(
+    TOGGLE_LAUNCH_WITH_SCRIPT_HOTKEY,
+    (event) => {
+      if (
+        ignoreAccountManagerShortcut(event) ||
+        !canToggleLaunchWithScript()
+      ) {
+        return;
+      }
+
+      event.preventDefault();
+      setLaunchScriptEnabled(!launchScript().enabled);
+    },
+    {
+      eventType: "keydown",
+      conflictBehavior: "replace",
+      ignoreInputs: true,
+      preventDefault: false,
+      stopPropagation: false,
+    },
+  );
+
+  createHotkey(
+    START_SELECTED_HOTKEY,
+    (event) => {
+      if (ignoreAccountManagerShortcut(event) || !canStartSelected()) {
+        return;
+      }
+
+      event.preventDefault();
+      void handleLaunch();
+    },
+    {
+      eventType: "keydown",
+      conflictBehavior: "replace",
+      ignoreInputs: true,
+      preventDefault: false,
+      stopPropagation: false,
+    },
+  );
+
+  createHotkey(
+    TOGGLE_VISIBLE_SELECTION_HOTKEY,
+    (event) => {
+      if (ignoreAccountManagerShortcut(event) || !canSelectVisibleAccounts()) {
+        return;
+      }
+
+      event.preventDefault();
+      toggleVisibleAccounts();
+    },
+    {
+      eventType: "keydown",
+      conflictBehavior: "replace",
+      ignoreInputs: true,
+      preventDefault: false,
+      stopPropagation: false,
     },
   );
 
@@ -523,6 +863,24 @@ function App(): JSX.Element {
         usernameInput?.focus();
       });
     }
+  });
+
+  createEffect(() => {
+    if (!serverInputFocused() && !serverComboboxOpen()) {
+      setServerInputValue(selectedServerDisplayValue());
+    }
+  });
+
+  createEffect(() => {
+    const value = serverInputValue();
+    queueMicrotask(() => {
+      if (
+        serverComboboxInput !== undefined &&
+        serverComboboxInput.value !== value
+      ) {
+        serverComboboxInput.value = value;
+      }
+    });
   });
 
   const applyState = (incomingState: AccountManagerState) => {
@@ -601,9 +959,12 @@ function App(): JSX.Element {
         const nextLaunchServer =
           nextServers.servers.find(
             (server) => server.online && server.playerCount < server.maxPlayers,
-          )?.name ?? "";
-        setLaunchServer(nextLaunchServer);
-        setServerInputValue(nextLaunchServer);
+          ) ?? undefined;
+        const nextLaunchServerName = nextLaunchServer?.name ?? "";
+        setLaunchServer(nextLaunchServerName);
+        setServerInputValue(
+          serverDisplayLabel(nextLaunchServer, nextLaunchServerName),
+        );
         setServerSelectionInitialized(true);
       }
     } catch (error) {
@@ -645,50 +1006,12 @@ function App(): JSX.Element {
       enabled: true,
       payload,
     });
-    setScriptPathInput(payload.path ?? payload.name ?? "");
-    setScriptPathDraft("");
-    setScriptPathEditing(false);
     setScriptError("");
   };
 
   const clearLaunchScript = () => {
     setLaunchScript(emptyLaunchScriptSelection());
-    setScriptPathInput("");
-    setScriptPathDraft("");
-    setScriptPathEditing(false);
     setScriptError("");
-  };
-
-  const loadScriptPath = async (path: string) => {
-    const normalizedPath = path.trim();
-    if (normalizedPath === "") {
-      clearLaunchScript();
-      return;
-    }
-    if (normalizedPath === selectedScriptPath() && selectedScript() !== null) {
-      setScriptPathDraft(scriptPathInput());
-      setScriptPathEditing(false);
-      setScriptError("");
-      return;
-    }
-
-    setBusy(true);
-    setScriptError("");
-    try {
-      setLaunchScriptPayload(
-        await window.ipc.scripting.readFile(normalizedPath),
-      );
-      setScriptPathEditing(false);
-    } catch (error) {
-      console.error("Failed to read script:", error);
-      setScriptError(
-        error instanceof Error
-          ? error.message
-          : "Script path could not be read",
-      );
-    } finally {
-      setBusy(false);
-    }
   };
 
   const openCreateDialog = () => {
@@ -961,38 +1284,6 @@ function App(): JSX.Element {
     }
   };
 
-  const handleScriptPathInput = (value: string) => {
-    setScriptPathDraft(value);
-    setScriptError("");
-  };
-
-  const handleScriptPathPaste = (event: ClipboardEvent) => {
-    const text = event.clipboardData?.getData("text/plain")?.trim();
-    if (!text) {
-      return;
-    }
-
-    event.preventDefault();
-    setScriptPathDraft(text);
-    void loadScriptPath(text);
-  };
-
-  const editScriptPath = () => {
-    setScriptPathDraft(scriptPathInput());
-    setScriptError("");
-    setScriptPathEditing(true);
-    window.requestAnimationFrame(() => {
-      scriptPathInputElement?.focus();
-    });
-  };
-
-  const cancelScriptPathEdit = () => {
-    skipNextScriptPathBlur = true;
-    setScriptPathDraft(scriptPathInput());
-    setScriptPathEditing(false);
-    setScriptError("");
-  };
-
   const confirmDeleteDescription = (label: string): string =>
     `Delete ${label}? The saved username and password will be removed.`;
 
@@ -1031,13 +1322,20 @@ function App(): JSX.Element {
     });
   };
 
-  const selectVisibleAccounts = () => {
+  const toggleVisibleAccounts = () => {
     setSelectedGroupName("");
     setSelectedAccountUsernames((previous) => {
       const next = new Set(previous);
+      const deselectVisible = allVisibleAccountsSelected();
+
       for (const account of filteredAccounts()) {
-        next.add(account.username);
+        if (deselectVisible) {
+          next.delete(account.username);
+        } else {
+          next.add(account.username);
+        }
       }
+
       return next;
     });
   };
@@ -1086,21 +1384,138 @@ function App(): JSX.Element {
 
   return (
     <AppShell>
-      <AppShell.Header>
+        <AppShell.Header>
         <AppShell.HeaderLeft>
           <AppShell.Title>Account Manager</AppShell.Title>
+          <Tooltip
+            closeDelay={0}
+            openDelay={200}
+            positioning={{
+              boundary: () => document.body,
+              gutter: 8,
+              hideWhenDetached: false,
+              placement: "bottom-start",
+              strategy: "fixed",
+            }}
+          >
+            <TooltipTrigger
+              asChild={(triggerProps) => (
+                <Button
+                  {...(triggerProps({
+                    "aria-keyshortcuts": KEYBOARD_SHORTCUTS_ARIA_KEYSHORTCUTS,
+                    class: "account-manager__shortcuts-button",
+                    onClick: () => {
+                      setShortcutDialogOpen(true);
+                    },
+                    size: "sm",
+                    type: "button",
+                    variant: "ghost",
+                  } as ButtonProps) as ButtonProps)}
+                >
+                  Shortcuts
+                </Button>
+              )}
+            />
+            <TooltipContent class="account-manager__help-tooltip">
+              Keyboard shortcuts{" "}
+              <ShortcutKbd
+                label={KEYBOARD_SHORTCUTS_HOTKEY_DISPLAY}
+                parts={[KEYBOARD_SHORTCUTS_HOTKEY_DISPLAY]}
+              />
+            </TooltipContent>
+          </Tooltip>
         </AppShell.HeaderLeft>
         <AppShell.HeaderRight>
-          <Button onClick={openCreateDialog}>
-            <Icon icon="plus" class="button__icon" />
-            Add Account
-          </Button>
+          <Tooltip closeDelay={0} openDelay={200}>
+            <TooltipTrigger
+              asChild={(triggerProps) => (
+                <Button
+                  {...(triggerProps({
+                    "aria-keyshortcuts": newAccountAriaKeyshortcuts(),
+                    onClick: openCreateDialog,
+                  } as ButtonProps) as ButtonProps)}
+                >
+                  <Icon icon="plus" class="button__icon" />
+                  Add Account
+                </Button>
+              )}
+            />
+            <TooltipContent>
+              Add account{" "}
+              <ShortcutKbd
+                label={newAccountHotkeyDisplay()}
+                parts={newAccountHotkeyDisplayParts()}
+              />
+            </TooltipContent>
+          </Tooltip>
         </AppShell.HeaderRight>
       </AppShell.Header>
+      <Dialog
+        open={shortcutDialogOpen()}
+        onOpenChange={(details) => {
+          setShortcutDialogOpen(details.open);
+        }}
+      >
+        <DialogContent class="account-dialog" showCloseButton>
+          <DialogHeader>
+            <DialogTitle>Keyboard shortcuts</DialogTitle>
+          </DialogHeader>
+          <div class="account-dialog__fields">
+            <div
+              style={{
+                "align-items": "center",
+                display: "grid",
+                gap: "0.625rem 1rem",
+                "grid-template-columns": "minmax(8rem, 1fr) max-content",
+              }}
+            >
+              <span>Show shortcuts</span>
+              <ShortcutKbd
+                label={KEYBOARD_SHORTCUTS_HOTKEY_DISPLAY}
+                parts={[KEYBOARD_SHORTCUTS_HOTKEY_DISPLAY]}
+              />
+              <span>Search accounts</span>
+              <ShortcutKbd label="/" parts={["/"]} />
+              <span>Choose group</span>
+              <ShortcutKbd label="G" parts={["G"]} />
+              <span>Add account</span>
+              <ShortcutKbd
+                label={newAccountHotkeyDisplay()}
+                parts={newAccountHotkeyDisplayParts()}
+              />
+              <span>Choose login server</span>
+              <ShortcutKbd
+                label={loginServerHotkeyDisplay()}
+                parts={loginServerHotkeyDisplayParts()}
+              />
+              <span>Choose script</span>
+              <ShortcutKbd
+                label={selectScriptHotkeyDisplay()}
+                parts={selectScriptHotkeyDisplayParts()}
+              />
+              <span>Toggle launch with script</span>
+              <ShortcutKbd
+                label={toggleLaunchWithScriptHotkeyDisplay()}
+                parts={toggleLaunchWithScriptHotkeyDisplayParts()}
+              />
+              <span>Toggle visible accounts</span>
+              <ShortcutKbd
+                label={toggleVisibleSelectionHotkeyDisplay()}
+                parts={toggleVisibleSelectionHotkeyDisplayParts()}
+              />
+              <span>Start selected accounts</span>
+              <ShortcutKbd
+                label={startSelectedHotkeyDisplay()}
+                parts={startSelectedHotkeyDisplayParts()}
+              />
+            </div>
+          </div>
+        </DialogContent>
+      </Dialog>
       <AppShell.Body class="account-manager" scroll={false}>
         <section class="account-manager__surface" aria-label="Accounts">
           <div class="account-manager__controls">
-            <InputGroup class="account-search">
+            <InputGroup class="account-search" aria-keyshortcuts="/">
               <InputGroupAddon>
                 <Icon icon="search" aria-hidden="true" />
               </InputGroupAddon>
@@ -1112,15 +1527,14 @@ function App(): JSX.Element {
                 placeholder="Search accounts..."
                 onInput={(event) => setSearchQuery(event.currentTarget.value)}
               />
-              <InputGroupAddon
-                align="inline-end"
-                class="account-search__shortcut"
-              >
-                <Kbd>/</Kbd>
-              </InputGroupAddon>
             </InputGroup>
             <div class="account-manager__launch-row">
-              <div class="account-manager__field-container">
+              <div
+                ref={(element) => {
+                  serverFieldElement = element;
+                }}
+                class="account-manager__field-container"
+              >
                 <div class="account-manager__label">
                   <span>Login Server</span>
                   <Tooltip closeDelay={0} openDelay={200}>
@@ -1142,6 +1556,19 @@ function App(): JSX.Element {
                     />
                     <TooltipContent>Refresh servers</TooltipContent>
                   </Tooltip>
+                  <Show when={launchCapacityWarning()}>
+                    <p
+                      class="account-manager__capacity-warning account-manager__capacity-warning--inline"
+                      title={launchCapacityWarning()}
+                    >
+                      <Icon
+                        icon="triangle_alert"
+                        class="account-manager__capacity-warning-icon"
+                        aria-hidden="true"
+                      />
+                      <span>{launchCapacityWarning()}</span>
+                    </p>
+                  </Show>
                 </div>
                 <Combobox
                   class="account-manager__server-field account-manager__field account-manager__server-combobox"
@@ -1151,22 +1578,40 @@ function App(): JSX.Element {
                   openOnClick
                   positioning={{ fitViewport: true, sameWidth: false }}
                   onOpenChange={(details) => {
-                    if (!details.open) {
+                    setServerComboboxOpen(details.open);
+                    setServerSearchQuery("");
+                    if (details.open) {
                       setServerInputValue(launchServer());
-                      setServerSearchQuery("");
+                    } else {
+                      setServerInputValue(selectedServerDisplayValue());
                     }
                   }}
                   onValueChange={(details) => {
                     const value = details.value[0] ?? NO_SERVER_VALUE;
                     const nextLaunchServer =
                       value === NO_SERVER_VALUE ? "" : value;
-                    setServerInputValue(nextLaunchServer);
-                    setServerSearchQuery("");
                     setLaunchServer(nextLaunchServer);
+                    setServerInputValue(
+                      serverComboboxOpen() || serverInputFocused()
+                        ? nextLaunchServer
+                        : nextLaunchServer === ""
+                          ? ""
+                          : serverDisplayLabel(
+                              serverOptions().find(
+                                (server) => server.name === nextLaunchServer,
+                              ),
+                              nextLaunchServer,
+                            ),
+                    );
+                    setServerSearchQuery("");
                     setServerSelectionInitialized(true);
                   }}
                 >
                   <ComboboxInput
+                    ref={(element) => {
+                      serverComboboxInput = element;
+                    }}
+                    aria-keyshortcuts={loginServerAriaKeyshortcuts()}
                     classList={{
                       "account-manager__server-input--settling":
                         serversLoading() || serverSelectionSettling(),
@@ -1185,8 +1630,19 @@ function App(): JSX.Element {
                         return;
                       }
 
-                      setServerInputValue(launchServer());
                       setServerSearchQuery("");
+                      setServerInputValue(selectedServerInputValue());
+                    }}
+                    onFocus={() => {
+                      setServerInputFocused(true);
+                      setServerInputValue(launchServer());
+                    }}
+                    onBlur={() => {
+                      setServerInputFocused(false);
+                      if (!serverComboboxOpen()) {
+                        setServerSearchQuery("");
+                        setServerInputValue(selectedServerDisplayValue());
+                      }
                     }}
                   />
                   <ComboboxContent class="account-manager__server-content">
@@ -1208,7 +1664,7 @@ function App(): JSX.Element {
                         {(server) => (
                           <ComboboxItem
                             value={server.name}
-                            label={server.name}
+                            label={serverDisplayLabel(server, server.name)}
                             disabled={!server.online}
                           >
                             <span
@@ -1229,6 +1685,16 @@ function App(): JSX.Element {
                     </ComboboxList>
                   </ComboboxContent>
                 </Combobox>
+                <Show when={launchCapacityWarning()}>
+                  <p class="account-manager__capacity-warning account-manager__capacity-warning--stacked">
+                    <Icon
+                      icon="triangle_alert"
+                      class="account-manager__capacity-warning-icon"
+                      aria-hidden="true"
+                    />
+                    <span>{launchCapacityWarning()}</span>
+                  </p>
+                </Show>
               </div>
 
               <div class="account-manager__field-container">
@@ -1239,9 +1705,10 @@ function App(): JSX.Element {
                   <Show when={selectedScript() !== null}>
                     <Checkbox
                       aria-label="Launch with script"
+                      aria-keyshortcuts={toggleLaunchWithScriptAriaKeyshortcuts()}
                       class="account-manager__script-toggle"
                       checked={launchScript().enabled}
-                      disabled={busy()}
+                      disabled={!canToggleLaunchWithScript()}
                       id={LAUNCH_WITH_SCRIPT_CHECKBOX_ID}
                       size="lg"
                       onChange={(event) =>
@@ -1251,89 +1718,44 @@ function App(): JSX.Element {
                   </Show>
                 </div>
                 <InputGroup class="account-manager__script-field account-manager__field">
-                  <Show
-                    when={scriptPathEditing()}
-                    fallback={
-                      <Tooltip closeDelay={0} openDelay={400}>
-                        <TooltipTrigger
-                          asChild={(triggerProps) => (
-                            <Button
-                              {...(triggerProps({
-                                class: "account-manager__script-display",
-                                classList: {
-                                  "account-manager__script-display--disabled":
-                                    selectedScript() !== null &&
-                                    !launchScript().enabled,
-                                },
-                                disabled: busy(),
-                                onClick: handleLoadScript,
-                                variant: "ghost",
-                              } as ButtonProps) as ButtonProps)}
-                            >
-                              {selectedScriptLabel() || "Choose script..."}
-                            </Button>
-                          )}
-                        />
-                        <Show when={scriptPathInput() !== ""}>
-                          <TooltipContent>{scriptPathInput()}</TooltipContent>
-                        </Show>
-                      </Tooltip>
-                    }
-                  >
-                    <InputGroupInput
-                      ref={(element) => {
-                        scriptPathInputElement = element;
-                      }}
-                      value={scriptPathDraft()}
-                      placeholder="Script path"
-                      disabled={busy()}
-                      onInput={(event) =>
-                        handleScriptPathInput(event.currentTarget.value)
-                      }
-                      onBlur={(event) =>
-                        skipNextScriptPathBlur
-                          ? (skipNextScriptPathBlur = false)
-                          : void loadScriptPath(event.currentTarget.value)
-                      }
-                      onKeyDown={(event) => {
-                        if (event.key === "Enter") {
-                          event.preventDefault();
-                          event.currentTarget.blur();
-                        } else if (event.key === "Escape") {
-                          event.preventDefault();
-                          cancelScriptPathEdit();
-                        }
-                      }}
-                      onPaste={handleScriptPathPaste}
+                  <Tooltip closeDelay={0} openDelay={400}>
+                    <TooltipTrigger
+                      asChild={(triggerProps) => (
+                        <Button
+                          {...(triggerProps({
+                            "aria-keyshortcuts": selectScriptAriaKeyshortcuts(),
+                            "aria-label": selectedScript()
+                              ? "Choose a different script file"
+                              : "Choose script file",
+                            class: "account-manager__script-display",
+                            disabled: busy(),
+                            onClick: handleLoadScript,
+                            variant: "ghost",
+                          } as ButtonProps) as ButtonProps)}
+                        >
+                          <span
+                            class="account-manager__script-display-label"
+                            classList={{
+                              "account-manager__script-display-label--disabled":
+                                selectedScript() !== null &&
+                                !launchScript().enabled,
+                              "account-manager__script-display-label--empty":
+                                selectedScript() === null,
+                            }}
+                          >
+                            {selectedScriptLabel() || "No script selected"}
+                          </span>
+                        </Button>
+                      )}
                     />
-                  </Show>
+                    <Show when={selectedScriptPath() !== ""}>
+                      <TooltipContent>{selectedScriptPath()}</TooltipContent>
+                    </Show>
+                  </Tooltip>
                   <InputGroupAddon
                     align="inline-end"
                     class="account-manager__script-actions"
                   >
-                    <Show
-                      when={!scriptPathEditing() && selectedScript() !== null}
-                    >
-                      <Tooltip closeDelay={0} openDelay={200}>
-                        <TooltipTrigger
-                          asChild={(triggerProps) => (
-                            <Button
-                              {...(triggerProps({
-                                "aria-label": "Edit script path",
-                                disabled: busy(),
-                                onClick: editScriptPath,
-                                size: "icon-sm",
-                                type: "button",
-                                variant: "ghost",
-                              } as ButtonProps) as ButtonProps)}
-                            >
-                              <Icon icon="pencil" class="button__icon" />
-                            </Button>
-                          )}
-                        />
-                        <TooltipContent>Edit script path</TooltipContent>
-                      </Tooltip>
-                    </Show>
                     <Tooltip closeDelay={0} openDelay={200}>
                       <TooltipTrigger
                         asChild={(triggerProps) => (
@@ -1351,9 +1773,15 @@ function App(): JSX.Element {
                           </Button>
                         )}
                       />
-                      <TooltipContent>Choose script file</TooltipContent>
+                      <TooltipContent>
+                        Choose script file{" "}
+                        <ShortcutKbd
+                          label={selectScriptHotkeyDisplay()}
+                          parts={selectScriptHotkeyDisplayParts()}
+                        />
+                      </TooltipContent>
                     </Tooltip>
-                    <Show when={scriptPathInput() !== ""}>
+                    <Show when={selectedScript() !== null}>
                       <Tooltip closeDelay={0} openDelay={200}>
                         <TooltipTrigger
                           asChild={(triggerProps) => (
@@ -1423,6 +1851,7 @@ function App(): JSX.Element {
                     groupFieldElement = element;
                   }}
                   class="account-manager__group-field"
+                  aria-keyshortcuts="G"
                 >
                   <Combobox
                     class="account-manager__group-combobox"
@@ -1473,7 +1902,6 @@ function App(): JSX.Element {
                       </ComboboxList>
                     </ComboboxContent>
                   </Combobox>
-                  <Kbd class="account-manager__group-shortcut">G</Kbd>
                 </div>
                 <div class="account-manager__group-actions">
                   <Button
@@ -1536,9 +1964,30 @@ function App(): JSX.Element {
               </span>
             </div>
             <div class="account-manager__selection-actions">
-              <Button variant="secondary" onClick={selectVisibleAccounts}>
-                All
-              </Button>
+              <Tooltip closeDelay={0} openDelay={200}>
+                <TooltipTrigger
+                  asChild={(triggerProps) => (
+                    <Button
+                      {...(triggerProps({
+                        "aria-keyshortcuts":
+                          toggleVisibleSelectionAriaKeyshortcuts(),
+                        disabled: !canSelectVisibleAccounts(),
+                        onClick: toggleVisibleAccounts,
+                        variant: "secondary",
+                      } as ButtonProps) as ButtonProps)}
+                    >
+                      {allVisibleAccountsSelected() ? "None" : "All"}
+                    </Button>
+                  )}
+                />
+                <TooltipContent>
+                  Toggle visible accounts{" "}
+                  <ShortcutKbd
+                    label={toggleVisibleSelectionHotkeyDisplay()}
+                    parts={toggleVisibleSelectionHotkeyDisplayParts()}
+                  />
+                </TooltipContent>
+              </Tooltip>
               <Button variant="secondary" onClick={invertVisibleSelection}>
                 Invert
               </Button>
@@ -1575,13 +2024,30 @@ function App(): JSX.Element {
                   </AlertDialogFooter>
                 </AlertDialogContent>
               </AlertDialog>
-              <Button
-                onClick={handleLaunch}
-                disabled={busy() || selectedLaunchUsernames().length === 0}
-              >
-                <Icon icon="play" class="button__icon" />
-                Start
-              </Button>
+              <Tooltip closeDelay={0} openDelay={200}>
+                <TooltipTrigger
+                  asChild={(triggerProps) => (
+                    <Button
+                      {...(triggerProps({
+                        "aria-keyshortcuts":
+                          startSelectedAriaKeyshortcuts(),
+                        disabled: !canStartSelected(),
+                        onClick: handleLaunch,
+                      } as ButtonProps) as ButtonProps)}
+                    >
+                      <Icon icon="play" class="button__icon" />
+                      Start
+                    </Button>
+                  )}
+                />
+                <TooltipContent>
+                  Start selected accounts{" "}
+                  <ShortcutKbd
+                    label={startSelectedHotkeyDisplay()}
+                    parts={startSelectedHotkeyDisplayParts()}
+                  />
+                </TooltipContent>
+              </Tooltip>
             </div>
           </div>
 
@@ -1781,11 +2247,17 @@ function App(): JSX.Element {
                 </Label>
                 <div class="account-dialog__field">
                   <span>Accounts</span>
-                  <InputGroup class="account-group-dialog__search">
+                  <InputGroup
+                    class="account-group-dialog__search"
+                    aria-keyshortcuts="/"
+                  >
                     <InputGroupAddon>
                       <Icon icon="search" aria-hidden="true" />
                     </InputGroupAddon>
                     <InputGroupInput
+                      ref={(element) => {
+                        groupSearchInput = element;
+                      }}
                       value={groupSearchQuery()}
                       placeholder="Search accounts..."
                       onInput={(event) =>
