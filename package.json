@@ -20,7 +20,7 @@
     "lint:fix": "oxlint --fix",
     "format": "oxfmt --check",
     "format:write": "oxfmt",
-    "prepare": "effect-language-service patch",
+    "prepare": "effect-language-service patch && effect-tsgo patch",
     "release": "tsx scripts/release.ts",
     "test": "pnpm -r --if-present test",
     "test:watch": "pnpm -r --if-present test:watch",
@@ -32,7 +32,9 @@
   "devDependencies": {
     "@effect/language-service": "^0.84.3",
     "@effect/platform-node": "4.0.0-beta.43",
+    "@effect/tsgo": "0.11.0",
     "@types/node": "^24.12.2",
+    "@typescript/native-preview": "7.0.0-dev.20260524.1",
     "asconfigc": "^1.9.0",
     "git-cliff": "^2.9.1",
     "oxfmt": "^0.51.0",
