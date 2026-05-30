@@ -629,13 +629,14 @@ function HotkeySettingsSection(props: {
     null,
   );
   const [localError, setLocalError] = createSignal<{
+    readonly commandId: GameCommandId;
     readonly id: number;
     readonly message: string;
   } | null>(null);
   let nextLocalErrorId = 0;
 
-  const showLocalError = (message: string): void => {
-    setLocalError({ id: ++nextLocalErrorId, message });
+  const showLocalError = (commandId: GameCommandId, message: string): void => {
+    setLocalError({ commandId, id: ++nextLocalErrorId, message });
   };
 
   const commitBinding = async (
@@ -647,7 +648,7 @@ function HotkeySettingsSection(props: {
     if (value !== null) {
       const normalized = normalizeHotkeyBinding(value, props.platform);
       if (normalized === undefined) {
-        showLocalError("That shortcut is not valid.");
+        showLocalError(id, "That shortcut is not valid.");
         return;
       }
 
@@ -657,7 +658,7 @@ function HotkeySettingsSection(props: {
         normalized,
       );
       if (conflicts.length > 0) {
-        showLocalError(`Shortcut already used by ${conflicts.join(", ")}.`);
+        showLocalError(id, `Shortcut already used by ${conflicts.join(", ")}.`);
         return;
       }
 
@@ -676,6 +677,7 @@ function HotkeySettingsSection(props: {
     );
     if (conflicts.length > 0) {
       showLocalError(
+        id,
         `Default shortcut already used by ${conflicts.join(", ")}.`,
       );
       return;
@@ -714,7 +716,7 @@ function HotkeySettingsSection(props: {
         props.platform,
       );
       if (normalized === undefined) {
-        showLocalError("Press a complete shortcut.");
+        showLocalError(activeId, "Press a complete shortcut.");
         return;
       }
 
@@ -746,6 +748,11 @@ function HotkeySettingsSection(props: {
             isRecording()
               ? ["Press keys"]
               : displayHotkeyParts(value(), props.platform);
+
+          const rowError = () => {
+            const err = localError();
+            return err?.commandId === command.id ? err : undefined;
+          };
 
           return (
             <div
@@ -822,6 +829,23 @@ function HotkeySettingsSection(props: {
                   <Icon icon="x" class="button__icon" />
                 </TooltipIconButton>
               </div>
+              <Show when={rowError()}>
+                {(error) => (
+                  <div
+                    class="hotkey-row__inline-error"
+                    data-error-id={error().id}
+                    role="status"
+                    aria-live="polite"
+                  >
+                    <Icon
+                      icon="circle_alert"
+                      aria-hidden="true"
+                      class="hotkey-row__inline-error-icon"
+                    />
+                    {error().message}
+                  </div>
+                )}
+              </Show>
             </div>
           );
         }}
@@ -845,15 +869,6 @@ function HotkeySettingsSection(props: {
         </div>
       }
     >
-      <Show when={localError()}>
-        {(notice) => (
-          <SettingsErrorNotice
-            id={notice().id}
-            message={notice().message}
-            scope="hotkeys"
-          />
-        )}
-      </Show>
 
       <div class="hotkey-layouts--continuous">
         <For each={commandCategories}>
