@@ -18,9 +18,15 @@ importers:
       '@effect/platform-node':
         specifier: 4.0.0-beta.43
         version: 4.0.0-beta.43(effect@4.0.0-beta.43)(ioredis@5.10.1)
+      '@effect/tsgo':
+        specifier: 0.11.0
+        version: 0.11.0
       '@types/node':
         specifier: ^24.12.2
         version: 24.12.2
+      '@typescript/native-preview':
+        specifier: 7.0.0-dev.20260524.1
+        version: 7.0.0-dev.20260524.1
       asconfigc:
         specifier: ^1.9.0
         version: 1.9.0
@@ -179,7 +185,7 @@ importers:
     devDependencies:
       tsdown:
         specifier: 0.20.0-beta.3
-        version: 0.20.0-beta.3(@emnapi/core@1.10.0)(@emnapi/runtime@1.10.0)(typescript@5.9.3)
+        version: 0.20.0-beta.3(@emnapi/core@1.10.0)(@emnapi/runtime@1.10.0)(@typescript/native-preview@7.0.0-dev.20260524.1)(typescript@5.9.3)
       typescript:
         specifier: ^5.9.3
         version: 5.9.3
@@ -188,7 +194,7 @@ importers:
     devDependencies:
       tsdown:
         specifier: 0.20.0-beta.3
-        version: 0.20.0-beta.3(@emnapi/core@1.10.0)(@emnapi/runtime@1.10.0)(typescript@5.9.3)
+        version: 0.20.0-beta.3(@emnapi/core@1.10.0)(@emnapi/runtime@1.10.0)(@typescript/native-preview@7.0.0-dev.20260524.1)(typescript@5.9.3)
       typescript:
         specifier: ^5.9.3
         version: 5.9.3
@@ -496,6 +502,45 @@ packages:
     peerDependencies:
       effect: ^4.0.0-beta.43
       ioredis: ^5.7.0
+
+  '@effect/tsgo-darwin-arm64@0.11.0':
+    resolution: {integrity: sha512-AGmRJwItGhpKYc14vuMO1WzlXiTJ3IZ+lKAI8Fy5LkrnypMan78/Z3dBoWXw5g3tsYDufuGKNZ1BFlYd43pENQ==}
+    cpu: [arm64]
+    os: [darwin]
+
+  '@effect/tsgo-darwin-x64@0.11.0':
+    resolution: {integrity: sha512-3GdbuU+SNxEVfm4wLTZ79vWxdB6Aqw2WftIyazSFpFVGadXEqAiCS/l6h/GJEvfrel791deq/ObZQG+cYWnT1A==}
+    cpu: [x64]
+    os: [darwin]
+
+  '@effect/tsgo-linux-arm64@0.11.0':
+    resolution: {integrity: sha512-w12xvOPhpAmQJozZZxJO+midg1SvuMp3vqpqbFHYKPFIWOk/CvFkE2+fTRHBK97RuEnyVe/+M+TWIMFhQzJmVw==}
+    cpu: [arm64]
+    os: [linux]
+
+  '@effect/tsgo-linux-arm@0.11.0':
+    resolution: {integrity: sha512-hir8P0pMTuJox0zpLIDKeTHaZZcnFLwS4RaCPx6mXnnW2s/kGYHT1pBRamiusxzvmDMqbwfM7uo6/C67nzx8yA==}
+    cpu: [arm]
+    os: [linux]
+
+  '@effect/tsgo-linux-x64@0.11.0':
+    resolution: {integrity: sha512-1sqDT+NmwJO2RNkHjxFTk2tSzEGewbQADkEdYbNzorqT0pkGnWgQvOG4c8qjwwW0QmbxCIDMr0crMZzu+IGVsA==}
+    cpu: [x64]
+    os: [linux]
+
+  '@effect/tsgo-win32-arm64@0.11.0':
+    resolution: {integrity: sha512-kN3KNcM2TI/nqq16gYtT4MG8xulASN9RjQwLqKwmkgVwcgCqJJyf9zHNFRTwI6yy9+ozQc9gsMfNos9uDvvg1g==}
+    cpu: [arm64]
+    os: [win32]
+
+  '@effect/tsgo-win32-x64@0.11.0':
+    resolution: {integrity: sha512-1PcFb3WYjmscmZ+rCc54PMSdj1KrfZhbS46mXlaSRpEOsfx7fGoCMd+Kq0rAa4HXPS/AOnULPiZS8YbtG8buWA==}
+    cpu: [x64]
+    os: [win32]
+
+  '@effect/tsgo@0.11.0':
+    resolution: {integrity: sha512-I/9Ix0extXmO0Av6NyY/mCTqhyRtIv1XklngUvv4dxy/it1qeFIO9RPkQT0j0qRvMpLY0wG1ZcR2qKPpUcPzHg==}
+    hasBin: true
 
   '@electron/asar@3.4.1':
     resolution: {integrity: sha512-i4/rNPRS84t0vSRa2HorerGRXWyF4vThfHesw0dmcWHp+cspK743UanA0suA5Q5y8kzY2y6YKrvbIUn69BCAiA==}
@@ -2063,6 +2108,53 @@ packages:
 
   '@types/yauzl@2.10.3':
     resolution: {integrity: sha512-oJoftv0LSuaDZE3Le4DbKX+KS9G36NzOeSap90UIK0yMA/NhKJhqlSGtNDORNRaIbQfzjXDrQa0ytJ6mNRGz/Q==}
+
+  '@typescript/native-preview-darwin-arm64@7.0.0-dev.20260524.1':
+    resolution: {integrity: sha512-dIaYmijy9/tdrxHTxlnfwzP+AC6iAycUYGChOowLR3bVSbKhz4DUJZGMaodzGCtBEWSRUwx0MK1Sa1zBpFbM5g==}
+    engines: {node: '>=16.20.0'}
+    cpu: [arm64]
+    os: [darwin]
+
+  '@typescript/native-preview-darwin-x64@7.0.0-dev.20260524.1':
+    resolution: {integrity: sha512-HjfPFOSQCymn5Iu07xoySqfK5lwXthEWN1vltO5SDaFYVRasK6P3DBRe4QL0AiSGr8tRfA3x7BdRPjPVu94Epg==}
+    engines: {node: '>=16.20.0'}
+    cpu: [x64]
+    os: [darwin]
+
+  '@typescript/native-preview-linux-arm64@7.0.0-dev.20260524.1':
+    resolution: {integrity: sha512-dH+zYjBs2ajcIRMmb8YkapY7TXzU/yX6HITrXhuoDov+mun7nCNfiRRmRBeqbGxl5JM8mUugBl/yyyhFWjIWdQ==}
+    engines: {node: '>=16.20.0'}
+    cpu: [arm64]
+    os: [linux]
+
+  '@typescript/native-preview-linux-arm@7.0.0-dev.20260524.1':
+    resolution: {integrity: sha512-gXzD1BNpPUSAv12a9UvxLTX/+WdoC34skLw6hDLk1kv3VYbd5LecQzEIb7u+WHCsNuXVXffk79+BZP7IQNS1aw==}
+    engines: {node: '>=16.20.0'}
+    cpu: [arm]
+    os: [linux]
+
+  '@typescript/native-preview-linux-x64@7.0.0-dev.20260524.1':
+    resolution: {integrity: sha512-Fr0A8RPBMXco9IIXel598hC25LE1A5wpB33mBhwimlIQe58MMCAeW+wDHXsmLmF2NiFVT1vr1tjMGmEMMdYdsg==}
+    engines: {node: '>=16.20.0'}
+    cpu: [x64]
+    os: [linux]
+
+  '@typescript/native-preview-win32-arm64@7.0.0-dev.20260524.1':
+    resolution: {integrity: sha512-AhFD6bct2RWeZxONLEvaKPlu+c+/TNejj7ntztHWREaq+lrjz8Qg3tXryah2K66EEmYY0TooapfWUWXWe8i+VQ==}
+    engines: {node: '>=16.20.0'}
+    cpu: [arm64]
+    os: [win32]
+
+  '@typescript/native-preview-win32-x64@7.0.0-dev.20260524.1':
+    resolution: {integrity: sha512-3VE5kBH2y7vYpj83X9iqGbNR8gwnlQlTjzLKJBzuyfTJPZ9R/vM4txvpuTDRJo18JGzEq4FUjKg7yqpf9ajb2g==}
+    engines: {node: '>=16.20.0'}
+    cpu: [x64]
+    os: [win32]
+
+  '@typescript/native-preview@7.0.0-dev.20260524.1':
+    resolution: {integrity: sha512-L4YviXl4FVYt4V9vkUKRCZW1DcsUbLRaKC4gxsYmBJQqB262mtUo8eqjKqElgZNIpKwYEAAYsBDrVmNhy6ze2w==}
+    engines: {node: '>=16.20.0'}
+    hasBin: true
 
   '@ungap/structured-clone@1.3.0':
     resolution: {integrity: sha512-WmoN8qaIAo7WTYWbAZuG8PYEhn5fkz7dZrqTBZ7dtt//lL2Gwms1IcnQ5yHqjDfX8Ft5j4YzDM23f87zBfDe9g==}
@@ -6336,6 +6428,37 @@ snapshots:
       - bufferutil
       - utf-8-validate
 
+  '@effect/tsgo-darwin-arm64@0.11.0':
+    optional: true
+
+  '@effect/tsgo-darwin-x64@0.11.0':
+    optional: true
+
+  '@effect/tsgo-linux-arm64@0.11.0':
+    optional: true
+
+  '@effect/tsgo-linux-arm@0.11.0':
+    optional: true
+
+  '@effect/tsgo-linux-x64@0.11.0':
+    optional: true
+
+  '@effect/tsgo-win32-arm64@0.11.0':
+    optional: true
+
+  '@effect/tsgo-win32-x64@0.11.0':
+    optional: true
+
+  '@effect/tsgo@0.11.0':
+    optionalDependencies:
+      '@effect/tsgo-darwin-arm64': 0.11.0
+      '@effect/tsgo-darwin-x64': 0.11.0
+      '@effect/tsgo-linux-arm': 0.11.0
+      '@effect/tsgo-linux-arm64': 0.11.0
+      '@effect/tsgo-linux-x64': 0.11.0
+      '@effect/tsgo-win32-arm64': 0.11.0
+      '@effect/tsgo-win32-x64': 0.11.0
+
   '@electron/asar@3.4.1':
     dependencies:
       commander: 5.1.0
@@ -7530,6 +7653,37 @@ snapshots:
     dependencies:
       '@types/node': 24.12.2
     optional: true
+
+  '@typescript/native-preview-darwin-arm64@7.0.0-dev.20260524.1':
+    optional: true
+
+  '@typescript/native-preview-darwin-x64@7.0.0-dev.20260524.1':
+    optional: true
+
+  '@typescript/native-preview-linux-arm64@7.0.0-dev.20260524.1':
+    optional: true
+
+  '@typescript/native-preview-linux-arm@7.0.0-dev.20260524.1':
+    optional: true
+
+  '@typescript/native-preview-linux-x64@7.0.0-dev.20260524.1':
+    optional: true
+
+  '@typescript/native-preview-win32-arm64@7.0.0-dev.20260524.1':
+    optional: true
+
+  '@typescript/native-preview-win32-x64@7.0.0-dev.20260524.1':
+    optional: true
+
+  '@typescript/native-preview@7.0.0-dev.20260524.1':
+    optionalDependencies:
+      '@typescript/native-preview-darwin-arm64': 7.0.0-dev.20260524.1
+      '@typescript/native-preview-darwin-x64': 7.0.0-dev.20260524.1
+      '@typescript/native-preview-linux-arm': 7.0.0-dev.20260524.1
+      '@typescript/native-preview-linux-arm64': 7.0.0-dev.20260524.1
+      '@typescript/native-preview-linux-x64': 7.0.0-dev.20260524.1
+      '@typescript/native-preview-win32-arm64': 7.0.0-dev.20260524.1
+      '@typescript/native-preview-win32-x64': 7.0.0-dev.20260524.1
 
   '@ungap/structured-clone@1.3.0': {}
 
@@ -11458,7 +11612,7 @@ snapshots:
       sprintf-js: 1.1.3
     optional: true
 
-  rolldown-plugin-dts@0.21.9(rolldown@1.0.0-beta.60(@emnapi/core@1.10.0)(@emnapi/runtime@1.10.0))(typescript@5.9.3):
+  rolldown-plugin-dts@0.21.9(@typescript/native-preview@7.0.0-dev.20260524.1)(rolldown@1.0.0-beta.60(@emnapi/core@1.10.0)(@emnapi/runtime@1.10.0))(typescript@5.9.3):
     dependencies:
       '@babel/generator': 8.0.0-rc.1
       '@babel/parser': 8.0.0-rc.1
@@ -11470,6 +11624,7 @@ snapshots:
       obug: 2.1.1
       rolldown: 1.0.0-beta.60(@emnapi/core@1.10.0)(@emnapi/runtime@1.10.0)
     optionalDependencies:
+      '@typescript/native-preview': 7.0.0-dev.20260524.1
       typescript: 5.9.3
     transitivePeerDependencies:
       - oxc-resolver
@@ -12007,7 +12162,7 @@ snapshots:
     optionalDependencies:
       typescript: 5.9.3
 
-  tsdown@0.20.0-beta.3(@emnapi/core@1.10.0)(@emnapi/runtime@1.10.0)(typescript@5.9.3):
+  tsdown@0.20.0-beta.3(@emnapi/core@1.10.0)(@emnapi/runtime@1.10.0)(@typescript/native-preview@7.0.0-dev.20260524.1)(typescript@5.9.3):
     dependencies:
       ansis: 4.2.0
       cac: 6.7.14
@@ -12018,7 +12173,7 @@ snapshots:
       obug: 2.1.1
       picomatch: 4.0.4
       rolldown: 1.0.0-beta.60(@emnapi/core@1.10.0)(@emnapi/runtime@1.10.0)
-      rolldown-plugin-dts: 0.21.9(rolldown@1.0.0-beta.60(@emnapi/core@1.10.0)(@emnapi/runtime@1.10.0))(typescript@5.9.3)
+      rolldown-plugin-dts: 0.21.9(@typescript/native-preview@7.0.0-dev.20260524.1)(rolldown@1.0.0-beta.60(@emnapi/core@1.10.0)(@emnapi/runtime@1.10.0))(typescript@5.9.3)
       semver: 7.7.4
       tinyexec: 1.1.1
       tinyglobby: 0.2.16
