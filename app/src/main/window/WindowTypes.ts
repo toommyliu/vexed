@@ -12,7 +12,6 @@ export interface WindowManagerConfig {
   readonly gameWindowHtmlPath: string;
   readonly isDev: boolean;
   readonly preloadPath: string;
-  readonly rendererUrl: string | null;
   readonly windowHtmlPath: (id: WindowId) => string;
   readonly getAppearanceSnapshot: () => AppearanceSnapshot;
   readonly onGameWindowCreated?: (window: BrowserWindow) => void;

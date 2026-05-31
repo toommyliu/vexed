@@ -418,9 +418,7 @@ export const makeWindowService = (
   const loadGameRenderer = (
     window: BrowserWindow,
   ): Effect.Effect<void, WindowManagerError> =>
-    config.rendererUrl
-      ? loadWindow(window, config.rendererUrl, "url")
-      : loadWindow(window, config.gameWindowHtmlPath, "file");
+    loadWindow(window, config.gameWindowHtmlPath, "file");
 
   const loadCatalogRenderer = (
     window: BrowserWindow,

@@ -15,7 +15,6 @@ export interface MainEnvironmentConfig {
   readonly preloadPath: string;
   readonly flashPluginPathOverride?: string;
   readonly devRendererReloadPath?: string;
-  readonly devRendererUrl?: string;
   readonly isDev: boolean;
   readonly isDarwin: boolean;
   readonly isWin: boolean;

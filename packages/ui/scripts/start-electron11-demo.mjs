@@ -1,14 +1,15 @@
 import { spawn } from "node:child_process";
 import { get } from "node:http";
+import { createRequire } from "node:module";
 import { dirname, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 
+const require = createRequire(import.meta.url);
 const __dirname = dirname(fileURLToPath(import.meta.url));
-const appDir = resolve(__dirname, "..");
-const repoRoot = resolve(appDir, "..");
-const uiDir = resolve(repoRoot, "packages/ui");
-const defaultUiDemoHost = "localhost";
-const defaultUiDemoPort = 4173;
+const packageRoot = resolve(__dirname, "..");
+const demoMainPath = resolve(packageRoot, "demo/electron/main.cjs");
+const demoHost = "127.0.0.1";
+const demoPort = 4173;
 const readyTimeoutMs = 30_000;
 const readyPollMs = 250;
 const children = new Set();
@@ -73,36 +74,6 @@ function sleep(ms) {
   return new Promise((resolvePromise) => setTimeout(resolvePromise, ms));
 }
 
-function resolveDemoHost() {
-  const host = process.env["VEXED_UI_DEMO_HOST"] ?? defaultUiDemoHost;
-
-  if (host === "localhost" || host === "127.0.0.1") {
-    return host;
-  }
-
-  throw new Error(
-    `VEXED_UI_DEMO_HOST must be localhost or 127.0.0.1, received ${JSON.stringify(host)}`,
-  );
-}
-
-async function runRequired(label, command, args, cwd) {
-  const child = spawnChild(command, args, {
-    cwd,
-    env: process.env,
-  });
-  const result = await waitForChild(child);
-
-  if (result.code === 0) {
-    return;
-  }
-
-  throw new Error(
-    result.signal
-      ? `${label} exited after ${result.signal}`
-      : `${label} exited with code ${result.code}`,
-  );
-}
-
 function requestReady(url) {
   return new Promise((resolvePromise) => {
     const request = get(url, (response) => {
@@ -143,7 +114,7 @@ function waitForViteUrl(child) {
       output += text;
       process.stdout.write(chunk);
 
-      const match = output.match(/https?:\/\/(?:localhost|127\.0\.0\.1):\d+\//);
+      const match = output.match(/https?:\/\/127\.0\.0\.1:\d+\//);
       if (!match || settled) {
         return;
       }
@@ -169,38 +140,30 @@ async function waitForServer(url, isRunning) {
       return;
     }
 
-    await new Promise((resolvePromise) =>
-      setTimeout(resolvePromise, readyPollMs),
-    );
+    await sleep(readyPollMs);
   }
 
   throw new Error(`Timed out waiting for ${url}`);
 }
 
 async function main() {
-  const uiDemoHost = resolveDemoHost();
-  const uiDemoPort = defaultUiDemoPort;
-
-  console.log("[ui-demo-electron11] compiling app");
-  await runRequired("app compile", "pnpm", ["compile"], appDir);
-
   console.log(
-    `[ui-demo-electron11] starting UI demo on ${uiDemoHost}:${uiDemoPort}`,
+    `[ui-demo-electron11] starting UI demo on ${demoHost}:${demoPort}`,
   );
   const vite = spawnChild(
     "pnpm",
     [
-      "--dir",
-      uiDir,
-      "demo",
+      "exec",
+      "vite",
+      "--config",
+      "vite.demo.config.ts",
       "--host",
-      uiDemoHost,
+      demoHost,
       "--port",
-      String(uiDemoPort),
+      String(demoPort),
     ],
     {
-      cwd: repoRoot,
-      env: process.env,
+      cwd: packageRoot,
       stdio: ["inherit", "pipe", "pipe"],
     },
   );
@@ -225,12 +188,8 @@ async function main() {
   await waitForServer(uiDemoUrl, () => viteExit === null);
 
   console.log(`[ui-demo-electron11] launching Electron 11 at ${uiDemoUrl}`);
-  const electron = spawnChild("pnpm", ["electron"], {
-    cwd: appDir,
-    env: {
-      ...process.env,
-      VEXED_DEV_RENDERER_URL: uiDemoUrl,
-    },
+  const electron = spawnChild(require("electron"), [demoMainPath, uiDemoUrl], {
+    cwd: packageRoot,
   });
 
   const electronExitPromise = waitForChild(electron);
