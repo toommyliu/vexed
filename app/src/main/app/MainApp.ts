@@ -1,4 +1,4 @@
-import { unwatchFile, watchFile, type Stats } from "fs";
+import { unwatchFile, watchFile, promises, type Stats } from "fs";
 import {
   app,
   BrowserWindow,
@@ -110,6 +110,28 @@ const installDevDockIcon = (
 
   app.dock.setIcon(iconPath);
 };
+
+const clearAppData = (): Promise<void> =>
+  Promise.all([
+    session.defaultSession.clearCache(),
+    session.defaultSession.clearStorageData(),
+  ]).then(() => undefined);
+
+const removeDirectory = async (path: string): Promise<void> => {
+  if (typeof promises.rm === "function") {
+    await promises.rm(path, { recursive: true, force: true });
+    return;
+  }
+
+  await promises.rmdir(path, { recursive: true }).catch((cause: unknown) => {
+    if ((cause as NodeJS.ErrnoException).code !== "ENOENT") {
+      throw cause;
+    }
+  });
+};
+
+const clearFlashData = (flashRootPath: string): Promise<void> =>
+  removeDirectory(flashRootPath);
 
 export const resolveDevRendererUrl = (
   isDev: boolean,
@@ -258,9 +280,10 @@ const createApplicationMenuEffect = (
 ): Effect.Effect<
   void,
   never,
-  Observability | SettingsService | UpdateChecker
+  MainEnvironment | Observability | SettingsService | UpdateChecker
 > =>
   Effect.gen(function* () {
+    const env = yield* MainEnvironment;
     const observability = yield* Observability;
     const settings = yield* SettingsService;
     const updates = yield* UpdateChecker;
@@ -276,6 +299,8 @@ const createApplicationMenuEffect = (
         updateAppearance: (patch) =>
           runPromise(settings.updateAppearance(patch)),
         checkForUpdates: () => runPromise(updates.checkNow({ force: true })),
+        clearAppData,
+        clearFlashData: () => clearFlashData(env.flashRootPath),
         logError: (component, message, error, data) => {
           void runPromise(
             observability.error(component, message, error, data),

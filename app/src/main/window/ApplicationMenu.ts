@@ -20,6 +20,8 @@ export interface ApplicationMenuDependencies {
     readonly themeMode: ThemeMode;
   }) => Promise<AppSettings>;
   readonly checkForUpdates: () => Promise<UpdateCheckState>;
+  readonly clearAppData: () => Promise<void>;
+  readonly clearFlashData: () => Promise<void>;
   readonly logError: (
     component: string,
     message: string,
@@ -78,6 +80,36 @@ const showUpdateResult = async (state: UpdateCheckState): Promise<void> => {
   });
 };
 
+const showDataClearResult = async (
+  dataName: string,
+  result: "succeeded" | "failed",
+) => {
+  if (result === "succeeded") {
+    const response = await dialog.showMessageBox({
+      type: "info",
+      title: `${dataName} Data Cleared`,
+      message: `${dataName} data was cleared.`,
+      buttons: ["Relaunch Now", "Later"],
+      defaultId: 0,
+      cancelId: 1,
+    });
+
+    if (response.response === 0) {
+      app.relaunch();
+      app.quit();
+    }
+
+    return;
+  }
+
+  await dialog.showMessageBox({
+    type: "warning",
+    title: `${dataName} Data Clear Failed`,
+    message: `Vexed could not clear the ${dataName.toLowerCase()} data.`,
+    detail: "Check the logs for details.",
+  });
+};
+
 const createAccountManagerMenuItem = (
   deps: Pick<ApplicationMenuDependencies, "logError" | "runWindowEffect">,
 ): MenuItemConstructorOptions => ({
@@ -108,6 +140,22 @@ const createAppearanceMenuItem = (
   checked: currentMode === mode,
   click: () => {
     void updateAppearance({ themeMode: mode });
+  },
+});
+
+const createClearDataMenuItem = (
+  dataName: string,
+  clearData: () => Promise<void>,
+  dependencies: Pick<ApplicationMenuDependencies, "logError">,
+): MenuItemConstructorOptions => ({
+  label: `Clear ${dataName} Data`,
+  click: () => {
+    void clearData()
+      .then(() => showDataClearResult(dataName, "succeeded"))
+      .catch((error) => {
+        dependencies.logError("menu", `Failed to clear ${dataName} data`, error);
+        return showDataClearResult(dataName, "failed");
+      });
   },
 });
 
@@ -217,6 +265,27 @@ const installApplicationMenu = async (
     { type: "separator" },
     { role: "togglefullscreen" },
   ];
+  const helpSubmenu: MenuItemConstructorOptions[] = [
+    ...(!isDarwin
+      ? ([
+          { role: "about" },
+          { type: "separator" },
+          {
+            label: "Check for Updates...",
+            click: () => {
+              void dependencies.checkForUpdates().then(showUpdateResult);
+            },
+          },
+          { type: "separator" },
+        ] satisfies MenuItemConstructorOptions[])
+      : []),
+    createClearDataMenuItem("App", dependencies.clearAppData, dependencies),
+    createClearDataMenuItem(
+      "Flash",
+      dependencies.clearFlashData,
+      dependencies,
+    ),
+  ];
   const template: MenuItemConstructorOptions[] = [
     ...(isDarwin
       ? [
@@ -230,23 +299,8 @@ const installApplicationMenu = async (
     { label: "Edit", submenu: editSubmenu },
     { label: "View", submenu: viewSubmenu },
     { role: "windowMenu" },
+    { label: "Help", submenu: helpSubmenu },
   ];
-
-  if (!isDarwin) {
-    template.push({
-      label: "Help",
-      submenu: [
-        { role: "about" },
-        { type: "separator" },
-        {
-          label: "Check for Updates...",
-          click: () => {
-            void dependencies.checkForUpdates().then(showUpdateResult);
-          },
-        },
-      ],
-    });
-  }
 
   Menu.setApplicationMenu(Menu.buildFromTemplate(template));
 };
