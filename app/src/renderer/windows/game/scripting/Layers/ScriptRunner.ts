@@ -1,6 +1,16 @@
 import { parseMonsterMapIdToken } from "@vexed/game";
 import { equalsIgnoreCase } from "@vexed/shared/string";
-import { Cause, Effect, Fiber, Layer, Option, Ref, Semaphore } from "effect";
+import {
+  Cause,
+  Deferred,
+  Effect,
+  Fiber,
+  Layer,
+  Option,
+  Queue,
+  Ref,
+  Semaphore,
+} from "effect";
 import { type ScriptExecutePayload, type ScriptOptions } from "../ipc";
 import { Army, type ArmyShape } from "../../army/Services/Army";
 import type {
@@ -21,10 +31,10 @@ import { Inventory } from "../../flash/Services/Inventory";
 import { Outfits } from "../../flash/Services/Outfits";
 import { Packet } from "../../flash/Services/Packet";
 import {
-  PacketDomain,
-  type PacketDomainAntiCounterEvent,
-  type PacketDomainEvent,
-} from "../../flash/Services/PacketDomain";
+  GameEvents,
+  type GameEvent,
+  type GameEventMap,
+} from "../../flash/Services/GameEvents";
 import { Player, type PlayerShape } from "../../flash/Services/Player";
 import { Quests } from "../../flash/Services/Quests";
 import { Settings } from "../../flash/Services/Settings";
@@ -47,12 +57,16 @@ import type {
   ScriptAutoZoneShape,
   ScriptContext,
   ScriptExitOptions,
-  ScriptAntiCounterEvent,
-  ScriptAntiCounterListener,
   ScriptAntiCounterShape,
+  ScriptEventListener,
+  ScriptEventMap,
+  ScriptEventName,
+  ScriptEventPredicate,
+  ScriptEventWaitOptions,
+  ScriptEventsApi,
+  ScriptSemanticEventName,
   ScriptFeaturesApi,
   ScriptMain,
-  ScriptPacketListener,
   ScriptRuntimeApi,
   ScriptSettingsShape,
   ScriptWaitOptions,
@@ -84,6 +98,39 @@ type LaunchFiber = Fiber.Fiber<unknown, unknown>;
 
 const MAX_SCRIPT_DIAGNOSTICS = 50;
 const BRIDGE_FAILURE_DIAGNOSTIC_WINDOW_MS = 5_000;
+const SCRIPT_EVENT_QUEUE_CAPACITY = 1_024;
+const SCRIPT_EVENT_OVERFLOW_DIAGNOSTIC_WINDOW_MS = 5_000;
+
+const SCRIPT_EVENT_NAMES = new Set<ScriptEventName>([
+  "packetFromClient",
+  "packetFromServer",
+  "extensionResponse",
+  "monsterDeath",
+  "questComplete",
+  "zone",
+  "joinMap",
+  "animationMessage",
+  "auraAdded",
+  "auraRemoved",
+  "afk",
+  "antiCounterStart",
+  "antiCounterEnd",
+  "playerLocation",
+]);
+
+const SCRIPT_SEMANTIC_EVENT_NAMES = new Set<ScriptSemanticEventName>([
+  "monsterDeath",
+  "questComplete",
+  "zone",
+  "joinMap",
+  "animationMessage",
+  "auraAdded",
+  "auraRemoved",
+  "afk",
+  "antiCounterStart",
+  "antiCounterEnd",
+  "playerLocation",
+]);
 
 const DEFAULT_SCRIPT_OPTIONS: ScriptOptions = {
   usePrivateRooms: false,
@@ -107,16 +154,6 @@ const applyScriptOptionsPatch = (
 ): ScriptOptions => ({
   ...current,
   ...normalizeScriptOptionsPatch(patch),
-});
-
-const toScriptAntiCounterEvent = (
-  event: PacketDomainAntiCounterEvent,
-): ScriptAntiCounterEvent => ({
-  monMapId: event.monMapId,
-  source: event.source,
-  triggerId: event.triggerId,
-  triggerText: event.triggerText,
-  ...(event.durationMs === undefined ? {} : { durationMs: event.durationMs }),
 });
 
 const isGenerator = (
@@ -160,7 +197,7 @@ const make = Effect.gen(function* () {
   const inventory = yield* Inventory;
   const outfits = yield* Outfits;
   const packet = yield* Packet;
-  const packetDomain = yield* PacketDomain;
+  const gameEvents = yield* GameEvents;
   const player = yield* Player;
   const quests = yield* Quests;
   const settings = yield* Settings;
@@ -612,10 +649,168 @@ const make = Effect.gen(function* () {
             ),
           );
 
-    const runPacketHandler = (
-      listener: string,
-      handler: ScriptPacketListener,
-      packetValue: string,
+    const toScriptEventPayload = <E extends ScriptEventName>(
+      eventName: E,
+      event: GameEventMap[E],
+    ): ScriptEventMap[E] => {
+      if (
+        eventName === "packetFromClient" ||
+        eventName === "packetFromServer" ||
+        eventName === "extensionResponse"
+      ) {
+        return event as ScriptEventMap[E];
+      }
+
+      switch (eventName) {
+        case "monsterDeath": {
+          const payload = event as GameEventMap["monsterDeath"];
+          return {
+            monMapId: payload.monMapId,
+          } as ScriptEventMap[E];
+        }
+        case "questComplete": {
+          const payload = event as GameEventMap["questComplete"];
+          return {
+            QuestID: payload.QuestID,
+            bSuccess: payload.bSuccess,
+            rewardObj: payload.rewardObj,
+            sName: payload.sName,
+          } as ScriptEventMap[E];
+        }
+        case "zone": {
+          const payload = event as GameEventMap["zone"];
+          return {
+            map: payload.map,
+            zone: payload.zone,
+          } as ScriptEventMap[E];
+        }
+        case "joinMap": {
+          const payload = event as GameEventMap["joinMap"];
+          return {
+            ...(payload.mapName === undefined
+              ? {}
+              : { mapName: payload.mapName }),
+            ...(payload.mapId === undefined ? {} : { mapId: payload.mapId }),
+            ...(payload.roomNumber === undefined
+              ? {}
+              : { roomNumber: payload.roomNumber }),
+          } as ScriptEventMap[E];
+        }
+        case "animationMessage": {
+          const payload = event as GameEventMap["animationMessage"];
+          return {
+            message: payload.message,
+            ...(payload.monMapId === undefined
+              ? {}
+              : { monMapId: payload.monMapId }),
+            ...(payload.sourceMonMapId === undefined
+              ? {}
+              : { sourceMonMapId: payload.sourceMonMapId }),
+            ...(payload.targetMonMapId === undefined
+              ? {}
+              : { targetMonMapId: payload.targetMonMapId }),
+          } as ScriptEventMap[E];
+        }
+        case "auraAdded": {
+          const payload = event as GameEventMap["auraAdded"];
+          return {
+            auraName: payload.auraName,
+            targetId: payload.targetId,
+            ...(payload.targetName === undefined
+              ? {}
+              : { targetName: payload.targetName }),
+            targetType: payload.targetType,
+            ...(payload.aura === undefined ? {} : { aura: payload.aura }),
+          } as ScriptEventMap[E];
+        }
+        case "auraRemoved": {
+          const payload = event as GameEventMap["auraRemoved"];
+          return {
+            auraName: payload.auraName,
+            targetId: payload.targetId,
+            ...(payload.targetName === undefined
+              ? {}
+              : { targetName: payload.targetName }),
+            targetType: payload.targetType,
+          } as ScriptEventMap[E];
+        }
+        case "afk": {
+          const payload = event as GameEventMap["afk"];
+          return {
+            username: payload.username,
+            afk: payload.afk,
+          } as ScriptEventMap[E];
+        }
+        case "antiCounterStart": {
+          const payload = event as GameEventMap["antiCounterStart"];
+          return {
+            monMapId: payload.monMapId,
+            source: payload.source,
+            triggerId: payload.triggerId,
+            triggerText: payload.triggerText,
+            ...(payload.durationMs === undefined
+              ? {}
+              : { durationMs: payload.durationMs }),
+          } as ScriptEventMap[E];
+        }
+        case "antiCounterEnd": {
+          const payload = event as GameEventMap["antiCounterEnd"];
+          return {
+            monMapId: payload.monMapId,
+            source: payload.source,
+            triggerId: payload.triggerId,
+            triggerText: payload.triggerText,
+          } as ScriptEventMap[E];
+        }
+        case "playerLocation": {
+          const payload = event as GameEventMap["playerLocation"];
+          return {
+            username: payload.username,
+            ...(payload.cell === undefined ? {} : { cell: payload.cell }),
+            ...(payload.pad === undefined ? {} : { pad: payload.pad }),
+            ...(payload.x === undefined ? {} : { x: payload.x }),
+            ...(payload.y === undefined ? {} : { y: payload.y }),
+          } as ScriptEventMap[E];
+        }
+      }
+
+      throw new ScriptExecutionError({
+        sourceName,
+        message: `api.events event is not supported: ${String(eventName)}`,
+        cause: eventName,
+      });
+    };
+
+    const assertScriptEventName = (
+      eventName: ScriptEventName,
+    ): Effect.Effect<void, ScriptExecutionError> =>
+      SCRIPT_EVENT_NAMES.has(eventName)
+        ? Effect.void
+        : Effect.fail(
+            new ScriptExecutionError({
+              sourceName,
+              message: `api.events event is not supported: ${String(eventName)}`,
+              cause: eventName,
+            }),
+          );
+
+    const assertScriptSemanticEventName = (
+      eventName: ScriptSemanticEventName,
+    ): Effect.Effect<void, ScriptExecutionError> =>
+      SCRIPT_SEMANTIC_EVENT_NAMES.has(eventName)
+        ? Effect.void
+        : Effect.fail(
+            new ScriptExecutionError({
+              sourceName,
+              message: `api.events.waitFor does not support packet event: ${String(eventName)}`,
+              cause: eventName,
+            }),
+          );
+
+    const runScriptEventHandler = <E extends ScriptEventName>(
+      eventName: E,
+      handler: ScriptEventListener<E>,
+      payload: ScriptEventMap[E],
     ): Effect.Effect<void> =>
       Effect.suspend(() => {
         if (scriptScope.isCancelled()) {
@@ -623,11 +818,11 @@ const make = Effect.gen(function* () {
         }
 
         const result = Effect.try({
-          try: () => handler(packetValue),
+          try: () => handler(payload),
           catch: (cause) =>
             new ScriptExecutionError({
               sourceName,
-              message: `${listener} packet handler threw before yielding`,
+              message: `api.events.${String(eventName)} handler threw before yielding`,
               cause,
             }),
         });
@@ -647,114 +842,232 @@ const make = Effect.gen(function* () {
             return Effect.void;
           }),
           Effect.catchCause((cause) =>
-            handleScriptCallbackCause(listener, "packet", cause),
+            handleScriptCallbackCause(
+              `api.events.${String(eventName)}`,
+              "event",
+              cause,
+            ),
           ),
         );
       });
 
-    const registerPacketListener = (
-      listener: "packetFromClient" | "packetFromServer" | "onExtensionResponse",
-      register: (
-        handler: (packetValue: string) => Effect.Effect<void>,
-      ) => Effect.Effect<() => void>,
-    ) =>
-      ((handler: ScriptPacketListener) =>
-        wrapScriptEffect(
-          Effect.uninterruptible(
-            Effect.gen(function* () {
-              const cleanupKey = `packet:${listener}:${++nextPacketCleanupId}`;
-              let disposed = false;
-              const dispose = yield* register((packetValue) =>
-                runPacketHandler(listener, handler, packetValue),
-              );
-              const cleanup = Effect.sync(() => {
-                if (!disposed) {
-                  disposed = true;
-                  dispose();
+    const registerScriptEventListener = <E extends ScriptEventName>(
+      mode: "on" | "once",
+      eventName: E,
+      handler: ScriptEventListener<E>,
+    ): Effect.Effect<
+      () => void,
+      ScriptExecutionError | ScriptNotReadyError
+    > =>
+      wrapScriptEffect(
+        Effect.uninterruptible(
+          Effect.gen(function* () {
+            yield* assertScriptEventName(eventName);
+
+            const cleanupKey = `event:${mode}:${String(eventName)}:${++nextPacketCleanupId}`;
+            const queue = yield* Queue.dropping<ScriptEventMap[E]>(
+              SCRIPT_EVENT_QUEUE_CAPACITY,
+            );
+            let disposed = false;
+            let lastOverflowDiagnosticAt = 0;
+            let disposeEventSource: (() => void) | undefined;
+            let worker: Fiber.Fiber<void, unknown> | undefined;
+
+            const disposeEventSourceOnce = () => {
+              disposeEventSource?.();
+              disposeEventSource = undefined;
+            };
+
+            const finishOnce = Effect.gen(function* () {
+              disposed = true;
+              disposeEventSourceOnce();
+              yield* Queue.shutdown(queue).pipe(Effect.ignore);
+              yield* scriptScope.removeCleanup(cleanupKey);
+            });
+
+            const workerEffect = Effect.gen(function* () {
+              while (!scriptScope.isCancelled()) {
+                const payload = yield* Queue.take(queue);
+                yield* runScriptEventHandler(eventName, handler, payload);
+
+                if (mode === "once") {
+                  yield* finishOnce;
+                  return;
                 }
-              });
+              }
+            }).pipe(
+              Effect.catchCause((cause) =>
+                Cause.hasInterruptsOnly(cause) || scriptScope.isCancelled()
+                  ? Effect.void
+                  : Effect.logError({
+                      message: "script event worker failed",
+                      sourceName,
+                      eventName,
+                      cause,
+                    }),
+              ),
+            );
 
-              yield* scriptScope.setCleanup(cleanupKey, cleanup);
+            worker = runFork(workerEffect);
 
-              return () => {
-                runFork(scriptScope.removeCleanup(cleanupKey));
-              };
-            }),
-          ),
-        )) satisfies ScriptApi["packet"][typeof listener];
+            disposeEventSource = yield* gameEvents.on(
+              eventName as GameEvent,
+              (event) =>
+                Effect.sync(() => {
+                  if (disposed) {
+                    return;
+                  }
 
-    const runAntiCounterHandler = (
-      listener: string,
-      handler: ScriptAntiCounterListener,
-      event: PacketDomainAntiCounterEvent,
-    ): Effect.Effect<void> =>
+                  const payload = toScriptEventPayload(
+                    eventName,
+                    event as GameEventMap[E],
+                  );
+                  const offered = Queue.offerUnsafe(queue, payload);
+                  if (!offered) {
+                    const now = Date.now();
+                    if (
+                      now - lastOverflowDiagnosticAt >=
+                      SCRIPT_EVENT_OVERFLOW_DIAGNOSTIC_WINDOW_MS
+                    ) {
+                      lastOverflowDiagnosticAt = now;
+                      runFork(
+                        appendDiagnostic(sourceName, {
+                          severity: "warning",
+                          message: `Dropped api.events.${String(eventName)} callback event because the handler queue is full`,
+                        }),
+                      );
+                    }
+                    return;
+                  }
+
+                  if (mode === "once") {
+                    disposeEventSourceOnce();
+                  }
+                }),
+            );
+
+            const cleanup = Effect.gen(function* () {
+              if (disposed) {
+                return;
+              }
+
+              disposed = true;
+              disposeEventSourceOnce();
+              yield* Queue.shutdown(queue).pipe(Effect.ignore);
+              if (worker !== undefined) {
+                yield* Fiber.interrupt(worker).pipe(Effect.ignore);
+              }
+            });
+
+            yield* scriptScope.setCleanup(cleanupKey, cleanup);
+
+            return () => {
+              runFork(scriptScope.removeCleanup(cleanupKey));
+            };
+          }),
+        ),
+      );
+
+    const evaluateScriptEventPredicate = <E extends ScriptSemanticEventName>(
+      eventName: E,
+      predicate: ScriptEventPredicate<E> | undefined,
+      payload: ScriptEventMap[E],
+    ): Effect.Effect<boolean, unknown> =>
       Effect.suspend(() => {
-        if (scriptScope.isCancelled()) {
-          return Effect.void;
+        if (predicate === undefined) {
+          return Effect.succeed(true);
         }
 
-        const scriptEvent = toScriptAntiCounterEvent(event);
+        if (typeof predicate !== "function") {
+          return Effect.fail(
+            new ScriptExecutionError({
+              sourceName,
+              message: `api.events.waitFor(${String(eventName)}) predicate must be a function`,
+              cause: predicate,
+            }),
+          );
+        }
+
         const result = Effect.try({
-          try: () => handler(scriptEvent),
+          try: () => predicate(payload),
           catch: (cause) =>
             new ScriptExecutionError({
               sourceName,
-              message: `${listener} antiCounter handler threw before yielding`,
+              message: `api.events.waitFor(${String(eventName)}) predicate threw before yielding`,
               cause,
             }),
         });
 
         return result.pipe(
-          Effect.flatMap((handlerResult) => {
-            if (Effect.isEffect(handlerResult)) {
+          Effect.flatMap((predicateResult) => {
+            if (Effect.isEffect(predicateResult)) {
               return wrapScriptEffect(
-                handlerResult as Effect.Effect<unknown, unknown, never>,
-              ).pipe(Effect.asVoid);
+                predicateResult as Effect.Effect<boolean, unknown, never>,
+              );
             }
 
-            if (isGenerator(handlerResult)) {
-              return Effect.gen(() => handlerResult).pipe(Effect.asVoid);
+            if (isGenerator(predicateResult)) {
+              return Effect.gen(() => predicateResult);
             }
 
-            return Effect.void;
+            return Effect.succeed(predicateResult === true);
           }),
-          Effect.catchCause((cause) =>
-            handleScriptCallbackCause(listener, "antiCounter", cause),
-          ),
         );
       });
 
-    const registerAntiCounterListener = (
-      listener: "onStart" | "onEnd",
-      eventName: Extract<
-        PacketDomainEvent,
-        "antiCounterStart" | "antiCounterEnd"
-      >,
+    const waitForScriptEvent = <E extends ScriptSemanticEventName>(
+      eventName: E,
+      options: ScriptEventWaitOptions<E> | undefined,
     ) =>
-      ((handler: ScriptAntiCounterListener) =>
-        wrapScriptEffect(
-          Effect.uninterruptible(
-            Effect.gen(function* () {
-              const cleanupKey = `antiCounter:${listener}:${++nextPacketCleanupId}`;
-              let disposed = false;
-              const dispose = yield* packetDomain.on(eventName, (event) =>
-                runAntiCounterHandler(listener, handler, event),
-              );
-              const cleanup = Effect.sync(() => {
-                if (!disposed) {
-                  disposed = true;
-                  dispose();
+      wrapScriptEffect(
+        Effect.gen(function* () {
+          yield* assertScriptSemanticEventName(eventName);
+
+          const result = yield* Deferred.make<ScriptEventMap[E], unknown>();
+          let disposed = false;
+          const dispose = yield* gameEvents.on(eventName, (event) => {
+            const payload = toScriptEventPayload(
+              eventName,
+              event as GameEventMap[E],
+            );
+
+            return evaluateScriptEventPredicate(
+              eventName,
+              options?.predicate,
+              payload,
+            ).pipe(
+              Effect.flatMap((matches) => {
+                if (!matches || disposed) {
+                  return Effect.void;
                 }
-              });
 
-              yield* scriptScope.setCleanup(cleanupKey, cleanup);
+                disposed = true;
+                dispose();
+                return Deferred.succeed(result, payload).pipe(Effect.asVoid);
+              }),
+              Effect.catchCause((cause) =>
+                Deferred.failCause(result, cause).pipe(Effect.asVoid),
+              ),
+            );
+          });
 
-              return () => {
-                runFork(scriptScope.removeCleanup(cleanupKey));
-              };
-            }),
-          ),
-        )) satisfies ScriptAntiCounterShape[typeof listener];
+          const cleanup = Effect.sync(() => {
+            if (!disposed) {
+              disposed = true;
+              dispose();
+            }
+          });
+
+          const waitForResult =
+            options?.timeout === undefined
+              ? Deferred.await(result).pipe(Effect.map(Option.some))
+              : Deferred.await(result).pipe(
+                  Effect.timeoutOption(options.timeout),
+                );
+
+          return yield* waitForResult.pipe(Effect.ensuring(cleanup));
+        }),
+      );
 
     const toScriptWaitOptions = (
       options: ScriptWaitOptions | undefined,
@@ -1371,8 +1684,14 @@ const make = Effect.gen(function* () {
       setEnabled: settings.setAntiCounterEnabled,
       enable: () => settings.setAntiCounterEnabled(true),
       disable: () => settings.setAntiCounterEnabled(false),
-      onStart: registerAntiCounterListener("onStart", "antiCounterStart"),
-      onEnd: registerAntiCounterListener("onEnd", "antiCounterEnd"),
+    };
+
+    const scriptEvents: ScriptEventsApi = {
+      on: (eventName, handler) =>
+        registerScriptEventListener("on", eventName, handler),
+      once: (eventName, handler) =>
+        registerScriptEventListener("once", eventName, handler),
+      waitFor: (eventName, options) => waitForScriptEvent(eventName, options),
     };
 
     const { getLoginSession: _getLoginSession, ...scriptAuth } = auth;
@@ -1432,6 +1751,7 @@ const make = Effect.gen(function* () {
       combat: wrapValue(combat) as ScriptApi["combat"],
       drops: wrapValue(drops) as ScriptApi["drops"],
       environment: wrapValue(environment) as ScriptApi["environment"],
+      events: scriptEvents,
       house: wrapValue(house) as ScriptApi["house"],
       inventory: wrapValue(inventory) as ScriptApi["inventory"],
       outfits: wrapValue(outfits) as ScriptApi["outfits"],
@@ -1444,18 +1764,6 @@ const make = Effect.gen(function* () {
           wrapScriptEffect(
             packet.sendServer(...args),
           )) as ScriptApi["packet"]["sendServer"],
-        packetFromClient: registerPacketListener(
-          "packetFromClient",
-          packet.packetFromClient,
-        ),
-        packetFromServer: registerPacketListener(
-          "packetFromServer",
-          packet.packetFromServer,
-        ),
-        onExtensionResponse: registerPacketListener(
-          "onExtensionResponse",
-          packet.onExtensionResponse,
-        ),
       },
       player: wrapValue(scriptPlayerService) as ScriptApi["player"],
       quests: wrapValue(quests) as ScriptApi["quests"],

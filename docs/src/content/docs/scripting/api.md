@@ -22,6 +22,7 @@ tableOfContents:
 | [`api.combat`](/scripting/api/combat/) | Combat APIs. |
 | [`api.drops`](/scripting/api/drops/) | Drops APIs. |
 | [`api.environment`](/scripting/api/environment/) | Environment APIs. |
+| [`api.events`](/scripting/api/events/) | Events APIs. |
 | [`api.house`](/scripting/api/house/) | House APIs. |
 | [`api.inventory`](/scripting/api/inventory/) | Inventory APIs. |
 | [`api.outfits`](/scripting/api/outfits/) | Outfits APIs. |

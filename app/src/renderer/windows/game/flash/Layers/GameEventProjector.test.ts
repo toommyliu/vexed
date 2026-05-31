@@ -1,26 +1,26 @@
-import type { AvatarData } from "@vexed/game";
+import type { AvatarData, MonsterData } from "@vexed/game";
 import { Data, Effect, Layer, Option } from "effect";
 import { expect, test } from "vitest";
 import { Auth, type AuthShape } from "../Services/Auth";
 import { Bridge, type BridgeShape } from "../Services/Bridge";
 import {
-  PacketDomain,
-  type PacketDomainEventMap,
-  type PacketDomainShape,
-} from "../Services/PacketDomain";
+  GameEvents,
+  type GameEventMap,
+  type GameEventsShape,
+} from "../Services/GameEvents";
 import { World, type WorldShape } from "../Services/World";
 import { PacketLive } from "./Packet";
-import { PacketDomainLive } from "./PacketDomain";
+import { GameEventProjectorLive } from "./GameEventProjector";
+import { GameEventsLive } from "./GameEvents";
 import { WaitLive } from "./Wait";
 import { WorldLive } from "./World";
-import { LOOP_TAUNT_SCROLL_ITEM_ID } from "../../../../../shared/loop-taunt";
 
 type PacketWindow = Pick<
   Window,
   "onExtensionResponse" | "packetFromClient" | "packetFromServer"
 >;
 
-class PacketDomainTestError extends Data.TaggedError("PacketDomainTestError")<{
+class GameEventsTestError extends Data.TaggedError("GameEventsTestError")<{
   readonly cause?: unknown;
   readonly message: string;
 }> {}
@@ -76,14 +76,19 @@ const coreRuntimeLayer = Layer.mergeAll(
   worldRuntimeLayer,
   Layer.succeed(Auth)(auth),
 );
-const packetDomainRuntimeLayer = PacketDomainLive.pipe(
-  Layer.provide(coreRuntimeLayer),
+const gameEventsRuntimeLayer = GameEventsLive;
+const gameEventProjectorRuntimeLayer = GameEventProjectorLive.pipe(
+  Layer.provide(Layer.mergeAll(coreRuntimeLayer, gameEventsRuntimeLayer)),
 );
-const runtimeLayer = Layer.mergeAll(coreRuntimeLayer, packetDomainRuntimeLayer);
+const runtimeLayer = Layer.mergeAll(
+  coreRuntimeLayer,
+  gameEventsRuntimeLayer,
+  gameEventProjectorRuntimeLayer,
+);
 
-const withPacketDomain = async <A>(
+const withGameEvents = async <A>(
   body: (
-    packetDomain: PacketDomainShape,
+    packetDomain: GameEventsShape,
     world: WorldShape,
   ) => Effect.Effect<A, unknown>,
 ): Promise<A> => {
@@ -100,7 +105,7 @@ const withPacketDomain = async <A>(
     return await Effect.runPromise(
       Effect.scoped(
         Effect.gen(function* () {
-          const packetDomain = yield* PacketDomain;
+          const packetDomain = yield* GameEvents;
           const world = yield* World;
           return yield* body(packetDomain, world);
         }),
@@ -140,22 +145,26 @@ const avatar = (
   ...overrides,
 });
 
+const monster = (overrides: Partial<MonsterData> = {}): MonsterData => ({
+  iLvl: 100,
+  intHP: 1000,
+  intHPMax: 1000,
+  intMP: 100,
+  intMPMax: 100,
+  intState: 1,
+  monId: 1,
+  monMapId: 2,
+  sRace: "Undead",
+  strFrame: "Enter",
+  strMonName: "Training Dummy",
+  ...overrides,
+});
+
 const emitServerPacket = (raw: string): void => {
   const handler = (window as PacketWindow).packetFromServer;
   if (typeof handler !== "function") {
-    throw new PacketDomainTestError({
+    throw new GameEventsTestError({
       message: "window.packetFromServer was not registered",
-    });
-  }
-
-  handler(raw);
-};
-
-const emitClientPacket = (raw: string): void => {
-  const handler = (window as PacketWindow).packetFromClient;
-  if (typeof handler !== "function") {
-    throw new PacketDomainTestError({
-      message: "window.packetFromClient was not registered",
     });
   }
 
@@ -165,7 +174,7 @@ const emitClientPacket = (raw: string): void => {
 const emitExtensionPacket = (raw: string): void => {
   const handler = (window as PacketWindow).onExtensionResponse;
   if (typeof handler !== "function") {
-    throw new PacketDomainTestError({
+    throw new GameEventsTestError({
       message: "window.onExtensionResponse was not registered",
     });
   }
@@ -182,7 +191,7 @@ const waitForEvent = <A>(promise: Promise<A>) =>
           setTimeout(
             () =>
               reject(
-                new PacketDomainTestError({
+                new GameEventsTestError({
                   message: "timed out waiting for event",
                 }),
               ),
@@ -191,23 +200,23 @@ const waitForEvent = <A>(promise: Promise<A>) =>
         }),
       ]),
     catch: (cause) =>
-      cause instanceof PacketDomainTestError
+      cause instanceof GameEventsTestError
         ? cause
-        : new PacketDomainTestError({
+        : new GameEventsTestError({
             cause,
             message: "event wait failed",
           }),
   });
 
 test("packet domain updates remote player position from uotls move packets", async () => {
-  const result = await withPacketDomain((packetDomain, world) =>
+  const result = await withGameEvents((packetDomain, world) =>
     Effect.gen(function* () {
       yield* world.players.add(avatar("Hero"));
       let resolveLocation:
-        | ((event: PacketDomainEventMap["playerLocation"]) => void)
+        | ((event: GameEventMap["playerLocation"]) => void)
         | undefined;
       const observedLocation = new Promise<
-        PacketDomainEventMap["playerLocation"]
+        GameEventMap["playerLocation"]
       >((resolve) => {
         resolveLocation = resolve;
       });
@@ -218,22 +227,20 @@ test("packet domain updates remote player position from uotls move packets", asy
 
       emitExtensionPacket(
         JSON.stringify({
-          params: {
-            dataObj: [
-              "uotls",
-              "-1",
-              "Hero",
-              "tx:464,ty:445,sp:8,strFrame:Enter",
-            ],
-            type: "str",
-          },
+          dataObj: [
+            "uotls",
+            "-1",
+            "Hero",
+            "tx:464,ty:445,sp:8,strFrame:Enter",
+          ],
+          type: "str",
         }),
       );
       yield* Effect.sleep("10 millis");
 
       const player = yield* world.players.getByName("Hero");
       if (Option.isNone(player)) {
-        throw new PacketDomainTestError({ message: "player was not found" });
+        throw new GameEventsTestError({ message: "player was not found" });
       }
 
       return {
@@ -255,28 +262,26 @@ test("packet domain updates remote player position from uotls move packets", asy
 });
 
 test("packet domain updates remote player cell from uotls cell-change packets", async () => {
-  const data = await withPacketDomain((_packetDomain, world) =>
+  const data = await withGameEvents((_packetDomain, world) =>
     Effect.gen(function* () {
       yield* world.players.add(avatar("Hero"));
 
       emitExtensionPacket(
         JSON.stringify({
-          params: {
-            dataObj: [
-              "uotls",
-              "-1",
-              "Hero",
-              "strFrame:R2,strPad:Left,px:500,py:375,mvts:-1,mvtd:0,tx:0,ty:0,bResting:false",
-            ],
-            type: "str",
-          },
+          dataObj: [
+            "uotls",
+            "-1",
+            "Hero",
+            "strFrame:R2,strPad:Left,px:500,py:375,mvts:-1,mvtd:0,tx:0,ty:0,bResting:false",
+          ],
+          type: "str",
         }),
       );
       yield* Effect.sleep("10 millis");
 
       const player = yield* world.players.getByName("Hero");
       if (Option.isNone(player)) {
-        throw new PacketDomainTestError({ message: "player was not found" });
+        throw new GameEventsTestError({ message: "player was not found" });
       }
 
       return player.value.data;
@@ -289,13 +294,148 @@ test("packet domain updates remote player cell from uotls cell-change packets", 
   expect(data.ty).toBe(375);
 });
 
+test("game event projector updates player afk state and emits afk events", async () => {
+  const result = await withGameEvents((gameEvents, world) =>
+    Effect.gen(function* () {
+      yield* world.players.add(avatar("Hero", { afk: false }));
+      let resolveAfk:
+        | ((event: GameEventMap["afk"]) => void)
+        | undefined;
+      const observedAfk = new Promise<GameEventMap["afk"]>((resolve) => {
+        resolveAfk = resolve;
+      });
+
+      yield* gameEvents.on("afk", (event) =>
+        Effect.sync(() => resolveAfk?.(event)),
+      );
+
+      emitExtensionPacket(
+        JSON.stringify({
+          dataObj: ["uotls", "-1", "Hero", "afk:true"],
+          type: "str",
+        }),
+      );
+
+      const player = yield* world.players.getByName("Hero");
+      if (Option.isNone(player)) {
+        throw new GameEventsTestError({ message: "player was not found" });
+      }
+
+      return {
+        afk: player.value.data.afk,
+        event: yield* waitForEvent(observedAfk),
+      };
+    }),
+  );
+
+  expect(result.afk).toBe(true);
+  expect(result.event).toMatchObject({
+    afk: true,
+    username: "Hero",
+  });
+});
+
+test("game event projector emits monster death from addGoldExp packets", async () => {
+  const event = await withGameEvents((gameEvents) =>
+    Effect.gen(function* () {
+      let resolveDeath:
+        | ((event: GameEventMap["monsterDeath"]) => void)
+        | undefined;
+      const observed = new Promise<GameEventMap["monsterDeath"]>((resolve) => {
+        resolveDeath = resolve;
+      });
+
+      yield* gameEvents.on("monsterDeath", (death) =>
+        Effect.sync(() => resolveDeath?.(death)),
+      );
+
+      emitExtensionPacket(
+        JSON.stringify({
+          dataObj: {
+            cmd: "addGoldExp",
+            id: 10,
+            intExp: 0,
+            intGold: 0,
+            typ: "m",
+          },
+          type: "json",
+        }),
+      );
+
+      return yield* waitForEvent(observed);
+    }),
+  );
+
+  expect(event.monMapId).toBe(10);
+});
+
+test("game event projector emits quest completion from successful ccqr packets", async () => {
+  const events = await withGameEvents((gameEvents) =>
+    Effect.gen(function* () {
+      const observed: GameEventMap["questComplete"][] = [];
+
+      yield* gameEvents.on("questComplete", (quest) =>
+        Effect.sync(() => observed.push(quest)),
+      );
+
+      emitExtensionPacket(
+        JSON.stringify({
+          dataObj: {
+            cmd: "addGoldExp",
+            intExp: 0,
+            intGold: 0,
+            typ: "q",
+          },
+          type: "json",
+        }),
+      );
+      emitExtensionPacket(
+        JSON.stringify({
+          dataObj: {
+            QuestID: 11,
+            bSuccess: 1,
+            cmd: "ccqr",
+            rewardObj: {
+              iCP: 0,
+              intCoins: 0,
+              intExp: 100,
+              intGold: 100,
+              typ: "q",
+            },
+            sName: "Twilly's New Staff",
+          },
+          type: "json",
+        }),
+      );
+      yield* Effect.sleep("10 millis");
+
+      return observed;
+    }),
+  );
+
+  expect(events).toHaveLength(1);
+  expect(events[0]).toMatchObject({
+    QuestID: 11,
+    bSuccess: 1,
+    rewardObj: {
+      iCP: 0,
+      intCoins: 0,
+      intExp: 100,
+      intGold: 100,
+      typ: "q",
+    },
+    sName: "Twilly's New Staff",
+  });
+  expect(events[0]?.packet.cmd).toBe("ccqr");
+});
+
 test("packet domain emits animation message events with monster ids", async () => {
-  const event = await withPacketDomain((packetDomain) =>
+  const event = await withGameEvents((packetDomain) =>
     Effect.gen(function* () {
       let resolveEvent:
-        | ((event: PacketDomainEventMap["animationMessage"]) => void)
+        | ((event: GameEventMap["animationMessage"]) => void)
         | undefined;
-      const observed = new Promise<PacketDomainEventMap["animationMessage"]>(
+      const observed = new Promise<GameEventMap["animationMessage"]>(
         (resolve) => {
           resolveEvent = resolve;
         },
@@ -320,12 +460,12 @@ test("packet domain emits animation message events with monster ids", async () =
 });
 
 test("packet domain preserves animation message target monster id fallback", async () => {
-  const event = await withPacketDomain((packetDomain) =>
+  const event = await withGameEvents((packetDomain) =>
     Effect.gen(function* () {
       let resolveEvent:
-        | ((event: PacketDomainEventMap["animationMessage"]) => void)
+        | ((event: GameEventMap["animationMessage"]) => void)
         | undefined;
-      const observed = new Promise<PacketDomainEventMap["animationMessage"]>(
+      const observed = new Promise<GameEventMap["animationMessage"]>(
         (resolve) => {
           resolveEvent = resolve;
         },
@@ -350,12 +490,12 @@ test("packet domain preserves animation message target monster id fallback", asy
 });
 
 test("packet domain parses monster ids from animation target lists", async () => {
-  const event = await withPacketDomain((packetDomain) =>
+  const event = await withGameEvents((packetDomain) =>
     Effect.gen(function* () {
       let resolveEvent:
-        | ((event: PacketDomainEventMap["animationMessage"]) => void)
+        | ((event: GameEventMap["animationMessage"]) => void)
         | undefined;
-      const observed = new Promise<PacketDomainEventMap["animationMessage"]>(
+      const observed = new Promise<GameEventMap["animationMessage"]>(
         (resolve) => {
           resolveEvent = resolve;
         },
@@ -380,23 +520,23 @@ test("packet domain parses monster ids from animation target lists", async () =>
 });
 
 test("packet domain emits monster aura add and remove events", async () => {
-  const events = await withPacketDomain((packetDomain) =>
+  const events = await withGameEvents((packetDomain, world) =>
     Effect.gen(function* () {
-      const observed: Array<PacketDomainEventMap["auraAdded" | "auraRemoved"]> =
+      const observed: Array<GameEventMap["auraAdded" | "auraRemoved"]> =
         [];
       let resolveEvents:
         | ((
-            events: Array<PacketDomainEventMap["auraAdded" | "auraRemoved"]>,
+            events: Array<GameEventMap["auraAdded" | "auraRemoved"]>,
           ) => void)
         | undefined;
       const done = new Promise<
-        Array<PacketDomainEventMap["auraAdded" | "auraRemoved"]>
+        Array<GameEventMap["auraAdded" | "auraRemoved"]>
       >((resolve) => {
         resolveEvents = resolve;
       });
 
       const pushEvent = (
-        event: PacketDomainEventMap["auraAdded" | "auraRemoved"],
+        event: GameEventMap["auraAdded" | "auraRemoved"],
       ) => {
         observed.push(event);
         if (observed.length === 2) {
@@ -409,6 +549,9 @@ test("packet domain emits monster aura add and remove events", async () => {
       );
       yield* packetDomain.on("auraRemoved", (event) =>
         Effect.sync(() => pushEvent(event)),
+      );
+      yield* world.monsters.add(
+        monster({ monMapId: 2, strMonName: "Training Dummy" }),
       );
 
       emitServerPacket(
@@ -424,83 +567,44 @@ test("packet domain emits monster aura add and remove events", async () => {
       aura: { cat: "stone", icon: "iwd1,ied1" },
       auraName: "Focus",
       targetId: 2,
+      targetName: "Training Dummy",
       targetType: "monster",
     },
-    { auraName: "Focus", targetId: 2, targetType: "monster" },
+    {
+      auraName: "Focus",
+      targetId: 2,
+      targetName: "Training Dummy",
+      targetType: "monster",
+    },
   ]);
 });
 
-test("packet domain reports outgoing loop taunt scroll attempt telemetry", async () => {
-  const event = await withPacketDomain((packetDomain) =>
+test("packet domain emits player aura target names", async () => {
+  const event = await withGameEvents((packetDomain, world) =>
     Effect.gen(function* () {
-      let resolveObserved: (
-        event: PacketDomainEventMap["loopTauntClientCastAttempt"],
-      ) => void;
-      const observed = new Promise<
-        PacketDomainEventMap["loopTauntClientCastAttempt"]
-      >((resolve) => {
-        resolveObserved = resolve;
+      yield* world.players.add(avatar("Hero", { entID: 9 }));
+
+      let resolveEvent: ((event: GameEventMap["auraAdded"]) => void) | undefined;
+      const observed = new Promise<GameEventMap["auraAdded"]>((resolve) => {
+        resolveEvent = resolve;
       });
-      yield* packetDomain.on("loopTauntClientCastAttempt", (payload) =>
-        Effect.sync(() => resolveObserved(payload)),
-      );
 
-      emitClientPacket("%xt%zm%gar%1%0%i1>m:7%12917%wvz%");
-
-      return yield* waitForEvent(observed);
-    }),
-  );
-
-  expect(event.itemId).toBe(LOOP_TAUNT_SCROLL_ITEM_ID);
-  expect(event.monMapId).toBe(7);
-});
-
-test("packet domain reports server-confirmed loop taunt actions with matching Focus aura", async () => {
-  const event = await withPacketDomain((packetDomain) =>
-    Effect.gen(function* () {
-      let resolveObserved: (
-        event: PacketDomainEventMap["loopTauntServerCastConfirmed"],
-      ) => void;
-      const observed = new Promise<
-        PacketDomainEventMap["loopTauntServerCastConfirmed"]
-      >((resolve) => {
-        resolveObserved = resolve;
-      });
-      yield* packetDomain.on("loopTauntServerCastConfirmed", (payload) =>
-        Effect.sync(() => resolveObserved(payload)),
+      yield* packetDomain.on("auraAdded", (auraEvent) =>
+        Effect.sync(() => resolveEvent?.(auraEvent)),
       );
 
       emitServerPacket(
-        '{"t":"xt","b":{"o":{"cmd":"ct","sarsa":[{"a":[{"actRef":"i1","tInf":"m:7"}]}],"a":[{"cmd":"aura+","tInf":"m:7","auras":[{"nam":"Focus","icon":"iwd1,ied1","dur":6,"t":"s","isNew":true}]}]}}}',
+        '{"t":"xt","b":{"o":{"cmd":"ct","a":[{"cmd":"aura+","tInf":"p:9","auras":[{"isNew":true,"nam":"Haste"}]}]}}}',
       );
 
       return yield* waitForEvent(observed);
     }),
   );
 
-  expect(event.auraIcon).toBe("iwd1,ied1");
-  expect(event.auraName).toBe("Focus");
-  expect(event.monMapId).toBe(7);
-});
-
-test("packet domain does not confirm loop taunt from server action without matching Focus aura", async () => {
-  const observed = await withPacketDomain((packetDomain) =>
-    Effect.gen(function* () {
-      let observed = false;
-      yield* packetDomain.on("loopTauntServerCastConfirmed", () =>
-        Effect.sync(() => {
-          observed = true;
-        }),
-      );
-
-      emitServerPacket(
-        '{"t":"xt","b":{"o":{"cmd":"ct","sarsa":[{"a":[{"actRef":"i1","tInf":"m:7"}]}]}}}',
-      );
-      yield* Effect.sleep("25 millis");
-
-      return observed;
-    }),
-  );
-
-  expect(observed).toBe(false);
+  expect(event).toMatchObject({
+    auraName: "Haste",
+    targetId: 9,
+    targetName: "Hero",
+    targetType: "player",
+  });
 });

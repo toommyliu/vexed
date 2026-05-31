@@ -38,16 +38,7 @@ type EffectValue<T> =
             }
           : never;
 
-export type ScriptPacketListener = (
-  packet: string,
-) =>
-  | void
-  | Effect.Effect<unknown, unknown>
-  | Generator<Effect.Yieldable<any, any, never, never>, unknown, never>;
-
-export type ScriptPacketDisposer = () => void;
-
-export interface ScriptAntiCounterEvent {
+export interface ScriptEventAntiCounterEvent {
   readonly monMapId: number;
   readonly source: "message" | "aura";
   readonly triggerId: string;
@@ -55,14 +46,111 @@ export interface ScriptAntiCounterEvent {
   readonly durationMs?: number;
 }
 
-export type ScriptAntiCounterListener = (
-  event: ScriptAntiCounterEvent,
+export interface ScriptEventMonsterDeathEvent {
+  readonly monMapId: number;
+}
+
+export interface ScriptEventQuestCompleteEvent {
+  readonly QuestID: number;
+  readonly bSuccess: number;
+  readonly sName: string;
+  readonly rewardObj: {
+    readonly intGold?: number;
+    readonly intExp?: number;
+    readonly iCP?: number;
+    readonly typ?: string;
+    readonly intCoins?: number;
+  };
+}
+
+export interface ScriptEventZoneEvent {
+  readonly map: string;
+  readonly zone: string;
+}
+
+export interface ScriptEventJoinMapEvent {
+  readonly mapName?: string;
+  readonly mapId?: number;
+  readonly roomNumber?: number;
+}
+
+export interface ScriptEventAnimationMessageEvent {
+  readonly message: string;
+  readonly monMapId?: number;
+  readonly sourceMonMapId?: number;
+  readonly targetMonMapId?: number;
+}
+
+export interface ScriptEventAuraEvent {
+  readonly auraName: string;
+  readonly targetId: number;
+  readonly targetName?: string;
+  readonly targetType: "monster" | "player";
+  readonly aura?: Aura;
+}
+
+export interface ScriptEventAfkEvent {
+  readonly username: string;
+  readonly afk: boolean;
+}
+
+export interface ScriptEventPlayerLocationEvent {
+  readonly username: string;
+  readonly cell?: string;
+  readonly pad?: string;
+  readonly x?: number;
+  readonly y?: number;
+}
+
+export interface ScriptEventMap {
+  packetFromClient: string;
+  packetFromServer: string;
+  extensionResponse: string;
+  monsterDeath: ScriptEventMonsterDeathEvent;
+  questComplete: ScriptEventQuestCompleteEvent;
+  zone: ScriptEventZoneEvent;
+  joinMap: ScriptEventJoinMapEvent;
+  animationMessage: ScriptEventAnimationMessageEvent;
+  auraAdded: ScriptEventAuraEvent;
+  auraRemoved: Omit<ScriptEventAuraEvent, "aura">;
+  afk: ScriptEventAfkEvent;
+  antiCounterStart: ScriptEventAntiCounterEvent;
+  antiCounterEnd: Omit<ScriptEventAntiCounterEvent, "durationMs">;
+  playerLocation: ScriptEventPlayerLocationEvent;
+}
+
+export type ScriptEventName = keyof ScriptEventMap;
+
+export type ScriptPacketEventName =
+  | "packetFromClient"
+  | "packetFromServer"
+  | "extensionResponse";
+
+export type ScriptSemanticEventName = Exclude<
+  ScriptEventName,
+  ScriptPacketEventName
+>;
+
+export type ScriptEventListener<E extends ScriptEventName = ScriptEventName> = (
+  event: ScriptEventMap[E],
 ) =>
   | void
   | Effect.Effect<unknown, unknown>
   | Generator<Effect.Yieldable<any, any, never, never>, unknown, never>;
 
-export type ScriptAntiCounterDisposer = () => void;
+export type ScriptEventPredicate<E extends ScriptSemanticEventName> = (
+  event: ScriptEventMap[E],
+) =>
+  | boolean
+  | Effect.Effect<boolean, unknown>
+  | Generator<Effect.Yieldable<any, any, never, never>, boolean, never>;
+
+export type ScriptEventDisposer = () => void;
+
+export interface ScriptEventWaitOptions<E extends ScriptSemanticEventName>
+  extends ScriptWaitOptions {
+  readonly predicate?: ScriptEventPredicate<E>;
+}
 
 export interface ScriptAuthShape {
   connectTo(server: string): BridgeEffect<AuthConnectOutcome>;
@@ -77,15 +165,36 @@ export interface ScriptAuthShape {
 
 export interface ScriptPacketApi
   extends Pick<EffectValue<PacketShape>, "sendClient" | "sendServer"> {
-  packetFromClient(
-    handler: ScriptPacketListener,
-  ): Effect.Effect<ScriptPacketDisposer, ScriptNotReadyError>;
-  packetFromServer(
-    handler: ScriptPacketListener,
-  ): Effect.Effect<ScriptPacketDisposer, ScriptNotReadyError>;
-  onExtensionResponse(
-    handler: ScriptPacketListener,
-  ): Effect.Effect<ScriptPacketDisposer, ScriptNotReadyError>;
+}
+
+export interface ScriptEventsApi {
+  /**
+   * Subscribes to an event.
+   */
+  on<E extends ScriptEventName>(
+    eventName: E,
+    handler: ScriptEventListener<E>,
+  ): Effect.Effect<
+    ScriptEventDisposer,
+    ScriptExecutionError | ScriptNotReadyError
+  >;
+  /**
+   * Subscribes once, then disposes the listener.
+   */
+  once<E extends ScriptEventName>(
+    eventName: E,
+    handler: ScriptEventListener<E>,
+  ): Effect.Effect<
+    ScriptEventDisposer,
+    ScriptExecutionError | ScriptNotReadyError
+  >;
+  /**
+   * Waits for the next matching game event. Packet events are not supported.
+   */
+  waitFor<E extends ScriptSemanticEventName>(
+    eventName: E,
+    options?: ScriptEventWaitOptions<E>,
+  ): Effect.Effect<Option.Option<ScriptEventMap[E]>, ScriptNotReadyError | unknown>;
 }
 
 export interface ScriptSettingsShape {
@@ -314,12 +423,6 @@ export interface ScriptAntiCounterShape {
   setEnabled(enabled: boolean): Effect.Effect<void>;
   enable(): Effect.Effect<void>;
   disable(): Effect.Effect<void>;
-  onStart(
-    handler: ScriptAntiCounterListener,
-  ): Effect.Effect<ScriptAntiCounterDisposer, ScriptNotReadyError>;
-  onEnd(
-    handler: ScriptAntiCounterListener,
-  ): Effect.Effect<ScriptAntiCounterDisposer, ScriptNotReadyError>;
 }
 
 export type ScriptEnvironmentShape = Omit<
@@ -401,6 +504,10 @@ export interface ScriptApi {
   readonly combat: EffectValue<CombatShape>;
   readonly drops: EffectValue<DropsShape>;
   readonly environment: EffectValue<ScriptEnvironmentShape>;
+  /**
+   * Game event subscriptions.
+   */
+  readonly events: ScriptEventsApi;
   readonly house: EffectValue<HouseShape>;
   readonly inventory: EffectValue<InventoryShape>;
   readonly outfits: EffectValue<OutfitsShape>;

@@ -2,9 +2,9 @@ import type { Avatar, Aura } from "@vexed/game";
 import { Effect, Layer, Option } from "effect";
 import { expect, test } from "vitest";
 import {
-  PacketDomain,
-  type PacketDomainShape,
-} from "../../flash/Services/PacketDomain";
+  GameEvents,
+  type GameEventsShape,
+} from "../../flash/Services/GameEvents";
 import { Player, type PlayerShape } from "../../flash/Services/Player";
 import { World, type WorldShape } from "../../flash/Services/World";
 import { AutoZone, type AutoZoneShape } from "../Services/AutoZone";
@@ -17,7 +17,10 @@ type WalkCall = {
 
 type Harness = {
   readonly auraNames: Set<string>;
-  readonly emitZone: (map: string, zone: string) => Effect.Effect<void>;
+  readonly emitZone: (
+    map: string,
+    zone: string,
+  ) => Effect.Effect<void, unknown>;
   readonly setWorldMap: (map: string) => void;
   readonly walks: WalkCall[];
 };
@@ -36,21 +39,22 @@ const withAutoZone = async <A>(
   const walks: WalkCall[] = [];
   const auraNames = new Set<string>();
   let currentMap = "ultradage";
-  let zoneHandler: Parameters<PacketDomainShape["on"]>[1] | undefined;
+  let zoneHandler: Parameters<GameEventsShape["on"]>[1] | undefined;
 
   const packetDomain = {
     started: true,
+    emit: () => Effect.void,
     on(event, handler) {
       if (event !== "zone") {
         throw new Error(`unexpected packet domain event: ${event}`);
       }
 
-      zoneHandler = handler as Parameters<PacketDomainShape["on"]>[1];
+      zoneHandler = handler as Parameters<GameEventsShape["on"]>[1];
       return Effect.succeed(() => {
         zoneHandler = undefined;
       });
     },
-  } satisfies PacketDomainShape;
+  } satisfies GameEventsShape;
 
   const player = {
     walkTo(x: number, y: number) {
@@ -110,7 +114,7 @@ const withAutoZone = async <A>(
         AutoZoneLive.pipe(
           Layer.provide(
             Layer.mergeAll(
-              Layer.succeed(PacketDomain)(packetDomain),
+              Layer.succeed(GameEvents)(packetDomain),
               Layer.succeed(Player)(player),
               Layer.succeed(World)(world),
             ),

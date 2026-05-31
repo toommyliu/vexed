@@ -14,14 +14,9 @@ import {
   asRecord,
   asString,
 } from "../PacketPayload";
-import type {
-  PacketDomainEvent,
-  PacketDomainEventHandler,
-  PacketDomainEventMap,
-  PacketDomainShape,
-} from "../Services/PacketDomain";
-import { PacketDomain } from "../Services/PacketDomain";
-import { Packet, type PacketListenerDisposer } from "../Services/Packet";
+import type { GameEventMap } from "../Services/GameEvents";
+import { GameEvents } from "../Services/GameEvents";
+import { Packet } from "../Services/Packet";
 import { Auth } from "../Services/Auth";
 import { World } from "../Services/World";
 import {
@@ -256,95 +251,26 @@ const patchAvatarData = (
 const hasCsvValue = (input: string, prefix: string): boolean =>
   readCsvValue(input, prefix) !== undefined;
 
-type DomainHandlerStore = {
-  [K in PacketDomainEvent]: Set<PacketDomainEventHandler<K>>;
-};
-
-const createDomainHandlerStore = (): DomainHandlerStore => ({
-  monsterDeath: new Set(),
-  joinMap: new Set(),
-  zone: new Set(),
-  animationMessage: new Set(),
-  auraAdded: new Set(),
-  auraRemoved: new Set(),
-  antiCounterStart: new Set(),
-  antiCounterEnd: new Set(),
-  loopTauntClientCastAttempt: new Set(),
-  loopTauntServerCastConfirmed: new Set(),
-  playerLocation: new Set(),
-});
-
-const registerDomainHandler = <E extends PacketDomainEvent>(
-  store: DomainHandlerStore,
-  event: E,
-  handler: PacketDomainEventHandler<E>,
-): Effect.Effect<PacketListenerDisposer> =>
-  Effect.sync(() => {
-    const handlers = store[event] as
-      | Set<PacketDomainEventHandler<E>>
-      | undefined;
-
-    if (!handlers) {
-      throw new Error(`packet domain event store missing: ${event}`);
-    }
-
-    handlers.add(handler);
-
-    return () => {
-      handlers.delete(handler);
-    };
-  });
-
-const dispatchDomainEvent = <E extends PacketDomainEvent>(
-  store: DomainHandlerStore,
-  event: E,
-  payload: PacketDomainEventMap[E],
-): Effect.Effect<void> => {
-  const eventHandlers = store[event] as
-    | Set<PacketDomainEventHandler<E>>
-    | undefined;
-
-  if (!eventHandlers) {
-    return Effect.logError(`packet domain event store missing: ${event}`).pipe(
-      Effect.asVoid,
-    );
-  }
-
-  const handlers = Array.from(
-    eventHandlers,
-  ) as readonly PacketDomainEventHandler<E>[];
-
-  if (handlers.length === 0) {
-    return Effect.void;
-  }
-
-  return Effect.forEach(
-    handlers,
-    (handler, handlerIndex) =>
-      handler(payload).pipe(
-        Effect.catchCause((cause) =>
-          Effect.logError({
-            message: "packet domain callback failed",
-            event,
-            handlerIndex,
-            cause,
-          }),
-        ),
-      ),
-    { discard: true },
-  );
-};
-
 const make = Effect.gen(function* () {
   const auth = yield* Auth;
+  const gameEvents = yield* GameEvents;
   const packets = yield* Packet;
   const world = yield* World;
-  const domainHandlerStore = createDomainHandlerStore();
 
-  const on = <E extends PacketDomainEvent>(
-    event: E,
-    handler: PacketDomainEventHandler<E>,
-  ) => registerDomainHandler(domainHandlerStore, event, handler);
+  const resolveAuraTargetName = (
+    targetType: "m" | "p",
+    targetId: number,
+  ): Effect.Effect<string | undefined> =>
+    Effect.gen(function* () {
+      if (targetType === "m") {
+        const monster = yield* world.monsters.get(targetId);
+        return Option.isSome(monster) ? monster.value.name : undefined;
+      }
+
+      const players = yield* world.players.getAll();
+      return players.find((player) => player.data.entID === targetId)
+        ?.username;
+    });
 
   const withMonster = (
     monMapId: number,
@@ -377,6 +303,24 @@ const make = Effect.gen(function* () {
   const withSelf = (f: (player: { data: AvatarData }) => void) =>
     world.players.withSelf(f).pipe(Effect.asVoid);
 
+  yield* packets.scoped(
+    packets.packetFromClient((packet) =>
+      gameEvents.emit("packetFromClient", packet),
+    ),
+  );
+
+  yield* packets.scoped(
+    packets.packetFromServer((packet) =>
+      gameEvents.emit("packetFromServer", packet),
+    ),
+  );
+
+  yield* packets.scoped(
+    packets.onExtensionResponse((packet) =>
+      gameEvents.emit("extensionResponse", packet),
+    ),
+  );
+
   yield* packets.jsonScoped("event", (packet) =>
     Effect.gen(function* () {
       const payload = asRecord(packet.data);
@@ -391,7 +335,7 @@ const make = Effect.gen(function* () {
       const zone = asString(args["zoneSet"]) ?? "";
       const map = yield* world.map.getName();
 
-      yield* dispatchDomainEvent(domainHandlerStore, "zone", {
+      yield* gameEvents.emit("zone", {
         map,
         zone,
         packet,
@@ -489,14 +433,14 @@ const make = Effect.gen(function* () {
         yield* world.map.setId(mapId);
       }
 
-      const joinMapEvent: PacketDomainEventMap["joinMap"] = {
+      const joinMapEvent: GameEventMap["joinMap"] = {
         packet,
         ...(mapName !== undefined ? { mapName } : {}),
         ...(mapId !== undefined ? { mapId } : {}),
         ...(roomNumber !== undefined ? { roomNumber } : {}),
       };
 
-      yield* dispatchDomainEvent(domainHandlerStore, "joinMap", joinMapEvent);
+      yield* gameEvents.emit("joinMap", joinMapEvent);
 
       // Monster info
 
@@ -660,9 +604,18 @@ const make = Effect.gen(function* () {
       const pad = asString(userPayload["strPad"]);
       const x = asNumber(userPayload["tx"]);
       const y = asNumber(userPayload["ty"]);
+      const afk = asBoolean(userPayload["afk"]);
 
       patchAvatarData(existing.value.data, userPayload);
-      yield* dispatchDomainEvent(domainHandlerStore, "playerLocation", {
+      if (afk !== undefined) {
+        yield* gameEvents.emit("afk", {
+          username,
+          afk,
+          packet,
+        });
+      }
+
+      yield* gameEvents.emit("playerLocation", {
         username,
         packet,
         ...(cell === undefined ? {} : { cell }),
@@ -676,7 +629,11 @@ const make = Effect.gen(function* () {
   yield* packets.jsonScoped("addGoldExp", (packet) =>
     Effect.gen(function* () {
       const payload = asRecord(packet.data);
-      if (!payload || asString(payload["typ"]) !== "m") {
+      if (!payload) {
+        return;
+      }
+
+      if (asString(payload["typ"]) !== "m") {
         return;
       }
 
@@ -693,9 +650,46 @@ const make = Effect.gen(function* () {
 
       yield* world.monsters.clearAuras(monMapId);
 
-      yield* dispatchDomainEvent(domainHandlerStore, "monsterDeath", {
+      yield* gameEvents.emit("monsterDeath", {
         monMapId,
         packet,
+      });
+    }),
+  );
+
+  yield* packets.jsonScoped("ccqr", (packet) =>
+    Effect.gen(function* () {
+      const payload = asRecord(packet.data);
+      const bSuccess = payload?.["bSuccess"];
+      if (!payload || bSuccess !== 1) {
+        return;
+      }
+
+      const QuestID = asNumber(payload["QuestID"]);
+      const sName = asString(payload["sName"]);
+      const reward = asRecord(payload["rewardObj"]);
+      if (QuestID === undefined || !sName || !reward) {
+        return;
+      }
+
+      const intGold = asNumber(reward["intGold"]);
+      const intExp = asNumber(reward["intExp"]);
+      const iCP = asNumber(reward["iCP"]);
+      const typ = asString(reward["typ"]);
+      const intCoins = asNumber(reward["intCoins"]);
+
+      yield* gameEvents.emit("questComplete", {
+        QuestID,
+        bSuccess,
+        packet,
+        rewardObj: {
+          ...(intGold === undefined ? {} : { intGold }),
+          ...(intExp === undefined ? {} : { intExp }),
+          ...(iCP === undefined ? {} : { iCP }),
+          ...(typ === undefined ? {} : { typ }),
+          ...(intCoins === undefined ? {} : { intCoins }),
+        },
+        sName,
       });
     }),
   );
@@ -748,6 +742,11 @@ const make = Effect.gen(function* () {
         const afk = asBoolean(readCsvValue(data, "afk:"));
         if (afk !== undefined) {
           playerData.afk = afk;
+          yield* gameEvents.emit("afk", {
+            username,
+            afk,
+            packet,
+          });
         }
         return;
       }
@@ -775,7 +774,7 @@ const make = Effect.gen(function* () {
         if (ty !== undefined) {
           playerData.ty = ty;
         }
-        yield* dispatchDomainEvent(domainHandlerStore, "playerLocation", {
+        yield* gameEvents.emit("playerLocation", {
           username,
           packet,
           ...(cell === undefined ? {} : { cell }),
@@ -804,7 +803,7 @@ const make = Effect.gen(function* () {
         if (cell !== undefined) {
           playerData.strFrame = cell;
         }
-        yield* dispatchDomainEvent(domainHandlerStore, "playerLocation", {
+        yield* gameEvents.emit("playerLocation", {
           username,
           packet,
           ...(cell === undefined ? {} : { cell }),
@@ -906,9 +905,7 @@ const make = Effect.gen(function* () {
         return;
       }
 
-      yield* dispatchDomainEvent(
-        domainHandlerStore,
-        "loopTauntClientCastAttempt",
+      yield* gameEvents.emit("loopTauntClientCastAttempt",
         {
           itemId,
           monMapId,
@@ -927,9 +924,7 @@ const make = Effect.gen(function* () {
 
       const loopTauntConfirmation = getServerLoopTauntConfirmation(payload);
       if (loopTauntConfirmation !== undefined) {
-        yield* dispatchDomainEvent(
-          domainHandlerStore,
-          "loopTauntServerCastConfirmed",
+        yield* gameEvents.emit("loopTauntServerCastConfirmed",
           {
             auraIcon: loopTauntConfirmation.auraIcon,
             auraName: loopTauntConfirmation.auraName,
@@ -957,7 +952,7 @@ const make = Effect.gen(function* () {
           animation["tInf"],
         );
         const monMapId = sourceMonMapId ?? targetMonMapId;
-        yield* dispatchDomainEvent(domainHandlerStore, "animationMessage", {
+        yield* gameEvents.emit("animationMessage", {
           message,
           ...(monMapId === undefined ? {} : { monMapId }),
           ...(sourceMonMapId === undefined ? {} : { sourceMonMapId }),
@@ -975,7 +970,7 @@ const make = Effect.gen(function* () {
         }
 
         const durationMs = getAntiCounterCastDurationMs(payload, monMapId);
-        yield* dispatchDomainEvent(domainHandlerStore, "antiCounterStart", {
+        yield* gameEvents.emit("antiCounterStart", {
           monMapId,
           source: "message",
           triggerId: antiCounterMatch.triggerId,
@@ -1048,6 +1043,9 @@ const make = Effect.gen(function* () {
           continue;
         }
 
+        const targetName = yield* resolveAuraTargetName(targetType, targetId);
+        const targetKind = targetType === "p" ? "player" : "monster";
+
         if (AURA_ADD_COMMANDS.has(cmd)) {
           for (const rawAura of asArray(auraEvent["auras"])) {
             const auraPayload = asRecord(rawAura);
@@ -1093,9 +1091,7 @@ const make = Effect.gen(function* () {
                 const antiCounterMatch = matchAntiCounterAura(aura.name);
                 if (antiCounterMatch) {
                   const durationMs = durationMsFromAura(aura.duration);
-                  yield* dispatchDomainEvent(
-                    domainHandlerStore,
-                    "antiCounterStart",
+                  yield* gameEvents.emit("antiCounterStart",
                     {
                       monMapId: targetId,
                       source: "aura",
@@ -1111,11 +1107,12 @@ const make = Effect.gen(function* () {
               }
             }
 
-            yield* dispatchDomainEvent(domainHandlerStore, "auraAdded", {
+            yield* gameEvents.emit("auraAdded", {
               aura,
               auraName,
               targetId,
-              targetType: targetType === "p" ? "player" : "monster",
+              ...(targetName === undefined ? {} : { targetName }),
+              targetType: targetKind,
               packet,
             });
           }
@@ -1136,7 +1133,7 @@ const make = Effect.gen(function* () {
 
             const antiCounterMatch = matchAntiCounterAura(auraName);
             if (antiCounterMatch) {
-              yield* dispatchDomainEvent(domainHandlerStore, "antiCounterEnd", {
+              yield* gameEvents.emit("antiCounterEnd", {
                 monMapId: targetId,
                 source: "aura",
                 triggerId: antiCounterMatch.triggerId,
@@ -1146,10 +1143,11 @@ const make = Effect.gen(function* () {
             }
           }
 
-          yield* dispatchDomainEvent(domainHandlerStore, "auraRemoved", {
+          yield* gameEvents.emit("auraRemoved", {
             auraName,
             targetId,
-            targetType: targetType === "p" ? "player" : "monster",
+            ...(targetName === undefined ? {} : { targetName }),
+            targetType: targetKind,
             packet,
           });
         }
@@ -1188,10 +1186,7 @@ const make = Effect.gen(function* () {
     }),
   );
 
-  return {
-    started: true,
-    on,
-  } satisfies PacketDomainShape;
+  return undefined;
 });
 
-export const PacketDomainLive = Layer.effect(PacketDomain, make);
+export const GameEventProjectorLive = Layer.effectDiscard(make);

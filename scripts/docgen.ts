@@ -564,6 +564,26 @@ const parseEffectValueShape = (
   return target?.unqualifiedName ?? null;
 };
 
+const parseInterfaceShape = (
+  declarations: ReadonlyMap<
+    string,
+    ts.InterfaceDeclaration | ts.TypeAliasDeclaration
+  >,
+  node: ts.TypeNode | undefined,
+): string | null => {
+  const effectValueShape = parseEffectValueShape(node);
+  if (effectValueShape !== null) {
+    return effectValueShape;
+  }
+
+  const reference = parseTypeReference(node);
+  const declaration =
+    reference === null ? undefined : declarations.get(reference.unqualifiedName);
+  return declaration && ts.isInterfaceDeclaration(declaration)
+    ? reference!.unqualifiedName
+    : null;
+};
+
 const formatType = (
   checker: ts.TypeChecker,
   node: ts.TypeNode | undefined,
@@ -938,7 +958,7 @@ const collectApiGroups = (
     const shapeName =
       name === "packet"
         ? "ScriptPacketApi"
-        : parseEffectValueShape(member.type);
+        : parseInterfaceShape(declarations, member.type);
     if (shapeName === null) {
       continue;
     }
@@ -1850,6 +1870,93 @@ const renderScriptOverview = (
   return finalizeMarkdown(lines);
 };
 
+type ScriptEventReference = {
+  readonly name: string;
+  readonly waitFor: boolean;
+  readonly payload: string;
+};
+
+const SCRIPT_EVENT_REFERENCE: readonly ScriptEventReference[] = [
+  { name: "packetFromClient", waitFor: false, payload: "string" },
+  { name: "packetFromServer", waitFor: false, payload: "string" },
+  { name: "extensionResponse", waitFor: false, payload: "string" },
+  {
+    name: "monsterDeath",
+    waitFor: true,
+    payload: "ScriptEventMonsterDeathEvent",
+  },
+  {
+    name: "questComplete",
+    waitFor: true,
+    payload: "ScriptEventQuestCompleteEvent",
+  },
+  { name: "zone", waitFor: true, payload: "ScriptEventZoneEvent" },
+  { name: "joinMap", waitFor: true, payload: "ScriptEventJoinMapEvent" },
+  {
+    name: "animationMessage",
+    waitFor: true,
+    payload: "ScriptEventAnimationMessageEvent",
+  },
+  { name: "auraAdded", waitFor: true, payload: "ScriptEventAuraEvent" },
+  {
+    name: "auraRemoved",
+    waitFor: true,
+    payload: 'Omit<ScriptEventAuraEvent, "aura">',
+  },
+  { name: "afk", waitFor: true, payload: "ScriptEventAfkEvent" },
+  {
+    name: "antiCounterStart",
+    waitFor: true,
+    payload: "ScriptEventAntiCounterEvent",
+  },
+  {
+    name: "antiCounterEnd",
+    waitFor: true,
+    payload: 'Omit<ScriptEventAntiCounterEvent, "durationMs">',
+  },
+  {
+    name: "playerLocation",
+    waitFor: true,
+    payload: "ScriptEventPlayerLocationEvent",
+  },
+];
+
+const renderEventPayloadReference = (
+  payload: string,
+  typeLinks: ReadonlyMap<string, TypeLink>,
+): string => {
+  const link = typeLinks.get(payload);
+  if (link) {
+    return renderTypeLink(payload, link);
+  }
+
+  return renderCode(payload);
+};
+
+const renderEventsReference = (
+  lines: string[],
+  typeLinks: ReadonlyMap<string, TypeLink>,
+): void => {
+  lines.push(
+    "## Supported Events",
+    "",
+    "`on` and `once` support every event below. `waitFor` excludes packet events.",
+    "",
+    `See ${renderEventPayloadReference("ScriptEventMap", typeLinks)} for the full event-name-to-payload map.`,
+    "",
+    "| Event | `on` / `once` | `waitFor` | Payload |",
+    "| --- | --- | --- | --- |",
+  );
+
+  for (const event of SCRIPT_EVENT_REFERENCE) {
+    lines.push(
+      `| ${renderCode(event.name)} | ${renderBooleanMark(true)} | ${renderBooleanMark(event.waitFor)} | ${renderEventPayloadReference(event.payload, typeLinks)} |`,
+    );
+  }
+
+  lines.push("");
+};
+
 const renderGroup = (
   group: ApiGroup,
   typeLinks: ReadonlyMap<string, TypeLink>,
@@ -1862,6 +1969,10 @@ const renderGroup = (
     group.summary,
     "",
   ];
+
+  if (group.id === "api/events") {
+    renderEventsReference(lines, typeLinks);
+  }
 
   if (group.members.length > 0) {
     lines.push("## Members", "");
@@ -1941,7 +2052,7 @@ const renderSourceLinksModule = (
     })
     .sort();
 
-  return `${GENERATED_HEADER.replace("<!--", "//").replace("-->", "")}
+  return `${GENERATED_HEADER.replace("<!--", "//").replace("-->", "").trim()}
 
 export const scriptSourceLinks: Record<string, { path: string; url: string }> = {
 ${entries.join("\n")}

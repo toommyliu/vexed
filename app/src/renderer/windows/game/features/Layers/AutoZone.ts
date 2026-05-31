@@ -7,7 +7,7 @@ import {
   type AutoZoneSupportedMap,
   type AutoZoneShape,
 } from "../Services/AutoZone";
-import { PacketDomain } from "../../flash/Services/PacketDomain";
+import { GameEvents } from "../../flash/Services/GameEvents";
 import { Player } from "../../flash/Services/Player";
 import { World } from "../../flash/Services/World";
 
@@ -138,7 +138,7 @@ const getRandomPosition = ([[x0, x1], [y0, y1]]: CoordinateRange) =>
   });
 
 const make = Effect.gen(function* () {
-  const packetDomain = yield* PacketDomain;
+  const packetDomain = yield* GameEvents;
   const player = yield* Player;
   const world = yield* World;
 

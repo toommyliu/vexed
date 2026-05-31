@@ -409,6 +409,47 @@
         transform: scale(0.96);
     }
 
+        .sl-markdown-content .source-reference__overload {
+        display: inline-flex;
+        align-items: center;
+        gap: calc(var(--spacing) * 1);
+        margin-block: calc(var(--spacing) * 4) calc(var(--spacing) * 2);
+        line-height: 1.25rem;
+    }
+
+    .sl-markdown-content .source-reference__overload strong {
+        font-size: 0.875rem;
+        line-height: 1.25rem;
+        font-weight: 600;
+    }
+
+    .sl-markdown-content .source-reference__overload-link {
+        --sl-anchor-icon-size: 0.875rem;
+
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        width: 1.25rem;
+        height: 1.25rem;
+        flex-shrink: 0;
+        border-radius: var(--radius-xs);
+        color: color-mix(in srgb, var(--foreground) 42%, transparent);
+        text-decoration: none;
+    }
+
+    .sl-markdown-content .source-reference__overload-link:hover,
+    .sl-markdown-content .source-reference__overload-link:focus-visible {
+        color: var(--foreground);
+    }
+
+    .sl-markdown-content .source-reference__overload-link:focus-visible {
+        box-shadow: var(--focus-ring-shadow);
+    }
+
+    .sl-markdown-content .source-reference__overload-link:active {
+        transform: scale(0.96);
+    }
+
     .script-type-preview {
         --_surface: var(--mark-background);
         --_surface-raised: color-mix(in oklab, var(--_surface) 97%, var(--color-foreground));

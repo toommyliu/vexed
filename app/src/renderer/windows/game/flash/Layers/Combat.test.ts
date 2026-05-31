@@ -8,11 +8,11 @@ import { Bridge, type BridgeShape } from "../Services/Bridge";
 import { Combat, type CombatShape } from "../Services/Combat";
 import { Drops, type DropsShape } from "../Services/Drops";
 import {
-  PacketDomain,
-  type PacketDomainAntiCounterEvent,
-  type PacketDomainEventHandler,
-  type PacketDomainShape,
-} from "../Services/PacketDomain";
+  GameEvents,
+  type GameAntiCounterEvent,
+  type GameEventHandler,
+  type GameEventsShape,
+} from "../Services/GameEvents";
 import { Player, type PlayerShape } from "../Services/Player";
 import { Settings, type SettingsShape } from "../Services/Settings";
 import { World, type WorldShape } from "../Services/World";
@@ -116,7 +116,7 @@ const withCombat = async <A>(
   services?: {
     readonly player?: PlayerShape;
     readonly antiCounterEnabled?: boolean;
-    readonly packetDomain?: PacketDomainShape;
+    readonly packetDomain?: GameEventsShape;
     readonly world?: WorldShape;
   },
 ): Promise<A> => {
@@ -137,7 +137,7 @@ const withCombat = async <A>(
           Layer.succeed(Drops)(drops),
           Layer.succeed(Player)(services?.player ?? player),
           Layer.succeed(Settings)(settings),
-          Layer.succeed(PacketDomain)(services.packetDomain),
+          Layer.succeed(GameEvents)(services.packetDomain),
         );
   const combatLayer = CombatLive.pipe(Layer.provide(dependencies));
   const runtimeLayer =
@@ -227,8 +227,8 @@ const makeKillWorld = (
 });
 
 const antiCounterEvent = (
-  overrides: Partial<PacketDomainAntiCounterEvent>,
-): PacketDomainAntiCounterEvent =>
+  overrides: Partial<GameAntiCounterEvent>,
+): GameAntiCounterEvent =>
   ({
     durationMs: 7_000,
     monMapId: 7,
@@ -237,7 +237,7 @@ const antiCounterEvent = (
     triggerId: "anti-counter",
     triggerText: "prepares a counter attack",
     ...overrides,
-  }) as PacketDomainAntiCounterEvent;
+  }) as GameAntiCounterEvent;
 
 test("force useSkill waits through cooldown and confirmation before casting", async () => {
   const calls: string[] = [];
@@ -318,19 +318,20 @@ test("useSkill is a no-op when the player is dead", async () => {
 test("anti-counter start stops auto attack and clears the target when enabled", async () => {
   const calls: string[] = [];
   let antiCounterStart:
-    | PacketDomainEventHandler<"antiCounterStart">
+    | GameEventHandler<"antiCounterStart">
     | undefined;
   const packetDomain = {
     started: true,
+    emit: () => Effect.void,
     on(event, handler) {
       if (event === "antiCounterStart") {
         antiCounterStart =
-          handler as PacketDomainEventHandler<"antiCounterStart">;
+          handler as GameEventHandler<"antiCounterStart">;
       }
 
       return Effect.succeed(() => undefined);
     },
-  } satisfies PacketDomainShape;
+  } satisfies GameEventsShape;
   const bridge: BridgeShape = {
     call<K extends keyof Window["swf"]>(
       path: K,
@@ -382,22 +383,23 @@ test("anti-counter start stops auto attack and clears the target when enabled", 
 test("anti-counter end resumes a target stopped by anti-counter", async () => {
   const calls: string[] = [];
   let antiCounterStart:
-    | PacketDomainEventHandler<"antiCounterStart">
+    | GameEventHandler<"antiCounterStart">
     | undefined;
-  let antiCounterEnd: PacketDomainEventHandler<"antiCounterEnd"> | undefined;
+  let antiCounterEnd: GameEventHandler<"antiCounterEnd"> | undefined;
   const packetDomain = {
     started: true,
+    emit: () => Effect.void,
     on(event, handler) {
       if (event === "antiCounterStart") {
         antiCounterStart =
-          handler as PacketDomainEventHandler<"antiCounterStart">;
+          handler as GameEventHandler<"antiCounterStart">;
       } else if (event === "antiCounterEnd") {
-        antiCounterEnd = handler as PacketDomainEventHandler<"antiCounterEnd">;
+        antiCounterEnd = handler as GameEventHandler<"antiCounterEnd">;
       }
 
       return Effect.succeed(() => undefined);
     },
-  } satisfies PacketDomainShape;
+  } satisfies GameEventsShape;
   const bridge: BridgeShape = {
     call<K extends keyof Window["swf"]>(
       path: K,
@@ -458,22 +460,23 @@ test("anti-counter end does not resume while another anti-counter is active", as
   const calls: string[] = [];
   let targetReadCount = 0;
   let antiCounterStart:
-    | PacketDomainEventHandler<"antiCounterStart">
+    | GameEventHandler<"antiCounterStart">
     | undefined;
-  let antiCounterEnd: PacketDomainEventHandler<"antiCounterEnd"> | undefined;
+  let antiCounterEnd: GameEventHandler<"antiCounterEnd"> | undefined;
   const packetDomain = {
     started: true,
+    emit: () => Effect.void,
     on(event, handler) {
       if (event === "antiCounterStart") {
         antiCounterStart =
-          handler as PacketDomainEventHandler<"antiCounterStart">;
+          handler as GameEventHandler<"antiCounterStart">;
       } else if (event === "antiCounterEnd") {
-        antiCounterEnd = handler as PacketDomainEventHandler<"antiCounterEnd">;
+        antiCounterEnd = handler as GameEventHandler<"antiCounterEnd">;
       }
 
       return Effect.succeed(() => undefined);
     },
-  } satisfies PacketDomainShape;
+  } satisfies GameEventsShape;
   const bridge: BridgeShape = {
     call<K extends keyof Window["swf"]>(
       path: K,
@@ -544,19 +547,20 @@ test("anti-counter end does not resume while another anti-counter is active", as
 test("anti-counter start does not cancel the current target when disabled", async () => {
   const calls: string[] = [];
   let antiCounterStart:
-    | PacketDomainEventHandler<"antiCounterStart">
+    | GameEventHandler<"antiCounterStart">
     | undefined;
   const packetDomain = {
     started: true,
+    emit: () => Effect.void,
     on(event, handler) {
       if (event === "antiCounterStart") {
         antiCounterStart =
-          handler as PacketDomainEventHandler<"antiCounterStart">;
+          handler as GameEventHandler<"antiCounterStart">;
       }
 
       return Effect.succeed(() => undefined);
     },
-  } satisfies PacketDomainShape;
+  } satisfies GameEventsShape;
   const bridge: BridgeShape = {
     call<K extends keyof Window["swf"]>(path: K) {
       calls.push(String(path));
@@ -586,19 +590,20 @@ test("anti-counter start does not cancel the current target when disabled", asyn
 test("useSkill ignores tracked anti-counters when anti-counter is disabled", async () => {
   const calls: string[] = [];
   let antiCounterStart:
-    | PacketDomainEventHandler<"antiCounterStart">
+    | GameEventHandler<"antiCounterStart">
     | undefined;
   const packetDomain = {
     started: true,
+    emit: () => Effect.void,
     on(event, handler) {
       if (event === "antiCounterStart") {
         antiCounterStart =
-          handler as PacketDomainEventHandler<"antiCounterStart">;
+          handler as GameEventHandler<"antiCounterStart">;
       }
 
       return Effect.succeed(() => undefined);
     },
-  } satisfies PacketDomainShape;
+  } satisfies GameEventsShape;
   const bridge: BridgeShape = {
     call<K extends keyof Window["swf"]>(
       path: K,
@@ -649,19 +654,20 @@ test("useSkill stops auto attack and does not cast while anti-counter is active"
   const calls: string[] = [];
   let targetReadCount = 0;
   let antiCounterStart:
-    | PacketDomainEventHandler<"antiCounterStart">
+    | GameEventHandler<"antiCounterStart">
     | undefined;
   const packetDomain = {
     started: true,
+    emit: () => Effect.void,
     on(event, handler) {
       if (event === "antiCounterStart") {
         antiCounterStart =
-          handler as PacketDomainEventHandler<"antiCounterStart">;
+          handler as GameEventHandler<"antiCounterStart">;
       }
 
       return Effect.succeed(() => undefined);
     },
-  } satisfies PacketDomainShape;
+  } satisfies GameEventsShape;
   const bridge: BridgeShape = {
     call<K extends keyof Window["swf"]>(path: K) {
       if (path === "combat.getTarget") {
@@ -712,19 +718,20 @@ test("useSkill stops auto attack and does not cast while anti-counter is active"
 test("attackMonster does not hit while anti-counter is active", async () => {
   const calls: string[] = [];
   let antiCounterStart:
-    | PacketDomainEventHandler<"antiCounterStart">
+    | GameEventHandler<"antiCounterStart">
     | undefined;
   const packetDomain = {
     started: true,
+    emit: () => Effect.void,
     on(event, handler) {
       if (event === "antiCounterStart") {
         antiCounterStart =
-          handler as PacketDomainEventHandler<"antiCounterStart">;
+          handler as GameEventHandler<"antiCounterStart">;
       }
 
       return Effect.succeed(() => undefined);
     },
-  } satisfies PacketDomainShape;
+  } satisfies GameEventsShape;
   const bridge: BridgeShape = {
     call<K extends keyof Window["swf"]>(
       path: K,
@@ -777,19 +784,20 @@ test("attackMonster does not hit while anti-counter is active", async () => {
 test("attackMonster ignores tracked anti-counters when anti-counter is disabled", async () => {
   const calls: string[] = [];
   let antiCounterStart:
-    | PacketDomainEventHandler<"antiCounterStart">
+    | GameEventHandler<"antiCounterStart">
     | undefined;
   const packetDomain = {
     started: true,
+    emit: () => Effect.void,
     on(event, handler) {
       if (event === "antiCounterStart") {
         antiCounterStart =
-          handler as PacketDomainEventHandler<"antiCounterStart">;
+          handler as GameEventHandler<"antiCounterStart">;
       }
 
       return Effect.succeed(() => undefined);
     },
-  } satisfies PacketDomainShape;
+  } satisfies GameEventsShape;
   const bridge: BridgeShape = {
     call<K extends keyof Window["swf"]>(
       path: K,

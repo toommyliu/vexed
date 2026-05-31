@@ -10,11 +10,11 @@ import {
   matchesCombatProfileAnimationTriggerMessage,
 } from "../../combatProfiles";
 import { Combat } from "../../flash/Services/Combat";
-import { PacketDomain } from "../../flash/Services/PacketDomain";
+import { GameEvents } from "../../flash/Services/GameEvents";
 import type {
-  PacketDomainAnimationMessageEvent,
-  PacketDomainEventHandler,
-} from "../../flash/Services/PacketDomain";
+  GameAnimationMessageEvent,
+  GameEventHandler,
+} from "../../flash/Services/GameEvents";
 import { Player } from "../../flash/Services/Player";
 import { World } from "../../flash/Services/World";
 import { Jobs } from "../../jobs/Services/Jobs";
@@ -50,7 +50,7 @@ const toState = (
 const make = Effect.gen(function* () {
   const combat = yield* Combat;
   const jobs = yield* Jobs;
-  const maybePacketDomain = yield* Effect.serviceOption(PacketDomain);
+  const maybeGameEvents = yield* Effect.serviceOption(GameEvents);
   const player = yield* Player;
   const world = yield* World;
   const enabledRef = yield* Ref.make(false);
@@ -114,7 +114,7 @@ const make = Effect.gen(function* () {
   const runAnimationTrigger = (
     profile: CombatProfile,
     trigger: NonNullable<CombatProfile["animationTriggers"]>[number],
-    event: PacketDomainAnimationMessageEvent,
+    event: GameAnimationMessageEvent,
     now: number,
   ) =>
     Effect.gen(function* () {
@@ -161,7 +161,7 @@ const make = Effect.gen(function* () {
       );
     });
 
-  const handleAnimationMessage = (event: PacketDomainAnimationMessageEvent) =>
+  const handleAnimationMessage = (event: GameAnimationMessageEvent) =>
     Effect.gen(function* () {
       if (!(yield* Ref.get(enabledRef))) {
         return;
@@ -362,10 +362,10 @@ const make = Effect.gen(function* () {
       };
     });
 
-  const disposeAnimationMessage = Option.isSome(maybePacketDomain)
-    ? yield* maybePacketDomain.value.on(
+  const disposeAnimationMessage = Option.isSome(maybeGameEvents)
+    ? yield* maybeGameEvents.value.on(
         "animationMessage",
-        handleAnimationMessage as PacketDomainEventHandler<"animationMessage">,
+        handleAnimationMessage as GameEventHandler<"animationMessage">,
       )
     : undefined;
 
