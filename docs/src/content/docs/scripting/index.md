@@ -44,7 +44,7 @@ module.exports = function* run() {
 
 ## Editor Integration
 
-Download the generated declaration file [`script-api.d.ts`](/script-api.d.ts) and place it beside your scripts. It declares the supported imports, so `require("vexed")` and `require("effect")` are typed automatically.
+Download the generated declaration file [`script-api.d.ts`](/script-api.d.ts) and place it beside your scripts. You can rename it if your `jsconfig.json` includes the renamed declaration file. It declares the supported imports, so `require("vexed")` and `require("effect")` are typed automatically.
 
 ```js
 /// <reference path="./script-api.d.ts" />
@@ -60,7 +60,7 @@ module.exports = function* run() {
 }
 ```
 
-For a folder full of scripts, put `script-api.d.ts` beside them and add `jsconfig.json` to the folder. Keep `checkJs` off to get autocomplete without diagnostics noise, and add `// @ts-check` only to files where you want type errors reported.
+For a folder full of scripts, put the declaration file beside them and add `jsconfig.json` to the folder. Keep `checkJs` off to get autocomplete without diagnostics noise, and add `// @ts-check` only to files where you want type errors reported.
 
 ```json
 {
@@ -70,6 +70,6 @@ For a folder full of scripts, put `script-api.d.ts` beside them and add `jsconfi
     "checkJs": false,
     "skipLibCheck": true
   },
-  "include": ["**/*.js", "script-api.d.ts"]
+  "include": ["**/*.js", "*.d.ts"]
 }
 ```
