@@ -39,8 +39,15 @@ interface ScriptEffectStd {
   readonly pipe: ScriptPipe;
 }
 
-declare function require(moduleName: "effect"): ScriptEffectStd;
-declare function require(moduleName: "vexed"): ScriptVexedStd;
+declare module "effect" {
+  const effect: ScriptEffectStd;
+  export = effect;
+}
+
+declare module "vexed" {
+  const vexed: ScriptVexedStd;
+  export = vexed;
+}
 
 type DurationInput = number | string | bigint | DurationLike;
 
