@@ -6,6 +6,7 @@ import {
   Option,
   SynchronizedRef,
 } from "effect";
+import { equalsIgnoreCase } from "@vexed/shared/string";
 import type { Aura } from "@vexed/game";
 import {
   Army,
@@ -37,6 +38,7 @@ import { Auth } from "../../flash/Services/Auth";
 import { Combat } from "../../flash/Services/Combat";
 import { Inventory } from "../../flash/Services/Inventory";
 import { GameEvents } from "../../flash/Services/GameEvents";
+import { Packet } from "../../flash/Services/Packet";
 import { Player } from "../../flash/Services/Player";
 import { Wait } from "../../flash/Services/Wait";
 import { World, type WorldShape } from "../../flash/Services/World";
@@ -55,6 +57,8 @@ const DEFAULT_STATE: ArmyState = {
 const DEFAULT_JOIN_CELL = "Enter";
 const DEFAULT_JOIN_PAD = "Spawn";
 const WAIT_FOR_MAP_TIMEOUT = "2 minutes";
+const WAIT_FOR_GROUP_ANTI_AFK_DELAY = "1500 millis";
+const WAIT_FOR_GROUP_ANTI_AFK_INTERVAL = "30 seconds";
 const LOOP_TAUNT_RESOLVE_INTERVAL = "250 millis";
 const LOOP_TAUNT_TARGET_SELECTION_TIMEOUT = "10 seconds";
 const LOOP_TAUNT_COMMAND_DEDUPE_EPOCHS = 8;
@@ -179,6 +183,7 @@ const make = Effect.gen(function* () {
   const inventory = yield* Inventory;
   const jobs = yield* Jobs;
   const packetDomain = yield* GameEvents;
+  const packet = yield* Packet;
   const player = yield* Player;
   const wait = yield* Wait;
   const world = yield* World;
@@ -292,6 +297,46 @@ const make = Effect.gen(function* () {
       }),
     );
 
+  const sendAntiAfk = () =>
+    Effect.gen(function* () {
+      const ready = yield* player
+        .isReady()
+        .pipe(Effect.catch(() => Effect.succeed(false)));
+      if (!ready) {
+        return;
+      }
+
+      yield* Effect.sleep(WAIT_FOR_GROUP_ANTI_AFK_DELAY);
+      yield* packet.sendServer("%xt%zm%afk%1%false%");
+    }).pipe(
+      Effect.catch((cause) =>
+        Effect.logWarning({
+          cause,
+          message: "Army anti-AFK packet failed while waiting for group",
+        }),
+      ),
+    );
+
+  const listenForAfkWhileWaitingForGroup = (username: string) =>
+    Effect.acquireRelease(
+      packetDomain.on("afk", (event) =>
+        event.afk && equalsIgnoreCase(event.username, username)
+          ? sendAntiAfk()
+          : Effect.void,
+      ),
+      (dispose) => Effect.sync(dispose),
+    ).pipe(Effect.asVoid);
+
+  const runAntiAfkFallbackWhileWaitingForGroup = () =>
+    Effect.forkScoped(
+      Effect.gen(function* () {
+        while (true) {
+          yield* Effect.sleep(WAIT_FOR_GROUP_ANTI_AFK_INTERVAL);
+          yield* sendAntiAfk();
+        }
+      }),
+    ).pipe(Effect.asVoid);
+
   const runStep: ArmyShape["runStep"] = (label, action, options) =>
     Effect.gen(function* () {
       const step = yield* nextBarrierStep();
@@ -308,30 +353,35 @@ const make = Effect.gen(function* () {
     runStep("execute", action);
 
   const waitForAllInMap: ArmyShape["waitForAllInMap"] = () =>
-    Effect.gen(function* () {
-      const session = yield* getState.pipe(Effect.flatMap(assertStarted));
-      const ready = yield* wait.until(
-        Effect.gen(function* () {
-          for (const armyPlayer of session.players) {
-            const match = yield* world.players.getByName(armyPlayer);
-            if (match._tag === "None") {
-              return false;
+    Effect.scoped(
+      Effect.gen(function* () {
+        const session = yield* getState.pipe(Effect.flatMap(assertStarted));
+        yield* listenForAfkWhileWaitingForGroup(session.playerName);
+        yield* runAntiAfkFallbackWhileWaitingForGroup();
+
+        const ready = yield* wait.until(
+          Effect.gen(function* () {
+            for (const armyPlayer of session.players) {
+              const match = yield* world.players.getByName(armyPlayer);
+              if (match._tag === "None") {
+                return false;
+              }
             }
-          }
 
-          return true;
-        }),
-        { timeout: WAIT_FOR_MAP_TIMEOUT },
-      );
-
-      if (!ready) {
-        return yield* Effect.fail(
-          new ArmyError(
-            `Timed out waiting for army players in map: ${session.players.join(", ")}`,
-          ),
+            return true;
+          }),
+          { timeout: WAIT_FOR_MAP_TIMEOUT },
         );
-      }
-    });
+
+        if (!ready) {
+          return yield* Effect.fail(
+            new ArmyError(
+              `Timed out waiting for army players in map: ${session.players.join(", ")}`,
+            ),
+          );
+        }
+      }),
+    );
 
   const joinMap: ArmyShape["joinMap"] = (map, cell, pad) =>
     runStep(

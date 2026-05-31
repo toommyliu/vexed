@@ -26,6 +26,7 @@ import {
   type GameEventsShape,
 } from "../../flash/Services/GameEvents";
 import { Player, type PlayerShape } from "../../flash/Services/Player";
+import { Packet, type PacketShape } from "../../flash/Services/Packet";
 import { Wait, type WaitShape } from "../../flash/Services/Wait";
 import { World, type WorldShape } from "../../flash/Services/World";
 import { JobGate, type JobGateShape } from "../../jobs/Services/JobGate";
@@ -472,6 +473,27 @@ const withArmy = async <A>(
       }),
   } satisfies GameEventsShape;
 
+  const packet = {
+    client: () => Effect.succeed(() => {}),
+    clientScoped: () => Effect.void,
+    extension: () => Effect.succeed(() => {}),
+    extensionScoped: () => Effect.void,
+    extensionType: () => Effect.succeed(() => {}),
+    extensionTypeScoped: () => Effect.void,
+    json: () => Effect.succeed(() => {}),
+    jsonScoped: () => Effect.void,
+    onExtensionResponse: () => Effect.succeed(() => {}),
+    packetFromClient: () => Effect.succeed(() => {}),
+    packetFromServer: () => Effect.succeed(() => {}),
+    scoped: () => Effect.void,
+    sendClient: () => Effect.void,
+    sendServer: () => Effect.void,
+    server: () => Effect.succeed(() => {}),
+    serverScoped: () => Effect.void,
+    str: () => Effect.succeed(() => {}),
+    strScoped: () => Effect.void,
+  } satisfies PacketShape;
+
   const player = {
     getCell: () => Effect.succeed("Boss"),
     getClassName: () => Effect.succeed("CHAOS AVENGER"),
@@ -536,6 +558,7 @@ const withArmy = async <A>(
         Layer.succeed(Combat)(combat),
         Layer.succeed(Inventory)(inventory),
         Layer.succeed(GameEvents)(packetDomain),
+        Layer.succeed(Packet)(packet),
         Layer.succeed(Player)(player),
         Layer.succeed(Wait)(wait),
         Layer.succeed(World)(
