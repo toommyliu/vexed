@@ -3,8 +3,6 @@ import {
   clampPacketQueueDelay,
   isPacketSendTarget,
   normalizePacketQueuePayload,
-  resolvePacketPlaceholders,
-  type PacketPlaceholderContext,
   type PacketQueuePayload,
   type PacketSendPayload,
   type PacketSendTarget,
@@ -14,9 +12,7 @@ import type {
   PacketsResponseMessage,
 } from "../../../shared/ipc";
 import type { runtime as gameRuntime } from "./Runtime";
-import { Auth } from "./flash/Services/Auth";
 import { Packet, type ClientPacketSendType } from "./flash/Services/Packet";
-import { World } from "./flash/Services/World";
 
 type GameRuntime = typeof gameRuntime;
 
@@ -63,24 +59,15 @@ const disposeAll = (disposers: readonly (() => void)[]): void => {
 
 const sendPacketEffect = (payload: PacketSendPayload) =>
   Effect.gen(function* () {
-    const auth = yield* Auth;
     const packets = yield* Packet;
-    const world = yield* World;
-    const context: PacketPlaceholderContext = yield* Effect.all({
-      mapId: world.map.getId(),
-      mapName: world.map.getName(),
-      playerName: auth.getUsername(),
-      roomNumber: world.map.getRoomNumber(),
-    });
-    const packet = resolvePacketPlaceholders(payload.packet, context);
 
     if (payload.target === "server-string") {
-      yield* packets.sendServer(packet, "String");
+      yield* packets.sendServer(payload.packet, "String");
       return;
     }
 
     if (payload.target === "server-json") {
-      yield* packets.sendServer(packet, "Json");
+      yield* packets.sendServer(payload.packet, "Json");
       return;
     }
 
@@ -90,7 +77,7 @@ const sendPacketEffect = (payload: PacketSendPayload) =>
         : payload.target === "client-xml"
           ? "xml"
           : "str";
-    yield* packets.sendClient(packet, clientType);
+    yield* packets.sendClient(payload.packet, clientType);
   });
 
 const publishCaptured = (

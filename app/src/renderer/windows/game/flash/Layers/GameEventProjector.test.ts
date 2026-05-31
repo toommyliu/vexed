@@ -65,16 +65,19 @@ const auth = {
 } satisfies AuthShape;
 
 const bridgeLayer = Layer.succeed(Bridge)(bridge);
+const authLayer = Layer.succeed(Auth)(auth);
 const waitRuntimeLayer = WaitLive.pipe(Layer.provide(bridgeLayer));
-const packetRuntimeLayer = PacketLive.pipe(Layer.provide(bridgeLayer));
 const worldRuntimeLayer = WorldLive.pipe(
   Layer.provide(Layer.mergeAll(bridgeLayer, waitRuntimeLayer)),
+);
+const packetRuntimeLayer = PacketLive.pipe(
+  Layer.provide(Layer.mergeAll(bridgeLayer, authLayer, worldRuntimeLayer)),
 );
 const coreRuntimeLayer = Layer.mergeAll(
   waitRuntimeLayer,
   packetRuntimeLayer,
   worldRuntimeLayer,
-  Layer.succeed(Auth)(auth),
+  authLayer,
 );
 const gameEventsRuntimeLayer = GameEventsLive;
 const gameEventProjectorRuntimeLayer = GameEventProjectorLive.pipe(
