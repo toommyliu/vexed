@@ -510,6 +510,9 @@ export interface ScriptApi {
   readonly events: ScriptEventsApi;
   readonly house: EffectValue<HouseShape>;
   readonly inventory: EffectValue<InventoryShape>;
+  /**
+   * The ingame Outfits feature.
+   */
   readonly outfits: EffectValue<OutfitsShape>;
   readonly packet: ScriptPacketApi;
   readonly player: EffectValue<PlayerShape>;
