@@ -3,6 +3,7 @@ import {
   PACKET_QUEUE_DEFAULT_DELAY_MS,
   PACKET_QUEUE_MIN_DELAY_MS,
   clampPacketQueueDelay,
+  hasSupportedPacketPlaceholders,
   isPacketSendTarget,
   normalizePacketQueuePayload,
   normalizePacketText,
@@ -82,6 +83,12 @@ describe("packet helpers", () => {
         placeholderContext,
       ),
     ).toBe("%xt%zm%cmd%12%34567%battleon%Artix%Artix%");
+  });
+
+  it("detects only supported packet placeholders", () => {
+    expect(hasSupportedPacketPlaceholders("%xt%{ROOM_NUMBER}%")).toBe(true);
+    expect(hasSupportedPacketPlaceholders("{ROOM_ID}:{UNKNOWN}")).toBe(false);
+    expect(hasSupportedPacketPlaceholders("%xt%zm%cmd%1%")).toBe(false);
   });
 
   it("leaves unsupported placeholders unchanged", () => {

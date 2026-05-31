@@ -122,6 +122,11 @@ export const normalizePacketQueuePayload = (
   };
 };
 
+export const hasSupportedPacketPlaceholders = (packet: string): boolean =>
+  PACKET_PLACEHOLDER_DEFINITIONS.some((definition) =>
+    packet.includes(definition.token),
+  );
+
 export const resolvePacketPlaceholders = (
   packet: string,
   context: PacketPlaceholderContext,

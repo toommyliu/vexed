@@ -1,7 +1,9 @@
 import { Data, Effect, Layer } from "effect";
 import { expect, test } from "vitest";
+import { Auth, type AuthShape } from "../Services/Auth";
 import { Bridge, type BridgeShape } from "../Services/Bridge";
 import { Packet, type PacketShape } from "../Services/Packet";
+import { World, type WorldShape } from "../Services/World";
 import { PacketLive } from "./Packet";
 
 type PacketWindow = Pick<
@@ -29,8 +31,66 @@ const bridge = {
   },
 } satisfies BridgeShape;
 
+const auth = {
+  connectTo: () =>
+    Effect.succeed({
+      message: "connected",
+      retryable: false,
+      status: "connected",
+    } as const),
+  getServers: () => Effect.succeed([]),
+  getUsername: () => Effect.succeed("Artix"),
+  getPassword: () => Effect.succeed("password"),
+  getLoginSession: () =>
+    Effect.succeed({
+      bSuccess: 1,
+      iUpg: 0,
+      servers: [],
+      sToken: "password",
+      unm: "Artix",
+    }),
+  isLoggedIn: () => Effect.succeed(true),
+  isTemporarilyKicked: () => Effect.succeed(false),
+  login: () => Effect.void,
+  logout: () => Effect.void,
+} satisfies AuthShape;
+
+const world = {
+  map: {
+    getId: () => Effect.succeed(12),
+    getName: () => Effect.succeed("battleon"),
+    getRoomNumber: () => Effect.succeed(34_567),
+  },
+} as unknown as WorldShape;
+
+const unavailableAuth = {
+  ...auth,
+  getUsername: () =>
+    Effect.die(new PacketTestError({ message: "auth should not be read" })),
+} satisfies AuthShape;
+
+const unavailableWorld = {
+  map: {
+    getId: () =>
+      Effect.die(new PacketTestError({ message: "map id should not be read" })),
+    getName: () =>
+      Effect.die(
+        new PacketTestError({ message: "map name should not be read" }),
+      ),
+    getRoomNumber: () =>
+      Effect.die(
+        new PacketTestError({ message: "room number should not be read" }),
+      ),
+  },
+} as unknown as WorldShape;
+
 const withPacket = async <A>(
   body: (packet: PacketShape) => Effect.Effect<A, unknown>,
+  testBridge: BridgeShape = bridge,
+  services: {
+    readonly auth?: AuthShape;
+    readonly world?: WorldShape;
+  } = {},
 ): Promise<A> => {
   const hadWindow = "window" in globalThis;
   const previousWindow = globalThis.window;
@@ -50,7 +110,15 @@ const withPacket = async <A>(
         }),
       ).pipe(
         Effect.provide(
-          PacketLive.pipe(Layer.provide(Layer.succeed(Bridge)(bridge))),
+          PacketLive.pipe(
+            Layer.provide(
+              Layer.mergeAll(
+                Layer.succeed(Auth)(services.auth ?? auth),
+                Layer.succeed(Bridge)(testBridge),
+                Layer.succeed(World)(services.world ?? world),
+              ),
+            ),
+          ),
         ),
       ),
     );
@@ -226,6 +294,84 @@ test("unparseable packets still reach raw listeners", async () => {
   );
 
   expect(observed).toBe("not a parseable packet");
+});
+
+test("sendServer resolves supported placeholders before forwarding", async () => {
+  const calls: Array<{ readonly functionName: string; readonly args: unknown[] }> =
+    [];
+  const capturingBridge = {
+    ...bridge,
+    callGameFunction(functionName: string, ...args: ReadonlyArray<unknown>) {
+      calls.push({ args: [...args], functionName });
+      return Effect.void;
+    },
+  } satisfies BridgeShape;
+
+  await withPacket(
+    (packet) =>
+      packet.sendServer(
+        "%xt%zm%cmd%{MAP_ID}%{ROOM_NUMBER}%{MAP_NAME}%{PLAYER_NAME}%ROOM_ID%",
+      ),
+    capturingBridge,
+  );
+
+  expect(calls).toEqual([
+    {
+      args: ["%xt%zm%cmd%12%34567%battleon%Artix%ROOM_ID%"],
+      functionName: "sfc.sendString",
+    },
+  ]);
+});
+
+test("sendServer skips context lookups without supported placeholders", async () => {
+  const calls: Array<{ readonly functionName: string; readonly args: unknown[] }> =
+    [];
+  const capturingBridge = {
+    ...bridge,
+    callGameFunction(functionName: string, ...args: ReadonlyArray<unknown>) {
+      calls.push({ args: [...args], functionName });
+      return Effect.void;
+    },
+  } satisfies BridgeShape;
+
+  await withPacket(
+    (packet) => packet.sendServer("%xt%zm%cmd%ROOM_ID%"),
+    capturingBridge,
+    { auth: unavailableAuth, world: unavailableWorld },
+  );
+
+  expect(calls).toEqual([
+    {
+      args: ["%xt%zm%cmd%ROOM_ID%"],
+      functionName: "sfc.sendString",
+    },
+  ]);
+});
+
+test("sendClient resolves supported placeholders before forwarding", async () => {
+  const calls: Array<{ readonly args: unknown; readonly path: string }> = [];
+  const capturingBridge = {
+    ...bridge,
+    call<K extends keyof Window["swf"]>(
+      path: K,
+      args?: Parameters<Window["swf"][K]>,
+    ) {
+      calls.push({ args, path });
+      return Effect.void as Effect.Effect<ReturnType<Window["swf"][K]>>;
+    },
+  } satisfies BridgeShape;
+
+  await withPacket(
+    (packet) => packet.sendClient("{PLAYER_NAME}:{ROOM_NUMBER}", "json"),
+    capturingBridge,
+  );
+
+  expect(calls).toEqual([
+    {
+      args: ["Artix:34567", "json"],
+      path: "flash.sendClientPacket",
+    },
+  ]);
 });
 
 test("internal handler failure does not prevent raw handlers", async () => {

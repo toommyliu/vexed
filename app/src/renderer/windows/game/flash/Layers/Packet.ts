@@ -19,7 +19,13 @@ import {
   type PacketShape,
   type ServerPacketHandler,
 } from "../Services/Packet";
+import {
+  hasSupportedPacketPlaceholders,
+  resolvePacketPlaceholders,
+} from "../../../../../shared/packets";
+import { Auth } from "../Services/Auth";
 import { Bridge } from "../Services/Bridge";
+import { World } from "../Services/World";
 
 type WindowPacketHandlerKey =
   | "onExtensionResponse"
@@ -114,7 +120,9 @@ const runHandlers = <A>(
 };
 
 const make = Effect.gen(function* () {
+  const auth = yield* Auth;
   const bridge = yield* Bridge;
+  const world = yield* World;
   const runFork = Effect.runForkWith(yield* Effect.services());
 
   const extensionRawHandlers = new Set<PacketListener>();
@@ -269,11 +277,36 @@ const make = Effect.gen(function* () {
     }),
   );
 
+  const resolvePlaceholders = (packet: string) =>
+    Effect.gen(function* () {
+      if (!hasSupportedPacketPlaceholders(packet)) {
+        return packet;
+      }
+
+      const context = yield* Effect.all({
+        mapId: world.map.getId(),
+        mapName: world.map.getName(),
+        playerName: auth.getUsername(),
+        roomNumber: world.map.getRoomNumber(),
+      });
+
+      return resolvePacketPlaceholders(packet, context);
+    });
+
   const sendClient: PacketShape["sendClient"] = (packet, type = "str") =>
-    bridge.call("flash.sendClientPacket", [packet, type]);
+    resolvePlaceholders(packet).pipe(
+      Effect.flatMap((resolved) =>
+        bridge.call("flash.sendClientPacket", [resolved, type]),
+      ),
+    );
 
   const sendServer: PacketShape["sendServer"] = (packet, type = "String") =>
-    bridge.callGameFunction(`sfc.send${type}`, packet).pipe(Effect.asVoid);
+    resolvePlaceholders(packet).pipe(
+      Effect.flatMap((resolved) =>
+        bridge.callGameFunction(`sfc.send${type}`, resolved),
+      ),
+      Effect.asVoid,
+    );
 
   const onExtensionResponse: PacketShape["onExtensionResponse"] = (handler) =>
     registerSetHandler(extensionRawHandlers, handler);

@@ -20,13 +20,17 @@ import { WorldLive } from "./World";
 
 const BridgeCoreLive = BridgeLive;
 const WaitRuntimeLive = WaitLive.pipe(Layer.provide(BridgeCoreLive));
-const PacketRuntimeLive = PacketLive.pipe(Layer.provide(BridgeCoreLive));
 
 const AuthRuntimeLive = AuthLive.pipe(
   Layer.provide(Layer.mergeAll(BridgeCoreLive, WaitRuntimeLive)),
 );
 const WorldRuntimeLive = WorldLive.pipe(
   Layer.provide(Layer.mergeAll(BridgeCoreLive, WaitRuntimeLive)),
+);
+const PacketRuntimeLive = PacketLive.pipe(
+  Layer.provide(
+    Layer.mergeAll(BridgeCoreLive, AuthRuntimeLive, WorldRuntimeLive),
+  ),
 );
 
 const CoreRuntimeLive = Layer.mergeAll(
