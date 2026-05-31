@@ -6,6 +6,7 @@ import { isRecord } from "../PacketPayload";
 import { Auth } from "../Services/Auth";
 import { Bridge } from "../Services/Bridge";
 import type { BridgeEffect } from "../Services/Bridge";
+import { Combat } from "../Services/Combat";
 import { Packet } from "../Services/Packet";
 import { Player } from "../Services/Player";
 import type { PlayerShape } from "../Services/Player";
@@ -257,6 +258,16 @@ const make = Effect.gen(function* () {
       });
     });
 
+  // Combat depends on Player, so resolve it at join time to avoid a layer cycle.
+  const exitCombatBeforeJoin = Effect.gen(function* () {
+    const maybeCombat = yield* Effect.serviceOption(Combat);
+    if (Option.isNone(maybeCombat)) {
+      return;
+    }
+
+    yield* maybeCombat.value.exit().pipe(Effect.catch(() => Effect.void));
+  });
+
   const joinMap: PlayerShape["joinMap"] = (map, cell, pad) =>
     Effect.gen(function* () {
       const targetMap = yield* parseMapTarget(map);
@@ -266,6 +277,8 @@ const make = Effect.gen(function* () {
         yield* correctJoinLocation(targetCell, pad, { force: true });
         return;
       }
+
+      yield* exitCombatBeforeJoin;
 
       const canTransfer = yield* wait.forGameAction("tfer", "10 seconds");
 
