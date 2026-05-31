@@ -125,7 +125,6 @@ const makeHarness = (): {
     gameWindowHtmlPath: "/renderer/game/index.html",
     isDev: false,
     preloadPath: "/preload.js",
-    rendererUrl: null,
     windowHtmlPath: (id) => `/renderer/${id}/index.html`,
     getAppearanceSnapshot: () =>
       createAppearanceSnapshot(DEFAULT_APPEARANCE, true),

@@ -9,7 +9,6 @@ import {
   configureGameWindow,
   getLatestAppearanceSnapshot,
   makeProgram,
-  resolveDevRendererUrl,
 } from "./app/MainApp";
 import {
   MainEnvironment,
@@ -147,9 +146,6 @@ const envConfig: MainEnvironmentConfig = {
   ...(process.env["VEXED_DEV_RENDERER_RELOAD"] === undefined
     ? {}
     : { devRendererReloadPath: process.env["VEXED_DEV_RENDERER_RELOAD"] }),
-  ...(process.env["VEXED_DEV_RENDERER_URL"] === undefined
-    ? {}
-    : { devRendererUrl: process.env["VEXED_DEV_RENDERER_URL"] }),
   ...(cliOptions.flashPluginPath === undefined
     ? {}
     : { flashPluginPathOverride: cliOptions.flashPluginPath }),
@@ -211,7 +207,6 @@ const windowLayer = Layer.effect(WindowService)(
       gameWindowHtmlPath: getRendererGameWindowPath(envConfig.rendererDir),
       isDev,
       preloadPath: envConfig.preloadPath,
-      rendererUrl: resolveDevRendererUrl(isDev, envConfig.devRendererUrl),
       windowHtmlPath: (id) => getRendererWindowPath(envConfig.rendererDir, id),
       getAppearanceSnapshot: getLatestAppearanceSnapshot,
       onGameWindowCreated: (window) =>

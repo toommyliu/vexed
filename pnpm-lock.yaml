@@ -220,6 +220,9 @@ importers:
       '@types/node':
         specifier: ^24.12.2
         version: 24.12.2
+      electron:
+        specifier: workspace:*
+        version: link:../electron
       esbuild:
         specifier: ^0.25.5
         version: 0.25.12

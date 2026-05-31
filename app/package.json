@@ -15,7 +15,6 @@
     "compile:watch": "node esbuild.config.js --watch",
     "compile:prod": "cross-env NODE_ENV=production node esbuild.config.js",
     "electron": "node scripts/start-electron.mjs",
-    "dev:ui:electron11": "node scripts/start-ui-demo-electron11.mjs",
     "build": "pnpm run compile:prod",
     "build:fast": "npm-run-all --sequential compile:prod \"electron-builder build\"",
     "electron-builder": "electron-builder"

@@ -178,7 +178,6 @@ const createHarness = (
     gameWindowHtmlPath: "/renderer/game/index.html",
     isDev: false,
     preloadPath: "/preload/index.js",
-    rendererUrl: null,
     windowHtmlPath: (id: WindowId) => `/renderer/${id}/index.html`,
     getAppearanceSnapshot: () => appearanceSnapshot,
   };

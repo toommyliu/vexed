@@ -133,26 +133,6 @@ const removeDirectory = async (path: string): Promise<void> => {
 const clearFlashData = (flashRootPath: string): Promise<void> =>
   removeDirectory(flashRootPath);
 
-export const resolveDevRendererUrl = (
-  isDev: boolean,
-  devRendererUrl: string | undefined,
-): string | null => {
-  if (!isDev || !devRendererUrl) {
-    return null;
-  }
-
-  try {
-    const url = new URL(devRendererUrl);
-    const isLoopback =
-      url.protocol === "http:" &&
-      (url.hostname === "127.0.0.1" || url.hostname === "localhost");
-
-    return isLoopback ? url.toString() : null;
-  } catch {
-    return null;
-  }
-};
-
 const makeWindowEffectRunner = (
   services: ServiceMap.ServiceMap<WindowService>,
 ): WindowEffectRunner => {

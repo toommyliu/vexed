@@ -40,7 +40,7 @@
     "icon:print": "tsx scripts/print-lucide-icon.ts",
     "demo": "vite --config vite.demo.config.ts --host 127.0.0.1",
     "demo:build": "vite build --config vite.demo.config.ts",
-    "demo:electron11": "pnpm --dir ../../app dev:ui:electron11",
+    "demo:electron11": "node scripts/start-electron11-demo.mjs",
     "test": "vitest run",
     "typecheck": "tsc -p tsconfig.json --noEmit"
   },
@@ -55,6 +55,7 @@
   },
   "devDependencies": {
     "@types/node": "^24.12.2",
+    "electron": "workspace:*",
     "esbuild": "^0.25.5",
     "esbuild-plugin-solid": "^0.6.0",
     "happy-dom": "^20.9.0",
