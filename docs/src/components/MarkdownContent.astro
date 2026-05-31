@@ -430,7 +430,7 @@ import '@astrojs/starlight/style/markdown.css';
         const copyButton = event.target?.closest?.('.copy button');
         if (!copyButton) return;
 
-        const snippet = copyButton.dataset.copySnippet ?? copyButton.dataset.code;
+        const snippet = copyButton.dataset.copySnippet;
         if (!snippet) return;
 
         event.preventDefault();

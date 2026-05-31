@@ -71,16 +71,26 @@ Referenced types are generated from the types directly linked by the documented 
 | <a href="/scripting/types/quest-reward-data/" data-script-type="quest-reward-data"><code>QuestRewardData</code></a> | type alias | Represents the raw data structure for a quest reward. |
 | <a href="/scripting/types/quest-turn-in-data/" data-script-type="quest-turn-in-data"><code>QuestTurnInData</code></a> | type alias | Represents the raw data structure for quest turn-in requirements. |
 | <a href="/scripting/types/readonly-collection/" data-script-type="readonly-collection"><code>ReadonlyCollection</code></a> | type alias | Represents an immutable version of a collection |
-| <a href="/scripting/types/script-anti-counter-disposer/" data-script-type="script-anti-counter-disposer"><code>ScriptAntiCounterDisposer</code></a> | type alias |  |
-| <a href="/scripting/types/script-anti-counter-event/" data-script-type="script-anti-counter-event"><code>ScriptAntiCounterEvent</code></a> | interface |  |
-| <a href="/scripting/types/script-anti-counter-listener/" data-script-type="script-anti-counter-listener"><code>ScriptAntiCounterListener</code></a> | type alias |  |
 | <a href="/scripting/types/script-enhance-item-options/" data-script-type="script-enhance-item-options"><code>ScriptEnhanceItemOptions</code></a> | interface |  |
 | <a href="/scripting/types/script-equip-item-by-enhancement-options/" data-script-type="script-equip-item-by-enhancement-options"><code>ScriptEquipItemByEnhancementOptions</code></a> | type alias |  |
+| <a href="/scripting/types/script-event-afk-event/" data-script-type="script-event-afk-event"><code>ScriptEventAfkEvent</code></a> | interface |  |
+| <a href="/scripting/types/script-event-animation-message-event/" data-script-type="script-event-animation-message-event"><code>ScriptEventAnimationMessageEvent</code></a> | interface |  |
+| <a href="/scripting/types/script-event-anti-counter-event/" data-script-type="script-event-anti-counter-event"><code>ScriptEventAntiCounterEvent</code></a> | interface |  |
+| <a href="/scripting/types/script-event-aura-event/" data-script-type="script-event-aura-event"><code>ScriptEventAuraEvent</code></a> | interface |  |
+| <a href="/scripting/types/script-event-disposer/" data-script-type="script-event-disposer"><code>ScriptEventDisposer</code></a> | type alias |  |
+| <a href="/scripting/types/script-event-join-map-event/" data-script-type="script-event-join-map-event"><code>ScriptEventJoinMapEvent</code></a> | interface |  |
+| <a href="/scripting/types/script-event-listener/" data-script-type="script-event-listener"><code>ScriptEventListener</code></a> | type alias |  |
+| <a href="/scripting/types/script-event-map/" data-script-type="script-event-map"><code>ScriptEventMap</code></a> | interface |  |
+| <a href="/scripting/types/script-event-monster-death-event/" data-script-type="script-event-monster-death-event"><code>ScriptEventMonsterDeathEvent</code></a> | interface |  |
+| <a href="/scripting/types/script-event-player-location-event/" data-script-type="script-event-player-location-event"><code>ScriptEventPlayerLocationEvent</code></a> | interface |  |
+| <a href="/scripting/types/script-event-predicate/" data-script-type="script-event-predicate"><code>ScriptEventPredicate</code></a> | type alias |  |
+| <a href="/scripting/types/script-event-quest-complete-event/" data-script-type="script-event-quest-complete-event"><code>ScriptEventQuestCompleteEvent</code></a> | interface |  |
+| <a href="/scripting/types/script-event-wait-options/" data-script-type="script-event-wait-options"><code>ScriptEventWaitOptions</code></a> | interface |  |
+| <a href="/scripting/types/script-event-zone-event/" data-script-type="script-event-zone-event"><code>ScriptEventZoneEvent</code></a> | interface |  |
+| <a href="/scripting/types/script-exit-options/" data-script-type="script-exit-options"><code>ScriptExitOptions</code></a> | interface |  |
 | <a href="/scripting/types/script-item-wait-options/" data-script-type="script-item-wait-options"><code>ScriptItemWaitOptions</code></a> | interface |  |
 | <a href="/scripting/types/script-monster-wait-options/" data-script-type="script-monster-wait-options"><code>ScriptMonsterWaitOptions</code></a> | interface |  |
 | <a href="/scripting/types/script-options/" data-script-type="script-options"><code>ScriptOptions</code></a> | interface |  |
-| <a href="/scripting/types/script-packet-disposer/" data-script-type="script-packet-disposer"><code>ScriptPacketDisposer</code></a> | type alias |  |
-| <a href="/scripting/types/script-packet-listener/" data-script-type="script-packet-listener"><code>ScriptPacketListener</code></a> | type alias |  |
 | <a href="/scripting/types/script-player-count-wait-options/" data-script-type="script-player-count-wait-options"><code>ScriptPlayerCountWaitOptions</code></a> | interface |  |
 | <a href="/scripting/types/script-recipe-effect/" data-script-type="script-recipe-effect"><code>ScriptRecipeEffect</code></a> | type alias |  |
 | <a href="/scripting/types/script-wait-options/" data-script-type="script-wait-options"><code>ScriptWaitOptions</code></a> | interface |  |

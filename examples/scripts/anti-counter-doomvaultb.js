@@ -3,12 +3,12 @@ const { antiCounter } = features;
 
 module.exports = function* run() {
   const wasEnabled = yield* antiCounter.isEnabled();
-  const disposeStart = yield* antiCounter.onStart((event) => {
+  const disposeStart = yield* api.events.on("antiCounterStart", (event) => {
     script.log(
       `Anti-counter started: monMapId=${event.monMapId}, trigger=${event.triggerText}`,
     );
   });
-  const disposeEnd = yield* antiCounter.onEnd((event) => {
+  const disposeEnd = yield* api.events.on("antiCounterEnd", (event) => {
     script.log(
       `Anti-counter ended: monMapId=${event.monMapId}, trigger=${event.triggerText}`,
     );

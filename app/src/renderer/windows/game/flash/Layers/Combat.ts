@@ -5,7 +5,7 @@ import { Bridge } from "../Services/Bridge";
 import { Combat } from "../Services/Combat";
 import type { CombatKillOptions, CombatShape } from "../Services/Combat";
 import { Drops } from "../Services/Drops";
-import { PacketDomain } from "../Services/PacketDomain";
+import { GameEvents } from "../Services/GameEvents";
 import { Player } from "../Services/Player";
 import { Settings } from "../Services/Settings";
 import { World } from "../Services/World";
@@ -257,9 +257,9 @@ const make = Effect.gen(function* () {
   const antiCounterMonsters = new Map<number, TrackedAntiCounter>();
   const stoppedAntiCounterTargets = new Map<number, string>();
 
-  const maybePacketDomain = yield* Effect.serviceOption(PacketDomain);
-  const packetDomain = Option.isSome(maybePacketDomain)
-    ? maybePacketDomain.value
+  const maybeGameEvents = yield* Effect.serviceOption(GameEvents);
+  const packetDomain = Option.isSome(maybeGameEvents)
+    ? maybeGameEvents.value
     : undefined;
 
   const getCurrentTargetMonMapId = () =>

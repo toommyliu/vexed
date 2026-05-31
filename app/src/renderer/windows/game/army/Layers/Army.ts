@@ -36,7 +36,7 @@ import {
 import { Auth } from "../../flash/Services/Auth";
 import { Combat } from "../../flash/Services/Combat";
 import { Inventory } from "../../flash/Services/Inventory";
-import { PacketDomain } from "../../flash/Services/PacketDomain";
+import { GameEvents } from "../../flash/Services/GameEvents";
 import { Player } from "../../flash/Services/Player";
 import { Wait } from "../../flash/Services/Wait";
 import { World, type WorldShape } from "../../flash/Services/World";
@@ -178,7 +178,7 @@ const make = Effect.gen(function* () {
   const combat = yield* Combat;
   const inventory = yield* Inventory;
   const jobs = yield* Jobs;
-  const packetDomain = yield* PacketDomain;
+  const packetDomain = yield* GameEvents;
   const player = yield* Player;
   const wait = yield* Wait;
   const world = yield* World;

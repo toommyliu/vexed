@@ -20,7 +20,7 @@ import {
   matchesCombatProfileAnimationTriggerMessage,
 } from "../../combatProfiles";
 import { Combat } from "../../flash/Services/Combat";
-import { PacketDomain } from "../../flash/Services/PacketDomain";
+import { GameEvents } from "../../flash/Services/GameEvents";
 import { Player } from "../../flash/Services/Player";
 import { Packet } from "../../flash/Services/Packet";
 import { Wait } from "../../flash/Services/Wait";
@@ -121,7 +121,7 @@ const make = Effect.gen(function* () {
   const combat = yield* Combat;
   const jobs = yield* Jobs;
   const packet = yield* Packet;
-  const maybePacketDomain = yield* Effect.serviceOption(PacketDomain);
+  const maybeGameEvents = yield* Effect.serviceOption(GameEvents);
   const player = yield* Player;
   const wait = yield* Wait;
   const world = yield* World;
@@ -957,13 +957,13 @@ const make = Effect.gen(function* () {
       };
     });
 
-  const disposeTargetLocationWake = Option.isSome(maybePacketDomain)
-    ? yield* maybePacketDomain.value.on("playerLocation", (event) =>
+  const disposeTargetLocationWake = Option.isSome(maybeGameEvents)
+    ? yield* maybeGameEvents.value.on("playerLocation", (event) =>
         requestTargetLocationWake(event.username),
       )
     : undefined;
-  const disposeAnimationMessage = Option.isSome(maybePacketDomain)
-    ? yield* maybePacketDomain.value.on("animationMessage", (event) =>
+  const disposeAnimationMessage = Option.isSome(maybeGameEvents)
+    ? yield* maybeGameEvents.value.on("animationMessage", (event) =>
         handleAnimationMessage(event.message),
       )
     : undefined;

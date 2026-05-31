@@ -8,7 +8,8 @@ import { HouseLive } from "./House";
 import { InventoryLive } from "./Inventory";
 import { OutfitsLive } from "./Outfits";
 import { PacketLive } from "./Packet";
-import { PacketDomainLive } from "./PacketDomain";
+import { GameEventProjectorLive } from "./GameEventProjector";
+import { GameEventsLive } from "./GameEvents";
 import { PlayerLive } from "./Player";
 import { QuestsLive } from "./Quests";
 import { SettingsLive } from "./Settings";
@@ -34,6 +35,7 @@ const CoreRuntimeLive = Layer.mergeAll(
   PacketRuntimeLive,
   AuthRuntimeLive,
   WorldRuntimeLive,
+  GameEventsLive,
 );
 
 const PlayerRuntimeLive = PlayerLive.pipe(Layer.provideMerge(InventoryLive));
@@ -47,7 +49,7 @@ const DomainRuntimeLive = Layer.mergeAll(
   DropsLive,
   OutfitsLive,
   TempInventoryLive,
-  PacketDomainLive,
+  GameEventProjectorLive,
   QuestsLive,
 ).pipe(Layer.provide(CoreRuntimeLive));
 

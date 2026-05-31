@@ -137,8 +137,8 @@
         }
       ],
       "source": {
-        "path": "app/src/renderer/windows/game/army/LoopTaunt.ts:28",
-        "url": "https://github.com/toommyliu/vexed/blob/dev/app/src/renderer/windows/game/army/LoopTaunt.ts#L28"
+        "path": "app/src/renderer/windows/game/army/LoopTaunt.ts:94",
+        "url": "https://github.com/toommyliu/vexed/blob/dev/app/src/renderer/windows/game/army/LoopTaunt.ts#L94"
       }
     },
     "army-loop-taunt-options": {
@@ -146,11 +146,11 @@
       "slug": "army-loop-taunt-options",
       "kind": "type alias",
       "summary": "",
-      "definition": "type ArmyLoopTauntOptions = ArmyLoopTauntBaseOptions & { aura: string; delayMs?: number; message?: never } | ArmyLoopTauntBaseOptions & { aura?: never; delayMs?: never; message: string }",
+      "definition": "type ArmyLoopTauntOptions = ArmyLoopTauntBaseOptions & { aura: string; debounceMs?: never; delayMs?: number; message?: never } | ArmyLoopTauntBaseOptions & { aura?: never; debounceMs?: number; delayMs?: never; message: string }",
       "keys": [],
       "source": {
-        "path": "app/src/renderer/windows/game/army/LoopTaunt.ts:16",
-        "url": "https://github.com/toommyliu/vexed/blob/dev/app/src/renderer/windows/game/army/LoopTaunt.ts#L16"
+        "path": "app/src/renderer/windows/game/army/LoopTaunt.ts:80",
+        "url": "https://github.com/toommyliu/vexed/blob/dev/app/src/renderer/windows/game/army/LoopTaunt.ts#L80"
       }
     },
     "army-run-step-options": {
@@ -258,6 +258,12 @@
       "summary": "",
       "definition": "type Aura = unknown",
       "keys": [
+        {
+          "kind": "property",
+          "name": "cat",
+          "signature": "cat?: string",
+          "description": ""
+        },
         {
           "kind": "property",
           "name": "duration",
@@ -683,8 +689,8 @@
       "definition": "type BridgeEffect<A> = Effect.Effect<A, BridgeError>",
       "keys": [],
       "source": {
-        "path": "app/src/renderer/windows/game/flash/Services/Bridge.ts:14",
-        "url": "https://github.com/toommyliu/vexed/blob/dev/app/src/renderer/windows/game/flash/Services/Bridge.ts#L14"
+        "path": "app/src/renderer/windows/game/flash/Services/Bridge.ts:13",
+        "url": "https://github.com/toommyliu/vexed/blob/dev/app/src/renderer/windows/game/flash/Services/Bridge.ts#L13"
       }
     },
     "bridge-error": {
@@ -695,8 +701,8 @@
       "definition": "type BridgeError = SwfUnavailableError | SwfMethodNotFoundError | SwfCallError",
       "keys": [],
       "source": {
-        "path": "app/src/renderer/windows/game/flash/Services/Bridge.ts:9",
-        "url": "https://github.com/toommyliu/vexed/blob/dev/app/src/renderer/windows/game/flash/Services/Bridge.ts#L9"
+        "path": "app/src/renderer/windows/game/flash/Services/Bridge.ts:8",
+        "url": "https://github.com/toommyliu/vexed/blob/dev/app/src/renderer/windows/game/flash/Services/Bridge.ts#L8"
       }
     },
     "client-packet-send-type": {
@@ -2907,73 +2913,6 @@
         "url": "https://github.com/toommyliu/vexed/blob/dev/packages/collection/src/index.ts#L23"
       }
     },
-    "script-anti-counter-disposer": {
-      "name": "ScriptAntiCounterDisposer",
-      "slug": "script-anti-counter-disposer",
-      "kind": "type alias",
-      "summary": "",
-      "definition": "type ScriptAntiCounterDisposer = () => void",
-      "keys": [],
-      "source": {
-        "path": "app/src/renderer/windows/game/scripting/ScriptApi.ts:65",
-        "url": "https://github.com/toommyliu/vexed/blob/dev/app/src/renderer/windows/game/scripting/ScriptApi.ts#L65"
-      }
-    },
-    "script-anti-counter-event": {
-      "name": "ScriptAntiCounterEvent",
-      "slug": "script-anti-counter-event",
-      "kind": "interface",
-      "summary": "",
-      "definition": "interface ScriptAntiCounterEvent",
-      "keys": [
-        {
-          "kind": "property",
-          "name": "durationMs",
-          "signature": "readonly durationMs?: number",
-          "description": ""
-        },
-        {
-          "kind": "property",
-          "name": "monMapId",
-          "signature": "readonly monMapId: number",
-          "description": ""
-        },
-        {
-          "kind": "property",
-          "name": "source",
-          "signature": "readonly source: \"aura\" | \"message\"",
-          "description": ""
-        },
-        {
-          "kind": "property",
-          "name": "triggerId",
-          "signature": "readonly triggerId: string",
-          "description": ""
-        },
-        {
-          "kind": "property",
-          "name": "triggerText",
-          "signature": "readonly triggerText: string",
-          "description": ""
-        }
-      ],
-      "source": {
-        "path": "app/src/renderer/windows/game/scripting/ScriptApi.ts:50",
-        "url": "https://github.com/toommyliu/vexed/blob/dev/app/src/renderer/windows/game/scripting/ScriptApi.ts#L50"
-      }
-    },
-    "script-anti-counter-listener": {
-      "name": "ScriptAntiCounterListener",
-      "slug": "script-anti-counter-listener",
-      "kind": "type alias",
-      "summary": "",
-      "definition": "type ScriptAntiCounterListener = (event: ScriptAntiCounterEvent) => void | Effect.Effect<unknown, unknown> | Generator<Effect.Yieldable<any, any, never, never>, unknown, never>",
-      "keys": [],
-      "source": {
-        "path": "app/src/renderer/windows/game/scripting/ScriptApi.ts:58",
-        "url": "https://github.com/toommyliu/vexed/blob/dev/app/src/renderer/windows/game/scripting/ScriptApi.ts#L58"
-      }
-    },
     "script-enhance-item-options": {
       "name": "ScriptEnhanceItemOptions",
       "slug": "script-enhance-item-options",
@@ -3011,6 +2950,498 @@
         "url": "https://github.com/toommyliu/vexed/blob/dev/app/src/renderer/windows/game/scripting/recipes.ts#L61"
       }
     },
+    "script-event-afk-event": {
+      "name": "ScriptEventAfkEvent",
+      "slug": "script-event-afk-event",
+      "kind": "interface",
+      "summary": "",
+      "definition": "interface ScriptEventAfkEvent",
+      "keys": [
+        {
+          "kind": "property",
+          "name": "afk",
+          "signature": "readonly afk: boolean",
+          "description": ""
+        },
+        {
+          "kind": "property",
+          "name": "username",
+          "signature": "readonly username: string",
+          "description": ""
+        }
+      ],
+      "source": {
+        "path": "app/src/renderer/windows/game/scripting/ScriptApi.ts:92",
+        "url": "https://github.com/toommyliu/vexed/blob/dev/app/src/renderer/windows/game/scripting/ScriptApi.ts#L92"
+      }
+    },
+    "script-event-animation-message-event": {
+      "name": "ScriptEventAnimationMessageEvent",
+      "slug": "script-event-animation-message-event",
+      "kind": "interface",
+      "summary": "",
+      "definition": "interface ScriptEventAnimationMessageEvent",
+      "keys": [
+        {
+          "kind": "property",
+          "name": "message",
+          "signature": "readonly message: string",
+          "description": ""
+        },
+        {
+          "kind": "property",
+          "name": "monMapId",
+          "signature": "readonly monMapId?: number",
+          "description": ""
+        },
+        {
+          "kind": "property",
+          "name": "sourceMonMapId",
+          "signature": "readonly sourceMonMapId?: number",
+          "description": ""
+        },
+        {
+          "kind": "property",
+          "name": "targetMonMapId",
+          "signature": "readonly targetMonMapId?: number",
+          "description": ""
+        }
+      ],
+      "source": {
+        "path": "app/src/renderer/windows/game/scripting/ScriptApi.ts:77",
+        "url": "https://github.com/toommyliu/vexed/blob/dev/app/src/renderer/windows/game/scripting/ScriptApi.ts#L77"
+      }
+    },
+    "script-event-anti-counter-event": {
+      "name": "ScriptEventAntiCounterEvent",
+      "slug": "script-event-anti-counter-event",
+      "kind": "interface",
+      "summary": "",
+      "definition": "interface ScriptEventAntiCounterEvent",
+      "keys": [
+        {
+          "kind": "property",
+          "name": "durationMs",
+          "signature": "readonly durationMs?: number",
+          "description": ""
+        },
+        {
+          "kind": "property",
+          "name": "monMapId",
+          "signature": "readonly monMapId: number",
+          "description": ""
+        },
+        {
+          "kind": "property",
+          "name": "source",
+          "signature": "readonly source: \"aura\" | \"message\"",
+          "description": ""
+        },
+        {
+          "kind": "property",
+          "name": "triggerId",
+          "signature": "readonly triggerId: string",
+          "description": ""
+        },
+        {
+          "kind": "property",
+          "name": "triggerText",
+          "signature": "readonly triggerText: string",
+          "description": ""
+        }
+      ],
+      "source": {
+        "path": "app/src/renderer/windows/game/scripting/ScriptApi.ts:41",
+        "url": "https://github.com/toommyliu/vexed/blob/dev/app/src/renderer/windows/game/scripting/ScriptApi.ts#L41"
+      }
+    },
+    "script-event-aura-event": {
+      "name": "ScriptEventAuraEvent",
+      "slug": "script-event-aura-event",
+      "kind": "interface",
+      "summary": "",
+      "definition": "interface ScriptEventAuraEvent",
+      "keys": [
+        {
+          "kind": "property",
+          "name": "aura",
+          "signature": "readonly aura?: Aura",
+          "description": ""
+        },
+        {
+          "kind": "property",
+          "name": "auraName",
+          "signature": "readonly auraName: string",
+          "description": ""
+        },
+        {
+          "kind": "property",
+          "name": "targetId",
+          "signature": "readonly targetId: number",
+          "description": ""
+        },
+        {
+          "kind": "property",
+          "name": "targetName",
+          "signature": "readonly targetName?: string",
+          "description": ""
+        },
+        {
+          "kind": "property",
+          "name": "targetType",
+          "signature": "readonly targetType: \"player\" | \"monster\"",
+          "description": ""
+        }
+      ],
+      "source": {
+        "path": "app/src/renderer/windows/game/scripting/ScriptApi.ts:84",
+        "url": "https://github.com/toommyliu/vexed/blob/dev/app/src/renderer/windows/game/scripting/ScriptApi.ts#L84"
+      }
+    },
+    "script-event-disposer": {
+      "name": "ScriptEventDisposer",
+      "slug": "script-event-disposer",
+      "kind": "type alias",
+      "summary": "",
+      "definition": "type ScriptEventDisposer = () => void",
+      "keys": [],
+      "source": {
+        "path": "app/src/renderer/windows/game/scripting/ScriptApi.ts:148",
+        "url": "https://github.com/toommyliu/vexed/blob/dev/app/src/renderer/windows/game/scripting/ScriptApi.ts#L148"
+      }
+    },
+    "script-event-join-map-event": {
+      "name": "ScriptEventJoinMapEvent",
+      "slug": "script-event-join-map-event",
+      "kind": "interface",
+      "summary": "",
+      "definition": "interface ScriptEventJoinMapEvent",
+      "keys": [
+        {
+          "kind": "property",
+          "name": "mapId",
+          "signature": "readonly mapId?: number",
+          "description": ""
+        },
+        {
+          "kind": "property",
+          "name": "mapName",
+          "signature": "readonly mapName?: string",
+          "description": ""
+        },
+        {
+          "kind": "property",
+          "name": "roomNumber",
+          "signature": "readonly roomNumber?: number",
+          "description": ""
+        }
+      ],
+      "source": {
+        "path": "app/src/renderer/windows/game/scripting/ScriptApi.ts:71",
+        "url": "https://github.com/toommyliu/vexed/blob/dev/app/src/renderer/windows/game/scripting/ScriptApi.ts#L71"
+      }
+    },
+    "script-event-listener": {
+      "name": "ScriptEventListener",
+      "slug": "script-event-listener",
+      "kind": "type alias",
+      "summary": "",
+      "definition": "type ScriptEventListener<E> = (event: ScriptEventMap[E]) => void | Effect.Effect<unknown, unknown> | Generator<Effect.Yieldable<any, any, never, never>, unknown, never>",
+      "keys": [],
+      "source": {
+        "path": "app/src/renderer/windows/game/scripting/ScriptApi.ts:134",
+        "url": "https://github.com/toommyliu/vexed/blob/dev/app/src/renderer/windows/game/scripting/ScriptApi.ts#L134"
+      }
+    },
+    "script-event-map": {
+      "name": "ScriptEventMap",
+      "slug": "script-event-map",
+      "kind": "interface",
+      "summary": "",
+      "definition": "interface ScriptEventMap",
+      "keys": [
+        {
+          "kind": "property",
+          "name": "afk",
+          "signature": "afk: ScriptEventAfkEvent",
+          "description": ""
+        },
+        {
+          "kind": "property",
+          "name": "animationMessage",
+          "signature": "animationMessage: ScriptEventAnimationMessageEvent",
+          "description": ""
+        },
+        {
+          "kind": "property",
+          "name": "antiCounterEnd",
+          "signature": "antiCounterEnd: Omit<ScriptEventAntiCounterEvent, \"durationMs\">",
+          "description": ""
+        },
+        {
+          "kind": "property",
+          "name": "antiCounterStart",
+          "signature": "antiCounterStart: ScriptEventAntiCounterEvent",
+          "description": ""
+        },
+        {
+          "kind": "property",
+          "name": "auraAdded",
+          "signature": "auraAdded: ScriptEventAuraEvent",
+          "description": ""
+        },
+        {
+          "kind": "property",
+          "name": "auraRemoved",
+          "signature": "auraRemoved: Omit<ScriptEventAuraEvent, \"aura\">",
+          "description": ""
+        },
+        {
+          "kind": "property",
+          "name": "extensionResponse",
+          "signature": "extensionResponse: string",
+          "description": ""
+        },
+        {
+          "kind": "property",
+          "name": "joinMap",
+          "signature": "joinMap: ScriptEventJoinMapEvent",
+          "description": ""
+        },
+        {
+          "kind": "property",
+          "name": "monsterDeath",
+          "signature": "monsterDeath: ScriptEventMonsterDeathEvent",
+          "description": ""
+        },
+        {
+          "kind": "property",
+          "name": "packetFromClient",
+          "signature": "packetFromClient: string",
+          "description": ""
+        },
+        {
+          "kind": "property",
+          "name": "packetFromServer",
+          "signature": "packetFromServer: string",
+          "description": ""
+        },
+        {
+          "kind": "property",
+          "name": "playerLocation",
+          "signature": "playerLocation: ScriptEventPlayerLocationEvent",
+          "description": ""
+        },
+        {
+          "kind": "property",
+          "name": "questComplete",
+          "signature": "questComplete: ScriptEventQuestCompleteEvent",
+          "description": ""
+        },
+        {
+          "kind": "property",
+          "name": "zone",
+          "signature": "zone: ScriptEventZoneEvent",
+          "description": ""
+        }
+      ],
+      "source": {
+        "path": "app/src/renderer/windows/game/scripting/ScriptApi.ts:105",
+        "url": "https://github.com/toommyliu/vexed/blob/dev/app/src/renderer/windows/game/scripting/ScriptApi.ts#L105"
+      }
+    },
+    "script-event-monster-death-event": {
+      "name": "ScriptEventMonsterDeathEvent",
+      "slug": "script-event-monster-death-event",
+      "kind": "interface",
+      "summary": "",
+      "definition": "interface ScriptEventMonsterDeathEvent",
+      "keys": [
+        {
+          "kind": "property",
+          "name": "monMapId",
+          "signature": "readonly monMapId: number",
+          "description": ""
+        }
+      ],
+      "source": {
+        "path": "app/src/renderer/windows/game/scripting/ScriptApi.ts:49",
+        "url": "https://github.com/toommyliu/vexed/blob/dev/app/src/renderer/windows/game/scripting/ScriptApi.ts#L49"
+      }
+    },
+    "script-event-player-location-event": {
+      "name": "ScriptEventPlayerLocationEvent",
+      "slug": "script-event-player-location-event",
+      "kind": "interface",
+      "summary": "",
+      "definition": "interface ScriptEventPlayerLocationEvent",
+      "keys": [
+        {
+          "kind": "property",
+          "name": "cell",
+          "signature": "readonly cell?: string",
+          "description": ""
+        },
+        {
+          "kind": "property",
+          "name": "pad",
+          "signature": "readonly pad?: string",
+          "description": ""
+        },
+        {
+          "kind": "property",
+          "name": "username",
+          "signature": "readonly username: string",
+          "description": ""
+        },
+        {
+          "kind": "property",
+          "name": "x",
+          "signature": "readonly x?: number",
+          "description": ""
+        },
+        {
+          "kind": "property",
+          "name": "y",
+          "signature": "readonly y?: number",
+          "description": ""
+        }
+      ],
+      "source": {
+        "path": "app/src/renderer/windows/game/scripting/ScriptApi.ts:97",
+        "url": "https://github.com/toommyliu/vexed/blob/dev/app/src/renderer/windows/game/scripting/ScriptApi.ts#L97"
+      }
+    },
+    "script-event-predicate": {
+      "name": "ScriptEventPredicate",
+      "slug": "script-event-predicate",
+      "kind": "type alias",
+      "summary": "",
+      "definition": "type ScriptEventPredicate<E> = (event: ScriptEventMap[E]) => boolean | Effect.Effect<boolean, unknown> | Generator<Effect.Yieldable<any, any, never, never>, boolean, never>",
+      "keys": [],
+      "source": {
+        "path": "app/src/renderer/windows/game/scripting/ScriptApi.ts:141",
+        "url": "https://github.com/toommyliu/vexed/blob/dev/app/src/renderer/windows/game/scripting/ScriptApi.ts#L141"
+      }
+    },
+    "script-event-quest-complete-event": {
+      "name": "ScriptEventQuestCompleteEvent",
+      "slug": "script-event-quest-complete-event",
+      "kind": "interface",
+      "summary": "",
+      "definition": "interface ScriptEventQuestCompleteEvent",
+      "keys": [
+        {
+          "kind": "property",
+          "name": "bSuccess",
+          "signature": "readonly bSuccess: number",
+          "description": ""
+        },
+        {
+          "kind": "property",
+          "name": "QuestID",
+          "signature": "readonly QuestID: number",
+          "description": ""
+        },
+        {
+          "kind": "property",
+          "name": "rewardObj",
+          "signature": "readonly rewardObj: { iCP?: number; intCoins?: number; intExp?: number; intGold?: number; typ?: string }",
+          "description": ""
+        },
+        {
+          "kind": "property",
+          "name": "sName",
+          "signature": "readonly sName: string",
+          "description": ""
+        }
+      ],
+      "source": {
+        "path": "app/src/renderer/windows/game/scripting/ScriptApi.ts:53",
+        "url": "https://github.com/toommyliu/vexed/blob/dev/app/src/renderer/windows/game/scripting/ScriptApi.ts#L53"
+      }
+    },
+    "script-event-wait-options": {
+      "name": "ScriptEventWaitOptions",
+      "slug": "script-event-wait-options",
+      "kind": "interface",
+      "summary": "",
+      "definition": "interface ScriptEventWaitOptions<E>",
+      "keys": [
+        {
+          "kind": "property",
+          "name": "interval",
+          "signature": "readonly interval?: Input",
+          "description": ""
+        },
+        {
+          "kind": "property",
+          "name": "predicate",
+          "signature": "readonly predicate?: ScriptEventPredicate<E>",
+          "description": ""
+        },
+        {
+          "kind": "property",
+          "name": "timeout",
+          "signature": "readonly timeout?: Input",
+          "description": ""
+        }
+      ],
+      "source": {
+        "path": "app/src/renderer/windows/game/scripting/ScriptApi.ts:150",
+        "url": "https://github.com/toommyliu/vexed/blob/dev/app/src/renderer/windows/game/scripting/ScriptApi.ts#L150"
+      }
+    },
+    "script-event-zone-event": {
+      "name": "ScriptEventZoneEvent",
+      "slug": "script-event-zone-event",
+      "kind": "interface",
+      "summary": "",
+      "definition": "interface ScriptEventZoneEvent",
+      "keys": [
+        {
+          "kind": "property",
+          "name": "map",
+          "signature": "readonly map: string",
+          "description": ""
+        },
+        {
+          "kind": "property",
+          "name": "zone",
+          "signature": "readonly zone: string",
+          "description": ""
+        }
+      ],
+      "source": {
+        "path": "app/src/renderer/windows/game/scripting/ScriptApi.ts:66",
+        "url": "https://github.com/toommyliu/vexed/blob/dev/app/src/renderer/windows/game/scripting/ScriptApi.ts#L66"
+      }
+    },
+    "script-exit-options": {
+      "name": "ScriptExitOptions",
+      "slug": "script-exit-options",
+      "kind": "interface",
+      "summary": "",
+      "definition": "interface ScriptExitOptions",
+      "keys": [
+        {
+          "kind": "property",
+          "name": "closeWindow",
+          "signature": "readonly closeWindow?: boolean",
+          "description": ""
+        },
+        {
+          "kind": "property",
+          "name": "logout",
+          "signature": "readonly logout?: boolean",
+          "description": ""
+        }
+      ],
+      "source": {
+        "path": "app/src/renderer/windows/game/scripting/ScriptApi.ts:472",
+        "url": "https://github.com/toommyliu/vexed/blob/dev/app/src/renderer/windows/game/scripting/ScriptApi.ts#L472"
+      }
+    },
     "script-item-wait-options": {
       "name": "ScriptItemWaitOptions",
       "slug": "script-item-wait-options",
@@ -3038,8 +3469,8 @@
         }
       ],
       "source": {
-        "path": "app/src/renderer/windows/game/scripting/ScriptApi.ts:123",
-        "url": "https://github.com/toommyliu/vexed/blob/dev/app/src/renderer/windows/game/scripting/ScriptApi.ts#L123"
+        "path": "app/src/renderer/windows/game/scripting/ScriptApi.ts:232",
+        "url": "https://github.com/toommyliu/vexed/blob/dev/app/src/renderer/windows/game/scripting/ScriptApi.ts#L232"
       }
     },
     "script-monster-wait-options": {
@@ -3075,8 +3506,8 @@
         }
       ],
       "source": {
-        "path": "app/src/renderer/windows/game/scripting/ScriptApi.ts:118",
-        "url": "https://github.com/toommyliu/vexed/blob/dev/app/src/renderer/windows/game/scripting/ScriptApi.ts#L118"
+        "path": "app/src/renderer/windows/game/scripting/ScriptApi.ts:227",
+        "url": "https://github.com/toommyliu/vexed/blob/dev/app/src/renderer/windows/game/scripting/ScriptApi.ts#L227"
       }
     },
     "script-options": {
@@ -3094,32 +3525,8 @@
         }
       ],
       "source": {
-        "path": "app/src/shared/ipc.ts:362",
-        "url": "https://github.com/toommyliu/vexed/blob/dev/app/src/shared/ipc.ts#L362"
-      }
-    },
-    "script-packet-disposer": {
-      "name": "ScriptPacketDisposer",
-      "slug": "script-packet-disposer",
-      "kind": "type alias",
-      "summary": "",
-      "definition": "type ScriptPacketDisposer = () => void",
-      "keys": [],
-      "source": {
-        "path": "app/src/renderer/windows/game/scripting/ScriptApi.ts:48",
-        "url": "https://github.com/toommyliu/vexed/blob/dev/app/src/renderer/windows/game/scripting/ScriptApi.ts#L48"
-      }
-    },
-    "script-packet-listener": {
-      "name": "ScriptPacketListener",
-      "slug": "script-packet-listener",
-      "kind": "type alias",
-      "summary": "",
-      "definition": "type ScriptPacketListener = (packet: string) => void | Effect.Effect<unknown, unknown> | Generator<Effect.Yieldable<any, any, never, never>, unknown, never>",
-      "keys": [],
-      "source": {
-        "path": "app/src/renderer/windows/game/scripting/ScriptApi.ts:41",
-        "url": "https://github.com/toommyliu/vexed/blob/dev/app/src/renderer/windows/game/scripting/ScriptApi.ts#L41"
+        "path": "app/src/shared/ipc.ts:378",
+        "url": "https://github.com/toommyliu/vexed/blob/dev/app/src/shared/ipc.ts#L378"
       }
     },
     "script-player-count-wait-options": {
@@ -3149,8 +3556,8 @@
         }
       ],
       "source": {
-        "path": "app/src/renderer/windows/game/scripting/ScriptApi.ts:114",
-        "url": "https://github.com/toommyliu/vexed/blob/dev/app/src/renderer/windows/game/scripting/ScriptApi.ts#L114"
+        "path": "app/src/renderer/windows/game/scripting/ScriptApi.ts:223",
+        "url": "https://github.com/toommyliu/vexed/blob/dev/app/src/renderer/windows/game/scripting/ScriptApi.ts#L223"
       }
     },
     "script-recipe-effect": {
@@ -3186,8 +3593,8 @@
         }
       ],
       "source": {
-        "path": "app/src/renderer/windows/game/scripting/ScriptApi.ts:109",
-        "url": "https://github.com/toommyliu/vexed/blob/dev/app/src/renderer/windows/game/scripting/ScriptApi.ts#L109"
+        "path": "app/src/renderer/windows/game/scripting/ScriptApi.ts:218",
+        "url": "https://github.com/toommyliu/vexed/blob/dev/app/src/renderer/windows/game/scripting/ScriptApi.ts#L218"
       }
     },
     "script-wait-predicate": {
@@ -3198,8 +3605,8 @@
       "definition": "type ScriptWaitPredicate = () => boolean | Effect.Effect<boolean, unknown> | Generator<Effect.Yieldable<any, any, never, never>, boolean, never>",
       "keys": [],
       "source": {
-        "path": "app/src/renderer/windows/game/scripting/ScriptApi.ts:127",
-        "url": "https://github.com/toommyliu/vexed/blob/dev/app/src/renderer/windows/game/scripting/ScriptApi.ts#L127"
+        "path": "app/src/renderer/windows/game/scripting/ScriptApi.ts:236",
+        "url": "https://github.com/toommyliu/vexed/blob/dev/app/src/renderer/windows/game/scripting/ScriptApi.ts#L236"
       }
     },
     "server": {

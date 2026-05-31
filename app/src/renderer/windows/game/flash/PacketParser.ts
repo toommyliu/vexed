@@ -79,10 +79,7 @@ export const parseExtensionPacket = (
     return Option.none();
   }
 
-  // AS3 currently emits `JSON.stringify(packet.params)`, while older/newer
-  // bridges may emit the full packet (`{ params: ... }`). Support both.
-  const top = parsed.value;
-  const params = isRecord(top["params"]) ? top["params"] : top;
+  const params = parsed.value;
 
   if (params["type"] === "str") {
     const data = params["dataObj"];
@@ -105,7 +102,8 @@ export const parseExtensionPacket = (
       return Option.none();
     }
 
-    // The direct server bridge already handles `ct` packets.
+    // The direct server bridge already handles `ct` packets,
+    // which is more reliable; don't bother here.
     if (data["cmd"] === "ct") {
       return Option.none();
     }

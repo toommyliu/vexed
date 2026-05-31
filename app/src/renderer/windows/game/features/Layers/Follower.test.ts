@@ -9,10 +9,10 @@ import {
 import { Combat, type CombatShape } from "../../flash/Services/Combat";
 import { Packet, type PacketShape } from "../../flash/Services/Packet";
 import {
-  PacketDomain,
-  type PacketDomainEventMap,
-  type PacketDomainShape,
-} from "../../flash/Services/PacketDomain";
+  GameEvents,
+  type GameEventMap,
+  type GameEventsShape,
+} from "../../flash/Services/GameEvents";
 import { Player, type PlayerShape } from "../../flash/Services/Player";
 import { Wait, type WaitShape } from "../../flash/Services/Wait";
 import { World, type WorldShape } from "../../flash/Services/World";
@@ -65,7 +65,7 @@ const withFollower = async <A>(
   services?: {
     readonly combat?: CombatShape;
     readonly packet?: PacketShape;
-    readonly packetDomain?: PacketDomainShape;
+    readonly packetDomain?: GameEventsShape;
     readonly player?: PlayerShape;
     readonly world?: WorldShape;
   },
@@ -126,7 +126,7 @@ const withFollower = async <A>(
               Layer.succeed(Packet)(packet),
               ...(packetDomain === undefined
                 ? []
-                : [Layer.succeed(PacketDomain)(packetDomain)]),
+                : [Layer.succeed(GameEvents)(packetDomain)]),
               Layer.succeed(Player)(player),
               Layer.succeed(Wait)(wait),
               Layer.succeed(World)(world),
@@ -759,7 +759,7 @@ test("room-full warnings consume a retry attempt after locked-zone fallback fail
 
 test("animation message triggers cast profile skill while follower combat is enabled", async () => {
   let animationHandler:
-    | ((event: PacketDomainEventMap["animationMessage"]) => Effect.Effect<void>)
+    | ((event: GameEventMap["animationMessage"]) => Effect.Effect<void>)
     | undefined;
   const useSkillCalls: string[] = [];
   const combat = {
@@ -775,16 +775,17 @@ test("animation message triggers cast profile skill while follower combat is ena
   } as unknown as CombatShape;
   const packetDomain = {
     started: true,
+    emit: () => Effect.void,
     on: (event: string, handler: unknown) =>
       Effect.sync(() => {
         if (event === "animationMessage") {
           animationHandler = handler as (
-            event: PacketDomainEventMap["animationMessage"],
+            event: GameEventMap["animationMessage"],
           ) => Effect.Effect<void>;
         }
         return () => {};
       }),
-  } as PacketDomainShape;
+  } as GameEventsShape;
 
   const result = await withFollower(
     (follower) =>
@@ -820,7 +821,7 @@ test("animation message triggers cast profile skill while follower combat is ena
 
         yield* animationHandler({
           message: "The Divine   will burn for all eternity!",
-          packet: {} as PacketDomainEventMap["animationMessage"]["packet"],
+          packet: {} as GameEventMap["animationMessage"]["packet"],
         });
 
         return useSkillCalls;

@@ -19,12 +19,12 @@ import { Auth, type AuthShape } from "../../flash/Services/Auth";
 import { Combat, type CombatShape } from "../../flash/Services/Combat";
 import { Inventory, type InventoryShape } from "../../flash/Services/Inventory";
 import {
-  PacketDomain,
-  type PacketDomainEvent,
-  type PacketDomainEventHandler,
-  type PacketDomainEventMap,
-  type PacketDomainShape,
-} from "../../flash/Services/PacketDomain";
+  GameEvents,
+  type GameEvent,
+  type GameEventHandler,
+  type GameEventMap,
+  type GameEventsShape,
+} from "../../flash/Services/GameEvents";
 import { Player, type PlayerShape } from "../../flash/Services/Player";
 import { Wait, type WaitShape } from "../../flash/Services/Wait";
 import { World, type WorldShape } from "../../flash/Services/World";
@@ -33,20 +33,25 @@ import { JobsLive } from "../../jobs/Layers/Jobs";
 import { ArmyLive } from "./Army";
 
 type HandlerStore = {
-  [K in PacketDomainEvent]: Set<PacketDomainEventHandler<K>>;
+  [K in GameEvent]: Set<GameEventHandler<K>>;
 };
 
 const createStore = (): HandlerStore => ({
+  afk: new Set(),
   animationMessage: new Set(),
   auraAdded: new Set(),
   auraRemoved: new Set(),
   antiCounterEnd: new Set(),
   antiCounterStart: new Set(),
+  extensionResponse: new Set(),
   joinMap: new Set(),
   loopTauntClientCastAttempt: new Set(),
   loopTauntServerCastConfirmed: new Set(),
   monsterDeath: new Set(),
+  packetFromClient: new Set(),
+  packetFromServer: new Set(),
   playerLocation: new Set(),
+  questComplete: new Set(),
   zone: new Set(),
 });
 
@@ -283,10 +288,10 @@ const withArmy = async <A>(
   session: ArmySession,
   body: (
     army: import("../Services/Army").ArmyShape,
-    emit: <E extends PacketDomainEvent>(
+    emit: <E extends GameEvent>(
       event: E,
-      payload: PacketDomainEventMap[E],
-    ) => Effect.Effect<void>,
+      payload: GameEventMap[E],
+    ) => Effect.Effect<void, unknown>,
     calls: string[],
     barriers: ArmyBarrierPayload[],
   ) => Effect.Effect<A, unknown>,
@@ -456,6 +461,7 @@ const withArmy = async <A>(
 
   const packetDomain = {
     started: true,
+    emit: () => Effect.void,
     on: (event, handler) =>
       Effect.sync(() => {
         const handlers = store[event] as Set<typeof handler>;
@@ -464,7 +470,7 @@ const withArmy = async <A>(
           handlers.delete(handler);
         };
       }),
-  } satisfies PacketDomainShape;
+  } satisfies GameEventsShape;
 
   const player = {
     getCell: () => Effect.succeed("Boss"),
@@ -493,13 +499,13 @@ const withArmy = async <A>(
     walkTo: () => Effect.succeed(true),
   } satisfies PlayerShape;
 
-  const emit = <E extends PacketDomainEvent>(
+  const emit = <E extends GameEvent>(
     event: E,
-    payload: PacketDomainEventMap[E],
+    payload: GameEventMap[E],
   ) =>
     Effect.gen(function* () {
       if (event === "auraAdded" || event === "auraRemoved") {
-        const auraPayload = payload as PacketDomainEventMap[
+        const auraPayload = payload as GameEventMap[
           | "auraAdded"
           | "auraRemoved"];
         if (auraPayload.targetType === "monster") {
@@ -516,7 +522,7 @@ const withArmy = async <A>(
       }
 
       yield* Effect.forEach(
-        Array.from(store[event]) as readonly PacketDomainEventHandler<E>[],
+        Array.from(store[event]) as readonly GameEventHandler<E>[],
         (handler) => handler(payload),
         { discard: true },
       );
@@ -529,7 +535,7 @@ const withArmy = async <A>(
         Layer.succeed(Auth)(auth),
         Layer.succeed(Combat)(combat),
         Layer.succeed(Inventory)(inventory),
-        Layer.succeed(PacketDomain)(packetDomain),
+        Layer.succeed(GameEvents)(packetDomain),
         Layer.succeed(Player)(player),
         Layer.succeed(Wait)(wait),
         Layer.succeed(World)(
