@@ -94,6 +94,7 @@ export default defineConfig({
                 { link: "/scripting/api/events/", label: "Events" },
                 { link: "/scripting/api/house/", label: "House" },
                 { link: "/scripting/api/inventory/", label: "Inventory" },
+                { link: "/scripting/api/outfits/", label: "Outfits" },
                 { link: "/scripting/api/packet/", label: "Packet" },
                 { link: "/scripting/api/player/", label: "Player" },
                 { link: "/scripting/api/quests/", label: "Quests" },
