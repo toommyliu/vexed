@@ -17,6 +17,7 @@ export default defineConfig({
       lastUpdated: true,
       customCss: ["./src/styles/global.css", "./src/styles/theme.css"],
       components: {
+        PageFrame: "./src/components/PageFrame.astro",
         Hero: "./src/components/Hero.astro",
         SocialIcons: "./src/components/SocialIcons.astro",
         TableOfContents: "./src/components/TableOfContents.astro",

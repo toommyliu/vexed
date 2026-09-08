@@ -1,0 +1,103 @@
+---
+import { ArrowUpRight, X } from '@lucide/astro';
+---
+
+<aside id="lucent-announcement" aria-label="Lucent announcement" hidden>
+    <p>
+        Vexed is no longer maintained. Meet its successor,
+        <a href="https://uselucent.vercel.app">Lucent<ArrowUpRight size={14} aria-hidden="true" /></a>.
+    </p>
+    <button type="button" aria-label="Dismiss Lucent announcement permanently">
+        <X size={16} aria-hidden="true" />
+    </button>
+</aside>
+
+<script is:inline>
+    (() => {
+        const banner = document.getElementById('lucent-announcement');
+        if (!banner) return;
+        const key = 'vexed-lucent-announcement-dismissed';
+        const page = banner.closest('.page');
+        try {
+            if (localStorage.getItem(key) === 'true') {
+                page?.classList.add('lucent-banner-dismissed');
+                return;
+            }
+        } catch {}
+        banner.hidden = false;
+        banner.querySelector('button').addEventListener('click', () => {
+            banner.hidden = true;
+            page?.classList.add('lucent-banner-dismissed');
+            try {
+                localStorage.setItem(key, 'true');
+            } catch {}
+        });
+    })();
+</script>
+
+<style>
+    aside {
+        position: fixed;
+        top: 0;
+        inset-inline: 0;
+        z-index: calc(var(--sl-z-index-navbar) + 1);
+        box-sizing: border-box;
+        height: var(--lucent-banner-height);
+        display: grid;
+        grid-template-columns: 2rem minmax(0, 1fr) 2rem;
+        align-items: center;
+        gap: 0.75rem;
+        padding: 0.5rem 1rem;
+        background: var(--sl-color-black);
+        color: var(--sl-color-white);
+        font-size: 0.875rem;
+        line-height: 1.5;
+    }
+
+    aside[hidden] {
+        display: none;
+    }
+
+    p {
+        grid-column: 2;
+        margin: 0;
+        min-width: 0;
+        text-align: center;
+        text-wrap: pretty;
+    }
+
+    a {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.125rem;
+        white-space: nowrap;
+        color: inherit;
+        font-weight: 600;
+        text-decoration: underline;
+        text-underline-offset: 3px;
+    }
+
+    button {
+        grid-column: 3;
+        display: grid;
+        place-items: center;
+        flex-shrink: 0;
+        width: 2rem;
+        height: 2rem;
+        padding: 0;
+        border: 0;
+        border-radius: 50%;
+        background: transparent;
+        color: inherit;
+        cursor: pointer;
+    }
+
+    button:hover { background: color-mix(in oklab, currentColor 15%, transparent); }
+    button:focus-visible, a:focus-visible { outline: 2px solid currentColor; outline-offset: 3px; }
+
+    @media (max-width: 40rem) {
+        aside { grid-template-columns: minmax(0, 1fr) 2rem; }
+        p { grid-column: 1; text-align: left; }
+        button { grid-column: 2; }
+    }
+</style>

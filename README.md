@@ -1,14 +1,14 @@
 # vexed
 
-Cross-platform AQW "commands"-based Scripting Client [^1]
+> [!IMPORTANT]
+> Vexed is no longer maintained. It has been replaced by
+> [Lucent](https://github.com/toommyliu/lucent).
 
-[^1]: Windows, macOS, and Linux [^2] are supported.
-[^2]: Linux support is experimental. You must supply your own Flash Player plugin.
-
+Cross-platform AQW "commands"-based Scripting Client
 
 ## Getting started
 
-Download directly from the [releases page](https://github.com/toommyliu/vexed/releases).
+Download direchly from the [releases page](https://github.com/toommyliu/vexed/releases).
 
 For more information on how to use the app, [head over to the docs](https://aqw-vexed.vercel.app/).
 
